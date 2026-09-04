@@ -1,0 +1,32 @@
+{
+  "id": "ing-egg",
+  "schemaVersion": "1",
+  "name": {
+    "zh": "鸡蛋",
+    "en": "Chicken egg",
+    "uk": "Куряче яйце"
+  },
+  "category": "egg-dairy",
+  "isSeasoning": false,
+  "baseUnit": "g",
+  "lossRate": 0.11,
+  "storageType": "chilled",
+  "shelfLifeDays": 21,
+  "allergens": ["eggs"],
+  "nutrition": {
+    "per100g": {
+      "kcal": 143,
+      "proteinG": 12.6,
+      "fatG": 9.5,
+      "carbsG": 0.7
+    }
+  },
+  "unitConversions": [
+    {
+      "from": "pcs",
+      "to": "g",
+      "factor": 55,
+      "ingredientRef": "ing-egg"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "po-2026w41-drygoods",
+  "schemaVersion": "1",
+  "supplierRef": "sup-dry-goods",
+  "menuPlanRef": "menuplan-2026-w41",
+  "lines": [
+    {
+      "ingredientRef": "ing-salt",
+      "skuId": "HD-SALT-500G",
+      "qty": 10000,
+      "unit": "g",
+      "packageCount": 20,
+      "unitPrice": { "amount": 2.5, "currency": "CNY" },
+      "amount": { "amount": 50, "currency": "CNY" }
+    },
+    {
+      "ingredientRef": "ing-cooking-oil",
+      "skuId": "HD-OIL-5L",
+      "qty": 5000,
+      "unit": "ml",
+      "packageCount": 1,
+      "unitPrice": { "amount": 68, "currency": "CNY" },
+      "amount": { "amount": 68, "currency": "CNY" }
+    }
+  ],
+  "totalAmount": { "amount": 118, "currency": "CNY" },
+  "status": "draft",
+  "dates": {
+    "createdAt": "2026-10-03T09:30:00+08:00",
+    "expectedAt": "2026-10-05"
+  },
+  "notes": "由 menuplan-2026-w41 自动生成：食盐需求 720 g 低于 MOQ 20 件，按 MOQ 下单 20×500 g；食用油需求 4800 ml 取整 1 桶 5 L（示例未扣减库存）。"
+}

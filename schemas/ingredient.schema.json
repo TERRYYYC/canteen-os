@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/ingredient.schema.json",
+  "title": "Ingredient",
+  "description": "食材/调料。调料与主料同属 Ingredient，以 isSeasoning 区分。借鉴 Tandoor Food/Unit 模型（仅模型不借代码，见 docs/research/open-source-research-canteen-system.md）。",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/Id" },
+    "schemaVersion": { "type": "string", "const": "1" },
+    "name": { "$ref": "common.schema.json#/$defs/I18nString" },
+    "category": {
+      "type": "string",
+      "enum": [
+        "vegetable",
+        "fruit",
+        "meat",
+        "poultry",
+        "seafood",
+        "egg-dairy",
+        "grain-staple",
+        "legume",
+        "seasoning",
+        "oil",
+        "beverage",
+        "other"
+      ]
+    },
+    "isSeasoning": { "type": "boolean" },
+    "baseUnit": {
+      "$ref": "common.schema.json#/$defs/Unit",
+      "description": "库存与采购聚合的基准单位，所有换算最终归一到 baseUnit"
+    },
+    "lossRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "加工损耗率（去叶、去皮、焯水失重等），采购量放大时使用"
+    },
+    "storageType": { "$ref": "common.schema.json#/$defs/StorageType" },
+    "shelfLifeDays": { "type": "integer", "minimum": 1 },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gluten",
+          "crustaceans",
+          "eggs",
+          "fish",
+          "peanuts",
+          "soy",
+          "milk",
+          "nuts",
+          "celery",
+          "mustard",
+          "sesame",
+          "sulphites",
+          "lupin",
+          "molluscs"
+        ]
+      },
+      "uniqueItems": true,
+      "description": "EU 1169/2011 十四类过敏原"
+    },
+    "nutrition": {
+      "type": "object",
+      "description": "每 100 g baseUnit 的营养信息（可选）",
+      "properties": {
+        "per100g": {
+          "type": "object",
+          "properties": {
+            "kcal": { "type": "number", "minimum": 0 },
+            "proteinG": { "type": "number", "minimum": 0 },
+            "fatG": { "type": "number", "minimum": 0 },
+            "carbsG": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["per100g"],
+      "additionalProperties": false
+    },
+    "unitConversions": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/UnitConversion" },
+      "description": "该食材专属换算（如鸡蛋 1 pcs = 55 g）；未命中时回退到全局换算表"
+    }
+  },
+  "required": [
+    "id",
+    "schemaVersion",
+    "name",
+    "category",
+    "isSeasoning",
+    "baseUnit"
+  ],
+  "additionalProperties": false
+}

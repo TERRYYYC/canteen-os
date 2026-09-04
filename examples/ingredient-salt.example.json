@@ -1,0 +1,16 @@
+{
+  "id": "ing-salt",
+  "schemaVersion": "1",
+  "name": {
+    "zh": "食盐",
+    "en": "Salt",
+    "uk": "Сіль"
+  },
+  "category": "seasoning",
+  "isSeasoning": true,
+  "baseUnit": "g",
+  "lossRate": 0,
+  "storageType": "ambient",
+  "shelfLifeDays": 730,
+  "allergens": []
+}

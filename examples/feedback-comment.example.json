@@ -1,0 +1,18 @@
+{
+  "id": "fb-comment-0001",
+  "schemaVersion": "1",
+  "type": "comment",
+  "dishRef": "dish-tomato-egg-stir-fry",
+  "date": "2026-10-05",
+  "customerRef": "cust-9c1e07",
+  "comment": {
+    "originalLang": "zh",
+    "original": "番茄炒蛋有点偏咸，但鸡蛋很嫩，希望下次少放点盐。",
+    "translations": {
+      "zh": "番茄炒蛋有点偏咸，但鸡蛋很嫩，希望下次少放点盐。",
+      "en": "The tomato and egg stir-fry was a bit too salty, but the eggs were very tender. Less salt next time, please.",
+      "uk": "Яйця з томатами були трохи пересолені, але самі яйця дуже ніжні. Наступного разу менше солі, будь ласка."
+    }
+  },
+  "createdAt": "2026-10-05T13:05:00+08:00"
+}

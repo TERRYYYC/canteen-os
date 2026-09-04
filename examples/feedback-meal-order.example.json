@@ -1,0 +1,12 @@
+{
+  "id": "fb-order-0001",
+  "schemaVersion": "1",
+  "type": "mealOrder",
+  "dishRef": "dish-tomato-egg-stir-fry",
+  "date": "2026-10-05",
+  "mealType": "lunch",
+  "customerRef": "cust-7f3a92",
+  "servings": 1,
+  "orderStatus": "redeemed",
+  "createdAt": "2026-10-04T18:22:00+08:00"
+}

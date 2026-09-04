@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/dish.schema.json",
+  "title": "Dish",
+  "description": "菜品（菜谱）。components 必须引用知识库 Ingredient（ingredientRef），禁止内联字符串——这是采购引擎 BOM 展开能跑通的前提，也是与 schema.org/Recipe 纯字符串 recipeIngredient 的关键差异。视频导入时由解析 skill 负责字符串→Ingredient 映射并标注置信度。",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/Id" },
+    "schemaVersion": { "type": "string", "const": "1" },
+    "name": { "$ref": "common.schema.json#/$defs/I18nString" },
+    "description": { "$ref": "common.schema.json#/$defs/I18nString" },
+    "category": {
+      "type": "string",
+      "enum": [
+        "staple",
+        "meat-dish",
+        "vegetable-dish",
+        "soup",
+        "cold-dish",
+        "snack",
+        "dessert",
+        "drink"
+      ]
+    },
+    "cuisine": {
+      "type": "string",
+      "description": "菜系，自由文本，如 川菜 / Chinese / Ukrainian"
+    },
+    "baseServings": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "配方基准份数；采购与备餐按 plannedServings/baseServings 缩放"
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredientRef": { "$ref": "common.schema.json#/$defs/Id" },
+          "quantity": { "$ref": "common.schema.json#/$defs/Quantity" },
+          "lossRateOverride": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "覆盖 Ingredient.lossRate 的本菜品专用损耗率（如本菜番茄需去皮）"
+          },
+          "note": { "$ref": "common.schema.json#/$defs/I18nString" },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/Confidence",
+            "description": "视频导入等机器来源的用量置信度；人工录入可省略（视为 1.0/manual）"
+          }
+        },
+        "required": ["ingredientRef", "quantity"],
+        "additionalProperties": false
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "order": { "type": "integer", "minimum": 1 },
+          "instruction": { "$ref": "common.schema.json#/$defs/I18nString" },
+          "durationMinutes": { "type": "number", "exclusiveMinimum": 0 },
+          "tools": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          }
+        },
+        "required": ["order", "instruction"],
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "来源溯源，视频导入的菜品必填",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["manual", "video-import", "web-import"]
+        },
+        "videoUrl": { "type": "string", "format": "uri" },
+        "transcriptRef": {
+          "type": "string",
+          "description": "转写文本引用，通常是 dishpack 内相对路径"
+        },
+        "dishpackRef": { "$ref": "common.schema.json#/$defs/Id" },
+        "confidence": { "$ref": "common.schema.json#/$defs/Confidence" }
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "内容版本号，每次修改 +1；状态机见 docs/modules/knowledge-base.md"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "published", "archived"]
+    }
+  },
+  "required": [
+    "id",
+    "schemaVersion",
+    "name",
+    "category",
+    "baseServings",
+    "components",
+    "steps",
+    "version",
+    "status"
+  ],
+  "additionalProperties": false
+}

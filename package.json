@@ -1,0 +1,23 @@
+{
+  "name": "canteen-os",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CanteenOS — spec-first 食堂全链路系统（菜品知识库 → 菜单计划 → 采购单 → 点餐评分 → 运营报告）",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "validate": "node scripts/validate-schemas.mjs",
+    "validate:local": "python3 scripts/local-validate.py"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "license": "Apache-2.0"
+}

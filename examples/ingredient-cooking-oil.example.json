@@ -1,0 +1,16 @@
+{
+  "id": "ing-cooking-oil",
+  "schemaVersion": "1",
+  "name": {
+    "zh": "食用油",
+    "en": "Cooking oil",
+    "uk": "Олія рослинна"
+  },
+  "category": "oil",
+  "isSeasoning": true,
+  "baseUnit": "ml",
+  "lossRate": 0,
+  "storageType": "ambient",
+  "shelfLifeDays": 540,
+  "allergens": []
+}

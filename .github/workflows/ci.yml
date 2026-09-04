@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-schemas:
+    name: Validate examples against schemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # pnpm 由 packageManager 字段声明（pnpm@9）；CI 只装校验所需依赖
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install devDependencies (ajv)
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Validate examples/*.json against schemas/*.schema.json
+        run: node scripts/validate-schemas.mjs
+
+  lint-docs-structure:
+    name: Docs structure smoke check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Required docs exist
+        run: |
+          set -e
+          for f in \
+            docs/prd.md \
+            docs/architecture.md \
+            docs/i18n.md \
+            docs/video-import.md \
+            docs/modules/knowledge-base.md \
+            docs/modules/procurement.md \
+            docs/modules/feedback.md \
+            docs/adr/0001-adr-process.md \
+            docs/adr/0002-license-apache2.md \
+            docs/adr/0003-spec-first-monorepo.md \
+            docs/adr/0004-content-level-i18n.md \
+            docs/adr/0005-procurement-engine-design.md; do
+            test -f "$f" || { echo "missing: $f"; exit 1; }
+          done
+          echo "all required docs present"

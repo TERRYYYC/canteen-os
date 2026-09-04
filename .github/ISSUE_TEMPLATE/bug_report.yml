@@ -1,0 +1,45 @@
+name: Bug Report
+description: 报告一个缺陷（schema / 文档 / 示例 / 脚本）
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量提供可复现信息。AI agent 提交 bug 时也请遵循本模板。
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影响范围
+      options:
+        - schemas（数据模型）
+        - examples（样例数据）
+        - docs（文档）
+        - packages/core（TS 骨架）
+        - skills（解析 skill 契约）
+        - scripts / CI
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 问题描述
+      description: 发生了什么？预期行为是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤 / 证据
+      description: 命令、报错输出、文件路径与行号等
+      placeholder: |
+        1. node scripts/validate-schemas.mjs
+        2. 报错：examples/xxx.json: 存在未声明字段 yyy
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议修复（可选）
+      description: 如果涉及 schema 变更，请说明对 types/examples/docs 的连锁影响

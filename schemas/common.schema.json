@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/common.schema.json",
+  "title": "CanteenOS Common Definitions",
+  "description": "所有实体共享的基础定义：i18nString、Quantity、Money、Confidence、UnitConversion、枚举。单一事实源，其他 schema 通过 $ref 引用。",
+  "type": "object",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "人类可读的稳定 ID，小写 kebab-case，如 ing-tomato、dish-tomato-egg-stir-fry"
+    },
+    "I18nString": {
+      "type": "object",
+      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）",
+      "properties": {
+        "zh": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 },
+        "uk": { "type": "string", "minLength": 1 }
+      },
+      "anyOf": [
+        { "required": ["zh"] },
+        { "required": ["en"] },
+        { "required": ["uk"] }
+      ],
+      "additionalProperties": false
+    },
+    "Unit": {
+      "type": "string",
+      "description": "规范单位（内部统一符号，本地化显示由客户端负责）",
+      "enum": ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch"]
+    },
+    "Quantity": {
+      "type": "object",
+      "description": "数量一律为 { value, unit } 结构；跨单位换算必须通过 UnitConversion 表",
+      "properties": {
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "unit": { "$ref": "#/$defs/Unit" }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
+    "Currency": {
+      "type": "string",
+      "description": "ISO 4217 货币代码",
+      "enum": ["CNY", "USD", "UAH", "EUR"]
+    },
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "$ref": "#/$defs/Currency" }
+      },
+      "required": ["amount", "currency"],
+      "additionalProperties": false
+    },
+    "Confidence": {
+      "type": "object",
+      "description": "AI 解析结果的置信度，低于阈值（默认 0.85，见 skills/video-recipe-ingest/SKILL.md）的字段必须进入人工确认队列",
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "source": {
+          "type": "string",
+          "enum": ["manual", "video-import", "web-import", "llm-inference"]
+        }
+      },
+      "required": ["value", "source"],
+      "additionalProperties": false
+    },
+    "StorageType": {
+      "type": "string",
+      "enum": ["ambient", "chilled", "frozen"]
+    },
+    "MealType": {
+      "type": "string",
+      "enum": ["breakfast", "lunch", "dinner"]
+    },
+    "UnitConversion": {
+      "type": "object",
+      "description": "单位换算规则。from×factor=to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算（如某食材 pcs↔g）",
+      "properties": {
+        "from": { "$ref": "#/$defs/Unit" },
+        "to": { "$ref": "#/$defs/Unit" },
+        "factor": { "type": "number", "exclusiveMinimum": 0 },
+        "ingredientRef": { "$ref": "#/$defs/Id" }
+      },
+      "required": ["from", "to", "factor"],
+      "additionalProperties": false
+    }
+  }
+}

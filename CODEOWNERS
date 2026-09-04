@@ -1,0 +1,27 @@
+# CanteenOS CODEOWNERS
+# owner 暂为占位，正式 owner 确定后逐行替换。
+# 语法：路径 + 空格 + @owner；越靠后的规则优先级越高。
+
+# 默认兜底
+* @TERRYYYC
+
+# 文档与产品决策
+/docs/ @TERRYYYC
+/docs/adr/ @TERRYYYC
+/docs/research/ @TERRYYYC
+
+# 数据模型单一事实源
+/schemas/ @TERRYYYC
+/examples/ @TERRYYYC
+/scripts/ @TERRYYYC
+
+# 核心包与采购引擎
+/packages/ @TERRYYYC
+
+# 解析 skill 契约
+/skills/ @TERRYYYC
+
+# 协作流程
+/.github/ @TERRYYYC
+/CONTRIBUTING.md @TERRYYYC
+/AGENTS.md @TERRYYYC

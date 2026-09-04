@@ -1,0 +1,42 @@
+{
+  "id": "po-2026w41-greenfarm",
+  "schemaVersion": "1",
+  "supplierRef": "sup-green-farm",
+  "menuPlanRef": "menuplan-2026-w41",
+  "lines": [
+    {
+      "ingredientRef": "ing-tomato",
+      "skuId": "GF-TOM-5KG",
+      "qty": 80,
+      "unit": "kg",
+      "packageCount": 16,
+      "unitPrice": { "amount": 28.5, "currency": "CNY" },
+      "amount": { "amount": 456, "currency": "CNY" }
+    },
+    {
+      "ingredientRef": "ing-egg",
+      "skuId": "GF-EGG-360",
+      "qty": 900,
+      "unit": "pcs",
+      "packageCount": 5,
+      "unitPrice": { "amount": 150, "currency": "CNY" },
+      "amount": { "amount": 750, "currency": "CNY" }
+    },
+    {
+      "ingredientRef": "ing-scallion",
+      "skuId": "GF-SCN-1KG",
+      "qty": 3,
+      "unit": "kg",
+      "packageCount": 3,
+      "unitPrice": { "amount": 12, "currency": "CNY" },
+      "amount": { "amount": 36, "currency": "CNY" }
+    }
+  ],
+  "totalAmount": { "amount": 1242, "currency": "CNY" },
+  "status": "draft",
+  "dates": {
+    "createdAt": "2026-10-03T09:30:00+08:00",
+    "expectedAt": "2026-10-04"
+  },
+  "notes": "由 menuplan-2026-w41 自动生成（480 份，示例未扣减库存）：番茄需求 80 kg 按 5 kg 装取整 16 件；鸡蛋需求 809 pcs 按 180 枚箱取整 5 箱；小葱需求 2.83 kg 取整 3 件。"
+}

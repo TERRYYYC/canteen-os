@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/purchase-order.schema.json",
+  "title": "PurchaseOrder",
+  "description": "采购单（PO），由采购引擎按供应商拆分生成。状态机：draft → confirmed → ordered → received → settled（另见 docs/modules/procurement.md）。",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/Id" },
+    "schemaVersion": { "type": "string", "const": "1" },
+    "supplierRef": { "$ref": "common.schema.json#/$defs/Id" },
+    "menuPlanRef": {
+      "$ref": "common.schema.json#/$defs/Id",
+      "description": "来源菜单计划，便于追溯采购准确度"
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredientRef": { "$ref": "common.schema.json#/$defs/Id" },
+          "skuId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "命中的供应商 SKU，对应 supplier.schema.json 中 skus[].skuId"
+          },
+          "qty": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "实际采购总净量（= packageCount × packageSize 换算后），unit 计"
+          },
+          "unit": { "$ref": "common.schema.json#/$defs/Unit" },
+          "packageCount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "按包装规格/MOQ 向上取整后的包装数"
+          },
+          "unitPrice": {
+            "$ref": "common.schema.json#/$defs/Money",
+            "description": "单包装价格"
+          },
+          "amount": {
+            "$ref": "common.schema.json#/$defs/Money",
+            "description": "行金额 = packageCount × unitPrice"
+          }
+        },
+        "required": [
+          "ingredientRef",
+          "skuId",
+          "qty",
+          "unit",
+          "packageCount",
+          "unitPrice",
+          "amount"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "totalAmount": { "$ref": "common.schema.json#/$defs/Money" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "confirmed", "ordered", "received", "settled"]
+    },
+    "dates": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "confirmedAt": { "type": "string", "format": "date-time" },
+        "orderedAt": { "type": "string", "format": "date-time" },
+        "expectedAt": {
+          "type": "string",
+          "format": "date",
+          "description": "预计到货日，由下单日 + leadTimeDays 计算"
+        },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "settledAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["createdAt"],
+      "additionalProperties": false
+    },
+    "notes": { "type": "string" }
+  },
+  "required": [
+    "id",
+    "schemaVersion",
+    "supplierRef",
+    "lines",
+    "totalAmount",
+    "status",
+    "dates"
+  ],
+  "additionalProperties": false
+}

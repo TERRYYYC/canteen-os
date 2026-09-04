@@ -1,0 +1,153 @@
+{
+  "packVersion": "1",
+  "id": "dishpack-tomato-egg-001",
+  "createdAt": "2026-10-01T08:15:00+08:00",
+  "generator": {
+    "name": "video-recipe-ingest",
+    "engine": "gemini-flash",
+    "engineVersion": "gemini-2.5-flash",
+    "promptVersion": "v1.3"
+  },
+  "source": {
+    "videoUrl": "https://www.bilibili.com/video/BV1example888",
+    "platform": "bilibili",
+    "detectedLang": "zh",
+    "durationSeconds": 165
+  },
+  "manifest": {
+    "recipe": {
+      "@context": "https://schema.org",
+      "@type": "Recipe",
+      "name": "番茄炒蛋",
+      "description": "经典家常菜：番茄软烂出汁，鸡蛋滑嫩，微酸甜口。",
+      "recipeYield": "2 人份",
+      "recipeIngredient": [
+        "番茄 300 克",
+        "鸡蛋 3 个",
+        "食盐 3 克",
+        "小葱 10 克",
+        "食用油 20 毫升"
+      ],
+      "recipeInstructions": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "text": "番茄切块，鸡蛋加少许盐打散。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "text": "热油下蛋液，凝固后盛出备用。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "text": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。"
+        }
+      ],
+      "prepTime": "PT8M",
+      "cookTime": "PT6M",
+      "recipeCuisine": "家常菜",
+      "keywords": "番茄炒蛋, 家常菜, 快手菜",
+      "tool": ["炒锅", "锅铲", "刀", "砧板", "碗"]
+    },
+    "ingredientMappings": [
+      {
+        "raw": "番茄 300 克",
+        "ingredientRef": "ing-tomato",
+        "quantity": { "value": 300, "unit": "g" },
+        "confidence": { "value": 0.96, "source": "video-import" },
+        "needsReview": false
+      },
+      {
+        "raw": "鸡蛋 3 个",
+        "ingredientRef": "ing-egg",
+        "quantity": { "value": 3, "unit": "pcs" },
+        "confidence": { "value": 0.98, "source": "video-import" },
+        "needsReview": false
+      },
+      {
+        "raw": "食盐 3 克",
+        "ingredientRef": "ing-salt",
+        "quantity": { "value": 3, "unit": "g" },
+        "confidence": { "value": 0.8, "source": "video-import" },
+        "needsReview": true
+      },
+      {
+        "raw": "小葱 10 克",
+        "ingredientRef": "ing-scallion",
+        "quantity": { "value": 10, "unit": "g" },
+        "confidence": { "value": 0.72, "source": "video-import" },
+        "needsReview": true
+      },
+      {
+        "raw": "食用油 20 毫升",
+        "ingredientRef": "ing-cooking-oil",
+        "quantity": { "value": 20, "unit": "ml" },
+        "confidence": { "value": 0.9, "source": "video-import" },
+        "needsReview": false
+      }
+    ],
+    "stepMapping": [
+      {
+        "order": 1,
+        "instruction": {
+          "zh": "番茄切块，鸡蛋加少许盐打散。",
+          "en": "Cut tomatoes into wedges; beat eggs with a pinch of salt.",
+          "uk": "Наріжте томати часточками; збийте яйця з дрібкою солі."
+        },
+        "durationMinutes": 5,
+        "tools": ["刀", "砧板", "碗"],
+        "timestampRange": { "startSec": 12, "endSec": 55 }
+      },
+      {
+        "order": 2,
+        "instruction": {
+          "zh": "热油下蛋液，凝固后盛出备用。",
+          "en": "Pour eggs into hot oil; remove once just set.",
+          "uk": "Вилийте яйця на розігрітій олії; зніміть, щойно схопляться."
+        },
+        "durationMinutes": 2,
+        "tools": ["炒锅", "锅铲"],
+        "timestampRange": { "startSec": 56, "endSec": 92 }
+      },
+      {
+        "order": 3,
+        "instruction": {
+          "zh": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。",
+          "en": "Stir-fry tomatoes until juicy, return eggs to the wok, season with salt, garnish with scallions and serve.",
+          "uk": "Обсмажте томати до появи соку, поверніть яйця, посоліть, посипте зеленою цибулею і подавайте."
+        },
+        "durationMinutes": 4,
+        "tools": ["炒锅", "锅铲"],
+        "timestampRange": { "startSec": 93, "endSec": 160 }
+      }
+    ],
+    "suggestedDish": {
+      "name": {
+        "zh": "番茄炒蛋",
+        "en": "Tomato and egg stir-fry",
+        "uk": "Смажені яйця з томатами"
+      },
+      "category": "vegetable-dish",
+      "baseServings": 2
+    },
+    "overallConfidence": { "value": 0.9, "source": "video-import" }
+  },
+  "transcript": {
+    "lang": "zh",
+    "text": "今天做一道番茄炒蛋。两个番茄切成块，大概三百克。三个鸡蛋打散，加一点点盐……",
+    "segments": [
+      { "startSec": 0, "endSec": 12, "text": "今天做一道番茄炒蛋。" },
+      { "startSec": 12, "endSec": 55, "text": "两个番茄切成块，大概三百克。三个鸡蛋打散，加一点点盐。" }
+    ]
+  },
+  "media": [
+    { "kind": "cover", "ref": "media/cover.jpg" },
+    { "kind": "keyframe", "ref": "media/keyframe-093s.jpg", "timestampSec": 93 }
+  ],
+  "reviewQueue": {
+    "status": "pending",
+    "reasons": ["low-confidence-ingredient: 食盐 3 克 (0.8)", "low-confidence-ingredient: 小葱 10 克 (0.72)"]
+  }
+}
