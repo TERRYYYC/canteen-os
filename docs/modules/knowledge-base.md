@@ -1,8 +1,8 @@
 # 模块一：菜品知识库（Knowledge Base）
 
-> **English summary.** The knowledge base holds all dish-domain entities — Dish, Ingredient (seasonings included via `isSeasoning`), Supplier with SKUs, UnitConversion, and DishPack import bundles — under a `draft → review → published` (+`archived`) state machine with monotonic versioning. Extensibility comes from the dishpack mechanism: cloud/third-party parsing skills emit a single JSON-LD-based contract, and the local system only imports validated bundles through a human review queue; online/offline sync is bundle-based. Data-model borrowings: Tandoor's Food/Unit/Ingredient separation (concept only — AGPL+Commons Clause bars code reuse) and Grocy's recipe×inventory×price linkage (MIT).
+> **English summary.** The knowledge base holds all dish-domain entities — Dish, Ingredient (seasonings included via `isSeasoning`), Supplier with SKUs, UnitConversionRule (versioned first-class conversion rules with a dish > ingredient > global priority chain, see unit-conversion.md), and DishPack import bundles — under a `draft → review → published` (+`archived`) state machine with monotonic versioning. Extensibility comes from the dishpack mechanism: cloud/third-party parsing skills emit a single JSON-LD-based contract, and the local system only imports validated bundles through a human review queue; online/offline sync is bundle-based. Data-model borrowings: Tandoor's Food/Unit/Ingredient separation (concept only — AGPL+Commons Clause bars code reuse) and Grocy's recipe×inventory×price linkage (MIT).
 
-- schema：`schemas/dish.schema.json`、`ingredient.schema.json`、`supplier.schema.json`、`dishpack.schema.json`、`common.schema.json`
+- schema：`schemas/dish.schema.json`、`ingredient.schema.json`、`supplier.schema.json`、`dishpack.schema.json`、`unit-conversion.schema.json`、`common.schema.json`
 - 样例：`examples/dish-tomato-egg.example.json` 等
 
 ---
@@ -40,7 +40,11 @@
 | shelfLifeDays | int | | 保质期（配合采购提前期校验） |
 | allergens | enum[] | | EU 1169/2011 十四类过敏原 |
 | nutrition.per100g | object | | kcal / proteinG / fatG / carbsG |
-| unitConversions[] | UnitConversion[] | | 食材专属换算（如鸡蛋 1 pcs = 55 g） |
+| unitConversions[] | UnitConversion[] | | 食材专属内嵌静态换算（如鸡蛋 1 pcs = 55 g）；动态可调整、带生效期的换算走 UnitConversionRule 独立实体（见下） |
+
+### UnitConversionRule（量纲转换规则）
+
+独立实体，schema：`schemas/unit-conversion.schema.json`，完整规范见 [unit-conversion.md](unit-conversion.md)。每条规则锚定 菜品×食材×量纲 三元组上下文 `(dishRef?, ingredientRef?, from→to)`，优先级链 **菜品特定 > 食材特定 > 全局通用**；以 `effectiveFrom`/`effectiveTo` 生效区间 + `supersedes` 版本链支持动态调整，采购引擎按菜单日期取当日生效规则，历史采购单可复算。`Ingredient.unitConversions` 保留为内嵌静态默认；菜单→采购推演链路上的换算以本实体为准。
 
 ### Supplier（供应商 + SKU）
 

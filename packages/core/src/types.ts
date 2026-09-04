@@ -71,8 +71,10 @@ export type StorageType = "ambient" | "chilled" | "frozen";
 export type MealType = "breakfast" | "lunch" | "dinner";
 
 /**
- * 单位换算规则：from × factor = to。
- * ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算（pcs↔g）。
+ * 内嵌简单换算（如 supplier SKU 包装规格、Ingredient.unitConversions 静态默认）：
+ * from × factor = to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算。
+ * 动态可调整、可版本化、带生效期的换算规则用独立实体 UnitConversionRule
+ * （schemas/unit-conversion.schema.json，见 docs/modules/unit-conversion.md）。
  */
 export interface UnitConversion {
   from: Unit;
@@ -503,4 +505,71 @@ export interface DishPack {
   transcript?: DishPackTranscript;
   media?: DishPackMedia[];
   reviewQueue: ReviewQueue;
+}
+
+// ---------------------------------------------------------------------------
+// unit-conversion.schema.json
+// ---------------------------------------------------------------------------
+
+/** 量纲转换规则来源：人工录入 / 实测 / 视频导入解析 / 供应商规格书 */
+export type UnitConversionSourceType =
+  | "manual"
+  | "measured"
+  | "video-import"
+  | "supplier-spec";
+
+/** 规则来源溯源 */
+export interface UnitConversionSource {
+  type: UnitConversionSourceType;
+  /** type=supplier-spec 时对应的供应商 */
+  supplierRef?: Id;
+  /** type=video-import 时来源的 dishpack 标准包 */
+  dishpackRef?: Id;
+  /** 来源细节自由文本（测量方法、批次、规格书编号等） */
+  detail?: string;
+}
+
+/**
+ * 三元组上下文：dishRef+ingredientRef 同现 = 菜品特定；仅 ingredientRef =
+ * 食材特定；皆空 = 全局通用。schema 层以 if/then 约束 dishRef 必须与
+ * ingredientRef 同现。
+ */
+export interface UnitConversionContext {
+  dishRef?: Id;
+  ingredientRef?: Id;
+}
+
+/**
+ * draft 不参与解析；active 正常参与；deprecated 为"已被新版取代"的管理标记，
+ * 仍按其历史生效区间参与复算。
+ */
+export type UnitConversionStatus = "draft" | "active" | "deprecated";
+
+/**
+ * 量纲转换规则（一等公民实体）。优先级链：菜品特定 > 食材特定 > 全局通用。
+ * 规则不原地修改：调整 = 新增版本 supersedes 旧规则；生效区间
+ * [effectiveFrom, effectiveTo) 左闭右开，effectiveTo 缺省 = 无限期；
+ * 采购引擎按菜单日期取当日生效的规则，历史采购单可复算。
+ * 解析骨架见 procurement/engine.ts 的 resolveConversionFactor；
+ * 规范见 docs/modules/unit-conversion.md。
+ */
+export interface UnitConversionRule {
+  id: Id;
+  schemaVersion: "1";
+  context: UnitConversionContext;
+  from: Unit;
+  to: Unit;
+  /** from × factor = to，> 0 */
+  factor: number;
+  /** 生效起始日（ISO date，含当日） */
+  effectiveFrom: string;
+  /** 生效截止日（ISO date，不含当日）；缺省无限期 */
+  effectiveTo?: string;
+  /** 取代的旧规则 id，形成版本调整链 */
+  supersedes?: Id;
+  source: UnitConversionSource;
+  /** 机器来源置信度；人工/实测省略（视为 1.0/manual） */
+  confidence?: Confidence;
+  note?: I18nString;
+  status: UnitConversionStatus;
 }

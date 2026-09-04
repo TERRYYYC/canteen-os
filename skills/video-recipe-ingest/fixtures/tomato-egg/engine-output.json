@@ -1,0 +1,134 @@
+{
+  "_comment": "模拟 Gemini 2.5 Flash 按 prompts/extract-recipe.md 的 responseSchema 返回的原始抽取结果（raw_recipe 契约）。meta 字段由适配器在真实调用时根据 CLI 输入注入；此处预置以保证 fixture 路径离线确定。",
+  "meta": {
+    "id": "dishpack-tomato-egg-001",
+    "createdAt": "2026-10-01T08:15:00+08:00",
+    "engine": "gemini-flash",
+    "engineVersion": "gemini-2.5-flash (fixture-simulated)",
+    "promptVersion": "v1.0",
+    "source": {
+      "videoUrl": "https://www.bilibili.com/video/BV1example888",
+      "platform": "bilibili"
+    }
+  },
+  "detectedLang": "zh",
+  "durationSeconds": 165,
+  "recipe": {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    "name": "番茄炒蛋",
+    "description": "经典家常菜：番茄软烂出汁，鸡蛋滑嫩，微酸甜口。",
+    "recipeYield": "2 人份",
+    "recipeIngredient": [
+      "番茄 300 克",
+      "鸡蛋 3 个",
+      "食盐 3 克",
+      "小葱 10 克",
+      "食用油 20 毫升"
+    ],
+    "recipeInstructions": [
+      { "@type": "HowToStep", "position": 1, "text": "番茄切块，鸡蛋加少许盐打散。" },
+      { "@type": "HowToStep", "position": 2, "text": "热油下蛋液，凝固后盛出备用。" },
+      { "@type": "HowToStep", "position": 3, "text": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。" }
+    ],
+    "prepTime": "PT8M",
+    "cookTime": "PT6M",
+    "recipeCuisine": "家常菜",
+    "keywords": "番茄炒蛋, 家常菜, 快手菜",
+    "tool": ["炒锅", "锅铲", "刀", "砧板", "碗"]
+  },
+  "ingredients": [
+    {
+      "raw": "番茄 300 克",
+      "nameHint": "番茄",
+      "quantity": { "value": 300, "unit": "g" },
+      "confidence": 0.96
+    },
+    {
+      "raw": "鸡蛋 3 个",
+      "nameHint": "鸡蛋",
+      "quantity": { "value": 3, "unit": "pcs" },
+      "confidence": 0.98
+    },
+    {
+      "raw": "食盐 3 克",
+      "nameHint": "食盐",
+      "quantity": { "value": 3, "unit": "g" },
+      "confidence": 0.8
+    },
+    {
+      "raw": "小葱 10 克",
+      "nameHint": "小葱",
+      "quantity": { "value": 10, "unit": "g" },
+      "confidence": 0.72
+    },
+    {
+      "raw": "食用油 20 毫升",
+      "nameHint": "食用油",
+      "quantity": { "value": 20, "unit": "ml" },
+      "confidence": 0.9
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "instruction": {
+        "zh": "番茄切块，鸡蛋加少许盐打散。",
+        "en": "Cut tomatoes into wedges; beat eggs with a pinch of salt.",
+        "uk": "Наріжте томати часточками; збийте яйця з дрібкою солі."
+      },
+      "durationMinutes": 5,
+      "tools": ["刀", "砧板", "碗"],
+      "timestampRange": { "startSec": 12, "endSec": 55 },
+      "confidence": 0.95
+    },
+    {
+      "order": 2,
+      "instruction": {
+        "zh": "热油下蛋液，凝固后盛出备用。",
+        "en": "Pour eggs into hot oil; remove once just set.",
+        "uk": "Вилийте яйця на розігрітій олії; зніміть, щойно схопляться."
+      },
+      "durationMinutes": 2,
+      "tools": ["炒锅", "锅铲"],
+      "timestampRange": { "startSec": 56, "endSec": 92 },
+      "confidence": 0.93
+    },
+    {
+      "order": 3,
+      "instruction": {
+        "zh": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。",
+        "en": "Stir-fry tomatoes until juicy, return eggs to the wok, season with salt, garnish with scallions and serve.",
+        "uk": "Обсмажте томати до появи соку, поверніть яйця, посоліть, посипте зеленою цибулею і подавайте."
+      },
+      "durationMinutes": 4,
+      "tools": ["炒锅", "锅铲"],
+      "timestampRange": { "startSec": 93, "endSec": 160 },
+      "confidence": 0.9
+    }
+  ],
+  "suggestedDish": {
+    "name": {
+      "zh": "番茄炒蛋",
+      "en": "Tomato and egg stir-fry",
+      "uk": "Смажені яйця з томатами"
+    },
+    "category": "vegetable-dish",
+    "baseServings": 2
+  },
+  "overallConfidence": 0.9,
+  "transcriptFile": "transcript.zh.txt",
+  "transcript": {
+    "lang": "zh",
+    "segments": [
+      { "startSec": 0, "endSec": 12, "text": "今天给大家分享一道最家常的菜，番茄炒蛋。" },
+      { "startSec": 12, "endSec": 55, "text": "两个番茄大概三百克，去皮切成滚刀块；三个鸡蛋打散，加一点点盐。" },
+      { "startSec": 56, "endSec": 92, "text": "锅烧热倒油，大概二十毫升，油温六成热下蛋液，七八分熟盛出备用。" },
+      { "startSec": 93, "endSec": 160, "text": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。" }
+    ]
+  },
+  "media": [
+    { "kind": "cover", "ref": "media/cover.jpg" },
+    { "kind": "keyframe", "ref": "media/keyframe-093s.jpg", "timestampSec": 93 }
+  ]
+}

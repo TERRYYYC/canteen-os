@@ -3,7 +3,7 @@
 > **English summary.** The procurement engine converts a MenuPlan (date × meal type × dish × planned servings) into per-supplier purchase-order drafts through a deterministic seven-step pipeline: BOM expansion → serving scaling (plannedServings/baseServings) → loss-rate application → ingredient aggregation → inventory deduction → package/MOQ round-up → per-supplier PO split. The core is a pure function; headcount forecasting is pluggable and inventory access is an injected port. POs follow a `draft → confirmed → ordered → received → settled` state machine. The design follows the Odoo MRP paradigm ("BOM explosion → aggregate by supplier → PO") — a paradigm absent from open-source recipe software, which stops at household shopping lists (research report §5). Full worked example with numbers: `examples/menu-plan-week41.example.json` → the two PO examples.
 
 - 关联决策：[../adr/0005-procurement-engine-design.md](../adr/0005-procurement-engine-design.md)
-- schema：`menu-plan.schema.json`、`purchase-order.schema.json`
+- schema：`menu-plan.schema.json`、`purchase-order.schema.json`、`unit-conversion.schema.json`（量纲换算规则，见 [unit-conversion.md](unit-conversion.md)）
 - 代码骨架：`packages/core/src/procurement/engine.ts`
 
 ---
@@ -66,6 +66,9 @@ function planProcurement(menuPlan, dishes, ingredients, suppliers, unitConversio
         r.grossQty = r.qty / (1 - loss)
 
     # 4. 聚合：换算到 baseUnit 后按 ingredientRef 求和
+    #    量纲换算调用点①：resolveConversionFactor(rules, {ingredientRef, dishRef,
+    #    from, to, asOfDate: meal.date})——优先级链 菜品特定 > 食材特定 > 全局通用，
+    #    按各 meal 当日生效的规则解析（unit-conversion.md §3）
     aggregated = {}
     for r in requirements:
         qtyBase = convert(r.grossQty, to: ingredients[ref].baseUnit, unitConversions)
@@ -80,12 +83,18 @@ function planProcurement(menuPlan, dishes, ingredients, suppliers, unitConversio
     for ref, net in netNeed where net > 0:
         sku = selectSku(suppliers, ref)           # isPreferred 优先；无 SKU → error no-supplier
         packs = max(sku.moq ?? 1, ceil(netInPackageUnit / sku.packageSize))
+        #    量纲换算调用点②：baseUnit → sku.packageUnit，同样走
+        #    resolveConversionFactor，asOfDate = menuPlan.dateRange.end
         poLines[sku.supplier].push({ingredientRef: ref, skuId: sku.skuId,
                                     qty: packs * sku.packageSize, unit: sku.packageUnit,
                                     packageCount: packs, unitPrice: sku.price,
                                     amount: packs * sku.price})
     return {purchaseOrders: splitBySupplier(poLines), errors, trace}
 ```
+
+### 量纲换算的调用点与生效期语义
+
+量纲转换规则是一等公民实体 UnitConversionRule（模型与优先级链见 [unit-conversion.md](unit-conversion.md)）。引擎在**步骤 4（聚合归一）**与**步骤 6（包装取整）**两处调用换算，统一语义为"**按菜单日期取当日生效的规则**"：步骤 4 用各 `meal.date`，跨规则生效边界的菜单周按日换算后再聚合；步骤 6 用 `menuPlan.dateRange.end`。规则带 `[effectiveFrom, effectiveTo)` 生效区间并以 `supersedes` 形成版本链，因此历史采购单按原日期可复算，调整量纲不污染历史。查表失败一律 `unit-conversion-missing`，绝不猜测。
 
 ### 完整推导样例（examples 数字自洽）
 
@@ -119,7 +128,7 @@ stateDiagram-v2
 | 情况 | 处理 |
 |---|---|
 | 食材缺失供应商 SKU | 生成 `no-supplier` error，该行不进 PO；引擎继续处理其余食材，错误汇总到 trace |
-| 单位换算失败（如 pcs→l） | `unit-conversion-missing` error；**绝不猜测**；需人工补 UnitConversion 后重跑 |
+| 单位换算失败（如 pcs→l） | `unit-conversion-missing` error；**绝不猜测**；需人工补 UnitConversion 后重跑（规则模型与冲突/循环等边界见 [unit-conversion.md](unit-conversion.md) §5） |
 | MOQ 大于需求（盐 720 g vs MOQ 20×500 g） | 按 MOQ 下单；多余量进库存，在 trace 中标记 `moq-surplus` |
 | 保质期 < 菜单跨度 + 提前期 | 告警 `shelf-life-risk`（如叶菜订一周的量）；建议拆单分次采购——当前只做告警不自动拆 |
 | 提前期错过（今天下单 > 用餐日 − leadTimeDays） | 告警 `lead-time-missed`，按下单日 + leadTimeDays 计算 expectedAt 照实呈现 |

@@ -101,7 +101,7 @@ flowchart LR
 
 1. **可展示文本一律 `I18nString {zh, en, uk}`**（至少其一，fallback zh→en→uk）。见 [i18n.md](i18n.md)。
 2. **`Dish.components` 引用 Ingredient（ingredientRef），不内联字符串**。这是采购引擎能跑起来的前提，也是与 schema.org/Recipe 纯字符串 `recipeIngredient` 的关键差异——dishpack 导入时由解析 skill 负责把字符串映射到知识库 Ingredient 并标记匹配置信度。
-3. **数量一律 `Quantity {value, unit}`**，跨单位换算通过 UnitConversion 表（食材专属优先，全局兜底）。
+3. **数量一律 `Quantity {value, unit}`**，跨单位换算通过 UnitConversion 表。量纲转换规则是一等公民实体（`unit-conversion.schema.json`）：以 **菜品×食材×量纲** 三元组锚定上下文，优先级链 **菜品特定 > 食材特定 > 全局通用**，按生效期版本化、按菜单日期取当日生效规则，历史采购单可复算（见 [unit-conversion.md](modules/unit-conversion.md)）。
 
 ## 6. 阶段路线图
 

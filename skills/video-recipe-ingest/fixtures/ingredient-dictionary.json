@@ -1,0 +1,62 @@
+{
+  "version": "1",
+  "description": "字符串 → 知识库 Ingredient 映射词典（演示/CI 用最小子集）。生产环境应由知识库 API 提供全量词条与模糊匹配，见 parse_video.py 中 match_ingredient 的 TODO。",
+  "unitAliases": {
+    "g": ["克", "g", "gram", "grams", "грам", "грама", "г"],
+    "kg": ["千克", "公斤", "kg", "kilogram", "kilograms", "кілограм", "кг"],
+    "ml": ["毫升", "ml", "milliliter", "milliliters", "мілілітр", "мл"],
+    "l": ["升", "liter", "liters", "litre", "litres", "літр", "л"],
+    "pcs": ["个", "只", "颗", "枚", "pcs", "pc", "piece", "pieces", "шт", "штука", "штуки"],
+    "pack": ["包", "袋", "pack", "packs", "package", "packages", "пакет", "упаковка"],
+    "tbsp": ["汤匙", "大勺", "tbsp", "tablespoon", "tablespoons", "столова ложка", "столові ложки"],
+    "tsp": ["茶匙", "小勺", "tsp", "teaspoon", "teaspoons", "чайна ложка", "чайні ложки"],
+    "pinch": ["撮", "一撮", "pinch", "pinches", "дрібка", "щіпка"]
+  },
+  "ingredients": [
+    {
+      "id": "ing-tomato",
+      "name": { "zh": "番茄", "en": "Tomato", "uk": "Томат" },
+      "aliases": {
+        "zh": ["番茄", "西红柿", "洋柿子"],
+        "en": ["tomato", "tomatoes"],
+        "uk": ["помідор", "помідори", "томат", "томати"]
+      }
+    },
+    {
+      "id": "ing-egg",
+      "name": { "zh": "鸡蛋", "en": "Chicken egg", "uk": "Куряче яйце" },
+      "aliases": {
+        "zh": ["土鸡蛋", "鸡蛋", "蛋液"],
+        "en": ["chicken egg", "eggs", "egg"],
+        "uk": ["куряче яйце", "яйця", "яйце"]
+      }
+    },
+    {
+      "id": "ing-salt",
+      "name": { "zh": "食盐", "en": "Salt", "uk": "Сіль" },
+      "aliases": {
+        "zh": ["食盐", "精盐", "盐"],
+        "en": ["table salt", "salt"],
+        "uk": ["кухонна сіль", "сіль"]
+      }
+    },
+    {
+      "id": "ing-scallion",
+      "name": { "zh": "小葱", "en": "Scallion", "uk": "Зелена цибуля" },
+      "aliases": {
+        "zh": ["小葱", "香葱", "葱花", "大葱", "葱"],
+        "en": ["scallion", "scallions", "green onion", "spring onion"],
+        "uk": ["зелена цибуля", "цибуля зелена", "зелений лук"]
+      }
+    },
+    {
+      "id": "ing-cooking-oil",
+      "name": { "zh": "食用油", "en": "Cooking oil", "uk": "Рослинна олія" },
+      "aliases": {
+        "zh": ["食用油", "植物油", "菜籽油", "花生油", "色拉油", "食油"],
+        "en": ["cooking oil", "vegetable oil", "oil"],
+        "uk": ["рослинна олія", "олія рослинна", "олія"]
+      }
+    }
+  ]
+}

@@ -75,6 +75,35 @@ manifest
 
 参考实现：[pick-a-recipe](https://github.com/pickeld/pick-a-recipe)（MIT，管线最完整）、[TsaiHao/recipe-from-video](https://github.com/TsaiHao/recipe-from-video)（中文场景，与本需求几乎同构）。
 
+### 本仓库参考实现
+
+本 skill 自带一个可运行的参考实现（纯 Python 3 标准库，零依赖），把 §1–§4 契约落地为代码：
+
+| 组件 | 路径 | 说明 |
+|---|---|---|
+| 主程序 | `scripts/parse_video.py` | 引擎可插拔（统一接口 `parse(input, lang_hint) -> raw_recipe`），公共后处理完成词典映射、质量门槛与校验 |
+| 校验器 | `scripts/validate_dishpack.py` | 独立校验 dishpack：schema 全量校验（复用仓库 `scripts/local-validate.py`）+ §6 可机器化契约检查，exit 0/1 |
+| 抽取 prompt | `prompts/extract-recipe.md` | 中英双语指令 + responseSchema，gemini/qwen adapter 运行时加载 |
+| 演示 fixture | `fixtures/tomato-egg/` | 模拟引擎输出 + 中文转写；`fixtures/ingredient-dictionary.json` 为食材中英乌别名词典 |
+
+三个引擎：
+
+- **`fixture`（默认演示/CI 路径）**：离线确定性，读预置"引擎原始输出"跑完整管线，零密钥开箱即跑：
+  ```bash
+  python3 skills/video-recipe-ingest/scripts/parse_video.py --input fixtures --engine fixture --output /tmp/dishpack-out.json
+  python3 skills/video-recipe-ingest/scripts/validate_dishpack.py /tmp/dishpack-out.json
+  ```
+- **`gemini`**：真实调用 Gemini generateContent（`responseSchema` 约束 JSON 输出；视频 <20MB inline base64，更大走 Files API；URL 仅直接支持 YouTube，其余平台需先下载）。需 `export GEMINI_API_KEY=<key>`（[获取](https://aistudio.google.com/apikey)），缺 key 时以退出码 2 报错并提示获取方式：
+  ```bash
+  python3 skills/video-recipe-ingest/scripts/parse_video.py --input ./demo.mp4 --engine gemini --lang-hint zh --output dishpack.json
+  ```
+- **`qwen`**：同构实现，阿里云百炼 Qwen-VL（OpenAI 兼容接口），需 `export DASHSCOPE_API_KEY=<key>`（[百炼控制台](https://bailian.console.aliyun.com/)）：
+  ```bash
+  python3 skills/video-recipe-ingest/scripts/parse_video.py --input https://www.bilibili.com/video/BVxxxx --engine qwen --lang-hint zh --output dishpack.json
+  ```
+
+CI：`.github/workflows/skill-video-ingest.yml` 在 `skills/**` 变更时跑 fixture 端到端 + 校验（Python 3.12，零依赖零密钥）。gemini/qwen 路径需真实 API key，不在 CI 覆盖。
+
 ## 6. 验收清单（导入方抽检用）
 
 - [ ] 通过 dishpack schema 校验

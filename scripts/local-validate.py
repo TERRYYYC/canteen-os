@@ -148,6 +148,7 @@ def main():
         "purchase-order": "purchase-order.schema.json",
         "feedback": "feedback.schema.json",
         "dishpack": "dishpack.schema.json",
+        "unit-conversion": "unit-conversion.schema.json",
     }
     checked = 0
     for f in sorted(EXAMPLE_DIR.glob("*.json")):

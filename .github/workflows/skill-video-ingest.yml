@@ -1,0 +1,34 @@
+name: skill-video-ingest
+
+# video-recipe-ingest skill 的端到端自检：fixture 模式离线跑完整管线 + dishpack 校验。
+# 零依赖（纯 Python 标准库）、零密钥；gemini/qwen 真实引擎路径不在 CI 覆盖（需密钥）。
+
+on:
+  push:
+    paths:
+      - "skills/**"
+  pull_request:
+    paths:
+      - "skills/**"
+
+jobs:
+  fixture-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fixture 模式端到端（视频 → dishpack）
+        run: >
+          python3 skills/video-recipe-ingest/scripts/parse_video.py
+          --input fixtures --engine fixture
+          --output /tmp/dishpack-out.json
+
+      - name: 校验产出的 dishpack（schema + 契约）
+        run: python3 skills/video-recipe-ingest/scripts/validate_dishpack.py /tmp/dishpack-out.json
+
+      - name: 仓库现有样例校验不回归
+        run: python3 scripts/local-validate.py

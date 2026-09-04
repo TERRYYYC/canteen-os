@@ -21,6 +21,7 @@ import type {
   SupplierSku,
   Unit,
   UnitConversion,
+  UnitConversionRule,
 } from "../types.js";
 
 // ---------------------------------------------------------------------------
@@ -86,6 +87,64 @@ export interface ProcurementPlan {
 }
 
 // ---------------------------------------------------------------------------
+// 量纲换算器（UnitConverter）：一等公民 UnitConversionRule 的解析骨架
+// 规范：docs/modules/unit-conversion.md（三元组模型 / 优先级链 / 生效期语义）
+// ---------------------------------------------------------------------------
+
+/** 单次换算查询：解析所需的最小上下文。 */
+export interface ConversionQuery {
+  ingredientRef: Id;
+  /** 有菜品上下文时传入，启用"菜品特定"优先级层 */
+  dishRef?: Id;
+  from: Unit;
+  to: Unit;
+  /**
+   * 换算基准日（ISO date），决定取哪一版生效规则：
+   * 步骤 4（聚合归一）用各 meal.date；步骤 6（包装取整）用 menuPlan.dateRange.end。
+   * 历史采购单复算时沿用原日期，调整量纲不污染历史。
+   */
+  asOfDate: string;
+}
+
+export type UnitConversionErrorCode =
+  | "unit-conversion-missing" // 优先级链三级均无命中规则，绝不猜测
+  | "unit-conversion-ambiguous" // 同优先级层多条规则同时生效且无法裁决（数据冲突）
+  | "unit-conversion-cycle"; // 链式多跳换算检测到环（如 A→B→A）
+
+/** 换算失败的结构化错误：进 issues / 人工确认队列，引擎不猜测。 */
+export interface UnresolvableConversion {
+  code: UnitConversionErrorCode;
+  query: ConversionQuery;
+  /** ambiguous 时的候选规则 id，便于人工裁决 */
+  candidateRuleIds?: Id[];
+  message: string;
+}
+
+export type ConversionResult =
+  | { ok: true; factor: number; rule: UnitConversionRule }
+  | { ok: false; error: UnresolvableConversion };
+
+/**
+ * 按优先级链 + 生效日期解析单跳换算系数（纯函数）。
+ * 解析步骤（对应 docs/modules/unit-conversion.md §3）：
+ *  0. from === to → 直接 factor = 1，不查表；
+ *  1. 候选过滤：from/to 与查询一致，status ≠ draft，
+ *     且 effectiveFrom <= asOfDate < (effectiveTo ?? 无限期)；
+ *  2. 优先级分层取最高层：菜品特定（context.dishRef === query.dishRef 且
+ *     ingredientRef 匹配） > 食材特定（仅 ingredientRef 匹配） > 全局（context 为空）；
+ *  3. 同层多条命中：effectiveFrom 最新者优先；仍并列 → ambiguous + candidateRuleIds；
+ *  4. 无命中 → missing。链式多跳换算（如 pinch→g→kg）留待阶段 2，需环检测（cycle）。
+ * TODO(阶段2): 实现；管线步骤 4/6 届时改调本函数，替代直接查
+ *              Ingredient.unitConversions / 内嵌全局表。
+ */
+export function resolveConversionFactor(
+  _rules: readonly UnitConversionRule[],
+  _query: ConversionQuery,
+): ConversionResult {
+  throw new Error("not implemented: docs/modules/unit-conversion.md §3");
+}
+
+// ---------------------------------------------------------------------------
 // 七步管线（函数签名与 TODO；实现归属阶段 2）
 // ---------------------------------------------------------------------------
 
@@ -129,7 +188,9 @@ export function applyLossRates(
  * 步骤 4：按 ingredientRef 聚合，先归一到 Ingredient.baseUnit。
  * 换算顺序：食材专属 unitConversions → 全局 unitConversions；
  * 查表失败 → issue(unit-conversion-missing)，该条跳过，绝不猜测。
- * TODO(阶段2): 实现。
+ * TODO(阶段2): 实现。换算改调 resolveConversionFactor（优先级链
+ *              菜品特定 > 食材特定 > 全局通用，asOfDate = 各 meal.date），
+ *              规则源从 Ingredient.unitConversions 迁到 UnitConversionRule 全集。
  */
 export function aggregateByIngredient(
   _gross: readonly (ExpandedRequirement & { gross: Quantity })[],
@@ -155,11 +216,12 @@ export function deductInventory(
  * 步骤 6：选 SKU 并向上取整。
  * 选 SKU：isPreferred 优先；多 preferred 取单价最低；无 preferred → issue(ambiguous-supplier)。
  * 取整：packageCount = max(moq ?? 1, ceil(netInPackageUnit / packageSize))；
- * 包装单位 ≠ baseUnit 时先换算（失败 → unit-conversion-missing）。
+ * 包装单位 ≠ baseUnit 时先换算（失败 → unit-conversion-missing）；
+ * 此处的换算同样走 resolveConversionFactor，asOfDate = menuPlan.dateRange.end。
  * TODO(阶段2): 实现；附 shelf-life-risk / lead-time-missed / moq-surplus 告警。
  */
 export function roundUpToPackages(
-  _netNeeds: Readonly<Map<Id, number>, number>,
+  _netNeeds: ReadonlyMap<Id, number>,
   _ingredients: Readonly<Record<Id, Ingredient>>,
   _suppliers: readonly Supplier[],
   _globalConversions: readonly UnitConversion[],

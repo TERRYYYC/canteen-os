@@ -24,6 +24,7 @@ const PREFIX_MAP = {
   dish: "dish.schema.json",
   "menu-plan": "menu-plan.schema.json",
   "purchase-order": "purchase-order.schema.json",
+  "unit-conversion": "unit-conversion.schema.json",
   feedback: "feedback.schema.json",
 };
 
@@ -36,9 +37,17 @@ for (const file of readdirSync(SCHEMA_DIR).filter((f) => f.endsWith(".schema.jso
   ajv.addSchema(schema, file);
 }
 
+// addSchema(schema, file) 已同时按文件 key 与 schema 内 $id 注册；
+// 此处必须复用已注册的 schema（getSchema），若再 compile 同一份 JSON
+// 会因重复注册同一 $id 抛 "schema with key or id already exists"。
 const validators = new Map();
 for (const [prefix, schemaFile] of Object.entries(PREFIX_MAP)) {
-  validators.set(prefix, ajv.compile(JSON.parse(readFileSync(join(SCHEMA_DIR, schemaFile), "utf8"))));
+  const validate = ajv.getSchema(schemaFile);
+  if (!validate) {
+    console.error(`ERROR: schema 未注册成功: ${schemaFile}`);
+    process.exit(1);
+  }
+  validators.set(prefix, validate);
 }
 
 const prefixes = Object.keys(PREFIX_MAP).sort((a, b) => b.length - a.length);

@@ -1,0 +1,22 @@
+{
+  "id": "uc-dish-tomato-egg-tomato-pcs-g",
+  "schemaVersion": "1",
+  "context": {
+    "dishRef": "dish-tomato-egg-stir-fry",
+    "ingredientRef": "ing-tomato"
+  },
+  "from": "pcs",
+  "to": "g",
+  "factor": 150,
+  "effectiveFrom": "2026-10-01",
+  "source": {
+    "type": "measured",
+    "detail": "本菜品固定使用小果番茄，2026-09 抽检 50 个均值 148 g，取整 150 g"
+  },
+  "note": {
+    "zh": "番茄炒蛋专用口径：小果番茄单果约 150 g，覆盖食材级默认 180 g/个",
+    "en": "Dish-specific basis: small tomatoes ≈150 g each, overriding the ingredient-level default of 180 g",
+    "uk": "Специфічно для страви: маленькі томати ≈150 г, замінює типові 180 г на рівні інгредієнта"
+  },
+  "status": "active"
+}

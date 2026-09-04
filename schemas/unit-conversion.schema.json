@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/unit-conversion.schema.json",
+  "title": "UnitConversionRule",
+  "description": "量纲转换规则（一等公民实体）。每条规则锚定三元组上下文 (dishRef?, ingredientRef?, from→to)，优先级链：菜品特定 > 食材特定 > 全局通用。规则不原地修改：调整 = 新增版本 supersedes 旧规则；effectiveFrom/effectiveTo 界定生效区间，采购引擎按菜单日期取当日生效的规则，历史采购单可复算（见 docs/modules/unit-conversion.md）。内嵌简单换算（如 supplier SKU 包装规格）仍使用 common.schema.json 的 $defs.UnitConversion。",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/Id" },
+    "schemaVersion": { "type": "string", "const": "1" },
+    "context": {
+      "type": "object",
+      "description": "三元组上下文：dishRef+ingredientRef 同现 = 菜品特定；仅 ingredientRef = 食材特定；皆空 = 全局通用。pcs/tbsp 等计数或约量单位 ↔ g/ml 的换算与食材密度/单件重量相关，禁止登记为全局规则（文档约束，见 docs/modules/unit-conversion.md §1）",
+      "properties": {
+        "dishRef": { "$ref": "common.schema.json#/$defs/Id" },
+        "ingredientRef": { "$ref": "common.schema.json#/$defs/Id" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "required": ["dishRef"] },
+          "then": { "required": ["ingredientRef"] }
+        }
+      ]
+    },
+    "from": { "$ref": "common.schema.json#/$defs/Unit" },
+    "to": { "$ref": "common.schema.json#/$defs/Unit" },
+    "factor": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "换算系数：from × factor = to（如鸡蛋 1 pcs × 55 = 55 g）"
+    },
+    "effectiveFrom": {
+      "type": "string",
+      "format": "date",
+      "description": "生效起始日（ISO date，含当日）。生效区间为 [effectiveFrom, effectiveTo) 左闭右开"
+    },
+    "effectiveTo": {
+      "type": "string",
+      "format": "date",
+      "description": "生效截止日（ISO date，不含当日）；缺省表示无限期生效"
+    },
+    "supersedes": {
+      "$ref": "common.schema.json#/$defs/Id",
+      "description": "本规则取代的旧规则 id，形成版本调整链。旧规则不删除，其历史生效区间仍参与复算"
+    },
+    "source": {
+      "type": "object",
+      "description": "规则来源溯源",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["manual", "measured", "video-import", "supplier-spec"],
+          "description": "manual=人工录入；measured=实测（称重/量取）；video-import=视频导入解析；supplier-spec=供应商规格书"
+        },
+        "supplierRef": {
+          "$ref": "common.schema.json#/$defs/Id",
+          "description": "type=supplier-spec 时对应的供应商"
+        },
+        "dishpackRef": {
+          "$ref": "common.schema.json#/$defs/Id",
+          "description": "type=video-import 时来源的 dishpack 标准包"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "description": "来源细节自由文本（如测量方法、批次、规格书编号）"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/Confidence",
+      "description": "机器来源规则的置信度；人工录入/实测可省略（视为 1.0/manual）"
+    },
+    "note": { "$ref": "common.schema.json#/$defs/I18nString" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "active", "deprecated"],
+      "description": "draft 不参与解析；active 正常参与；deprecated 为\"已被新版取代\"的管理标记，仍按其历史生效区间参与复算"
+    }
+  },
+  "required": [
+    "id",
+    "schemaVersion",
+    "context",
+    "from",
+    "to",
+    "factor",
+    "effectiveFrom",
+    "source",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "id": "uc-egg-pcs-g-v1",
+  "schemaVersion": "1",
+  "context": {
+    "ingredientRef": "ing-egg"
+  },
+  "from": "pcs",
+  "to": "g",
+  "factor": 55,
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-11-01",
+  "source": {
+    "type": "measured",
+    "detail": "2025-12 批次抽检 100 枚带壳鸡蛋均值 54.7 g，取整 55 g"
+  },
+  "note": {
+    "zh": "带壳鸡蛋单枚标准克重（旧口径）",
+    "en": "Standard weight per shell-on egg (legacy basis)",
+    "uk": "Стандартна вага одного яйця у шкаралупі (старий метод)"
+  },
+  "status": "active"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "uc-global-kg-g",
+  "schemaVersion": "1",
+  "context": {},
+  "from": "kg",
+  "to": "g",
+  "factor": 1000,
+  "effectiveFrom": "2026-01-01",
+  "source": {
+    "type": "manual",
+    "detail": "SI 质量单位定义换算，与食材/菜品无关，登记为全局通用规则"
+  },
+  "status": "active"
+}

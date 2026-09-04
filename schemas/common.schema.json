@@ -77,7 +77,7 @@
     },
     "UnitConversion": {
       "type": "object",
-      "description": "单位换算规则。from×factor=to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算（如某食材 pcs↔g）",
+      "description": "内嵌简单换算（如 supplier SKU 包装规格、Ingredient.unitConversions 静态默认）。from×factor=to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算（如某食材 pcs↔g）。动态可调整、可版本化、带生效期的换算规则见独立实体 schemas/unit-conversion.schema.json（UnitConversionRule）",
       "properties": {
         "from": { "$ref": "#/$defs/Unit" },
         "to": { "$ref": "#/$defs/Unit" },
