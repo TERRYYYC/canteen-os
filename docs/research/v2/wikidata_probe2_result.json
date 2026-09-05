@@ -1,0 +1,149 @@
+[
+ {
+  "zh": "小葱",
+  "top3": [
+   {
+    "id": "Q15155697",
+    "label": "Allium parvulum",
+    "desc": "species of plant"
+   },
+   {
+    "id": "Q11458750",
+    "label": "小葱",
+    "desc": ""
+   }
+  ],
+  "qid": "Q15155697",
+  "en": "Allium parvulum",
+  "zh_label": null,
+  "uk": "Allium parvulum"
+ },
+ {
+  "zh": "豆腐",
+  "top3": [
+   {
+    "id": "Q11006",
+    "label": "大豆",
+    "desc": "富含高蛋白的豆科植物"
+   },
+   {
+    "id": "Q177378",
+    "label": "豆腐",
+    "desc": "東亞的一種豆製食品"
+   },
+   {
+    "id": "Q69669862",
+    "label": "豆腐",
+    "desc": "Resident Evil character"
+   }
+  ],
+  "qid": "Q11006",
+  "en": "soybean",
+  "zh_label": "大豆",
+  "uk": "Соя",
+  "p18": "Soybean.USDA.jpg",
+  "license": "Public domain"
+ },
+ {
+  "zh": "腐竹",
+  "top3": [
+   {
+    "id": "Q107036060",
+    "label": "腐竹",
+    "desc": "Chinese soybean product"
+   },
+   {
+    "id": "Q32155164",
+    "label": "腐竹糖水",
+    "desc": ""
+   },
+   {
+    "id": "Q67330051",
+    "label": "腐竹中甲醛的亚临界水快速提取方法研究",
+    "desc": "2007年学术文章"
+   }
+  ],
+  "qid": "Q107036060",
+  "en": "fu zhu",
+  "zh_label": "腐竹",
+  "uk": "Фучжу",
+  "p18": "腐竹 Soy sparrowgrass Соевая спаржа (10085334385).jpg",
+  "license": "CC BY-SA 2.0"
+ },
+ {
+  "zh": "生姜",
+  "top3": [
+   {
+    "id": "Q35625",
+    "label": "薑",
+    "desc": "姜科姜属植物"
+   },
+   {
+    "id": "Q15046077",
+    "label": "生姜",
+    "desc": "薑的根莖"
+   },
+   {
+    "id": "Q11046015",
+    "label": "山橿",
+    "desc": "樟科山胡椒属植物"
+   }
+  ],
+  "qid": "Q35625",
+  "en": "ginger",
+  "zh_label": "薑",
+  "uk": "Імбир садовий",
+  "p18": "Ginger Plant vs.jpg",
+  "license": "CC BY-SA 3.0"
+ },
+ {
+  "zh": "大米",
+  "top3": [
+   {
+    "id": "Q5090",
+    "label": "稻",
+    "desc": "禾本目禾本科稻属植物的果实-稻谷经脱壳、碾磨粗皮后的成品，可食用"
+   },
+   {
+    "id": "Q45639256",
+    "label": "朱黼",
+    "desc": "Qing dynasty person CBDB=73993"
+   },
+   {
+    "id": "Q1269205",
+    "label": "米粉",
+    "desc": "form of flour made from finely milled rice"
+   }
+  ],
+  "qid": "Q5090",
+  "en": "rice",
+  "zh_label": "稻",
+  "uk": "рис",
+  "p18": "White, Brown, Red & Wild rice.jpg",
+  "license": "CC BY-SA 3.0"
+ },
+ {
+  "zh": "木耳",
+  "top3": [
+   {
+    "id": "Q107506789",
+    "label": "黑木耳",
+    "desc": "木耳科木耳属真菌"
+   },
+   {
+    "id": "Q11264760",
+    "label": "木耳",
+    "desc": "Japanese mangaka and illustrator"
+   },
+   {
+    "id": "Q107506591",
+    "label": "木耳",
+    "desc": "木耳科木耳属真菌"
+   }
+  ],
+  "qid": "Q107506789",
+  "en": "Auricularia heimuer",
+  "zh_label": "黑木耳",
+  "uk": "Auricularia heimuer"
+ }
+]

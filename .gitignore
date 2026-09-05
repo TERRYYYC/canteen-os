@@ -32,3 +32,6 @@ coverage/
 # Video import media (raw videos never committed; dishpack 只保留引用)
 skills/**/media/*.mp4
 skills/**/media/*.mov
+
+# OFF taxonomy raw dump (ODbL, 2.7MB) — 仅本地参考，不入库
+docs/research/v2/ingredients.txt
