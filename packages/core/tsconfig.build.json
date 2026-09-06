@@ -1,0 +1,13 @@
+{
+  "//": "构建配置：把纯函数核心编译到 dist/，供 node:test 测试与 scripts/*.mjs 生成脚本直接 import（零新增运行时依赖）。",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src"]
+}

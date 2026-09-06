@@ -1,128 +1,97 @@
 # 模块一：菜品知识库（Knowledge Base）
 
-> **English summary.** The knowledge base holds all dish-domain entities — Dish, Ingredient (seasonings included via `isSeasoning`), Supplier with SKUs, UnitConversionRule (versioned first-class conversion rules with a dish > ingredient > global priority chain, see unit-conversion.md), and DishPack import bundles — under a `draft → review → published` (+`archived`) state machine with monotonic versioning. Extensibility comes from the dishpack mechanism: cloud/third-party parsing skills emit a single JSON-LD-based contract, and the local system only imports validated bundles through a human review queue; online/offline sync is bundle-based. Data-model borrowings: Tandoor's Food/Unit/Ingredient separation (concept only — AGPL+Commons Clause bars code reuse) and Grocy's recipe×inventory×price linkage (MIT).
+> **English summary.** After the v2 scope reduction ([ADR-0006](../adr/0006-scope-reduction-v2.md)) the knowledge base is simply the `data/` directory — one file per entity, filename = ID — holding **3 of the 5 entities**: `ingredients/*.json` (trilingual name, baseUnit, optional `pcsToGram`/`yield`, `purchase` spec with a plain-string supplier, `trackStock`/`onHand`), `techniques.json` (a single-file controlled vocabulary of Chinese cutting/heating/pre-treatment techniques, closed set for the video skill), and `dishes/*.json` — where **incomplete dishes are allowed** (a name alone imports fine) and a `readiness` gate reports what each dish can do: *teach* (prep specs) / *plan* (quantities) / *buy* (purchase specs). Editing in Phase 1 is single-person: edit JSON, open a PR — the PR is the review queue. Supplier/UnitConversion/DishPack entities are deleted (git history keeps them).
 
-- schema：`schemas/dish.schema.json`、`ingredient.schema.json`、`supplier.schema.json`、`dishpack.schema.json`、`unit-conversion.schema.json`、`common.schema.json`
-- 样例：`examples/dish-tomato-egg.example.json` 等
+- schema：`schemas/ingredient.schema.json`、`techniques.schema.json`、`dish.schema.json`、`common.schema.json`
+- 数据：`data/ingredients/`、`data/techniques.json`、`data/dishes/`
 
 ---
 
 ## 1. 数据模型表
 
-### Dish（菜品）
+### Ingredient（食材/调料）——`data/ingredients/<id>.json`
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| id | Id | ✅ | kebab-case 稳定 ID |
-| schemaVersion | `"1"` | ✅ | 实体 schema 版本 |
-| name | I18nString | ✅ | 三语菜名 |
-| description | I18nString | | |
-| category | enum | ✅ | staple / meat-dish / vegetable-dish / soup / cold-dish / snack / dessert / drink |
-| cuisine | string | | 菜系，自由文本 |
-| baseServings | int ≥1 | ✅ | 配方基准份数（缩放基数） |
-| components[] | object | ✅ ≥1 | ingredientRef + Quantity + lossRateOverride + note + confidence |
-| steps[] | object | ✅ ≥1 | order + instruction(I18nString) + durationMinutes + tools |
-| provenance | object | | source ∈ manual / video-import / web-import；视频导入必填 videoUrl 等溯源字段 |
-| tags | string[] | | |
-| version | int ≥1 | ✅ | 内容版本，每次修改 +1 |
-| status | enum | ✅ | draft / review / published / archived |
+| schemaVersion | `"2"` | ✅ | 实体 schema 版本（v2 收窄后升 2） |
+| name | I18nString | ✅ | 三语名；种子数据来自 Wikidata（场景 A，uk 抽样覆盖 83.3%） |
+| image | Image | | `{src, license, author?, sourceUrl}`——CC BY-SA 裁决的落实，许可元数据必填 |
+| externalId | `Q\d+` | | Wikidata QID |
+| baseUnit | `g\|ml\|pcs` | ✅ | 聚合基准单位：按重量 / 按体积 / 按个数 |
+| pcsToGram | number >0 | | 一个多少克（pcs↔g 唯一换算依据；无独立量纲实体） |
+| yield | 0–1 | | 净料率单一数字，**仅按重量/体积食材**；pcs 食材不得设置。初始值参考 USDA/乌表（场景 D），实测回填 |
+| purchase | object | | `{supplier(字符串), packSize, packUnit, minPacks?, lastPrice?}`；缺失 = 不能算采购 |
+| trackStock | bool | ✅ | 仅耐放品为 true |
+| onHand | number ≥0 | | 现有量（baseUnit 计），仅 trackStock=true 时有意义 |
 
-### Ingredient（食材/调料）
+### Technique（中餐技法词表）——`data/techniques.json`（单文件合集）
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| id / schemaVersion / name | — | ✅ | 同 Dish 约定 |
-| category | enum | ✅ | vegetable / meat / egg-dairy / grain-staple / seasoning / oil / … |
-| isSeasoning | bool | ✅ | 调料与主料的唯一区分位 |
-| baseUnit | Unit | ✅ | 库存与采购聚合的基准单位 |
-| lossRate | 0–1 | | 加工损耗率（默认 0） |
-| storageType | enum | | ambient / chilled / frozen |
-| shelfLifeDays | int | | 保质期（配合采购提前期校验） |
-| allergens | enum[] | | EU 1169/2011 十四类过敏原 |
-| nutrition.per100g | object | | kcal / proteinG / fatG / carbsG |
-| unitConversions[] | UnitConversion[] | | 食材专属内嵌静态换算（如鸡蛋 1 pcs = 55 g）；动态可调整、带生效期的换算走 UnitConversionRule 独立实体（见下） |
+| id | Id | ✅ | 词表内唯一，被 `techniqueRef` 引用 |
+| kind | enum | ✅ | `cut`（刀法与成形）/ `heat`（加热烹调法）/ `pretreat`（预处理与着衣） |
+| name | I18nString | ✅ | 中文权威（《中式烹调师国家职业技能标准》骨架）；英文三源互证（DB51/T 2502 · 深圳译写规范 · en.wiki） |
+| image | Image | | 刀工示意图（计划自绘 SVG，场景 B：开放图集没找到） |
+| note | I18nString | | 一句话定义/操作要点（自写） |
 
-### UnitConversionRule（量纲转换规则）
+首批 32 个高频条目已入库（滚刀块、丝、丁、片、焯水、上浆、爆炒等），按场景 B 四层骨架（刀法 16/成形 22/预处理 18/加热 24）逐步补到约 80 项。**本词表是视频解析 skill 的输出闭集**：解析输出的 `techniqueRef` 只能是表内 id。
 
-独立实体，schema：`schemas/unit-conversion.schema.json`，完整规范见 [unit-conversion.md](unit-conversion.md)。每条规则锚定 菜品×食材×量纲 三元组上下文 `(dishRef?, ingredientRef?, from→to)`，优先级链 **菜品特定 > 食材特定 > 全局通用**；以 `effectiveFrom`/`effectiveTo` 生效区间 + `supersedes` 版本链支持动态调整，采购引擎按菜单日期取当日生效规则，历史采购单可复算。`Ingredient.unitConversions` 保留为内嵌静态默认；菜单→采购推演链路上的换算以本实体为准。
-
-### Supplier（供应商 + SKU）
+### Dish（菜品）——`data/dishes/<id>.json`
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| id / schemaVersion / name / contact | — | ✅(前四) | |
-| skus[].skuId | string | ✅ | 包装 SKU 标识 |
-| skus[].ingredientRef | Id | ✅ | 绑定食材 |
-| skus[].packageSize / packageUnit | number + Unit | ✅ | 单包装净含量 |
-| skus[].price | Money | ✅ | 单包装价格 |
-| skus[].moq | int ≥1 | | 最小起订量（包装数，默认 1） |
-| skus[].leadTimeDays | int ≥0 | ✅ | 下单→到货自然日 |
-| skus[].isPreferred | bool | | 同食材多 SKU 时的首选标记 |
+| schemaVersion | `"2"` | | 建议带；缺省兼容 |
+| name | I18nString | ✅ | **唯一必填**——一道菜只有名字也能导入 |
+| image | Image | | 成品图 |
+| baseServings | int ≥1 | | 配方基准份数，食堂尺度（如 50） |
+| components[] | object | | `ingredientRef + qty{value,unit} + prep?{techniqueRef,size?,note?,image?} + confidence?` |
+| steps[] | object | | `text(I18nString) + techniqueRef? + image? + clip?{videoUrl,start,end}` |
+| provenance | object | | `{source: manual\|video, videoUrl?}`；视频来源必填 videoUrl |
+| status | enum | | `draft`（缺省）/ `active` / `archived`；只有 active 参与菜单与采购推导 |
 
-### DishPack（视频导入标准包）
+## 2. 允许不完整与 readiness 关卡
 
-见 [../video-import.md](../video-import.md) §3。核心：manifest.recipe（JSON-LD）+ ingredientMappings（含置信度）+ transcript + reviewQueue。
+数据不拒绝不完整；按用途设关卡（research-brief-v2 §0），引擎侧 `readiness(dish)` 计算（见 [procurement.md](procurement.md) 与 `packages/core`）：
 
-## 2. 版本与状态机
+| 关卡 | 含义 | 判据 |
+|---|---|---|
+| 能教（teach） | 能出备料单教帮厨 | 所有 component 带 `prep.techniqueRef`，steps 非空 |
+| 能排（plan） | 能排进菜单算份数 | `baseServings` 与全部 `components[].qty` 齐备 |
+| 能采（buy） | 能算采购 | 所有 `ingredientRef` 指向的食材都有 `purchase` |
 
-```mermaid
-stateDiagram-v2
-    [*] --> draft: 新建（手工或 dishpack 导入）
-    draft --> review: 提交审核
-    review --> draft: 驳回（附意见）
-    review --> published: 审核通过
-    published --> draft: 发起修订（version+1）
-    published --> archived: 下架
-    archived --> draft: 恢复（version+1）
-```
+缺什么在 PWA/PR 里显示成待办，不阻断入库。
 
-规则：
+## 3. 状态与编辑（阶段 1 单人编辑，ADR-0006 §5）
 
-- 只有 `published` 的 Dish 可被 MenuPlan 引用、被采购引擎展开。
-- 每次状态迁移到 `draft` 之外的变更必须 `version + 1`；历史版本保留以支撑 PO 追溯（采购单生成时记录所引 Dish 的 version）。
-- 视频导入的 Dish 一律从 `draft` 起步，且 provenance.source = `video-import`。
+- 状态机收窄为 `draft → active → archived`：**git PR 即人工确认队列**——视频导入的菜一律 `draft`，师傅审 PR、合并即 `active`；无独立 review 状态、无 `version` 字段（git 历史即版本）。
+- 编辑入口：直接改 `data/` 的 JSON 提 PR，`python3 scripts/local-validate.py` 与 CI 双闸兜底（schema 校验 + 跨文件引用检查）；**不做编辑 UI**（场景 G：单人场景引入 PagesCMS/Decap 不划算，多人协作出现时以新 ADR 引入）。
+- 同步：线上 = git pull；线下/无网 = 拷贝整个 `data/` 文件夹。**不用 Git LFS**（与拷贝文件夹同步互斥，场景 G 已知坑 #1）；图片源头压缩 + 单图硬上限。
 
-## 3. 可扩展性设计
+## 4. 视频导入（skill 直出，无中间包）
 
-### 3.1 dishpack 导入包
+视频解析 skill **直接输出 `data/dishes/<dish>.json`（status=draft）+ `images/<dish>/` 目录**（契约见 [skills/video-recipe-ingest/SKILL.md](../../skills/video-recipe-ingest/SKILL.md)）：
 
-```mermaid
-flowchart LR
-    subgraph 云端/第三方
-        S[解析 skill\nGemini / Qwen / 自托管]
-    end
-    subgraph 本地 CanteenOS
-        V[dishpack 校验\najv + packVersion 协商]
-        Q[人工确认队列]
-        K[(知识库)]
-    end
-    S -->|dishpack JSON| V --> Q -->|approved| K
-    Q -->|rejected| X[丢弃+原因记录]
-```
+- 每个配料"被切的几秒"截帧 → `component.prep.image`；每个步骤带 `clip{videoUrl,start,end}`；
+- 置信度留在 `components[].confidence`（<0.85 的字段在 PR 描述里列出，人工确认）；
+- 技法输出必须是 techniques.json 闭集内的 `techniqueRef`；
+- 解析引擎 Gemini 主 / Qwen 备（ADR-0006 裁决），格式与引擎解耦。
 
-- 本地**只做导入**：校验 → 人工确认 → 合成 Dish draft。解析逻辑永不进本仓库实现（见 PRD 非目标）。
-- `packVersion` 独立于实体 schemaVersion，允许交换格式与存储格式各自演进。
-
-### 3.2 线上线下同步策略
-
-- 知识库是**服务端权威**（server-authoritative）；线下（如档口断网）只读缓存最近 published 快照。
-- dishpack 支持**纯文件流转**：无网环境可先导出 pack 文件，恢复网络后批量导入。
-- 冲突规则：服务端 version 高于本地时以服务端为准；本地不产生写冲突（写操作必须在线）。
-
-## 4. 边界情况
+## 5. 边界情况
 
 | 情况 | 处理 |
 |---|---|
-| dishpack 中 ingredientRef 匹配不到现有食材 | ingredientRef 留空 + needsReview=true；人工决定新建 Ingredient 或改映射（Open Question #2） |
-| 导入菜与现有菜品重名 | 导入器按名称相似度提示合并或新建；不自动覆盖 |
-| Ingredient 被 Dish 引用时需要归档 | 软删除：archived 食材禁止新增引用，历史 Dish 与 PO 不受影响 |
-| 调料用量过小（3 g 盐 × 480 份 = 1.44 kg）低于采购 MOQ | 正常——采购侧按 MOQ 取整，知识库侧不改数据 |
-| 多语言名称缺失 | I18nString anyOf 保证至少一语言；展示走 fallback 链（见 i18n.md） |
-| 单位无法换算（如 pcs → ml） | UnitConversion 查表失败即报错进人工处理，引擎不猜测（见 procurement.md） |
+| 菜只有名字 | 合法入库（draft）；readiness 三关卡全红，显示为待办 |
+| component 引用不存在的食材 | 本地校验/CI 直接报错（跨文件引用检查）；导入时先补食材或改映射 |
+| techniqueRef 不在词表 | 校验报错；解析 skill 必须先扩词表（走 PR）再引用 |
+| 食材缺 purchase | readiness「能采」不过；采购引擎归入「未指定供应商」单并告警（procurement.md §4） |
+| pcs 食材设了 yield | 校验报错（pcs 不套 yield） |
+| 供应商改名 | 改 `ingredient.purchase.supplier` 字符串即可；历史 PO 快照不受影响（这正是字符串化的目的） |
+| 图片许可 | image 必须带 `{license, sourceUrl}`；CC BY-SA 图展示时按许可署名（ADR-0006） |
+| 多语言名称缺失 | I18nString anyOf 保证至少一语言；展示走 fallback 链（见 i18n.md）；翻译状态查 translations.lock.json |
 
-## 5. 开放问题（Open Questions）
+## 6. 开放问题（Open Questions）
 
-1. Dish 历史版本的存储形态（全量快照 vs diff）？影响 PO 追溯实现。
-2. ingredientMappings 匹配失败时是否允许解析 skill 自动创建 Ingredient 草稿？
-3. 半成品/子菜谱（递归 BOM，参考 OpenKitchen）是否引入 Dish.components 的 `dishRef` 分量类型？当前只支持 ingredientRef。
-4. 营养数据是否接入 OpenFoodFacts（Tandoor 的做法）？
+1. 半成品/子菜谱（递归 BOM，如高汤）是否引入 components 的 `dishRef` 分量类型？当前只支持 ingredientRef。
+2. 约 300 种食材的 Wikidata 种子拉取批次与师傅校对工作流（场景 A 脚本即改 QID 清单可复跑）。
+3. 词表从 32 补到约 80 项的节奏；刀工 SVG 图集谁来画。
+4. 顾客菜单需要的过敏原信息落在哪个字段（EU 14 类，v2 模型暂未收录）——阶段 1 出菜单前定。

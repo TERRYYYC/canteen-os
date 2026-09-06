@@ -1,13 +1,14 @@
 ---
 name: video-recipe-ingest
-description: 把做菜视频（中/英/乌克兰语旁白或字幕）解析为结构化菜谱，打包成 CanteenOS dishpack 标准包，供本地知识库导入。解析可跑在云端/第三方，本地只导入标准包。
+description: 把做菜视频（中/英/乌克兰语旁白或字幕）解析为 CanteenOS 菜品草稿——直接输出 data/dishes/<菜>.json（status=draft）+ images/ 截帧目录，以 git PR 提交，师傅审 PR 即人工确认。解析可跑在云端/第三方（Gemini 主、Qwen 备）。
 ---
 
 # video-recipe-ingest — 视频解析 Skill 契约
 
-> 本文件是**实现方契约**：任何解析引擎（云端 Gemini、Qwen-VL、自托管管线、AI agent 手工整理）只要遵守本契约，产物即可被 CanteenOS 知识库导入。
-> 背景与选型论证见 [docs/video-import.md](../../docs/video-import.md) 与 [docs/research/video-to-recipe-tech-survey.md](../../docs/research/video-to-recipe-tech-survey.md)。
-> 输出格式以 [schemas/dishpack.schema.json](../../schemas/dishpack.schema.json) 为准（机器校验的单一事实源）；完整样例见 [examples/dishpack-tomato-egg.example.json](../../examples/dishpack-tomato-egg.example.json)。
+> 本文件是**实现方契约**：任何解析引擎（Gemini、Qwen-VL、自托管管线、AI agent 手工整理）只要遵守本契约，产物即可作为 CanteenOS 菜品草稿提 PR 入库。
+> 背景与选型论证见 [docs/video-import.md](../../docs/video-import.md) 与 [docs/research/v2/scenario-c-video-to-dishpack-keyframes.md](../../docs/research/v2/scenario-c-video-to-dishpack-keyframes.md)。
+> 输出格式以 [schemas/dish.schema.json](../../schemas/dish.schema.json) 为准（机器校验的单一事实源）；完整样例见 [data/dishes/tomato-egg-stir-fry.json](../../data/dishes/tomato-egg-stir-fry.json)。
+> ⚠️ **v2 变更（ADR-0006，2026-09-06）**：不再有 dishpack 中间包，skill **直出菜品文件 + 图片**；git PR 即人工确认队列。
 
 ---
 
@@ -15,100 +16,78 @@ description: 把做菜视频（中/英/乌克兰语旁白或字幕）解析为�
 
 | 参数 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `videoUrl` 或视频文件 | uri / binary | ✅ 二选一 | 支持 youtube / bilibili / douyin / tiktok / instagram / local-file |
-| `languageHint` | `zh` / `en` / `uk` | 否 | 旁白语言提示，提高解析质量 |
-| `targetLanguages` | 数组 | 否，默认 `[zh, en, uk]` | 输出内容语言 |
+| `videoUrl` 或视频文件 | uri / binary | ✅ 二选一 | youtube / bilibili / douyin / tiktok / instagram / local-file（下载统一走 yt-dlp，ADR-0006 裁决其 Unlicense 可用；策略：锁版本+高频升级+失败回放） |
+| `languageHint` | `zh` / `en` / `uk` | 否 | 旁白语言提示，提高解析质量（uk ASR 是最弱环，FLEURS WER ≈ 9.5%，数字字段需重点校验） |
+| `targetLanguages` | 数组 | 否，默认 `[zh, en, uk]` | 输出内容语言（zh 权威，en/uk 机翻初稿） |
 
-## 2. 输出：dishpack 标准包
+## 2. 输出：dish.json + images/（直出，无中间包）
 
-单一 JSON 文件（或含 media/ 子目录的目录包），顶层字段：
+一个菜品 = 一个 PR，包含：
 
-| 字段 | 说明 |
-|---|---|
-| `packVersion` | 常量 `"1"`；格式演进时递增，与实体 schemaVersion 解耦 |
-| `id` | kebab-case 包 ID，如 `dishpack-tomato-egg-001` |
-| `createdAt` | ISO date-time |
-| `generator` | `{name, engine, engineVersion?, promptVersion?}`；engine ∈ `gemini-flash / gemini-pro / qwen-vl / self-hosted-pipeline / manual` |
-| `source` | `{videoUrl, platform?, detectedLang, durationSeconds?}` |
-| `manifest` | 见 §3 |
-| `transcript` | 原文转写 `{lang, text, segments?}`（强烈建议保留，用于人工校对与溯源） |
-| `media` | 关键帧/封面引用数组（包内相对路径或外部 URL） |
-| `reviewQueue` | `{status: pending/approved/rejected, reasons?}`；产出时通常为 `pending` |
-
-## 3. manifest 结构
-
-```text
-manifest
-├── recipe                 # schema.org/Recipe JSON-LD 原始输出（交换格式）
-│   ├── recipeIngredient[]     # ⚠️ 纯字符串数组，如 "番茄 300 克"
-│   └── recipeInstructions[]   # HowToStep[]
-├── ingredientMappings[]   # 字符串 → 知识库 Ingredient 的映射（核心义务）
-│   └── {raw, ingredientRef?, quantity?, confidence, needsReview}
-├── stepMapping[]          # i18n 步骤 + 视频时间段 timestampRange
-├── suggestedDish          # {name: I18nString, category, baseServings}
-└── overallConfidence      # 整体置信度
+```
+data/dishes/<dish-id>.json     # 符合 schemas/dish.schema.json；status 必须为 "draft"
+images/<dish-id>/              # 截帧目录
+├── cover.jpg                  # 成品图（→ dish.image）
+├── prep-<ingredientRef>.jpg   # 每个配料"被切的那几秒"的代表帧（→ component.prep.image）
+└── step-<n>.jpg               # 步骤关键帧（→ steps[].image，可选）
 ```
 
-**核心义务：字符串 → Ingredient 映射。** schema.org 的 `recipeIngredient` 是纯字符串（数量/单位/名称不分字段），而 CanteenOS 的 Dish.components 必须 `ingredientRef` 引用知识库食材（采购引擎 BOM 展开的前提）。因此解析方必须：
+dish.json 字段义务（相对 schema 的补充约束）：
 
-1. 把每条 `raw` 字符串拆为 `(ingredientRef, quantity{value, unit})`；
-2. 映射到知识库**已有** Ingredient（词典/模糊匹配）；匹配不到 → `ingredientRef` 留空 + `needsReview: true`；
-3. 每条标注 `confidence {value: 0..1, source: "video-import"}`；
-4. 用量单位混乱是主要错误源——过一层术语/单位词典（cup↔ml、тісто↔面团）归一。
+| 字段 | 义务 |
+|---|---|
+| `name` | I18nString，**zh 必填**（权威），en/uk 机翻初稿 |
+| `baseServings` | **食堂尺度**（默认按 50 份产出；视频是家常尺度时按师傅经验放大并标注 confidence） |
+| `components[]` | `{ingredientRef, qty{value,unit}, prep?, confidence?}`——必须映射到 `data/ingredients/` **已有**食材（词典/模糊匹配）；匹配不到就在 PR 描述列出，由师傅决定新建食材还是改映射 |
+| `components[].prep` | `{techniqueRef, size?, note?, image?}`——**image 必填**（有切配动作的配料）：该配料"被切的几秒"截帧，即备料单上帮厨要看的图 |
+| `components[].confidence` | 机器来源逐条标注 `{value: 0..1, source: "video"}`；**< 0.85 的字段必须在 PR 描述中逐条列出** |
+| `steps[]` | `{text{zh,en,uk}, techniqueRef?, image?, clip?{videoUrl,start,end}}`——**clip 必填**：每步对齐到视频时间段（WhisperX 词级时间戳 ∪ VLM temporal grounding，±2s 交叉校验） |
+| `provenance` | `{source: "video", videoUrl}` 必填 |
+| `status` | 必须 `"draft"`——skill 永远只产草稿 |
+
+## 3. 技法闭集约束（硬性）
+
+`prep.techniqueRef` 与 `steps[].techniqueRef` **只能是 [data/techniques.json](../../data/techniques.json) 中已存在的 id**（`cut | heat | pretreat` 三类受控词表）。模型 prompt 中附完整词表（id + 三语名 + 定义）作为选择闭集；词表外的切法/做法：
+
+- 选语义最近的已有词条，把差异写进 `prep.note`（如词表只有"块"，视频是"骰子块"→ `small-cubes` + note 注明尺寸）；或
+- 在 PR 描述中提议新增词条（师傅确认后先扩词表再引用）。
 
 ## 4. 质量门槛（硬性）
 
 | 规则 | 阈值 |
 |---|---|
-| 单字段置信度 | `confidence.value < 0.85` → `needsReview: true`，理由写入 `reviewQueue.reasons`（如 `low-confidence-ingredient: 小葱 10 克 (0.72)`） |
-| 整体置信度 | `overallConfidence.value < 0.85` → `reviewQueue.status = "pending"`，禁止自动入库 |
-| JSON 合法性 | 产出必须通过 `schemas/dishpack.schema.json` 校验（ajv）；不通过自动重试 ≤ 2 次，仍失败则整包标记 `rejected` 并说明 |
-| 时间字段 | ISO 8601 duration（`PT10M`），禁止 `"10 minutes"` 这类自然语言 |
-| 溯源完整性 | `source.videoUrl`、`transcript`（原文转写）、`stepMapping[].timestampRange` 必须可回溯到视频 |
+| 单字段置信度 | `confidence.value < 0.85` → 该字段列入 PR 描述的"待人工确认"清单 |
+| 整体置信度 | 全部 component 置信度均值 < 0.85 → PR 标题标 `[需重点审核]`；禁止自动合并 |
+| JSON 合法性 | 产出必须通过 `schemas/dish.schema.json` 校验 + `scripts/local-validate.py`（含跨文件引用检查）；不通过自动重试 ≤ 2 次，仍失败则放弃并在日志说明 |
+| 溯源完整性 | `provenance.videoUrl`、`steps[].clip` 必须可回溯到视频；截帧时间落在对应 clip 区间内 |
+| 图片许可 | 视频截帧为自有演绎，`license: "own"`；若引用第三方图片必须带 `{license, author?, sourceUrl}`（ADR-0006 CC BY-SA 裁决） |
 
-## 5. 推荐管线
+## 5. 推荐管线（场景 C）
 
-1. **首选**：Gemini 2.5 Flash 单调用——视频（或 URL）+ prompt + `responseSchema`（schema.org/Recipe 子集 + 扩展字段）→ JSON-LD。约 $0.02–0.05/条（3 分钟视频），免费档可 POC。
-2. **备选 A**：阿里云百炼 Qwen3-VL Plus/Flash——国内合规/中文优势，接口形态与 Gemini 同构。
-3. **备选 B**：自托管 `ffmpeg → WhisperX → 抽帧 → Qwen2.5/3-VL 融合`——大批量（> 数万条/月）或离线场景，工程投入 3–6 人周。
-4. 字幕轨优先于 ASR；保留原文转写再翻译；疑难样本可升级 Gemini Pro 二次精修。
+```
+视频 URL → yt-dlp 下载 → WhisperX large-v3 转写(zh/en/uk)+词级对齐
+        → Gemini（主，responseSchema 约束 JSON 输出）/ Qwen3-VL（备，7B+，temporal grounding）
+          归组出 配料+用量+备菜规格+步骤（步骤带时间窗）
+        → 关键帧双路定位（VLM 时间窗 ∪ ASR"切/切丁…"词级时刻，±2s 交叉校验）
+        → PySceneDetect 窗内切镜头 + Laplacian 清晰度 + pHash 去重挑帧
+        → data/dishes/<菜>.json(draft) + images/<菜>/ → git PR → 师傅审核合并
+```
 
-参考实现：[pick-a-recipe](https://github.com/pickeld/pick-a-recipe)（MIT，管线最完整）、[TsaiHao/recipe-from-video](https://github.com/TsaiHao/recipe-from-video)（中文场景，与本需求几乎同构）。
+引擎路由：Gemini 主（`response_schema` 服务端强制 JSON 结构，免自托管 GPU，约 $0.02–0.05/条）；Qwen 备（国内合规/中文优势/可自托管）。字幕轨优先于 ASR；疑难样本可升级 Gemini Pro 二次精修。
 
-### 本仓库参考实现
+## 6. 审核流程 = draft + PR（无独立队列）
 
-本 skill 自带一个可运行的参考实现（纯 Python 3 标准库，零依赖），把 §1–§4 契约落地为代码：
+1. skill 产出 draft 菜品 + images/，开 PR；PR 描述模板列出：全部低置信字段（confidence < 0.85）、未匹配食材、词表外技法建议。
+2. 师傅在 PR 里直接改 JSON（单人编辑，阶段 1 无编辑 UI）；CI 跑 schema + 引用校验。
+3. 合并即入库；师傅把 `status` 改为 `active` 后参与菜单与采购推导。
 
-| 组件 | 路径 | 说明 |
-|---|---|---|
-| 主程序 | `scripts/parse_video.py` | 引擎可插拔（统一接口 `parse(input, lang_hint) -> raw_recipe`），公共后处理完成词典映射、质量门槛与校验 |
-| 校验器 | `scripts/validate_dishpack.py` | 独立校验 dishpack：schema 全量校验（复用仓库 `scripts/local-validate.py`）+ §6 可机器化契约检查，exit 0/1 |
-| 抽取 prompt | `prompts/extract-recipe.md` | 中英双语指令 + responseSchema，gemini/qwen adapter 运行时加载 |
-| 演示 fixture | `fixtures/tomato-egg/` | 模拟引擎输出 + 中文转写；`fixtures/ingredient-dictionary.json` 为食材中英乌别名词典 |
+## 7. 验收清单（审 PR 用）
 
-三个引擎：
-
-- **`fixture`（默认演示/CI 路径）**：离线确定性，读预置"引擎原始输出"跑完整管线，零密钥开箱即跑：
-  ```bash
-  python3 skills/video-recipe-ingest/scripts/parse_video.py --input fixtures --engine fixture --output /tmp/dishpack-out.json
-  python3 skills/video-recipe-ingest/scripts/validate_dishpack.py /tmp/dishpack-out.json
-  ```
-- **`gemini`**：真实调用 Gemini generateContent（`responseSchema` 约束 JSON 输出；视频 <20MB inline base64，更大走 Files API；URL 仅直接支持 YouTube，其余平台需先下载）。需 `export GEMINI_API_KEY=<key>`（[获取](https://aistudio.google.com/apikey)），缺 key 时以退出码 2 报错并提示获取方式：
-  ```bash
-  python3 skills/video-recipe-ingest/scripts/parse_video.py --input ./demo.mp4 --engine gemini --lang-hint zh --output dishpack.json
-  ```
-- **`qwen`**：同构实现，阿里云百炼 Qwen-VL（OpenAI 兼容接口），需 `export DASHSCOPE_API_KEY=<key>`（[百炼控制台](https://bailian.console.aliyun.com/)）：
-  ```bash
-  python3 skills/video-recipe-ingest/scripts/parse_video.py --input https://www.bilibili.com/video/BVxxxx --engine qwen --lang-hint zh --output dishpack.json
-  ```
-
-CI：`.github/workflows/skill-video-ingest.yml` 在 `skills/**` 变更时跑 fixture 端到端 + 校验（Python 3.12，零依赖零密钥）。gemini/qwen 路径需真实 API key，不在 CI 覆盖。
-
-## 6. 验收清单（导入方抽检用）
-
-- [ ] 通过 dishpack schema 校验
-- [ ] `recipe.recipeIngredient` 与 `ingredientMappings` 一一对应（raw 逐字相等）
-- [ ] 所有 `quantity.unit` 属于规范 Unit 枚举
-- [ ] `suggestedDish.name` 三语齐全（至少 zh + 请求语言）
-- [ ] `needsReview` 与置信度阈值一致（< 0.85 必为 true）
-- [ ] 随机抽 1 条 `stepMapping`，按 `timestampRange` 回放视频可核对步骤内容
+- [ ] 通过 dish schema 校验与 `local-validate.py` 跨文件引用检查
+- [ ] 所有 `ingredientRef` 指向 `data/ingredients/` 已有食材（或 PR 中说明新建）
+- [ ] 所有 `techniqueRef` 在 techniques.json 闭集内
+- [ ] 每个有切配动作的配料带 `prep.image`（截帧可辨认"切成了什么样"）
+- [ ] 每个 step 带 `clip`，抽 1 条按时间段回放视频可核对步骤内容
+- [ ] `confidence < 0.85` 的字段已全部列入 PR 描述并逐条人工确认
+- [ ] `name` 三语齐全（至少 zh + 请求语言）；uk 数字字段重点抽查
+- [ ] `status = "draft"`，`provenance.videoUrl` 可打开

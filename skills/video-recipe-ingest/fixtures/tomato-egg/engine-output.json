@@ -1,11 +1,9 @@
 {
-  "_comment": "模拟 Gemini 2.5 Flash 按 prompts/extract-recipe.md 的 responseSchema 返回的原始抽取结果（raw_recipe 契约）。meta 字段由适配器在真实调用时根据 CLI 输入注入；此处预置以保证 fixture 路径离线确定。",
+  "_comment": "模拟 Gemini 2.5 Flash 按 prompts/extract-recipe.md（PROMPT_VERSION v2.0）的 responseSchema 返回的原始抽取结果（raw_recipe 契约，v2：直出 dish 字段结构，无 recipe/ingredientMappings 中间层）。meta 字段由适配器在真实调用时根据 CLI 输入注入；此处预置以保证 fixture 路径离线确定。baseServings=2 为视频家常尺度，后处理会 ×25 放大到 50 份食堂尺度。",
   "meta": {
-    "id": "dishpack-tomato-egg-001",
-    "createdAt": "2026-10-01T08:15:00+08:00",
     "engine": "gemini-flash",
     "engineVersion": "gemini-2.5-flash (fixture-simulated)",
-    "promptVersion": "v1.0",
+    "promptVersion": "v2.0",
     "source": {
       "videoUrl": "https://www.bilibili.com/video/BV1example888",
       "platform": "bilibili"
@@ -13,35 +11,28 @@
   },
   "detectedLang": "zh",
   "durationSeconds": 165,
-  "recipe": {
-    "@context": "https://schema.org",
-    "@type": "Recipe",
-    "name": "番茄炒蛋",
-    "description": "经典家常菜：番茄软烂出汁，鸡蛋滑嫩，微酸甜口。",
-    "recipeYield": "2 人份",
-    "recipeIngredient": [
-      "番茄 300 克",
-      "鸡蛋 3 个",
-      "食盐 3 克",
-      "小葱 10 克",
-      "食用油 20 毫升"
-    ],
-    "recipeInstructions": [
-      { "@type": "HowToStep", "position": 1, "text": "番茄切块，鸡蛋加少许盐打散。" },
-      { "@type": "HowToStep", "position": 2, "text": "热油下蛋液，凝固后盛出备用。" },
-      { "@type": "HowToStep", "position": 3, "text": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。" }
-    ],
-    "prepTime": "PT8M",
-    "cookTime": "PT6M",
-    "recipeCuisine": "家常菜",
-    "keywords": "番茄炒蛋, 家常菜, 快手菜",
-    "tool": ["炒锅", "锅铲", "刀", "砧板", "碗"]
+  "dishName": {
+    "zh": "番茄炒蛋",
+    "en": "Tomato and egg stir-fry",
+    "uk": "Смажені яйця з томатами"
   },
-  "ingredients": [
+  "slug": "tomato-egg-stir-fry",
+  "baseServings": 2,
+  "components": [
     {
       "raw": "番茄 300 克",
       "nameHint": "番茄",
       "quantity": { "value": 300, "unit": "g" },
+      "prep": {
+        "techniqueRef": "roll-cut-chunks",
+        "size": "3–4 cm",
+        "note": {
+          "zh": "去皮口感更好",
+          "en": "Peeled for better texture",
+          "uk": "Очищені від шкірки для кращої текстури"
+        },
+        "frameSec": 30
+      },
       "confidence": 0.96
     },
     {
@@ -60,6 +51,15 @@
       "raw": "小葱 10 克",
       "nameHint": "小葱",
       "quantity": { "value": 10, "unit": "g" },
+      "prep": {
+        "techniqueRef": "minced",
+        "note": {
+          "zh": "切葱花，出锅前撒",
+          "en": "Chopped as garnish, added before serving",
+          "uk": "Подрібнити для посипання перед подачею"
+        },
+        "frameSec": 50
+      },
       "confidence": 0.72
     },
     {
@@ -73,12 +73,12 @@
     {
       "order": 1,
       "instruction": {
-        "zh": "番茄切块，鸡蛋加少许盐打散。",
-        "en": "Cut tomatoes into wedges; beat eggs with a pinch of salt.",
-        "uk": "Наріжте томати часточками; збийте яйця з дрібкою солі."
+        "zh": "番茄切滚刀块，鸡蛋加少许盐打散。",
+        "en": "Roll-cut tomatoes into chunks; beat eggs with a pinch of salt.",
+        "uk": "Наріжте томати рулонним способом; збийте яйця з дрібкою солі."
       },
-      "durationMinutes": 5,
-      "tools": ["刀", "砧板", "碗"],
+      "techniqueRef": "roll-cut-chunks",
+      "duration": "PT5M",
       "timestampRange": { "startSec": 12, "endSec": 55 },
       "confidence": 0.95
     },
@@ -87,10 +87,10 @@
       "instruction": {
         "zh": "热油下蛋液，凝固后盛出备用。",
         "en": "Pour eggs into hot oil; remove once just set.",
-        "uk": "Вилийте яйця на розігрітій олії; зніміть, щойно схопляться."
+        "uk": "Вилийте яйця на розігріту олію; зніміть, щойно схопляться."
       },
-      "durationMinutes": 2,
-      "tools": ["炒锅", "锅铲"],
+      "techniqueRef": "stir-fry",
+      "duration": "PT2M",
       "timestampRange": { "startSec": 56, "endSec": 92 },
       "confidence": 0.93
     },
@@ -101,21 +101,12 @@
         "en": "Stir-fry tomatoes until juicy, return eggs to the wok, season with salt, garnish with scallions and serve.",
         "uk": "Обсмажте томати до появи соку, поверніть яйця, посоліть, посипте зеленою цибулею і подавайте."
       },
-      "durationMinutes": 4,
-      "tools": ["炒锅", "锅铲"],
+      "techniqueRef": "stir-fry",
+      "duration": "PT4M",
       "timestampRange": { "startSec": 93, "endSec": 160 },
       "confidence": 0.9
     }
   ],
-  "suggestedDish": {
-    "name": {
-      "zh": "番茄炒蛋",
-      "en": "Tomato and egg stir-fry",
-      "uk": "Смажені яйця з томатами"
-    },
-    "category": "vegetable-dish",
-    "baseServings": 2
-  },
   "overallConfidence": 0.9,
   "transcriptFile": "transcript.zh.txt",
   "transcript": {

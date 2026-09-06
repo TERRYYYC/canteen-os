@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "小葱",
+    "en": "Scallion",
+    "uk": "Зелена цибуля"
+  },
+  "baseUnit": "g",
+  "yield": 0.8,
+  "purchase": {
+    "supplier": "绿源农产品配送",
+    "packSize": 1,
+    "packUnit": "kg",
+    "minPacks": 1,
+    "lastPrice": { "amount": 12, "currency": "CNY" }
+  },
+  "trackStock": false
+}

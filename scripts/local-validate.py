@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
-"""CanteenOS 本地校验器（一次性的 spec 子集实现，用于无 ajv 环境下的 examples↔schemas 一致性核对）。
-支持特性：$ref（同文件/跨文件 #/$defs）、type、properties、required、additionalProperties、
-enum、const、pattern、minimum/maximum、exclusiveMinimum、minLength、minItems、uniqueItems、
-items、anyOf、allOf、if/then。format 仅作注解不校验。
+"""CanteenOS 本地校验器（一次性的 spec 子集实现，用于无 ajv 环境下的 data/↔schemas 一致性核对）。
+
+校验范围（ADR-0006 起，examples/ 已由 data/ 取代——目录即知识库，一实体一文件、文件名即 ID）：
+  data/ingredients/*.json      → schemas/ingredient.schema.json
+  data/dishes/*.json           → schemas/dish.schema.json
+  data/menu-plans/*.json       → schemas/menu-plan.schema.json
+  data/purchase-orders/*.json  → schemas/purchase-order.schema.json
+  data/techniques.json         → schemas/techniques.schema.json（单文件词表合集）
+
+除 schema 校验外还做跨文件引用检查：ingredientRef / techniqueRef / dishRef / menuPlanRef
+必须能解析到 data/ 下真实存在的文件或词表条目；baseUnit=pcs 的食材不得设置 yield
+（pcs 不套 yield，ADR-0006）。
+
+支持特性：$ref（同文件/跨文件 #/$defs）、type（含 "null" 与类型数组）、properties、required、
+additionalProperties、enum、const、pattern、minimum/maximum、exclusiveMinimum、minLength、
+minItems、uniqueItems、items、anyOf、allOf、if/then。format 仅作注解不校验。
+
+注意：skills/video-recipe-ingest/scripts/validate_dishpack.py 通过 importlib 复用本文件的
+validate() / load_schema() / errors 模块级 API——修改时请保持这三个名字可用。
 """
 import json
 import re
@@ -11,7 +26,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_DIR = ROOT / "schemas"
-EXAMPLE_DIR = ROOT / "examples"
+DATA_DIR = ROOT / "data"
+
+# (数据相对路径, schema 文件, 是否目录)。目录下所有 *.json 逐一校验；单文件直接校验。
+TARGETS = [
+    ("ingredients", "ingredient.schema.json", True),
+    ("dishes", "dish.schema.json", True),
+    ("menu-plans", "menu-plan.schema.json", True),
+    ("purchase-orders", "purchase-order.schema.json", True),
+    ("techniques.json", "techniques.schema.json", False),
+]
+
+ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 
 _schema_cache: dict[str, dict] = {}
 
@@ -49,11 +75,24 @@ TYPE_MAP = {
     "number": (int, float),
     "integer": int,
     "boolean": bool,
+    "null": type(None),
 }
 
 
 def fail(path: str, msg: str):
     errors.append(f"{path}: {msg}")
+
+
+def _type_ok(node, stype: str) -> bool:
+    py = TYPE_MAP[stype]
+    if not isinstance(node, py):
+        return False
+    # bool 是 int 的子类，除 boolean 外一律不接受 True/False
+    if stype != "boolean" and isinstance(node, bool):
+        return False
+    if stype == "integer" and isinstance(node, float):
+        return False
+    return True
 
 
 def validate(node, schema: dict, current_file: Path, path: str):
@@ -69,12 +108,9 @@ def validate(node, schema: dict, current_file: Path, path: str):
 
     stype = schema.get("type")
     if stype:
-        py = TYPE_MAP[stype]
-        if not isinstance(node, py) or (stype != "boolean" and isinstance(node, bool)):
+        types = stype if isinstance(stype, list) else [stype]
+        if not any(_type_ok(node, t) for t in types):
             fail(path, f"类型错误: 期望 {stype} 实际 {type(node).__name__}")
-            return
-        if stype == "integer" and isinstance(node, float):
-            fail(path, f"类型错误: 期望 integer 实际 float {node!r}")
             return
 
     if isinstance(node, str):
@@ -139,41 +175,99 @@ def validate(node, schema: dict, current_file: Path, path: str):
             validate(node, sub, current_file, path)
 
 
-def main():
-    mapping = {
-        "ingredient": "ingredient.schema.json",
-        "supplier": "supplier.schema.json",
-        "dish": "dish.schema.json",
-        "menu-plan": "menu-plan.schema.json",
-        "purchase-order": "purchase-order.schema.json",
-        "feedback": "feedback.schema.json",
-        "dishpack": "dishpack.schema.json",
-        "unit-conversion": "unit-conversion.schema.json",
-    }
-    checked = 0
-    for f in sorted(EXAMPLE_DIR.glob("*.json")):
-        prefix = next(
-            (p for p in sorted(mapping, key=len, reverse=True) if f.name.startswith(p)),
-            None,
-        )
-        if prefix is None:
-            errors.append(f"{f.name}: 无法匹配 schema 前缀")
+def _entity_ids(subdir: str) -> set[str]:
+    d = DATA_DIR / subdir
+    if not d.is_dir():
+        return set()
+    return {f.stem for f in d.glob("*.json")}
+
+
+def check_references(loaded: dict[str, tuple[Path, object]]):
+    """跨文件引用完整性 + 文件名即 ID 约定 + pcs/yield 互斥（ADR-0006）。"""
+    ingredients = _entity_ids("ingredients")
+    dishes = _entity_ids("dishes")
+    menu_plans = _entity_ids("menu-plans")
+    technique_ids: set[str] = set()
+
+    # 文件名即 ID：所有实体文件名必须 kebab-case
+    for subdir in ("ingredients", "dishes", "menu-plans", "purchase-orders"):
+        for f in sorted((DATA_DIR / subdir).glob("*.json")):
+            if not ID_PATTERN.match(f.stem):
+                fail(str(f.relative_to(ROOT)), f"文件名 {f.name} 不是 kebab-case（文件名即 ID）")
+
+    tech_file = DATA_DIR / "techniques.json"
+    if tech_file.exists():
+        for entry in json.loads(tech_file.read_text(encoding="utf-8")):
+            tid = entry.get("id", "?")
+            if tid in technique_ids:
+                fail("techniques.json", f"技法 id 重复: {tid}")
+            technique_ids.add(tid)
+
+    for name, (path, data) in loaded.items():
+        rel = str(path.relative_to(ROOT))
+        if not isinstance(data, dict):
             continue
-        schema_file = SCHEMA_DIR / mapping[prefix]
-        data = json.loads(f.read_text(encoding="utf-8"))
-        before = len(errors)
-        validate(data, load_schema(schema_file), schema_file, f.name)
-        if len(errors) == before:
-            checked += 1
-            print(f"PASS  {f.name}  ✓ {mapping[prefix]}")
-        else:
-            print(f"FAIL  {f.name}  ✗ {mapping[prefix]}")
+        if path.parent.name == "ingredients":
+            if data.get("baseUnit") == "pcs" and "yield" in data:
+                fail(rel, "baseUnit=pcs 的食材不得设置 yield（pcs 不套 yield，ADR-0006）")
+        if path.parent.name == "dishes":
+            for i, comp in enumerate(data.get("components") or []):
+                ref = comp.get("ingredientRef")
+                if ref and ref not in ingredients:
+                    fail(rel, f"components[{i}].ingredientRef={ref!r} 在 data/ingredients/ 不存在")
+                tref = (comp.get("prep") or {}).get("techniqueRef")
+                if tref and tref not in technique_ids:
+                    fail(rel, f"components[{i}].prep.techniqueRef={tref!r} 不在 techniques.json 闭集内")
+            for i, step in enumerate(data.get("steps") or []):
+                tref = step.get("techniqueRef")
+                if tref and tref not in technique_ids:
+                    fail(rel, f"steps[{i}].techniqueRef={tref!r} 不在 techniques.json 闭集内")
+        if path.parent.name == "menu-plans":
+            for i, meal in enumerate(data.get("meals") or []):
+                ref = meal.get("dishRef")
+                if ref and ref not in dishes:
+                    fail(rel, f"meals[{i}].dishRef={ref!r} 在 data/dishes/ 不存在")
+        if path.parent.name == "purchase-orders":
+            mp = data.get("menuPlanRef")
+            if mp and mp not in menu_plans:
+                fail(rel, f"menuPlanRef={mp!r} 在 data/menu-plans/ 不存在")
+            for i, line in enumerate(data.get("lines") or []):
+                ref = line.get("ingredientRef")
+                if ref and ref not in ingredients:
+                    fail(rel, f"lines[{i}].ingredientRef={ref!r} 在 data/ingredients/ 不存在")
+
+
+def main():
+    loaded: dict[str, tuple[Path, object]] = {}
+    checked = 0
+    for rel, schema_name, is_dir in TARGETS:
+        schema_file = SCHEMA_DIR / schema_name
+        schema = load_schema(schema_file)
+        target = DATA_DIR / rel
+        files = sorted(target.glob("*.json")) if is_dir else [target]
+        if not is_dir and not target.exists():
+            errors.append(f"{rel}: 词表文件缺失")
+            continue
+        for f in files:
+            if not f.exists():
+                continue
+            label = str(f.relative_to(ROOT))
+            data = json.loads(f.read_text(encoding="utf-8"))
+            loaded[label] = (f, data)
+            before = len(errors)
+            validate(data, schema, schema_file, label)
+            if len(errors) == before:
+                checked += 1
+                print(f"PASS  {label}  ✓ {schema_name}")
+            else:
+                print(f"FAIL  {label}  ✗ {schema_name}")
+    check_references(loaded)
     if errors:
         print("\n错误明细:")
         for e in errors:
             print(" -", e)
         sys.exit(1)
-    print(f"\n全部通过：{checked} 个样例与 schema 一致。")
+    print(f"\n全部通过：{checked} 个数据文件与 schema 一致，跨文件引用完整。")
 
 
 if __name__ == "__main__":

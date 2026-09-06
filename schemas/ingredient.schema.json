@@ -2,97 +2,70 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/ingredient.schema.json",
   "title": "Ingredient",
-  "description": "食材/调料。调料与主料同属 Ingredient，以 isSeasoning 区分。借鉴 Tandoor Food/Unit 模型（仅模型不借代码，见 docs/research/open-source-research-canteen-system.md）。",
+  "description": "食材/调料（v2 收窄模型，ADR-0006）。一食材一文件：data/ingredients/<id>.json，文件名即 ID。字段定义以 docs/research/research-brief-v2.md §0 为准：三语名 + 可选图片（带许可元数据）+ 可选 Wikidata QID + baseUnit；pcsToGram 是唯一的计数↔重量换算；yield 是 0–1 单一数字且仅对按重量/体积计的食材有意义；purchase 为采购规格（供应商是字符串不是实体）；trackStock 仅耐放品为 true。",
   "type": "object",
   "properties": {
-    "id": { "$ref": "common.schema.json#/$defs/Id" },
-    "schemaVersion": { "type": "string", "const": "1" },
+    "schemaVersion": { "type": "string", "const": "2" },
     "name": { "$ref": "common.schema.json#/$defs/I18nString" },
-    "category": {
+    "image": { "$ref": "common.schema.json#/$defs/Image" },
+    "externalId": {
       "type": "string",
-      "enum": [
-        "vegetable",
-        "fruit",
-        "meat",
-        "poultry",
-        "seafood",
-        "egg-dairy",
-        "grain-staple",
-        "legume",
-        "seasoning",
-        "oil",
-        "beverage",
-        "other"
-      ]
+      "pattern": "^Q\\d+$",
+      "description": "Wikidata QID（场景 A 种子数据来源），如 Q23501（番茄）"
     },
-    "isSeasoning": { "type": "boolean" },
     "baseUnit": {
       "$ref": "common.schema.json#/$defs/Unit",
-      "description": "库存与采购聚合的基准单位，所有换算最终归一到 baseUnit"
+      "description": "库存与采购聚合的基准单位：g（按重量）/ ml（按体积）/ pcs（按个数）"
     },
-    "lossRate": {
+    "pcsToGram": {
       "type": "number",
-      "minimum": 0,
+      "exclusiveMinimum": 0,
+      "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield、不套 margin"
+    },
+    "yield": {
+      "type": "number",
+      "exclusiveMinimum": 0,
       "maximum": 1,
-      "description": "加工损耗率（去叶、去皮、焯水失重等），采购量放大时使用"
+      "description": "净料率 0–1，单一数字（ADR-0006 收窄场景 D 的分阶段模型）：仅对按重量/体积（g/ml）计的食材有意义，pcs 食材不得设置。初始值参考 USDA FBG/AH-102 与乌克兰 норми відходів（docs/research/v2/scenario-d-yield-data.md），本地实测后回填"
     },
-    "storageType": { "$ref": "common.schema.json#/$defs/StorageType" },
-    "shelfLifeDays": { "type": "integer", "minimum": 1 },
-    "allergens": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "gluten",
-          "crustaceans",
-          "eggs",
-          "fish",
-          "peanuts",
-          "soy",
-          "milk",
-          "nuts",
-          "celery",
-          "mustard",
-          "sesame",
-          "sulphites",
-          "lupin",
-          "molluscs"
-        ]
-      },
-      "uniqueItems": true,
-      "description": "EU 1169/2011 十四类过敏原"
-    },
-    "nutrition": {
+    "purchase": {
       "type": "object",
-      "description": "每 100 g baseUnit 的营养信息（可选）",
+      "description": "采购规格；缺失 = 该食材还不能算采购（readiness「能采」关卡不过）",
       "properties": {
-        "per100g": {
-          "type": "object",
-          "properties": {
-            "kcal": { "type": "number", "minimum": 0 },
-            "proteinG": { "type": "number", "minimum": 0 },
-            "fatG": { "type": "number", "minimum": 0 },
-            "carbsG": { "type": "number", "minimum": 0 }
-          },
-          "additionalProperties": false
+        "supplier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "供应商名字符串（不是实体引用），采购单按它分组；重名/改名不影响历史单（场景 F）"
+        },
+        "packSize": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "单包装净含量（packUnit 计），如 5（kg 装番茄）/ 180（枚/箱鸡蛋）"
+        },
+        "packUnit": { "$ref": "common.schema.json#/$defs/Unit" },
+        "minPacks": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最小起订量（包装数），缺省视为 1；packs = max(minPacks, ceil(需求 / packSize))"
+        },
+        "lastPrice": {
+          "$ref": "common.schema.json#/$defs/Money",
+          "description": "最近一次每包价格（下单纯估价用）；更新时跳过 0 与空值（场景 F，Grocy 教训）"
         }
       },
-      "required": ["per100g"],
+      "required": ["supplier", "packSize", "packUnit"],
       "additionalProperties": false
     },
-    "unitConversions": {
-      "type": "array",
-      "items": { "$ref": "common.schema.json#/$defs/UnitConversion" },
-      "description": "该食材专属换算（如鸡蛋 1 pcs = 55 g）；未命中时回退到全局换算表"
+    "trackStock": {
+      "type": "boolean",
+      "description": "是否记现有量：仅耐放品（盐、油、干货）为 true；false 时采购推导不扣库存"
+    },
+    "onHand": {
+      "type": "number",
+      "minimum": 0,
+      "description": "现有量（baseUnit 计）；仅 trackStock=true 时有意义"
     }
   },
-  "required": [
-    "id",
-    "schemaVersion",
-    "name",
-    "category",
-    "isSeasoning",
-    "baseUnit"
-  ],
+  "required": ["schemaVersion", "name", "baseUnit", "trackStock"],
   "additionalProperties": false
 }

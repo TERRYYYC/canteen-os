@@ -2,11 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/menu-plan.schema.json",
   "title": "MenuPlan",
-  "description": "菜单计划：日期×餐次×菜品×计划份数，是采购引擎的输入。plannedServings 可由预定点餐数据驱动（见 docs/modules/feedback.md）。",
+  "description": "菜单计划（v2 收窄模型，ADR-0006）：日期 × 餐次 × 菜品 × 份数，外加 margin 备量系数。一计划一文件：data/menu-plans/<id>.json，文件名即 ID。menu-plan 是采购引擎的输入；无状态机字段（排定即事实，修改直接改文件走 PR）。",
   "type": "object",
   "properties": {
-    "id": { "$ref": "common.schema.json#/$defs/Id" },
-    "schemaVersion": { "type": "string", "const": "1" },
+    "schemaVersion": { "type": "string", "const": "2" },
     "name": { "$ref": "common.schema.json#/$defs/I18nString" },
     "dateRange": {
       "type": "object",
@@ -17,6 +16,11 @@
       "required": ["start", "end"],
       "additionalProperties": false
     },
+    "margin": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "备量系数，默认 1.1：吸收不随份数线性放大的固定尾料/挂壁损耗（ADR-0006）。作用于净需求聚合之后（净需求 ÷ yield × margin），仅对按重量/体积（g/ml）计的食材生效，pcs 计数食材不乘"
+    },
     "meals": {
       "type": "array",
       "minItems": 1,
@@ -25,18 +29,17 @@
         "properties": {
           "date": { "type": "string", "format": "date" },
           "mealType": { "$ref": "common.schema.json#/$defs/MealType" },
-          "dishRef": { "$ref": "common.schema.json#/$defs/Id" },
+          "dishRef": {
+            "$ref": "common.schema.json#/$defs/Id",
+            "description": "data/dishes/ 下的菜品 id（文件名）"
+          },
           "plannedServings": { "type": "integer", "minimum": 1 }
         },
         "required": ["date", "mealType", "dishRef", "plannedServings"],
         "additionalProperties": false
       }
-    },
-    "status": {
-      "type": "string",
-      "enum": ["draft", "published", "locked"]
     }
   },
-  "required": ["id", "schemaVersion", "dateRange", "meals", "status"],
+  "required": ["schemaVersion", "meals"],
   "additionalProperties": false
 }

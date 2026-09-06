@@ -2,34 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/dish.schema.json",
   "title": "Dish",
-  "description": "菜品（菜谱）。components 必须引用知识库 Ingredient（ingredientRef），禁止内联字符串——这是采购引擎 BOM 展开能跑通的前提，也是与 schema.org/Recipe 纯字符串 recipeIngredient 的关键差异。视频导入时由解析 skill 负责字符串→Ingredient 映射并标注置信度。",
+  "description": "菜品（v2 收窄模型，ADR-0006）。一菜一文件：data/dishes/<id>.json，文件名即 ID。**允许不完整：除 name 外全部可选**——一道菜只有名字也能导入；缺什么由 readiness 关卡分级（能教/能排/能采，见 docs/modules/knowledge-base.md），不拒绝。status 默认视为 draft；git PR 即人工确认队列（无独立 review 状态）。components 必须 ingredientRef 引用 data/ingredients/ 下的食材（采购引擎 BOM 展开的前提）；prep.techniqueRef 与 steps[].techniqueRef 只能引用 data/techniques.json 闭集词表。",
   "type": "object",
   "properties": {
-    "id": { "$ref": "common.schema.json#/$defs/Id" },
-    "schemaVersion": { "type": "string", "const": "1" },
+    "schemaVersion": { "type": "string", "const": "2" },
     "name": { "$ref": "common.schema.json#/$defs/I18nString" },
-    "description": { "$ref": "common.schema.json#/$defs/I18nString" },
-    "category": {
-      "type": "string",
-      "enum": [
-        "staple",
-        "meat-dish",
-        "vegetable-dish",
-        "soup",
-        "cold-dish",
-        "snack",
-        "dessert",
-        "drink"
-      ]
-    },
-    "cuisine": {
-      "type": "string",
-      "description": "菜系，自由文本，如 川菜 / Chinese / Ukrainian"
-    },
+    "image": { "$ref": "common.schema.json#/$defs/Image" },
     "baseServings": {
       "type": "integer",
       "minimum": 1,
-      "description": "配方基准份数；采购与备餐按 plannedServings/baseServings 缩放"
+      "description": "配方基准份数，食堂尺度（如 50）；采购与备餐按 plannedServings/baseServings 缩放"
     },
     "components": {
       "type": "array",
@@ -38,20 +20,35 @@
         "type": "object",
         "properties": {
           "ingredientRef": { "$ref": "common.schema.json#/$defs/Id" },
-          "quantity": { "$ref": "common.schema.json#/$defs/Quantity" },
-          "lossRateOverride": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "覆盖 Ingredient.lossRate 的本菜品专用损耗率（如本菜番茄需去皮）"
+          "qty": { "$ref": "common.schema.json#/$defs/Quantity" },
+          "prep": {
+            "type": "object",
+            "description": "该配料在本菜中的备菜规格（备料单「能教」关卡的依据）",
+            "properties": {
+              "techniqueRef": {
+                "$ref": "common.schema.json#/$defs/Id",
+                "description": "刀工/预处理技法，必须是 data/techniques.json 中的 id（闭集）"
+              },
+              "size": {
+                "type": "string",
+                "minLength": 1,
+                "description": "尺寸/规格补充，如 3mm、2cm 见方"
+              },
+              "note": { "$ref": "common.schema.json#/$defs/I18nString" },
+              "image": {
+                "$ref": "common.schema.json#/$defs/Image",
+                "description": "该配料「被切的几秒」的截帧（视频导入时由 skill 产出）"
+              }
+            },
+            "required": ["techniqueRef"],
+            "additionalProperties": false
           },
-          "note": { "$ref": "common.schema.json#/$defs/I18nString" },
           "confidence": {
             "$ref": "common.schema.json#/$defs/Confidence",
             "description": "视频导入等机器来源的用量置信度；人工录入可省略（视为 1.0/manual）"
           }
         },
-        "required": ["ingredientRef", "quantity"],
+        "required": ["ingredientRef", "qty"],
         "additionalProperties": false
       }
     },
@@ -61,63 +58,44 @@
       "items": {
         "type": "object",
         "properties": {
-          "order": { "type": "integer", "minimum": 1 },
-          "instruction": { "$ref": "common.schema.json#/$defs/I18nString" },
-          "durationMinutes": { "type": "number", "exclusiveMinimum": 0 },
-          "tools": {
-            "type": "array",
-            "items": { "type": "string", "minLength": 1 },
-            "uniqueItems": true
+          "text": { "$ref": "common.schema.json#/$defs/I18nString" },
+          "techniqueRef": {
+            "$ref": "common.schema.json#/$defs/Id",
+            "description": "本步涉及的加热/处理技法，闭集引用 data/techniques.json"
+          },
+          "image": { "$ref": "common.schema.json#/$defs/Image" },
+          "clip": {
+            "type": "object",
+            "description": "对应视频片段（秒），便于备料/教学时回放",
+            "properties": {
+              "videoUrl": { "type": "string", "format": "uri" },
+              "start": { "type": "number", "minimum": 0 },
+              "end": { "type": "number", "minimum": 0 }
+            },
+            "required": ["videoUrl", "start", "end"],
+            "additionalProperties": false
           }
         },
-        "required": ["order", "instruction"],
+        "required": ["text"],
         "additionalProperties": false
       }
     },
     "provenance": {
       "type": "object",
-      "description": "来源溯源，视频导入的菜品必填",
+      "description": "来源溯源；视频导入的菜必填 videoUrl",
       "properties": {
-        "source": {
-          "type": "string",
-          "enum": ["manual", "video-import", "web-import"]
-        },
-        "videoUrl": { "type": "string", "format": "uri" },
-        "transcriptRef": {
-          "type": "string",
-          "description": "转写文本引用，通常是 dishpack 内相对路径"
-        },
-        "dishpackRef": { "$ref": "common.schema.json#/$defs/Id" },
-        "confidence": { "$ref": "common.schema.json#/$defs/Confidence" }
+        "source": { "type": "string", "enum": ["manual", "video"] },
+        "videoUrl": { "type": "string", "format": "uri" }
       },
       "required": ["source"],
       "additionalProperties": false
     },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string", "minLength": 1 },
-      "uniqueItems": true
-    },
-    "version": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "内容版本号，每次修改 +1；状态机见 docs/modules/knowledge-base.md"
-    },
     "status": {
       "type": "string",
-      "enum": ["draft", "review", "published", "archived"]
+      "enum": ["draft", "active", "archived"],
+      "description": "缺省视为 draft；只有 active 的菜参与菜单与采购推导"
     }
   },
-  "required": [
-    "id",
-    "schemaVersion",
-    "name",
-    "category",
-    "baseServings",
-    "components",
-    "steps",
-    "version",
-    "status"
-  ],
+  "required": ["name"],
   "additionalProperties": false
 }

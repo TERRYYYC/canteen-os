@@ -1,22 +1,25 @@
 /**
- * CanteenOS 核心类型。
+ * CanteenOS 核心类型（v2 收窄模型，ADR-0006）。
  *
  * ⚠️ 单一事实源是 schemas/*.schema.json（JSON Schema draft 2020-12）。
  * 本文件是与其逐字段对应的手写 TypeScript 投影；变更顺序硬性规定为
- * schema → types → examples → docs（见 CONTRIBUTING.md / ADR-0003）。
- * 实体数 > 15 或嵌套 > 4 层时切换 json-schema-to-typescript 生成
- * （见 docs/architecture.md Open Question #1）。
+ * schema → types → data → docs（见 CONTRIBUTING.md / ADR-0003）。
+ *
+ * v2 实体（5 个，目录即知识库 data/，一实体一文件、文件名即 ID）：
+ *   Ingredient / Technique（单文件词表）/ Dish / MenuPlan / PurchaseOrder（引擎输出快照）
+ * 已删除（git 历史保留）：Supplier、UnitConversionRule、Feedback、DishPack 及 PO 状态机。
  */
 
 // ---------------------------------------------------------------------------
 // common.schema.json
 // ---------------------------------------------------------------------------
 
-/** 人类可读的稳定 ID，小写 kebab-case（schema: ^[a-z][a-z0-9-]*$） */
+/** 人类可读的稳定 ID，小写 kebab-case（schema: ^[a-z][a-z0-9-]*$）。实体 id = data/ 下的文件名。 */
 export type Id = string;
 
 /**
  * 内容级三语字符串。至少提供一种语言；fallback 链 zh → en → uk。
+ * 翻译状态（machine/human）不在数据本体，走旁文件 translations.lock.json。
  * 见 docs/i18n.md。
  */
 export interface I18nString {
@@ -25,7 +28,10 @@ export interface I18nString {
   uk?: string;
 }
 
-/** 规范单位（内部统一符号，本地化显示由客户端负责） */
+/**
+ * 规范单位（内部统一符号，本地化显示由客户端负责）。
+ * g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 Ingredient.pcsToGram。
+ */
 export type Unit =
   | "g"
   | "kg"
@@ -37,7 +43,7 @@ export type Unit =
   | "tsp"
   | "pinch";
 
-/** 数量一律为 { value, unit } 结构；跨单位换算必须通过 UnitConversion 表 */
+/** 数量一律为 { value, unit } 结构 */
 export interface Quantity {
   value: number; // > 0
   unit: Unit;
@@ -51,14 +57,10 @@ export interface Money {
   currency: Currency;
 }
 
-export type ConfidenceSource =
-  | "manual"
-  | "video-import"
-  | "web-import"
-  | "llm-inference";
+export type ConfidenceSource = "manual" | "video" | "llm-inference";
 
 /**
- * AI 解析结果置信度。低于阈值（默认 0.85）的字段必须进入人工确认队列，
+ * AI 解析结果置信度。低于阈值（默认 0.85）的字段在 PR 审核中必须人工确认，
  * 见 skills/video-recipe-ingest/SKILL.md。
  */
 export interface Confidence {
@@ -66,189 +68,150 @@ export interface Confidence {
   source: ConfidenceSource;
 }
 
-export type StorageType = "ambient" | "chilled" | "frozen";
+/**
+ * 图片引用 + 许可元数据（CC BY-SA 裁决的落实，ADR-0006）：
+ * Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可与来源。
+ */
+export interface Image {
+  /** 仓库内相对路径（如 images/tomato.jpg）或 URL */
+  src: string;
+  /** 许可短名，如 CC0 / CC BY 4.0 / CC BY-SA 3.0 / Public domain / own（自摄） */
+  license: string;
+  author?: string;
+  /** 图片来源 URL；自摄图片填仓库内路径 */
+  sourceUrl: string;
+}
 
 export type MealType = "breakfast" | "lunch" | "dinner";
-
-/**
- * 内嵌简单换算（如 supplier SKU 包装规格、Ingredient.unitConversions 静态默认）：
- * from × factor = to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算。
- * 动态可调整、可版本化、带生效期的换算规则用独立实体 UnitConversionRule
- * （schemas/unit-conversion.schema.json，见 docs/modules/unit-conversion.md）。
- */
-export interface UnitConversion {
-  from: Unit;
-  to: Unit;
-  factor: number; // > 0
-  ingredientRef?: Id;
-}
 
 // ---------------------------------------------------------------------------
 // ingredient.schema.json
 // ---------------------------------------------------------------------------
 
-export type IngredientCategory =
-  | "vegetable"
-  | "fruit"
-  | "meat"
-  | "poultry"
-  | "seafood"
-  | "egg-dairy"
-  | "grain-staple"
-  | "legume"
-  | "seasoning"
-  | "oil"
-  | "beverage"
-  | "other";
-
-/** EU 1169/2011 十四类过敏原 */
-export type Allergen =
-  | "gluten"
-  | "crustaceans"
-  | "eggs"
-  | "fish"
-  | "peanuts"
-  | "soy"
-  | "milk"
-  | "nuts"
-  | "celery"
-  | "mustard"
-  | "sesame"
-  | "sulphites"
-  | "lupin"
-  | "molluscs";
-
-export interface NutritionPer100g {
-  kcal?: number;
-  proteinG?: number;
-  fatG?: number;
-  carbsG?: number;
+/** 采购规格。缺失 = 该食材还不能算采购（readiness「能采」关卡不过）。 */
+export interface PurchaseSpec {
+  /** 供应商名字符串（不是实体引用），采购单按它分组（场景 F） */
+  supplier: string;
+  /** 单包装净含量（packUnit 计），如 5（kg）/ 180（枚/箱） */
+  packSize: number; // > 0
+  packUnit: Unit;
+  /** 最小起订量（包装数），缺省视为 1；packs = max(minPacks, ceil(需求/packSize)) */
+  minPacks?: number; // >= 1
+  /** 最近一次每包价格；更新时跳过 0 与空值 */
+  lastPrice?: Money;
 }
 
-/** 食材/调料。调料以 isSeasoning 区分。模型借鉴 Tandoor（仅概念，ADR-0002）。 */
+/**
+ * 食材/调料。一食材一文件：data/ingredients/<id>.json。
+ * 字段定义以 docs/research/research-brief-v2.md §0 为准。
+ */
 export interface Ingredient {
-  id: Id;
-  schemaVersion: "1";
+  schemaVersion: "2";
   name: I18nString;
-  category: IngredientCategory;
-  isSeasoning: boolean;
-  /** 库存与采购聚合的基准单位 */
+  image?: Image;
+  /** Wikidata QID（场景 A 种子数据来源），如 Q23501 */
+  externalId?: string;
+  /** 库存与采购聚合的基准单位：g（重量）/ ml（体积）/ pcs（个数） */
   baseUnit: Unit;
-  /** 加工损耗率 0..1，采购量放大时使用 */
-  lossRate?: number;
-  storageType?: StorageType;
-  shelfLifeDays?: number;
-  allergens?: Allergen[];
-  nutrition?: { per100g: NutritionPer100g };
-  /** 食材专属换算（如鸡蛋 1 pcs = 55 g）；未命中时回退全局换算表 */
-  unitConversions?: UnitConversion[];
+  /** 一个多少克（pcs→g 的唯一换算依据） */
+  pcsToGram?: number; // > 0
+  /**
+   * 净料率 0–1 单一数字，仅对按重量/体积（g/ml）计的食材有意义；
+   * pcs 食材不得设置（pcs 不套 yield、不套 margin，ADR-0006）。
+   */
+  yield?: number; // (0, 1]
+  purchase?: PurchaseSpec;
+  /** 是否记现有量：仅耐放品（盐、油、干货）为 true */
+  trackStock: boolean;
+  /** 现有量（baseUnit 计）；仅 trackStock=true 时有意义 */
+  onHand?: number; // >= 0
 }
 
 // ---------------------------------------------------------------------------
-// supplier.schema.json
+// techniques.schema.json（单文件词表 data/techniques.json，整体是数组）
 // ---------------------------------------------------------------------------
 
-export interface SupplierContact {
-  phone?: string;
-  email?: string;
-}
+/** cut=刀法与成形规格；heat=加热烹调法；pretreat=预处理与着衣 */
+export type TechniqueKind = "cut" | "heat" | "pretreat";
 
-export interface SupplierSku {
-  skuId: string;
-  ingredientRef: Id;
-  /** 单包装净含量（packageUnit 计），> 0 */
-  packageSize: number;
-  packageUnit: Unit;
-  /** 单包装价格 */
-  price: Money;
-  /** 最小起订量（包装数，默认视为 1） */
-  moq?: number;
-  /** 下单到收货的自然日数 */
-  leadTimeDays: number;
-  /** 同一 ingredientRef 多个 SKU 时标记首选 */
-  isPreferred?: boolean;
-}
-
-export interface Supplier {
+/**
+ * 中餐技法受控词表条目（场景 B 四层骨架的首批核心集，逐步补到约 80 项）。
+ * 本词表是视频解析 skill 的输出闭集：techniqueRef 只能引用表内 id。
+ */
+export interface Technique {
   id: Id;
-  schemaVersion: "1";
+  kind: TechniqueKind;
   name: I18nString;
-  contact?: SupplierContact;
-  skus: SupplierSku[]; // >= 1
+  image?: Image;
+  note?: I18nString;
 }
 
 // ---------------------------------------------------------------------------
 // dish.schema.json
 // ---------------------------------------------------------------------------
 
-export type DishCategory =
-  | "staple"
-  | "meat-dish"
-  | "vegetable-dish"
-  | "soup"
-  | "cold-dish"
-  | "snack"
-  | "dessert"
-  | "drink";
+/** 缺省视为 draft；只有 active 的菜参与菜单与采购推导 */
+export type DishStatus = "draft" | "active" | "archived";
 
-export type DishStatus = "draft" | "review" | "published" | "archived";
+export type ProvenanceSource = "manual" | "video";
 
-export type ProvenanceSource = "manual" | "video-import" | "web-import";
+/** 配料在本菜中的备菜规格（备料单「能教」关卡的依据） */
+export interface DishPrep {
+  /** 刀工/预处理技法，必须是 data/techniques.json 中的 id（闭集） */
+  techniqueRef: Id;
+  /** 尺寸/规格补充，如 3mm、2cm 见方 */
+  size?: string;
+  note?: I18nString;
+  /** 该配料「被切的几秒」的截帧（视频导入时由 skill 产出） */
+  image?: Image;
+}
 
 /**
- * 菜品分量。必须 ingredientRef 引用知识库 Ingredient——采购引擎 BOM
- * 展开的前提，也是与 schema.org/Recipe 纯字符串 recipeIngredient 的
- * 关键差异（导入映射见 docs/video-import.md §3）。
+ * 菜品分量。必须 ingredientRef 引用 data/ingredients/ 下的食材——
+ * 采购引擎 BOM 展开的前提。
  */
 export interface DishComponent {
   ingredientRef: Id;
-  quantity: Quantity;
-  /** 覆盖 Ingredient.lossRate 的本菜品专用损耗率 */
-  lossRateOverride?: number;
-  note?: I18nString;
+  qty: Quantity;
+  prep?: DishPrep;
   /** 机器来源的用量置信度；人工录入省略（视为 1.0/manual） */
   confidence?: Confidence;
 }
 
 export interface DishStep {
-  order: number; // >= 1
-  instruction: I18nString;
-  durationMinutes?: number;
-  tools?: string[];
+  text: I18nString;
+  /** 本步涉及的加热/处理技法，闭集引用 data/techniques.json */
+  techniqueRef?: Id;
+  image?: Image;
+  /** 对应视频片段（秒），便于备料/教学时回放 */
+  clip?: { videoUrl: string; start: number; end: number };
 }
 
 export interface DishProvenance {
   source: ProvenanceSource;
   videoUrl?: string;
-  /** 转写文本引用，通常是 dishpack 内相对路径 */
-  transcriptRef?: string;
-  dishpackRef?: Id;
-  confidence?: Confidence;
 }
 
+/**
+ * 菜品。一菜一文件：data/dishes/<id>.json。
+ * **允许不完整：除 name 外全部可选**——一道菜只有名字也能导入，
+ * 缺什么由 readiness 关卡分级（能教/能排/能采），不拒绝。
+ */
 export interface Dish {
-  id: Id;
-  schemaVersion: "1";
+  schemaVersion?: "2";
   name: I18nString;
-  description?: I18nString;
-  category: DishCategory;
-  cuisine?: string;
-  /** 配方基准份数；采购按 plannedServings/baseServings 缩放 */
-  baseServings: number;
-  components: DishComponent[]; // >= 1
-  steps: DishStep[]; // >= 1
+  image?: Image;
+  /** 配方基准份数，食堂尺度（如 50）；按 plannedServings/baseServings 缩放 */
+  baseServings?: number;
+  components?: DishComponent[]; // >= 1
+  steps?: DishStep[]; // >= 1
   provenance?: DishProvenance;
-  tags?: string[];
-  /** 内容版本号，每次修改 +1；状态机见 docs/modules/knowledge-base.md */
-  version: number;
-  status: DishStatus;
+  status?: DishStatus;
 }
 
 // ---------------------------------------------------------------------------
 // menu-plan.schema.json
 // ---------------------------------------------------------------------------
-
-export type MenuPlanStatus = "draft" | "published" | "locked";
 
 export interface DateRange {
   start: string; // ISO date
@@ -258,318 +221,85 @@ export interface DateRange {
 export interface MenuPlanMeal {
   date: string; // ISO date
   mealType: MealType;
+  /** data/dishes/ 下的菜品 id（文件名） */
   dishRef: Id;
   plannedServings: number; // >= 1
 }
 
+/** 菜单计划：日期 × 餐次 × 菜品 × 份数 + margin。采购引擎的输入。 */
 export interface MenuPlan {
-  id: Id;
-  schemaVersion: "1";
+  schemaVersion: "2";
   name?: I18nString;
-  dateRange: DateRange;
+  dateRange?: DateRange;
+  /**
+   * 备量系数，默认 1.1：吸收固定尾料/挂壁损耗（ADR-0006）。
+   * 作用于净需求聚合之后（净需求 ÷ yield × margin）；pcs 食材不乘。
+   */
+  margin?: number; // > 0
   meals: MenuPlanMeal[]; // >= 1
-  status: MenuPlanStatus;
 }
 
 // ---------------------------------------------------------------------------
-// purchase-order.schema.json
+// purchase-order.schema.json（引擎输出快照，无状态机）
 // ---------------------------------------------------------------------------
 
-export type PurchaseOrderStatus =
-  | "draft"
-  | "confirmed"
-  | "ordered"
-  | "received"
-  | "settled";
+/** trace 中一条需求来源：哪个菜、哪个餐次、多少份 */
+export interface TraceMeal {
+  date: string; // ISO date
+  mealType: MealType;
+  dishRef: Id;
+  servings: number; // >= 1
+}
+
+/**
+ * 单行采购量的完整推导链（ADR-0006：每行必带）。
+ * 全部为引擎计算当时的数值快照，事后不随 ingredient 数据变更而变。
+ */
+export interface LineTrace {
+  meals: TraceMeal[]; // >= 1
+  /** Σ plannedServings/baseServings × qty 聚合后的净需求（baseUnit 计） */
+  netNeed: Quantity;
+  /** ÷ 的净料率；pcs 食材或食材无 yield 时为 null */
+  yieldApplied: number | null;
+  /** × 的备量系数（menu-plan.margin）；pcs 食材为 null */
+  marginApplied: number | null;
+  /** 扣减的现有量（baseUnit 计）；trackStock=false 或无 onHand 时为 null */
+  onHandDeducted: Quantity | null;
+  /** 净需求 ÷ yield × margin − onHand 之后、取整之前（baseUnit 计） */
+  grossNeed: Quantity;
+  packSize: number; // > 0
+  packUnit: Unit;
+  /** grossNeed ÷ packSize 的未取整值（g↔kg、ml↔l 常量换算后） */
+  packsRaw: number; // > 0
+  /** ceil(packsRaw) 是否被 minPacks 抬高 */
+  minPacksApplied: boolean;
+}
 
 export interface PurchaseOrderLine {
   ingredientRef: Id;
-  /** 命中的供应商 SKU（supplier.skus[].skuId） */
-  skuId: string;
-  /** 实际采购总净量 = packageCount × packageSize（unit 计） */
-  qty: number;
-  unit: Unit;
-  /** 按包装规格/MOQ 向上取整后的包装数 */
-  packageCount: number;
-  /** 单包装价格 */
-  unitPrice: Money;
-  /** 行金额 = packageCount × unitPrice */
-  amount: Money;
+  /** 实际采购总量 = packs × packSize（packUnit 计） */
+  qty: Quantity;
+  /** max(minPacks, ceil(扣减后需求 ÷ packSize)) */
+  packs: number; // >= 1
+  /** 下单时 ingredient.purchase.lastPrice 快照（可能未知而缺省） */
+  unitPrice?: Money;
+  /** 行金额 = packs × unitPrice（unitPrice 缺省时缺省） */
+  amount?: Money;
+  trace: LineTrace;
 }
 
-export interface PurchaseOrderDates {
-  createdAt: string; // ISO date-time
-  confirmedAt?: string;
-  orderedAt?: string;
-  /** 预计到货日 = 下单日 + leadTimeDays（ISO date） */
-  expectedAt?: string;
-  receivedAt?: string;
-  settledAt?: string;
-}
-
+/**
+ * 采购单：引擎输出快照。一单一文件：data/purchase-orders/<id>.json。
+ * 无状态机——确认/下单/收货在线下（微信/电话）完成，不进数据模型。
+ */
 export interface PurchaseOrder {
-  id: Id;
-  schemaVersion: "1";
-  supplierRef: Id;
-  /** 来源菜单计划，便于追溯采购准确度 */
+  schemaVersion: "2";
+  /** 供应商名字符串（分组键）；无 purchase 的食材归入「未指定供应商」单 */
+  supplier: string;
+  /** 来源菜单计划（data/menu-plans/ 文件名 id） */
   menuPlanRef?: Id;
+  generatedAt: string; // ISO date-time
   lines: PurchaseOrderLine[]; // >= 1
-  totalAmount: Money;
-  status: PurchaseOrderStatus;
-  dates: PurchaseOrderDates;
+  totalAmount?: Money;
   notes?: string;
-}
-
-// ---------------------------------------------------------------------------
-// feedback.schema.json
-// ---------------------------------------------------------------------------
-
-export type FeedbackType = "mealOrder" | "rating" | "comment";
-
-export type OrderStatus = "reserved" | "redeemed" | "cancelled" | "no-show";
-
-/** 结构化反馈标签（受控词表，扩充走 schema 变更流程） */
-export type FeedbackTag =
-  | "too-salty"
-  | "too-bland"
-  | "too-spicy"
-  | "too-greasy"
-  | "portion-small"
-  | "portion-large"
-  | "temperature-cold"
-  | "fresh"
-  | "would-reorder";
-
-export interface FeedbackComment {
-  originalLang: "zh" | "en" | "uk";
-  /** 用户原文，永不被覆盖 */
-  original: string;
-  /** 三语翻译（含原文语言本身）；机器初稿可人工修 */
-  translations?: I18nString;
-}
-
-/**
- * 点餐/评分/评论三态合一。schema 用 if/then 按 type 施加条件必填；
- * TS 侧用判别联合见 FeedbackOf<T>。运行期校验仍以 schema 为准。
- */
-export interface Feedback {
-  id: Id;
-  schemaVersion: "1";
-  type: FeedbackType;
-  dishRef: Id;
-  date: string; // ISO date
-  /** 仅 mealOrder 必填 */
-  mealType?: MealType;
-  /** 匿名化顾客标识，不存 PII */
-  customerRef: string;
-  /** 仅 mealOrder：预定份数 */
-  servings?: number;
-  /** 仅 mealOrder */
-  orderStatus?: OrderStatus;
-  /** 仅 rating：1-5 星 */
-  rating?: number;
-  tags?: FeedbackTag[];
-  /** 仅 comment */
-  comment?: FeedbackComment;
-  createdAt: string; // ISO date-time
-}
-
-// ---------------------------------------------------------------------------
-// dishpack.schema.json
-// ---------------------------------------------------------------------------
-
-export type DishPackEngine =
-  | "gemini-flash"
-  | "gemini-pro"
-  | "qwen-vl"
-  | "self-hosted-pipeline"
-  | "manual";
-
-export interface DishPackGenerator {
-  name: string;
-  engine: DishPackEngine;
-  engineVersion?: string;
-  promptVersion?: string;
-}
-
-export type VideoPlatform =
-  | "youtube"
-  | "bilibili"
-  | "douyin"
-  | "tiktok"
-  | "instagram"
-  | "local-file"
-  | "other";
-
-export type DetectedLang = "zh" | "en" | "uk" | "other";
-
-export interface DishPackSource {
-  videoUrl: string;
-  platform?: VideoPlatform;
-  detectedLang: DetectedLang;
-  durationSeconds?: number;
-}
-
-/**
- * schema.org/Recipe JSON-LD 原始输出。
- * 注意 recipeIngredient 为纯字符串数组——这是交换格式；
- * 内部存储必须经 ingredientMappings 映射为 ingredientRef 引用。
- */
-export interface SchemaOrgRecipe {
-  "@context": "https://schema.org";
-  "@type": "Recipe";
-  name: string;
-  description?: string;
-  recipeYield?: string;
-  recipeIngredient: string[]; // >= 1
-  recipeInstructions: SchemaOrgHowToStep[]; // >= 1
-  /** ISO 8601 duration，如 PT10M */
-  prepTime?: string;
-  cookTime?: string;
-  recipeCuisine?: string;
-  keywords?: string;
-  tool?: string[];
-}
-
-export interface SchemaOrgHowToStep {
-  "@type": "HowToStep";
-  text: string;
-  position?: number;
-}
-
-export interface IngredientMapping {
-  /** recipeIngredient 中的原始字符串，如 "鸡蛋 3 个" */
-  raw: string;
-  /** 映射到的知识库食材；匹配失败留空 + needsReview=true */
-  ingredientRef?: Id;
-  quantity?: Quantity;
-  confidence: Confidence;
-  /** 冗余标记：等于 confidence.value < 阈值（默认 0.85） */
-  needsReview: boolean;
-}
-
-export interface StepMapping {
-  order: number;
-  instruction: I18nString;
-  durationMinutes?: number;
-  tools?: string[];
-  /** 对应视频时间段（秒），便于人工抽检回放 */
-  timestampRange?: { startSec: number; endSec: number };
-}
-
-export interface SuggestedDish {
-  name: I18nString;
-  category: DishCategory;
-  baseServings: number;
-}
-
-export interface DishPackManifest {
-  recipe: SchemaOrgRecipe;
-  ingredientMappings: IngredientMapping[];
-  stepMapping?: StepMapping[];
-  suggestedDish?: SuggestedDish;
-  overallConfidence: Confidence;
-}
-
-export interface DishPackTranscript {
-  lang: DetectedLang;
-  text: string;
-  segments?: { startSec: number; endSec: number; text: string }[];
-}
-
-export interface DishPackMedia {
-  kind: "keyframe" | "cover" | "clip";
-  /** 包内相对路径或外部 URL */
-  ref: string;
-  timestampSec?: number;
-}
-
-export interface ReviewQueue {
-  status: "pending" | "approved" | "rejected";
-  /** 入队原因，如 low-confidence-ingredient、unit-conversion-missing */
-  reasons?: string[];
-}
-
-/**
- * 视频导入标准包：云端/第三方解析 skill 与本地知识库之间的交换格式。
- * 规范见 docs/video-import.md 与 skills/video-recipe-ingest/SKILL.md。
- */
-export interface DishPack {
-  /** 标准包格式版本，独立于实体 schemaVersion */
-  packVersion: "1";
-  id: Id;
-  createdAt: string;
-  generator: DishPackGenerator;
-  source: DishPackSource;
-  manifest: DishPackManifest;
-  transcript?: DishPackTranscript;
-  media?: DishPackMedia[];
-  reviewQueue: ReviewQueue;
-}
-
-// ---------------------------------------------------------------------------
-// unit-conversion.schema.json
-// ---------------------------------------------------------------------------
-
-/** 量纲转换规则来源：人工录入 / 实测 / 视频导入解析 / 供应商规格书 */
-export type UnitConversionSourceType =
-  | "manual"
-  | "measured"
-  | "video-import"
-  | "supplier-spec";
-
-/** 规则来源溯源 */
-export interface UnitConversionSource {
-  type: UnitConversionSourceType;
-  /** type=supplier-spec 时对应的供应商 */
-  supplierRef?: Id;
-  /** type=video-import 时来源的 dishpack 标准包 */
-  dishpackRef?: Id;
-  /** 来源细节自由文本（测量方法、批次、规格书编号等） */
-  detail?: string;
-}
-
-/**
- * 三元组上下文：dishRef+ingredientRef 同现 = 菜品特定；仅 ingredientRef =
- * 食材特定；皆空 = 全局通用。schema 层以 if/then 约束 dishRef 必须与
- * ingredientRef 同现。
- */
-export interface UnitConversionContext {
-  dishRef?: Id;
-  ingredientRef?: Id;
-}
-
-/**
- * draft 不参与解析；active 正常参与；deprecated 为"已被新版取代"的管理标记，
- * 仍按其历史生效区间参与复算。
- */
-export type UnitConversionStatus = "draft" | "active" | "deprecated";
-
-/**
- * 量纲转换规则（一等公民实体）。优先级链：菜品特定 > 食材特定 > 全局通用。
- * 规则不原地修改：调整 = 新增版本 supersedes 旧规则；生效区间
- * [effectiveFrom, effectiveTo) 左闭右开，effectiveTo 缺省 = 无限期；
- * 采购引擎按菜单日期取当日生效的规则，历史采购单可复算。
- * 解析骨架见 procurement/engine.ts 的 resolveConversionFactor；
- * 规范见 docs/modules/unit-conversion.md。
- */
-export interface UnitConversionRule {
-  id: Id;
-  schemaVersion: "1";
-  context: UnitConversionContext;
-  from: Unit;
-  to: Unit;
-  /** from × factor = to，> 0 */
-  factor: number;
-  /** 生效起始日（ISO date，含当日） */
-  effectiveFrom: string;
-  /** 生效截止日（ISO date，不含当日）；缺省无限期 */
-  effectiveTo?: string;
-  /** 取代的旧规则 id，形成版本调整链 */
-  supersedes?: Id;
-  source: UnitConversionSource;
-  /** 机器来源置信度；人工/实测省略（视为 1.0/manual） */
-  confidence?: Confidence;
-  note?: I18nString;
-  status: UnitConversionStatus;
 }

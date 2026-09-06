@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "2",
+  "supplier": "绿源农产品配送",
+  "generatedAt": "2026-10-03T00:00:00.000Z",
+  "lines": [
+    {
+      "ingredientRef": "egg",
+      "qty": {
+        "value": 720,
+        "unit": "pcs"
+      },
+      "packs": 4,
+      "trace": {
+        "meals": [
+          {
+            "date": "2026-10-05",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 200
+          },
+          {
+            "date": "2026-10-07",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 160
+          },
+          {
+            "date": "2026-10-09",
+            "mealType": "dinner",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 120
+          }
+        ],
+        "netNeed": {
+          "value": 720,
+          "unit": "pcs"
+        },
+        "yieldApplied": null,
+        "marginApplied": null,
+        "onHandDeducted": null,
+        "grossNeed": {
+          "value": 720,
+          "unit": "pcs"
+        },
+        "packSize": 180,
+        "packUnit": "pcs",
+        "packsRaw": 4,
+        "minPacksApplied": false
+      },
+      "unitPrice": {
+        "amount": 150,
+        "currency": "CNY"
+      },
+      "amount": {
+        "amount": 600,
+        "currency": "CNY"
+      }
+    },
+    {
+      "ingredientRef": "scallion",
+      "qty": {
+        "value": 4,
+        "unit": "kg"
+      },
+      "packs": 4,
+      "trace": {
+        "meals": [
+          {
+            "date": "2026-10-05",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 200
+          },
+          {
+            "date": "2026-10-07",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 160
+          },
+          {
+            "date": "2026-10-09",
+            "mealType": "dinner",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 120
+          }
+        ],
+        "netNeed": {
+          "value": 2400,
+          "unit": "g"
+        },
+        "yieldApplied": 0.8,
+        "marginApplied": 1.1,
+        "onHandDeducted": null,
+        "grossNeed": {
+          "value": 3300,
+          "unit": "g"
+        },
+        "packSize": 1,
+        "packUnit": "kg",
+        "packsRaw": 3.3,
+        "minPacksApplied": false
+      },
+      "unitPrice": {
+        "amount": 12,
+        "currency": "CNY"
+      },
+      "amount": {
+        "amount": 48,
+        "currency": "CNY"
+      }
+    },
+    {
+      "ingredientRef": "tomato",
+      "qty": {
+        "value": 95,
+        "unit": "kg"
+      },
+      "packs": 19,
+      "trace": {
+        "meals": [
+          {
+            "date": "2026-10-05",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 200
+          },
+          {
+            "date": "2026-10-07",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 160
+          },
+          {
+            "date": "2026-10-09",
+            "mealType": "dinner",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 120
+          }
+        ],
+        "netNeed": {
+          "value": 72000,
+          "unit": "g"
+        },
+        "yieldApplied": 0.85,
+        "marginApplied": 1.1,
+        "onHandDeducted": null,
+        "grossNeed": {
+          "value": 93176.4706,
+          "unit": "g"
+        },
+        "packSize": 5,
+        "packUnit": "kg",
+        "packsRaw": 18.6353,
+        "minPacksApplied": false
+      },
+      "unitPrice": {
+        "amount": 28.5,
+        "currency": "CNY"
+      },
+      "amount": {
+        "amount": 541.5,
+        "currency": "CNY"
+      }
+    }
+  ],
+  "menuPlanRef": "week-41",
+  "totalAmount": {
+    "amount": 1189.5,
+    "currency": "CNY"
+  }
+}

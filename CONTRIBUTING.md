@@ -14,14 +14,14 @@ schemas/*.schema.json      1. 先改 JSON Schema（单一事实源）
         ↓
 packages/core/src/types.ts 2. 同步 TypeScript 类型
         ↓
-examples/*.example.json    3. 更新/新增样例，确保通过 CI 校验
+data/**/*.json             3. 更新/新增数据文件（一实体一文件、文件名即 ID），确保通过 CI 校验
         ↓
 docs/**/*.md               4. 同步文档（数据模型表、流程图、Open Questions）
 ```
 
 - 只改实现逻辑不改数据结构时，可以跳过 1 和 3，但 4（文档）不能跳。
 - 破坏性 schema 变更（删字段、改类型、收窄枚举）必须在 PR 描述中标注 `BREAKING` 并给出迁移说明。
-- CI 会用 ajv 校验 `examples/` 与 `schemas/` 的一致性；本地可用 `pnpm validate`（需 Node 20，见 package.json，**不强制安装依赖也可只提交 schema+examples**）。
+- CI 会用 ajv 校验 `data/` 与 `schemas/` 的一致性；本地可用 `pnpm validate`（需 Node 20，见 package.json）或 `python3 scripts/local-validate.py`（零依赖，含跨文件引用检查）；**不强制安装依赖也可只提交 schema+data**。
 
 ## 二、分支命名
 
@@ -33,7 +33,7 @@ schema/<entity>-<change>      纯 schema 演进，如 schema/dish-add-cuisine
 skill/<name>-<change>         skills/ 下解析 skill 契约变更
 ```
 
-`<scope>` 建议取值：`knowledge-base` / `procurement` / `feedback` / `video-import` / `core` / `repo`。
+`<scope>` 建议取值：`knowledge-base` / `procurement` / `video-import` / `core` / `repo`。
 
 ## 三、Conventional Commits
 
@@ -43,21 +43,22 @@ skill/<name>-<change>         skills/ 下解析 skill 契约变更
 <type>(<scope>): <subject>
 
 [optional body]
+
 [optional footer: BREAKING CHANGE / Refs #123]
 ```
 
 - type：`feat` / `fix` / `docs` / `schema` / `refactor` / `test` / `chore`
 - scope：同分支命名的 scope 取值
-- 示例：`schema(dish): add lossRateOverride to components`
+- 示例：`schema(dish): add prep.image to components`
 - 示例：`feat(procurement): add MOQ rounding step to engine skeleton`
 
 ## 四、PR Checklist
 
 提交 PR 前逐项确认（模板会自动加载到 PR 描述）：
 
-- [ ] 变更遵循 schema → types → examples → docs 顺序
+- [ ] 变更遵循 schema → types → data → docs 顺序
 - [ ] `node scripts/validate-schemas.mjs` 通过（或说明为何本地无法运行）
-- [ ] 新增/修改的实体在 `examples/` 有对应样例且字段名与 schema 严格一致
+- [ ] 新增/修改的实体在 `data/` 有对应数据文件且字段名与 schema 严格一致
 - [ ] 所有可展示文本使用 `I18nString`（至少一种语言），未引入单语言字符串字段
 - [ ] 文档已同步（含数据模型表与 Open Questions）
 - [ ] 未引入 AGPL / Commons Clause / 无许可证的依赖或代码片段（见下方红线）
@@ -72,7 +73,7 @@ skill/<name>-<change>         skills/ 下解析 skill 契约变更
 
 ## 六、数据贡献（菜品/食材）
 
-非代码贡献同样欢迎：菜品、食材、供应商数据请使用 **dish_contribution** issue 模板（`.github/ISSUE_TEMPLATE/dish_contribution.yml`），按 schema 字段提供三语名称与用量；维护者会转为符合 schema 的 JSON 并通过 CI 校验后合入。
+非代码贡献同样欢迎：菜品、食材数据请使用 **dish_contribution** issue 模板（`.github/ISSUE_TEMPLATE/dish_contribution.yml`），按 schema 字段提供三语名称与用量；维护者会转为符合 schema 的 JSON 放入 `data/` 并通过 CI 校验后合入。
 
 ## 七、沟通语言
 

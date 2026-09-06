@@ -2,31 +2,29 @@
 /**
  * CanteenOS schema 一致性校验（CI 入口）。
  * 用法: node scripts/validate-schemas.mjs
- * 逻辑: examples/<prefix>-*.example.json 按前缀映射到 schemas/<prefix>.schema.json，
- *       用 ajv（draft 2020-12）+ ajv-formats 校验；任一失败即退出码 1。
- * 注意: 前缀按长度降序匹配，避免 "dishpack-*" 被 "dish" 前缀截获。
+ * 逻辑: 遍历 data/ 知识库（ADR-0006 起取代 examples/——目录即知识库，一实体一文件、
+ *       文件名即 ID），按下表映射到 schemas/*.schema.json，用 ajv（draft 2020-12）+
+ *       ajv-formats 校验；任一失败即退出码 1。
+ *       跨文件引用检查（techniqueRef 闭集等）在 scripts/local-validate.py 中。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SCHEMA_DIR = join(ROOT, "schemas");
-const EXAMPLE_DIR = join(ROOT, "examples");
+const DATA_DIR = join(ROOT, "data");
 
-/** 文件名前缀 → schema 文件名（新增 schema 时在此登记） */
-const PREFIX_MAP = {
-  ingredient: "ingredient.schema.json",
-  supplier: "supplier.schema.json",
-  dishpack: "dishpack.schema.json",
-  dish: "dish.schema.json",
-  "menu-plan": "menu-plan.schema.json",
-  "purchase-order": "purchase-order.schema.json",
-  "unit-conversion": "unit-conversion.schema.json",
-  feedback: "feedback.schema.json",
-};
+/** 数据路径 → schema 文件名（新增实体时在此登记）。dir 校验目录下全部 .json；file 校验单文件。 */
+const DATA_TARGETS = [
+  { path: "ingredients", schema: "ingredient.schema.json", kind: "dir" },
+  { path: "dishes", schema: "dish.schema.json", kind: "dir" },
+  { path: "menu-plans", schema: "menu-plan.schema.json", kind: "dir" },
+  { path: "purchase-orders", schema: "purchase-order.schema.json", kind: "dir" },
+  { path: "techniques.json", schema: "techniques.schema.json", kind: "file" },
+];
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 addFormats(ajv);
@@ -41,46 +39,52 @@ for (const file of readdirSync(SCHEMA_DIR).filter((f) => f.endsWith(".schema.jso
 // 此处必须复用已注册的 schema（getSchema），若再 compile 同一份 JSON
 // 会因重复注册同一 $id 抛 "schema with key or id already exists"。
 const validators = new Map();
-for (const [prefix, schemaFile] of Object.entries(PREFIX_MAP)) {
-  const validate = ajv.getSchema(schemaFile);
+for (const { schema } of DATA_TARGETS) {
+  const validate = ajv.getSchema(schema);
   if (!validate) {
-    console.error(`ERROR: schema 未注册成功: ${schemaFile}`);
+    console.error(`ERROR: schema 未注册成功: ${schema}`);
     process.exit(1);
   }
-  validators.set(prefix, validate);
+  validators.set(schema, validate);
 }
-
-const prefixes = Object.keys(PREFIX_MAP).sort((a, b) => b.length - a.length);
 
 let passed = 0;
 let failed = 0;
+let total = 0;
 
-const examples = readdirSync(EXAMPLE_DIR).filter((f) => f.endsWith(".json")).sort();
-if (examples.length === 0) {
-  console.error("ERROR: examples/ 下没有任何 .json 样例");
-  process.exit(1);
-}
-
-for (const file of examples) {
-  const prefix = prefixes.find((p) => file.startsWith(p));
-  if (!prefix) {
-    console.error(`FAIL  ${file}: 无法匹配任何 schema 前缀（${prefixes.join(", ")}）`);
+for (const { path, schema, kind } of DATA_TARGETS) {
+  const abs = join(DATA_DIR, path);
+  const files =
+    kind === "dir"
+      ? existsSync(abs)
+        ? readdirSync(abs)
+            .filter((f) => f.endsWith(".json"))
+            .sort()
+            .map((f) => join(abs, f))
+        : []
+      : [abs];
+  if (kind === "file" && !existsSync(abs)) {
+    console.error(`FAIL  ${path}: 文件缺失`);
     failed++;
     continue;
   }
-  const validate = validators.get(prefix);
-  const data = JSON.parse(readFileSync(join(EXAMPLE_DIR, file), "utf8"));
-  if (validate(data)) {
-    console.log(`PASS  ${file}  ✓ ${PREFIX_MAP[prefix]}`);
-    passed++;
-  } else {
-    console.error(`FAIL  ${file}  ✗ ${PREFIX_MAP[prefix]}`);
-    for (const err of validate.errors ?? []) {
-      console.error(`      ${err.instancePath || "(root)"} ${err.message}`);
+  for (const file of files) {
+    total++;
+    const label = relative(ROOT, file);
+    const validate = validators.get(schema);
+    const data = JSON.parse(readFileSync(file, "utf8"));
+    if (validate(data)) {
+      console.log(`PASS  ${label}  ✓ ${schema}`);
+      passed++;
+    } else {
+      console.error(`FAIL  ${label}  ✗ ${schema}`);
+      for (const err of validate.errors ?? []) {
+        console.error(`      ${err.instancePath || "(root)"} ${err.message}`);
+      }
+      failed++;
     }
-    failed++;
   }
 }
 
-console.log(`\n${passed} passed, ${failed} failed, ${examples.length} total`);
+console.log(`\n${passed} passed, ${failed} failed, ${total} total`);
 process.exit(failed === 0 ? 0 : 1);

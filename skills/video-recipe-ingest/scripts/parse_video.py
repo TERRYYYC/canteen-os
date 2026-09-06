@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""parse_video.py — video-recipe-ingest 参考实现：做菜视频 → dishpack 标准包。
+"""parse_video.py — video-recipe-ingest 参考实现：做菜视频 → dish 草稿 + images/ 截帧目录。
 
-引擎可插拔（统一接口 parse(input, lang_hint) -> raw_recipe dict）：
+v2 契约（ADR-0006，见 SKILL.md）：不再有中间包，直接产出
+  <output-dir>/dishes/<slug>.json        符合 schemas/dish.schema.json，status="draft"（允许不完整，required 仅 name）
+  <output-dir>/dishes/<slug>.review.md   PR 描述用的「待人工确认」复核清单文本块（旧 needsReview/reviewQueue 的继任者）
+  <output-dir>/images/<slug>/            截帧占位说明文件（真实抽帧由引擎侧后续实现，见 extract_frame_ffmpeg 的 TODO）
+
+引擎可插拔（统一接口 parse(input, lang_hint, techniques) -> raw_recipe dict）：
   fixture  离线确定性路径：读取 fixtures/tomato-egg/ 预置的模拟引擎输出与转写，
            跑完整后处理管线。CI 与默认演示路径，开箱即跑、零密钥。
   gemini   Google Gemini（generateContent + responseSchema 约束 JSON 输出）。
@@ -10,19 +15,20 @@
   qwen     阿里云百炼 Qwen-VL（OpenAI 兼容接口）。需要环境变量 DASHSCOPE_API_KEY。
 
 公共后处理（与引擎无关）：
-  raw_recipe → 清洗/归一 → 组装 dishpack（packVersion/id/createdAt/generator/source/
-  manifest/transcript/reviewQueue，严格按 SKILL.md §2-§3）→ 词典匹配生成
-  ingredientMappings（fixtures/ingredient-dictionary.json）→ 质量门槛（SKILL.md §4：
-  置信度 <0.85 标 needsReview 并写 reviewQueue.reasons）→ 调 validate_dishpack.py
-  校验（不通过按 §4 重试/标记 rejected）→ 写输出文件。
+  raw_recipe → 清洗/归一 → 技法闭集校验（启动时加载 data/techniques.json；词表外技法
+  字段留空并记入复核清单，SKILL.md §3）→ ingredient 词典匹配生成 ingredientRef
+  （fixtures/ingredient-dictionary.json；匹配不到则该配料留空并记入复核清单）→
+  食堂尺度放大（默认 50 份）→ 质量门槛（SKILL.md §4：confidence<0.85 逐条列入复核清单；
+  均值<0.85 标 [需重点审核]）→ 调 validate_dish.py 校验（不通过按 §4 重试 ≤2 次）→
+  写 dishes/ + images/。
 
 退出码：0 成功；1 校验失败；2 配置错误（如缺 API key）；3 引擎调用失败。
 
 用法：
   python3 parse_video.py --input <视频文件或URL> --engine <gemini|qwen|fixture> \
-      [--lang-hint zh|en|uk] --output <dishpack.json>
+      [--lang-hint zh|en|uk] --output-dir <输出目录>
 示例（离线演示）：
-  python3 parse_video.py --input fixtures --engine fixture --output /tmp/dishpack-out.json
+  python3 parse_video.py --input fixtures --engine fixture --output-dir /tmp/skill-out
 """
 from __future__ import annotations
 
@@ -38,7 +44,6 @@ import sys
 import tempfile
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
@@ -47,15 +52,19 @@ FIXTURE_ROOT = SKILL_ROOT / "fixtures"
 DEFAULT_FIXTURE = FIXTURE_ROOT / "tomato-egg"
 DICTIONARY_FILE = FIXTURE_ROOT / "ingredient-dictionary.json"
 PROMPT_FILE = SKILL_ROOT / "prompts" / "extract-recipe.md"
-VALIDATOR = SKILL_ROOT / "scripts" / "validate_dishpack.py"
+VALIDATOR = SKILL_ROOT / "scripts" / "validate_dish.py"
+TECHNIQUES_FILE = REPO_ROOT / "data" / "techniques.json"
 
 CONFIDENCE_THRESHOLD = 0.85
 UNIT_ENUM = ("g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch")
 GENERATOR_NAME = "video-recipe-ingest"
+DEFAULT_SERVINGS = 50  # SKILL.md §2：baseServings 默认按食堂尺度 50 份产出
 
 GEMINI_MODEL_DEFAULT = "gemini-2.5-flash"
 GEMINI_INLINE_LIMIT = 20 * 1024 * 1024  # 超过则走 Files API
 QWEN_MODEL_DEFAULT = "qwen3-vl-plus"
+
+CONTENT_LANGS = ("zh", "en", "uk")
 
 
 class EngineError(Exception):
@@ -64,6 +73,31 @@ class EngineError(Exception):
 
 class MissingConfigError(Exception):
     """配置缺失（如 API key，exit 2）。"""
+
+
+# --------------------------------------------------------------------------- 技法闭集（启动时加载）
+
+
+def load_techniques() -> list[dict]:
+    """加载 data/techniques.json 闭集词表（cut/heat/pretreat 三类受控词表）。"""
+    if not TECHNIQUES_FILE.is_file():
+        raise EngineError(f"技法闭集词表缺失: {TECHNIQUES_FILE}")
+    entries = json.loads(TECHNIQUES_FILE.read_text(encoding="utf-8"))
+    return [e for e in entries if isinstance(e, dict) and e.get("id")]
+
+
+def render_technique_vocab(techniques: list[dict]) -> str:
+    """把闭集词表渲染为 prompt 用的选择清单（id + 三语名 + 定义，SKILL.md §3）。"""
+    lines = []
+    for e in techniques:
+        name = e.get("name") or {}
+        note = (e.get("note") or {}).get("zh", "")
+        trilingual = " / ".join(filter(None, (name.get("zh"), name.get("en"), name.get("uk"))))
+        line = f"- `{e['id']}`（{e.get('kind', '?')}）：{trilingual}"
+        if note:
+            line += f" —— {note}"
+        lines.append(line)
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------- prompt 资产加载
@@ -81,7 +115,7 @@ def load_prompt_assets() -> tuple[str, dict, str]:
     return text, schema, version
 
 
-def render_prompt(template: str, lang_hint: str | None) -> str:
+def render_prompt(template: str, lang_hint: str | None, techniques: list[dict]) -> str:
     if lang_hint:
         line = {
             "zh": "语言提示：视频旁白主语言大概率为中文（zh）。",
@@ -90,7 +124,9 @@ def render_prompt(template: str, lang_hint: str | None) -> str:
         }[lang_hint]
     else:
         line = "语言未知，请自行检测并在 detectedLang 中如实标注。/ Language unknown — detect it and report in detectedLang."
-    return template.replace("{LANG_HINT}", line)
+    return template.replace("{LANG_HINT}", line).replace(
+        "{TECHNIQUE_VOCAB}", render_technique_vocab(techniques)
+    )
 
 
 # --------------------------------------------------------------------------- 词典与数量解析
@@ -105,7 +141,7 @@ def match_ingredient(raw: str, name_hint: str | None, dictionary: dict) -> str |
 
     策略：nameHint 精确命中别名优先；否则在 raw 中取最长别名子串匹配
     （最长优先可缓解「油」命中「酱油」类误配）。
-    返回 ingredientRef（如 ing-tomato）或 None。
+    返回 ingredientRef（如 tomato，即 data/ingredients/<id>.json 的文件名）或 None。
 
     TODO(prod): 接真实知识库 API（全量词条 + 模糊匹配/向量召回），
     本 fixture 词典仅为演示与 CI 的最小子集。
@@ -148,14 +184,16 @@ def parse_quantity_from_raw(raw: str, dictionary: dict) -> dict | None:
 
 # --------------------------------------------------------------------------- 引擎统一接口与三个 adapter
 #
-# 统一接口：parse(input_value, lang_hint) -> raw_recipe(dict)
-# raw_recipe 契约（与 prompts/extract-recipe.md 的 responseSchema 对应）：
-#   detectedLang, durationSeconds?, recipe{...schema.org/Recipe...},
-#   ingredients[{raw, nameHint?, quantity{value,unit}, confidence}],
-#   steps[{order, instruction{zh,en,uk}, durationMinutes?, tools?, timestampRange, confidence}],
-#   suggestedDish{name{zh,en,uk}, category, baseServings},
+# 统一接口：parse(input_value, lang_hint, techniques) -> raw_recipe(dict)
+# raw_recipe 契约（与 prompts/extract-recipe.md 的 responseSchema 对应，v2）：
+#   detectedLang, durationSeconds?,
+#   dishName{zh,en,uk}, slug?, baseServings?（引擎产出的基准份数，后处理放大到食堂尺度）,
+#   components[{raw, nameHint?, quantity{value,unit}?, confidence,
+#               prep?{techniqueRef(闭集 id), size?, note{zh,en,uk}?, frameSec?}}],
+#   steps[{order, instruction{zh,en,uk}, techniqueRef?(闭集 id), duration?(ISO 8601),
+#          timestampRange{startSec,endSec}, confidence}],
 #   overallConfidence, transcript{lang, text, segments?}, media?
-# 真实引擎的 meta（id/createdAt/engine/source 等）由 adapter 依据 CLI 输入注入。
+# 真实引擎的 meta（engine/engineVersion/promptVersion/source 等）由 adapter 依据 CLI 输入注入。
 
 
 class FixtureEngine:
@@ -166,7 +204,7 @@ class FixtureEngine:
     def __init__(self, fixture_dir: Path | None = None):
         self.fixture_dir = fixture_dir or DEFAULT_FIXTURE
 
-    def parse(self, input_value: str, lang_hint: str | None) -> dict:
+    def parse(self, input_value: str, lang_hint: str | None, techniques: list[dict]) -> dict:
         output_file = self.fixture_dir / "engine-output.json"
         if not output_file.is_file():
             raise EngineError(f"fixture 缺少 {output_file}")
@@ -195,9 +233,9 @@ class GeminiEngine:
                 "然后 export GEMINI_API_KEY=<your-key> 后重试。"
             )
 
-    def parse(self, input_value: str, lang_hint: str | None) -> dict:
+    def parse(self, input_value: str, lang_hint: str | None, techniques: list[dict]) -> dict:
         prompt_template, schema, prompt_version = load_prompt_assets()
-        prompt = render_prompt(prompt_template, lang_hint)
+        prompt = render_prompt(prompt_template, lang_hint, techniques)
         video_part = self._build_video_part(input_value)
         body = {
             "contents": [{"parts": [{"text": prompt}, video_part]}],
@@ -314,9 +352,9 @@ class QwenEngine:
                 "然后 export DASHSCOPE_API_KEY=<your-key> 后重试。"
             )
 
-    def parse(self, input_value: str, lang_hint: str | None) -> dict:
+    def parse(self, input_value: str, lang_hint: str | None, techniques: list[dict]) -> dict:
         prompt_template, schema, prompt_version = load_prompt_assets()
-        prompt = render_prompt(prompt_template, lang_hint)
+        prompt = render_prompt(prompt_template, lang_hint, techniques)
         video_content = self._build_video_content(input_value)
         body = {
             "model": self.model,
@@ -397,17 +435,13 @@ def _detect_platform(input_value: str) -> str:
     return "other" if re.match(r"^https?://", input_value) else "local-file"
 
 
-# --------------------------------------------------------------------------- 公共后处理：raw_recipe → dishpack
+# --------------------------------------------------------------------------- 公共后处理：raw_recipe → dish 草稿
 
 ISO8601_DURATION = re.compile(r"^PT(\d+H)?(\d+M)?(\d+S)?$")
-RECIPE_KEYS = {
-    "@context", "@type", "name", "description", "recipeYield", "recipeIngredient",
-    "recipeInstructions", "prepTime", "cookTime", "recipeCuisine", "keywords", "tool",
-}
 
 
 def _sanitize_duration(value) -> str | None:
-    """ISO 8601 duration 归一；尽力把 "10 minutes" 类自然语言转为 PT10M，失败则丢弃该字段。"""
+    """ISO 8601 duration 归一；尽力把 "10 minutes" 类自然语言转为 PT10M，失败则返回 None。"""
     if not isinstance(value, str):
         return None
     if ISO8601_DURATION.match(value):
@@ -424,182 +458,269 @@ def _sanitize_duration(value) -> str | None:
     return f"PT{num}S"
 
 
-def _sanitize_recipe(recipe: dict) -> dict:
-    """按 dishpack schema 清洗 recipe（additionalProperties=false，多余字段一律剥离）。"""
-    out = {k: v for k, v in recipe.items() if k in RECIPE_KEYS}
-    out["@context"] = "https://schema.org"
-    out["@type"] = "Recipe"
-    steps = []
-    for i, step in enumerate(recipe.get("recipeInstructions") or []):
-        if not isinstance(step, dict) or not step.get("text"):
-            continue
-        steps.append({
-            "@type": "HowToStep",
-            "position": step.get("position") if isinstance(step.get("position"), int) else i + 1,
-            "text": str(step["text"]),
-        })
-    out["recipeInstructions"] = steps
-    out["recipeIngredient"] = [str(s) for s in recipe.get("recipeIngredient") or [] if str(s).strip()]
-    for field in ("prepTime", "cookTime"):
-        if field in out:
-            fixed = _sanitize_duration(out[field])
-            if fixed:
-                out[field] = fixed
-            else:
-                del out[field]
-    return out
-
-
 def _kebab(text: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
-    return slug
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def build_dishpack(raw: dict, engine_cli: str, input_value: str, pack_id: str | None, created_at: str | None) -> dict:
-    """raw_recipe → dishpack（SKILL.md §2-§3），含词典映射与质量门槛（§4）。"""
+def _i18n(value: dict | None) -> dict:
+    """过滤出 zh/en/uk 非空文本，保持 I18nString 结构合法。"""
+    return {
+        lang: str(text) for lang, text in (value or {}).items()
+        if lang in CONTENT_LANGS and str(text).strip()
+    }
+
+
+def _clamp_conf(value, default: float = 0.5) -> float:
+    try:
+        return max(0.0, min(1.0, float(value)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _scale_qty(qty: dict, factor: float) -> dict:
+    value = qty["value"] * factor
+    if abs(value - round(value)) < 1e-9:
+        value = int(round(value))
+    else:
+        value = round(value, 2)
+    return {"value": value, "unit": qty["unit"]}
+
+
+def _image_ref(slug: str, filename: str) -> dict:
+    """视频截帧为自有演绎（SKILL.md §4）：license=own，sourceUrl 填仓库内路径。"""
+    src = f"images/{slug}/{filename}"
+    return {"src": src, "license": "own", "sourceUrl": src}
+
+
+def extract_frame_ffmpeg(video_path: str, timestamp_sec: float, out_path: Path) -> bool:
+    """TODO(引擎侧后续实现): 真实截帧。
+
+    计划实现（SKILL.md §5 推荐管线）：
+      1. 粗定位：ffmpeg -ss <timestamp_sec> -i <video> -frames:v 1 -q:v 2 <out_path>
+      2. 窗内挑帧：PySceneDetect 在 clip 时间窗内切镜头 + Laplacian 清晰度 + pHash 去重；
+      3. 双路校验：VLM temporal grounding ∪ ASR 词级时刻（±2s），见 SKILL.md §5。
+
+    当前版本不调用 ffmpeg（保持纯标准库零依赖、CI 无 ffmpeg 也可跑），
+    一律返回 False，由调用方写出占位说明文件。
+    """
+    return False
+
+
+def _write_image_placeholder(out_path: Path, description: str, video_url: str, timestamp_sec: float | None) -> None:
+    """真实截帧就绪前的占位说明文件（<name>.jpg.PLACEHOLDER.txt）。"""
+    lines = [
+        f"占位说明：{description}",
+        f"来源视频：{video_url}",
+    ]
+    if timestamp_sec is not None:
+        lines.append(f"参考时刻：{timestamp_sec:g}s")
+        lines.append(f"抽帧命令（实现后）：ffmpeg -ss {timestamp_sec:g} -i <video> -frames:v 1 -q:v 2 {out_path.name}")
+    lines.append("TODO：由 parse_video.py 的 extract_frame_ffmpeg() 真实抽帧后替换本文件。")
+    out_path.with_name(out_path.name + ".PLACEHOLDER.txt").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
+def build_dish(
+    raw: dict,
+    engine_cli: str,
+    input_value: str,
+    dish_id: str | None,
+    target_servings: int,
+    technique_ids: set[str],
+) -> tuple[dict, list[str], list[tuple[str, str, float | None]], str]:
+    """raw_recipe → (dish, 复核清单条目, 预期截帧列表[(文件名, 说明, 时刻)], slug)。
+
+    质量门槛（SKILL.md §4）与技法闭集（§3）在此落实：
+    匹配不到 ingredientRef / techniqueRef 的字段一律留空（为通过 schema 则整条/整项省略），
+    并逐条记入复核清单——即旧 needsReview/reviewQueue 逻辑在 v2 的形态（PR 描述文本块）。
+    """
     dictionary = load_dictionary()
     meta = raw.get("meta") or {}
-    recipe = _sanitize_recipe(raw.get("recipe") or {})
+    review: list[str] = []
+    frames: list[tuple[str, str, float | None]] = []  # (filename, 说明, timestamp)
 
-    # --- ingredientMappings：字符串 → ingredientRef（SKILL.md §3 核心义务） ---
-    reasons: list[str] = []
-    mappings = []
-    ingredients = raw.get("ingredients") or [
-        {"raw": s, "confidence": 0.5} for s in recipe["recipeIngredient"]
-    ]
-    for item in ingredients:
+    video_url = (meta.get("source") or {}).get("videoUrl") or _input_to_uri(input_value)
+
+    # --- 菜名与 slug ---
+    name = _i18n(raw.get("dishName"))
+    slug = dish_id or (raw.get("slug") if isinstance(raw.get("slug"), str) else None)
+    if not slug:
+        slug = _kebab(name.get("en", ""))
+    if not slug:
+        digest = hashlib.sha1(video_url.encode("utf-8")).hexdigest()[:8]
+        slug = f"video-{digest}"
+
+    # --- 食堂尺度放大（SKILL.md §2：默认 50 份；家常尺度按比例放大并列入复核清单） ---
+    src_servings = raw.get("baseServings")
+    if not isinstance(src_servings, int) or isinstance(src_servings, bool) or src_servings < 1:
+        src_servings = None
+    factor = 1.0
+    if src_servings and src_servings != target_servings:
+        factor = target_servings / src_servings
+        review.append(
+            f"servings-scaled: 视频为 {src_servings} 份家常尺度，已 ×{factor:g} 放大到 {target_servings} 份食堂尺度，用量请师傅核对"
+        )
+
+    # --- components：ingredientRef 词典匹配 + 技法闭集 + 置信度门槛 ---
+    components: list[dict] = []
+    for item in raw.get("components") or []:
         raw_str = str(item.get("raw", "")).strip()
         if not raw_str:
             continue
-        try:
-            conf = max(0.0, min(1.0, float(item.get("confidence", 0.5))))
-        except (TypeError, ValueError):
-            conf = 0.5
-        mapping = {
-            "raw": raw_str,
-            "confidence": {"value": conf, "source": "video-import"},
-        }
-        needs_review = False
+        conf = _clamp_conf(item.get("confidence"))
+
         ref = match_ingredient(raw_str, item.get("nameHint"), dictionary)
-        if ref:
-            mapping["ingredientRef"] = ref
-        else:
-            needs_review = True
-            reasons.append(f"unmatched-ingredient: {raw_str}")
+        if not ref:
+            review.append(f"unmatched-ingredient: {raw_str!r} 未匹配到 data/ingredients/ 已有食材，本条未写入 components，请师傅决定新建食材还是改映射")
+            continue
+
         qty = item.get("quantity")
         if not (isinstance(qty, dict) and qty.get("unit") in UNIT_ENUM
-                and isinstance(qty.get("value"), (int, float)) and qty["value"] > 0):
+                and isinstance(qty.get("value"), (int, float)) and not isinstance(qty.get("value"), bool)
+                and qty["value"] > 0):
             qty = parse_quantity_from_raw(raw_str, dictionary)
-        if qty:
-            mapping["quantity"] = qty
-        else:
-            needs_review = True
-            reasons.append(f"unit-conversion-missing: {raw_str}")
-        if conf < CONFIDENCE_THRESHOLD:
-            needs_review = True
-            reasons.append(f"low-confidence-ingredient: {raw_str} ({conf:g})")
-        mapping["needsReview"] = needs_review
-        mappings.append(mapping)
-
-    # --- stepMapping：保留 timestampRange（§4 溯源完整性） ---
-    step_mapping = []
-    for i, step in enumerate(raw.get("steps") or []):
-        instruction = {
-            lang: str(text) for lang, text in (step.get("instruction") or {}).items()
-            if lang in ("zh", "en", "uk") and str(text).strip()
-        }
-        if not instruction:
+        if not qty:
+            review.append(f"unit-conversion-missing: {raw_str!r} 无法解析/换算用量，本条未写入 components")
             continue
-        entry = {
-            "order": step.get("order") if isinstance(step.get("order"), int) else i + 1,
-            "instruction": instruction,
+
+        comp: dict = {
+            "ingredientRef": ref,
+            "qty": _scale_qty(qty, factor),
         }
-        if isinstance(step.get("durationMinutes"), (int, float)) and step["durationMinutes"] > 0:
-            entry["durationMinutes"] = step["durationMinutes"]
-        if isinstance(step.get("tools"), list) and step["tools"]:
-            entry["tools"] = [str(t) for t in step["tools"]]
+
+        prep = item.get("prep")
+        if isinstance(prep, dict):
+            tref = prep.get("techniqueRef")
+            if isinstance(tref, str) and tref in technique_ids:
+                prep_out: dict = {"techniqueRef": tref}
+                if isinstance(prep.get("size"), str) and prep["size"].strip():
+                    prep_out["size"] = prep["size"].strip()
+                note = _i18n(prep.get("note"))
+                if note:
+                    prep_out["note"] = note
+                frame_sec = prep.get("frameSec")
+                frame_sec = frame_sec if isinstance(frame_sec, (int, float)) and not isinstance(frame_sec, bool) else None
+                filename = f"prep-{ref}.jpg"
+                prep_out["image"] = _image_ref(slug, filename)
+                frames.append((filename, f"配料 {raw_str!r}「被切的几秒」代表帧（→ components[].prep.image）", frame_sec))
+                comp["prep"] = prep_out
+            else:
+                review.append(
+                    f"unmatched-technique: {raw_str!r} 的 prep.techniqueRef={tref!r} 不在 techniques.json 闭集内，"
+                    "prep 已留空；请选语义最近的已有词条（差异写 note）或提议新增词条"
+                )
+
+        comp["confidence"] = {"value": conf, "source": "video"}
+        if conf < CONFIDENCE_THRESHOLD:
+            review.append(f"low-confidence: components[{len(components)}] {ref}（{raw_str}）confidence={conf:g} < {CONFIDENCE_THRESHOLD}")
+        components.append(comp)
+
+    # --- steps：clip 对齐视频时间段（§4 溯源完整性） + 技法闭集 ---
+    duration_seconds = raw.get("durationSeconds")
+    duration_seconds = duration_seconds if isinstance(duration_seconds, (int, float)) and not isinstance(duration_seconds, bool) else None
+    keyframes = [
+        m for m in (raw.get("media") or [])
+        if isinstance(m, dict) and m.get("kind") == "keyframe" and isinstance(m.get("timestampSec"), (int, float))
+    ]
+    steps: list[dict] = []
+    for i, step in enumerate(raw.get("steps") or []):
+        text = _i18n(step.get("instruction"))
+        if not text:
+            continue
+        entry: dict = {"text": text}
+
+        tref = step.get("techniqueRef")
+        if isinstance(tref, str) and tref.strip():
+            if tref in technique_ids:
+                entry["techniqueRef"] = tref
+            else:
+                review.append(
+                    f"unmatched-technique: steps[{len(steps)}].techniqueRef={tref!r} 不在 techniques.json 闭集内，该字段已留空"
+                )
+
+        # ISO 8601 duration 仅作格式校验与信息记录（dish schema v2 无时长字段，不入库）
+        if step.get("duration") is not None and not _sanitize_duration(step.get("duration")):
+            review.append(f"invalid-duration: steps[{len(steps)}].duration={step.get('duration')!r} 不是 ISO 8601 duration，已丢弃")
+
         tr = step.get("timestampRange")
-        if isinstance(tr, dict) and isinstance(tr.get("startSec"), (int, float)) and isinstance(tr.get("endSec"), (int, float)):
-            entry["timestampRange"] = {"startSec": tr["startSec"], "endSec": tr["endSec"]}
-        step_mapping.append(entry)
+        if (isinstance(tr, dict)
+                and isinstance(tr.get("startSec"), (int, float)) and isinstance(tr.get("endSec"), (int, float))
+                and not isinstance(tr.get("startSec"), bool) and not isinstance(tr.get("endSec"), bool)):
+            start, end = tr["startSec"], tr["endSec"]
+            if start < end:
+                entry["clip"] = {"videoUrl": video_url, "start": start, "end": end}
+                if duration_seconds and end > duration_seconds + 2:
+                    review.append(f"clip-beyond-duration: steps[{len(steps)}].clip.end={end:g} 超出视频时长 {duration_seconds:g}s，请核对")
+                for kf in keyframes:
+                    if start <= kf["timestampSec"] <= end:
+                        filename = f"step-{len(steps) + 1}.jpg"
+                        entry["image"] = _image_ref(slug, filename)
+                        frames.append((filename, f"步骤 {len(steps) + 1} 关键帧（→ steps[].image）", kf["timestampSec"]))
+                        break
+            else:
+                review.append(f"invalid-clip: steps[{len(steps)}] timestampRange start({start:g}) >= end({end:g})，clip 已留空")
+        else:
+            review.append(f"missing-clip: steps[{len(steps)}] 缺少 timestampRange，clip 已留空（SKILL.md §2 要求 clip 必填）")
 
-    # --- 质量门槛（§4）：整体置信度 < 0.85 → 禁止自动入库 ---
-    try:
-        overall = max(0.0, min(1.0, float(raw.get("overallConfidence", 0.5))))
-    except (TypeError, ValueError):
-        overall = 0.5
-    if overall < CONFIDENCE_THRESHOLD:
-        reasons.append(f"low-overall-confidence ({overall:g})")
+        step_conf = _clamp_conf(step.get("confidence"), default=1.0)
+        if step_conf < CONFIDENCE_THRESHOLD:
+            review.append(f"low-confidence: steps[{len(steps)}] confidence={step_conf:g} < {CONFIDENCE_THRESHOLD}，请按 clip 回放核对步骤内容")
+        steps.append(entry)
 
-    # --- 组装顶层字段（§2） ---
-    source = dict(meta.get("source") or {})
-    source.setdefault("videoUrl", _input_to_uri(input_value))
-    source.setdefault("platform", _detect_platform(input_value))
-    detected = raw.get("detectedLang") or "other"
-    source["detectedLang"] = detected if detected in ("zh", "en", "uk", "other") else "other"
-    if isinstance(raw.get("durationSeconds"), (int, float)) and raw["durationSeconds"] > 0:
-        source["durationSeconds"] = raw["durationSeconds"]
+    # --- 整体置信度：均值 < 0.85 → PR 标题标 [需重点审核]（§4） ---
+    if components:
+        mean_conf = sum(c["confidence"]["value"] for c in components) / len(components)
+        if mean_conf < CONFIDENCE_THRESHOLD:
+            review.insert(0, f"[需重点审核] components 置信度均值 {mean_conf:.2f} < {CONFIDENCE_THRESHOLD}，禁止自动合并")
 
-    if not pack_id:
-        pack_id = meta.get("id")
-    if not pack_id:
-        slug = _kebab(str(recipe.get("name", "")))
-        if not slug:
-            digest = hashlib.sha1(source["videoUrl"].encode("utf-8")).hexdigest()[:8]
-            slug = f"video-{digest}"
-        pack_id = f"dishpack-{slug}-001"
+    # --- 组装 dish（schemas/dish.schema.json；允许不完整，缺失项由 readiness 关卡分级） ---
+    dish: dict = {"schemaVersion": "2", "name": name or {"zh": slug}}
 
-    pack = {
-        "packVersion": "1",
-        "id": pack_id,
-        "createdAt": created_at or meta.get("createdAt") or datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "generator": {
-            "name": GENERATOR_NAME,
-            "engine": meta.get("engine", "self-hosted-pipeline"),
-            "engineVersion": meta.get("engineVersion", engine_cli),
-            "promptVersion": meta.get("promptVersion", "unknown"),
-        },
-        "source": source,
-        "manifest": {
-            "recipe": recipe,
-            "ingredientMappings": mappings,
-            "overallConfidence": {"value": overall, "source": "video-import"},
-        },
-        "reviewQueue": {
-            "status": "pending",  # §2：产出时通常为 pending，人工确认后才可 approved
-            "reasons": reasons,
-        },
-    }
-    if step_mapping:
-        pack["manifest"]["stepMapping"] = step_mapping
-    suggested = raw.get("suggestedDish")
-    if suggested:
-        pack["manifest"]["suggestedDish"] = suggested
-    transcript = raw.get("transcript")
-    if transcript and transcript.get("text"):
-        entry = {"lang": transcript.get("lang", "other"), "text": transcript["text"]}
-        if isinstance(transcript.get("segments"), list):
-            entry["segments"] = [
-                {"startSec": s["startSec"], "endSec": s["endSec"], "text": s["text"]}
-                for s in transcript["segments"]
-                if isinstance(s, dict) and all(k in s for k in ("startSec", "endSec", "text"))
-            ]
-        pack["transcript"] = entry
-    if isinstance(raw.get("media"), list) and raw["media"]:
-        pack["media"] = [
-            m for m in raw["media"]
-            if isinstance(m, dict) and m.get("kind") in ("keyframe", "cover", "clip") and m.get("ref")
-        ]
-    return pack
+    cover = next((m for m in (raw.get("media") or []) if isinstance(m, dict) and m.get("kind") == "cover"), None)
+    if cover is not None:
+        dish["image"] = _image_ref(slug, "cover.jpg")
+        frames.insert(0, ("cover.jpg", "成品图（→ dish.image）", None))
+
+    dish["baseServings"] = target_servings
+    if components:
+        dish["components"] = components
+    if steps:
+        dish["steps"] = steps
+    dish["provenance"] = {"source": "video", "videoUrl": video_url}
+    dish["status"] = "draft"  # SKILL.md §2：skill 永远只产草稿
+    return dish, review, frames, slug
 
 
-# --------------------------------------------------------------------------- 校验（复用 validate_dishpack.py）
+def render_review_md(dish: dict, slug: str, review: list[str], meta: dict, raw: dict) -> str:
+    """PR 描述用的复核清单文本块（旧 reviewQueue.reasons 的 v2 形态）。"""
+    name_zh = (dish.get("name") or {}).get("zh", slug)
+    lines = [
+        f"# 待人工确认 · {name_zh}（{slug}）",
+        "",
+        f"> 由 {GENERATOR_NAME} 自动生成（engine={meta.get('engine', '?')}，"
+        f"engineVersion={meta.get('engineVersion', '?')}，promptVersion={meta.get('promptVersion', '?')}），"
+        "作为 PR 描述的一部分；师傅在 PR 里直接改 JSON 即完成确认（SKILL.md §6）。",
+        f"> 视频：{(dish.get('provenance') or {}).get('videoUrl', '?')}",
+        "",
+    ]
+    if review:
+        lines += [f"- [ ] {item}" for item in review]
+    else:
+        lines.append("本次无待确认项：全部 ingredientRef/techniqueRef 命中闭集，置信度均 ≥ 0.85。")
+    transcript = (raw.get("transcript") or {}).get("text")
+    if transcript:
+        lines += ["", "## 转写原文（溯源存档，§4）", "", transcript.strip()]
+    return "\n".join(lines) + "\n"
 
 
-def validate_pack(pack: dict) -> tuple[bool, str]:
-    """写临时文件后 subprocess 调 validate_dishpack.py，返回 (是否通过, 输出)。"""
-    with tempfile.NamedTemporaryFile("w", suffix=".json", prefix="dishpack-", delete=False, encoding="utf-8") as fh:
-        json.dump(pack, fh, ensure_ascii=False, indent=2)
+# --------------------------------------------------------------------------- 校验（复用 validate_dish.py）
+
+
+def validate_dish(dish: dict) -> tuple[bool, str]:
+    """写临时文件后 subprocess 调 validate_dish.py，返回 (是否通过, 输出)。"""
+    with tempfile.NamedTemporaryFile("w", suffix=".json", prefix="dish-", delete=False, encoding="utf-8") as fh:
+        json.dump(dish, fh, ensure_ascii=False, indent=2)
         tmp = fh.name
     try:
         proc = subprocess.run(
@@ -615,16 +736,28 @@ def validate_pack(pack: dict) -> tuple[bool, str]:
 
 
 def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description="做菜视频 → dishpack 标准包（video-recipe-ingest 参考实现）")
+    ap = argparse.ArgumentParser(description="做菜视频 → dish 草稿 + images/ 截帧目录（video-recipe-ingest 参考实现，v2）")
     ap.add_argument("--input", required=True, help="视频文件路径或 URL；fixture 模式下该值仅作记录")
     ap.add_argument("--engine", required=True, choices=sorted(ENGINES), help="解析引擎")
     ap.add_argument("--lang-hint", choices=["zh", "en", "uk"], default=None, help="旁白语言提示")
-    ap.add_argument("--output", required=True, help="dishpack 输出路径（JSON）")
-    ap.add_argument("--pack-id", default=None, help="覆盖自动生成的包 ID（kebab-case）")
-    ap.add_argument("--created-at", default=None, help="覆盖 createdAt（ISO date-time，用于可复现测试）")
+    ap.add_argument("--output-dir", required=True, help="输出目录（下含 dishes/<slug>.json 与 images/<slug>/）")
+    ap.add_argument("--dish-id", default=None, help="覆盖自动生成的菜品 ID（kebab-case，即 data/dishes/ 文件名）")
+    ap.add_argument("--servings", type=int, default=DEFAULT_SERVINGS, help=f"目标基准份数（默认 {DEFAULT_SERVINGS}，食堂尺度）")
     ap.add_argument("--fixture-dir", default=None, help="fixture 引擎的 fixture 目录（默认内置 tomato-egg）")
     ap.add_argument("--model", default=None, help="覆盖引擎默认模型名")
     args = ap.parse_args(argv[1:])
+
+    if args.servings < 1:
+        print("配置错误: --servings 必须为正整数", file=sys.stderr)
+        return 2
+
+    # 技法闭集启动时加载（SKILL.md §3：引擎输出只允许引用该词表）
+    try:
+        techniques = load_techniques()
+    except EngineError as exc:
+        print(f"引擎调用失败: {exc}", file=sys.stderr)
+        return 3
+    technique_ids = {e["id"] for e in techniques}
 
     engine_cls = ENGINES[args.engine]
     try:
@@ -638,42 +771,54 @@ def main(argv: list[str]) -> int:
 
     print(f"[1/4] 引擎 {args.engine} 解析输入: {args.input}")
     try:
-        raw = engine.parse(args.input, args.lang_hint)
+        raw = engine.parse(args.input, args.lang_hint, techniques)
     except (EngineError, MissingConfigError) as exc:
         print(f"引擎调用失败: {exc}", file=sys.stderr)
         return 3 if isinstance(exc, EngineError) else 2
 
-    print("[2/4] 公共后处理：组装 dishpack + 词典映射 + 质量门槛")
-    pack = build_dishpack(raw, args.engine, args.input, args.pack_id, args.created_at)
+    print("[2/4] 公共后处理：组装 dish 草稿 + 词典/技法闭集匹配 + 质量门槛")
+    dish, review, frames, slug = build_dish(
+        raw, args.engine, args.input, args.dish_id, args.servings, technique_ids
+    )
 
-    # [3/4] 校验；§4：不通过自动重试（≤2 次），仍失败整包标记 rejected 并说明
-    print("[3/4] 校验 dishpack（schema + 契约）")
-    ok, report = validate_pack(pack)
+    # [3/4] 校验；§4：不通过自动重试（≤2 次），仍失败则放弃并在日志说明
+    print("[3/4] 校验 dish（dish.schema.json + 契约）")
+    ok, report = validate_dish(dish)
     attempts = 0
     while not ok and attempts < 2:
         attempts += 1
         print(f"  校验未通过（第 {attempts} 次重试，重新组装清洗）...")
-        pack = build_dishpack(raw, args.engine, args.input, args.pack_id, args.created_at)
-        ok, report = validate_pack(pack)
+        dish, review, frames, slug = build_dish(
+            raw, args.engine, args.input, args.dish_id, args.servings, technique_ids
+        )
+        ok, report = validate_dish(dish)
     if not ok:
-        reasons = pack["reviewQueue"].setdefault("reasons", [])
-        reasons.append(f"schema-validation-failed: {report.splitlines()[-1] if report else 'unknown'}")
-        pack["reviewQueue"]["status"] = "rejected"
-        ok, report = validate_pack(pack)
-        if not ok:
-            print(f"校验失败，rejected 标记后仍不合规:\n{report}", file=sys.stderr)
-            return 1
-        print(f"  校验未通过，整包已标记 rejected（§4）: {pack['reviewQueue']['reasons'][-1]}")
+        print(f"校验失败（已重试 {attempts} 次），放弃产出（§4）:\n{report}", file=sys.stderr)
+        return 1
 
-    print(f"[4/4] 写出: {args.output}")
-    out_path = Path(args.output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(pack, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"[4/4] 写出: {args.output_dir}/dishes/{slug}.json + images/{slug}/")
+    out_root = Path(args.output_dir)
+    dishes_dir = out_root / "dishes"
+    images_dir = out_root / "images" / slug
+    dishes_dir.mkdir(parents=True, exist_ok=True)
+    images_dir.mkdir(parents=True, exist_ok=True)
 
-    n_review = sum(1 for m in pack["manifest"]["ingredientMappings"] if m["needsReview"])
+    dish_path = dishes_dir / f"{slug}.json"
+    dish_path.write_text(json.dumps(dish, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    review_path = dishes_dir / f"{slug}.review.md"
+    review_path.write_text(render_review_md(dish, slug, review, raw.get("meta") or {}, raw), encoding="utf-8")
+
+    video_url = dish["provenance"]["videoUrl"]
+    for filename, description, timestamp in frames:
+        if not extract_frame_ffmpeg(args.input, timestamp or 0.0, images_dir / filename):
+            _write_image_placeholder(images_dir / filename, description, video_url, timestamp)
+
+    n_low = sum(1 for item in review if item.startswith(("low-confidence", "[需重点审核]")))
     print(
-        f"完成: id={pack['id']} 状态={pack['reviewQueue']['status']} "
-        f"食材映射 {len(pack['manifest']['ingredientMappings'])} 条（{n_review} 条待人工确认）"
+        f"完成: dishes/{slug}.json（status=draft，components {len(dish.get('components') or [])} 条，"
+        f"steps {len(dish.get('steps') or [])} 步，截帧占位 {len(frames)} 个）；"
+        f"复核清单 {len(review)} 条（{n_low} 条低置信）→ dishes/{slug}.review.md"
     )
     return 0
 

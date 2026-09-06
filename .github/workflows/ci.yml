@@ -7,7 +7,7 @@ on:
 
 jobs:
   validate-schemas:
-    name: Validate examples against schemas
+    name: Validate data against schemas
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
       - name: Install devDependencies (ajv)
         run: pnpm install --frozen-lockfile=false
 
-      - name: Validate examples/*.json against schemas/*.schema.json
+      - name: Validate data/**/*.json against schemas/*.schema.json
         run: node scripts/validate-schemas.mjs
 
   lint-docs-structure:
@@ -48,7 +48,8 @@ jobs:
             docs/adr/0002-license-apache2.md \
             docs/adr/0003-spec-first-monorepo.md \
             docs/adr/0004-content-level-i18n.md \
-            docs/adr/0005-procurement-engine-design.md; do
+            docs/adr/0005-procurement-engine-design.md \
+            docs/adr/0006-scope-reduction-v2.md; do
             test -f "$f" || { echo "missing: $f"; exit 1; }
           done
           echo "all required docs present"

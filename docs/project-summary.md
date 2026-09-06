@@ -1,5 +1,7 @@
 # CanteenOS 项目总结（2026-09）
 
+> **2026-09-06 收窄更新**：实体 9→5（删 supplier / unit-conversion / feedback / dishpack），`examples/` 重构为 `data/`（一实体一文件、文件名即 ID），模块三（feedback）deferred，详见 [ADR-0006](adr/0006-scope-reduction-v2.md)。以下为 2026-09-05 历史快照，正文未同步。
+
 > **English summary.** CanteenOS is an open-source, spec-first system covering the full canteen chain: dish knowledge base → menu planning → auto-generated purchase orders → customer ordering & ratings → operations reports. It is content-level trilingual (zh/en/uk) and ships a working "cooking video → structured recipe (dishpack) → knowledge base" skill with three pluggable AI engines. Current status: Phase 0 complete (research, 9 JSON Schemas, 19 validated examples, collaboration conventions, runnable video-ingest skill); next step is real-world validation. Repository: https://github.com/TERRYYYC/canteen-os
 
 ---

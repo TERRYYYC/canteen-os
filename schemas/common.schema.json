@@ -2,17 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/common.schema.json",
   "title": "CanteenOS Common Definitions",
-  "description": "所有实体共享的基础定义：i18nString、Quantity、Money、Confidence、UnitConversion、枚举。单一事实源，其他 schema 通过 $ref 引用。",
+  "description": "所有实体共享的基础定义：Id、I18nString、Quantity、Money、Confidence、Image、枚举。单一事实源，其他 schema 通过 $ref 引用。v2 收窄（ADR-0006）后不再包含 UnitConversion / StorageType（pcs↔g 走 ingredient.pcsToGram，g↔kg、ml↔l 为代码常量）。",
   "type": "object",
   "$defs": {
     "Id": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]*$",
-      "description": "人类可读的稳定 ID，小写 kebab-case，如 ing-tomato、dish-tomato-egg-stir-fry"
+      "description": "人类可读的稳定 ID，小写 kebab-case。目录即知识库约定：实体的 id 就是文件名（data/ingredients/tomato.json → tomato），文件内不再重复 id 字段；ingredientRef/techniqueRef/dishRef/menuPlanRef 均指向该 id"
     },
     "I18nString": {
       "type": "object",
-      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）",
+      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）。翻译状态（machine/human）不写在数据本体里，走旁文件 translations.lock.json（ADR-0006）",
       "properties": {
         "zh": { "type": "string", "minLength": 1 },
         "en": { "type": "string", "minLength": 1 },
@@ -27,12 +27,12 @@
     },
     "Unit": {
       "type": "string",
-      "description": "规范单位（内部统一符号，本地化显示由客户端负责）",
+      "description": "规范单位（内部统一符号，本地化显示由客户端负责）。g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 ingredient.pcsToGram",
       "enum": ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch"]
     },
     "Quantity": {
       "type": "object",
-      "description": "数量一律为 { value, unit } 结构；跨单位换算必须通过 UnitConversion 表",
+      "description": "数量一律为 { value, unit } 结构",
       "properties": {
         "value": { "type": "number", "exclusiveMinimum": 0 },
         "unit": { "$ref": "#/$defs/Unit" }
@@ -56,36 +56,40 @@
     },
     "Confidence": {
       "type": "object",
-      "description": "AI 解析结果的置信度，低于阈值（默认 0.85，见 skills/video-recipe-ingest/SKILL.md）的字段必须进入人工确认队列",
+      "description": "AI 解析结果的置信度，低于阈值（默认 0.85，见 skills/video-recipe-ingest/SKILL.md）的字段在 PR 审核中必须人工确认",
       "properties": {
         "value": { "type": "number", "minimum": 0, "maximum": 1 },
         "source": {
           "type": "string",
-          "enum": ["manual", "video-import", "web-import", "llm-inference"]
+          "enum": ["manual", "video", "llm-inference"]
         }
       },
       "required": ["value", "source"],
       "additionalProperties": false
     },
-    "StorageType": {
-      "type": "string",
-      "enum": ["ambient", "chilled", "frozen"]
+    "Image": {
+      "type": "object",
+      "description": "图片引用 + 许可元数据（CC BY-SA 裁决的落实，ADR-0006）：Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可与来源。src 为仓库内相对路径（如 images/tomato.jpg）或 URL",
+      "properties": {
+        "src": { "type": "string", "minLength": 1 },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "description": "许可短名，如 CC0 / CC BY 4.0 / CC BY-SA 3.0 / Public domain / own（自摄）"
+        },
+        "author": { "type": "string", "minLength": 1 },
+        "sourceUrl": {
+          "type": "string",
+          "minLength": 1,
+          "description": "图片来源 URL（Commons 文件页等）；自摄图片填仓库内路径"
+        }
+      },
+      "required": ["src", "license", "sourceUrl"],
+      "additionalProperties": false
     },
     "MealType": {
       "type": "string",
       "enum": ["breakfast", "lunch", "dinner"]
-    },
-    "UnitConversion": {
-      "type": "object",
-      "description": "内嵌简单换算（如 supplier SKU 包装规格、Ingredient.unitConversions 静态默认）。from×factor=to。ingredientRef 为空表示通用换算（如 g↔kg），否则为特定食材换算（如某食材 pcs↔g）。动态可调整、可版本化、带生效期的换算规则见独立实体 schemas/unit-conversion.schema.json（UnitConversionRule）",
-      "properties": {
-        "from": { "$ref": "#/$defs/Unit" },
-        "to": { "$ref": "#/$defs/Unit" },
-        "factor": { "type": "number", "exclusiveMinimum": 0 },
-        "ingredientRef": { "$ref": "#/$defs/Id" }
-      },
-      "required": ["from", "to", "factor"],
-      "additionalProperties": false
     }
   }
 }

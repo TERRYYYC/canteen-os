@@ -1,9 +1,8 @@
 # 模块三：点餐 / 评分 / 反馈（Feedback）
 
-> **English summary.** The feedback module closes the loop: customers pre-order meals (mealOrder) which drive `plannedServings` in menu plans, redeem orders by scanning, then rate dishes (1–5 stars + controlled tags) and comment (original text plus trilingual translations). Aggregated metrics — dish popularity (order volume), reputation (rating distribution), no-show rate, tag concentration — feed both the menu planner and weekly/monthly operations reports covering dish leaderboards, procurement accuracy, cost, and waste signals. Reference: the role model and pre-order→headcount flow of itsHenry35/canteen-management-system (research report §3.2).
+> **⚠️ deferred（[ADR-0006](../adr/0006-scope-reduction-v2.md)，2026-09-06）**：本模块整体推迟——v2 收窄后阶段 1 不做点餐/评分/运营报告（见 research-brief-v2 §0"已经决定不做的"）。原 schema 与样例已删除（git 历史保留）；本文保留作为未来复活时的设计底稿，正文中的实体/字段/状态机均**不是**当前仓库事实。当前事实以 [../architecture.md](../architecture.md) 与 [knowledge-base.md](knowledge-base.md) / [procurement.md](procurement.md) 为准。
 
-- schema：`schemas/feedback.schema.json`
-- 样例：`examples/feedback-meal-order.example.json`、`feedback-rating.example.json`、`feedback-comment.example.json`
+> **English summary.** The feedback module closes the loop: customers pre-order meals (mealOrder) which drive `plannedServings` in menu plans, redeem orders by scanning, then rate dishes (1–5 stars + controlled tags) and comment (original text plus trilingual translations). Aggregated metrics — dish popularity (order volume), reputation (rating distribution), no-show rate, tag concentration — feed both the menu planner and weekly/monthly operations reports covering dish leaderboards, procurement accuracy, cost, and waste signals. Reference: the role model and pre-order→headcount flow of itsHenry35/canteen-management-system (research report §3.2).
 
 ---
 
@@ -26,7 +25,7 @@
 | comment | object | | | ✅ | originalLang + original + translations(I18nString 可选) |
 | createdAt | date-time | ✅ | ✅ | ✅ | |
 
-schema 用 `if/then` 按 type 施加条件必填（见 `feedback.schema.json` 的 `allOf`）。
+schema 曾用 `if/then` 按 type 施加条件必填（已随 ADR-0006 删除，历史见 git）。
 
 ## 2. 关键流程
 

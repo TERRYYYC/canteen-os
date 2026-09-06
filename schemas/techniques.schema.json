@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/techniques.schema.json",
+  "title": "Techniques",
+  "description": "中餐技法受控词表（单文件合集 data/techniques.json，整个文件是一个 JSON 数组）。三类：cut（刀法与刀工成形）/ heat（加热烹调法）/ pretreat（预处理与着衣）。中文名以《中式烹调师国家职业技能标准》为权威骨架，英文名用 DB51/T 2502、深圳译写规范、en.wiki「Chinese cooking techniques」三源互证（docs/research/v2/scenario-b-technique-vocabulary.md）。本词表同时是视频解析 skill 的输出闭集约束：dish 的 prep.techniqueRef / steps[].techniqueRef 只能引用此表中的 id。",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "$ref": "common.schema.json#/$defs/Id",
+        "description": "词表内唯一 id（kebab-case 英文短名），被 techniqueRef 引用"
+      },
+      "kind": {
+        "type": "string",
+        "enum": ["cut", "heat", "pretreat"],
+        "description": "cut=刀法与成形规格；heat=加热烹调法；pretreat=预处理与着衣"
+      },
+      "name": { "$ref": "common.schema.json#/$defs/I18nString" },
+      "image": { "$ref": "common.schema.json#/$defs/Image" },
+      "note": {
+        "$ref": "common.schema.json#/$defs/I18nString",
+        "description": "一句话定义/操作要点（自写，不复制受版权保护文本）"
+      }
+    },
+    "required": ["id", "kind", "name"],
+    "additionalProperties": false
+  }
+}

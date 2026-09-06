@@ -29,7 +29,7 @@ coverage/
 .cache/
 .turbo/
 
-# Video import media (raw videos never committed; dishpack 只保留引用)
+# Video import media（视频原始文件不入库；只在 dish.json 中保留 URL 引用）
 skills/**/media/*.mp4
 skills/**/media/*.mov
 

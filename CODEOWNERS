@@ -10,9 +10,9 @@
 /docs/adr/ @TERRYYYC
 /docs/research/ @TERRYYYC
 
-# 数据模型单一事实源
+# 数据模型单一事实源与知识库数据
 /schemas/ @TERRYYYC
-/examples/ @TERRYYYC
+/data/ @TERRYYYC
 /scripts/ @TERRYYYC
 
 # 核心包与采购引擎

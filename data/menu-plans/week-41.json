@@ -1,6 +1,5 @@
 {
-  "id": "menuplan-2026-w41",
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "name": {
     "zh": "2026 年第 41 周菜单",
     "en": "2026 Week 41 Menu",
@@ -10,25 +9,25 @@
     "start": "2026-10-05",
     "end": "2026-10-11"
   },
+  "margin": 1.1,
   "meals": [
     {
       "date": "2026-10-05",
       "mealType": "lunch",
-      "dishRef": "dish-tomato-egg-stir-fry",
+      "dishRef": "tomato-egg-stir-fry",
       "plannedServings": 200
     },
     {
       "date": "2026-10-07",
       "mealType": "lunch",
-      "dishRef": "dish-tomato-egg-stir-fry",
+      "dishRef": "tomato-egg-stir-fry",
       "plannedServings": 160
     },
     {
       "date": "2026-10-09",
       "mealType": "dinner",
-      "dishRef": "dish-tomato-egg-stir-fry",
+      "dishRef": "tomato-egg-stir-fry",
       "plannedServings": 120
     }
-  ],
-  "status": "published"
+  ]
 }

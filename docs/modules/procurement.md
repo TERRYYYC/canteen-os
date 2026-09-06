@@ -1,152 +1,133 @@
 # 模块二：菜单计划 → 采购单引擎（Procurement Engine）
 
-> **English summary.** The procurement engine converts a MenuPlan (date × meal type × dish × planned servings) into per-supplier purchase-order drafts through a deterministic seven-step pipeline: BOM expansion → serving scaling (plannedServings/baseServings) → loss-rate application → ingredient aggregation → inventory deduction → package/MOQ round-up → per-supplier PO split. The core is a pure function; headcount forecasting is pluggable and inventory access is an injected port. POs follow a `draft → confirmed → ordered → received → settled` state machine. The design follows the Odoo MRP paradigm ("BOM explosion → aggregate by supplier → PO") — a paradigm absent from open-source recipe software, which stops at household shopping lists (research report §5). Full worked example with numbers: `examples/menu-plan-week41.example.json` → the two PO examples.
+> **English summary.** The engine turns a MenuPlan (date × meal type × dish × servings, plus a `margin` buffer defaulting to 1.1) into purchase-order snapshots grouped by the supplier *string* on each ingredient's `purchase` spec. Pipeline per line: expand & scale (`plannedServings/baseServings`) → aggregate net need in `baseUnit` → for g/ml items divide by the single `yield` number and multiply by `margin` (pcs-counted items skip both — ADR-0006) → deduct `onHand` when `trackStock` → `packs = max(minPacks, ceil(need / packSize))`. Every line carries a full `trace` (which dishes, how many servings, net need, yield, margin, stock deduction, raw pack count, minPacks flag); POs are stateless engine-output snapshots — confirming/ordering/receiving happens offline (WeChat/phone) and never enters the data model. Worked example with numbers: `data/menu-plans/week-41.json` → the acceptance table in `data/purchase-orders/README.md`.
 
-- 关联决策：[../adr/0005-procurement-engine-design.md](../adr/0005-procurement-engine-design.md)
-- schema：`menu-plan.schema.json`、`purchase-order.schema.json`、`unit-conversion.schema.json`（量纲换算规则，见 [unit-conversion.md](unit-conversion.md)）
+- 关联决策：[../adr/0006-scope-reduction-v2.md](../adr/0006-scope-reduction-v2.md)（v2 收窄；PO 状态机已删除）；[../adr/0005-procurement-engine-design.md](../adr/0005-procurement-engine-design.md)（确定性纯函数核心等原则仍然有效，但其中七步管线与 PO 状态机口径以本文为准）
+- schema：`menu-plan.schema.json`、`purchase-order.schema.json`
 - 代码骨架：`packages/core/src/procurement/engine.ts`
 
 ---
 
 ## 1. 数据模型表
 
-### MenuPlan（菜单计划）
+### MenuPlan（菜单计划）——`data/menu-plans/<id>.json`
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| id / schemaVersion | — | ✅ | |
+| schemaVersion | `"2"` | ✅ | |
 | name | I18nString | | |
-| dateRange | {start, end} | ✅ | ISO date |
+| dateRange | {start, end} | | ISO date |
+| margin | number >0 | | 备量系数，**默认 1.1**：吸收固定尾料/挂壁损耗（场景 D 的 fixed_per_batch 收窄）；只作用于按重量/体积（g/ml）计的食材 |
 | meals[] | object | ✅ ≥1 | date + mealType(breakfast/lunch/dinner) + dishRef + plannedServings |
-| status | enum | ✅ | draft / published / locked（locked 后才允许生成 PO） |
 
-### PurchaseOrder（采购单）
+### PurchaseOrder（采购单快照）——`data/purchase-orders/<id>.json`
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| supplierRef | Id | ✅ | 每张 PO 只属一个供应商 |
-| menuPlanRef | Id | | 溯源：由哪个菜单计划生成 |
-| lines[] | object | ✅ ≥1 | ingredientRef + skuId + qty + unit + packageCount + unitPrice + amount |
-| totalAmount | Money | ✅ | Σ lines.amount |
-| status | enum | ✅ | draft → confirmed → ordered → received → settled |
-| dates | object | ✅ createdAt | confirmedAt / orderedAt / expectedAt(=下单日+leadTimeDays) / receivedAt / settledAt |
+| schemaVersion / generatedAt | — | ✅ | 引擎生成时间由调用方注入（纯函数） |
+| supplier | string | ✅ | 供应商名字符串（= `ingredient.purchase.supplier`，分组键，非实体引用） |
+| menuPlanRef | Id | | 来源菜单计划 |
+| lines[] | object | ✅ ≥1 | ingredientRef + qty + packs + unitPrice?/amount? + **trace（必带）** |
+| totalAmount | Money | | Σ lines.amount |
+
+**trace 字段（每行完整推导链）**：`meals`（哪个菜、多少份）→ `netNeed`（净需求，baseUnit 计）→ `yieldApplied`（÷ 的净料率，pcs/无 yield 为 null）→ `marginApplied`（× 的备量系数，pcs 为 null）→ `onHandDeducted`（扣的现有量，trackStock=false 为 null）→ `grossNeed`（取整前需求）→ `packSize/packUnit` → `packsRaw`（未取整值）→ `minPacksApplied`。
+
+无状态机：PO 是引擎输出快照；确认/下单/收货在线下完成，不进数据模型。
 
 ## 2. 关键流程
 
 ```mermaid
 flowchart TD
-    A[MenuPlan locked] --> B[1. BOM 展开\nmeals → Dish.components]
-    B --> C[2. 份数缩放\n× plannedServings / baseServings]
-    C --> D[3. 损耗率\n÷ 1 - lossRateOverride ?? lossRate]
-    D --> E[4. 食材聚合\n按 ingredientRef 归一到 baseUnit]
-    E --> F[5. 扣减库存\nnetNeed = grossNeed - stockOnHand]
-    F --> G[6. 包装/MOQ 取整\npackageCount = max MOQ, ceil net/packageSize]
-    G --> H[7. 按供应商拆分\n生成 PO 草稿]
-    H --> I[人工确认 → confirmed → ordered]
-    P[(人数预测\n可插拔)] -.->|plannedServings| A
-    S[(库存端口)] --> F
+    A[menu-plans/*.json] --> B[1. BOM 展开<br/>meals → Dish.components]
+    B --> C[2. 份数缩放<br/>× plannedServings / baseServings]
+    C --> D[3. 按 ingredientRef 聚合净需求<br/>归一到 baseUnit]
+    D --> E{baseUnit?}
+    E -->|g / ml| F[4a. ÷ yield × margin<br/>净料率单一数字]
+    E -->|pcs| G[4b. 直通<br/>不套 yield、不乘 margin]
+    F --> H[5. 扣 onHand<br/>仅 trackStock=true]
+    G --> H
+    H --> I[6. packs = max minPacks, ceil 需求÷packSize<br/>packUnit≠baseUnit 时先常量换算]
+    I --> J[7. 按 supplier 字符串分组<br/>输出 PO 快照]
 ```
 
 ### 伪代码（与 `packages/core/src/procurement/engine.ts` 骨架一一对应）
 
 ```text
-function planProcurement(menuPlan, dishes, ingredients, suppliers, unitConversions, ctx):
+function expand(menuPlan, dishes, ingredients):
+    margin = menuPlan.margin ?? 1.1
     # 1-2. BOM 展开 + 缩放
     requirements = []
     for meal in menuPlan.meals:
-        dish = dishes[meal.dishRef]               # 缺失 → error missing-dish
+        dish = dishes[meal.dishRef]                # 缺失 → issue missing-dish
+        dish.status == active 否则跳过              # issue dish-not-active
         scale = meal.plannedServings / dish.baseServings
         for comp in dish.components:
-            qty = comp.quantity * scale
-            requirements.push({meal, comp, qty})
+            requirements.push({meal, comp, qty: comp.qty × scale})
 
-    # 3. 损耗率（采购量放大）
-    for r in requirements:
-        loss = r.comp.lossRateOverride ?? ingredients[r.comp.ingredientRef].lossRate ?? 0
-        r.grossQty = r.qty / (1 - loss)
+    # 3. 聚合：归一到 baseUnit 后按 ingredientRef 求和
+    #    pcs↔g 只靠 ingredient.pcsToGram；g↔kg、ml↔l 是代码常量；
+    #    无法换算 → issue unit-conversion-missing，绝不猜测
+    netNeed = aggregate(requirements)
 
-    # 4. 聚合：换算到 baseUnit 后按 ingredientRef 求和
-    #    量纲换算调用点①：resolveConversionFactor(rules, {ingredientRef, dishRef,
-    #    from, to, asOfDate: meal.date})——优先级链 菜品特定 > 食材特定 > 全局通用，
-    #    按各 meal 当日生效的规则解析（unit-conversion.md §3）
-    aggregated = {}
-    for r in requirements:
-        qtyBase = convert(r.grossQty, to: ingredients[ref].baseUnit, unitConversions)
-                        # 换算失败 → error unit-conversion-missing，绝不猜测
-        aggregated[ref] += qtyBase
-
-    # 5. 扣减库存（端口注入，可为空表=不扣减）
-    for ref, need in aggregated:
-        netNeed[ref] = max(0, need - ctx.inventory[ref] ?? 0)
-
-    # 6-7. 选 SKU、取整、拆单
-    for ref, net in netNeed where net > 0:
-        sku = selectSku(suppliers, ref)           # isPreferred 优先；无 SKU → error no-supplier
-        packs = max(sku.moq ?? 1, ceil(netInPackageUnit / sku.packageSize))
-        #    量纲换算调用点②：baseUnit → sku.packageUnit，同样走
-        #    resolveConversionFactor，asOfDate = menuPlan.dateRange.end
-        poLines[sku.supplier].push({ingredientRef: ref, skuId: sku.skuId,
-                                    qty: packs * sku.packageSize, unit: sku.packageUnit,
-                                    packageCount: packs, unitPrice: sku.price,
-                                    amount: packs * sku.price})
-    return {purchaseOrders: splitBySupplier(poLines), errors, trace}
+    # 4-6. 逐食材出采购行
+    for ref, net in netNeed:
+        ing = ingredients[ref]
+        if ing.baseUnit == "pcs":
+            need = net                             # pcs：不套 yield、不乘 margin
+            yieldApplied = null; marginApplied = null
+        else:
+            need = net / (ing.yield ?? 1) * margin # 写法固定：净需求 ÷ yield × margin
+            yieldApplied = ing.yield ?? null; marginApplied = margin
+        if ing.trackStock:                         # 5. 扣现有量
+            onHandDeducted = min(need, ing.onHand ?? 0)
+            need -= onHandDeducted
+        # 6. 包装取整（packUnit ≠ baseUnit 时先 g↔kg / ml↔l 常量换算）
+        packsRaw = need / ing.purchase.packSize    # 无 purchase → 归入「未指定供应商」单 + issue no-purchase-spec
+        packs = max(ing.purchase.minPacks ?? 1, ceil(packsRaw))
+        line.trace = {meals, netNeed, yieldApplied, marginApplied,
+                      onHandDeducted, grossNeed, packSize, packUnit, packsRaw,
+                      minPacksApplied: packs > ceil(packsRaw)}
+    # 7. 按 supplier 字符串分组 → PurchaseOrder 快照
 ```
 
-### 量纲换算的调用点与生效期语义
+### 完整推导样例（data/ 数字自洽，引擎黄金测试）
 
-量纲转换规则是一等公民实体 UnitConversionRule（模型与优先级链见 [unit-conversion.md](unit-conversion.md)）。引擎在**步骤 4（聚合归一）**与**步骤 6（包装取整）**两处调用换算，统一语义为"**按菜单日期取当日生效的规则**"：步骤 4 用各 `meal.date`，跨规则生效边界的菜单周按日换算后再聚合；步骤 6 用 `menuPlan.dateRange.end`。规则带 `[effectiveFrom, effectiveTo)` 生效区间并以 `supersedes` 形成版本链，因此历史采购单按原日期可复算，调整量纲不污染历史。查表失败一律 `unit-conversion-missing`，绝不猜测。
+`data/menu-plans/week-41.json`：番茄炒蛋 200 + 160 + 120 = **480 份**；`baseServings = 50`，scale = 9.6；margin = **1.1**。
+配方（每 50 份）：番茄 7500 g、鸡蛋 75 pcs、食盐 75 g、小葱 250 g、食用油 500 ml。
 
-### 完整推导样例（examples 数字自洽）
+| 食材 | 净需求（聚合） | ÷yield | ×margin | 扣 onHand | ÷packSize | 取整/minPacks | 采购量 | 金额 |
+|---|---|---|---|---|---|---|---|---|
+| 番茄 | 480×150 = 72000 g | ÷0.85 | ×1.1 = 93176.5 g | 0（trackStock=false） | ÷5 kg = 18.64 | ceil → 19 | **19 件 × 5 kg = 95 kg** | 19×28.5 = ¥541.50 |
+| 鸡蛋 | 480×1.5 = 720 pcs | —（pcs 不套） | —（pcs 不乘） | 0 | ÷180 枚 = 4.0 | ceil → 4 | **4 箱 × 180 = 720 枚** | 4×150 = ¥600.00 |
+| 小葱 | 480×5 = 2400 g | ÷0.80 | ×1.1 = 3300 g | 0 | ÷1 kg = 3.3 | ceil → 4 | **4 件 × 1 kg = 4 kg** | 4×12 = ¥48.00 |
+| 食盐 | 480×1.5 = 720 g | ÷1（无 yield） | ×1.1 = 792 g | −500 = 292 g | ÷500 g = 0.584 | ceil → 1，minPacks → 20 | **20 袋 × 500 g = 10 kg** | 20×2.5 = ¥50.00 |
+| 食用油 | 480×10 = 4800 ml | ÷1（无 yield） | ×1.1 = 5280 ml | −1000 = 4280 ml | ÷5 L = 0.856 | ceil → 1，minPacks → 2 | **2 桶 × 5 L = 10 L** | 2×68 = ¥136.00 |
 
-MenuPlan `menuplan-2026-w41`：番茄炒蛋 200 + 160 + 120 = **480 份**，scale = 480/2 = 240。
+按供应商分单：**绿源农产品配送** ¥1189.50（番茄+鸡蛋+小葱）、**宏达粮油调味批发** ¥186.00（食盐+食用油），合计 **¥1375.50 / 480 份 ≈ ¥2.87/份**。
 
-| 食材 | 每份基准（2 份配方） | ×240 | ÷(1−loss) | 聚合需求 | 取整（示例未扣库存） |
-|---|---|---|---|---|---|
-| 番茄 | 300 g | 72000 g | ÷0.90 = 80000 g | 80 kg | 16 × 5 kg 装（GF-TOM-5KG）→ **456 元** |
-| 鸡蛋 | 3 pcs | 720 pcs | ÷0.89 ≈ 808.99 → 809 pcs | 809 pcs ≈ 44.5 kg | 5 × 180 枚箱（GF-EGG-360）→ **750 元** |
-| 小葱 | 10 g | 2400 g | ÷0.85 ≈ 2823.5 g | 2.83 kg | 3 × 1 kg（GF-SCN-1KG）→ **36 元** |
-| 食盐 | 3 g | 720 g | ÷1 = 720 g | 0.72 kg | MOQ 20 × 500 g（HD-SALT-500G）→ **50 元** |
-| 食用油 | 20 ml | 4800 ml | ÷1 | 4.8 L | 1 × 5 L（HD-OIL-5L）→ **68 元** |
+margin 作用点（全仓库统一口径）：**净需求聚合之后，与 ÷yield 同一步（乘除可交换，trace 固定记 `yieldApplied`/`marginApplied` 两个字段），扣 onHand 之前；pcs 计数食材整条跳过**。数字同时回填在 `data/purchase-orders/README.md`，作为引擎实现的验收基准。
 
-合计约 **1360 元 / 480 份 ≈ 2.83 元/份**（本菜部分）。两份 PO 草稿样例见 `examples/purchase-order-greenfarm.example.json` 与 `purchase-order-drygoods.example.json`（其中 qty 按取整后实际采购量记录）。
+## 3. 分享与交付形态（场景 F）
 
-## 3. PO 状态机
-
-```mermaid
-stateDiagram-v2
-    [*] --> draft: 引擎生成
-    draft --> confirmed: 采购员确认（可改行/删行）
-    confirmed --> ordered: 下单给供应商
-    ordered --> received: 收货核对（数量/质量差异记录）
-    received --> settled: 对账结算
-    draft --> [*]: 废弃
-    confirmed --> draft: 退回修改
-```
+- **纯文本微信消息是第一交付物**（菜贩可直接复制/语音念）：一个供应商一段，`品名 数量 单位` + 预估总价（按 lastPrice，标"预估"避免纠纷）；「未指定供应商」的食材单独成组标黄。
+- 图片是增强：PWA 内用 html-to-image（MIT）出 PNG，Web Share API / 长按保存进微信。
+- PO 快照文件只进 git（审计追溯用）；给菜贩看的永远是从快照渲染出的文本/图片。
 
 ## 4. 边界情况
 
 | 情况 | 处理 |
 |---|---|
-| 食材缺失供应商 SKU | 生成 `no-supplier` error，该行不进 PO；引擎继续处理其余食材，错误汇总到 trace |
-| 单位换算失败（如 pcs→l） | `unit-conversion-missing` error；**绝不猜测**；需人工补 UnitConversion 后重跑（规则模型与冲突/循环等边界见 [unit-conversion.md](unit-conversion.md) §5） |
-| MOQ 大于需求（盐 720 g vs MOQ 20×500 g） | 按 MOQ 下单；多余量进库存，在 trace 中标记 `moq-surplus` |
-| 保质期 < 菜单跨度 + 提前期 | 告警 `shelf-life-risk`（如叶菜订一周的量）；建议拆单分次采购——当前只做告警不自动拆 |
-| 提前期错过（今天下单 > 用餐日 − leadTimeDays） | 告警 `lead-time-missed`，按下单日 + leadTimeDays 计算 expectedAt 照实呈现 |
-| plannedServings 为 0 或菜品非 published | 该 meal 跳过并告警（schema 层 plannedServings ≥1，引擎层再校验菜品状态） |
-| 库存数据缺失（ctx.inventory 为空） | 视为零库存全量采购（保守默认），trace 标记 `inventory-assumed-zero` |
-| 同食材多供应商 | `isPreferred` 优先；多 preferred 取价格最低；均非 preferred 报错 `ambiguous-supplier` |
+| 食材缺 purchase 信息 | 归入「未指定供应商」单照常出单 + issue `no-purchase-spec` 标黄（场景 F：Grocy 同构行为），不整单失败 |
+| 单位无法换算（如 ml 食材包装按 g 登记） | issue `unit-conversion-missing`，该行跳过，**绝不猜测**；g↔kg、ml↔l 是代码常量，pcs↔g 只靠 pcsToGram |
+| minPacks 大于需求（盐 292 g vs minPacks 20×500 g） | 按 minPacks 下单；trace 记 `minPacksApplied: true`（多余量即库存补充） |
+| trackStock=false | 不扣库存（鲜货天天买，没有"现有量"概念） |
+| 菜品缺 components/baseServings | 该 meal 跳过 + issue `dish-incomplete`（readiness「能排/能采」不过）；其余菜照常 |
+| 菜品非 active | 该 meal 跳过 + issue `dish-not-active` |
+| 需求为 0（菜单全被跳过） | 不出单；issues 全量保留 |
 
-## 5. 可插拔人数预测
+## 5. 开放问题（Open Questions）
 
-- 引擎只消费 `plannedServings`，不关心它来自哪里：
-  - 预定点餐汇总（模块三 mealOrder 驱动）；
-  - 历史同期 × 系数；
-  - 外部预测模型（如 POSR 的 "what to buy" AI 交互思路）。
-- 预测器接口（阶段 2 定义）：`predict(date, mealType, canteenCtx) → servings`，注入引擎上下文。
-
-## 6. 开放问题（Open Questions）
-
-1. 库存端口模型：仅数量，还是批次 + FEFO（参考 Grocy 批次模型）？阶段 2 前需 ADR。
-2. 收货差异（实收 ≠ 订单）如何回写采购准确度指标？与模块三报告的口径对齐。
-3. 多供应商比价策略（跨供应商拆同一食材）当前不支持，是否需要？
-4. 损耗率的季节/批次波动是否引入 `lossRateHistory`？
+1. `lastPrice` 的更新入口（采购员买完改 ingredient 文件走 PR？）与"跳过 0/空值"规则由谁执行。
+2. margin=1.1 的小批量适用性（10 份量级固定尾料占比高）——上线实测后校正默认值或引入分量段。
+3. 分阶段链式 yield（场景 D 的完整模型，如番茄"去皮 0.85 × 去尾料 −20 g/批"）何时值得引入——出现实测偏差再以新 ADR 扩展。
+4. 采购频次与菜单周期不一致（叶菜隔天买、粮油按月买）是否要在 purchase 里加 `buyEvery` 提示。

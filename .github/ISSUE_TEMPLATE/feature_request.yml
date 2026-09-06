@@ -10,7 +10,7 @@ body:
       options:
         - 菜品知识库
         - 菜单计划→采购单引擎
-        - 点餐/评分/反馈
+        - 点餐/评分/反馈（模块三，已 deferred，见 ADR-0006）
         - 视频导入 skill
         - 跨模块 / 基础设施
     validations:
