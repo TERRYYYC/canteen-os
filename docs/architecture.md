@@ -18,21 +18,34 @@
 
 ```
 canteen-os/
-├── schemas/            # JSON Schema（单一事实源，5 实体 + common）
+├── schemas/            # JSON Schema（单一事实源，5 实体 + common，第一轮冻结）
 ├── data/               # 知识库本体（一实体一文件、文件名即 ID）
 │   ├── ingredients/        # 食材/调料（tomato.json, egg.json, …）
 │   ├── techniques.json     # 中餐技法受控词表（单文件合集，cut/heat/pretreat）
 │   ├── dishes/             # 菜品（允许不完整：只有名字也能导入）
 │   ├── menu-plans/         # 菜单计划（日期×餐次×菜品×份数 + margin）
-│   └── purchase-orders/    # 引擎输出快照（每行带 trace；目录内 README 有验收基准）
+│   ├── purchase-orders/    # 引擎输出快照（每行带 trace；目录内 README 有验收基准）
+│   └── translations.lock.json   # (v0.1) 翻译状态旁文件：source_hash + machine|human
 ├── packages/
-│   └── core/           # @canteenos/core：TS 类型 + 引擎纯函数骨架
-│   └── (未来) web/     # 阶段 1：只读静态 PWA（三张单展示）
+│   ├── core/           # @canteenos/core：类型 + 引擎 + 三个渲染器 + readiness（已实现）
+│   ├── web/            # (v0.2) Vite 静态站：/prep /purchase /menu；(v0.3) /admin
+│   └── worker/         # (v0.3) 写入通道云函数：后台表单 → GitHub API → 触发构建
 ├── skills/
-│   └── video-recipe-ingest/   # 视频解析 skill 契约（云端/agent 实现）
-├── scripts/            # 校验脚本（CI 入口，遍历 data/**）
-└── docs/               # PRD / 架构 / 模块 / ADR / 调研
+│   └── video-recipe-ingest/   # 视频解析 skill 契约（命令行；界面第二轮）
+├── scripts/
+│   ├── validate-schemas.mjs / local-validate.py   # CI 校验
+│   ├── build-data.mjs      # (v0.1) data/ → 三张单 JSON + build.json
+│   ├── translate.mjs       # (v0.1) DeepL + 术语表 + lock
+│   ├── seed-wikidata.py    # (v0.4) 食材三语名 + 图种子
+│   └── create-issues.mjs   # backlog JSON → GitHub issues（幂等）
+├── .github/
+│   ├── workflows/ci.yml            # 校验 + 测试
+│   ├── workflows/build-deploy.yml  # (v0.2) push main → translate → build-data → vite → Pages
+│   └── backlog/round-1.json        # 第一轮 issue 清单（事实源）
+└── docs/               # PRD / 架构 / 模块 / ADR / 调研 / design(高保真) / field-test / 计划与执行简报
 ```
+
+标 (vX.Y) 的是第一轮里程碑要交付的，见 `docs/execution-brief.md` §2–§3。
 
 ## 3. 模块边界
 
@@ -92,27 +105,11 @@ flowchart LR
 2. **`Dish.components` 引用 Ingredient（ingredientRef），不内联字符串**；`techniqueRef` 只能引用 `data/techniques.json` 闭集词表——这是采购引擎能跑通、视频解析输出可校验的前提。
 3. **数量一律 `Quantity {value, unit}`**；单位枚举 `g|kg|ml|l|pcs|pack|tbsp|tsp|pinch`。量纲规则（ADR-0006 收窄）：**g↔kg、ml↔l 是代码常量；pcs↔g 只靠 `ingredient.pcsToGram`**——无独立换算实体、无生效期与优先级链；换算失败进人工确认，引擎绝不猜测。
 
-## 6. 阶段路线图（v2 收窄后）
+## 6. 路线图（2026-09-07 起以两份文件为准）
 
-```mermaid
-timeline
-    title CanteenOS 路线图（v2）
-    阶段0 设计与Schema ✅ : 调研(含 v2 八场景) : 5 实体 Schema + data/ 知识库 : TS 类型骨架
-    阶段1 引擎 + 只读 PWA : packages/core 引擎实现(黄金测试=data/ 数字) : 三张单渲染 : 静态 PWA 读 data/ : 单人编辑(改 JSON 走 PR，无编辑 UI)
-    阶段2 视频导入 POC : 10–20 条真实视频(含乌语) : skill 直出 dish.json + images/ : PR 审流跑通
-    阶段3 词表与数据补全 : techniques 补齐约 80 项 : 刀工 SVG 图集 : 约 300 食材种子拉取(Wikidata)
-    deferred 模块三(点餐/评分/反馈) : 订餐驱动份数 : 运营报告 : 详见 modules/feedback.md
-```
+路线图已迁出本文：节奏、日期、三道门在 [`plan-for-terry.md`](plan-for-terry.md)；每个版本的任务、完成定义、接口契约在 [`execution-brief.md`](execution-brief.md)；目标对齐分析与第二轮以后的触发条件在 [`roadmap-v2.md`](roadmap-v2.md)。
 
-| 阶段 | 交付物 | 依赖 |
-|---|---|---|
-| 0 设计与 Schema | 本仓库当前全部内容 | — |
-| 1 引擎 + 只读 PWA | `packages/core` 引擎实现 + 单测；备料单/采购单/菜单三张单渲染；单人编辑流程 | schemas 5 实体；data/ 种子 |
-| 2 视频导入 POC | 真实视频（含 uk）实测报告；skill 脚本改造 | skills/video-recipe-ingest 契约；ADR-0006 裁决 |
-| 3 词表与数据补全 | techniques 约 80 项 + SVG 图；约 300 食材 | 场景 A/B 调研 |
-| deferred | 模块三（点餐/评分/反馈）、运营报告、多食堂 | 出现真实需求时以新 ADR 复活 |
-
-执行顺序（ADR-0006 §6）：**先引擎后 POC**——三张单是日常价值主干且不依赖外部 API；视频导入的不确定项集中在 POC，不卡主干。
+一句话版：**v0.1 收尾工程（9/13）→ v0.2 三张单上屏（9/27）→ v0.3 师傅后台（10/11）→ v0.4 真实数据（10/18）→ 真实厨房周（10/19–25）→ v1.0（10/30）**。写入通道（静态后台 → 云函数 → GitHub API）将以 ADR-0007 定案，是第一轮唯一的新 ADR。
 
 ## 7. Open Questions
 

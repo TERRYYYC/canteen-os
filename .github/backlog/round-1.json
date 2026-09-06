@@ -1,0 +1,678 @@
+{
+  "$comment": "第一轮 issue 清单（2026-09-07）。由 scripts/create-issues.mjs 幂等同步到 GitHub：按 title 判重，按 blockedBy 回填依赖，按 milestone 建跟踪 issue。改动请改本文件再重跑脚本，不要只在 GitHub 上改。依据：docs/execution-brief.md §3。",
+  "labels": [
+    {
+      "name": "area:schema",
+      "color": "0E8A16",
+      "description": "schemas/ 变更"
+    },
+    {
+      "name": "area:core",
+      "color": "1D76DB",
+      "description": "packages/core 引擎与渲染器"
+    },
+    {
+      "name": "area:web",
+      "color": "5319E7",
+      "description": "packages/web 前台与后台页面"
+    },
+    {
+      "name": "area:worker",
+      "color": "B60205",
+      "description": "packages/worker 写入通道"
+    },
+    {
+      "name": "area:data",
+      "color": "FBCA04",
+      "description": "data/ 知识库与脚本"
+    },
+    {
+      "name": "area:ci",
+      "color": "006B75",
+      "description": ".github/workflows"
+    },
+    {
+      "name": "area:docs",
+      "color": "C5DEF5",
+      "description": "文档与 ADR"
+    },
+    {
+      "name": "type:feat",
+      "color": "A2EEEF",
+      "description": "新功能"
+    },
+    {
+      "name": "type:chore",
+      "color": "EDEDED",
+      "description": "工程杂务"
+    },
+    {
+      "name": "type:test",
+      "color": "BFD4F2",
+      "description": "测试"
+    },
+    {
+      "name": "type:task",
+      "color": "D4C5F9",
+      "description": "非代码任务"
+    },
+    {
+      "name": "owner:agent",
+      "color": "0052CC",
+      "description": "由 AI agent 执行"
+    },
+    {
+      "name": "owner:terry",
+      "color": "E99695",
+      "description": "由 Terry 或厨房人员执行"
+    },
+    {
+      "name": "gate",
+      "color": "000000",
+      "description": "过门检查，不过不往下走"
+    },
+    {
+      "name": "tracking",
+      "color": "FEF2C0",
+      "description": "里程碑跟踪 issue"
+    },
+    {
+      "name": "P0",
+      "color": "B60205",
+      "description": "测试周内唯一允许合并的级别：当天工作被阻塞"
+    }
+  ],
+  "milestones": [
+    {
+      "title": "v0.1 收尾工程",
+      "due": "2026-09-13",
+      "description": "补齐字段、build-data、translate、渲染器；确认真实厨房。DoD 见 docs/execution-brief.md §3。"
+    },
+    {
+      "title": "v0.2 三张单上屏",
+      "due": "2026-09-27",
+      "description": "只读 PWA：/prep /purchase /menu + 目录角标 + 离线 + push 即上线。"
+    },
+    {
+      "title": "v0.3 师傅后台",
+      "due": "2026-10-11",
+      "description": "/admin 排菜单、粘贴导入、新食材、发布/回退；写入通道云函数。"
+    },
+    {
+      "title": "v0.4 真实数据",
+      "due": "2026-10-18",
+      "description": "≥10 道真实菜品到能教、≥60 食材、词表补齐、测试周材料。门 B。"
+    },
+    {
+      "title": "v1.0 第一轮收尾",
+      "due": "2026-10-30",
+      "description": "真实厨房周（10/19–25，代码冻结）→ 修最痛三个 → 门 C → tag v1.0。"
+    }
+  ],
+  "issues": [
+    {
+      "key": "v01-schema-fields",
+      "title": "[v0.1] schema：新增本轮准许的全部可选字段",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "area:schema",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "schema/v0.1-optional-fields",
+      "body": "## 背景\n执行简报 §1 冻结了实体与必填字段；本 issue 是第一轮**唯一**准许的 schema 变更集合，做完即冻结到 v1.0。\n\n## 任务\n- [ ] `dish.components[].prep.timing`：enum `day-before | morning | before-service`，可选\n- [ ] 图片对象统一：`dish.image`、`dish.components[].prep.image`、`dish.steps[].image`、`ingredient.image` 均为 `{ src, license, author?, sourceUrl? }`（对齐 ADR-0006 裁决 2）\n- [ ] `dish.description`：I18nString，可选（菜单页用）\n- [ ] `menu-plan.meals[].serviceWindow`：字符串 `HH:MM-HH:MM`，可选\n- [ ] `dish.provenance.source` 枚举增加 `example`（构建时排除）\n- [ ] 同步 `data/` 现有文件（番茄炒蛋加 timing 与 description）、`docs/modules/knowledge-base.md` 字段表\n- [ ] `python3 scripts/local-validate.py` 与 `node scripts/validate-schemas.mjs` 全绿\n\n## 完成定义\n- 五项字段全部为可选；无字段删除、无必填新增、无实体新增\n- data/ 全部通过校验；PR 描述按 schema → types → data → docs 四段列出\n\n## 涉及文件\n`schemas/dish.schema.json` `schemas/ingredient.schema.json` `schemas/menu-plan.schema.json` `schemas/common.schema.json` `data/dishes/tomato-egg-stir-fry.json` `docs/modules/knowledge-base.md`\n\n## 参考\n`docs/execution-brief.md` §1.2、§3 v0.1；`docs/design/screens-v2.html`（timing 分组、菜单 description）"
+    },
+    {
+      "key": "v01-types-gen",
+      "title": "[v0.1] types：从 schema 生成 TS 类型，或加 CI 一致性检查",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "area:core",
+        "type:chore",
+        "owner:agent"
+      ],
+      "branch": "chore/core-types-from-schema",
+      "blockedBy": [
+        "v01-schema-fields"
+      ],
+      "body": "## 背景\n`packages/core/src/types.ts` 手写 305 行镜像 schema，两处维护必然漂移（roadmap-v2 §1）。\n\n## 任务\n- [ ] 二选一：(a) `json-schema-to-typescript` 生成到 `packages/core/src/generated/`，手写 types.ts 只保留引擎私有类型；(b) 保留手写，加 `scripts/check-types-vs-schema.mjs` 在 CI 里比对字段名与必填集合\n- [ ] 在 PR 描述说明选择理由（一段即可）\n- [ ] 引擎与测试不受影响：`node --test` 23/23 绿，`tsc` 绿\n\n## 完成定义\n- schema 改字段名而 types 未同步时，CI 必红\n\n## 涉及文件\n`packages/core/src/types.ts` `packages/core/package.json` `.github/workflows/ci.yml`"
+    },
+    {
+      "key": "v01-build-data",
+      "title": "[v0.1] scripts/build-data.mjs：data/ → 三张单 JSON + build.json",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "area:core",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/core-build-data",
+      "blockedBy": [
+        "v01-schema-fields"
+      ],
+      "body": "## 背景\n前台是纯静态页，只读构建期生成的 JSON。本脚本是 data/ 与页面之间唯一的桥。\n\n## 任务\n- [ ] 读 `data/` 全部实体；对每个 menu-plan 跑 `expand` + `renderPrepList` / `renderPurchaseOrders` / `renderMenu` + `readiness`\n- [ ] 输出到 `packages/web/public/data/{prep,purchase,menu}/<planId>.json`，结构按执行简报 §5 接口契约\n- [ ] 输出 `build.json { builtAt, commit, plans[] }`（commit 取 `git rev-parse HEAD`，无 git 时为 `local`）\n- [ ] 排除 `provenance.source === \"example\"` 的菜品\n- [ ] 采购单 JSON 附 `wechatText[supplier]`（复用 `generate-field-test.mjs` 的文本格式）\n- [ ] 纯 Node ≥ 20，无框架依赖；`node scripts/build-data.mjs --check` 只校验不写\n\n## 完成定义\n- 用当前 `data/` 跑出的采购单数字与 `data/purchase-orders/week-41-*.json` 快照逐行一致（PR 附对比输出）\n- 输出 JSON 有 schema 或 TS 类型定义放在 `packages/core/src/sheets.ts`\n\n## 涉及文件\n`scripts/build-data.mjs` `packages/core/src/sheets.ts` `packages/core/scripts/generate-field-test.mjs`（可合并进来）"
+    },
+    {
+      "key": "v01-translate",
+      "title": "[v0.1] scripts/translate.mjs：DeepL + 术语表 + translations.lock.json",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "area:data",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/data-translate-lock",
+      "body": "## 背景\n三语是前提；人工翻译成本太高（场景 H 结论：DeepL + Glossary + 增量脚本）。人工改过的永不被覆盖。\n\n## 任务\n- [ ] 扫描 `data/**` 全部 I18nString（含 techniques.json），列出缺 en / uk 的路径\n- [ ] 有 `DEEPL_API_KEY` 时调用 DeepL：zh → en、zh → uk；glossary 由 `data/techniques.json` 的 zh→en/uk 自动生成并上传（v3 glossary）\n- [ ] 写 `data/translations.lock.json`：`\"<file>#<json-pointer>\": { source_hash: sha1(zh), status: machine|human, updatedAt }`\n- [ ] 规则：zh 变了且 status=machine → 重翻；status=human → 不覆盖，zh 变化时标 `stale: true`\n- [ ] 无 key 时不报错，打印缺失统计并退出 0（CI 可跑）\n- [ ] `--dry-run` 只打印将翻译的条目与预估字符数\n\n## 完成定义\n- 对当前 data/ 跑一次（可用 dry-run），输出缺失清单；lock 文件格式与执行简报 §5 一致\n- 单元测试覆盖：human 不覆盖、stale 标记、hash 变化触发重翻\n\n## 涉及文件\n`scripts/translate.mjs` `data/translations.lock.json` `docs/i18n.md`（加一节说明 lock）"
+    },
+    {
+      "key": "v01-renderers",
+      "title": "[v0.1] 渲染器：备料单按 timing 分组、菜单成分句与 ≈克重、readiness 接入",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "area:core",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/core-renderers-v01",
+      "blockedBy": [
+        "v01-schema-fields"
+      ],
+      "body": "## 背景\n设计稿 `screens-v2.html` 需要三样渲染器目前不产出的东西。\n\n## 任务\n- [ ] `renderPrepList`：按 `prep.timing` 分组（缺省归 `morning`），调料（to-taste 或 isSeasoning）归“под рукою/备在手边”组且不显示切配提示\n- [ ] `renderMenu`：输出 `composition[]`（按配料顺序，去调料，带 ingredientRef / name / image）、`approxGrams`（净重之和，pcs 用 pcsToGram 换算，to-taste 跳过）、`allergens[]`（第一轮只从 ingredient 上可选的 `allergens` 字段读，无则空）\n- [ ] `readiness(dish)` 返回 `{ canTeach, canPlan, canProcure, missing: string[] }`，missing 用人话键（如 `prep-image:egg`）\n- [ ] uk/en 输出标点全 ASCII（已修，加测试锁住）\n\n## 完成定义\n- 新增测试 ≥ 6 条；番茄炒蛋 `approxGrams ≈ 240`（附算式：150 + 1.5×55 + 5 + 0.75 + 4.4 ≈ 243）\n- 黄金测试数字不变\n\n## 涉及文件\n`packages/core/src/procurement/engine.ts`（或拆出 `render/*.ts`）`packages/core/test/engine.test.mjs`"
+    },
+    {
+      "key": "v01-terry-kitchen",
+      "title": "[v0.1][Terry] 确认真实厨房与菜贩清单（门 A）",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "type:task",
+        "owner:terry",
+        "gate"
+      ],
+      "body": "## 背景\n没有厨房的软件只是演示（plan-for-terry §5 门 A）。\n\n## 任务\n- [ ] 确认一位师傅、一位乌克兰帮厨、一位采购员愿意参加 10/19–25 测试周\n- [ ] 拿到一周真实菜单（菜名 + 每餐大约份数）\n- [ ] 拿到菜贩清单：供应商叫什么、每种常买食材的包装规格、起订量、上次价格（可以是微信截图）\n- [ ] 和师傅谈“每道菜按 50 份称一次”，记录他的反应（愿意 / 有条件 / 不愿意）\n\n## 完成定义\n- 以上四项写进 `docs/field-test/kitchen.md`（不含个人信息，供应商名可用代号）\n- 未确认 → v0.4 与测试周不排日期，v0.2/v0.3 照做"
+    },
+    {
+      "key": "v01-release",
+      "title": "[v0.1] 收尾：tag v0.1、CHANGELOG、周五演示记录",
+      "milestone": "v0.1 收尾工程",
+      "labels": [
+        "type:chore",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v01-schema-fields",
+        "v01-types-gen",
+        "v01-build-data",
+        "v01-translate",
+        "v01-renderers"
+      ],
+      "body": "## 任务\n- [ ] 对照执行简报 §3 v0.1 DoD 逐条核实（跑命令，不读汇报）\n- [ ] `CHANGELOG.md` 加 v0.1 段\n- [ ] `git tag v0.1`\n- [ ] 周五演示记录写进 `docs/field-test/log.md`：能用了什么 / 坏了什么 / 下周不做什么\n\n## 规则\n收尾前三天不加新东西，只修。滑期超过一周砍范围。"
+    },
+    {
+      "key": "v02-web-scaffold",
+      "title": "[v0.2] packages/web 脚手架：Vite + TS、tokens.css、字体、路由、目录角标抽屉",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-scaffold",
+      "blockedBy": [
+        "v01-build-data"
+      ],
+      "body": "## 背景\n前台三页 + 后台共用一个静态站。设计事实源：`docs/design/screens-v2.html`。\n\n## 任务\n- [ ] `packages/web`：Vite + TypeScript；**不引入 UI 框架**（原生 DOM 或 Preact，≤ 10 KB gzip）；无 CSS 框架、无状态库\n- [ ] `src/tokens.css`：从 screens-v2.html 抄 `:root` / dark 三态 token（bg / surface / ink / muted / line / accent / warn / ok）\n- [ ] 字体：Golos Text + Bitter + Noto Sans SC（Google Fonts，带系统回退栈）\n- [ ] hash 路由：`/prep` `/purchase` `/menu` `/admin`（admin 本版只放占位）\n- [ ] 左上角目录角标 + 抽屉：三项 + 菜单计划占位（标“2-й етап”）；底部显示 `build.json.builtAt` 与在线/离线状态\n- [ ] 右上角语言下拉 UA / 中 / EN，记住选择（localStorage，try/catch 包裹）\n- [ ] 读取 `public/data/*.json` 的数据层（fetch + 类型）\n\n## 完成定义\n- `pnpm -C packages/web build` 产物首屏 JS ≤ 60 KB gzip\n- 三态主题（system / light / dark）都能读；键盘焦点可见\n\n## 涉及文件\n`packages/web/**` `pnpm-workspace.yaml`（如无则新建）"
+    },
+    {
+      "key": "v02-prep",
+      "title": "[v0.2] /prep 备料单：A 列表 + B 详情 + timing 筛选",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-prep",
+      "blockedBy": [
+        "v02-web-scaffold",
+        "v01-renderers"
+      ],
+      "body": "## 背景\n帮厨每天打开的页面。设计：screens-v2.html 备料单 A 版为主视图，B 版为点开详情，C 版的时间分组做成筛选 chip（页尾“我的倾向”）。\n\n## 任务\n- [ ] 顶部：日期 chip（默认今天，可切一周）+ 餐次 chip（带份数）\n- [ ] A 列表：每配料一行 [64px 缩略图 | 名称 / 技法 / 备注 | 右列大数字 + 单位]；无图显示虚线占位“фото ще немає”\n- [ ] 调料组：小行，无切配提示\n- [ ] timing 筛选 chip：全部 / 早上 / 出餐前 / 前一天\n- [ ] 点配料行 → B 详情：大图（16:9）、数量压图、技法 chip、备注、“з відео 00:09”角标、该配料相关步骤 clip\n- [ ] 步骤区：编号 + 文本 + clip 时间戳（点击打开视频 URL 到该秒，新窗口）\n- [ ] 单位按语言显示：uk кг/шт/г/л，zh kg/个/g/L，en kg/pcs/g/L\n- [ ] 字号：数字 ≥ 24px，正文 ≥ 15px；触控目标 ≥ 44px\n\n## 完成定义\n- 用 week-41 数据渲染与设计稿一致；三语切换全部文案变化；无图占位可见\n- Playwright 冒烟通过（见 v02-e2e）"
+    },
+    {
+      "key": "v02-purchase",
+      "title": "[v0.2] /purchase 采购单：按供应商分组、trace 展开、复制微信文本",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-purchase",
+      "blockedBy": [
+        "v02-web-scaffold"
+      ],
+      "body": "## 背景\n采购员是中国人，页面只用中文，数量按“包”计。设计：screens-v2.html 采购单页。\n\n## 任务\n- [ ] 周切换 chip；顶部汇总（供应商数 / 品项数 / 预估金额）\n- [ ] 每供应商一张卡：名称、建议下单日（用餐日 − 提前期，第一轮固定 2 天）、小计\n- [ ] 每行：食材 | **N** 包 × 规格 | 金额 | ▸；副标题：总量 + 上次价；点开 trace：需求 → ÷净料率 → ×备量 → 取整（最少 N 包）→ 采购量比需求多多少\n- [ ] 起订量兜底行显示 warn chip“起订 N 包 · 实需 X · 余量入库”\n- [ ] 底部固定：主按钮“复制微信文本”（`navigator.clipboard.writeText`，失败时回退为弹出可全选文本框）；副按钮“分享图片”本版只做占位（灰）\n- [ ] 价格注脚“按上次价估算，以实际为准”\n\n## 完成定义\n- 复制出的文本与 `docs/field-test/week-41/purchase-order-*.txt` 格式一致\n- 数字来自 build-data 输出，页面不做任何算术"
+    },
+    {
+      "key": "v02-menu",
+      "title": "[v0.2] /menu 菜单：日期条、菜品行、详情抽屉（Expirenza 骨架）",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-menu",
+      "blockedBy": [
+        "v02-web-scaffold",
+        "v01-renderers"
+      ],
+      "body": "## 背景\n设计：screens-v2.html 菜单两屏。借 Expirenza 骨架（日期条、菜品行、详情抽屉、过敏原行），不借价格强调与收藏；加三语并列与“成分”。\n\n## 任务\n- [ ] 顶部日期条（一周，今天高亮）+ 餐次 chip（带 serviceWindow）\n- [ ] 菜品行：主语言名 18px / 另两语小字并列 / 成分句（2 行截断）/ ≈克重 / 过敏原 chip / 右侧 112px 方图（无图虚线占位）\n- [ ] 点开底部抽屉：大图 + 关闭钮、三语名、description、≈克重与餐次 chip、过敏原行、成分横滑（食材图 + 双语名）\n- [ ] 无 description 时抽屉只显示成分句\n- [ ] 示例菜（provenance.source=example）不出现（build-data 已排除，页面再兜底）\n\n## 完成定义\n- 与设计稿一致；主语言切换后另两语自动调整顺序\n- 只有一道菜时页面仍完整（不出现空态尴尬）"
+    },
+    {
+      "key": "v02-pwa",
+      "title": "[v0.2] PWA：manifest、Workbox 离线缓存、新版本提示",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-pwa",
+      "blockedBy": [
+        "v02-web-scaffold"
+      ],
+      "body": "## 背景\n厨房可能没网；roadmap-v2 §3 要求断网能开上一次内容。场景 G 报告给了坑清单。\n\n## 任务\n- [ ] `manifest.webmanifest`：名称 CanteenOS、图标（角标四格图案）、`display: standalone`、起始页按 hash\n- [ ] Workbox（MIT）：预缓存应用壳 + 当前周三张单 JSON + build.json；图片运行时 CacheFirst，上限 300 张 / 30 天\n- [ ] `build.json.commit` 变化时页面顶部提示“有新版本，点此刷新”；不自动刷新\n- [ ] 抽屉底部离线状态来自 `navigator.onLine` + SW 命中\n- [ ] iOS 提示：未加到主屏幕时显示一次“加到主屏幕可离线使用”（可关闭，localStorage 记住）\n\n## 完成定义\n- Chrome DevTools 离线模式下三页可开、显示上一版数据与 builtAt\n- Lighthouse PWA 可安装；移动端性能 ≥ 85"
+    },
+    {
+      "key": "v02-deploy",
+      "title": "[v0.2] build-deploy.yml：push main → translate → build-data → vite build → Pages",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:ci",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/ci-build-deploy",
+      "blockedBy": [
+        "v01-build-data",
+        "v01-translate"
+      ],
+      "body": "## 背景\n“推送即上线，没有人搬运”（roadmap-v2 §2）。\n\n## 任务\n- [ ] `.github/workflows/build-deploy.yml`：触发 push main；步骤：pnpm install → validate → `translate.mjs`（有 `DEEPL_API_KEY` secret 才跑，翻译结果作为 bot commit 回写 data/ 与 lock）→ `build-data.mjs` → `vite build` → 部署 GitHub Pages（或 Cloudflare Pages，二选一写进 PR）\n- [ ] 任一步失败即红、不部署\n- [ ] 部署 URL 写进 README“打开”一节\n- [ ] 构建时间戳与 commit 进 `build.json`\n- [ ] 首次部署后在 `docs/field-test/log.md` 记录 URL 与日期\n\n## 完成定义\n- 改一个 `data/menu-plans/*.json` 的份数并 push，≤ 5 分钟后页面更新，中间无人工步骤\n- secrets 不出现在任何日志"
+    },
+    {
+      "key": "v02-qr",
+      "title": "[v0.2] 二维码：构建期为三张单入口生成 PNG",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-qr",
+      "blockedBy": [
+        "v02-deploy"
+      ],
+      "body": "## 任务\n- [ ] 构建期用 MIT 库（如 `qrcode`）为 `/prep` `/purchase` `/menu` 生成 PNG 到 `public/qr/`，附中文/乌文标签\n- [ ] `/qr` 打印页：A4 三张码 + 一句用法（帮厨：加到主屏幕；采购员：收藏；顾客：扫码看菜单）\n\n## 完成定义\n- 打印出来手机扫得开；URL 来自部署配置，不写死"
+    },
+    {
+      "key": "v02-e2e",
+      "title": "[v0.2] Playwright 冒烟：三页可开、语言切换、复制按钮",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "area:web",
+        "type:test",
+        "owner:agent"
+      ],
+      "branch": "test/web-e2e-smoke",
+      "blockedBy": [
+        "v02-prep",
+        "v02-purchase",
+        "v02-menu"
+      ],
+      "body": "## 任务\n- [ ] Playwright（Apache-2.0）移动视口 390×844：/prep 显示番茄行与 30 кг；切 zh 后显示“番茄 30 kg”；/purchase 点“复制微信文本”后剪贴板含“绿源”；/menu 点菜品行打开抽屉含“Яйця”\n- [ ] 接入 CI（PR 触发），≤ 2 分钟\n\n## 完成定义\n- 三条用例绿；失败截图上传为 artifact"
+    },
+    {
+      "key": "v02-terry-helper-test",
+      "title": "[v0.2][Terry] 帮厨看 /prep 5 分钟，记录第一句话",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "type:task",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v02-deploy",
+        "v02-prep"
+      ],
+      "body": "## 任务\n- [ ] 把部署 URL 的 /prep 给帮厨看 5 分钟，不讲解\n- [ ] 记录：他第一句话、他点了什么、他问了什么（逐字，进 `docs/field-test/log.md`）\n- [ ] 同一天把 /purchase 的复制文本发给采购员，问“能直接转菜贩吗”\n\n## 完成定义\n- 日志有两条记录；每条记录末尾写“改 / 不改 + 理由”"
+    },
+    {
+      "key": "v02-release",
+      "title": "[v0.2] 收尾：tag v0.2、CHANGELOG、周五演示",
+      "milestone": "v0.2 三张单上屏",
+      "labels": [
+        "type:chore",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v02-prep",
+        "v02-purchase",
+        "v02-menu",
+        "v02-pwa",
+        "v02-deploy",
+        "v02-qr",
+        "v02-e2e"
+      ],
+      "body": "## 任务\n- [ ] 对照执行简报 §3 v0.2 DoD 逐条核实：网址可开三页、断网可开、push 无人工、Lighthouse ≥ 85、首屏 JS ≤ 60 KB\n- [ ] CHANGELOG v0.2 段；`git tag v0.2`\n- [ ] 周五演示记录进 `docs/field-test/log.md`"
+    },
+    {
+      "key": "v03-adr-0007",
+      "title": "[v0.3] ADR-0007：写入通道（静态后台 → 云函数 → GitHub API）与链接令牌",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:docs",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "docs/adr-0007-write-path",
+      "body": "## 背景\n师傅不能靠别人改 JSON，但不做后端数据库、不做登录（执行简报 §1.4）。设计：`docs/design/backoffice-v1.html` 页尾架构段。**本轮唯一的新 ADR。**\n\n## 任务\n- [ ] 决策：云函数平台（Cloudflare Worker 优先，理由）；仓库写入方式二选一：直接 commit main / 自动合并 PR（审计 vs 简单）；令牌模型：按角色（chef / buyer / admin）随机串放链接里，泄露即轮换，不存个人信息\n- [ ] 端点清单与错误格式（与执行简报 §5 一致）\n- [ ] 发布进度如何查询（GitHub Actions run 状态映射为四步）\n- [ ] 回退语义：新 commit 恢复 data/，不 force push\n- [ ] 安全边界：worker 只能写 `data/**`，不能改 schema / 代码 / workflows\n\n## 完成定义\n- ADR 状态 Accepted，Terry 批准；`docs/architecture.md` §3 加写入通道一段"
+    },
+    {
+      "key": "v03-worker",
+      "title": "[v0.3] packages/worker：写入端点、令牌校验、触发构建、回退、集成测试",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:worker",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/worker-write-path",
+      "blockedBy": [
+        "v03-adr-0007"
+      ],
+      "body": "## 任务\n- [ ] 单文件 Worker（TypeScript），按 ADR-0007：\n  - `POST /plan/:planId` 写 menu-plan（先 ajv 校验，错误按字段返回）\n  - `POST /ingredient` 新建/更新\n  - `POST /dish/:id/draft` 保存草稿（status=draft）\n  - `POST /publish` 触发 build-deploy，返回 runId；`GET /publish/:id` 四步进度\n  - `POST /rollback/:sha` 恢复 data/ 到某 commit（新 commit）\n  - `POST /translate` 即时机翻单条（给后台表单用）\n  - `POST /image` 接收照片，压缩到 ≤ 200 KB / 1280px，写入对应目录\n- [ ] 所有请求 `Authorization: Bearer <role-token>`；令牌与 GitHub token 只在 Worker secrets\n- [ ] 只允许写 `data/**`；路径白名单硬编码\n- [ ] 集成测试：对一个测试仓库跑一遍写入 → 校验 → 回退\n\n## 完成定义\n- 每端点一个测试；无密钥进 git（CI gitleaks 绿）；错误响应能被前端逐字段标黄"
+    },
+    {
+      "key": "v03-admin-home",
+      "title": "[v0.3] /admin 工作台：六块 + 未发布计数",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-home",
+      "blockedBy": [
+        "v02-web-scaffold",
+        "v03-adr-0007"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 1 屏。\n\n## 任务\n- [ ] 顶部状态：比较 main 最新 commit 与线上 `build.json.commit`，显示“N 项改动还没发布 · 上次发布 hh:mm”，旁边“发布”chip\n- [ ] 六块：排菜单（大块，显示本周已排餐数）/ 加一道菜 / 待确认（红点数=draft 菜数）/ 食材库（数量 + 缺调料提示）/ 翻译待审（lock 中 machine 条数）/ 二维码 / 发布记录\n- [ ] 令牌从 URL 读取并存 sessionStorage；无令牌显示“请用师傅链接打开”\n\n## 完成定义\n- 与设计稿一致；数字来自真实数据源，不是写死\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-admin-plan",
+      "title": "[v0.3] /admin/plan 排菜单：周视图、±10 步进器、日/周/月、复制上周、采购单预览",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-plan",
+      "blockedBy": [
+        "v03-admin-home"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 2 屏。这是师傅每周必用的屏。\n\n## 任务\n- [ ] 周导航 ‹ 第 N 周 ›；按天卡片，每天 午/晚 两行（早餐可配置）\n- [ ] 点一格展开：菜品选择（从 data/dishes 搜索，显示能教/能排/能采；不可排的灰掉）+ 份数步进器（±10，长按 ±50）+ 提示“上周同餐次：排 X，实际 Y”（第一轮“实际”用上周计划数并标注）\n- [ ] 右上角下拉：日 / 周 / 月。日视图=当天两餐大号步进器；月视图=日历，只看有没有排，不编辑\n- [ ] “复制上周”：把上周计划复制到本周（可撤销）\n- [ ] “采购单预览”：本地跑 core 引擎（浏览器内 import `@canteenos/core`）显示本周采购单，不落库\n- [ ] “保存本周” → `POST /plan/:planId`；保存后顶部出现“1 项未发布”\n- [ ] 校验错误逐字段标黄（份数 < 1、菜品不可排）\n\n## 完成定义\n- Terry 用手机排一周并保存，全程不碰 JSON；预览数字与 build-data 一致\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-admin-import",
+      "title": "[v0.3] 粘贴导入：宽松解析器 + 逐行结果 + Excel/CSV 上传",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-import",
+      "blockedBy": [
+        "v03-admin-home"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 3 屏。师傅现在就是在微信里发“周一午番茄炒蛋200”。日/周/月只是行数不同。\n\n## 任务\n- [ ] 解析器（纯函数，放 `packages/core/src/import/parse-plan-text.ts`，带测试）：接受 星期（周一/礼拜一/Mon）或日期（10.05 / 10月5日 / 2026-10-05）· 餐次（早/午/中/晚/breakfast/lunch/dinner）· 菜名（模糊匹配 data/dishes 三语名，编辑距离 ≤ 2）· 份数（阿拉伯或中文数字，可带“份”）\n- [ ] 每行结果：✓ 匹配 / ! 菜名不存在（新建 / 换一个）/ ? 有草稿不能排（去补全）/ 日期落在下周（标注）\n- [ ] Excel/CSV：四列自动识别列名（日期/餐次/菜名/份数 的常见写法）；用 SheetJS（Apache-2.0）或 Papaparse（MIT）\n- [ ] 底部按钮文案动态：“导入 N 行，跳过 M 行”\n\n## 完成定义\n- 解析器测试 ≥ 15 条（含中文数字、混排、多余空格、全角标点）\n- 导入后进入排菜单周视图，未保存前可撤销\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-admin-ingredient",
+      "title": "[v0.3] /admin/ingredient/new 新食材：一屏填完、即时机翻、拍照/Wikidata 取图",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-ingredient",
+      "blockedBy": [
+        "v03-admin-home"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 6 屏。文案全是人话。\n\n## 任务\n- [ ] 字段映射：中文名 → name.zh；英文/乌克兰语 → `POST /translate` 即时填充并标“机翻，可改”；照片 → 拍照上传（`POST /image`）/ 从 Wikidata 取（按 externalId，显示许可）/ 从视频截（占位）；按什么算 → baseUnit（g / ml / pcs）；选 pcs 时出现“一个多少克” → pcsToGram；净料率 → yield（文案“用 100 g 能剩多少”，默认 100%）；“调料·适量就行” → 允许 to-taste；怎么买 → purchase{supplier(下拉已有 + 新建), packSize, packUnit, minPacks, lastPrice}；耐放·记库存 → trackStock\n- [ ] 保存 → `POST /ingredient`；从复核屏跳来时保存后返回\n- [ ] 校验错误逐字段标黄\n\n## 完成定义\n- 采购员用手机建一个食材 ≤ 2 分钟；产出 JSON 通过 schema\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-admin-dish-manual",
+      "title": "[v0.3] /admin/dish/new 手动输入分支（视频分支占位）",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-dish-manual",
+      "blockedBy": [
+        "v03-admin-ingredient"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 4 屏“手动输入”标签页；视频分支本轮只放占位与命令行说明链接（执行简报 §3 v0.3 不做）。\n\n## 任务\n- [ ] 字段：菜名 zh（en/uk 即时机翻）、基准份数（默认 50，全局设置）、配料列表（从食材库搜索添加；每条：数量 + 单位 / 适量、切法（从 techniques 选）、大小、备注、提前多久、照片）、步骤列表（文本 + 技法 + 照片）\n- [ ] 顶部 readiness 三 chip 实时变化\n- [ ] 保存草稿 → `POST /dish/:id/draft`；“入库” = status active（能不能排看关卡）\n- [ ] 视频标签页：显示“第二轮上线；现在由 Terry 用命令行导入”，链接到 SKILL.md\n\n## 完成定义\n- 手动建一道菜到 canPlan ≤ 10 分钟；无照片时能教 ✗ 正确显示缺什么\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-admin-publish",
+      "title": "[v0.3] /admin/publish 发布：改动列表、四步进度、回退、二维码页",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-publish",
+      "blockedBy": [
+        "v03-admin-home",
+        "v02-deploy"
+      ],
+      "body": "## 背景\n设计：backoffice-v1.html 第 7 屏。“发布”是后台唯一需要理解的概念。\n\n## 任务\n- [ ] 未发布改动列表：main 与线上 commit 之间的 data/ diff，人话化（“第 41 周菜单 · 周三午 160 → 180 · 09:14”）\n- [ ] 发布按钮 → `POST /publish`；轮询 `GET /publish/:id` 显示四步（检查数据 / 补翻译 / 生成三张单 / 上线）与耗时；失败显示哪一步与原因\n- [ ] 发布记录：最近 10 次，当前线上版标注；“回到这版” → `POST /rollback/:sha`（二次确认）\n- [ ] 打印页链接（复用 v02-qr）\n\n## 完成定义\n- 发布一次 ≤ 5 分钟；回退一次成功且三张单恢复\n\n## 并行方式\n对着 `packages/web/src/api/mock.ts`（按 ADR-0007 与执行简报 §5 契约实现的内存版）开发，不等 worker；真实接线在 `[v0.3] 后台接真实 worker` 一次完成。"
+    },
+    {
+      "key": "v03-secrets-scan",
+      "title": "[v0.3] CI 密钥扫描（gitleaks 或等价宽松协议工具）",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:ci",
+        "type:chore",
+        "owner:agent"
+      ],
+      "branch": "chore/ci-secrets-scan",
+      "body": "## 任务\n- [ ] PR 与 push 触发 gitleaks（MIT）扫描；命中即红\n- [ ] 忽略规则只允许 fixtures 中明确的假值\n\n## 完成定义\n- 故意提交一个假 token 的测试 PR 被拦下（记录截图后关闭）"
+    },
+    {
+      "key": "v03-wire-up",
+      "title": "[v0.3] 后台接真实 worker：替换 mock，端到端 写入 → 发布 → 回退",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "area:web",
+        "area:worker",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/web-admin-wire-up",
+      "blockedBy": [
+        "v03-worker",
+        "v03-admin-plan",
+        "v03-admin-import",
+        "v03-admin-ingredient",
+        "v03-admin-dish-manual",
+        "v03-admin-publish"
+      ],
+      "body": "## 背景\nv0.3 的后台页面对着 mock 适配器并行开发（见各页面 issue 的“并行方式”）。本 issue 把 `packages/web/src/api/mock.ts` 换成真实 worker 客户端，跑通全链路。\n\n## 任务\n- [ ] `packages/web/src/api/client.ts` 按 ADR-0007 实现，令牌从 URL/sessionStorage 读\n- [ ] 环境切换：本地开发默认 mock，生产默认 client\n- [ ] 端到端：排菜单保存 → 发布 → 三张单更新 → 回退 → 三张单恢复；新食材 → 出现在食材库；手动加菜 → readiness 正确\n- [ ] 错误路径：令牌错误、schema 校验失败逐字段标黄、worker 超时提示\n- [ ] Playwright 加一条后台冒烟（用测试仓库或 mock 模式）\n\n## 完成定义\n- Terry 用手机在真实部署上完成一次 保存 → 发布 → 回退；日志无密钥"
+    },
+    {
+      "key": "v03-terry-acceptance",
+      "title": "[v0.3][Terry] 亲自用后台排一周并发布；采购员自助复制",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "type:task",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v03-wire-up"
+      ],
+      "body": "## 任务\n- [ ] 用师傅链接在手机上排一周菜单并发布，全程不打开任何 JSON\n- [ ] 把采购员链接发给采购员，让他自己复制微信文本发菜贩\n- [ ] 记录卡住的每一步（逐字）进 `docs/field-test/log.md`\n\n## 完成定义\n- 连续一周 Terry 没碰过 JSON；采购员没让你替他生成过"
+    },
+    {
+      "key": "v03-release",
+      "title": "[v0.3] 收尾：tag v0.3、CHANGELOG、周五演示",
+      "milestone": "v0.3 师傅后台",
+      "labels": [
+        "type:chore",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v03-wire-up",
+        "v03-secrets-scan"
+      ],
+      "body": "## 任务\n- [ ] 对照执行简报 §3 v0.3 DoD 逐条核实\n- [ ] CHANGELOG v0.3 段；`git tag v0.3`\n- [ ] 周五演示记录"
+    },
+    {
+      "key": "v04-seed-wikidata",
+      "title": "[v0.4] scripts/seed-wikidata.py：按 QID 清单拉三语名 + 图 + 许可",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "area:data",
+        "type:feat",
+        "owner:agent"
+      ],
+      "branch": "feat/data-seed-wikidata",
+      "body": "## 背景\n场景 A：Wikidata uk 覆盖 83%，中国特有项缺失，图片 77.8% CC BY-SA 需逐图存许可。脚本 `docs/research/v2/wikidata_probe.py` 可复用。\n\n## 任务\n- [ ] 输入 `data/seed/qids.csv`（id, QID, 中文名）；输出 `data/ingredients/<id>.json` 骨架（name 三语、externalId、image{src,license,author,sourceUrl}）——已存在的文件只补空字段，不覆盖\n- [ ] 缺 uk 的用 en 枢轴走 `translate.mjs` 逻辑并在 lock 标 machine\n- [ ] 图片下载到 `data/ingredients/<id>.jpg`，压缩 ≤ 200 KB / 1280px；优先 PD/CC0，其次 CC BY，最后 CC BY-SA\n- [ ] 输出报告：覆盖率、缺 uk 清单、许可分布\n\n## 完成定义\n- 对 60 个 QID 跑通；报告进 `docs/field-test/seed-report.md`"
+    },
+    {
+      "key": "v04-ingredients-60",
+      "title": "[v0.4] 食材 ≥ 60（含调料 ≥ 20），每个有采购规格",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "area:data",
+        "type:task",
+        "owner:terry",
+        "owner:agent"
+      ],
+      "blockedBy": [
+        "v04-seed-wikidata",
+        "v01-terry-kitchen"
+      ],
+      "body": "## 任务\n- [ ] 从真实菜单反推食材清单（agent 从 10 道菜的配料汇总）\n- [ ] Wikidata 种子跑一遍；中国特有调料（生抽/老抽/蚝油/豆瓣酱/料酒/花椒/八角/五香粉…）手填 uk，标 human\n- [ ] 每个食材填 `purchase`（供应商 / 包装 / 起订 / 上次价）——来源 v01-terry-kitchen 的菜贩清单\n- [ ] 油盐米面等耐放品 `trackStock: true`\n\n## 完成定义\n- `ls data/ingredients | wc -l` ≥ 60；全部通过校验；无 purchase 缺失"
+    },
+    {
+      "key": "v04-dishes-10",
+      "title": "[v0.4][Terry] 真实菜单 ≥ 10 道菜到“能教”：导入 + 师傅称重 + 切配照片",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "area:data",
+        "type:task",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v04-ingredients-60"
+      ],
+      "body": "## 背景\n第一轮最贵的人力（每道约 30 分钟）。视频给 2 人份，知识库要 50 份标准配方，中间那步是师傅拿秤量。\n\n## 任务\n- [ ] 每道菜：命令行视频导入（`skills/video-recipe-ingest`，agent 扮演引擎或真实 API）或手输 → 师傅按 50 份称重回填用量 → 切配照片（视频截帧或现场拍）→ readiness `canTeach` 为真\n- [ ] 第一周先做 3 道最常做的，让师傅先看到帮厨用得上，再做剩下 7 道\n- [ ] 师傅口头确认记录进 `docs/field-test/log.md`\n\n## 完成定义\n- 10 道菜 `readiness.canTeach === true`；每道有 cover + 每个需切配料的 prep.image"
+    },
+    {
+      "key": "v04-techniques",
+      "title": "[v0.4] techniques.json 补齐 10 道菜的技法；uk 由帮厨看一遍",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "area:data",
+        "type:task",
+        "owner:agent",
+        "owner:terry"
+      ],
+      "blockedBy": [
+        "v04-dishes-10"
+      ],
+      "body": "## 任务\n- [ ] 汇总 10 道菜用到的技法，缺的按场景 B 报告的 80 项骨架补进 `data/techniques.json`（zh 权威，en/uk 机翻）\n- [ ] 无空 `techniqueRef`（CI 跨引用检查）\n- [ ] 打印技法词表 uk 给帮厨看一遍，改过的在 lock 标 human\n\n## 完成定义\n- 跨引用检查绿；lock 中 techniques 的 uk 至少 50% 为 human"
+    },
+    {
+      "key": "v04-field-test-kit",
+      "title": "[v0.4] 测试周材料：操作指南、日志模板、二维码打印、P0 定义",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "area:docs",
+        "type:chore",
+        "owner:agent"
+      ],
+      "blockedBy": [
+        "v02-qr"
+      ],
+      "body": "## 任务\n- [ ] `docs/field-test/<week>/README.md`：三种角色各一段“怎么打开、看什么、遇到问题找谁”（zh + uk）\n- [ ] `log.md` 模板：日期 / 角色 / 原话 / 是否阻塞 / 结论；P0 定义（当天工作做不下去）\n- [ ] 二维码 A4 打印稿\n- [ ] 复用 `docs/field-test/week-41/README.md` 的问题清单\n\n## 完成定义\n- Terry 拿着能直接用"
+    },
+    {
+      "key": "v04-gate-b",
+      "title": "[v0.4][门 B] 测试周前检查清单",
+      "milestone": "v0.4 真实数据",
+      "labels": [
+        "type:task",
+        "owner:terry",
+        "gate"
+      ],
+      "blockedBy": [
+        "v04-ingredients-60",
+        "v04-dishes-10",
+        "v04-techniques",
+        "v04-field-test-kit",
+        "v03-terry-acceptance"
+      ],
+      "body": "## 检查\n- [ ] ≥ 10 道菜能教\n- [ ] ≥ 60 食材，均有采购规格\n- [ ] 帮厨看过 uk 一遍\n- [ ] 采购员认过菜贩数据\n- [ ] 真实周菜单已在后台排好并发布\n- [ ] 三张二维码已打印\n\n## 规则\n缺一项就把测试周往后推，不带病测试。"
+    },
+    {
+      "key": "v10-test-week",
+      "title": "[v1.0][Terry] 真实厨房周 10/19–25：代码冻结，每日日志",
+      "milestone": "v1.0 第一轮收尾",
+      "labels": [
+        "type:task",
+        "owner:terry",
+        "gate"
+      ],
+      "blockedBy": [
+        "v04-gate-b"
+      ],
+      "body": "## 规则\n- 代码冻结，只合并 P0（当天工作被阻塞）\n- 每天一条日志进 `docs/field-test/<week>/log.md`：谁 / 看不懂或做不了什么 / 怎么绕过 / 是否阻塞\n\n## 每天记录的数字\n- 帮厨是否自己打开 /prep（有没有人发截图）\n- 采购员是否自己复制文本\n- 因缺料做不出的菜数\n- 生鲜多买比例（采购量 vs 实际用量，采购员口头即可）"
+    },
+    {
+      "key": "v10-fix-top3",
+      "title": "[v1.0] 复盘：修测试周最痛的三个问题",
+      "milestone": "v1.0 第一轮收尾",
+      "labels": [
+        "type:feat",
+        "owner:agent"
+      ],
+      "blockedBy": [
+        "v10-test-week"
+      ],
+      "body": "## 任务\n- [ ] 按日志出现频次与阻塞程度排序\n- [ ] 只修前三个；其余写进 `docs/round-2-backlog.md`\n- [ ] 每个修复一个 PR，附日志行号"
+    },
+    {
+      "key": "v10-gate-c",
+      "title": "[v1.0][门 C] 第一轮退出标准核对 + tag v1.0",
+      "milestone": "v1.0 第一轮收尾",
+      "labels": [
+        "type:task",
+        "owner:terry",
+        "gate"
+      ],
+      "blockedBy": [
+        "v10-fix-top3"
+      ],
+      "body": "## 逐条核对（roadmap-v2 §3）\n- [ ] 帮厨连续 5 天自己打开 /prep，没人发过截图\n- [ ] 采购员连续一周自己复制微信文本\n- [ ] 因缺料做不出的菜 = 0\n- [ ] 生鲜多买 < 20%\n- [ ] 新加一道菜到帮厨能看到 < 1 小时\n- [ ] 断网 /prep 仍能打开上一版\n- [ ] 测试周内 schema 未改\n\n## 产出\n- `docs/field-test/<week>/verdict.md`；`git tag v1.0`；`plan-for-terry.md` 加“第一轮结论”一段；第二轮按日志排，不按路线图"
+    }
+  ]
+}

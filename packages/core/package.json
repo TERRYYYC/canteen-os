@@ -1,8 +1,8 @@
 {
   "name": "@canteenos/core",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "private": true,
-  "description": "CanteenOS core types and procurement engine skeleton. Types mirror schemas/ (single source of truth).",
+  "description": "CanteenOS core: types, procurement engine, three sheet renderers, readiness gates. Types mirror schemas/ (single source of truth).",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

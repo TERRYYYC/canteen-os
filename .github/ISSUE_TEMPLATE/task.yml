@@ -1,0 +1,66 @@
+name: Round task（第一轮任务）
+description: 第一轮里程碑内的一项任务。批量任务请改 .github/backlog/round-1.json 再跑 scripts/create-issues.mjs；本模板用于临时补充。
+title: "[v0.x] "
+labels: ["owner:agent"]
+body:
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: 里程碑
+      options:
+        - v0.1 收尾工程
+        - v0.2 三张单上屏
+        - v0.3 师傅后台
+        - v0.4 真实数据
+        - v1.0 第一轮收尾
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 为什么要做；引用 docs/execution-brief.md 的章节或设计稿的屏号
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 任务
+      description: checkbox 列表，每条可独立验证
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: dod
+    attributes:
+      label: 完成定义
+      description: 用命令、数字或可观察的行为写，不要写"完成即可"
+    validations:
+      required: true
+  - type: input
+    id: files
+    attributes:
+      label: 涉及文件
+      placeholder: schemas/dish.schema.json packages/core/src/...
+  - type: input
+    id: blocked
+    attributes:
+      label: 依赖（Blocked by）
+      placeholder: "#12 #15"
+  - type: input
+    id: branch
+    attributes:
+      label: 分支名
+      placeholder: feat/web-prep
+  - type: checkboxes
+    id: guard
+    attributes:
+      label: 范围检查
+      options:
+        - label: 不新增实体、不新增必填字段（execution-brief §1.2）
+          required: true
+        - label: 不在"第一轮不做"清单内（plan-for-terry §7）
+          required: true
+        - label: 涉及采购数字时，PR 将附手算算式
+          required: false

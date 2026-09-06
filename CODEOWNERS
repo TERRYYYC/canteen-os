@@ -15,13 +15,17 @@
 /data/ @TERRYYYC
 /scripts/ @TERRYYYC
 
-# 核心包与采购引擎
+# 核心包与采购引擎、前台/后台、写入通道
 /packages/ @TERRYYYC
+/packages/core/ @TERRYYYC
+/packages/web/ @TERRYYYC
+/packages/worker/ @TERRYYYC
 
 # 解析 skill 契约
 /skills/ @TERRYYYC
 
 # 协作流程
 /.github/ @TERRYYYC
+/.github/backlog/ @TERRYYYC
 /CONTRIBUTING.md @TERRYYYC
 /AGENTS.md @TERRYYYC

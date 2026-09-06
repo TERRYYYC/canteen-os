@@ -9,7 +9,34 @@
 
 **CanteenOS** = 一个知识库（`data/` 目录），每天出**三张单**：**备料单**（给乌克兰帮厨，配图）、**采购单**（给采购员，按供应商分组、按包装取整、可转微信）、**菜单**（给顾客，三语）。知识库的输入通道是做菜视频——视频解析 skill 直出菜品草稿，师傅审 PR 即入库。
 
-2026-09-06 起执行 v2 收窄（[ADR-0006](docs/adr/0006-scope-reduction-v2.md)）：实体从 9 个减到 **5 个**，`examples/` 由 **`data/`（目录即知识库）** 取代，删除供应商/量纲/反馈/dishpack 中间层与 PO 状态机。当前仓库 = 设计文档 + JSON Schema + data/ 种子知识库 + TS 类型与引擎骨架，**尚无可运行应用**。
+2026-09-06 起执行 v2 收窄（[ADR-0006](docs/adr/0006-scope-reduction-v2.md)）：实体从 9 个减到 **5 个**，`examples/` 由 **`data/`（目录即知识库）** 取代，删除供应商/量纲/反馈/dishpack 中间层与 PO 状态机。
+
+**2026-09-07 状态（v0.0.3，设计收尾）**：采购引擎已实现（23 个测试，数字逐行手算），乌语备料单与微信采购单能从真实数据生成，前台 5 屏 + 后台 7 屏高保真已定稿（[docs/design/](docs/design/)）。**尚无网页**——第一轮（v0.1 → v1.0，9/7 → 10/30）做出一个网址、四个页面，收在一个真实厨房的一周。
+
+### 开工
+
+| 你是 | 先读 |
+|---|---|
+| Terry | [docs/plan-for-terry.md](docs/plan-for-terry.md) — 节奏、三道门、每周三件事 |
+| AI agent | [AGENTS.md](AGENTS.md) → [docs/execution-brief.md](docs/execution-brief.md) — 冻结事项、任务、规则、接口契约 |
+| 调度 agent | [docs/operating-model.md](docs/operating-model.md) — 波次派工、交接四行、审查跑命令 |
+| 任何人 | [docs/project-summary.md](docs/project-summary.md) — 一页现状 |
+
+任务在 [`.github/backlog/round-1.json`](.github/backlog/round-1.json)（38 个 issue，5 个里程碑，带完成定义与依赖；`node scripts/backlog-waves.mjs` 看可并行的波次）。同步到 GitHub：
+
+```bash
+gh auth login                              # 一次
+node scripts/create-issues.mjs --dry-run   # 先看
+node scripts/create-issues.mjs             # 建标签 / 里程碑 / issue / 依赖 / 跟踪 issue，幂等
+```
+
+本地验证现有成果：
+
+```bash
+python3 scripts/local-validate.py                       # data/ ↔ schemas/ 14/14
+cd packages/core && npm run build && node --test        # 引擎 23/23
+node packages/core/scripts/generate-field-test.mjs      # 出微信采购单 + 乌语备料单 → docs/field-test/week-41/
+```
 
 ### 模块地图
 
@@ -47,7 +74,7 @@
 
 **CanteenOS** = one knowledge base (the `data/` directory) producing **three sheets a day**: a **prep list** (for the Ukrainian helper, with photos), a **purchase order** (for the purchaser, grouped by supplier string, rounded up to pack sizes, WeChat-shareable), and a **menu** (for customers, trilingual). Knowledge enters through cooking videos — the parsing skill emits draft dishes directly and the chef merges a PR to accept them.
 
-Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reduction-v2.md)) applies: 9 schema entities narrowed to **5**, `examples/` replaced by **`data/` (directory-as-knowledge-base)**, and the supplier/unit-conversion/feedback entities, the video interchange bundle, and the PO state machine removed. The repo currently holds design docs + JSON Schemas + the seed `data/` knowledge base + TS types and an engine skeleton. **No runnable application yet.**
+Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reduction-v2.md)) applies: 9 schema entities narrowed to **5**, `examples/` replaced by **`data/` (directory-as-knowledge-base)**, and the supplier/unit-conversion/feedback entities, the video interchange bundle, and the PO state machine removed. **Status 2026-09-07 (v0.0.3, design closed):** the procurement engine is implemented (23 hand-verified tests) and the Ukrainian prep list and WeChat purchase orders render from real data; hi-fi screens for 5 front-end and 7 back-office views are final ([docs/design/](docs/design/)). **No web app yet** — Round 1 (v0.1 → v1.0, Sep 7 → Oct 30) ships one URL with four pages and ends with one real kitchen using it for a week. Start with [docs/plan-for-terry.md](docs/plan-for-terry.md) (owner) or [docs/execution-brief.md](docs/execution-brief.md) (agents); the backlog is [`.github/backlog/round-1.json`](.github/backlog/round-1.json).
 
 ### Modules
 

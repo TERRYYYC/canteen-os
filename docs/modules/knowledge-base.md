@@ -1,6 +1,6 @@
 # 模块一：菜品知识库（Knowledge Base）
 
-> **English summary.** After the v2 scope reduction ([ADR-0006](../adr/0006-scope-reduction-v2.md)) the knowledge base is simply the `data/` directory — one file per entity, filename = ID — holding **3 of the 5 entities**: `ingredients/*.json` (trilingual name, baseUnit, optional `pcsToGram`/`yield`, `purchase` spec with a plain-string supplier, `trackStock`/`onHand`), `techniques.json` (a single-file controlled vocabulary of Chinese cutting/heating/pre-treatment techniques, closed set for the video skill), and `dishes/*.json` — where **incomplete dishes are allowed** (a name alone imports fine) and a `readiness` gate reports what each dish can do: *teach* (prep specs) / *plan* (quantities) / *buy* (purchase specs). Editing in Phase 1 is single-person: edit JSON, open a PR — the PR is the review queue. Supplier/UnitConversion/DishPack entities are deleted (git history keeps them).
+> **English summary.** After the v2 scope reduction ([ADR-0006](../adr/0006-scope-reduction-v2.md)) the knowledge base is simply the `data/` directory — one file per entity, filename = ID — holding **3 of the 5 entities**: `ingredients/*.json` (trilingual name, baseUnit, optional `pcsToGram`/`yield`, `purchase` spec with a plain-string supplier, `trackStock`/`onHand`), `techniques.json` (a single-file controlled vocabulary of Chinese cutting/heating/pre-treatment techniques, closed set for the video skill), and `dishes/*.json` — where **incomplete dishes are allowed** (a name alone imports fine) and a `readiness` gate reports what each dish can do: *teach* (prep specs) / *plan* (quantities) / *buy* (purchase specs). Editing: from v0.3 the chef uses the `/admin` back office (plan the week, add ingredients/dishes, publish) which commits JSON through a cloud function (ADR-0007); direct JSON edits via PR remain available to Terry and agents, and a PR is still the review queue for video-imported drafts. Supplier/UnitConversion/DishPack entities are deleted (git history keeps them).
 
 - schema：`schemas/ingredient.schema.json`、`techniques.schema.json`、`dish.schema.json`、`common.schema.json`
 - 数据：`data/ingredients/`、`data/techniques.json`、`data/dishes/`
@@ -61,10 +61,10 @@
 
 缺什么在 PWA/PR 里显示成待办，不阻断入库。
 
-## 3. 状态与编辑（阶段 1 单人编辑，ADR-0006 §5）
+## 3. 状态与编辑（v0.3 起师傅后台编辑；ADR-0006 §5 的“单人改 JSON”仅为过渡）
 
 - 状态机收窄为 `draft → active → archived`：**git PR 即人工确认队列**——视频导入的菜一律 `draft`，师傅审 PR、合并即 `active`；无独立 review 状态、无 `version` 字段（git 历史即版本）。
-- 编辑入口：直接改 `data/` 的 JSON 提 PR，`python3 scripts/local-validate.py` 与 CI 双闸兜底（schema 校验 + 跨文件引用检查）；**不做编辑 UI**（场景 G：单人场景引入 PagesCMS/Decap 不划算，多人协作出现时以新 ADR 引入）。
+- 编辑入口（2026-09-07 更新）：**v0.3 起师傅用 `/admin` 后台**（排菜单、新食材、手动加菜、发布/回退），后台通过云函数把 JSON 提交进 `data/`（ADR-0007，只准写 `data/**`）；Terry 与 agent 仍可直接改 JSON 提 PR；`python3 scripts/local-validate.py` 与 CI 双闸兜底（schema 校验 + 跨文件引用检查）。视频导入的草稿第一轮仍走命令行 + PR。设计稿：`docs/design/backoffice-v1.html`。
 - 同步：线上 = git pull；线下/无网 = 拷贝整个 `data/` 文件夹。**不用 Git LFS**（与拷贝文件夹同步互斥，场景 G 已知坑 #1）；图片源头压缩 + 单图硬上限。
 
 ## 4. 视频导入（skill 直出，无中间包）

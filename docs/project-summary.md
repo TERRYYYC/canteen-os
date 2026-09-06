@@ -1,216 +1,100 @@
-# CanteenOS 项目总结（2026-09）
+# CanteenOS 项目总结（2026-09-07 · 设计收尾，开工前快照）
 
-> **2026-09-06 收窄更新**：实体 9→5（删 supplier / unit-conversion / feedback / dishpack），`examples/` 重构为 `data/`（一实体一文件、文件名即 ID），模块三（feedback）deferred，详见 [ADR-0006](adr/0006-scope-reduction-v2.md)。以下为 2026-09-05 历史快照，正文未同步。
-
-> **English summary.** CanteenOS is an open-source, spec-first system covering the full canteen chain: dish knowledge base → menu planning → auto-generated purchase orders → customer ordering & ratings → operations reports. It is content-level trilingual (zh/en/uk) and ships a working "cooking video → structured recipe (dishpack) → knowledge base" skill with three pluggable AI engines. Current status: Phase 0 complete (research, 9 JSON Schemas, 19 validated examples, collaboration conventions, runnable video-ingest skill); next step is real-world validation. Repository: https://github.com/TERRYYYC/canteen-os
+> **English summary.** CanteenOS is an open-source knowledge base for one concrete job: *a Chinese chef with a Ukrainian prep cook cooks Chinese food abroad and buys the right ingredients.* One knowledge base (`data/`, one JSON file per entity, in git) produces three sheets a day — a prep list for the helper (uk, with cut photos), a purchase order for the buyer (grouped by supplier, rounded to pack sizes, WeChat-shareable), and a menu for guests (zh/en/uk side by side) — plus a chef back office to plan the week and publish. Cooking videos are the input channel. Status on 2026-09-07: design closed (v2 scope, 5 entities, engine implemented with 23 hand-verified tests, hi-fi screens for 5 front + 7 back-office screens, research done), no web app yet. Round 1 (v0.1 → v1.0, 2026-09-07 → 10-30) ends with one real kitchen using it for one week. Plan: `docs/plan-for-terry.md`; agent brief: `docs/execution-brief.md`; backlog: `.github/backlog/round-1.json`.
 
 ---
 
-## 1. 一句话定位
+## 1. 一句话
 
-**CanteenOS 是一个贯穿食堂全链路的开源系统：菜品知识库 → 菜单计划（日/周/月）→ 自动生成采购单 → 顾客点菜与评分 → 运营报告。**
+**让一个中国师傅带着乌克兰帮厨，在海外稳定做出中餐，并且买对料。**
 
-两个硬性差异化：
+一个知识库，每天出三张单：备料单（帮厨）、采购单（采购员）、菜单（顾客）；师傅在后台排菜单、按发布。视频是知识库的输入通道。三语（中/英/乌）是前提不是功能。允许不完整——一道菜只有名字也能导入，缺什么显示成待办。
 
-- **内容级三语**（中文 / English / Українська）——不是界面翻译，是数据本身带三语；
-- **做菜视频 → 结构化菜谱 → 打包导入知识库**——解析跑在云端（Gemini/Qwen 可插拔），本地只导入标准包。
+## 2. 从"食堂全链路系统"到"一个师傅的三张单"
 
-## 2. 背景与要解决的问题
+2026-09-05 之前的设计是通用食堂 ERP：9 个实体、点餐评分报告、供应商主数据、量纲三元组、视频中间包、PO 五态。9/5–9/6 的八场景调研和跨 agent 评审把它收窄成现在的样子（ADR-0006）：
 
-食堂场景中四个真实痛点：
-
-| 痛点 | 现状 | CanteenOS 的解法 |
-|---|---|---|
-| 厨师与采购的沟通断层 | 菜单在厨师脑子里/微信里，采购靠经验估算 | 菜单计划一键推演成采购单（模块二） |
-| 菜谱知识不沉淀 | 师傅离职带走手艺，菜谱是"番茄适量" | 结构化菜品知识库，BOM 级精确（模块一） |
-| 多语言环境 | 中/英/乌员工与顾客并存，现有软件只翻译界面 | 内容级三语数据模型 |
-| 新菜上线慢 | 看到好菜谱视频，靠人工整理成采购口径 | 视频解析 skill 自动生成候选菜品 |
-
-## 3. 市场调研结论（调研了约 40 个开源项目）
-
-> 完整报告：[docs/research/open-source-research-canteen-system.md](research/open-source-research-canteen-system.md)（200 行）、[docs/research/video-to-recipe-tech-survey.md](research/video-to-recipe-tech-survey.md)（145 行），全部来源 URL 在附录。
-
-### 3.1 开源格局
-
-| 类别 | 代表项目 | 结论 |
-|---|---|---|
-| 菜谱管理 | Mealie（13.1k⭐，AGPL）、Tandoor（8.5k⭐，AGPL+Commons Clause 禁商用）、Grocy（9.4k⭐，MIT） | 全是家庭场景；协议不允许商用 fork，只借鉴数据模型 |
-| 菜单→清单 | Mealie / Grocy / KitchenOwl | 终点全是**家庭购物清单**：无供应商、无 MOQ、无库存抵扣 |
-| 食堂点餐 | itsHenry35/canteen-management-system（学校 AB 餐） | 角色模型最贴近，但许可"严禁商用"；中国高校毕设类无协议不可复用 |
-| 供应链 | OpenKitchen（2⭐）、Odoo MRP | "BOM 展开→按供应商→采购单"应参照 Odoo 范式 |
-
-### 3.2 三个开源空白（= 我们的产品位）
-
-1. **"菜单计划→采购单转换"无人做开源**——菜谱软件不懂采购，ERP 不懂菜谱语义，中间地带只存在于闭源产品（如 Apicbase）；
-2. **内容级三语无人做**——Mealie/Tandoor 界面有 40 种语言，食材库只有英文（其社区明确吐槽）；
-3. **"三语视频 + 批量打包导入自有知识库"无人做**——现有视频转菜谱工具都是单条导入第三方实例。
-
-### 3.3 视频技术选型
-
-| 路线 | 单条成本（3 分钟视频） | 三语支持 | 结论 |
-|---|---|---|---|
-| **Gemini 2.5 Flash**（首选） | $0.02–0.05，有免费档 | ✅ 音轨直接理解 | 原生 JSON Schema 约束输出，工程量最小 |
-| Qwen3-VL（备选） | <¥0.5 | 中/英强，乌语待实测 | 国内合规，接口同构 |
-| 自托管 WhisperX+Qwen-VL | 边际 <$0.01，工程 3–6 人周 | ✅ | 仅月处理 >1 万条时考虑 |
-| Twelve Labs | ~$0.10+索引费 | ❌ 无乌克兰语 | 排除 |
-
-## 4. 产品设计：三大模块
-
-### 4.1 模块一：菜品知识库
-
-实体模型：**Dish（菜品）/ Ingredient（食材·调料）/ Supplier（供应商+SKU）/ UnitConversion（量纲转换）/ DishPack（导入包）**。
-
-- 菜品 = BOM（物料清单）：每个成分**引用食材实体**并带 `{value, unit}` 数量，而非"番茄 300 克"这种字符串——这是采购引擎能聚合的前提；
-- 状态机：`draft → review → published`，版本化；
-- 可扩展性：视频解析 skill 产出 dishpack 标准包，经**人工确认队列**入库——AI 无权直接写知识库。
-
-### 4.2 模块二：菜单计划 → 采购单引擎（核心护城河）
-
-七步确定性管线：
-
-```
-菜单计划（日期×餐次×菜品×计划份数）
-  → ① BOM 展开        → ② 按 计划份数/基准份数 缩放
-  → ③ 应用损耗率      → ④ 按食材聚合（量纲归一，按菜单日期取生效换算规则）
-  → ⑤ 扣减库存        → ⑥ 按供应商包装/MOQ 向上取整（量纲换算）
-  → ⑦ 按供应商拆分为 PO 草稿（draft→confirmed→ordered→received→settled）
-```
-
-- **确定性核心 + 可插拔边缘**：引擎是纯函数（同输入必同输出，可单测、可复算）；"有多少人来吃饭"的预测是注入端口，初期人工填，后期接订餐数据；
-- **端到端对账样例**：番茄炒蛋 480 份 → 鸡蛋需求 720 枚 → 损耗率 0.89 → 809 枚 → 按 180 枚/箱取整 5 箱 → 两家供应商 PO 合计 1360 元 ≈ 2.83 元/份——文档推导与 JSON 样例数字逐格一致，CI 保证不腐化。
-
-**量纲三元组（菜品 × 食材 × 量纲转换）**——动态可调整的单位换算体系：
-
-- 优先级链：**菜品特定 > 食材特定 > 全局通用**（例：全局 kg→g；食材级"鸡蛋 1 pcs = 55 g"；菜品级可覆盖"番茄炒蛋里番茄 1 pcs = 150 g"）；
-- 规则不原地修改：新版本 `supersedes` 旧版本 + 生效区间，采购引擎**按菜单日期取当日生效规则**——调整量纲不污染历史采购单，历史永远可复算。
-
-### 4.3 模块三：点餐 / 评分 / 反馈
-
-- 顾客预定点餐 → 直接驱动采购引擎的"计划份数"（数据闭环）；
-- 1–5 星 + 标签 + 评论（评论存原文+翻译，三语展示）；
-- 周/月运营报告四板块：菜品榜（热度×口碑）、采购准确度、成本分析、浪费反馈。
-
-### 4.4 视频导入 skill（已可运行）
-
-```
-做菜视频（中/英/乌） → 解析引擎（fixture / Gemini / Qwen 可插拔）
-  → schema.org/Recipe JSON-LD → 字符串→食材实体映射（置信度标注）
-  → dishpack 标准包 → 置信度 <0.85 字段进人工确认队列 → 审核入库
-```
-
-- 引擎可插拔，产出统一契约；换引擎不动主系统；
-- 每条食材映射带置信度与原文转写溯源（可回放视频时间段核对）。
-
-## 5. 技术架构
-
-### 5.1 四个架构支柱
-
-1. **Spec-first**：`schemas/`（9 个 JSON Schema，draft 2020-12）是单一事实源；类型、样例、文档、代码全部从它派生；变更顺序硬性规定 **schema → types → examples → docs**，CI 用 ajv 强制校验样例与 schema 一致；
-2. **三个数据决策不可妥协**：① 可展示文本一律 `I18nString {zh, en, uk}`；② 菜品成分必须引用食材实体；③ 数量一律 `{value, unit}`，换算走量纲表；
-3. **确定性核心 + 可插拔边缘**（采购引擎纯函数，预测/库存是注入端口）；
-4. **格式先行，引擎可替换**（dishpack 契约与 Gemini/Qwen/自托管解耦）。
-
-### 5.2 模块边界（只准通过 schema 实体通信）
-
-```mermaid
-flowchart LR
-    VID[做菜视频] --> PARSE[解析引擎<br/>Gemini/Qwen/自托管] --> DP[dishpack 标准包]
-    DP --> HQ[人工确认队列] -->|审核入库| KB[菜品知识库<br/>Dish/Ingredient/Supplier/UnitConversion]
-    MO[顾客预定] -->|plannedServings| MP[菜单计划]
-    MP --> ENG[采购引擎<br/>确定性纯函数]
-    KB -->|只读| ENG
-    ENG --> PO[采购单草稿]
-    RT[评分/评论] --> RPT[运营报告]
-    PO --> RPT
-```
-
-边界规则刻意"绝情"：采购引擎只读知识库；视频 skill 必须过人工队列；顾客反馈只通过预定份数间接影响采购。每个模块可由不同人/agent 独立开发。
-
-### 5.3 技术选型
-
-| 决策点 | 选型 | 理由 |
-|---|---|---|
-| 数据模型 | JSON Schema draft 2020-12 | 语言中立、ajv 可 CI 校验 |
-| 仓库结构 | pnpm workspaces monorepo | core/web/api 共享 schema |
-| 核心语言 | TypeScript | 前后端同构，类型与 schema 直接映射 |
-| 菜谱交换格式 | schema.org/Recipe JSON-LD | 事实标准，Mealie/Tandoor 兼容 |
-| 视频解析 | Gemini 2.5 Flash 首选 / Qwen3-VL 备选 | 成本 $0.02–0.05/条，三语 |
-| 许可证 | Apache-2.0 | 对照 Tandoor Commons Clause 禁商用的教训（ADR-0002） |
-
-## 6. 当前进展（截至 2026-09-05）
-
-| 里程碑 | 状态 |
+| 砍掉 | 换成 |
 |---|---|
-| 市场调研（2 份报告，约 40 个项目） | ✅ 完成 |
-| 仓库脚手架（PRD/架构/5 篇 ADR/协作规范） | ✅ 完成 |
-| 9 个 JSON Schema + 19 个样例（全部通过校验） | ✅ 完成 |
-| 视频解析 skill 可运行（三引擎+fixture+专属 CI） | ✅ 完成（真实 API 待密钥验证） |
-| 量纲三元组实体 + 动态调整语义 | ✅ 完成 |
-| CI（schema 校验 + skill 端到端） | ✅ 已修复基线 bug 并验证 19/19 |
+| 供应商主数据 + SKU | 食材上的 `purchase{supplier 字符串, 包装, 起订, 上次价}` |
+| 量纲规则实体（版本链、生效期、三层优先级） | 食材上一个 `pcsToGram`；g↔kg、ml↔l 是常量 |
+| dishpack 中间包 + schema.org JSON-LD | 视频 skill 直出 `dish.json` + `images/`，git PR 即复核 |
+| PO 五态状态机 | 采购单 = 引擎输出快照，每行带推导 trace |
+| 点餐 / 评分 / 报告 / 多租户 / 小程序 | 推迟 |
+| 分阶段损耗模型 | `yield` 一个数字（仅重量类食材）+ `margin` 备量系数（所有食材） |
 
-仓库实况：2 个 commit，GitHub 私有仓库 [TERRYYYC/canteen-os](https://github.com/TERRYYYC/canteen-os)。
+新增的东西只有一类：**给帮厨的**——技法词表（刀工 / 加热 / 预处理，三语，闭集）、每个配料的备菜规格（切法、大小、备注、照片、提前多久）、视频里"被切的那几秒"截成的照片。
 
-30 秒体验（无需任何密钥）：
+## 3. 现状（2026-09-07，全部经核实）
 
-```bash
-git clone https://github.com/TERRYYYC/canteen-os && cd canteen-os
-python3 skills/video-recipe-ingest/scripts/parse_video.py --input fixtures --engine fixture --output /tmp/dishpack.json
-python3 skills/video-recipe-ingest/scripts/validate_dishpack.py /tmp/dishpack.json
-python3 scripts/local-validate.py   # 19 个样例全部 PASS
+| 项 | 状态 | 证据 |
+|---|---|---|
+| 数据模型 | 5 实体 + common，`schemaVersion: "2"` | `schemas/`，`python3 scripts/local-validate.py` 14/14 |
+| 知识库种子 | 9 食材（含 4 调料）、32 技法、番茄炒蛋、第 41 周菜单、2 张采购单快照 | `data/` |
+| 采购引擎 | 实现 + 三个渲染器 + readiness，纯函数 | `packages/core`，`node --test` 23/23 |
+| 黄金数字 | 480 份番茄炒蛋 → ¥1,525.50（绿源 ¥1,339.50 + 宏达 ¥186.00），逐行手算 | `data/purchase-orders/`，ADR-0006 §3 修正备注 |
+| 真人测试材料 | 微信格式采购单 ×2、乌语备料单、操作指南 | `docs/field-test/week-41/` |
+| 视频 skill | 契约 + 命令行；真实视频契约验证过（agent 扮演引擎），自动化待 API key | `skills/video-recipe-ingest/`，`docs/research/poc-video-001.md` |
+| 高保真 | 前台 5 屏（目录角标、备料单 A/B/C、采购单、菜单列表 + 详情）、后台 7 屏 | `docs/design/screens-v2.html`、`backoffice-v1.html` |
+| 调研 | 开源格局 + 八场景，结论已转化为 ADR，不再新增 | `docs/research/` |
+| 网页 / 后台 / 自动翻译 / 部署 | **无** | 第一轮的内容 |
+
+一次纠错值得记住：引擎最初把"pcs 不套 yield"写成"pcs 不套 yield 也不乘 margin"，并锁进黄金测试。评审发现后修正（鸡蛋 720 → 792 → 5 箱）。教训进了 ADR-0006 和执行简报：**黄金测试锁的是写下来的数字，每行必须手算后再锁。**
+
+## 4. 产品形态
+
+不做 app。一个网址，扫码打开，加到主屏幕即离线可用（Expirenza 的做法）。
+
+```
+帮厨   /prep      今天切什么、切成什么样、切多少（uk，有图，按"早上 / 出餐前"分组）
+采购员 /purchase  本周按供应商买什么，每行可展开"为什么是这个数"，一键复制微信文本
+顾客   /menu      一周日期条，菜品行（三语并列 + 成分句 + ≈克重 + 过敏原），点开详情
+师傅   /admin     工作台 · 排菜单（周视图 / 粘贴导入 / 采购单预览）· 加菜 · 新食材 · 发布 / 回退 · 二维码
 ```
 
-## 7. 诚实清单：已验证 vs 未验证
+写入通道：静态后台页 → 一个云函数（拿仓库 token）→ 提交 JSON 到 git → CI 校验、机翻缺失的 en/uk、构建期跑引擎、部署静态站。师傅拿到的是带钥匙的链接，不需要 GitHub 账号。无后端数据库，无登录。
 
-**已验证**（有 CI 或实际运行背书）：schema↔样例一致性（19/19）、fixture 端到端管线、质量门槛自动生效（低置信度字段正确进入人工队列）、采购推导数字对账。
+## 5. 第一轮：四个版本，八周，收在一个真实的星期
 
-**未验证**（明确标注，不掩饰）：
+| 版本 | 日期 | 交付 | 完成定义（摘） |
+|---|---|---|---|
+| v0.1 收尾工程 | 9/7–9/13 | 最后一批可选字段、`build-data.mjs`、`translate.mjs` + lock、渲染器补齐；**确认真实厨房（门 A）** | 脚本从 data/ 出三份 JSON，数字与快照一致 |
+| v0.2 三张单上屏 | 9/14–9/27 | Vite 静态站三页 + 目录角标 + PWA 离线 + push 即部署 + 二维码 | 网址可开；断网可开上一版；push 到更新无人工 |
+| v0.3 师傅后台 | 9/28–10/11 | ADR-0007 写入通道、Worker、/admin 工作台 / 排菜单 / 粘贴导入 / 新食材 / 手动加菜 / 发布回退 | Terry 一周没碰 JSON；采购员自助复制 |
+| v0.4 真实数据 | 10/12–10/18 | Wikidata 种子、≥60 食材、≥10 道真实菜到"能教"、词表补齐、测试周材料；**门 B** | 帮厨看过 uk；师傅称过 10 道菜 |
+| 真实厨房周 | 10/19–10/25 | 代码冻结，只修 P0，每日日志 | — |
+| v1.0 | 10/26–10/30 | 修最痛三个；**门 C**；tag | 帮厨 5 天自己开 /prep；缺料做不出的菜 = 0；生鲜多买 < 20% |
 
-1. ⚠️ **Gemini/Qwen 真实 API 调用**——adapter 代码完整但本环境无密钥，未实测；
-2. ⚠️ **乌克兰语视频抽取质量**——无公开 benchmark，需 POC；
-3. ⚠️ **食堂真实需求**——开源空白可能是机会，也可能市场已被闭源 ERP 覆盖；
-4. ⚠️ **"计划份数"可知性**——若师傅靠看剩菜决定次日产量，引擎输入端为空；
-5. ⚠️ **供应商 SKU/MOQ 数据维护成本**——运营负担而非技术问题。
+铁律：日期最多滑一周，再滑就砍范围；收尾前三天只修不加；每版一篇 ADR 上限；周末不合并。
 
-**下一步两个最便宜的现实测试**：① 配 GEMINI_API_KEY 跑一条真实做菜视频（验证 1、2）；② 拿真实食堂一周菜单手动推演采购单给师傅看（验证 3、4、5）。
+任务已拆成 38 个 issue（`.github/backlog/round-1.json`，`node scripts/create-issues.mjs` 同步到 GitHub），每个带完成定义、涉及文件、依赖和分支名；每个里程碑一个跟踪 issue；并行派工按 `scripts/backlog-waves.mjs` 算出的波次（`operating-model.md`）。
 
-## 8. 路线图
+## 6. 诚实清单
 
-```mermaid
-timeline
-    title CanteenOS 路线图
-    阶段0 设计与Schema ✅ : 调研/PRD/9 Schema/19 样例/skill 可运行
-    阶段1 Web PWA 点餐+评分 : 菜单三语展示 : 预定/核销 : 评分评论
-    阶段2 采购引擎实现 : 引擎+单测 : 库存端口 : PO 状态机
-    阶段3 视频导入对接 : 真实视频 POC : dishpack 导入器 : 人工队列 UI
-    阶段4 小程序/App : 微信小程序顾客端 : 报告移动端
-```
+**已验证**：schema ↔ data 一致性；引擎数字（手算）；乌语备料单和微信采购单能从真实数据生成；视频 → dish.json 契约装得下真实视频。
 
-顺序有依赖逻辑：阶段 1 的订餐数据是阶段 2 采购份数预测的数据源；客户端形态（App/小程序/网页）被刻意推迟——schema 与核心逻辑与客户端无关。
+**未验证**：Gemini / Qwen 真实 API 调用；乌克兰语 ASR 质量；师傅是否愿意按 50 份称重（第一轮最大不确定性）；帮厨是否看得懂机翻的乌语技法名；采购员是否接受"按上次价估算"。后四项只能在厨房里验，这就是第一轮的设计。
 
-## 9. 协作方式（人类与 AI agent 一视同仁）
+**第一轮明确不做**：帮厨勾选、采购员改包数、登录、后端数据库、评分、报告、小程序、第二个厨房、视频导入界面（命令行先顶着）。
 
-- **AGENTS.md**：AI agent 进仓库必读——仓库地图、变更顺序、禁止事项（不引入 AGPL 依赖、不提交密钥）；
-- **5 篇 ADR**：重大决策留痕（许可证、spec-first、内容级三语、采购引擎设计），不同意就写新 ADR 推翻，不扯皮；
-- **3 类 Issue 模板**（含"菜品数据贡献"模板——非技术人员也能按 schema 贡献食材数据）+ PR checklist + CODEOWNERS；
-- **双 CI**：schema 一致性校验（任何数据变更）+ skill 端到端 fixture 测试（任何 skill 变更）。
-
-## 10. 仓库导航
+## 7. 仓库导航
 
 | 内容 | 路径 |
 |---|---|
-| 产品需求 PRD | [docs/prd.md](prd.md) |
-| 总体架构 | [docs/architecture.md](architecture.md) |
-| 模块一·菜品知识库 | [docs/modules/knowledge-base.md](modules/knowledge-base.md) |
-| 模块二·采购引擎 | [docs/modules/procurement.md](modules/procurement.md) |
-| 模块三·评分反馈 | [docs/modules/feedback.md](modules/feedback.md) |
-| 量纲三元组 | [docs/modules/unit-conversion.md](modules/unit-conversion.md) |
-| 视频导入设计 | [docs/video-import.md](video-import.md) |
-| 视频解析 skill（可运行） | [skills/video-recipe-ingest/](../skills/video-recipe-ingest) |
-| 数据模型单一事实源 | [schemas/](../schemas)（9 个 JSON Schema） |
-| 校验样例 | [examples/](../examples)（19 个，CI 通过） |
-| 调研报告 | [docs/research/](research) |
-| 决策记录 ADR | [docs/adr/](adr)（0001–0005） |
+| 给 Terry 的计划（节奏、门、每周动作） | [plan-for-terry.md](plan-for-terry.md) |
+| 给 agent 的执行简报（冻结事项、任务、规则、接口契约） | [execution-brief.md](execution-brief.md) |
+| 工作模式（调度 thread + 子 thread 并行） | [operating-model.md](operating-model.md) |
+| 目标对齐与演进 | [roadmap-v2.md](roadmap-v2.md) |
+| 高保真 | [design/](design/) |
+| 决策记录 | [adr/](adr/)（0001–0006；0007 写入通道待写） |
+| 数据模型 | [../schemas/](../schemas/) |
+| 知识库 | [../data/](../data/) |
+| 引擎 | [../packages/core/](../packages/core/) |
+| 视频 skill | [../skills/video-recipe-ingest/](../skills/video-recipe-ingest/) |
+| 真人测试材料 | [field-test/](field-test/) |
+| 调研（只读） | [research/](research/) |
+| issue 清单与同步脚本 | [../.github/backlog/round-1.json](../.github/backlog/round-1.json)、[../scripts/create-issues.mjs](../scripts/create-issues.mjs) |
 
 ---
 
-*本文档为 2026-09-05 快照。仓库当前为 private，外部分享需所有者邀请协作者或转为 public。*
+*本文为 2026-09-07 快照，取代 2026-09-05 版。仓库为 private；对外分享需 owner 邀请或转 public。*

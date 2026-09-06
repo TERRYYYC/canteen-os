@@ -1,15 +1,19 @@
 {
   "name": "canteen-os",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "private": true,
-  "description": "CanteenOS — spec-first 食堂全链路系统（菜品知识库 → 菜单计划 → 采购单 → 点餐评分 → 运营报告）",
+  "description": "CanteenOS — 一个知识库出三张单：备料单（乌克兰帮厨）/ 采购单（采购员）/ 菜单（顾客）+ 师傅后台；spec-first，data/ 目录即知识库",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "validate": "node scripts/validate-schemas.mjs",
-    "validate:local": "python3 scripts/local-validate.py"
+    "validate:local": "python3 scripts/local-validate.py",
+    "issues:dry": "node scripts/create-issues.mjs --dry-run",
+    "issues:sync": "node scripts/create-issues.mjs",
+    "test:core": "npm --prefix packages/core test",
+    "backlog:waves": "node scripts/backlog-waves.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

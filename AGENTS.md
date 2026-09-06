@@ -2,6 +2,8 @@
 
 > 本文件是给 AI coding agent（Claude Code / Codex / Kimi / Cursor 等）的仓库协作契约。
 > 人类贡献者请读 [CONTRIBUTING.md](CONTRIBUTING.md)；两份文件冲突时以更严格的为准。
+>
+> **2026-09-07 起：开工前先读 [docs/execution-brief.md](docs/execution-brief.md)（第一轮执行简报：冻结事项、版本任务、工程规则、接口契约）。** 它在本文之上追加规则，不减少本文任何约束。
 
 ---
 
@@ -11,7 +13,15 @@
 |---|---|---|
 | `schemas/` | JSON Schema draft 2020-12，**单一事实源**（5 实体，见 ADR-0006） | 牵动 types / data / docs / CI |
 | `data/` | 业务数据：`ingredients/`、`techniques.json`、`dishes/`、`menu-plans/`、`purchase-orders/`；一实体一文件、文件名即 ID | CI 直接校验 |
-| `packages/core/` | `@canteenos/core`：TS 类型 + 采购引擎纯函数骨架 | 依赖 schemas 语义 |
+| `packages/core/` | `@canteenos/core`：类型 + 采购引擎 + 三个渲染器 + readiness（已实现，23 测试） | 依赖 schemas 语义；改数字须手算 |
+| `packages/web/` | (v0.2) Vite 静态站：/prep /purchase /menu；(v0.3) /admin。UI 事实源 `docs/design/*.html` | 首屏 JS ≤ 60 KB gzip，无 UI/CSS 框架 |
+| `packages/worker/` | (v0.3) 写入通道云函数：后台表单 → GitHub API → 触发构建；只准写 `data/**` | 见 ADR-0007 |
+| `docs/design/` | 高保真设计稿（前台 5 屏 + 后台 7 屏），**UI 的事实源** | 改 UI 先改稿再改码 |
+| `docs/execution-brief.md` | 第一轮执行简报：冻结事项、版本任务、工程规则、接口契约 | 优先级高于本文以外的所有文档 |
+| `docs/plan-for-terry.md` | 节奏、三道门、铁律 | 日期与范围的事实源 |
+| `docs/field-test/` | 真人测试材料与日志 | 测试周只读代码、只写日志 |
+| `.github/backlog/round-1.json` | 第一轮 38 个 issue 的事实源；`scripts/create-issues.mjs` 同步到 GitHub，`scripts/backlog-waves.mjs` 算并行波次 | 改任务先改 JSON |
+| `docs/operating-model.md` | 工作模式：调度 thread + 子 thread，派工 / 交接 / 审查 / 节拍 | 领任务、交付格式以此为准 |
 | `docs/prd.md` | 产品需求 | 需求级变更需 owner 评审 |
 | `docs/architecture.md` | 总体架构与路线图 | 架构变更须先写 ADR |
 | `docs/i18n.md` | 内容级三语设计 | 涉及所有 I18nString |
@@ -28,7 +38,10 @@
 - **改任何实体字段** → 先读对应 `schemas/*.schema.json` + `docs/i18n.md` + `docs/modules/` 对应模块文档
 - **改采购逻辑** → `docs/modules/procurement.md` + `docs/adr/0005-procurement-engine-design.md` + `docs/adr/0006-scope-reduction-v2.md`
 - **改视频导入契约** → `docs/video-import.md` + `skills/video-recipe-ingest/SKILL.md` + `schemas/dish.schema.json`
-- **提新架构决策** → `docs/adr/0001-adr-process.md`（流程与模板）
+- **改任何页面** → 先读 `docs/design/README.md` + 对应设计稿 + `docs/execution-brief.md` §5 接口契约；实现与稿不一致先改稿
+- **改采购数字或 data/ 里的份数/包装/价格** → PR 必附手算算式（`docs/execution-brief.md` §4.2）
+- **领任务** → 从 GitHub issue 领（由 `.github/backlog/round-1.json` 生成），分支名用 issue 里给的；一个 package 同时只有一个 agent 在改
+- **提新架构决策** → `docs/adr/0001-adr-process.md`（流程与模板）；第一轮每版最多一篇新 ADR
 
 ## 3. 变更顺序（硬性）
 
