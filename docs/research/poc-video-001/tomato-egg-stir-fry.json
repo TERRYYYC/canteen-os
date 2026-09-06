@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄炒鸡蛋",
+    "en": "Tomato and egg stir-fry",
+    "uk": "Смажені яйця з томатами"
+  },
+  "image": {
+    "src": "images/tomato-egg-stir-fry/cover.jpg",
+    "license": "own",
+    "sourceUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+  },
+  "baseServings": 50,
+  "components": [
+    {
+      "ingredientRef": "tomato",
+      "qty": { "value": 7500, "unit": "g" },
+      "prep": {
+        "techniqueRef": "roll-cut-chunks",
+        "size": "3–4 cm",
+        "note": {
+          "zh": "视频原话：熟透的西红柿去蒂后切成大小均匀的滚刀块，稍大口感更好",
+          "en": "Per video: de-stem ripe tomatoes, roll-cut into even chunks; slightly larger for better texture",
+          "uk": "З відео: стиглі томати без плодоніжок, рулонне нарізання рівними шматками; трохи крупніші — краща текстура"
+        },
+        "image": {
+          "src": "images/tomato-egg-stir-fry/prep-tomato.jpg",
+          "license": "own",
+          "sourceUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+        }
+      },
+      "confidence": { "value": 0.97, "source": "video" }
+    },
+    {
+      "ingredientRef": "egg",
+      "qty": { "value": 75, "unit": "pcs" },
+      "confidence": { "value": 0.98, "source": "video" }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": { "value": 37.5, "unit": "g" },
+      "confidence": { "value": 0.6, "source": "video" }
+    },
+    {
+      "ingredientRef": "cooking-oil",
+      "qty": { "value": 875, "unit": "ml" },
+      "confidence": { "value": 0.5, "source": "video" }
+    },
+    {
+      "ingredientRef": "scallion",
+      "qty": { "value": 125, "unit": "g" },
+      "prep": {
+        "techniqueRef": "minced",
+        "note": {
+          "zh": "仅结尾装盘画面可见葱花，切配过程与用量均未在视频中展示，按视觉估计",
+          "en": "Scallion garnish visible only in final plating; cutting and quantity not shown — visual estimate",
+          "uk": "Зелена цибуля видна лише у фінальній тарілці; нарізання та кількість не показані — візуальна оцінка"
+        }
+      },
+      "confidence": { "value": 0.4, "source": "video" }
+    }
+  ],
+  "steps": [
+    {
+      "text": {
+        "zh": "熟透的西红柿2个（约300克）去蒂，切成大小均匀的滚刀块（可稍大，口感更好）备用。",
+        "en": "De-stem 2 ripe tomatoes (≈300 g) and roll-cut into even chunks (slightly larger for better texture); set aside.",
+        "uk": "Видаліть плодоніжки у 2 стиглих томатів (≈300 г) і наріжте рулонним способом рівними шматками (трохи крупніші — краща текстура); відкладіть."
+      },
+      "techniqueRef": "roll-cut-chunks",
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 5,
+        "end": 14
+      }
+    },
+    {
+      "text": {
+        "zh": "鸡蛋3个打入碗中，加入少许食用盐、白醋1克，顺一个方向搅拌均匀备用（白醋去腥增鲜）。",
+        "en": "Crack 3 eggs into a bowl, add a pinch of salt and 1 g white vinegar, beat in one direction until uniform (vinegar removes eggy odor and boosts umami).",
+        "uk": "Розбийте 3 яйця в миску, додайте дрібку солі та 1 г білого оцту, збийте в одному напрямку до однорідності (оцет прибирає запах і підсилює смак)."
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 14,
+        "end": 29
+      }
+    },
+    {
+      "text": {
+        "zh": "锅烧热后加适量油滑锅，倒出热油，再加入少许底油（植物油）。",
+        "en": "Heat the wok, swirl in oil to coat it, pour out the hot oil, then add a little fresh base oil (vegetable oil).",
+        "uk": "Розігрійте вок, змастіть олією, злийте гарячу олію, потім додайте трохи свіжої (рослинної)."
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 29,
+        "end": 41
+      }
+    },
+    {
+      "text": {
+        "zh": "油温四成热时下蛋液，小火煎1分钟至定型，中途翻面炒香，倒出备用。",
+        "en": "At 40% oil temperature pour in the egg mixture; pan-fry on low heat for 1 minute until set, flip midway to brown, then remove and set aside.",
+        "uk": "За температури олії 40% вилийте яєчну суміш; смажте на слабкому вогні 1 хв до схоплювання, переверніть для підрум'янювання, зніміть."
+      },
+      "techniqueRef": "pan-fry",
+      "image": {
+        "src": "images/tomato-egg-stir-fry/step-4.jpg",
+        "license": "own",
+        "sourceUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 41,
+        "end": 67
+      }
+    },
+    {
+      "text": {
+        "zh": "锅中加少许底油，下西红柿块小火翻炒，加番茄酱5克增番茄本味，炒匀后加适量清水，小火烧1分钟。",
+        "en": "Add a little base oil, stir-fry tomato chunks on low heat, add 5 g ketchup to boost tomato flavor, mix well, add some water and simmer on low for 1 minute.",
+        "uk": "Додайте трохи олії, обсмажте шматки томатів на слабкому вогні, додайте 5 г томатної пасти для смаку, перемішайте, влийте воду і тушкуйте 1 хв."
+      },
+      "techniqueRef": "stir-fry",
+      "image": {
+        "src": "images/tomato-egg-stir-fry/step-5.jpg",
+        "license": "own",
+        "sourceUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 68,
+        "end": 86
+      }
+    },
+    {
+      "text": {
+        "zh": "调味：加入食用盐1克、白糖1克平衡酸味。",
+        "en": "Season with 1 g salt and 1 g sugar to balance the acidity.",
+        "uk": "Приправте: 1 г солі та 1 г цукру для балансу кислоти."
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 86,
+        "end": 98
+      }
+    },
+    {
+      "text": {
+        "zh": "番茄烧软后加入适量水淀粉，把汤汁勾成薄芡，再加入少许明油。",
+        "en": "Once the tomatoes soften, stir in water-starch slurry to thicken the sauce into a thin glaze, then add a little finishing oil.",
+        "uk": "Коли томати розм'якшаться, додайте крохмальну рідину для легкого загущення соусу, потім трохи олії для блиску."
+      },
+      "techniqueRef": "starch-thicken",
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 98,
+        "end": 112
+      }
+    },
+    {
+      "text": {
+        "zh": "煎好的鸡蛋回锅翻炒几下，出锅装盘，撒葱花即成。",
+        "en": "Return the eggs to the wok, toss a few times, plate, and garnish with chopped scallions.",
+        "uk": "Поверніть яйця у вок, кілька разів перемішайте, викладіть на тарілку і посипте зеленою цибулею."
+      },
+      "techniqueRef": "stir-fry",
+      "image": {
+        "src": "images/tomato-egg-stir-fry/step-8.jpg",
+        "license": "own",
+        "sourceUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+      },
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/",
+        "start": 112,
+        "end": 128
+      }
+    }
+  ],
+  "provenance": {
+    "source": "video",
+    "videoUrl": "https://www.bilibili.com/video/BV13p411d7oQ/"
+  },
+  "status": "draft"
+}
