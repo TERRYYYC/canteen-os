@@ -31,6 +31,8 @@ export interface I18nString {
 /**
  * 规范单位（内部统一符号，本地化显示由客户端负责）。
  * g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 Ingredient.pcsToGram。
+ * "to-taste"（适量，G2）：无量配料的诚实表达——此时 Quantity.value 可缺省，
+ * 采购推导跳过该行（不进采购行、不进 pending），备料单显示"适量"。
  */
 export type Unit =
   | "g"
@@ -41,11 +43,12 @@ export type Unit =
   | "pack"
   | "tbsp"
   | "tsp"
-  | "pinch";
+  | "pinch"
+  | "to-taste";
 
-/** 数量一律为 { value, unit } 结构 */
+/** 数量为 { value, unit } 结构；unit = "to-taste" 时 value 可缺省，其余单位必填 */
 export interface Quantity {
-  value: number; // > 0
+  value?: number; // > 0；unit = "to-taste" 时缺省
   unit: Unit;
 }
 
@@ -117,9 +120,14 @@ export interface Ingredient {
   pcsToGram?: number; // > 0
   /**
    * 净料率 0–1 单一数字，仅对按重量/体积（g/ml）计的食材有意义；
-   * pcs 食材不得设置（pcs 不套 yield、不套 margin，ADR-0006）。
+   * pcs 食材不得设置（pcs 不套 yield；margin 则对所有食材生效，ADR-0006 2026-09-06 修正）。
    */
   yield?: number; // (0, 1]
+  /**
+   * 主料 / 调料（可选）。备料单噪音控制的依据：seasoning 缺 prep 不提示「无切配规格」，
+   * main（或未标注）缺 prep 仍提示（readiness「能教」的文本对应）。
+   */
+  role?: "main" | "seasoning";
   purchase?: PurchaseSpec;
   /** 是否记现有量：仅耐放品（盐、油、干货）为 true */
   trackStock: boolean;
@@ -232,8 +240,9 @@ export interface MenuPlan {
   name?: I18nString;
   dateRange?: DateRange;
   /**
-   * 备量系数，默认 1.1：吸收固定尾料/挂壁损耗（ADR-0006）。
-   * 作用于净需求聚合之后（净需求 ÷ yield × margin）；pcs 食材不乘。
+   * 备量系数，默认 1.1：吸收固定尾料/挂壁损耗的防少买系数（ADR-0006）。
+   * 作用于净需求聚合之后（净需求 ÷ yield × margin），对**所有**食材生效（含 pcs，
+   * 2026-09-06 修正）；只有 yield 不作用于 pcs。
    */
   margin?: number; // > 0
   meals: MenuPlanMeal[]; // >= 1
@@ -261,7 +270,7 @@ export interface LineTrace {
   netNeed: Quantity;
   /** ÷ 的净料率；pcs 食材或食材无 yield 时为 null */
   yieldApplied: number | null;
-  /** × 的备量系数（menu-plan.margin）；pcs 食材为 null */
+  /** × 的备量系数（menu-plan.margin）；所有食材均为实际所乘值（margin 对 pcs 同样生效） */
   marginApplied: number | null;
   /** 扣减的现有量（baseUnit 计）；trackStock=false 或无 onHand 时为 null */
   onHandDeducted: Quantity | null;

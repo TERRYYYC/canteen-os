@@ -16,7 +16,7 @@
 | 模块 | 说明 | 文档 |
 |---|---|---|
 | ① 菜品知识库 | Ingredient / Technique（单文件受控词表）/ Dish；允许不完整（只有名字也能导入），readiness 关卡：能教/能排/能采；一实体一文件、文件名即 ID | [docs/modules/knowledge-base.md](docs/modules/knowledge-base.md) |
-| ② 菜单计划→采购单引擎 | BOM 展开 → 按份数缩放 → ÷yield ×margin（pcs 不套 yield 不乘 margin）→ 扣 onHand → `max(minPacks, ceil(需求/packSize))` → 按供应商字符串分组出快照；每行带 trace，无 PO 状态机 | [docs/modules/procurement.md](docs/modules/procurement.md) |
+| ② 菜单计划→采购单引擎 | BOM 展开 → 按份数缩放 → ÷yield ×margin（pcs 只跳过 yield，margin 对所有食材生效）→ 扣 onHand → `max(minPacks, ceil(需求/packSize))` → 按供应商字符串分组出快照；每行带 trace，无 PO 状态机 | [docs/modules/procurement.md](docs/modules/procurement.md) |
 | ③ 点餐/评分/反馈 | **deferred（ADR-0006）**，设计稿保留 | [docs/modules/feedback.md](docs/modules/feedback.md) |
 
 ### 两条护城河（开源空白）
@@ -52,7 +52,7 @@ Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reductio
 ### Modules
 
 1. **Dish knowledge base** — Ingredient / Technique (single-file controlled vocabulary) / Dish. Incomplete dishes allowed (a name alone imports); readiness gates: teach / plan / buy. One file per entity, filename = ID. See [docs/modules/knowledge-base.md](docs/modules/knowledge-base.md).
-2. **Menu-plan → purchase-order engine** — BOM expansion, serving scaling, ÷yield ×margin (pcs items skip both), on-hand deduction, `max(minPacks, ceil(need/packSize))`, PO snapshots grouped by supplier string with a per-line trace. No PO state machine. See [docs/modules/procurement.md](docs/modules/procurement.md).
+2. **Menu-plan → purchase-order engine** — BOM expansion, serving scaling, ÷yield ×margin (pcs items skip yield only; margin applies to all), on-hand deduction, `max(minPacks, ceil(need/packSize))`, PO snapshots grouped by supplier string with a per-line trace. No PO state machine. See [docs/modules/procurement.md](docs/modules/procurement.md).
 3. **Ordering / rating / feedback** — **deferred (ADR-0006)**; design kept at [docs/modules/feedback.md](docs/modules/feedback.md).
 
 ### Two differentiators (open-source gaps)

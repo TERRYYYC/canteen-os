@@ -4,12 +4,11 @@
  * 黄金基准：data/purchase-orders/README.md 的手写验收表（menu-plans/week-41.json
  * 番茄炒蛋 480 份，margin 1.1）。
  *
- * ⚠️ 已知基准偏离（ scallion / 小葱一行 ）：
- *   data/dishes/tomato-egg-stir-fry.json 登记小葱 250 g / 50 份 → 净需求 480×5 = 2400 g；
- *   README 与 docs/modules/procurement.md §2 的表写作 4800 g（与其自身"配方 250 g"一行
- *   自相矛盾：480×5=2400，4800 需 500 g/50 份）。引擎忠实于数据本体，小葱行输出
- *   4×1kg / ¥48.00，两单合计 ¥1375.50 而非 README 的 ¥1411.50。本测试断言数据推导值，
- *   并显式记录该偏离（见 scallion 断言块注释）。
+ * 2026-09-06 margin 修正（ADR-0006 §3 更正备注）：margin（防少买系数）对**所有**食材
+ * 生效，含 pcs；只有 yield 不作用于 pcs。鸡蛋行因此从「720 pcs 直通 → 4 箱 ¥600.00」
+ * 修正为「×1.1 = 792 pcs → 5 箱 ¥750.00」，两单合计 ¥1375.50 → ¥1525.50。
+ * 教训：黄金测试锁的是"写下来的数字"而不是"正确的数字"——本文件每一行断言都先
+ * 手算再落笔，算式逐行写在注释里。
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -76,6 +75,9 @@ test("黄金测试：expand 无 issue 无 pending，5 行齐备，meals trace �
 });
 
 test("黄金：番茄 19×5kg ¥541.50（÷0.85 ×1.1 = 93176.4706 g → 18.6353 → ceil 19）", () => {
+  // 手算：480 × (7500 g / 50 份) = 72000 g；÷ yield 0.85 = 84705.88 g；
+  //       × margin 1.1 = 93176.47 g；÷ 5 kg = 18.6353 → ceil 19（minPacks 2 不触发）；
+  //       19 × 5 kg = 95 kg；19 × ¥28.5 = ¥541.50
   const { supplier, line } = lineOf("tomato");
   assert.equal(supplier, "绿源农产品配送");
   const t = line.trace;
@@ -95,25 +97,32 @@ test("黄金：番茄 19×5kg ¥541.50（÷0.85 ×1.1 = 93176.4706 g → 18.6353
   assert.deepEqual(line.amount, { amount: 541.5, currency: "CNY" });
 });
 
-test("黄金：鸡蛋 720 pcs 直通 = 4 箱 ¥600.00（pcs 不套 yield、不乘 margin）", () => {
+test("黄金：鸡蛋 pcs 也乘 margin（720 ×1.1 = 792 pcs → 4.4 → ceil 5 箱 = 900 枚 ¥750.00）", () => {
+  // 手算：480 份 × (75 pcs / 50 份) = 720 pcs（净需求）
+  //       pcs 不套 yield；× margin 1.1 → 720 × 1.1 = 792（防少买，2026-09-06 修正）
+  //       792 ÷ 180 枚/箱 = 4.4 → ceil 5（minPacks 1 不触发）
+  //       5 箱 × 180 = 900 枚；5 × ¥150 = ¥750.00
   const { supplier, line } = lineOf("egg");
   assert.equal(supplier, "绿源农产品配送");
   const t = line.trace;
-  assert.deepEqual(t.netNeed, { value: 720, unit: "pcs" }); // 480 份 × 1.5 枚
+  assert.deepEqual(t.netNeed, { value: 720, unit: "pcs" }); // 480 × 1.5
   assert.equal(t.yieldApplied, null); // pcs 不套 yield
-  assert.equal(t.marginApplied, null); // pcs 不乘 margin
+  assert.equal(t.marginApplied, 1.1); // pcs 同样乘 margin（修正点）
   assert.equal(t.onHandDeducted, null);
-  assert.deepEqual(t.grossNeed, { value: 720, unit: "pcs" }); // 直通，一分不多
+  assert.deepEqual(t.grossNeed, { value: 792, unit: "pcs" }); // 720 × 1.1
   assert.equal(t.packSize, 180);
   assert.equal(t.packUnit, "pcs");
-  assert.equal(t.packsRaw, 4); // 720 ÷ 180 = 4.0 整
-  assert.equal(line.packs, 4);
-  assert.equal(t.minPacksApplied, false);
-  assert.deepEqual(line.qty, { value: 720, unit: "pcs" });
-  assert.deepEqual(line.amount, { amount: 600, currency: "CNY" });
+  assert.equal(t.packsRaw, 4.4); // 792 ÷ 180
+  assert.equal(line.packs, 5);
+  assert.equal(t.minPacksApplied, false); // ceil(4.4)=5 > minPacks 1
+  assert.deepEqual(line.qty, { value: 900, unit: "pcs" });
+  assert.deepEqual(line.amount, { amount: 750, currency: "CNY" });
 });
 
 test("黄金：食盐 minPacks 20 触发 + trackStock 扣 500 g（292 g → 0.584 → ceil 1 → 20 袋 ¥50.00）", () => {
+  // 手算：480 × (75 g / 50 份) = 720 g；无 yield ÷1；× 1.1 = 792 g；
+  //       扣 onHand 500 → 292 g；÷ 500 g = 0.584 → ceil 1 → minPacks 20 兜底；
+  //       20 × 500 g = 10000 g；20 × ¥2.5 = ¥50.00
   const { supplier, line } = lineOf("salt");
   assert.equal(supplier, "宏达粮油调味批发");
   const t = line.trace;
@@ -130,6 +139,9 @@ test("黄金：食盐 minPacks 20 触发 + trackStock 扣 500 g（292 g → 0.58
 });
 
 test("黄金：食用油 minPacks 2 触发（4800 ml ×1.1 −1000 = 4280 ml → 0.856 → 2 桶 ¥136.00）", () => {
+  // 手算：480 × (500 ml / 50 份) = 4800 ml；无 yield ÷1；× 1.1 = 5280 ml；
+  //       扣 onHand 1000 → 4280 ml = 4.28 l；÷ 5 L = 0.856 → ceil 1 → minPacks 2 兜底；
+  //       2 × 5 L = 10 L；2 × ¥68 = ¥136.00
   const { supplier, line } = lineOf("cooking-oil");
   assert.equal(supplier, "宏达粮油调味批发");
   const t = line.trace;
@@ -145,11 +157,12 @@ test("黄金：食用油 minPacks 2 触发（4800 ml ×1.1 −1000 = 4280 ml →
   assert.deepEqual(line.amount, { amount: 136, currency: "CNY" });
 });
 
-test("黄金：小葱 ÷0.80 ×1.1（⚠ 基准表偏离行：数据 250 g/50 份 → 净需求 2400 g → 4×1kg ¥48.00）", () => {
+test("黄金：小葱 ÷0.80 ×1.1（2400 g → 3300 g → 3.3 → ceil 4 件 ×1kg ¥48.00）", () => {
+  // 手算：480 × (250 g / 50 份) = 2400 g；÷ yield 0.80 = 3000 g；× 1.1 = 3300 g；
+  //       ÷ 1 kg = 3.3 → ceil 4（minPacks 1 不触发）；4 kg；4 × ¥12 = ¥48.00
   const { supplier, line } = lineOf("scallion");
   assert.equal(supplier, "绿源农产品配送");
   const t = line.trace;
-  // 数据本体推导值（README 手写基准误作 4800 g → 7 kg ¥84.00；480×5=2400，见其表头注释）
   assert.deepEqual(t.netNeed, { value: 2400, unit: "g" });
   assert.equal(t.yieldApplied, 0.8);
   assert.equal(t.marginApplied, 1.1);
@@ -166,15 +179,15 @@ test("黄金：renderPurchaseOrders 按供应商分单 + 合计金额", () => {
   const pos = renderPurchaseOrders(golden.lines, week41, CTX);
   assert.equal(pos.length, 2);
   const bySupplier = Object.fromEntries(pos.map((p) => [p.supplier, p]));
-  // 绿源：番茄 541.5 + 鸡蛋 600 + 小葱 48 = 1189.5（README 基准 1225.50 含小葱错行）
-  assert.deepEqual(bySupplier["绿源农产品配送"].totalAmount, { amount: 1189.5, currency: "CNY" });
+  // 手算合计：绿源 = 番茄 541.50 + 鸡蛋 750.00 + 小葱 48.00 = 1339.50
+  assert.deepEqual(bySupplier["绿源农产品配送"].totalAmount, { amount: 1339.5, currency: "CNY" });
   assert.equal(bySupplier["绿源农产品配送"].lines.length, 3);
-  // 宏达：食盐 50 + 油 136 = 186
+  // 宏达 = 食盐 50.00 + 油 136.00 = 186.00
   assert.deepEqual(bySupplier["宏达粮油调味批发"].totalAmount, { amount: 186, currency: "CNY" });
   assert.equal(bySupplier["宏达粮油调味批发"].lines.length, 2);
-  // 合计 1375.50（README 基准 1411.50，差 36 = 小葱 84−48）
+  // 合计 1339.50 + 186.00 = 1525.50；÷480 份 ≈ 3.18/份（margin 修正前为 1375.50 ≈ 2.87）
   const grand = pos.reduce((s, p) => s + p.totalAmount.amount, 0);
-  approx(grand, 1375.5);
+  approx(grand, 1525.5);
   for (const po of pos) {
     assert.equal(po.schemaVersion, "2");
     assert.equal(po.menuPlanRef, "week-41");
@@ -413,8 +426,11 @@ test("renderMenu：zh/uk 取值与 fallback 链 zh→en→uk", () => {
   assert.match(zh, /2026-10-05\n {2}午餐：番茄炒蛋/);
   assert.match(zh, /2026-10-09\n {2}晚餐：番茄炒蛋/);
   const uk = renderMenu(week41, dishes, "uk");
-  assert.match(uk, /Обід：Смажені яйця з томатами/);
-  assert.match(uk, /Вечеря：Смажені яйця з томатами/);
+  // uk 模板用 ASCII 标点（":" / "()"），不混入中文标点
+  assert.match(uk, /Обід: Смажені яйця з томатами/);
+  assert.match(uk, /Вечеря: Смажені яйця з томатами/);
+  assert.match(uk, /【Меню】Меню на 41 тиждень 2026 \(2026-10-05 — 2026-10-11\)/);
+  assert.doesNotMatch(uk, /[，（）：]/);
   // fallback：只有中文名的菜在 uk 下回退中文
   const onlyZh = renderMenu(
     {
@@ -431,16 +447,56 @@ test("renderPrepList：uk 输出按日期/餐次分组，含缩放净量与词�
   const text = renderPrepList(week41, dishes, techniques, "uk", ingredients);
   assert.match(text, /【Підготовча відомість】Меню на 41 тиждень 2026/);
   assert.match(text, /—— 2026-10-05 ——/);
-  assert.match(text, /Обід：Смажені яйця з томатами ×200 порцій/);
-  // 番茄 7500 g × (200/50) = 30000 g → 30 кг；滚刀块 uk 词表名 + size + note
-  assert.match(text, /Помідор — 30 кг — Шматки рулонним нарізанням，3–4 cm（Очищені від шкірки/);
-  // 鸡蛋 75 × 4 = 300 шт；无 prep → 标注
+  assert.match(text, /Обід: Смажені яйця з томатами ×200 порцій/);
+  // 番茄 7500 g × (200/50) = 30000 g → 30 кг；滚刀块 uk 词表名 + size + note（ASCII 标点）
+  assert.match(text, /Помідор — 30 кг — Шматки рулонним нарізанням, 3–4 cm \(Очищені від шкірки/);
+  // 鸡蛋 75 × 4 = 300 шт；role=main 且无 prep → 仍提示
   assert.match(text, /Яйця курячі — 300 шт \(без специфікації нарізки\)/);
   // 油 500 ml × 4 = 2000 ml → 2 л
   assert.match(text, /Олія рослинна — 2 л/);
   // 晚餐场 120 份 scale 2.4：番茄 18 кг
-  assert.match(text, /Вечеря：Смажені яйця з томатами ×120 порцій/);
+  assert.match(text, /Вечеря: Смажені яйця з томатами ×120 порцій/);
   assert.match(text, /Помідор — 18 кг/);
+});
+
+test("渲染噪音：uk 输出不含中文标点；seasoning 缺 prep 不提示，main 缺 prep 仍提示", () => {
+  const ukPrep = renderPrepList(week41, dishes, techniques, "uk", ingredients);
+  assert.doesNotMatch(ukPrep, /[，（）：]/);
+  // 盐/油已标 role=seasoning 且无 prep → 行尾干净，无 "(без специфікації нарізки)"
+  assert.match(ukPrep, /· Сіль — 300 г$/m); // 75 g × 4
+  assert.match(ukPrep, /· Олія рослинна — 2 л$/m);
+  assert.equal((ukPrep.match(/без специфікації нарізки/g) ?? []).length, 3); // 仅剩 egg（main）× 3 餐次
+});
+
+test("G2：to-taste（适量）配料不进采购行/不进 pending，备料单保留显示", () => {
+  const ings = { tomato: ingredients.tomato, salt: ingredients.salt };
+  const ds = {
+    d1: {
+      name: { zh: "测试菜", uk: "Тестова страва" },
+      baseServings: 10,
+      status: "active",
+      components: [
+        { ingredientRef: "tomato", qty: { value: 500, unit: "g" }, prep: { techniqueRef: "chunks" } },
+        { ingredientRef: "salt", qty: { unit: "to-taste" } }, // 无 value，合法（schema if/then）
+      ],
+    },
+  };
+  const plan = {
+    schemaVersion: "2",
+    meals: [{ date: "2026-10-05", mealType: "lunch", dishRef: "d1", plannedServings: 10 }],
+  };
+  const r = expand(plan, ds, ings);
+  assert.equal(r.issues.length, 0, JSON.stringify(r.issues));
+  assert.equal(r.pending.length, 0); // 不进 pending 区
+  assert.deepEqual(
+    r.lines.map((l) => l.ingredientRef),
+    ["tomato"],
+  ); // 不进采购行
+  // 备料单保留显示「适量」：zh / uk
+  assert.match(renderPrepList(plan, ds, techniques, "zh", ings), /· 食盐 — 适量$/m);
+  assert.match(renderPrepList(plan, ds, techniques, "uk", ings), /· Сіль — за смаком$/m);
+  // readiness：to-taste 视为已填用量，能排 ✓
+  assert.equal(readiness(ds.d1, ings).plan, true);
 });
 
 test("微信文本：scenario-f 排版（单头/分隔线/预估总价/缺价提示）", () => {
@@ -450,8 +506,8 @@ test("微信文本：scenario-f 排版（单头/分隔线/预估总价/缺价提
   const section = formatPurchaseOrderText(lvyuan, { ingredients });
   assert.match(section, /【采购单】2026-10-03 · 绿源农产品配送/);
   assert.match(section, /番茄 {2}19 包 × 5 kg（共 95 kg）/);
-  assert.match(section, /鸡蛋 {2}4 包 × 180 个（共 720 个）/);
-  assert.match(section, /共 3 样 · 预估 ¥1189\.50（按上次价）/);
+  assert.match(section, /鸡蛋 {2}5 包 × 180 个（共 900 个）/); // margin 修正后：5 箱 900 枚
+  assert.match(section, /共 3 样 · 预估 ¥1339\.50（按上次价）/);
   assert.match(text, /共 2 样 · 预估 ¥186\.00（按上次价）/);
   // 缺价行：部分预估提示
   const tomatoLine = golden.lines.find((l) => l.ingredientRef === "tomato").line;

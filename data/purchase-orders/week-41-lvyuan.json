@@ -6,10 +6,10 @@
     {
       "ingredientRef": "egg",
       "qty": {
-        "value": 720,
+        "value": 900,
         "unit": "pcs"
       },
-      "packs": 4,
+      "packs": 5,
       "trace": {
         "meals": [
           {
@@ -36,15 +36,15 @@
           "unit": "pcs"
         },
         "yieldApplied": null,
-        "marginApplied": null,
+        "marginApplied": 1.1,
         "onHandDeducted": null,
         "grossNeed": {
-          "value": 720,
+          "value": 792,
           "unit": "pcs"
         },
         "packSize": 180,
         "packUnit": "pcs",
-        "packsRaw": 4,
+        "packsRaw": 4.4,
         "minPacksApplied": false
       },
       "unitPrice": {
@@ -52,7 +52,7 @@
         "currency": "CNY"
       },
       "amount": {
-        "amount": 600,
+        "amount": 750,
         "currency": "CNY"
       }
     },
@@ -165,7 +165,7 @@
   ],
   "menuPlanRef": "week-41",
   "totalAmount": {
-    "amount": 1189.5,
+    "amount": 1339.5,
     "currency": "CNY"
   }
 }

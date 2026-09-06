@@ -1,6 +1,6 @@
 # ADR-0006: 产品收窄与大幅简化（v2）——一个师傅的三张单，5 个实体
 
-> **English summary.** After the v2 eight-scenario research (`docs/research/v2/`, 2026-09-05), CanteenOS narrows from a "general-purpose full-chain canteen system" to one concrete job: **a Chinese chef with Ukrainian helper cooks Chinese food abroad and buys the right ingredients** — three sheets a day (prep list / purchase order / menu). The data model shrinks from 9 schema entities to 5 (`ingredient`, `techniques`, `dish`, `menu-plan`, `purchase-order` as engine-output snapshot) plus the repo-directory-as-knowledge-base (`data/`, one file per entity). **Deleted outright** (kept in git history, no compatibility layer): `supplier`, `unit-conversion`, `feedback` schemas and all their examples, the `dishpack` interchange layer, and the five-state PO state machine. Three simplifications: a single `yield` number per weight-tracked ingredient (pcs items skip both yield and margin; margin absorbs fixed tail losses); translation status moves to a sidecar `translations.lock.json` (source_hash + status; data itself carries only `{zh,en,uk}`); the video-ingest skill outputs `dish.json` + `images/` directly and a git PR *is* the human review queue. Three rulings: yt-dlp (Unlicense) is accepted; CC BY-SA images are accepted with per-image license metadata `{license, author?, sourceUrl}`; video parsing uses Gemini as primary engine with Qwen as fallback. Editing in Phase 1 is single-person (the chef edits JSON via PR; no editing UI). Execution order: procurement engine first, video POC second.
+> **English summary.** After the v2 eight-scenario research (`docs/research/v2/`, 2026-09-05), CanteenOS narrows from a "general-purpose full-chain canteen system" to one concrete job: **a Chinese chef with Ukrainian helper cooks Chinese food abroad and buys the right ingredients** — three sheets a day (prep list / purchase order / menu). The data model shrinks from 9 schema entities to 5 (`ingredient`, `techniques`, `dish`, `menu-plan`, `purchase-order` as engine-output snapshot) plus the repo-directory-as-knowledge-base (`data/`, one file per entity). **Deleted outright** (kept in git history, no compatibility layer): `supplier`, `unit-conversion`, `feedback` schemas and all their examples, the `dishpack` interchange layer, and the five-state PO state machine. Three simplifications: a single `yield` number per weight-tracked ingredient (pcs items skip yield only; `margin` — an anti-underbuy buffer — applies to **all** ingredients including pcs, correcting the original "pcs skip both" text, see §3) plus margin absorbing fixed tail losses; translation status moves to a sidecar `translations.lock.json` (source_hash + status; data itself carries only `{zh,en,uk}`); the video-ingest skill outputs `dish.json` + `images/` directly and a git PR *is* the human review queue. Three rulings: yt-dlp (Unlicense) is accepted; CC BY-SA images are accepted with per-image license metadata `{license, author?, sourceUrl}`; video parsing uses Gemini as primary engine with Qwen as fallback. Editing in Phase 1 is single-person (the chef edits JSON via PR; no editing UI). Execution order: procurement engine first, video POC second.
 
 - Status: Accepted（2026-09-06）
 - Deciders: @TERRYYYC
@@ -38,8 +38,9 @@ CanteenOS v2 的定位：**让一个中国师傅带着乌克兰帮厨，在海�
 
 1. **yield 单一数字 + pcs 不套 yield + margin 吸收固定尾料**（收窄场景 D 的分阶段损耗模型）：
    - `ingredient.yield` 是 0–1 单一数字（净料率），**仅对按重量/体积（g/ml）计的食材有意义**；初始值用 USDA FBG/AH-102（公有领域）与乌克兰 норми відходів（如鲜番茄 15% → 0.85、青葱 20% → 0.80）打底，本地实测后回填。
-   - **pcs 计数食材既不套 yield 也不套 margin**（个数是离散精确计数，无挂壁损耗）——基准算术：480 份 × 1.5 枚/份 = 720 pcs → ÷180 枚/箱 = 4 箱整。
-   - 场景 D 的 `fixed_per_batch`（挂壁、试味、锅边尾料）不单独建模，由 `menu-plan.margin`（备量系数，默认 **1.1**）统一吸收。margin 的作用点在文档与 trace 中统一为：**净需求聚合后 ÷ yield、× margin（乘除可交换，写法固定为 `净需求 ÷ yield × margin`），再扣 onHand，最后 ÷ packSize 向上取整并与 minPacks 取大**。分阶段链式 yield 记录保留为未来扩展，需要时以新 ADR 引入。
+   - **pcs 计数食材不套 yield，但照常乘 margin**。margin 是"防少买系数"：个数虽是离散精确计数、无挂壁损耗，但同样会买少（破损、次品、临时加量）——基准算术：480 份 × 1.5 枚/份 = 720 pcs → ×1.1 = 792 → ÷180 枚/箱 = 4.4 → ceil **5 箱**（900 枚）。
+     > **2026-09-06 修正**：本节原稿写作"pcs 计数食材既不套 yield 也不套 margin（720 pcs → 4 箱整）"，经跨 agent 评审认定为设计错误——"不套 yield"成立，"不乘 margin"不成立。教训：**黄金测试锁的是"写下来的数字"而不是"正确的数字"，基准表每一行都必须逐格手算后再锁入测试**（本次修正后鸡蛋行 = 5 箱 900 枚 ¥750.00，全部数字已逐行手算重核）。
+   - 场景 D 的 `fixed_per_batch`（挂壁、试味、锅边尾料）不单独建模，由 `menu-plan.margin`（备量系数，默认 **1.1**）统一吸收。margin 的作用点在文档与 trace 中统一为：**净需求聚合后 ÷ yield（仅 g/ml 食材）、× margin（所有食材，写法固定为 `净需求 ÷ yield × margin`），再扣 onHand，最后 ÷ packSize 向上取整并与 minPacks 取大**。分阶段链式 yield 记录保留为未来扩展，需要时以新 ADR 引入。
 2. **翻译状态走旁文件 `translations.lock.json`**（场景 H）：数据本体只有 `{zh,en,uk}` 纯文本；机器/人工状态（`source_hash` + `status: machine|human`）由脚本维护在旁文件里——源文未变且 status=human 的字段永不重翻；技法词表作为 glossary 术语硬约束注入机翻（DeepL Glossary v3 起步，LLM 路线需输出后回查）。不引入 Weblate/Tolgee 平台。
 3. **删 dishpack 中间层，git PR 即人工确认队列**（场景 C/G）：视频解析 skill **直接输出 `data/dishes/<dish>.json`（status=draft）+ `images/<dish>/` 目录**，不再有独立的交换格式实体；schema.org/Recipe 仍可作为解析引擎的内部中间产物，但不再是仓库契约。置信度保留在 `components[].confidence`；人工确认 = 审 PR（低置信字段在 PR 描述里列出），合并即入库。理由：阶段 1 只有师傅一个审核人，"打包—队列—导入"三段式是为一不存在的多租户平台付的税。
 
@@ -74,7 +75,7 @@ CanteenOS v2 的定位：**让一个中国师傅带着乌克兰帮厨，在海�
 ## Consequences
 
 - 正面：
-  - 实体数 9 → 5，删除约 60% 的 schema 表面积；`data/` 现有番茄炒蛋全链路数字（480 份 → 鸡蛋 720 pcs → 4 箱等）即为引擎黄金测试。
+  - 实体数 9 → 5，删除约 60% 的 schema 表面积；`data/` 现有番茄炒蛋全链路数字（480 份 → 鸡蛋 792 pcs → 5 箱等）即为引擎黄金测试。
   - 阶段 1 无数据库、无 API、无编辑 UI、无状态机——落地路径只剩"引擎 + 静态 PWA 读 JSON"。
   - 协议风险全部显性化：yt-dlp 有裁决、CC BY-SA 有逐图元数据 schema 约束、视频引擎双轨。
 - 负面 / 代价：

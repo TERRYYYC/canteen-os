@@ -20,13 +20,18 @@
     "pcsToGram": {
       "type": "number",
       "exclusiveMinimum": 0,
-      "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield、不套 margin"
+      "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield（margin 对所有食材生效，ADR-0006 2026-09-06 修正）"
     },
     "yield": {
       "type": "number",
       "exclusiveMinimum": 0,
       "maximum": 1,
       "description": "净料率 0–1，单一数字（ADR-0006 收窄场景 D 的分阶段模型）：仅对按重量/体积（g/ml）计的食材有意义，pcs 食材不得设置。初始值参考 USDA FBG/AH-102 与乌克兰 норми відходів（docs/research/v2/scenario-d-yield-data.md），本地实测后回填"
+    },
+    "role": {
+      "type": "string",
+      "enum": ["main", "seasoning"],
+      "description": "主料 / 调料（可选）。备料单噪音控制的依据：seasoning 缺 prep 不提示「无切配规格」（盐/油/糖无需切配），main（或未标注）缺 prep 仍提示"
     },
     "purchase": {
       "type": "object",

@@ -6,6 +6,7 @@
     "uk": "Олія рослинна"
   },
   "baseUnit": "ml",
+  "role": "seasoning",
   "purchase": {
     "supplier": "宏达粮油调味批发",
     "packSize": 5,

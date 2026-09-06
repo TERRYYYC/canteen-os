@@ -1,5 +1,7 @@
 # POC-video-001：真实做菜视频 → dish.json 端到端验证（无 API key 版）
 
+> ⚠️ **范围声明**：本次验证的是**契约能装下真实视频**（下载/截帧/校验为真，解析为 agent 人工整理）；**自动化管线（Gemini/Qwen adapter 端到端）尚未验证**，待 API key。
+
 - **日期**：2026-09-06
 - **解析引擎**：AI agent 人工整理（SKILL.md §0 允许的引擎类型之一；替代 Gemini/Qwen，因无 GEMINI_API_KEY）
 - **目的**：验证 v2 新契约（直出 dish JSON status=draft + images/ 截帧 + 技法闭集 + clip 时间段 + confidence）在**真实视频**面前的可用性，产出契约缺口清单

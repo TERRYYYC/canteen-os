@@ -27,18 +27,29 @@
     },
     "Unit": {
       "type": "string",
-      "description": "规范单位（内部统一符号，本地化显示由客户端负责）。g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 ingredient.pcsToGram",
-      "enum": ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch"]
+      "description": "规范单位（内部统一符号，本地化显示由客户端负责）。g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 ingredient.pcsToGram。to-taste（适量，G2）为无量配料的诚实表达：此时 Quantity.value 可缺省，采购推导跳过该行，备料单显示「适量」",
+      "enum": ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch", "to-taste"]
     },
     "Quantity": {
       "type": "object",
-      "description": "数量一律为 { value, unit } 结构",
+      "description": "数量为 { value, unit } 结构；unit = to-taste 时 value 可缺省，其余单位必填",
       "properties": {
         "value": { "type": "number", "exclusiveMinimum": 0 },
         "unit": { "$ref": "#/$defs/Unit" }
       },
-      "required": ["value", "unit"],
-      "additionalProperties": false
+      "required": ["unit"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "unit": { "enum": ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch"] }
+            },
+            "required": ["unit"]
+          },
+          "then": { "required": ["value"] }
+        }
+      ]
     },
     "Currency": {
       "type": "string",

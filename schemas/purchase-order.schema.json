@@ -73,7 +73,7 @@
               "marginApplied": {
                 "type": ["number", "null"],
                 "exclusiveMinimum": 0,
-                "description": "× 的备量系数（menu-plan.margin）；pcs 食材为 null（pcs 不套 margin）"
+                "description": "× 的备量系数（menu-plan.margin）；所有食材均为实际所乘值（margin 对 pcs 同样生效，ADR-0006 2026-09-06 修正）"
               },
               "onHandDeducted": {
                 "anyOf": [

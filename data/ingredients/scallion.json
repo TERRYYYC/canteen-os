@@ -6,6 +6,7 @@
     "uk": "Зелена цибуля"
   },
   "baseUnit": "g",
+  "role": "main",
   "yield": 0.8,
   "purchase": {
     "supplier": "绿源农产品配送",

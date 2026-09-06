@@ -6,6 +6,7 @@
     "uk": "Сіль"
   },
   "baseUnit": "g",
+  "role": "seasoning",
   "purchase": {
     "supplier": "宏达粮油调味批发",
     "packSize": 500,

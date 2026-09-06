@@ -28,7 +28,7 @@ v2 收窄后阶段 1 的日常用户只有前两个；后两个随模块三 defe
 
 ## 3. 场景故事
 
-1. **菜单到采购（采购员）**：周五下午，采购员跑一遍引擎（输入：下周菜单计划 480 份番茄炒蛋），得到两张采购单快照：绿源农产品配送——番茄 19 件 ×5 kg、鸡蛋 4 箱 ×180 枚、小葱 7 件 ×1 kg；宏达粮油调味批发——食盐按 minPacks 补到 20 袋、食用油 2 桶 ×5 L。每行数字带 trace，可解释。纯文本转发给菜贩微信。
+1. **菜单到采购（采购员）**：周五下午，采购员跑一遍引擎（输入：下周菜单计划 480 份番茄炒蛋），得到两张采购单快照：绿源农产品配送——番茄 19 件 ×5 kg、鸡蛋 5 箱 ×180 枚、小葱 4 件 ×1 kg；宏达粮油调味批发——食盐按 minPacks 补到 20 袋、食用油 2 桶 ×5 L。每行数字带 trace，可解释。纯文本转发给菜贩微信。
 2. **视频建菜（厨师）**：厨师在 B 站看到一道适合食堂的菜品视频，把链接丢给视频解析 skill；解析直出 `data/dishes/<菜>.json`（status=draft）+ 截帧图片，开成 PR：两条低置信度配料（"适量盐"、"一把葱花"被量化成 75 g / 250 g，confidence 0.8/0.72）在 PR 里标出，师傅修正后合并即入库（active）。
 3. **帮厨备料（帮厨）**：乌克兰帮厨打开备料单（uk 优先、大字大图）：今天要切的食材、"切成什么样"（滚刀块/末等技法词表译名）、每个配料的截帧配图，点进去可回放对应视频片段。
 4. ~~订餐与反馈（顾客）~~ / ~~运营报告（管理员）~~：**deferred**（ADR-0006；原设计稿见 [modules/feedback.md](modules/feedback.md)）。
@@ -45,7 +45,7 @@ v2 收窄后阶段 1 的日常用户只有前两个；后两个随模块三 defe
 ### 4.2 模块二：菜单计划→采购单引擎（详见 [modules/procurement.md](modules/procurement.md)）
 
 - 输入：MenuPlan（日期×餐次×菜品×计划份数 + margin 备量系数，默认 1.1）。
-- 管线：BOM 展开 → 按 `plannedServings/baseServings` 缩放 → 聚合净需求 → g/ml 食材 ÷`yield`×`margin`（**pcs 不套 yield 不乘 margin**）→ 扣 onHand（仅 trackStock）→ `packs = max(minPacks, ceil(需求/packSize))` → 按 supplier 字符串分组出 PO 快照。
+- 管线：BOM 展开 → 按 `plannedServings/baseServings` 缩放 → 聚合净需求 → ÷`yield`（仅 g/ml 食材）×`margin`（**所有食材，含 pcs**）→ 扣 onHand（仅 trackStock）→ `packs = max(minPacks, ceil(需求/packSize))` → 按 supplier 字符串分组出 PO 快照。
 - **PO 无状态机**（引擎输出快照）；**每行带 trace**（完整推导链）。
 - 确定性核心（纯函数，可测试）；`data/` 现有数字即黄金测试。
 
