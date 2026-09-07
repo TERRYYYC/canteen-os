@@ -65,7 +65,7 @@
 ## 3. 状态与编辑（v0.3 起师傅后台编辑；ADR-0006 §5 的“单人改 JSON”仅为过渡）
 
 - 状态机收窄为 `draft → active → archived`：**git PR 即人工确认队列**——视频导入的菜一律 `draft`，师傅审 PR、合并即 `active`；无独立 review 状态、无 `version` 字段（git 历史即版本）。
-- 编辑入口（2026-09-07 更新）：**v0.3 起师傅用 `/admin` 后台**（排菜单、新食材、手动加菜、发布/回退），后台通过云函数把 JSON 提交进 `data/`（ADR-0007，只准写 `data/**`）；Terry 与 agent 仍可直接改 JSON 提 PR；`python3 scripts/local-validate.py` 与 CI 双闸兑底（schema 校验 + 跨文件引用检查）。视频导入的草稿第一轮仍走命令行 + PR。设计稿：`docs/design/backoffice-v1.html`。
+- 编辑入口（2026-09-07 更新）：**v0.3 起师傅用 `/admin` 后台**（排菜单、新食材、手动加菜、发布/回退），后台通过云函数把 JSON 提交进 `data/`（ADR-0007，只准写 `data/**`）；Terry 与 agent 仍可直接改 JSON 提 PR；`python3 scripts/local-validate.py` 与 CI 双闸兜底（schema 校验 + 跨文件引用检查）。视频导入的草稿第一轮仍走命令行 + PR。设计稿：`docs/design/backoffice-v1.html`。
 - 同步：线上 = git pull；线下/无网 = 拷贝整个 `data/` 文件夹。**不用 Git LFS**（与拷贝文件夹同步互斥，场景 G 已知坑 #1）；图片源头压缩 + 单图硬上限。
 
 ## 4. 视频导入（skill 直出，无中间包）
