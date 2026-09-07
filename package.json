@@ -16,7 +16,9 @@
     "backlog:waves": "node scripts/backlog-waves.mjs",
     "translate": "node scripts/translate.mjs",
     "translate:dry": "node scripts/translate.mjs --dry-run",
-    "test:scripts": "node --test scripts/*.test.mjs"
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "land": "node scripts/land.mjs",
+    "land:dry": "node scripts/land.mjs --dry-run"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
