@@ -13,7 +13,10 @@
     "issues:dry": "node scripts/create-issues.mjs --dry-run",
     "issues:sync": "node scripts/create-issues.mjs",
     "test:core": "npm --prefix packages/core test",
-    "backlog:waves": "node scripts/backlog-waves.mjs"
+    "backlog:waves": "node scripts/backlog-waves.mjs",
+    "translate": "node scripts/translate.mjs",
+    "translate:dry": "node scripts/translate.mjs --dry-run",
+    "test:scripts": "node --test scripts/*.test.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
