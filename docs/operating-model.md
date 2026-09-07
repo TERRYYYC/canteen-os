@@ -136,7 +136,59 @@ v0.3 的 web 页面在同一 package 里并行，靠"一页一文件 + 共用文
 2. **审查跑命令。** 调度 thread 审 PR 时必须复跑 PR 里写的验证命令，不接受"已测试"三个字；跑不出来就打回。
 3. **每版一篇 ADR、每周五三行、每天日志三行。** 文档增量超过代码增量时，调度 thread 停下来问自己在干什么。
 
-## 9. 现在的边界条件
+## 9. 沙箱里的 agent 怎么交付（不需要 Owner 当路由器）
 
-- 本地沙箱里的 agent **不能提交 git**（挂载目录禁止删除/重命名，git 写 `.git/` 必失败），也**不能 push**（无凭据）。所以：子 thread 交付的是工作树里的文件 + 一份 PR 描述草稿；Owner 或有凭据的 thread 负责 `git add / commit / push / gh pr create`。这条在 Owner 打通某个 thread 的 git 凭据前一直有效。
-- 提交前清理一次残留：`rm -f .git/index.lock .git/objects/*/tmp_obj_*`（是无凭据 thread 尝试写 git 留下的空文件，对仓库无害）。
+沙箱对仓库目录禁止删除/重命名，所以 agent **不能在原地 commit，也不能 push**。绕法已验证可行：
+
+```
+子 thread：
+  git clone <仓库路径> /tmp/wt-<slug>        # 克隆到沙箱可写区
+  git checkout -b <branch>                    # issue 里给的分支名
+  …改代码、跑校验、跑测试…
+  git commit（作者 canteenos-agent）
+  git bundle create /tmp/<slug>.bundle main..<branch>
+  cp 到 <仓库>/.handoff/<slug>.bundle + 写 <slug>.json {issue, branch, title, body}
+Owner（每波一次）：
+  node scripts/land.mjs                       # fetch 分支 → push → gh pr create → issue 留言
+  在 GitHub 上看 CI 与调度线的 Approve → 点合并
+```
+
+Owner 的介入被压到两个动作：跑一次 `land`，点合并。合并权保留在人手里是有意的（§2）。
+
+调度 thread 自己有 subagent 能力时，§1 的"派工"就是直接开子 thread，不需要 Owner 转达；§10 的两个常驻 thread 可以合成一个。
+
+**GitHub 连接器可用时（2026-09-07 起已打通）**：调度线不走 bundle，而是在 /tmp 克隆里核对后直接用连接器 `create_branch` + `push_files`（每个原始 commit 一次）推到 origin 同名分支、`create_pull_request` 开 PR、贴审查评论、按护栏 `merge_pull_request`；推完用 `git fetch` 对比远端分支与本地 bundle（`git diff` 必须为空）再开 PR。前提：GitHub App「Claude Github MCP Connector」已安装到本仓库（Settings → Applications → Installed GitHub Apps），否则写操作 403。`land.mjs` 保留为备用路径。
+
+## 10. 两个常驻 thread 与它们之间的接口（当调度 thread 无 subagent 能力时适用）
+
+除了一次性的子 thread，只有两个 thread 是常驻的。它们**不通过聊天互通**，只通过仓库文件：
+
+| thread | 管什么 | 产出（写进仓库） | 不管什么 |
+|---|---|---|---|
+| **功能讨论区**（本轮首个 thread） | 做什么、不做什么、为什么；范围与优先级的争论；设计取舍；第二轮候选 | `.github/backlog/round-1.json` 的增删改、`docs/plan-for-terry.md` §7 不做清单、ADR 草案、`docs/design/` 改稿、`docs/round-2-backlog.md` | 派工、审 PR、催进度 |
+| **调度线**（Owner 新开） | 谁在做什么、做到哪、卡在哪；按波次派工；审 PR（跑命令）；守日期与铁律 | issue 评论（派工 / 审查结论）、`docs/field-test/log.md` 每日三行、跟踪 issue 勾选、周五三行 | 决定范围；改 schema；写 ADR |
+
+接口规则：
+1. 讨论区改了 backlog JSON → Owner 跑 `create-issues.mjs` → 调度线在下一次派工时自然看到新 issue。调度线不改 JSON；它发现任务不合理，在 issue 评论里写"建议回讨论区"，Owner 带回来。
+2. 调度线发现范围问题（"做这个要加字段"）→ 停下，issue 评论里写明，Owner 带回讨论区裁决。
+3. 讨论区不直接命令子 thread。所有"去做"都经过 backlog → issue → 调度线。
+4. 两个 thread 都以仓库 HEAD 为准。每次开工先 `git pull`（Owner）并读 `CHANGELOG.md` 顶部与 `docs/field-test/log.md` 末尾，不靠记忆。
+
+### 调度线的开工提示词（Owner 新开对话时粘贴；2026-09-07 第二版，含 subagent 与 GitHub 连接器）
+
+```
+接手 CanteenOS 调度（Helm）。仓库 ~/Desktop/coding/chief-master/chief-master/canteen-os（GitHub TERRYYYC/canteen-os，private）。你的记忆里有工作方式（canteenos-helm-workflow）。
+
+先做三件事：
+1. 检查 GitHub 连接器：有没有 github 的 MCP 工具（create_branch / push_files / create_pull_request / merge_pull_request / add_issue_comment）。有 → 推分支、开 PR、评论、合并全由你走；没有 → 退回 .handoff bundle + 我跑 scripts/land.mjs 的备用路径，并把连接器的报错原文告诉我。
+2. 读：AGENTS.md → docs/execution-brief.md → docs/operating-model.md → docs/plan-for-terry.md → CHANGELOG.md 顶部。跑 node scripts/backlog-waves.mjs --milestone v0.1。
+3. 落地已审过的第一波：.handoff/schema-v01.{bundle,json} 与 .handoff/translate-v01.{bundle,json}（json 里有 issue、branch、title、PR 正文、审查结论）。在沙箱 /tmp 克隆里从 bundle 取出分支，用连接器把变更文件推到 origin 同名分支 → 开 PR → 把 review 贴成评论 → 在 issue #1 #4 留言 → CI 绿后按护栏合并（先 #1 再 #4）。工作树里还有未提交的基础设施改动（scripts/land.mjs、scripts/backlog-waves.mjs、.gitignore、package.json、docs/operating-model.md、.github/backlog/round-1.lock.json）——单独开一个 chore PR 一并合并。
+
+之后按波次自动推进：第二波 #2 #3 #5 三个子 agent 并行（子 agent 在 /tmp 克隆里用 bash 改文件，不碰工作树）→ 你在干净克隆上复跑验证命令审查 → 推 → PR → CI → 合并 → 下一波。每波结束在 docs/field-test/log.md 追加三行（合了什么 / 卡在哪 / 明天派什么）。
+
+合并护栏：只在 CI 绿且你复跑过验证命令后合并；schema、ADR、workflow（.github/workflows）三类改动只 Approve 不合并，等我点；每次合并在 issue 上留审查记录。不新增实体、不新增必填字段、每版最多一篇 ADR、周末不合并。
+遇到范围问题（"要加字段才能做"）停下写在 issue 上，标"建议回讨论区"，不自己决定。
+周一提醒我砍到 5 项、周五提醒我看演示。门 A（真实厨房）是我的任务 #6，提醒我。
+
+不要让我跑命令、不要让我粘提示词；能自己做的都自己做，做不了的说清原因。
+```
