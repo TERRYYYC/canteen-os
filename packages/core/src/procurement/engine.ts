@@ -33,6 +33,10 @@ import type {
   TraceMeal,
   Unit,
 } from "../types.js";
+import type { PrepGroup } from "../sheets.js";
+import { PREP_GROUP_ORDER } from "../sheets.js";
+import { buildPrepSheet } from "../render/prep.js";
+import { buildMenuSheet } from "../render/menu.js";
 
 // ---------------------------------------------------------------------------
 // 常量与上下文
@@ -463,8 +467,6 @@ function moneyText(m: Money): string {
   return `${CURRENCY_SYMBOL[m.currency]}${m.amount.toFixed(2)}`;
 }
 
-const MEAL_ORDER: Record<MealType, number> = { breakfast: 0, lunch: 1, dinner: 2 };
-
 /**
  * 文本标点小表：zh 用全角标点；en/uk 一律 ASCII（", " / ": " / "( )"）——
  * 乌语输出混入中文标点 "，（）：" 是渲染噪音（G 系评审项），按 lang 分流。
@@ -474,12 +476,6 @@ const PUNCT: Record<keyof I18nString, { comma: string; colon: string; lp: string
   en: { comma: ", ", colon: ": ", lp: " (", rp: ")" },
   uk: { comma: ", ", colon: ": ", lp: " (", rp: ")" },
 };
-
-function sortedMeals(menuPlan: MenuPlan): MenuPlan["meals"] {
-  return [...menuPlan.meals].sort(
-    (a, b) => a.date.localeCompare(b.date) || MEAL_ORDER[a.mealType] - MEAL_ORDER[b.mealType],
-  );
-}
 
 /** 展示用数量：g/ml ≥ 1000 时升级为 kg/l，去掉小数尾零 */
 function displayQty(q: Quantity, lang: keyof I18nString): string {
@@ -520,11 +516,35 @@ const TO_TASTE_LABEL: Record<keyof I18nString, string> = {
   uk: "за смаком",
 };
 
+/** 备料单分组标题（三语；uk/en 只用 ASCII 标点，" — " 与设计稿 screens-v2 一致） */
+const PREP_GROUP_LABEL: Record<keyof I18nString, Record<PrepGroup, string>> = {
+  zh: {
+    "day-before": "前一天",
+    morning: "早上",
+    "before-service": "开餐前",
+    "at-hand": "调料 · 备在手边",
+  },
+  en: {
+    "day-before": "Day before",
+    morning: "Morning",
+    "before-service": "Before service",
+    "at-hand": "Seasonings — at hand",
+  },
+  uk: {
+    "day-before": "Напередодні",
+    morning: "Вранці",
+    "before-service": "Перед подачею",
+    "at-hand": "Приправи — під рукою",
+  },
+};
+
 /**
  * renderPrepList：备料单（给帮厨，乌克兰语为主）。
- * 按日期/餐次分组列出：要准备哪些食材（份数缩放后的净量）、切成什么样
- * （prep.techniqueRef → techniques 词表三语名 + size + note）。
- * 纯函数：techniques/ingredients 由调用方读文件注入；ingredients 缺省时食材名回退为 id。
+ * 按日期/餐次分组，餐次内再按备料时机分组（前一天 → 早上 → 开餐前 → 调料 · 备在手边，
+ * 无 timing 归早上；调料一律「备在手边」且不提示「无切配规格」）：
+ * 要准备哪些食材（份数缩放后的净量）、切成什么样（prep.techniqueRef → 词表三语名 + size + note）。
+ * 建立在 buildPrepSheet（结构化 JSON，sheets.ts）之上；纯函数：techniques/ingredients 由调用方注入，
+ * ingredients 缺省时食材名回退为 id、role 未知按主料处理。
  */
 export function renderPrepList(
   menuPlan: MenuPlan,
@@ -533,58 +553,55 @@ export function renderPrepList(
   lang: keyof I18nString,
   ingredients?: Readonly<Record<Id, Ingredient>>,
 ): string {
-  const techById = new Map(techniques.map((t) => [t.id, t]));
+  const sheet = buildPrepSheet(menuPlan, dishes, techniques, ingredients ?? {});
   const planName = pickI18n(menuPlan.name, lang);
   const p = PUNCT[lang];
   const out: string[] = [`${PREP_TITLE[lang]}${planName ? planName : ""}`.trimEnd()];
 
-  let lastDate = "";
-  for (const meal of sortedMeals(menuPlan)) {
-    if (meal.date !== lastDate) {
-      lastDate = meal.date;
-      out.push("", `—— ${meal.date} ——`);
-    }
-    const dish = dishes[meal.dishRef];
-    const mealLabel = MEAL_LABEL[lang][meal.mealType];
-    if (!dish) {
-      out.push(`${mealLabel}${p.colon}⚠ ${meal.dishRef}${p.lp}菜品缺失${p.rp}`);
-      continue;
-    }
-    const dishName = pickI18n(dish.name, lang) || meal.dishRef;
-    if ((dish.status ?? "draft") !== "active") {
-      out.push(`${mealLabel}${p.colon}⚠ ${dishName}${p.lp}${dish.status ?? "draft"}, 未激活${p.rp}`);
-      continue;
-    }
-    out.push(`${mealLabel}${p.colon}${dishName} ×${meal.plannedServings} ${SERVINGS_LABEL[lang]}`);
-    if (!dish.baseServings || !dish.components?.length) {
-      out.push(`  ⚠ 缺 baseServings/components，无法展开`);
-      continue;
-    }
-    const scale = meal.plannedServings / dish.baseServings;
-    for (const comp of dish.components) {
-      const ing = ingredients?.[comp.ingredientRef];
-      const ingName = pickI18n(ing?.name, lang) || comp.ingredientRef;
-      // to-taste（适量）：不缩放、不编造数字，原样显示
-      const qtyText =
-        comp.qty.unit === "to-taste"
-          ? TO_TASTE_LABEL[lang]
-          : displayQty({ value: (comp.qty.value ?? 0) * scale, unit: comp.qty.unit }, lang);
-      let prepText = "";
-      if (comp.prep?.techniqueRef) {
-        const tech = techById.get(comp.prep.techniqueRef);
-        const techName = tech
-          ? pickI18n(tech.name, lang)
-          : `⚠ ${comp.prep.techniqueRef}${p.lp}不在词表${p.rp}`;
-        prepText = ` — ${techName}`;
-        if (comp.prep.size) prepText += `${p.comma}${comp.prep.size}`;
-        const note = pickI18n(comp.prep.note, lang);
-        if (note) prepText += `${p.lp}${note}${p.rp}`;
-      } else if (ing?.role !== "seasoning") {
-        // 调料（role=seasoning）缺 prep 是常态（盐/油无需切配），不提示——纯噪音；
-        // 主料缺 prep 仍提示（readiness「能教」关卡的文本对应）。ingredients 未注入时按主料处理。
-        prepText = ` ${NO_PREP_LABEL[lang]}`;
+  for (const day of sheet.days) {
+    out.push("", `—— ${day.date} ——`);
+    for (const meal of day.meals) {
+      const mealLabel = MEAL_LABEL[lang][meal.mealType];
+      if (meal.issue?.code === "missing-dish") {
+        out.push(`${mealLabel}${p.colon}⚠ ${meal.dishRef}${p.lp}菜品缺失${p.rp}`);
+        continue;
       }
-      out.push(`  · ${ingName} — ${qtyText}${prepText}`);
+      const dishName = pickI18n(meal.dish.name, lang) || meal.dishRef;
+      if (meal.issue?.code === "dish-not-active") {
+        const status = dishes[meal.dishRef]?.status ?? "draft";
+        out.push(`${mealLabel}${p.colon}⚠ ${dishName}${p.lp}${status}, 未激活${p.rp}`);
+        continue;
+      }
+      out.push(`${mealLabel}${p.colon}${dishName} ×${meal.servings} ${SERVINGS_LABEL[lang]}`);
+      if (meal.issue?.code === "dish-incomplete") {
+        out.push(`  ⚠ 缺 baseServings/components，无法展开`);
+        continue;
+      }
+      for (const group of PREP_GROUP_ORDER) {
+        const rows = meal.components.filter((c) => c.group === group);
+        if (rows.length === 0) continue;
+        out.push(`  ▸ ${PREP_GROUP_LABEL[lang][group]}`);
+        for (const c of rows) {
+          const ingName = pickI18n(c.name, lang) || c.ingredientRef;
+          // to-taste（适量）：不缩放、不编造数字，原样显示
+          const qtyText = c.qty.unit === "to-taste" ? TO_TASTE_LABEL[lang] : displayQty(c.qty, lang);
+          let prepText = "";
+          if (c.prep) {
+            const techName = c.prep.techniqueMissing
+              ? `⚠ ${c.prep.techniqueRef}${p.lp}不在词表${p.rp}`
+              : pickI18n(c.prep.technique.name, lang);
+            prepText = ` — ${techName}`;
+            if (c.prep.size) prepText += `${p.comma}${c.prep.size}`;
+            const note = pickI18n(c.prep.note, lang);
+            if (note) prepText += `${p.lp}${note}${p.rp}`;
+          } else if (!c.isSeasoning) {
+            // 调料（role=seasoning / to-taste）缺 prep 是常态（盐/油无需切配），不提示——纯噪音；
+            // 主料缺 prep 仍提示（readiness「能教」关卡的文本对应）。
+            prepText = ` ${NO_PREP_LABEL[lang]}`;
+          }
+          out.push(`  · ${ingName} — ${qtyText}${prepText}`);
+        }
+      }
     }
   }
   return out.join("\n");
@@ -730,14 +747,27 @@ const MENU_TITLE: Record<keyof I18nString, string> = {
   uk: "【Меню】",
 };
 
+/** 成分句标签（设计稿 screens-v2 菜单抽屉「Склад · 成分」） */
+const COMPOSITION_LABEL: Record<keyof I18nString, string> = {
+  zh: "成分",
+  en: "Ingredients",
+  uk: "Склад",
+};
+/** 成分句内的顿号/逗号：zh 用「、」，en/uk 用 ASCII ", " */
+const LIST_SEP: Record<keyof I18nString, string> = { zh: "、", en: ", ", uk: ", " };
+
 /**
  * renderMenu：顾客菜单。菜名按 lang 取值，fallback 链 zh → en → uk；
  * 按日期 → 餐次（早餐/午餐/晚餐）排序分组。菜品缺失时显式标 ⚠（不静默）。
+ * 传入 ingredients 时，每道菜下追加成分句（按配料顺序、去调料）与每份 ≈ 克重
+ * （buildMenuSheet 的 composition / approxGrams；克重不完整或不可估时不显示数字）。
+ * 不传 ingredients 时输出与旧版逐字相同。
  */
 export function renderMenu(
   menuPlan: MenuPlan,
   dishes: Readonly<Record<Id, Dish>>,
   lang: keyof I18nString,
+  ingredients?: Readonly<Record<Id, Ingredient>>,
 ): string {
   const p = PUNCT[lang];
   const planName = pickI18n(menuPlan.name, lang);
@@ -745,15 +775,25 @@ export function renderMenu(
     ? `${p.lp}${menuPlan.dateRange.start} — ${menuPlan.dateRange.end}${p.rp}`
     : "";
   const out: string[] = [`${MENU_TITLE[lang]}${planName}${range}`];
-  let lastDate = "";
-  for (const meal of sortedMeals(menuPlan)) {
-    if (meal.date !== lastDate) {
-      lastDate = meal.date;
-      out.push("", meal.date);
+  const sheet = buildMenuSheet(menuPlan, dishes, ingredients ?? {});
+  for (const day of sheet.days) {
+    out.push("", day.date);
+    for (const meal of day.meals) {
+      for (const d of meal.dishes) {
+        const name = d.issue?.code === "missing-dish" ? `⚠ ${d.id}` : pickI18n(d.name, lang) || d.id;
+        out.push(`  ${MEAL_LABEL[lang][meal.mealType]}${p.colon}${name}`);
+        if (!ingredients || d.issue?.code === "missing-dish") continue;
+        const parts: string[] = [];
+        if (d.composition.length > 0) {
+          const names = d.composition.map((c) => pickI18n(c.name, lang) || c.ingredientRef);
+          parts.push(`${COMPOSITION_LABEL[lang]}${p.colon}${names.join(LIST_SEP[lang])}`);
+        }
+        if (d.approxGrams !== null && !d.approxGramsIncomplete) {
+          parts.push(`≈ ${d.approxGrams} ${unitLabel("g", lang)}`);
+        }
+        if (parts.length > 0) out.push(`    ${parts.join(" · ")}`);
+      }
     }
-    const dish = dishes[meal.dishRef];
-    const name = dish ? pickI18n(dish.name, lang) || meal.dishRef : `⚠ ${meal.dishRef}`;
-    out.push(`  ${MEAL_LABEL[lang][meal.mealType]}${p.colon}${name}`);
   }
   return out.join("\n");
 }
@@ -762,17 +802,40 @@ export function renderMenu(
 // readiness（能教 / 能排 / 能采 三关卡）
 // ---------------------------------------------------------------------------
 
+/** readiness 返回值：teach/plan/buy 为历史键，canTeach/canPlan/canProcure 为 execution-brief §3 的别名（同值） */
+export interface Readiness {
+  teach: boolean;
+  plan: boolean;
+  buy: boolean;
+  /** = teach */
+  canTeach: boolean;
+  /** = plan */
+  canPlan: boolean;
+  /** = buy */
+  canProcure: boolean;
+  /** 人话待办（中文），与 missingKeys 一一对应、同序 */
+  missing: string[];
+  /**
+   * 机器键，与 missing 同序：
+   *  prep:<ingredientRef>（缺 prep.techniqueRef）/ components / steps / baseServings /
+   *  qty:<ingredientRef> / ingredient:<ingredientRef>（食材不存在）/ purchase:<ingredientRef>（缺采购规格）
+   */
+  missingKeys: string[];
+}
+
 /**
  * readiness：能教 / 能排 / 能采 三关卡（允许不完整——缺什么进 missing 待办，不拒绝）。
- *  能教（teach）：有 components 且所有 component 有 prep.techniqueRef，steps 非空
- *  能排（plan）：baseServings 与全部 component 的 qty 齐备
- *  能采（buy）：所有 ingredientRef 指向的食材都存在且都有 purchase
+ *  能教（teach / canTeach）：有 components 且所有 component 有 prep.techniqueRef，steps 非空
+ *  能排（plan / canPlan）：baseServings 与全部 component 的 qty 齐备
+ *  能采（buy / canProcure）：所有 ingredientRef 指向的食材都存在且都有 purchase
  */
-export function readiness(
-  dish: Dish,
-  ingredients: Readonly<Record<Id, Ingredient>>,
-): { teach: boolean; plan: boolean; buy: boolean; missing: string[] } {
+export function readiness(dish: Dish, ingredients: Readonly<Record<Id, Ingredient>>): Readiness {
   const missing: string[] = [];
+  const missingKeys: string[] = [];
+  const add = (key: string, text: string): void => {
+    missingKeys.push(key);
+    missing.push(text);
+  };
   const components = dish.components ?? [];
   const hasComponents = components.length > 0;
 
@@ -781,24 +844,24 @@ export function readiness(
   for (const c of components) {
     if (!c.prep?.techniqueRef) {
       teach = false;
-      missing.push(`配料 ${c.ingredientRef} 缺 prep.techniqueRef 备菜规格（能教 ✗）`);
+      add(`prep:${c.ingredientRef}`, `配料 ${c.ingredientRef} 缺 prep.techniqueRef 备菜规格（能教 ✗）`);
     }
   }
-  if (!hasComponents) missing.push("缺 components（能教/能排/能采 ✗）");
-  if (!(dish.steps?.length ?? 0)) missing.push("缺 steps 步骤（能教 ✗）");
+  if (!hasComponents) add("components", "缺 components（能教/能排/能采 ✗）");
+  if (!(dish.steps?.length ?? 0)) add("steps", "缺 steps 步骤（能教 ✗）");
 
   // 能排
   let plan = hasComponents;
   if (typeof dish.baseServings !== "number" || !(dish.baseServings > 0)) {
     plan = false;
-    missing.push("缺 baseServings 基准份数（能排 ✗）");
+    add("baseServings", "缺 baseServings 基准份数（能排 ✗）");
   }
   for (const c of components) {
     // to-taste（适量）是有意的无量声明，视为已填用量
     const hasQty = c.qty && (c.qty.unit === "to-taste" || (c.qty.value ?? 0) > 0);
     if (!hasQty) {
       plan = false;
-      missing.push(`配料 ${c.ingredientRef} 缺 qty 用量（能排 ✗）`);
+      add(`qty:${c.ingredientRef}`, `配料 ${c.ingredientRef} 缺 qty 用量（能排 ✗）`);
     }
   }
 
@@ -808,12 +871,21 @@ export function readiness(
     const ing = ingredients[c.ingredientRef];
     if (!ing) {
       buy = false;
-      missing.push(`配料 ${c.ingredientRef} 在 data/ingredients/ 不存在（能采 ✗）`);
+      add(`ingredient:${c.ingredientRef}`, `配料 ${c.ingredientRef} 在 data/ingredients/ 不存在（能采 ✗）`);
     } else if (!ing.purchase) {
       buy = false;
-      missing.push(`食材 ${c.ingredientRef} 缺 purchase 采购规格（能采 ✗）`);
+      add(`purchase:${c.ingredientRef}`, `食材 ${c.ingredientRef} 缺 purchase 采购规格（能采 ✗）`);
     }
   }
 
-  return { teach, plan, buy, missing };
+  return {
+    teach,
+    plan,
+    buy,
+    canTeach: teach,
+    canPlan: plan,
+    canProcure: buy,
+    missing,
+    missingKeys,
+  };
 }
