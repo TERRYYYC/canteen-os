@@ -7,7 +7,14 @@
   "properties": {
     "schemaVersion": { "type": "string", "const": "2" },
     "name": { "$ref": "common.schema.json#/$defs/I18nString" },
-    "image": { "$ref": "common.schema.json#/$defs/Image" },
+    "description": {
+      "$ref": "common.schema.json#/$defs/I18nString",
+      "description": "一句话菜品简介（可选），菜单页抽屉展示；三语 I18nString"
+    },
+    "image": {
+      "$ref": "common.schema.json#/$defs/ImageRef",
+      "description": "成品图 { src, license, author?, sourceUrl? }"
+    },
     "baseServings": {
       "type": "integer",
       "minimum": 1,
@@ -34,10 +41,15 @@
                 "minLength": 1,
                 "description": "尺寸/规格补充，如 3mm、2cm 见方"
               },
+              "timing": {
+                "type": "string",
+                "enum": ["day-before", "morning", "before-service"],
+                "description": "备料时机（可选）：day-before=前一天 / morning=当天早上 / before-service=开餐前。备料单按它分组，缺省归「早上」（execution-brief §3 v0.1）"
+              },
               "note": { "$ref": "common.schema.json#/$defs/I18nString" },
               "image": {
-                "$ref": "common.schema.json#/$defs/Image",
-                "description": "该配料「被切的几秒」的截帧（视频导入时由 skill 产出）"
+                "$ref": "common.schema.json#/$defs/ImageRef",
+                "description": "该配料「被切的几秒」的截帧（视频导入时由 skill 产出）；{ src, license, author?, sourceUrl? }"
               }
             },
             "required": ["techniqueRef"],
@@ -63,7 +75,7 @@
             "$ref": "common.schema.json#/$defs/Id",
             "description": "本步涉及的加热/处理技法，闭集引用 data/techniques.json"
           },
-          "image": { "$ref": "common.schema.json#/$defs/Image" },
+          "image": { "$ref": "common.schema.json#/$defs/ImageRef" },
           "clip": {
             "type": "object",
             "description": "对应视频片段（秒），便于备料/教学时回放",
@@ -82,9 +94,9 @@
     },
     "provenance": {
       "type": "object",
-      "description": "来源溯源；视频导入的菜必填 videoUrl",
+      "description": "来源溯源；视频导入的菜必填 videoUrl。source=example 表示设计稿/演示用示例菜：构建（build-data）时排除，不得当真实数据发布（execution-brief §7）",
       "properties": {
-        "source": { "type": "string", "enum": ["manual", "video"] },
+        "source": { "type": "string", "enum": ["manual", "video", "example"] },
         "videoUrl": { "type": "string", "format": "uri" }
       },
       "required": ["source"],

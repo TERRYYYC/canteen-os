@@ -15,19 +15,22 @@
       "date": "2026-10-05",
       "mealType": "lunch",
       "dishRef": "tomato-egg-stir-fry",
-      "plannedServings": 200
+      "plannedServings": 200,
+      "serviceWindow": "12:00-14:00"
     },
     {
       "date": "2026-10-07",
       "mealType": "lunch",
       "dishRef": "tomato-egg-stir-fry",
-      "plannedServings": 160
+      "plannedServings": 160,
+      "serviceWindow": "12:00-14:00"
     },
     {
       "date": "2026-10-09",
       "mealType": "dinner",
       "dishRef": "tomato-egg-stir-fry",
-      "plannedServings": 120
+      "plannedServings": 120,
+      "serviceWindow": "18:00-20:00"
     }
   ]
 }
