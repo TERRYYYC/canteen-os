@@ -7,7 +7,10 @@
   "properties": {
     "schemaVersion": { "type": "string", "const": "2" },
     "name": { "$ref": "common.schema.json#/$defs/I18nString" },
-    "image": { "$ref": "common.schema.json#/$defs/Image" },
+    "image": {
+      "$ref": "common.schema.json#/$defs/ImageRef",
+      "description": "食材图 { src, license, author?, sourceUrl? }；Commons 来源须填 sourceUrl 并按许可署名"
+    },
     "externalId": {
       "type": "string",
       "pattern": "^Q\\d+$",
