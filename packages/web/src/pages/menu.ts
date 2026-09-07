@@ -11,7 +11,7 @@
  *
  * 三语并列：主语言 = ctx.lang（pick 只取主语言）；另两语按 uk → zh → en 去掉主语言后排列，直接读 name[l]，缺失不显示。
  * 示例菜（provenance.source=example）由 scripts/build-data.mjs 排除；MenuSheetDish 没有 provenance 字段，
- * 页面层只能兑底 dish.issue（构建期标出的问题）→ 行内 warn 卡。
+ * 页面层只能兜底 dish.issue（构建期标出的问题）→ 行内 warn 卡。
  * 过敏原：第一轮 allergens 恒为 []（schema 冻结，见 core/sheets.ts）——为空时如实写「暂无信息」，不是「无过敏原」。
  */
 import "./menu.css";
