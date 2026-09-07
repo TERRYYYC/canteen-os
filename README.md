@@ -13,6 +13,16 @@
 
 **2026-09-07 状态（v0.0.3，设计收尾）**：采购引擎已实现（23 个测试，数字逐行手算），乌语备料单与微信采购单能从真实数据生成，前台 5 屏 + 后台 7 屏高保真已定稿（[docs/design/](docs/design/)）。**尚无网页**——第一轮（v0.1 → v1.0，9/7 → 10/30）做出一个网址、四个页面，收在一个真实厨房的一周。
 
+### 打开
+
+线上地址（GitHub Pages，push `main` 后约 2–5 分钟自动更新，无人工步骤；首次上线的时间记在 [docs/field-test/log.md](docs/field-test/log.md)）：
+
+- 备料单：<https://terryyyc.github.io/canteen-os/#/prep>
+- 采购单：<https://terryyyc.github.io/canteen-os/#/purchase>
+- 菜单：<https://terryyyc.github.io/canteen-os/#/menu>
+
+流水线是 [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml)：validate → translate（有 `DEEPL_API_KEY` 才跑，译文由 bot 回写）→ build-data → vite build → Pages；任一步红即不部署。
+
 ### 开工
 
 | 你是 | 先读 |
@@ -93,6 +103,7 @@ Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reductio
 
 ### Quick links
 
+- Live site (GitHub Pages, auto-deployed 2–5 min after a push to `main`): <https://terryyyc.github.io/canteen-os/> — [#/prep](https://terryyyc.github.io/canteen-os/#/prep) · [#/purchase](https://terryyyc.github.io/canteen-os/#/purchase) · [#/menu](https://terryyyc.github.io/canteen-os/#/menu)
 - PRD: [docs/prd.md](docs/prd.md) ｜ Architecture: [docs/architecture.md](docs/architecture.md)
 - Decisions: [docs/adr/](docs/adr/) (ADR-0001 ~ 0006)
 - Single source of truth for data models: [schemas/](schemas/) (JSON Schema draft 2020-12)
