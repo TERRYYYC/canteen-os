@@ -6,16 +6,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/gen-icons.mjs",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "@canteenos/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.6.0",
-    "vite": "^5.4.0"
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "1.3.0",
+    "workbox-window": "7.4.1"
   },
   "license": "Apache-2.0"
 }

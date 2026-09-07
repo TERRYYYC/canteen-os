@@ -9,6 +9,8 @@ build/
 # scripts/build-data.mjs 产物（三张单 JSON + build.json），CI 每次重建，不入库
 packages/web/public/data/*
 !packages/web/public/data/.gitkeep
+# PWA 图标 PNG 是 packages/web/scripts/gen-icons.mjs 的产物（prebuild 生成）；SVG 入库
+packages/web/public/icons/*.png
 
 # Env & secrets
 .env
