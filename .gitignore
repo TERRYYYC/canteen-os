@@ -37,3 +37,6 @@ skills/**/media/*.mov
 
 # OFF taxonomy raw dump (ODbL, 2.7MB) — 仅本地参考，不入库
 docs/research/v2/ingredients.txt
+
+# 子 thread 交付的 bundle（scripts/land.mjs 落地后移到 landed/），不入库
+.handoff/
