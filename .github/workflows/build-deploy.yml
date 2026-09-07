@@ -1,0 +1,97 @@
+name: Build & Deploy
+
+# push main → validate → translate（有 DEEPL_API_KEY 才跑，译文由 bot 回写 main）→ build-data → vite build → GitHub Pages
+# 任一步失败即红、不部署（deploy 依赖 build 成功）。线上地址：https://terryyyc.github.io/canteen-os/
+# 与 ci.yml 一致：pnpm 版本由根 package.json 的 packageManager 声明，pnpm/action-setup 不写 version。
+# 前端契约（issue #8）：packages/web 由 `pnpm -C packages/web build` 产出 packages/web/dist/；
+# build-data.mjs 写到 packages/web/public/data/，由 Vite 拷进 dist；根目录 pnpm-workspace.yaml 让根 install 装全部 workspace。
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write # bot 回写机翻（data/ 与 data/translations.lock.json）
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: validate → translate → build-data → vite build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Validate data/**/*.json against schemas/*.schema.json
+        run: node scripts/validate-schemas.mjs
+
+      # DEEPL_API_KEY 只注入这一步的环境变量（docs/i18n.md §6.3），不 echo、不落盘。
+      # 没配 secret 时整步跳过（translate.mjs 无 key 本身也 exit 0，但这里连 lock 都不动）。
+      - name: Machine-translate missing en/uk (only when DEEPL_API_KEY is set)
+        env:
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
+        run: |
+          if [ -z "$DEEPL_API_KEY" ]; then
+            echo "DEEPL_API_KEY not set — skipping machine translation"
+            exit 0
+          fi
+          node scripts/translate.mjs
+
+      # 译文作为 bot commit 回写 main：[skip ci] 防递归（GITHUB_TOKEN 的 push 本身也不会触发新 run）。
+      # 本次运行接着用工作区里已翻译的文件构建，所以这次部署的内容已含译文；
+      # 回写后 HEAD 即 bot commit，下面 build-data.mjs 取 `git rev-parse HEAD` 写进 build.json。
+      - name: Commit machine translations back to main
+        run: |
+          if [ -z "$(git status --porcelain data/)" ]; then
+            echo "no translation changes to commit"
+            exit 0
+          fi
+          git config user.name "canteenos-bot"
+          git config user.email "canteenos-bot@users.noreply.github.com"
+          git add data/
+          git commit -m "chore(i18n): machine translations [skip ci]"
+          git push origin HEAD:main
+
+      - name: Build @canteenos/core
+        run: pnpm -C packages/core build
+
+      - name: Gate — build-data --check --compare-snapshots
+        run: node scripts/build-data.mjs --check --compare-snapshots
+
+      - name: Build data (three sheets + build.json → packages/web/public/data/)
+        run: node scripts/build-data.mjs
+
+      - name: Build web (vite → packages/web/dist/)
+        run: pnpm -C packages/web build
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
