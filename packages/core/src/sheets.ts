@@ -25,7 +25,7 @@ import type {
   PurchaseOrder,
   Quantity,
 } from "./types.js";
-import type { PendingLine } from "./procurement/engine.js";
+import type { PendingLine, ProcurementIssue } from "./procurement/engine.js";
 
 // ---------------------------------------------------------------------------
 // 共用
@@ -197,4 +197,34 @@ export interface PurchaseSheet {
   pending?: PendingLine[];
   /** supplier → formatPurchaseOrderText 的微信文本 */
   wechatText: Record<string, string>;
+  /** expand 的结构化问题（missing-dish / dish-not-active / no-purchase-spec …）；干净数据下为 [] */
+  issues?: ProcurementIssue[];
+}
+
+// ---------------------------------------------------------------------------
+// build.json（scripts/build-data.mjs 输出；契约 §5：{ builtAt, commit, plans }）
+// ---------------------------------------------------------------------------
+
+/** build.json 里每道菜的三关卡（execution-brief §3 v0.1「readiness() 输出接入 build-data」） */
+export interface BuildReadiness {
+  canTeach: boolean;
+  canPlan: boolean;
+  canProcure: boolean;
+  /**
+   * = readiness().missingKeys（机器键，与人话 missing 同序）：
+   *  prep:<ingredientRef> / components / steps / baseServings / qty:<ingredientRef> /
+   *  ingredient:<ingredientRef> / purchase:<ingredientRef>
+   */
+  missing: string[];
+}
+
+/** build.json：前台抽屉底部显示 builtAt；readiness 为契约之上追加的可选扩展 */
+export interface BuildManifest {
+  builtAt: string; // ISO date-time（--at 可固定，默认构建时刻）
+  /** git rev-parse HEAD；无 git 时为 "local" */
+  commit: string;
+  /** 已构建的 menu-plan id（= data/menu-plans/ 文件名），按 id 排序 */
+  plans: Id[];
+  /** dishId → 三关卡；provenance.source === "example" 的示例菜已排除，不出现在此 */
+  readiness?: Record<Id, BuildReadiness>;
 }
