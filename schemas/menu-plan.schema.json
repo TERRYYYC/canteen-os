@@ -33,7 +33,12 @@
             "$ref": "common.schema.json#/$defs/Id",
             "description": "data/dishes/ 下的菜品 id（文件名）"
           },
-          "plannedServings": { "type": "integer", "minimum": 1 }
+          "plannedServings": { "type": "integer", "minimum": 1 },
+          "serviceWindow": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+            "description": "供餐时段（可选），HH:MM-HH:MM，如 12:00-14:00；菜单页餐次 chip 展示"
+          }
         },
         "required": ["date", "mealType", "dishRef", "plannedServings"],
         "additionalProperties": false

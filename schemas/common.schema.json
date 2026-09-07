@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/common.schema.json",
   "title": "CanteenOS Common Definitions",
-  "description": "所有实体共享的基础定义：Id、I18nString、Quantity、Money、Confidence、Image、枚举。单一事实源，其他 schema 通过 $ref 引用。v2 收窄（ADR-0006）后不再包含 UnitConversion / StorageType（pcs↔g 走 ingredient.pcsToGram，g↔kg、ml↔l 为代码常量）。",
+  "description": "所有实体共享的基础定义：Id、I18nString、Quantity、Money、Confidence、ImageRef（Image 为其兼容别名）、枚举。单一事实源，其他 schema 通过 $ref 引用。v2 收窄（ADR-0006）后不再包含 UnitConversion / StorageType（pcs↔g 走 ingredient.pcsToGram，g↔kg、ml↔l 为代码常量）。",
   "type": "object",
   "$defs": {
     "Id": {
@@ -78,9 +78,9 @@
       "required": ["value", "source"],
       "additionalProperties": false
     },
-    "Image": {
+    "ImageRef": {
       "type": "object",
-      "description": "图片引用 + 许可元数据（CC BY-SA 裁决的落实，ADR-0006）：Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可与来源。src 为仓库内相对路径（如 images/tomato.jpg）或 URL",
+      "description": "统一图片对象 { src, license, author?, sourceUrl? }（execution-brief §3 v0.1；CC BY-SA 裁决的落实，ADR-0006 裁决 2）：dish.image / dish.components[].prep.image / dish.steps[].image / ingredient.image 均引用此定义。Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可；src 为仓库内相对路径（如 images/tomato.jpg）或 URL；sourceUrl 对 Commons 等外部图应填写文件页，自摄/视频截帧（license=own）可省略",
       "properties": {
         "src": { "type": "string", "minLength": 1 },
         "license": {
@@ -92,11 +92,15 @@
         "sourceUrl": {
           "type": "string",
           "minLength": 1,
-          "description": "图片来源 URL（Commons 文件页等）；自摄图片填仓库内路径"
+          "description": "图片来源 URL（Commons 文件页等）；自摄图片可省略或填仓库内路径"
         }
       },
-      "required": ["src", "license", "sourceUrl"],
+      "required": ["src", "license"],
       "additionalProperties": false
+    },
+    "Image": {
+      "$ref": "#/$defs/ImageRef",
+      "description": "兼容别名：等价于 ImageRef，保留给尚未迁移的引用（techniques.schema.json）；新引用请直接用 ImageRef"
     },
     "MealType": {
       "type": "string",

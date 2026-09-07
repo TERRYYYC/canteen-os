@@ -72,18 +72,22 @@ export interface Confidence {
 }
 
 /**
- * 图片引用 + 许可元数据（CC BY-SA 裁决的落实，ADR-0006）：
- * Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可与来源。
+ * 统一图片对象 { src, license, author?, sourceUrl? }（execution-brief §3 v0.1；
+ * CC BY-SA 裁决的落实，ADR-0006 裁决 2）。dish.image / prep.image / steps[].image /
+ * ingredient.image 均用此类型。Wikidata Commons 食材图约 78% 为 CC BY-SA，必须逐图存许可。
  */
-export interface Image {
+export interface ImageRef {
   /** 仓库内相对路径（如 images/tomato.jpg）或 URL */
   src: string;
   /** 许可短名，如 CC0 / CC BY 4.0 / CC BY-SA 3.0 / Public domain / own（自摄） */
   license: string;
   author?: string;
-  /** 图片来源 URL；自摄图片填仓库内路径 */
-  sourceUrl: string;
+  /** 图片来源 URL（Commons 文件页等）；自摄/视频截帧（license=own）可省略 */
+  sourceUrl?: string;
 }
+
+/** 兼容别名：等价于 ImageRef（对应 common.schema.json#/$defs/Image）；新代码请用 ImageRef */
+export type Image = ImageRef;
 
 export type MealType = "breakfast" | "lunch" | "dinner";
 
@@ -111,7 +115,7 @@ export interface PurchaseSpec {
 export interface Ingredient {
   schemaVersion: "2";
   name: I18nString;
-  image?: Image;
+  image?: ImageRef;
   /** Wikidata QID（场景 A 种子数据来源），如 Q23501 */
   externalId?: string;
   /** 库存与采购聚合的基准单位：g（重量）/ ml（体积）/ pcs（个数） */
@@ -161,7 +165,14 @@ export interface Technique {
 /** 缺省视为 draft；只有 active 的菜参与菜单与采购推导 */
 export type DishStatus = "draft" | "active" | "archived";
 
-export type ProvenanceSource = "manual" | "video";
+/** example = 设计稿/演示用示例菜：构建（build-data）时排除，不得当真实数据发布（execution-brief §7） */
+export type ProvenanceSource = "manual" | "video" | "example";
+
+/**
+ * 备料时机：day-before=前一天 / morning=当天早上 / before-service=开餐前。
+ * 备料单按它分组，缺省归「早上」（execution-brief §3 v0.1）。
+ */
+export type PrepTiming = "day-before" | "morning" | "before-service";
 
 /** 配料在本菜中的备菜规格（备料单「能教」关卡的依据） */
 export interface DishPrep {
@@ -169,9 +180,11 @@ export interface DishPrep {
   techniqueRef: Id;
   /** 尺寸/规格补充，如 3mm、2cm 见方 */
   size?: string;
+  /** 备料时机（可选） */
+  timing?: PrepTiming;
   note?: I18nString;
   /** 该配料「被切的几秒」的截帧（视频导入时由 skill 产出） */
-  image?: Image;
+  image?: ImageRef;
 }
 
 /**
@@ -190,7 +203,7 @@ export interface DishStep {
   text: I18nString;
   /** 本步涉及的加热/处理技法，闭集引用 data/techniques.json */
   techniqueRef?: Id;
-  image?: Image;
+  image?: ImageRef;
   /** 对应视频片段（秒），便于备料/教学时回放 */
   clip?: { videoUrl: string; start: number; end: number };
 }
@@ -208,7 +221,10 @@ export interface DishProvenance {
 export interface Dish {
   schemaVersion?: "2";
   name: I18nString;
-  image?: Image;
+  /** 一句话菜品简介（可选），菜单页抽屉展示 */
+  description?: I18nString;
+  /** 成品图 */
+  image?: ImageRef;
   /** 配方基准份数，食堂尺度（如 50）；按 plannedServings/baseServings 缩放 */
   baseServings?: number;
   components?: DishComponent[]; // >= 1
@@ -232,6 +248,8 @@ export interface MenuPlanMeal {
   /** data/dishes/ 下的菜品 id（文件名） */
   dishRef: Id;
   plannedServings: number; // >= 1
+  /** 供餐时段（可选），HH:MM-HH:MM，如 "12:00-14:00"；菜单页餐次 chip 展示 */
+  serviceWindow?: string;
 }
 
 /** 菜单计划：日期 × 餐次 × 菜品 × 份数 + margin。采购引擎的输入。 */
