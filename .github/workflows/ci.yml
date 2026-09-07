@@ -25,6 +25,15 @@ jobs:
       - name: Validate data/**/*.json against schemas/*.schema.json
         run: node scripts/validate-schemas.mjs
 
+      # types.ts 是 schemas/ 的手写投影，scripts/check-types-vs-schema.mjs 用 TypeScript compiler API
+      # 解析它。typescript 是 packages/core 的 devDependency，而根目录没有 pnpm-workspace.yaml，
+      # 上面的根 install 装不到它，所以这里单独装一次（仍是 pnpm，不引入第二个包管理器）。
+      - name: Install packages/core devDependencies (typescript, for the types checker)
+        run: pnpm install --frozen-lockfile=false --dir packages/core
+
+      - name: Check packages/core/src/types.ts against schemas/*.schema.json
+        run: node scripts/check-types-vs-schema.mjs
+
   lint-docs-structure:
     name: Docs structure smoke check
     runs-on: ubuntu-latest
