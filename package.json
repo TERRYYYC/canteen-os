@@ -18,7 +18,9 @@
     "translate:dry": "node scripts/translate.mjs --dry-run",
     "test:scripts": "node --test scripts/*.test.mjs",
     "land": "node scripts/land.mjs",
-    "land:dry": "node scripts/land.mjs --dry-run"
+    "land:dry": "node scripts/land.mjs --dry-run",
+    "build:data": "node scripts/build-data.mjs",
+    "build:check": "node scripts/build-data.mjs --check --compare-snapshots"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
