@@ -1,0 +1,173 @@
+/*
+ * 应用壳样式（角标 / 抽屉 / 顶栏 / 语言下拉 / 主题切换 / 内容容器）。
+ * 尺寸与类名照 docs/design/screens-v2.html（.appbar .corner .dd .drawer .di .foot .chip .card …），
+ * 移动优先；所有触控目标 ≥ 44px。页面自己的样式放各自 pages/<x>.css（#9–#11），这里只放共用部分。
+ * 与稿不一致处：角标 42×42 → 44×44（触控目标下限），抽屉宽 300px → min(300px, 85vw)。
+ */
+* { box-sizing: border-box; }
+html { height: 100%; }
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; text-wrap: balance; }
+a { color: inherit; }
+button, select { font: inherit; color: inherit; }
+img { max-width: 100%; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
+
+#app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* ---------- 顶栏 ---------- */
+.appbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 10px;
+  background: var(--bg);
+}
+.appbar .t {
+  font-size: 23px; line-height: 1.1;
+  flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* 目录角标：四格图案，打开时变主色 */
+.corner {
+  width: 44px; height: 44px; border-radius: 13px;
+  background: var(--ink); color: var(--bg);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 12px;
+  border: 0; cursor: pointer; flex: none;
+}
+.corner i { display: block; background: currentColor; border-radius: 3px; }
+.corner i:nth-child(1) { border-top-left-radius: 6px; }
+.corner i:nth-child(2) { border-top-right-radius: 6px; }
+.corner i:nth-child(3) { border-bottom-left-radius: 6px; }
+.corner i:nth-child(4) { border-bottom-right-radius: 6px; }
+.corner[aria-expanded="true"], .corner.open { background: var(--accent); color: var(--accent-ink); }
+
+/* 语言下拉：原生 <select> 套设计稿 .dd 药丸 */
+.dd {
+  position: relative; display: inline-flex; align-items: center; flex: none;
+  min-height: 44px;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  font-size: 13px; font-weight: 700;
+}
+.dd select {
+  appearance: none; -webkit-appearance: none;
+  background: transparent; border: 0; cursor: pointer;
+  min-height: 44px; padding: 0 28px 0 14px;
+  font-weight: 700; border-radius: 999px;
+}
+.dd::after {
+  content: ""; position: absolute; right: 13px; top: 50%;
+  width: 7px; height: 7px; pointer-events: none;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg); opacity: .7;
+}
+
+/* ---------- 主内容 ---------- */
+.outlet {
+  flex: 1; width: 100%; max-width: 720px; margin: 0 auto;
+  padding: 0 14px calc(90px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 12px;
+}
+.card { background: var(--surface); border-radius: 16px; overflow: hidden; }
+.muted { color: var(--muted); }
+.section-label {
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; padding: 6px 6px 0;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 4px 10px; font-size: 13px; font-weight: 600; white-space: nowrap;
+}
+.chip.solid { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip.accent { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.chip.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.chip.ghost { background: transparent; }
+
+/* 占位页（#9–#11 替换成真实内容后删） */
+.placeholder { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.placeholder h2 { font-size: 22px; }
+.placeholder p { margin: 0; }
+
+/* ---------- 抽屉 ---------- */
+.scrim { position: fixed; inset: 0; z-index: 20; background: var(--scrim); border: 0; padding: 0; cursor: default; }
+.drawer {
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 30;
+  width: min(300px, 85vw);
+  background: var(--surface); color: var(--ink);
+  border-radius: 0 24px 24px 0;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 6px;
+  box-shadow: 12px 0 40px rgba(0, 0, 0, .25);
+  overflow-y: auto; overscroll-behavior: contain;
+  animation: drawer-in .18s ease-out;
+}
+@keyframes drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .drawer { animation: none; } }
+
+.drawer .brand { display: flex; align-items: center; gap: 10px; padding: 0 4px 14px; }
+.drawer .brand .corner { width: 38px; height: 38px; padding: 10px; border-radius: 12px; cursor: default; }
+.drawer .brand .n { font-size: 18px; line-height: 1.1; }
+.drawer .brand .s { font-size: 12px; color: var(--muted); }
+
+.di {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 12px; border-radius: 14px;
+  text-decoration: none; color: inherit;
+}
+.di:hover { background: var(--surface-2); }
+.di[aria-current="page"], .di.on { background: var(--ink); color: var(--bg); }
+.di .ic {
+  width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center; flex: none;
+  font-family: var(--font-display); font-weight: 700; font-size: 16px;
+}
+.di[aria-current="page"] .ic, .di.on .ic { background: rgba(255, 255, 255, .14); color: inherit; }
+.di .tx { flex: 1; min-width: 0; }
+.di .l1 { display: block; font-weight: 700; font-size: 16px; line-height: 1.15; }
+.di .l2 { display: block; font-size: 12px; opacity: .7; margin-top: 2px; }
+.di.soon { opacity: .55; }
+.di .later {
+  margin-left: auto; font-size: 11px; font-weight: 700;
+  border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px;
+  color: var(--muted); white-space: nowrap;
+}
+
+/* 主题三态切换（设计稿 .toggle 样式；稿内只有 CSS 三态，没有切换控件——这是本包新增的最小控件） */
+.theme { display: flex; flex-direction: column; gap: 6px; padding: 12px 4px 0; margin-top: 8px; }
+.theme .label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.toggle {
+  display: inline-flex; border: 1px solid var(--line); border-radius: 999px;
+  padding: 3px; background: var(--bg); gap: 2px; align-self: flex-start;
+}
+.toggle button {
+  border: 0; background: transparent; color: var(--muted);
+  font-weight: 600; min-height: 44px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+}
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.drawer .foot {
+  margin-top: auto; font-size: 12px; color: var(--muted);
+  padding: 12px 4px 0; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.drawer .foot b { color: var(--ok); font-weight: 700; }
+.drawer .foot .offline b { color: var(--warn); }

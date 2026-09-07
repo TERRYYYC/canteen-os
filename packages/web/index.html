@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F2F4F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131615" media="(prefers-color-scheme: dark)" />
+    <title>CanteenOS</title>
+    <!-- 主题三态：首屏前把 localStorage 里的强制主题贴到 <html data-theme>，避免闪白/闪黑（逻辑与 src/theme.ts 一致） -->
+    <script>
+      try {
+        var t = localStorage.getItem("canteenos.theme");
+        if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    </script>
+    <!-- 字体：Golos Text（UI）+ Bitter（标题）+ Noto Sans SC（中文）；无网时按 tokens.css 的回退栈走系统字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap"
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

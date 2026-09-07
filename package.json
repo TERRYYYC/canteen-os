@@ -20,7 +20,9 @@
     "land": "node scripts/land.mjs",
     "land:dry": "node scripts/land.mjs --dry-run",
     "build:data": "node scripts/build-data.mjs",
-    "build:check": "node scripts/build-data.mjs --check --compare-snapshots"
+    "build:check": "node scripts/build-data.mjs --check --compare-snapshots",
+    "web:dev": "pnpm -C packages/web dev",
+    "web:build": "pnpm -C packages/web build"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
