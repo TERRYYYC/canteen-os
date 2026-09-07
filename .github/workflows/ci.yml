@@ -16,10 +16,8 @@ jobs:
         with:
           node-version: 20
 
-      # pnpm 由 packageManager 字段声明（pnpm@9）；CI 只装校验所需依赖
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+
 
       - name: Install devDependencies (ajv)
         run: pnpm install --frozen-lockfile=false
