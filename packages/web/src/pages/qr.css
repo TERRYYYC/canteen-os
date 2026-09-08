@@ -1,0 +1,68 @@
+/*
+ * /qr 三张码打印页（issue #14）。屏幕：卡片纵向三块（照 backoffice-v1.html .qr：白边方码 + 名字 + 贴哪）；
+ * 打印：A4 竖版一页三块，隐藏壳层顶栏与工具条，颜色固定为浅色 token（深色主题下打印也是黑字白纸）。
+ */
+.qr-page { display: flex; flex-direction: column; gap: 12px; }
+
+.qr-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 6px 6px 0; }
+.qr-toolbar p { margin: 0; flex: 1; min-width: 200px; font-size: 13px; }
+.qr-print { min-height: 44px; padding: 0 18px; border: 0; cursor: pointer; }
+
+.qr-head { padding: 6px 6px 0; }
+.qr-head h2 { font-size: 20px; }
+.qr-head p { margin: 2px 0 0; font-size: 12px; overflow-wrap: anywhere; }
+
+.qr-item {
+  display: grid; grid-template-columns: minmax(120px, 40%) 1fr; gap: 14px; align-items: start;
+  padding: 14px;
+}
+/* 码是浅色 PNG，不随主题；白边 + 细描边照设计稿 .qr .sq */
+.qr-img {
+  display: block; width: 100%; height: auto; aspect-ratio: 1;
+  background: #fff; border: 6px solid #fff; border-radius: 10px; outline: 1px solid var(--line);
+}
+.qr-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.qr-title { font-size: 24px; line-height: 1.15; }
+.qr-title .alt { display: block; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--muted); margin-top: 2px; }
+.qr-who, .qr-where { margin: 0; font-size: 13px; }
+.qr-how { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.qr-how li { font-size: 14px; color: var(--muted); }
+.qr-how li.cur { font-size: 16px; font-weight: 600; color: var(--ink); }
+.qr-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+  color: var(--muted); overflow-wrap: anywhere; margin-top: 4px;
+}
+
+@media (max-width: 420px) {
+  .qr-item { grid-template-columns: 1fr; }
+  .qr-img { max-width: 220px; }
+}
+
+/* ---------- 打印：A4 竖版一页三码 ---------- */
+@page { size: A4; margin: 12mm; }
+
+@media print {
+  .appbar, .scrim, .drawer, .qr-toolbar { display: none !important; }
+  html, body { background: #fff !important; color: #171B19 !important; }
+  #app { min-height: 0; display: block; }
+  .outlet { max-width: none; padding: 0; gap: 0; display: block; }
+  .qr-page { gap: 0; color: #171B19; }
+
+  .qr-head { padding: 0 0 4mm; border-bottom: 1px solid #DCE1DD; }
+  .qr-head h2 { font-size: 16pt; }
+  .qr-head p { font-size: 9pt; color: #67716C; }
+
+  .qr-item {
+    grid-template-columns: 60mm 1fr; gap: 8mm; padding: 6mm 0;
+    background: none; border-radius: 0; border-bottom: 1px solid #DCE1DD;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .qr-item:last-child { border-bottom: 0; }
+  .qr-img { width: 60mm; height: 60mm; border: 0; outline: 0; border-radius: 0; }
+  .qr-title { font-size: 22pt; color: #171B19; }
+  .qr-title .alt { font-size: 13pt; color: #444; }
+  .qr-who, .qr-where { font-size: 10pt; color: #444; }
+  .qr-how li { font-size: 11pt; color: #171B19; }
+  .qr-how li.cur { font-size: 12pt; }
+  .qr-url { font-size: 9pt; color: #171B19; text-decoration: none; }
+}

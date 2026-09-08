@@ -3,19 +3,22 @@
   "version": "0.0.3",
   "private": true,
   "description": "CanteenOS 静态站：/prep /purchase /menu（v0.2）+ /admin 占位（v0.3）。原生 DOM + TypeScript，无 UI / CSS 框架、无状态库；数据只读 public/data/*.json（scripts/build-data.mjs 产物）。",
+  "homepage": "https://terryyyc.github.io/canteen-os/",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/gen-icons.mjs",
+    "prebuild": "node scripts/gen-icons.mjs && node scripts/gen-qr.mjs",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "qr": "node scripts/gen-qr.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@canteenos/core": "workspace:*"
   },
   "devDependencies": {
+    "qrcode": "1.5.4",
     "typescript": "^5.6.0",
     "vite": "^5.4.0",
     "vite-plugin-pwa": "1.3.0",

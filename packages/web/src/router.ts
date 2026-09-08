@@ -1,15 +1,15 @@
 /**
  * hash 路由（无后端、静态托管；execution-brief §1.4）。
  *
- *   #/prep  #/purchase  #/menu  #/admin        默认 #/prep
+ *   #/prep  #/purchase  #/menu  #/admin  #/qr  默认 #/prep（#/qr = 三张码的 A4 打印页，不进抽屉，师傅从链接进）
  *   #/prep/<rest>                              页面段之后的部分原样交给页面（onRoute 的第二个参数），
  *                                              路由器不解释；#9 备料单 B 版详情等可用它做子状态。
  *
  * 未知 / 空 hash → location.replace 到默认页（不产生历史记录）。
  */
-export type Route = "prep" | "purchase" | "menu" | "admin";
+export type Route = "prep" | "purchase" | "menu" | "admin" | "qr";
 
-export const ROUTES: readonly Route[] = ["prep", "purchase", "menu", "admin"];
+export const ROUTES: readonly Route[] = ["prep", "purchase", "menu", "admin", "qr"];
 export const DEFAULT_ROUTE: Route = "prep";
 
 export interface RouteState {
