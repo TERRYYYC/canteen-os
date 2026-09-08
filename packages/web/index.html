@@ -7,6 +7,13 @@
     <meta name="theme-color" content="#F2F4F1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#131615" media="(prefers-color-scheme: dark)" />
     <title>CanteenOS</title>
+    <!-- PWA（#12）：manifest 链接（./manifest.webmanifest）由 vite-plugin-pwa 在构建时注入 <head>；下面是 iOS 需要的 meta 与主屏图标
+         （iOS 不认 manifest 里的 SVG，apple-touch-icon 用 180px 全出血 PNG，系统自己切圆角） -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="CanteenOS" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <!-- 主题三态：首屏前把 localStorage 里的强制主题贴到 <html data-theme>，避免闪白/闪黑（逻辑与 src/theme.ts 一致） -->
     <script>
       try {

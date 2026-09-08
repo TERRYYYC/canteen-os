@@ -74,6 +74,18 @@ const DICT = {
   "data.plan": { uk: "План", zh: "菜单计划", en: "Plan" },
 
   "admin.placeholder": { uk: "3-й етап / v0.3", zh: "3-й етап / v0.3", en: "3-й етап / v0.3" },
+
+  // PWA（#12）：抽屉底部第三态、新版本提示条、离线就绪、iOS 加到主屏幕提示（设计稿 screens-v2.html .foot 文案）
+  "foot.offlineCached": { uk: "Офлайн-копія збережена", zh: "已存离线副本", en: "Offline copy saved" },
+  "update.available": { uk: "Є нова версія", zh: "有新版本", en: "New version available" },
+  "update.reload": { uk: "Оновити", zh: "点此刷新", en: "Reload" },
+  "offline.ready": { uk: "Збережено для роботи без мережі", zh: "已保存，断网也能看", en: "Saved for offline use" },
+  "ios.addToHome": {
+    uk: "Додайте на екран «Додому», щоб працювало без мережі: Поділитися → На екран «Додому»",
+    zh: "加到主屏幕可离线使用：分享 → 添加到主屏幕",
+    en: "Add to Home Screen to use offline: Share → Add to Home Screen",
+  },
+  "ios.dismiss": { uk: "Закрити", zh: "关闭", en: "Dismiss" },
 } as const satisfies Record<string, Record<Lang, string>>;
 
 export type UiKey = keyof typeof DICT;

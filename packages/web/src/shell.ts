@@ -1,7 +1,7 @@
 /**
  * 应用壳：左上角目录角标 + 抽屉、顶栏标题、右上角语言下拉、主内容容器（outlet）。
  * 结构与文案照 docs/design/screens-v2.html「抽屉打开态」那一屏：
- *   抽屉 = 品牌行 + 备料 / 采购 / 菜单 三项 + 菜单计划占位（标 "2-й етап"）+ 主题三态 + 底部（builtAt + 在线/离线）。
+ *   抽屉 = 品牌行 + 备料 / 采购 / 菜单 三项 + 菜单计划占位（标 "2-й етап"）+ 主题三态 + 底部（builtAt + 在线/离线副本/离线）。
  * 可访问性：角标 aria-label / aria-expanded / aria-controls；抽屉 role="dialog" aria-modal，Esc 关闭、Tab 圈在抽屉内、
  * 关闭后焦点回到角标；打开时主内容 inert；语言下拉是原生 <select>。
  */
@@ -18,7 +18,7 @@ export interface Shell {
   setActive(route: Route): void;
   /** build.json 读到后喂进来（null = 读失败，底部显示「未知」） */
   setBuild(build: BuildManifest | null): void;
-  /** 语言变了：重画壳层全部文案 */
+  /** 语言变了 / SW 接管了本页（src/pwa.ts）：重画壳层全部文案与抽屉底部状态 */
   refresh(): void;
   openDrawer(): void;
   closeDrawer(): void;
@@ -47,6 +47,14 @@ export function formatBuiltAt(iso: string | null | undefined, lang: Lang): strin
   } catch {
     return d.toLocaleString();
   }
+}
+
+/** 抽屉底部的网络状态：navigator.onLine + 本页是否已由 service worker 接管（#12） */
+export type NetState = "online" | "cached" | "offline";
+export function netState(): NetState {
+  if (navigator.onLine) return "online";
+  const sw = navigator.serviceWorker;
+  return sw && sw.controller ? "cached" : "offline";
 }
 
 export function mountShell(root: HTMLElement): Shell {
@@ -111,12 +119,17 @@ export function mountShell(root: HTMLElement): Shell {
       toggle.append(b);
     }
 
-    const online = navigator.onLine;
+    // 三态（#12）：在线 / 离线但 SW 已接管本页（离线副本可用）/ 离线且没有 SW（第一次打开就断网）
+    const state = netState();
     const foot = h(
       "div",
       { class: "foot" },
       h("span", {}, `${t("foot.updated")} `, h("b", {}, formatBuiltAt(build?.builtAt, lang))),
-      h("span", { class: online ? "online" : "offline" }, h("b", {}, online ? t("foot.online") : t("foot.offline"))),
+      h(
+        "span",
+        { class: state === "online" ? "online" : state === "cached" ? "offline cached" : "offline" },
+        h("b", {}, state === "online" ? t("foot.online") : state === "cached" ? t("foot.offlineCached") : t("foot.offline")),
+      ),
     );
 
     drawer.setAttribute("aria-label", t("drawer.title"));

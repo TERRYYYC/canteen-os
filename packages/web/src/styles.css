@@ -171,3 +171,44 @@ img { max-width: 100%; }
 }
 .drawer .foot b { color: var(--ok); font-weight: 700; }
 .drawer .foot .offline b { color: var(--warn); }
+
+/* ---------- PWA（#12）：抽屉底部第三态 / 新版本提示条 / iOS 加到主屏幕提示 ---------- */
+.drawer .foot .offline.cached b { color: var(--ok); }
+
+/* 顶栏下方一条提示：有新版本（整条可点，点了才刷新）；ok 态用于「已保存离线副本」的一次性状态，几秒后自动收起 */
+.update-bar {
+  position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); z-index: 9;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; max-width: 720px; margin: 0 auto 8px;
+  padding: 0 14px;
+}
+.update-bar button {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; width: 100%; padding: 8px 16px;
+  border: 0; border-radius: 14px; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; font-size: 15px; line-height: 1.25; text-align: left;
+  box-shadow: var(--shadow);
+}
+.update-bar button .act { margin-left: auto; text-decoration: underline; white-space: nowrap; }
+.update-bar.ok button { background: var(--ok-bg); color: var(--ok); box-shadow: none; cursor: default; }
+.update-bar[hidden] { display: none; }
+
+/* 页面底部一条可关闭提示（iOS 未加到主屏幕时显示一次） */
+.ios-hint {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 auto; max-width: 720px;
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) 16px;
+  background: var(--ink); color: var(--bg);
+  border-radius: 16px 16px 0 0;
+  font-size: 14px; line-height: 1.35;
+  box-shadow: var(--shadow);
+}
+.ios-hint p { margin: 0; flex: 1; min-width: 0; }
+.ios-hint button {
+  flex: none; min-width: 44px; min-height: 44px; padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .35); border-radius: 999px;
+  background: transparent; color: inherit; font-weight: 700; cursor: pointer;
+}
+.ios-hint[hidden] { display: none; }
