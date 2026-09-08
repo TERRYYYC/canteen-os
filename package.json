@@ -13,6 +13,7 @@
     "issues:dry": "node scripts/create-issues.mjs --dry-run",
     "issues:sync": "node scripts/create-issues.mjs",
     "test:core": "npm --prefix packages/core test",
+    "test:worker": "npm --prefix packages/worker test",
     "backlog:waves": "node scripts/backlog-waves.mjs",
     "translate": "node scripts/translate.mjs",
     "translate:dry": "node scripts/translate.mjs --dry-run",
