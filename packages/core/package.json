@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "check:types": "node ../../scripts/check-types-vs-schema.mjs",
     "build": "tsc -p tsconfig.build.json",
-    "test": "npm run build && node --test \"test/*.test.mjs\"",
+    "test": "npm run build && node --test test/*.test.mjs",
     "generate:week41": "npm run build && node scripts/generate-week41.mjs"
   },
   "devDependencies": {
