@@ -2,7 +2,7 @@
 
 > **English summary.** CanteenOS is a spec-first monorepo (pnpm workspaces) where JSON Schemas under `schemas/` are the single source of truth; TypeScript types, the `data/` knowledge base, and docs all derive from them. After the v2 scope reduction ([ADR-0006](adr/0006-scope-reduction-v2.md)) the product does one job — *a Chinese chef with a Ukrainian helper cooks Chinese food abroad and buys the right ingredients* — through three daily sheets (prep list / purchase order / menu) over **5 entities**: `ingredient`, `techniques` (single-file vocabulary), `dish`, `menu-plan`, and `purchase-order` (an engine-output snapshot with a per-line trace; no state machine). The repo directory *is* the knowledge base: one file per entity, filename = ID, sync via git pull or copying the folder. The engine is a deterministic pure function (`expand` / `renderPrepList` / `renderPurchaseOrders` / `renderMenu` / `readiness`); the video-ingest skill outputs `dish.json` + `images/` directly and a git PR is the human review queue. The feedback/ordering module is deferred. Roadmap: engine first, then video POC, then the Phase-1 read-only PWA.
 
-- 关联决策：[ADR-0003 spec-first monorepo](adr/0003-spec-first-monorepo.md)、[ADR-0004 内容级三语](adr/0004-content-level-i18n.md)、[ADR-0006 产品收窄与简化（v2）](adr/0006-scope-reduction-v2.md)
+- 关联决策：[ADR-0003 spec-first monorepo](adr/0003-spec-first-monorepo.md)、[ADR-0004 内容级三语](adr/0004-content-level-i18n.md)、[ADR-0006 产品收窄与简化（v2）](adr/0006-scope-reduction-v2.md)、[ADR-0007 写入通道](adr/0007-write-channel.md)
 
 ---
 
@@ -85,6 +85,26 @@ flowchart LR
 - **视频 skill → 知识库**：只通过 `draft` 菜品 + git PR 入库；skill 无权直接改 active 菜品。
 - **deleted 边界**（ADR-0006）：无供应商实体（supplier 是字符串）、无量纲实体（pcs↔g 走 `pcsToGram`）、无反馈模块（deferred）、无 PO 状态机。
 
+### 3.1 写入通道（v0.3，[ADR-0007](adr/0007-write-channel.md)）
+
+阶段 1 仍然没有数据库、没有登录、没有自建服务器。师傅在 `/admin` 里的每一次保存走的是这条链：
+
+```mermaid
+flowchart LR
+    ADMIN["/admin 静态页（令牌在 URL fragment）"] -->|"POST + Bearer role-token"| W["packages/worker（Cloudflare Worker）"]
+    W -->|"ajv 校验 → GitHub API commit（只写 data/**，跳过 CI）"| MAIN[(main)]
+    ADMIN -->|"POST /publish"| W
+    W -->|"workflow_dispatch"| GA["build-deploy.yml"]
+    GA -->|"校验 → 翻译 → 构建 → 上线"| PAGES["GitHub Pages"]
+```
+
+边界规则（展开见 ADR-0007 §5、§7、§8）：
+
+- **worker → 仓库**：只能写 `data/**`；`schemas/`、代码、`.github/**` 一律拒绝，且 worker 的凭据本身不含 workflows 权限——即使被攻破也改不了 CI。
+- **写入 ≠ 发布**：写入的 commit 带 `[skip ci]`，不触发部署；`/admin` 顶部的「N 项未发布」= `main` 上动过 `data/` 的 commit 与线上 `build.json.commit` 的差集；发布是师傅点的那一下（`workflow_dispatch`）。
+- **无身份**：令牌按角色（chef / buyer / admin）随机生成、放在链接的 fragment 里（不进 Referer 与服务端日志），worker 只存 SHA-256 哈希，不存任何个人信息；泄露的处置是改一个 secret 重发链接。
+- **回退**：新 commit 把 `data/` 恢复到某个历史 sha，绝不 force push，且回退本身也要点一次发布才上线。
+
 ## 4. 技术选型与理由
 
 | 决策点 | 选型 | 理由 |
@@ -96,6 +116,7 @@ flowchart LR
 | 校验 | ajv (draft 2020-12) + ajv-formats；无 Node 环境用 `scripts/local-validate.py` | 事实标准 + 零依赖兜底 |
 | 知识库存储 | git 仓库 `data/`（一实体一文件） | 场景 G：electron/apps 式数据仓库已验证；前提三件套 = schema 校验 CI + 图片压缩管线 + 实体分片 |
 | 视频下载/解析 | yt-dlp（Unlicense，ADR-0006 裁决可用）；Gemini 主 / Qwen 备 | 场景 C：全宽松协议链路；Gemini 服务端强制 JSON Schema，Qwen 国内合规 |
+| 写入通道 | 静态后台 → Cloudflare Worker → GitHub API → Actions 构建 | [ADR-0007](adr/0007-write-channel.md)：唯一能同时满足「无数据库 / 无登录 / 无自建服务」且密钥不进浏览器的形状 |
 | UI i18n | i18next（客户端自理） | 内容级三语在数据模型解决，界面文案用成熟方案 |
 | 许可证 | Apache-2.0 | [ADR-0002](adr/0002-license-apache2.md) |
 
@@ -109,7 +130,7 @@ flowchart LR
 
 路线图已迁出本文：节奏、日期、三道门在 [`plan-for-terry.md`](plan-for-terry.md)；每个版本的任务、完成定义、接口契约在 [`execution-brief.md`](execution-brief.md)；目标对齐分析与第二轮以后的触发条件在 [`roadmap-v2.md`](roadmap-v2.md)。
 
-一句话版：**v0.1 收尾工程（9/13）→ v0.2 三张单上屏（9/27）→ v0.3 师傅后台（10/11）→ v0.4 真实数据（10/18）→ 真实厨房周（10/19–25）→ v1.0（10/30）**。写入通道（静态后台 → 云函数 → GitHub API）将以 ADR-0007 定案，是第一轮唯一的新 ADR。
+一句话版：**v0.1 收尾工程（9/13）→ v0.2 三张单上屏（9/27）→ v0.3 师傅后台（10/11）→ v0.4 真实数据（10/18）→ 真实厨房周（10/19–25）→ v1.0（10/30）**。写入通道（静态后台 → 云函数 → GitHub API）由 [ADR-0007](adr/0007-write-channel.md) 定案，是第一轮唯一的新 ADR。
 
 ## 7. Open Questions
 
