@@ -19,8 +19,10 @@ jobs:
       - uses: pnpm/action-setup@v4
 
 
+      # #66 把 qrcode@1.5.4 补进 pnpm-lock.yaml 之后，lockfile 与 package.json 已同步，
+      # 这里从 --frozen-lockfile=false 收紧成冻结（issue #57）：CI 不再默许悄悄改 lockfile。
       - name: Install devDependencies (ajv)
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --frozen-lockfile
 
       - name: Validate data/**/*.json against schemas/*.schema.json
         run: node scripts/validate-schemas.mjs
@@ -29,10 +31,49 @@ jobs:
       # 解析它。typescript 是 packages/core 的 devDependency，而根目录没有 pnpm-workspace.yaml，
       # 上面的根 install 装不到它，所以这里单独装一次（仍是 pnpm，不引入第二个包管理器）。
       - name: Install packages/core devDependencies (typescript, for the types checker)
-        run: pnpm install --frozen-lockfile=false --dir packages/core
+        run: pnpm install --frozen-lockfile --dir packages/core
 
       - name: Check packages/core/src/types.ts against schemas/*.schema.json
         run: node scripts/check-types-vs-schema.mjs
+
+  # 单测 + 前端构建。步骤与 build-deploy.yml 的 build 作业同源（那边只在 push main 之后跑，
+  # 红了错误已经在 main 上）——这里把同样的证据前移到 PR。issue #57。
+  build-web:
+    name: Tests + typecheck + build web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 根目录有 pnpm-workspace.yaml（packages/*），一次 install 装齐 core / web。
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      # core 的 test 脚本自己先跑 tsc -p tsconfig.build.json，所以这一步同时是 core 的 typecheck，
+      # 并且顺带产出 packages/core 的构建产物，供后面的 build-data / vite 用。
+      - name: packages/core tests
+        run: pnpm -C packages/core test
+
+      - name: scripts tests
+        run: node --test scripts/*.test.mjs
+
+      - name: Gate — build-data --check --compare-snapshots
+        run: node scripts/build-data.mjs --check --compare-snapshots
+
+      - name: Build data (three sheets + build.json → packages/web/public/data/)
+        run: node scripts/build-data.mjs
+
+      - name: Typecheck packages/web
+        run: pnpm -C packages/web typecheck
+
+      # prebuild 会跑 gen-icons.mjs + gen-qr.mjs（PNG 产物不入库）。
+      - name: Build packages/web (vite)
+        run: pnpm -C packages/web build
 
   lint-docs-structure:
     name: Docs structure smoke check
@@ -60,3 +101,67 @@ jobs:
             test -f "$f" || { echo "missing: $f"; exit 1; }
           done
           echo "all required docs present"
+
+  # ADR-0007 §8 第三层（事后守卫）：worker 的路径白名单、以及「PAT 不带 Workflows 权限」
+  # 这两层都失守时的最后一道报警。凡作者为 canteenos-bot 的 commit，改动落在 data/ 之外即失败。
+  # 注意：build-deploy.yml 里 bot 回写机翻的 commit 带 [skip ci]，本 job 不会对它触发；
+  # 那个 commit 本来也只动 data/，即便触发也是绿的。
+  bot-scope-guard:
+    name: Guard — canteenos-bot commits stay inside data/
+    runs-on: ubuntu-latest
+    steps:
+      # 要遍历本次 PR / push 引入的每一个 commit，必须有完整历史。
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: canteenos-bot commits must not touch paths outside data/
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            RANGE="$PR_BASE_SHA..$PR_HEAD_SHA"
+          elif [ "$PUSH_BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            # 新分支首推：没有可比的父，只查 HEAD 这一个 commit。
+            RANGE="$PUSH_AFTER~1..$PUSH_AFTER"
+          else
+            RANGE="$PUSH_BEFORE..$PUSH_AFTER"
+          fi
+
+          COMMITS="$(git rev-list "$RANGE" || true)"
+          if [ -z "$COMMITS" ]; then
+            echo "range $RANGE 为空（force push 或无新 commit）——无需检查"
+            exit 0
+          fi
+
+          FAILED=0
+          for SHA in $COMMITS; do
+            AUTHOR="$(git log -1 --format=%an "$SHA")"
+            if [ "$AUTHOR" != "canteenos-bot" ]; then
+              continue
+            fi
+
+            # 该 commit 改动的全部路径（新增/修改/删除/改名都算），挑出不在 data/ 下的。
+            OUTSIDE="$(git show --pretty=format: --name-only "$SHA" | grep -v '^$' | grep -v '^data/' || true)"
+
+            if [ -n "$OUTSIDE" ]; then
+              echo "::error::commit $SHA 的作者是 canteenos-bot，但改动了 data/ 之外的路径："
+              echo "$OUTSIDE" | sed 's/^/  /'
+              FAILED=1
+            else
+              echo "ok: $SHA (canteenos-bot, data/ only)"
+            fi
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "ADR-0007 §8 第三层：bot commit 越出 data/。worker 的路径白名单可能已失效，先查 worker 再改这里。"
+            exit 1
+          fi
+
+          echo "没有 canteenos-bot 的 commit 越出 data/"
