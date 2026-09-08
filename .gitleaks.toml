@@ -1,0 +1,22 @@
+# gitleaks 配置（issue #26）。规则本体沿用上游默认集，这里只放「明确不是密钥」的豁免。
+#
+# 规矩：每条豁免必须同时窄到三个维度——哪条规则（targetRules）、哪些路径（paths）、
+# 值长什么形状（regexes），且 condition = "AND"。不许整文件放行，不许整条规则关掉。
+# 加新豁免前先确认该值确实是假值/标识符，并在注释里写清楚它是什么。
+
+[extend]
+useDefault = true
+
+# .github/backlog/round-1.json 是 issue 待办清单，每条用一个 "key" 字段做 slug
+# （"v01-build-data"、"v02-purchase" 之类，由 scripts/create-issues.mjs 读取）。
+# 上游 generic-api-key 按熵值把其中一条判成了密钥：首跑命中 round-1.json:242
+# 的 "v02-purchase"（entropy 3.58，刚好过默认阈值 3.5）。
+#
+# 注：这里匹配的是**捕获组（secret）**而不是整个 match。generic-api-key 的前导
+# [\w.-]{0,50}? 不含引号，match 从 key 开始、不包含前面那个双引号，照 match 写会不生效。
+[[allowlists]]
+  description = "backlog issue slugs (.github/backlog/*.json \"key\" fields) are not API keys"
+  targetRules = ["generic-api-key"]
+  condition = "AND"
+  paths = ['''^\.github/backlog/[^/]+\.json$''']
+  regexes = ['''^v\d{2}-[a-z0-9-]+$''']
