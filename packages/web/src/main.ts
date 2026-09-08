@@ -1,6 +1,7 @@
 /**
  * 入口：挂应用壳 → 读 build.json（planId = plans[0]）→ hash 路由分发到 pages/<route>.ts。
  * 语言切换 = 重画壳层 + 重新 render 当前页；主题在壳层内切换（theme.ts）。
+ * PWA（SW 注册、「有新版本」提示条、iOS 提示）在 pwa.ts，这里只调 initPwa(shell)。
  * 页面契约见 src/types.ts。
  */
 import "./tokens.css";
@@ -13,6 +14,7 @@ import { render as admin } from "./pages/admin";
 import { render as menu } from "./pages/menu";
 import { render as prep } from "./pages/prep";
 import { render as purchase } from "./pages/purchase";
+import { initPwa } from "./pwa";
 import { normalize, onRoute, type Route } from "./router";
 import { mountShell } from "./shell";
 import { applyTheme } from "./theme";
@@ -27,6 +29,7 @@ function boot(): void {
   const root = document.getElementById("app");
   if (!root) throw new Error("#app not found");
   const shell = mountShell(root);
+  initPwa(shell);
 
   let build: BuildManifest | null = null;
   let planId: string | null = null;
