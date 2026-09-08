@@ -1,0 +1,71 @@
+# packages/worker —— CanteenOS 写入通道（ADR-0007）
+#
+# 本轮（#19）**不部署**：#68（Cloudflare 账号 + Worker + 4 个 secret）与 #69（L2 测试仓库 + 专用 PAT）
+# 都还没做，wrangler 也**没有**装进 devDependencies（重依赖，且部署本身被卡住）。
+# 这份文件是把「Worker 上线时需要的配置」写在纸面上，等 #68 一完成就可以：
+#   npx wrangler@3 deploy            # 或把 wrangler 加进 devDependencies 再 pnpm -C packages/worker deploy
+#
+# 入口是 TypeScript 源码：wrangler 自带 esbuild，会把 src/index.ts 连同
+# generated/validators.js（ajv standalone 预编译产物，见 scripts/gen-validators.mjs）一起打包。
+# 部署前必须先跑一次生成器，否则 generated/ 是空的：
+#   pnpm -C packages/worker gen:validators
+
+name = "canteenos-worker"
+main = "src/index.ts"
+compatibility_date = "2026-09-08"
+workers_dev = true
+
+# ---------------------------------------------------------------------------
+# 非机密变量（可以进仓库；改这里要重新 deploy）
+# ---------------------------------------------------------------------------
+[vars]
+# 写入目标仓库与分支（ADR-0007 §2：直接 commit main）
+GITHUB_REPO = "TERRYYYC/canteen-os"
+GITHUB_BRANCH = "main"
+
+# CORS 允许的源，逐字匹配、不用通配符（ADR-0007 §1 / 契约 §1.0）
+ALLOWED_ORIGIN = "https://terryyyc.github.io"
+
+# 线上产物（GET /changes 读它的 data/build.json 拿「已发布到哪个 commit」）
+PAGES_BASE_URL = "https://terryyyc.github.io/canteen-os/"
+
+# 发布三级降级（契约 §5.2 / D-04）：dispatch | push-trigger | off
+#   dispatch     —— 正常态。build-deploy.yml 的 workflow_dispatch 已于 PR #67 上线，默认用它。
+#   push-trigger —— 降级态。在 main 上造一个不带 [skip ci] 的空 commit 触发构建。
+#   off          —— 只写不发。POST /publish 直接 503 dispatch_unavailable。
+PUBLISH_MODE = "dispatch"
+
+# 被触发的 workflow 文件名（改名要同步这里，四步映射表也会跟着失效，见契约 §4.2）
+PUBLISH_WORKFLOW = "build-deploy.yml"
+
+# dispatch 之后按 run-name（"publish · <request_id>"）认领 runId 的最长轮询时间。
+# 契约 D-17 写的是 90 秒；90 秒会把一个 HTTP 请求挂住 90 秒，前端 fetch 很可能先超时，
+# 上线后建议按真实排队情况调小（10000–20000）。默认按契约给 90000。
+PUBLISH_CLAIM_TIMEOUT_MS = "90000"
+
+# ---------------------------------------------------------------------------
+# Secrets —— 不进仓库，用 `wrangler secret put <NAME>` 逐个设置（#68）
+# ---------------------------------------------------------------------------
+#   TOKEN_HASH_CHEF    SHA-256(chef 令牌) 的 64 位小写十六进制   （ADR-0007 §4）
+#   TOKEN_HASH_BUYER   SHA-256(buyer 令牌)
+#   TOKEN_HASH_ADMIN   SHA-256(admin 令牌)
+#   GITHUB_PAT         细粒度 PAT，仅本仓库，权限只有 Contents: RW + Actions: RW，
+#                      **不要给 Workflows 权限**（ADR-0007 §8 第 2 层）。
+#                      secret 名定名见契约 D-09；落地后回填 ops-checklist §1 的登记表。
+#   DEEPL_API_KEY      可选。POST /translate 用；不设置时该端点返回空译文 + warning，不报错。
+#
+# 生成令牌与哈希（ops-checklist §2，标注为未验证）：
+#   openssl rand -base64 32 | tr '+/' '-_' | tr -d '='      → 43 字符令牌
+#   printf %s "<token>" | openssl dgst -sha256              → 64 位十六进制，填 TOKEN_HASH_*
+#
+# ---------------------------------------------------------------------------
+# 还没接的绑定
+# ---------------------------------------------------------------------------
+# 限流（契约 §3.5：写 60/h、发布 10/h、回退 5/h、读 600/h）本轮是**进程内计数**，
+# 即每个 isolate 各算各的 —— 单人后台够用，但不是全局精确。要精确就绑一个 KV：
+#
+#   [[kv_namespaces]]
+#   id = "<在 Cloudflare 控制台建好后填>"
+#   binding = "RATE_LIMIT_KV"
+#
+# 绑上之后 src/ratelimit.ts 里换一个实现即可，调用方不动。
