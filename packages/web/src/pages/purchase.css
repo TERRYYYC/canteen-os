@@ -1,0 +1,114 @@
+/*
+ * /purchase 采购单私有样式（issue #10）。
+ * 类名与尺寸照 docs/design/screens-v2.html「采购单」屏（.tabs .sum .sup .pl .top .nm .pk .amt .chev .sub .trace .op .r .tot .bottom .btn .num），
+ * 全部限定在 .purchase 之下，避免与 #9 /prep、#11 /menu 的同名类互相污染。
+ * 与稿不一致处（详见 PR）：
+ *   - 行主体用原生 <details>/<summary>（键盘可展开），chevron 用 CSS content 随 open 态切换；
+ *   - 周 chip 视觉照稿（6px 12px），触控热区用 ::after 扩到 ≥ 44px；
+ *   - .bottom 从稿里的 absolute 改为 fixed（真实页面没有手机壳），宽度对齐 .outlet 的 720px；
+ *   - 供应商卡头部多一个小「复制」按钮（调度裁决）。
+ */
+.purchase { display: flex; flex-direction: column; gap: 12px; }
+.purchase .num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -.01em; }
+
+/* ---------- 周切换 chip ---------- */
+.purchase .tabs { display: flex; gap: 8px; padding: 2px 2px 0; overflow-x: auto; scrollbar-width: none; }
+.purchase .tabs::-webkit-scrollbar { display: none; }
+.purchase .tabs .chip { padding: 6px 12px; flex: none; position: relative; text-decoration: none; cursor: pointer; }
+.purchase .tabs .chip::after { content: ""; position: absolute; left: 0; right: 0; top: -7px; bottom: -7px; }
+
+/* ---------- 顶部提示（issues 非空） ---------- */
+.purchase .notice { padding: 10px 14px; background: var(--warn-bg); color: var(--warn); border-radius: 14px; font-size: 13px; }
+.purchase .notice b { display: block; font-weight: 800; margin-bottom: 2px; }
+.purchase .notice ul { margin: 0; padding-left: 18px; }
+
+/* ---------- 汇总 ---------- */
+.purchase .sum { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--line); border-radius: 14px; overflow: hidden; }
+.purchase .sum > div { background: var(--surface); padding: 10px 12px; min-width: 0; }
+.purchase .sum .l { font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.purchase .sum .v { font-size: 19px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.purchase .sum .v small { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+
+/* ---------- 供应商卡头 ---------- */
+.purchase .sup { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.purchase .sup .hd { flex: 1; min-width: 0; }
+.purchase .sup .n { font-weight: 800; font-size: 16px; }
+.purchase .sup .s { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.purchase .sup .amt { font-size: 17px; flex: none; }
+.purchase .sup .cp {
+  flex: none; min-height: 44px; min-width: 44px; padding: 0 12px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.purchase .sup .cp:hover { background: var(--surface-2); }
+
+/* ---------- 行（<details>） ---------- */
+.purchase .pl { border-top: 1px solid var(--line); }
+.purchase .sup + .pl { border-top: 0; }
+.purchase .pl > summary { list-style: none; cursor: pointer; padding: 11px 14px; min-height: 44px; }
+.purchase .pl > summary::-webkit-details-marker { display: none; }
+.purchase .pl > summary::marker { content: ""; }
+.purchase .pl .top { display: flex; align-items: center; gap: 10px; }
+.purchase .pl .nm { font-weight: 600; font-size: 16px; flex: 1; min-width: 0; }
+.purchase .pl .pk { font-size: 15px; color: var(--ink); white-space: nowrap; }
+.purchase .pl .pk b { font-weight: 800; font-size: 18px; }
+.purchase .pl .amt { font-size: 15px; width: 78px; text-align: right; flex: none; }
+.purchase .pl .chev { width: 18px; color: var(--muted); text-align: center; flex: none; }
+.purchase .pl .chev::before { content: "▸"; }
+.purchase .pl[open] .chev::before { content: "▾"; }
+.purchase .pl .sub { color: var(--muted); font-size: 12px; margin-top: 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.purchase .pl .sub .chip { font-size: 12px; padding: 3px 9px; }
+
+/* ---------- 推导链 ---------- */
+.purchase .trace {
+  margin: 0 14px 12px; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 5px 10px; align-items: baseline; font-variant-numeric: tabular-nums;
+}
+.purchase .trace .op { color: var(--accent); font-weight: 800; text-align: right; min-width: 1em; }
+.purchase .trace .r { text-align: right; font-weight: 600; white-space: nowrap; }
+.purchase .trace .meals { grid-column: 1 / -1; margin: 0 0 2px; padding-left: 1.6em; color: var(--muted); font-size: 12px; list-style: none; }
+.purchase .trace .meals li::before { content: "· "; }
+.purchase .trace .tot { grid-column: 1 / -1; border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px; font-weight: 600; }
+
+/* ---------- 待补全（灰卡） ---------- */
+.purchase .pending { background: var(--surface-2); }
+.purchase .pending .sup { border-bottom-color: var(--line); }
+.purchase .pending .pl { border-top-color: var(--line); padding: 11px 14px; }
+.purchase .pending .pl .top { display: flex; align-items: center; gap: 10px; }
+.purchase .pending .pl .nm { font-weight: 600; font-size: 16px; flex: 1; }
+.purchase .pending .pl .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+.purchase .note { font-size: 12px; padding: 0 6px; margin: 0; }
+.purchase .empty { padding: 16px; }
+
+/* ---------- 底部固定栏 ---------- */
+.purchase .bottom {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, var(--bg) 30%);
+  pointer-events: none;
+}
+.purchase .bottom .in { display: flex; gap: 10px; max-width: 720px; margin: 0 auto; pointer-events: auto; }
+.purchase .btn {
+  flex: 1; border-radius: 14px; padding: 14px; text-align: center; font-weight: 800; font-size: 16px;
+  border: 0; min-height: 44px; cursor: pointer;
+}
+.purchase .btn.p { background: var(--accent); color: var(--accent-ink); }
+.purchase .btn.s { background: var(--surface); border: 1px solid var(--line); flex: 0 0 auto; padding: 14px 16px; font-weight: 600; }
+.purchase .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ---------- 复制失败回退：可全选文本框 ---------- */
+.purchase .copy-dialog {
+  border: 0; border-radius: 16px; padding: 16px; width: min(560px, calc(100vw - 32px));
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
+}
+.purchase .copy-dialog::backdrop { background: var(--scrim); }
+/* 无 showModal 的环境只有 open 属性：自己居中 */
+.purchase .copy-dialog[open]:not(:modal) { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 40; margin: 0; }
+.purchase .copy-dialog h2 { font-size: 18px; margin-bottom: 4px; }
+.purchase .copy-dialog p { margin: 0 0 10px; font-size: 13px; }
+.purchase .copy-dialog textarea {
+  width: 100%; min-height: 220px; resize: vertical; font: inherit; font-size: 14px; line-height: 1.45;
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); color: var(--ink);
+}
+.purchase .copy-dialog .row { display: flex; justify-content: flex-end; margin-top: 10px; }
