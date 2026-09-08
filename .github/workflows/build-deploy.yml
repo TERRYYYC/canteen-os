@@ -47,8 +47,11 @@ jobs:
         with:
           node-version: 20
 
+      # 与 ci.yml 的三处一致（PR #71）：#66 把 qrcode@1.5.4 补进 pnpm-lock.yaml 之后，lockfile
+      # 与 package.json 已同步，这里也从 --frozen-lockfile=false 收紧成冻结——部署流水线更不该
+      # 默许悄悄改 lockfile，否则线上装到的依赖可能与 PR 上验证过的不是同一套。
       - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --frozen-lockfile
 
       - name: Validate data/**/*.json against schemas/*.schema.json
         run: node scripts/validate-schemas.mjs
