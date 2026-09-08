@@ -21,6 +21,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 700; margin: 0; text
 a { color: inherit; }
 button, select { font: inherit; color: inherit; }
 img { max-width: 100%; }
+/* hidden 属性必须压过下面的 .drawer { display:flex } 等作者样式（UA 的 [hidden]{display:none} 优先级最低，否则抽屉常驻可见） */
+[hidden] { display: none !important; }
 
 .sr-only {
   position: absolute;
