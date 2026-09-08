@@ -10,6 +10,21 @@ on:
   push:
     branches: [main]
 
+  # #19 的 `POST /publish` 要从 Worker 触发这条流水线。GitHub 的 dispatch API
+  # (POST /actions/workflows/build-deploy.yml/dispatches) 返回 204、不带 runId，
+  # 所以调用方自己生成一个 request_id 传进来，由下面的 run-name 回显到 run 名字上，
+  # Worker 轮询 runs 列表按名字认领自己那次 run（对应 #19 的 `GET /publish/:id` 四步进度）。
+  # 手动重跑（Actions → Run workflow）也走这个入口，request_id 留空即可。
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "调用方生成的唯一 ID，用于认领本次 run；手动触发可留空"
+        required: false
+        type: string
+
+# 只在 dispatch 时改名：表达式求值为空串时 GitHub 回落到事件默认名，push 仍然显示提交信息。
+run-name: ${{ inputs.request_id && format('publish · {0}', inputs.request_id) || '' }}
+
 permissions:
   contents: write # bot 回写机翻（data/ 与 data/translations.lock.json）
   pages: write
