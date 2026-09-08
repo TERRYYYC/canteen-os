@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CanteenOS · 三张单二维码 · A4 打印稿（week-43）</title>
+
+<!--
+  用法：双击本文件 → 浏览器打开 → Ctrl/Cmd + P → A4 竖版 → 打印。
+  单文件、内联样式、无外部依赖、无构建步骤。字体用系统自带的，不联网取字体。
+
+  ── 二维码图片从哪来 ──
+  PNG 是构建期产物，不入库：
+    生成脚本  packages/web/scripts/gen-qr.mjs（package.json 的 prebuild 钩子里跑）
+    产物      packages/web/public/qr/{prep,purchase,menu}.png + qr/index.json
+    .gitignore 忽略 packages/web/public/qr/*，只留 .gitkeep，CI 每次重建
+  所以本文件引用**线上地址** https://terryyyc.github.io/canteen-os/qr/<route>.png。
+  站点 URL 来自 packages/web/package.json 的 "homepage"；换域名时把下面三个 img 的 src
+  和三处明文 URL 一起改。（站内那张 #/qr 打印页读 qr/index.json，换域名不用改文件——
+  本文件是它的离线备份，代价就是这三个地址写死在这里。）
+
+  ── 离线打印 ──
+  本文件不含图片数据，图片是联网取的。要在没网的地方打印：
+    1. 先联网，用同一个浏览器打开一次 https://terryyyc.github.io/canteen-os/#/qr
+       （或依次打开下面三个 PNG 地址），让图片进浏览器缓存；
+    2. 再断网打开本文件打印。
+  打印预览里三个码是空白框 = 图片没取到。先联网再试一次，不要就这么打出去贴墙。
+-->
+
+<style>
+@page { size: A4 portrait; margin: 14mm; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #FFFFFF; }
+body {
+  color: #171B19;
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.45;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.bar {
+  margin: 0 0 8mm;
+  padding: 4mm 5mm;
+  border: 1pt solid #D9DEDB;
+  border-radius: 3mm;
+  background: #F4F6F5;
+  font-size: 10pt;
+}
+.bar button {
+  font: inherit;
+  font-weight: 700;
+  padding: 2mm 6mm;
+  margin-right: 4mm;
+  border: 1pt solid #171B19;
+  border-radius: 2mm;
+  background: #171B19;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.sheet { max-width: 182mm; margin: 0 auto; }
+
+.head { border-bottom: 1.2pt solid #171B19; padding-bottom: 3mm; margin-bottom: 4mm; }
+.head h1 { font-size: 15pt; margin: 0 0 1.5mm; letter-spacing: 0.2pt; }
+.head p { margin: 0; font-size: 9pt; color: #55605A; }
+
+.qr {
+  display: flex;
+  gap: 7mm;
+  align-items: flex-start;
+  padding: 5mm 0;
+  border-bottom: 0.6pt dashed #B9C2BC;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.qr:last-of-type { border-bottom: 0; }
+.qr img {
+  width: 46mm;
+  height: 46mm;
+  flex: 0 0 auto;
+  border: 0.6pt solid #D9DEDB;
+  background: #FFFFFF;
+}
+.tx { flex: 1 1 auto; min-width: 0; }
+.tx h2 { font-size: 16pt; margin: 0 0 1mm; }
+.tx h2 .uk { font-size: 12pt; font-weight: 600; color: #3D4A44; margin-left: 3mm; }
+.who { font-size: 10pt; margin: 0 0 2.5mm; color: #3D4A44; }
+.what { margin: 0 0 1.5mm; }
+.what.uk { color: #3D4A44; }
+.tip { margin: 0 0 2mm; font-size: 8.5pt; color: #55605A; }
+.url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 8.5pt;
+  margin: 0 0 1.5mm;
+  word-break: break-all;
+}
+.post { margin: 0; font-size: 9.5pt; font-weight: 700; }
+
+.foot { margin-top: 5mm; padding-top: 3mm; border-top: 0.6pt solid #D9DEDB; font-size: 8pt; color: #55605A; }
+.foot p { margin: 0 0 1mm; }
+
+@media screen { body { padding: 8mm; } }
+@media print { .bar { display: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <button type="button" onclick="window.print()">打印 / Друкувати</button>
+  <span>A4 竖版，一页三张码。<b>打印前先确认三个码都显示出来了</b>——空白框 = 图片没联网取到，先联网打开一次下面的网址再打。</span>
+</div>
+
+<div class="sheet">
+
+  <div class="head">
+    <h1>CanteenOS · 打印贴墙 · Роздрукуйте і повісьте</h1>
+    <p>真实厨房周 week-43 · 2026-10-19 – 10-25　｜　出问题找 Terry：____________</p>
+  </div>
+
+  <article class="qr">
+    <img src="https://terryyyc.github.io/canteen-os/qr/prep.png" alt="二维码 · 备料单 · Підготовка" width="512" height="512">
+    <div class="tx">
+      <h2>备料单<span class="uk">Підготовка</span></h2>
+      <p class="who">帮厨 · для помічника кухаря</p>
+      <p class="what">扫码看：今天切什么、切成什么样、切多少。右上角下拉选 <b>UA</b> 换乌克兰语。</p>
+      <p class="what uk">Скануйте: що різати сьогодні, як різати і скільки. Мова — угорі праворуч: UA.</p>
+      <p class="tip">扫一次，加到主屏幕（分享 → 添加到主屏幕），断网也能看上一次的。<br>Відскануйте один раз і додайте на екран «Додому»: Поділитися → На екран «Додому».</p>
+      <p class="url">https://terryyyc.github.io/canteen-os/#/prep</p>
+      <p class="post">贴：厨房墙上 · На стіні кухні</p>
+    </div>
+  </article>
+
+  <article class="qr">
+    <img src="https://terryyyc.github.io/canteen-os/qr/purchase.png" alt="二维码 · 采购单 · Закупівля" width="512" height="512">
+    <div class="tx">
+      <h2>采购单<span class="uk">Закупівля</span></h2>
+      <p class="who">采购员 · для закупівельника</p>
+      <p class="what">扫码看：本周按供应商买什么。每行点开能看这个数怎么算的；最底下「复制微信文本」一键复制，直接粘进微信发给菜贩。</p>
+      <p class="what uk">Скануйте, щоб побачити список закупівлі на тиждень. Сторінка — тільки китайською.</p>
+      <p class="tip">微信里收到这张图：长按 → 识别图中二维码。<br>Ця сторінка — для закупівельника, не для кухні.</p>
+      <p class="url">https://terryyyc.github.io/canteen-os/#/purchase</p>
+      <p class="post">发给采购员 · Надіслати закупівельнику</p>
+    </div>
+  </article>
+
+  <article class="qr">
+    <img src="https://terryyyc.github.io/canteen-os/qr/menu.png" alt="二维码 · 菜单 · Меню" width="512" height="512">
+    <div class="tx">
+      <h2>菜单<span class="uk">Меню</span></h2>
+      <p class="who">顾客 · для гостей</p>
+      <p class="what">扫码看：今天有什么菜、里面有什么。</p>
+      <p class="what uk">Скануйте, щоб побачити меню на сьогодні та склад страв.</p>
+      <p class="tip">三语并列，不用切语言也能看。<br>Три мови поруч — перемикати не обов'язково.</p>
+      <p class="url">https://terryyyc.github.io/canteen-os/#/menu</p>
+      <p class="post">贴：档口 · 桌上 · На стійці, на столах</p>
+    </div>
+  </article>
+
+  <div class="foot">
+    <p>三个码分别指向 #/prep · #/purchase · #/menu（hash 路由，packages/web/src/router.ts）。码由 packages/web/scripts/gen-qr.mjs 在构建期生成：512×512、纠错 M、纯码不烧标签。</p>
+    <p>站内有一张同样的打印页：https://terryyyc.github.io/canteen-os/#/qr（读构建期产物 qr/index.json，换域名不用改文件）。本文件是它的离线备份：不需要构建、不需要装东西，双击就能打。</p>
+    <p>离线打印：先联网打开一次上面任一网址让图片进缓存，再断网打印。三个码是空白框就说明图片没取到——先联网再试。</p>
+  </div>
+
+</div>
+
+</body>
+</html>
