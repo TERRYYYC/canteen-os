@@ -2,9 +2,36 @@
 
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)；版本号对应 `docs/plan-for-terry.md` 的里程碑（v0.1 → v1.0）。每个版本收尾时由 owner 补一段，内容是"能用了什么 / 坏了什么 / 没做什么"，不是 commit 列表。
 
-## [Unreleased] — v0.1 收尾工程（目标 2026-09-13）
+## [Unreleased]
 
-见 `.github/backlog/round-1.json` 里程碑 `v0.1 收尾工程`：最后一批可选字段、`build-data.mjs`、`translate.mjs` + lock、渲染器补齐、types 生成或一致性检查；门 A（确认真实厨房）。
+v0.2（三张单上屏）与 v0.3（师傅后台）进行中，各自收尾时补一段。已进 main 的大块：四个页面 + PWA + 二维码、ADR-0007《写入通道》、worker 与前端契约、CI 覆盖（单测 + 前端构建 + bot 越界守卫 + 密钥扫描）。
+
+## [0.1.0] — 2026-09-07 · v0.1 收尾工程
+
+> **tag 未打**——`git tag v0.1` 归 Owner（#7）。本段是收尾复核结论，DoD 逐条核验见 #7 的评论。
+
+`data/` 到三张单的整条链路打通了：改 `data/` 里的 JSON，跑一条命令就能出备料单、采购单、菜单三份 JSON，采购数字与既有快照逐行一致。**这一版还没有界面**——界面是 v0.2。
+
+**能用了什么**
+
+- `scripts/build-data.mjs`（#3 / PR #48）：读 `data/` → `expand` + 三个渲染器 + `readiness` → `packages/web/public/data/{prep,purchase,menu}/<planId>.json` 加一份 `build.json {builtAt, commit, plans[]}`。`--check` 只校验不写，`--compare-snapshots` 对着 `data/purchase-orders/` 快照逐行比。纯 Node，无框架依赖。
+- `scripts/translate.mjs`（#4 / PR #45）：扫描全部 I18nString，缺 en/uk 的走 DeepL（glossary 由 `data/techniques.json` 自动生成），写 `data/translations.lock.json`（`path → {source_hash, status}`）。`status: human` 的永不被机翻覆盖，zh 变了只标 `stale` 提示人工。没有 API key 时不报错、只列缺失数——所以 CI 里能跑。
+- 渲染器补齐（#5 / PR #47）：备料单按 `prep.timing` 分组（没有 timing 的归"早上"），调料归"备在手边"且不显示切配提示；菜单输出成分句（按配料顺序、去调料）和估算克重（`≈`，净重之和）；`readiness(dish)` 返回 `{canTeach, canPlan, canProcure, missing[]}` 并接进 build-data。
+- schema 本轮准许的全部可选字段（#1 / PR #44）：`prep.timing` 枚举、图片对象统一成 `{src, license, author?, sourceUrl?}`、`dish.description`、`menu-plan.meals[].serviceWindow`、`provenance.source` 增加 `example`（构建时排除）。**做完即冻结到 v1.0**——没有新增实体、没有新增必填、没有删字段。
+- types 与 schema 的一致性检查（#2 / PR #49）：选了 (b) 方案——保留手写 `types.ts`，加 `scripts/check-types-vs-schema.mjs` 在 CI 里比对字段名与必填集合。schema 改了而 types 没跟上，CI 必红。
+
+**坏了什么**
+
+- main 上的 CI 从 #1 起一直是红的：`pnpm/action-setup@v4` 的 `version: 9` 与根 `package.json` 的 `packageManager: pnpm@9.15.0` 冲突。9/7 由 #50 修掉，那是这个仓库第一次绿。
+- **绿灯不等于跑过。** `packages/core` 的 `test` 脚本写成 `node --test "test/*.test.mjs"`，Node 20 不展开引号里的 glob——这个包的单测从来没通过自己的 npm 脚本真正跑起来过（`tsc` 有效，断言无效）。9/8 CI 第一次真跑单测才暴露，`1243fa4` 修掉。记在这里当教训：本轮之前所有"测试全绿"的说法，只有手工直接跑过的那些算数。
+- agent 的沙箱构建环境 9/8 全天 `No space left on device`，当天所有改动退化成"读 diff 自证 + 让 CI 说话"，没有本地构建验证。
+
+**没做什么**
+
+- 没有任何界面——四个页面（/prep /purchase /menu /admin）是 v0.2 起。
+- 没有写入通道、没有登录、没有后端数据库（v0.3 起，且只走静态后台 → 云函数 → GitHub API）。
+- `allergens` 只从 ingredient 上可选的 `allergens` 字段读，没有该字段就是空数组；补真实数据是 v0.4 的事。
+- 门 A（确认真实厨房、收集菜贩清单）是 Owner 侧的 #6，未完成——不阻塞 v0.1 的代码收尾，但阻塞 v0.4。
 
 ## [0.0.3] — 2026-09-07 · 设计收尾
 
