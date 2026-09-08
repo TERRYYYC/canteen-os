@@ -37,6 +37,7 @@ const DICT = {
   "page.purchase": { uk: "Закупівля", zh: "采购单", en: "Purchasing" },
   "page.menu": { uk: "Меню", zh: "菜单", en: "Menu" },
   "page.admin": { uk: "Кабінет шефа", zh: "师傅后台", en: "Back office" },
+  "page.qr": { uk: "QR-коди", zh: "二维码", en: "QR codes" },
 
   // 抽屉条目（screens-v2.html .drawer .di：l1 名字 / l2 角色，乌/中双写照稿）
   "drawer.prep": { uk: "Підготовка", zh: "备料单", en: "Prep" },

@@ -14,15 +14,16 @@ import { render as admin } from "./pages/admin";
 import { render as menu } from "./pages/menu";
 import { render as prep } from "./pages/prep";
 import { render as purchase } from "./pages/purchase";
+import { render as qr } from "./pages/qr";
 import { initPwa } from "./pwa";
 import { normalize, onRoute, type Route } from "./router";
 import { mountShell } from "./shell";
 import { applyTheme } from "./theme";
 import type { PageCtx, PageRender } from "./types";
 
-const PAGES: Record<Route, PageRender> = { prep, purchase, menu, admin };
+const PAGES: Record<Route, PageRender> = { prep, purchase, menu, admin, qr };
 /** 顶栏标题键 */
-const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", admin: "page.admin" } as const;
+const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", admin: "page.admin", qr: "page.qr" } as const;
 
 function boot(): void {
   applyTheme();
