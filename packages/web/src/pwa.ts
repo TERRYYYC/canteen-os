@@ -193,7 +193,7 @@ export function initPwa(shell: Shell): PwaHandle {
     : null;
 
   /** 点「点此刷新」：有等待中的 SW → skipWaiting，接管后 workbox-window 会 reload；否则直接 reload（网络上已是新页面）。
-   *  兑底：2 秒内没被接管也强制 reload，不让用户点了没反应。 */
+   *  兜底：2 秒内没被接管也强制 reload，不让用户点了没反应。 */
   function reload(): void {
     if (updateSW && registration?.waiting) {
       void updateSW(true);
