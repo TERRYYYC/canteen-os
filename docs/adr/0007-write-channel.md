@@ -2,7 +2,7 @@
 
 > **English summary.** Phase 1 keeps its hard constraint — no database, no login, no self-hosted server (ADR-0006 §5, execution brief §1.4) — while letting the chef edit through a UI. The write path is: static `/admin` page → a single-file **Cloudflare Worker** → **GitHub Contents/Git Data API** → a commit on `main` → GitHub Actions builds and deploys. Nine rulings: (1) Cloudflare Workers as the platform; (2) writes go **straight to `main`**, not through an auto-merged PR — git history is the audit log, and a structured commit trailer records the role; (3) **writing is not publishing**: write commits carry `[skip ci]` so nothing deploys until the chef presses Publish, which is a `workflow_dispatch` on `build-deploy.yml`; (4) auth is a per-role random token (chef / buyer / admin) delivered in the **URL fragment**, so it never reaches a server log or a `Referer` header — the Worker stores only SHA-256 hashes and rotation is one secret change; (5) the endpoint list, permission matrix and per-field error format; (6) publish progress maps Actions steps onto the four stages the design shows (validate / translate / build / go live); (7) rollback writes a **new** commit restoring `data/` from an old sha — never a force push; (8) three layers keep the Worker inside `data/**` (path allowlist, a credential without `workflows` permission, and a CI guard after the fact); (9) image compression moves to the browser, so the Worker only validates size and magic bytes. Open follow-ups are listed at the end; none of them block starting `packages/worker` (#19).
 
-- Status: Proposed（2026-09-08）—— 完成定义要求 Terry 批准，合并本 PR 即视为批准，届时状态改 Accepted
+- Status: **Accepted**（2026-09-08）—— Owner 当面逐条批准：§9 的图片压缩偏离按本 ADR 走（浏览器 canvas）；§4 的令牌链接形状按前端契约 D-01 修正；§5 补 `POST /dish/:id` 与两个只读端点。
 - Deciders: @TERRYYYC
 - 关联：[ADR-0006](0006-scope-reduction-v2.md) §5（阶段 1 单人编辑、不做编辑 UI —— 本文是它的下一步：有 UI 但仍无后端）、执行简报 §1.4 / §3 v0.3 / §5、设计稿 `docs/design/backoffice-v1.html`
 - 落地 issue：#19（worker）、#20–#25（后台各页）、#26（密钥扫描）、#27（后台接真实 worker）
@@ -58,7 +58,7 @@
 ### 4. 令牌模型：按角色随机串，放在链接的 fragment 里
 
 - 三个角色：`chef` / `buyer` / `admin`。每个角色一个 32 字节随机串（base64url，43 字符），**与人无关**——不存姓名、不存邮箱、不存设备标识，符合「不在 worker 里存任何个人信息」。
-- **令牌走 URL fragment，不走 query**：`https://terryyyc.github.io/canteen-os/admin#t=<token>`。fragment 不会发给任何服务器，因此不会出现在 GitHub Pages 的访问日志、CDN 日志或跳转时的 `Referer` 头里。页面加载后立刻读 `location.hash` → 存 `sessionStorage` → `history.replaceState` 抹掉地址栏里的令牌。
+- **令牌走 URL fragment，不走 query**：`https://terryyyc.github.io/canteen-os/#/admin/t/<token>`。（初稿写的是 `…/admin#t=<token>`，那个形状在当前 hash 路由下会被 `parseHash` 判为非法、弹回 `#/prep`，令牌当场丢失；已按前端契约 D-01 改成路由段形式。）fragment 不会发给任何服务器，因此不会出现在 GitHub Pages 的访问日志、CDN 日志或跳转时的 `Referer` 头里。页面加载后立刻读 `location.hash` → 存 `sessionStorage` → `history.replaceState` 抹掉地址栏里的令牌。
 - 请求时才带上：`Authorization: Bearer <token>`（执行简报 §5）。
 - **worker 只存哈希**：secrets `TOKEN_HASH_CHEF` / `TOKEN_HASH_BUYER` / `TOKEN_HASH_ADMIN` = SHA-256(token) 的十六进制；比较用常数时间比较，避免时序旁路。明文令牌只存在于发给人的那条链接里。
 - **轮换 = 改一个 secret + 重发链接**。没有用户表，所以轮换是一次部署的事，泄露时几十秒内可完成。链接一律用一次性方式发（当面扫码 / 私聊），不进群、不进文档。
@@ -70,12 +70,19 @@
 |---|---|:--:|:--:|:--:|
 | `POST /plan/:planId` | 写 menu-plan → `data/menu-plans/<planId>.json` | ✅ | ❌ | ✅ |
 | `POST /ingredient` | 新建 / 更新 → `data/ingredients/<id>.json` | ✅ | ❌ | ✅ |
-| `POST /dish/:id/draft` | 保存草稿 → `data/dishes/<id>.json`（`status: "draft"`） | ✅ | ❌ | ✅ |
+| `POST /dish/:id/draft` | 保存草稿 → `data/dishes/<id>.json`（无条件写 `status: "draft"`） | ✅ | ❌ | ✅ |
+| `POST /dish/:id` | 新建 / 更新菜品，`status` 由请求体决定（可直接 `active`） | ✅ | ❌ | ✅ |
+| `GET /catalog` | 只读全库索引：菜名 / 食材名 / 技法 / 供应商 | ✅ | ✅ | ✅ |
+| `GET /changes` | 只读未发布改动列表（#25 的发布记录） | ✅ | ✅ | ✅ |
 | `POST /publish` | `workflow_dispatch` 触发 build-deploy，返回 `runId` | ✅ | ❌ | ✅ |
 | `GET /publish/:runId` | 四步进度 | ✅ | ✅ | ✅ |
 | `POST /rollback/:sha` | 把 `data/` 恢复到某次 commit | ❌ | ❌ | ✅ |
 
 buyer 令牌在 v0.3 **不含任何写权限**——采购员只需要打开前台复制微信文本，那条路径根本不经过 worker。保留这个角色是为了让权限矩阵在第二轮加「采购员改包数」时不用改协议。
+
+`POST /dish/:id` 与 `POST /dish/:id/draft` 的区别只在 `status`：后者无条件写 `draft`，前者按请求体给的值写（`active` 或 `draft`）。这样 #24「手动加菜 → 入库 = active」才走得通——否则后台新建的菜永远排不进菜单，v0.3 的完成定义「用后台排一周并发布」当场断掉。代价是少一道二次确认：schema 校验成为唯一闸门，手滑建的菜会直接出现在备菜单上。单人后台场景下这个代价可接受，用的人一多必须重议。
+
+两个 `GET` 只读，worker 直接代理读 `data/**`，不产生任何 commit：后台六屏里有五屏需要全库索引做选择器和查重，而三张单只含被排进计划的内容、`build.json.readiness` 只有 `dishId → 三关卡`，现有产物都提供不了；`GET /changes` 是 #25 发布记录屏的唯一数据来源。两者都不新增实体、不新增必填字段。
 
 返回体固定（执行简报 §5）：
 
@@ -130,7 +137,7 @@ buyer 令牌在 v0.3 **不含任何写权限**——采购员只需要打开前�
 
 理由：Workers 运行时没有图像库，要压缩就得引第三方图片服务或 WASM 编解码器——前者是新的外部依赖与新的密钥，后者会把单文件 worker 撑成几百 KB 的 bundle。手机端 canvas 压缩是成熟做法，且省掉一次大 body 的上传（弱网下这恰恰是体感最差的一段）。
 
-代价：绕过前端直接 POST 大图会被 413 挡掉而不是被压缩；这正是想要的行为。**此项与执行简报冲突，按简报「§1 冻结事项」之外但优先级更高的原则，需要 owner 明确点头；否决则回退为「worker 接第三方图片服务」并另起跟进 issue。**
+代价：绕过前端直接 POST 大图会被 413 挡掉而不是被压缩；这正是想要的行为。**此项与执行简报冲突，按简报优先级更高的原则需要 owner 明确点头 —— Owner 已于 2026-09-08 明确批准按本 ADR 走（浏览器 canvas 压缩）。** 执行简报 §3 v0.3 那句「worker 压缩到 ≤ 200 KB」以本条为准。
 
 ## Consequences
 
@@ -147,8 +154,8 @@ buyer 令牌在 v0.3 **不含任何写权限**——采购员只需要打开前�
   - **令牌不过期**：安全性完全依赖链接不外传 + 泄露后及时轮换。单人场景可接受，人一多必须重议。
   - 多了一个部署目标（Cloudflare），前台与写入通道的可用性不再是同一个。
 - 跟进事项（都不阻塞 #19 开工，除了第 ①）
-  1. `build-deploy.yml` 加 `workflow_dispatch:` 触发器 —— **#19 的前置**，卡在 workflows 权限上（#57）。
-  2. `ci.yml` 加「bot commit 不得越出 `data/`」守卫 job（同样卡 workflows 权限）。
+  1. ~~`build-deploy.yml` 加 `workflow_dispatch:` 触发器~~ —— **已完成**（PR #67，merge commit `ee00a8a`）。连带定死了 runId 的认领办法：dispatch API 返回 204 不带 runId，调用方传 `request_id`，`run-name` 回显成 `publish · <request_id>`，worker 轮询 runs 列表按名字认领。
+  2. `ci.yml` 加「bot commit 不得越出 `data/`」守卫 job —— 待办。App 仍无 workflows 权限，需走网页编辑器提交。
   3. ajv standalone 预编译产物的生成步骤进构建（#19）。
   4. PAT 有效期与轮换步骤写进 `docs/field-test/` 的运维清单（#34）。
   5. 第二轮：PAT → GitHub App 安装令牌；令牌加有效期；buyer 角色的写权限。
