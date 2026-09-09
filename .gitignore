@@ -11,6 +11,9 @@ packages/web/public/data/*
 !packages/web/public/data/.gitkeep
 # PWA 图标 PNG 是 packages/web/scripts/gen-icons.mjs 的产物（prebuild 生成）；SVG 入库
 packages/web/public/icons/*.png
+# packages/worker/scripts/gen-validators.mjs 产物（ajv standalone 预编译校验器）；
+# build / test 前重建，不入库。CI 用 `gen-validators.mjs --check` 抓「schema 改了但产物没重生成」
+packages/worker/generated/
 # packages/web/scripts/gen-qr.mjs 产物（三张单入口二维码 PNG + index.json），build 前重建，不入库
 packages/web/public/qr/*
 !packages/web/public/qr/.gitkeep

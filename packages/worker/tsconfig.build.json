@@ -1,0 +1,14 @@
+{
+  "//": "构建配置：把 worker 源码编译到 dist/，供 node --test 直接 import（测试按仓库惯例是 test/*.test.mjs，不引入 miniflare/vitest）。生产打包由 wrangler 自己做，不走这份配置。",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src"]
+}

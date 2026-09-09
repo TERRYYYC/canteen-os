@@ -59,6 +59,11 @@ jobs:
       - name: packages/core tests
         run: pnpm -C packages/core test
 
+      # worker 的 test 脚本 = gen:validators → tsc -p tsconfig.build.json → node --test（#19）。
+      # generated/ 不入库，每次 CI 现生成，所以这一步同时是 worker 的 typecheck。
+      - name: packages/worker tests
+        run: pnpm -C packages/worker test
+
       - name: scripts tests
         run: node --test scripts/*.test.mjs
 
