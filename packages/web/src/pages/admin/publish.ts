@@ -109,7 +109,7 @@ const T = {
   "pub.log.online": { uk: "Зараз онлайн саме ця версія", zh: "现在线上就是这版", en: "This is what's live now" },
   "pub.log.run": { uk: "збірка #{id}", zh: "构建 #{id}", en: "build #{id}" },
   "pub.rollback": { uk: "Повернутися до цієї версії", zh: "回到这版", en: "Go back to this version" },
-  "pub.rollback.confirm": { uk: "Повернути дані до {sha} (версія від {at})?", zh: "要把数据退回到 {sha}（{at} 那版）吗？", en: "Roll the data back to {sha} (the {at} version)?" },
+  "pub.rollback.confirm": { uk: "Повернути дані до {sha} (版本 від {at})?", zh: "要把数据退回到 {sha}（{at} 那版）吗？", en: "Roll the data back to {sha} (the {at} version)?" },
   "pub.rollback.note": {
     uk: "Повертаються лише дані — онлайн нічого не зміниться саме собою; після цього натисніть «Опублікувати» ще раз.",
     zh: "只退回数据，不会自动上线；退回之后要再点一次「发布」。",
@@ -492,13 +492,18 @@ async function onPublish(): Promise<void> {
   if (!v || publishing || pollActive() || publishOff || !changes || changes.unpublished.length === 0) return;
   publishing = true;
   publishError = null;
+  // 上一次的结果卡 / 绿条先撤掉：这次 publish() 若抛 503，屏上绝不能还留着「上线了」（worker 契约 §5.2）
+  if (poll) finish("terminal");
+  stopTicker();
+  poll = null;
+  rollbackDone = null;
+  paintProgress(v);
+  paintNotices(v);
   const done = busy(v.btn, tt(v.lang, "pub.publishing"));
   const known = new Set<number>();
   for (const rec of changes.publishes) if (rec.runId !== null) known.add(rec.runId);
   try {
     const res = await getApi().publish();
-    if (poll) finish("terminal");
-    stopTicker();
     poll = {
       seq: ++pollSeq,
       runId: res.runId,
@@ -513,7 +518,6 @@ async function onPublish(): Promise<void> {
       transientError: null,
       knownRunIds: known,
     };
-    rollbackDone = null;
     ensureTicker();
     void tick(); // 立即读一次；之后按间隔
   } catch (err) {
@@ -638,7 +642,26 @@ function paintNotices(v: View): void {
 
   if (publishOff) {
     sig.push(`off:${n}`);
-    items.push(notice({ kind: "warn", role: "status", text: tt(lang, "pub.mode.off", { n }) }));
+    // 「重试」只是解开置灰再让师傅点一次发布；权限没开的话 worker 还会 503，回到这条
+    items.push(
+      notice({
+        kind: "warn",
+        role: "status",
+        text: tt(lang, "pub.mode.off", { n }),
+        action: {
+          label: adm("adm.retry", undefined, lang),
+          onClick: () => {
+            publishOff = false;
+            const lv = live();
+            if (lv) {
+              paintNotices(lv);
+              syncButton(lv);
+              lv.btn.focus();
+            }
+          },
+        },
+      }),
+    );
   }
   if (publishError) {
     sig.push(`perr:${publishError}`);
