@@ -74,8 +74,6 @@ const DICT = {
   "data.orders": { uk: "Замовлень постачальникам: {n}", zh: "供应商采购单 {n} 张", en: "Supplier orders: {n}" },
   "data.plan": { uk: "План", zh: "菜单计划", en: "Plan" },
 
-  "admin.placeholder": { uk: "3-й етап / v0.3", zh: "3-й етап / v0.3", en: "3-й етап / v0.3" },
-
   // PWA（#12）：抽屉底部第三态、新版本提示条、离线就绪、iOS 加到主屏幕提示（设计稿 screens-v2.html .foot 文案）
   "foot.offlineCached": { uk: "Офлайн-копія збережена", zh: "已存离线副本", en: "Offline copy saved" },
   "update.available": { uk: "Є нова версія", zh: "有新版本", en: "New version available" },

@@ -1,0 +1,5 @@
+/*
+ * /admin 工作台（#20b 填内容；docs/specs/v03-admin-frontend-contract.md §4.1）。
+ * 每一条选择器都以 .adm-home 开头（§3.4）。
+ */
+.adm-home { display: flex; flex-direction: column; gap: 12px; min-width: 0; }

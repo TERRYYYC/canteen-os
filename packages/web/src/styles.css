@@ -214,3 +214,15 @@ img { max-width: 100%; }
   background: transparent; color: inherit; font-weight: 700; cursor: pointer;
 }
 .ios-hint[hidden] { display: none; }
+
+/* ---------- /admin 共用（v0.3 · #20） ---------- */
+/* 只放 pages/admin.ts（首屏主 chunk）自己画的东西：锁屏、「没找到这一屏」、屏根容器。
+   共用件样式在 pages/admin/admin.css（随动态分包加载），每屏自己的在 pages/admin/<screen>.css；
+   全部选择器以 .adm 开头，后台不定义任何裸类名（prep.css 已占用 .li .num .thumb .step .clip .dish-head .pc .qty .back）。 */
+.adm { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.adm-lock, .adm-notfound { padding: 20px 16px; gap: 10px; }
+.adm-lock h2, .adm-notfound h2 { font-size: 22px; }
+.adm-lock p, .adm-notfound p { margin: 0; }
+.adm-lock:focus { outline: none; }
+.adm-lock:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.adm-notfound .chip, .adm-notfound button.chip { min-height: 44px; padding: 0 16px; text-decoration: none; cursor: pointer; }
