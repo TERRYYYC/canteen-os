@@ -109,7 +109,7 @@ const T = {
   "pub.log.online": { uk: "Зараз онлайн саме ця версія", zh: "现在线上就是这版", en: "This is what's live now" },
   "pub.log.run": { uk: "збірка #{id}", zh: "构建 #{id}", en: "build #{id}" },
   "pub.rollback": { uk: "Повернутися до цієї версії", zh: "回到这版", en: "Go back to this version" },
-  "pub.rollback.confirm": { uk: "Повернути дані до {sha} (版本 від {at})?", zh: "要把数据退回到 {sha}（{at} 那版）吗？", en: "Roll the data back to {sha} (the {at} version)?" },
+  "pub.rollback.confirm": { uk: "Повернути дані до {sha} (версія від {at})?", zh: "要把数据退回到 {sha}（{at} 那版）吗？", en: "Roll the data back to {sha} (the {at} version)?" },
   "pub.rollback.note": {
     uk: "Повертаються лише дані — онлайн нічого не зміниться саме собою; після цього натисніть «Опублікувати» ще раз.",
     zh: "只退回数据，不会自动上线；退回之后要再点一次「发布」。",
