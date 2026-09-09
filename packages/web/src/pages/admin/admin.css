@@ -1,0 +1,90 @@
+/*
+ * /admin 共用件样式（v0.3 · #20；docs/specs/v03-admin-frontend-contract.md §3.4）。
+ * 只放 admin/kit.ts 画出来的东西；每一条选择器都以 .adm- 开头，不定义任何裸类名
+ * （prep.css 已把 .li .num .thumb .step .clip .dish-head .pc .qty .back 泄漏到全局，后台一律不碰）。
+ * 每屏自己的样式放 pages/admin/<screen>.css，选择器以 .adm-<screen> 开头。
+ * 版式细节以 docs/design/backoffice-v1.html 为准；这里只保证：触控目标 ≥ 44px、标黄可见、焦点可见。
+ * 由 admin/kit.ts import，随六屏的动态分包加载，不进首屏。
+ */
+
+/* ---------- 顶栏（页内第一行） ---------- */
+.adm-topbar { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 0 0; }
+.adm-topbar-back {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 12px; flex: none;
+  border: 1px solid var(--line); background: var(--surface); color: inherit;
+  text-decoration: none; font-size: 20px; cursor: pointer;
+}
+.adm-topbar-title { flex: 1; min-width: 0; font-size: 22px; line-height: 1.15; }
+.adm-topbar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+/* ---------- 按钮 ---------- */
+.adm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; min-width: 44px; padding: 0 16px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface); color: inherit;
+  font-weight: 700; font-size: 15px; line-height: 1.2; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
+}
+.adm-btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.adm-btn-ghost { background: transparent; border-color: transparent; }
+.adm-btn:disabled, .adm-btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.adm-busy { opacity: .7; cursor: progress; }
+
+/* ---------- 卡片：空态 / 错误 / 提示条 ---------- */
+.adm-empty { padding: 20px 16px; text-align: center; }
+.adm-empty p { margin: 0; }
+.adm-error { padding: 14px 16px; border-left: 4px solid var(--warn); background: var(--warn-bg); color: var(--warn); }
+.adm-error p { margin: 0; font-weight: 600; }
+.adm-error-actions { margin-top: 10px; display: flex; gap: 8px; }
+.adm-notice {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 14px;
+  background: var(--surface-2); color: var(--ink);
+  font-size: 14px; line-height: 1.35;
+}
+.adm-notice p { margin: 0; flex: 1; min-width: 0; }
+.adm-notice.adm-ok { background: var(--ok-bg); color: var(--ok); }
+.adm-notice.adm-warn { background: var(--warn-bg); color: var(--warn); }
+.adm-notice-action { flex: none; font-weight: 700; color: inherit; min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; }
+
+/* ---------- 表单行 ---------- */
+.adm-field { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; }
+.adm-field-label { font-weight: 700; font-size: 15px; }
+.adm-field-control { display: flex; flex-direction: column; min-width: 0; }
+.adm-field-hint { margin: 0; font-size: 13px; }
+.adm-field-error { margin: 0; font-size: 13px; font-weight: 700; color: var(--warn); }
+.adm-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.adm-stepper-input),
+.adm-field select,
+.adm-field textarea,
+.adm-input {
+  min-height: 44px; padding: 8px 12px; width: 100%;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface); color: inherit; font: inherit;
+}
+.adm-field textarea { min-height: 120px; resize: vertical; }
+.adm-field input[type="checkbox"], .adm-field input[type="radio"] { width: 24px; height: 24px; margin: 10px 0; }
+/* 标黄：worker 的 errors[] 按 JSON Pointer 命中的行（设计稿第 6 屏） */
+.adm-field.adm-invalid { background: var(--warn-bg); border-radius: 12px; padding-left: 10px; padding-right: 10px; margin: 0 -10px; }
+.adm-field.adm-invalid input, .adm-field.adm-invalid select, .adm-field.adm-invalid textarea { border-color: var(--warn); }
+/* 未命中任何行的错误：表单顶部汇总 */
+.adm-form-errors { padding: 12px 16px; border-radius: 14px; background: var(--warn-bg); color: var(--warn); }
+.adm-form-errors-title { margin: 0 0 6px; font-weight: 700; }
+.adm-form-errors-list { margin: 0; padding-left: 18px; font-size: 14px; }
+.adm-form-errors code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+
+/* ---------- ± 步进器 ---------- */
+.adm-stepper { display: inline-flex; align-items: stretch; gap: 6px; }
+.adm-stepper-btn {
+  width: 44px; min-height: 44px; border-radius: 12px; flex: none;
+  border: 1px solid var(--line); background: var(--surface); color: inherit;
+  font-size: 22px; font-weight: 700; line-height: 1; cursor: pointer;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.adm-stepper-btn[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+.adm-stepper-input {
+  width: 5.5ch; min-width: 64px; min-height: 44px; text-align: center;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit;
+  font: inherit; font-weight: 800; font-variant-numeric: tabular-nums;
+}
