@@ -1,0 +1,138 @@
+/*
+ * /admin/dish/new · /admin/dish/<id>（#24；docs/specs/v03-admin-frontend-contract.md §3.4 / §4.5）。
+ * 每一条选择器都以 .adm-dish 开头，不定义任何裸类名（prep.css 已把 .li .num .thumb .step .clip .dish-head .pc .qty .back 泄漏到全局）。
+ * 共用件（.adm-field / .adm-btn / .adm-notice / .adm-stepper / .adm-invalid）的样式在 admin.css；行内内联的食材表单件用 #23 的
+ * ingredient-new.css（随 ingredient-new.ts 一起 import）。这里只放本屏自己的部件：readiness 卡、标签页、三语组、照片区、
+ * 配料 / 步骤的可展开卡（收起时只显示「食材名 · 用量」）、食材搜索结果、内联新食材、sticky 底部双按钮。触控目标 ≥ 44px。
+ */
+
+/* ---------- 骨架 ---------- */
+.adm-dish { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+/* 共用件是 display:flex / inline-flex，UA 的 [hidden] 会被盖掉：本屏凡是 hidden 一律不画（收起的卡、条件行、机翻 chip、离线条、内联表单里的条件行…） */
+.adm-dish [hidden] { display: none !important; }
+.adm-dish-form { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.adm-dish-notices { display: flex; flex-direction: column; gap: 8px; }
+.adm-dish-notices:empty { display: none; }
+.adm-dish-section { padding: 4px 14px; }
+.adm-dish-section > :not(:first-child) { border-top: 1px solid var(--line); }
+.adm-dish-block { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.adm-dish-label { margin: 6px 6px 0; display: flex; align-items: baseline; gap: 6px; }
+.adm-dish-count { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.adm-dish-hint { margin: 8px 0; font-size: 13px; line-height: 1.4; }
+.adm-dish-warn { color: var(--warn); font-weight: 600; }
+.adm-dish-provenance { padding: 8px 0; }
+.adm-dish-notfound { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+.adm-dish-notfound .adm-btn { align-self: flex-start; text-decoration: none; }
+.adm-dish-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.adm-dish-grid2 > .adm-field { min-width: 0; }
+
+/* ---------- 头：标签页 + 状态 chip ---------- */
+.adm-dish-head { display: flex; align-items: center; gap: 10px; }
+.adm-dish-tabs { flex: 1; display: flex; background: var(--surface-2); border-radius: 12px; padding: 3px; }
+.adm-dish-tab {
+  flex: 1; min-height: 44px; padding: 0 10px; border: 0; border-radius: 9px;
+  background: transparent; color: var(--muted); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.adm-dish-tab.adm-dish-on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
+.adm-dish-status { flex: none; font-size: 12px; font-weight: 600; }
+.adm-dish-video { display: flex; flex-direction: column; gap: 8px; padding: 16px; }
+.adm-dish-video p { margin: 0; }
+.adm-dish-video .adm-btn { display: inline-flex; text-decoration: none; }
+
+/* ---------- readiness 三 chip + 还差什么 ---------- */
+.adm-dish-readycard { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
+.adm-dish-ready { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm-dish-ready-chip { font-weight: 700; }
+.adm-dish-missing-title { margin: 0; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.adm-dish-missing-list { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+.adm-dish-missing-none { margin: 0; font-size: 14px; }
+
+/* ---------- 三语组（菜名 / 简介 / 步骤 / 备注） ---------- */
+.adm-dish-tri { min-width: 0; }
+.adm-dish-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 6px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.adm-dish-sub-title { flex: 1; min-width: 0; }
+.adm-dish-chip { font-size: 12px; font-weight: 600; }
+.adm-dish-translate { min-height: 40px; padding: 0 12px; }
+.adm-dish-dup { margin: 0 0 10px; font-size: 13px; line-height: 1.4; color: var(--warn); font-weight: 600; }
+.adm-dish-dup-link { color: var(--accent); }
+
+/* ---------- 成品图 ---------- */
+.adm-dish-photo { display: flex; flex-direction: column; gap: 8px; }
+.adm-dish-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.adm-dish-tile {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 56px; padding: 8px 10px; border: 1px dashed var(--line); border-radius: 12px;
+  background: var(--surface-2); color: var(--ink); font-weight: 600; font-size: 14px; text-align: center; cursor: pointer;
+}
+.adm-dish-tile b { font-size: 18px; color: var(--muted); }
+.adm-dish-file:focus-visible + .adm-dish-photo-view .adm-dish-tile { outline: 2px solid var(--accent); }
+.adm-dish-preview { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; }
+.adm-dish-preview img { flex: none; width: 96px; height: 96px; border-radius: 12px; object-fit: cover; background: var(--surface-2); }
+.adm-dish-preview-sm img { width: 64px; height: 64px; }
+.adm-dish-preview-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.adm-dish-preview-meta p { margin: 0; }
+.adm-dish-preview-meta .adm-btn { align-self: flex-start; }
+
+/* ---------- 配料 / 步骤：可展开卡 ---------- */
+.adm-dish-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.adm-dish-card { padding: 0; overflow: hidden; }
+.adm-dish-card-head { display: flex; align-items: stretch; }
+.adm-dish-card-toggle {
+  flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.adm-dish-card-num {
+  flex: none; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--surface-2); color: var(--muted); font-weight: 700; font-size: 13px;
+}
+.adm-dish-card-summary { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adm-dish-card-caret { flex: none; color: var(--muted); }
+.adm-dish-moves { flex: none; display: flex; border-left: 1px solid var(--line); }
+.adm-dish-move { min-width: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.adm-dish-move + .adm-dish-move { border-left: 1px solid var(--line); }
+.adm-dish-move[disabled] { opacity: .35; }
+.adm-dish-card-body { padding: 4px 14px 10px; border-top: 1px solid var(--line); }
+.adm-dish-card-body > :not(:first-child) { border-top: 1px solid var(--line); }
+.adm-dish-card-body > .adm-dish-grid2 { border-top: 0; }
+.adm-dish-card-actions { display: flex; justify-content: flex-end; padding-top: 10px; }
+.adm-dish-remove { color: var(--warn); }
+.adm-dish-add-row { display: flex; }
+.adm-dish-add { flex: 1; border-style: dashed; }
+
+/* ---------- 「适量」勾选 ---------- */
+.adm-dish-check { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.adm-dish .adm-field input.adm-dish-check-input { flex: none; width: 24px; height: 24px; margin: 10px 0; }
+.adm-dish-check-text { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; }
+
+/* ---------- 食材搜索 ---------- */
+.adm-dish-search { display: flex; flex-direction: column; gap: 6px; }
+.adm-dish-results { display: flex; flex-direction: column; gap: 4px; }
+.adm-dish-result {
+  display: flex; align-items: baseline; gap: 8px; min-height: 44px; padding: 8px 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.adm-dish-result b { font-weight: 600; }
+.adm-dish-result small { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-dish-result-new { border-style: dashed; justify-content: center; }
+.adm-dish-chosen { display: flex; align-items: center; gap: 10px; min-height: 44px; flex-wrap: wrap; }
+.adm-dish-chosen code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.adm-dish-chosen .adm-btn { margin-left: auto; }
+
+/* ---------- 内联新食材（#23 的表单件） ---------- */
+.adm-dish-inline { display: flex; flex-direction: column; gap: 8px; padding: 8px 0 4px; }
+.adm-dish-inline-title { margin: 0 6px; }
+.adm-dish-inline-msg:empty { display: none; }
+.adm-dish-inline-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.adm-dish-pick .adm-ing-card { padding-left: 12px; padding-right: 12px; }
+
+/* ---------- 底部：存草稿 / 入库 ---------- */
+.adm-dish-bottom {
+  position: sticky; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 6px;
+  margin: 4px -4px 0; padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  background: var(--bg); box-shadow: 0 -8px 12px -8px var(--shadow);
+}
+.adm-dish-bottom-hint { margin: 0; font-size: 12px; line-height: 1.4; }
+.adm-dish-bottom-btns { display: flex; gap: 8px; }
+.adm-dish-bottom-btns .adm-btn { flex: 1; }
+.adm-dish-saved { flex-wrap: wrap; }
+.adm-dish-saved p { flex: 1 1 100%; }
