@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "icons": "node scripts/gen-icons.mjs",
     "qr": "node scripts/gen-qr.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@canteenos/core": "workspace:*"
