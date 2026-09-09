@@ -6,7 +6,7 @@
  *
  * 数据（§4.1 表；没有一个数字写死）：
  *   getChanges()              → unpublished.length / lastPublishedAt
- *   getPlan(currentPlanId())  → meals.length；不存在（null）→ 0。currentPlanId = week-<ISO 周号>，算不出退回 ctx.planId（D-06）
+ *   getPlan(currentPlanId())  → meals.length；不存在（null）→ 0。currentPlanId = core 的 planIdOfDate(今天)，算不出退回 ctx.planId（D-06）
  *   getCatalog()              → 草稿菜数（status 缺省视为 draft，core/types.ts）/ 食材数 / 调料缺口（< 20）/ translations.machine
  *
  * 四种态：加载态先画齐入口块、数字位「—」（导航不依赖数字，不做骨架闪烁）；N = 0 → 「都发布了」+ 发布 chip 置灰（条仍可点）；
@@ -23,6 +23,8 @@
  * 文本一律 textContent（dom.ts 的 h()）；样式全部 .adm-home 前缀。
  */
 import "./home.css";
+
+import { planIdOfDate } from "@canteenos/core";
 
 import { adm, apiMessage, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getApi } from "../../api/client";
@@ -129,23 +131,17 @@ window.addEventListener("online", onNet);
 window.addEventListener("offline", onNet);
 
 // ---------------------------------------------------------------------------
-// 周号（D-06：week-<ISO 周号>，worker 契约 §0；算不出退回 ctx.planId）
+// 周号（D-06：换算只有 core 一份 —— planIdOfDate；算不出退回 ctx.planId）
 // ---------------------------------------------------------------------------
 
-/** ISO 8601 周号（周一为一周之始，含 1 月 4 日的那周是第 1 周）；日期无效 → null */
-function isoWeek(d: Date): number | null {
-  if (Number.isNaN(d.getTime())) return null;
-  const u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const day = u.getUTCDay() || 7;
-  u.setUTCDate(u.getUTCDate() + 4 - day);
-  const yearStart = Date.UTC(u.getUTCFullYear(), 0, 1);
-  return Math.ceil(((u.getTime() - yearStart) / 86_400_000 + 1) / 7);
-}
-
-/** 本周的 planId：`week-NN`（两位，与仓库里的 week-41 / week-43 同形）；拿不到就退回 ctx.planId（= build.json.plans[0]） */
+/**
+ * 本周的 planId：core 的 planIdOfDate（`week-<ISO 周号>`，**不补零**：week-5 / week-41，与 data/menu-plans/week-41.json 同形）；
+ * 拿不到就退回 ctx.planId（= build.json.plans[0]）。now 取本地日历日（今天几号以用户所在时区为准），再按 core 的 UTC 规则算周。
+ */
 function currentPlanId(ctx: PageCtx, now: Date = new Date()): string | null {
-  const week = isoWeek(now);
-  return week === null ? ctx.planId : `week-${String(week).padStart(2, "0")}`;
+  if (Number.isNaN(now.getTime())) return ctx.planId;
+  const localDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0, 10);
+  return planIdOfDate(localDay) ?? ctx.planId;
 }
 
 /** 「week-41」→ 41；不是这个形状 → null（子标题里的「第 N 周」只在认得出时显示） */
