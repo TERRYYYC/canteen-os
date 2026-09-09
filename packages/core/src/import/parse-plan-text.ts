@@ -520,12 +520,15 @@ const RE_NUM_THEN_WORD = new RegExp(
 /** 装饰性标点（括号、书名号、引号、感叹号、破折号…）一律当空格；保留 - . / :（日期、时间）与 '（п'ятниця） */
 const RE_NOISE = /[【】[\]()（）《》〈〉<>「」『』"“”‘’!！?？。…—–~～_•·*]+/gu;
 
+/** 分段用的哨兵字符（NUL；正文里不会出现） */
+const SENTINEL = String.fromCharCode(0);
+
 function splitSegments(line: string): string[] {
   return line
     .replace(RE_NOISE, " ")
     .replace(RE_TIME, "$1 ")
-    .replace(RE_NUM_THEN_WORD, "$1 ")
-    .split(/ /)
+    .replace(RE_NUM_THEN_WORD, `$1${SENTINEL}`)
+    .split(SENTINEL)
     .flatMap((part) => part.split(RE_SEG_SPLIT))
     .map(squash)
     .filter(Boolean);
