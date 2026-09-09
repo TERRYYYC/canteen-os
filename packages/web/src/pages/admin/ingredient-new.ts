@@ -392,7 +392,7 @@ export function draftToIngredient(d: IngredientDraft): Ingredient {
 export function slugify(s: string): string {
   return s
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
