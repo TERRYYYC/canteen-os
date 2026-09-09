@@ -12,8 +12,9 @@
  * 推论 A（硬条）：语言切换 = 整页重新 render。本屏所有未提交的输入（工作副本、展开的格、搜索词、视图、日视图的日期……）
  * 都在模块级变量 `state` 里，render 时按 planId 回填；render 只在 planId 变了时才重建 state。
  *
- * 周号（D-06）：planId = `week-<ISO 周号>`；日期 = 今天所在 ISO 年的第 N 周（week-41 → 2026-10-05，与 data/menu-plans/week-41.json 一致）。
- * 仓库里没有共享的周号工具，且 §3.4 规则 0 不许改 kit.ts，所以换算写在本文件里（见 isoWeekOf / mondayOfIsoWeek）。
+ * 周号（D-06）：planId = `week-<ISO 周号>`（不补零；week-41 → 2026-10-05，与 data/menu-plans/week-41.json 一致）。
+ * 换算只有 core 一份：isoWeekOf / weekStartOfPlanId / planIdOfDate 从 @canteenos/core 引；planId 里没有年份，
+ * weekStartOfPlanId 在今天所在 ISO 年的前后各一年里取离今天最近的那个周一（年末排下年第 1 周、年初看上年第 52 周都对）。
  *
  * 分包（§3.6）：本文件由 pages/admin.ts 动态 import，@canteenos/core 的运行时（expand / renderPurchaseOrders / readiness …）
  * 在这里静态 import —— 它只被本屏引用，所以只进本屏的分包，不进首屏。
@@ -26,6 +27,8 @@ import "./plan.css";
 import {
   expand,
   formatAllPurchaseOrdersText,
+  isoWeekOf,
+  planIdOfDate,
   readiness,
   renderPurchaseOrders,
   type Dish,
@@ -39,6 +42,7 @@ import {
   type PurchaseOrder,
   type Quantity,
   type Readiness,
+  weekStartOfPlanId,
 } from "@canteenos/core";
 
 import {
@@ -196,7 +200,7 @@ const WARN_KEY: Partial<Record<string, Key>> = { "dangling-ref": "plan.warn.dang
 const DEFAULT_SERVINGS = 100;
 
 // ---------------------------------------------------------------------------
-// 周号 ↔ 日期（D-06：planId = week-<ISO 周号>，年 = 今天所在的 ISO 年；全部按 UTC 日历算，避免时区把日期挪一天）
+// 周号 ↔ 日期（D-06：换算只有 core 一份，这里只剩 ISO 日期字符串的小工具；全部按 UTC 日历算，避免时区把日期挪一天）
 // ---------------------------------------------------------------------------
 
 const DAY_MS = 86_400_000;
@@ -224,35 +228,14 @@ function todayUtc(): Date {
   return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
 }
 
-function isoWeekOf(d: Date): { year: number; week: number } {
-  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  const day = t.getUTCDay() || 7;
-  t.setUTCDate(t.getUTCDate() + 4 - day); // 挪到本周四：ISO 年 = 周四所在的年
-  const year = t.getUTCFullYear();
-  const jan1 = Date.UTC(year, 0, 1);
-  const week = Math.ceil(((t.getTime() - jan1) / DAY_MS + 1) / 7);
-  return { year, week };
-}
-
-/** ISO 第 week 周的周一（1 月 4 日永远在第 1 周） */
-function mondayOfIsoWeek(year: number, week: number): Date {
-  const jan4 = new Date(Date.UTC(year, 0, 4));
-  const day = jan4.getUTCDay() || 7;
-  const monday1 = jan4.getTime() - (day - 1) * DAY_MS;
-  return new Date(monday1 + (week - 1) * 7 * DAY_MS);
-}
-
+/** 周号 → planId 只是拼字符串（上一周 / 下一周导航、月历格子）；形状（不补零）以 core 的 planIdOfDate 为准 */
 function planIdOfWeek(n: number): string | null {
   return n >= 1 && n <= 53 ? `week-${n}` : null;
 }
 
-/** `#/admin/plan` 不带 planId 时的「当前周」（D-06）；算不出来就退回 ctx.planId */
+/** `#/admin/plan` 不带 planId 时的「当前周」（D-06，core 的 planIdOfDate）；算不出来就退回 ctx.planId */
 function currentPlanId(fallback: string | null): string {
-  try {
-    return planIdOfWeek(isoWeekOf(todayUtc()).week) ?? fallback ?? "week-1";
-  } catch {
-    return fallback ?? "week-1";
-  }
+  return planIdOfDate(isoDate(todayUtc())) ?? fallback ?? "week-1";
 }
 
 interface WeekInfo {
@@ -265,13 +248,17 @@ interface WeekInfo {
 }
 
 function weekInfo(planId: string): WeekInfo {
-  const cur = isoWeekOf(todayUtc());
+  const today = isoDate(todayUtc());
   const m = PLAN_ID_RE.exec(planId);
-  const n = m ? Number(m[1]) : cur.week;
-  const monday = mondayOfIsoWeek(cur.year, n);
+  const cur = isoWeekOf(today);
+  const n = m ? Number(m[1]) : (cur?.week ?? 1);
+  // core：planId 里没有年份，在今天所在 ISO 年前后各一年里取离今天最近的那个周一；算不出（形状不对）就退回今天所在周
+  const mondayIso = weekStartOfPlanId(`week-${n}`, today);
+  const monday = (mondayIso ? parseIso(mondayIso) : null) ?? todayUtc();
+  const year = isoWeekOf(isoDate(monday))?.year ?? cur?.year ?? monday.getUTCFullYear();
   const days: string[] = [];
   for (let i = 0; i < 7; i++) days.push(isoDate(new Date(monday.getTime() + i * DAY_MS)));
-  return { n, year: cur.year, monday, days };
+  return { n, year, monday, days };
 }
 
 /** 10.05 这种短日期 */
@@ -1265,9 +1252,9 @@ function monthView(s: ScreenState): HTMLElement {
   const ids: string[] = [];
   for (let t = gridStart.getTime(); t <= gridEnd.getTime(); t += 7 * DAY_MS) {
     const rowMonday = new Date(t);
-    const wk = isoWeekOf(rowMonday);
+    const wk = isoWeekOf(isoDate(rowMonday));
     // planId 里没有年份：跨年的那几行不去猜别的年的周，只画本 ISO 年的
-    const id = wk.year === s.week.year ? planIdOfWeek(wk.week) : null;
+    const id = wk && wk.year === s.week.year ? planIdOfWeek(wk.week) : null;
     if (id) ids.push(id);
     const plan = id === null ? null : id === s.planId ? s.plan : (s.monthPlans.get(id) ?? null);
     for (let d = 0; d < 7; d++) {

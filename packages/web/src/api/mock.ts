@@ -94,16 +94,27 @@ function writeConfig(cfg: MockConfig): void {
   }
 }
 
+/** 正在消费 failNext 的模块级锁：并行发起的几路请求只让第一个到达延迟点的吃掉它（§6.5 第 6 条：**下一个**请求失败一次） */
+let consumingFailNext = false;
+
 /** 每次调用开头：模拟延迟 + 消费 failNext */
 async function enter(): Promise<void> {
-  const cfg = readConfig();
-  const latency = typeof cfg.latencyMs === "number" && cfg.latencyMs >= 0 ? cfg.latencyMs : 200;
+  const latencyMs = readConfig().latencyMs;
+  const latency = typeof latencyMs === "number" && latencyMs >= 0 ? latencyMs : 200;
   if (latency > 0) await new Promise((r) => setTimeout(r, latency));
-  if (cfg.failNext) {
+  // failNext 的读取与清除放在延迟**之后**：工作台会同时发 getChanges / getPlan / getCatalog，
+  // 若在延迟前就 readConfig()，三路都会看到同一个 failNext 而全部抛错（#20b 报出）。
+  if (consumingFailNext) return;
+  consumingFailNext = true;
+  try {
+    const cfg = readConfig();
+    if (!cfg.failNext) return;
     const f = cfg.failNext;
     delete cfg.failNext;
     writeConfig(cfg);
     throw new ApiError(f.status, f.code, f.message, f.errors, f.retryAfter);
+  } finally {
+    consumingFailNext = false;
   }
 }
 

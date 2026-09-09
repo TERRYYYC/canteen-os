@@ -208,6 +208,8 @@ export function busy(el: HTMLElement, label?: string): () => void {
 // ---------------------------------------------------------------------------
 
 const LABELABLE = "input, select, textarea, button, output, meter, progress";
+/** 控件是外层容器（stepper / 自定义组合）时，id 只落在里面真正接受输入的元素上——不含 button：stepper 的第一个子元素是「−」按钮 */
+const FORM_CONTROL = "input, select, textarea";
 
 export interface FieldRowOpts {
   /** 如 "adm-ing" */
@@ -223,11 +225,13 @@ export interface FieldRowOpts {
 
 /**
  * 一行表单：<label for> + 控件 + 说明 + 错误位。
- * 控件本身不是可标注元素（如 stepper 的外层）时，id 落在它里面第一个 input/select/textarea 上。
+ * 控件本身不是可标注元素（如 stepper 的外层）时，id 落在它里面第一个 input/select/textarea 上；都没有才落在控件本身。
  */
 export function fieldRow(opts: FieldRowOpts): HTMLElement {
   const id = `${opts.idPrefix}-${opts.name}`;
-  const target = opts.control.matches(LABELABLE) ? opts.control : (opts.control.querySelector<HTMLElement>(LABELABLE) ?? opts.control);
+  // 里层查找用 FORM_CONTROL 而不是 LABELABLE：stepper 的 DOM 是 [button −, input, button +]，按 LABELABLE 找会把 id 落在「−」按钮上，
+  // <label for> 随之指向按钮而不是 <input>，读屏器读不对（#23 报出）。
+  const target = opts.control.matches(LABELABLE) ? opts.control : (opts.control.querySelector<HTMLElement>(FORM_CONTROL) ?? opts.control);
   target.id = id;
   const hintId = `${id}-hint`;
   const errId = `${id}-error`;
