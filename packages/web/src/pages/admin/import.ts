@@ -82,7 +82,7 @@ const T = {
   "import.result.title": { uk: "Розпізнано · {n} рядк.", zh: "识别结果 · {n} 行", en: "Recognised · {n} lines" },
   "import.result.from": { uk: "з файлу {f}", zh: "来自 {f}", en: "from {f}" },
   "import.result.ok": { uk: "Розпізнано", zh: "认出来了", en: "Recognised" },
-  "import.result.unknownDish": { uk: "Такої страви немає в базі", zh: "食材库里没有这道菜", en: "This dish isn't in the library" },
+  "import.result.unknownDish": { uk: "Такої страви немає в базі", zh: "菜品库里没有这道菜", en: "This dish isn't in the library" },
   "import.result.draftDish": { uk: "Ця страва ще чернетка, її не можна ставити в меню", zh: "这道菜还是草稿，排不了", en: "This dish is still a draft and can't be planned" },
   "import.result.nextWeek": { uk: "Цей день — наступного тижня", zh: "这天在下周", en: "This day is next week" },
   "import.result.unparsed": { uk: "Цей рядок не розпізнано", zh: "这行认不出来", en: "Couldn't read this line" },
