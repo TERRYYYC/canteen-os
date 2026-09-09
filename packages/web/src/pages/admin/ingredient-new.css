@@ -1,0 +1,103 @@
+/*
+ * /admin/ingredient/new · /admin/ingredient/<id>（#23；docs/specs/v03-admin-frontend-contract.md §3.4 / §4.4）。
+ * 每一条选择器都以 .adm-ing 开头，不定义任何裸类名（prep.css 已把 .li .num .thumb .step .clip .dish-head .pc .qty .back 泄漏到全局）。
+ * 共用件（.adm-field / .adm-btn / .adm-notice / .adm-stepper / .adm-invalid）的样式在 admin.css；这里只放本屏自己的部件：
+ * 分段单选（按什么算）、开关（调料 / 记库存）、照片区、带单位后缀的输入、两列 / 三列网格、sticky 保存条。
+ * 版式照 docs/design/backoffice-v1.html 第 6 屏；触控目标 ≥ 44px。
+ */
+
+/* ---------- 骨架 ---------- */
+.adm-ing { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+/* 共用件是 display:flex / inline-flex，UA 的 [hidden] 会被盖掉：本屏凡是 hidden 一律不画（条件行、机翻 chip、离线条…） */
+.adm-ing [hidden] { display: none !important; }
+.adm-ing-form { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.adm-ing-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.adm-ing-notices { display: flex; flex-direction: column; gap: 8px; }
+.adm-ing-notices:empty { display: none; }
+.adm-ing-card { padding: 4px 14px; }
+.adm-ing-card > :not(:first-child) { border-top: 1px solid var(--line); }
+.adm-ing-label { margin: 6px 6px 0; }
+.adm-ing-hint { margin: 8px 0; font-size: 13px; line-height: 1.4; }
+.adm-ing-warn { color: var(--warn); font-weight: 600; }
+
+/* ---------- 英文 · 乌克兰语（机翻） ---------- */
+.adm-ing-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; font-weight: 700; font-size: 15px; }
+.adm-ing-sub-title { flex: 1; min-width: 0; }
+.adm-ing-chip { font-size: 12px; font-weight: 600; }
+.adm-ing-translate { min-height: 40px; padding: 0 12px; }
+
+/* ---------- 网格 ---------- */
+.adm-ing-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.adm-ing-grid3 { display: grid; grid-template-columns: 1.3fr 1fr 1.3fr; gap: 0 10px; }
+.adm-ing-grid2 > .adm-field, .adm-ing-grid3 > .adm-field { min-width: 0; }
+@media (max-width: 400px) {
+  .adm-ing-grid3 { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- 带单位后缀的输入（一个多少克 / 净料率 %） ---------- */
+.adm-ing-affix { display: flex; align-items: center; gap: 8px; }
+.adm-ing-affix input { flex: 1 1 0; min-width: 0; }
+.adm-ing-affix-unit { flex: none; color: var(--muted); font-weight: 600; font-size: 14px; }
+
+/* ---------- 分段单选：按什么算 ---------- */
+.adm-ing-seg { display: flex; background: var(--surface-2); border-radius: 12px; padding: 3px; }
+.adm-ing-seg-item {
+  flex: 1; position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 6px; border-radius: 9px;
+  color: var(--muted); font-weight: 600; font-size: 14px; text-align: center; cursor: pointer;
+}
+.adm-ing-seg-item.adm-ing-on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
+.adm-ing .adm-field input.adm-ing-seg-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.adm-ing-seg-input:focus-visible + .adm-ing-seg-text { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 4px; }
+
+/* ---------- 开关：调料 · 适量就行 / 耐放 · 记库存 ---------- */
+.adm-ing-switch { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.adm-ing-switch-text { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; }
+.adm-ing .adm-field input.adm-ing-switch-input {
+  appearance: none; -webkit-appearance: none;
+  position: relative; flex: none; width: 50px; height: 30px; margin: 7px 0;
+  border: 0; border-radius: 15px; background: var(--line); cursor: pointer;
+}
+.adm-ing .adm-field input.adm-ing-switch-input::after {
+  content: ""; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: transform .15s ease;
+}
+.adm-ing .adm-field input.adm-ing-switch-input:checked { background: var(--ok); }
+.adm-ing .adm-field input.adm-ing-switch-input:checked::after { transform: translateX(20px); }
+
+/* ---------- 英文短名：撞名提示 ---------- */
+.adm-ing-dup { margin: 4px 0 0; font-size: 13px; font-weight: 600; color: var(--warn); }
+.adm-ing-dup-link { display: inline-flex; align-items: center; min-height: 44px; color: inherit; font-weight: 700; }
+
+/* ---------- 照片 ---------- */
+.adm-ing-photo { display: flex; flex-direction: column; gap: 8px; }
+.adm-ing-photo-view { display: flex; flex-direction: column; gap: 4px; }
+.adm-ing-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.adm-ing-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 64px; padding: 10px 8px;
+  border: 1.5px dashed var(--line); border-radius: 12px; background: var(--surface);
+  color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; text-align: center; white-space: normal; cursor: pointer;
+}
+.adm-ing-tile b { color: var(--ink); font-size: 20px; line-height: 1; }
+.adm-ing-tile[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.adm-ing-tile:focus-within, .adm-ing-tile:focus-visible { outline: 2px solid var(--accent); }
+.adm-ing-preview { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; }
+.adm-ing-preview img { flex: none; width: 88px; height: 88px; border-radius: 12px; object-fit: cover; background: var(--surface-2); }
+.adm-ing-preview-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; }
+.adm-ing-preview-meta p { margin: 0; overflow-wrap: anywhere; }
+.adm-ing-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm-ing-photo-view > .adm-field { border-top: 1px solid var(--line); }
+
+/* ---------- 底部 sticky 保存条 ---------- */
+.adm-ing-bottom {
+  position: sticky; bottom: 0; z-index: 2;
+  display: flex; gap: 10px;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, var(--bg) 30%);
+}
+.adm-ing-bottom .adm-btn { flex: 1; min-height: 52px; font-size: 16px; border-radius: 14px; }
+
+/* ---------- 没找到这个食材 ---------- */
+.adm-ing-notfound { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 20px 16px; }
+.adm-ing-notfound p { margin: 0; }
