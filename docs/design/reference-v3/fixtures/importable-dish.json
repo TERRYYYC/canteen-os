@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "香草鸡肉测试配方",
+    "en": "Herb chicken test recipe",
+    "uk": "Тестовий рецепт курки з травами"
+  },
+  "status": "draft",
+  "baseServings": 2,
+  "components": [
+    { "ingredientRef": "chicken", "qty": { "value": 400, "unit": "g" } },
+    { "ingredientRef": "salt", "qty": { "unit": "to-taste" } }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "text": {
+        "zh": "将鸡肉切成均匀大小。",
+        "en": "Cut the chicken into even pieces.",
+        "uk": "Наріжте курку однаковими шматочками."
+      }
+    }
+  ],
+  "provenance": { "source": "example" }
+}
