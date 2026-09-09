@@ -131,14 +131,14 @@ function generate() {
 
   // 后处理 2：断言。产物里再出现 require / eval / new Function 就说明 ajv 换了行为，
   // 与其产出一份在 Workers 上必然崩的文件，不如现在就红。
-  const leftoverRequire = /require\\(([^)]*)\\)/.exec(code);
+  const leftoverRequire = /require\(([^)]*)\)/.exec(code);
   if (leftoverRequire) {
     throw new Error(
       `ajv standalone 产物里还有未处理的 require: ${leftoverRequire[0]}\n` +
         "（ESM 里没有 require，Workers 上会直接崩）。请在 gen-validators.mjs 里补一条替换规则。",
     );
   }
-  const banned = /\\beval\\s*\\(|new\\s+Function\\s*\\(/.exec(code);
+  const banned = /\beval\s*\(|new\s+Function\s*\(/.exec(code);
   if (banned) {
     throw new Error(
       `ajv standalone 产物里出现了 ${banned[0]} —— Cloudflare Workers 禁止动态求值，产物不可用。`,
