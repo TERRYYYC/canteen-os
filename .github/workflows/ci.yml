@@ -64,6 +64,10 @@ jobs:
       - name: packages/worker tests
         run: pnpm -C packages/worker test
 
+      # web 的 api/client.ts HTTP 客户端单测（#86，假 fetch，node:test）。
+      - name: packages/web tests
+        run: pnpm -C packages/web test
+
       - name: scripts tests
         run: node --test scripts/*.test.mjs
 
