@@ -1,5 +1,61 @@
 /*
- * /admin 工作台（#20b 填内容；docs/specs/v03-admin-frontend-contract.md §4.1）。
- * 每一条选择器都以 .adm-home 开头（§3.4）。
+ * /admin 工作台（#20b；docs/specs/v03-admin-frontend-contract.md §4.1；版式照 docs/design/backoffice-v1.html 第 1 屏的 .stat / .tiles / .tile / .badge）。
+ * 每一条选择器都以 .adm-home 开头（§3.4 / D-14），不定义任何裸类名；只用 tokens.css 的变量。
+ * 触控目标 ≥ 44px：状态条与每个入口块都是 <a>，min-height 44px；焦点样式沿用 tokens.css 的全局 :focus-visible。
  */
 .adm-home { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.adm-home-offline-slot:empty, .adm-home-stat-slot:empty { display: none; }
+
+/* ---------- 顶部状态条（整条可点 → #/admin/publish） ---------- */
+.adm-home-stat {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 12px 14px;
+  color: inherit; text-decoration: none;
+}
+.adm-home-stat-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+.adm-home-stat[data-state="pending"] .adm-home-stat-dot { background: var(--warn); }
+.adm-home-stat[data-state="clean"] .adm-home-stat-dot { background: var(--ok); }
+.adm-home-stat-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.adm-home-stat-main { display: block; font-weight: 700; line-height: 1.25; }
+.adm-home-stat-sub { font-size: 13px; color: var(--muted); }
+.adm-home-stat-sub:empty { display: none; }
+.adm-home-stat-chip { flex: none; min-height: 36px; padding: 0 14px; }
+.adm-home-stat-chip[aria-disabled="true"] { opacity: .5; }
+
+/* ---------- 七个入口块 ---------- */
+.adm-home-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.adm-home-tile {
+  position: relative;
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 108px; padding: 16px 14px 14px;
+  border-radius: 16px; background: var(--surface);
+  color: inherit; text-decoration: none;
+}
+.adm-home-tile-big { grid-column: 1 / -1; background: var(--ink); color: var(--bg); }
+.adm-home-tile-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.adm-home-tile-name { font-weight: 700; font-size: 18px; line-height: 1.15; padding-right: 32px; }
+.adm-home-tile-sub { font-size: 13px; color: var(--muted); }
+.adm-home-tile-sub:empty { display: none; }
+.adm-home-tile-note { font-size: 12px; color: var(--muted); }
+.adm-home-tile-note[hidden] { display: none; }
+.adm-home-tile-warn { color: var(--warn); }
+.adm-home-tile-big .adm-home-tile-sub, .adm-home-tile-big .adm-home-tile-note { color: inherit; opacity: .7; }
+.adm-home-tile-big .adm-home-tile-warn { color: var(--warn); opacity: 1; }
+/* 置灰：0 条草稿 / 翻译待审（本轮没有审阅屏）/ 离线时的写入入口。没有 href 的 <a> 不可点、不进焦点序 */
+.adm-home-tile-off { opacity: .55; cursor: not-allowed; }
+
+/* ---------- 红点 ---------- */
+.adm-home-badge {
+  position: absolute; right: 12px; top: 12px;
+  min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 800; font-size: 13px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.adm-home-badge[hidden] { display: none; }
+.adm-home-tile-off .adm-home-badge { background: var(--muted); color: var(--surface); }
+
+/* 窄屏（< 360px）：两列放不下 18px 的块名时退成一列 */
+@media (max-width: 359px) {
+  .adm-home-tiles { grid-template-columns: 1fr; }
+}
