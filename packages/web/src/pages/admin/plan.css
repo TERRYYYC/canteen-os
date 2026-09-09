@@ -1,0 +1,134 @@
+/*
+ * /admin/plan 排菜单（v0.3 · #21；docs/specs/v03-admin-frontend-contract.md §3.4 / §4.2）。
+ * 每一条选择器都以 .adm-plan 开头，不定义任何裸类名（prep.css 已占用 .li .num .thumb .step .clip .dish-head .pc .qty .back）。
+ * 共用件（.adm-btn .adm-field .adm-stepper …）的样式在 admin.css；这里只做本屏版式，覆盖共用件时提高特异性、不改 admin.css。
+ * 版式照 docs/design/backoffice-v1.html 第 2 屏：按天的列表，不是七列网格；触控目标 ≥ 44px。
+ */
+
+/* ---------- 周导航 / 视图 / 状态行 ---------- */
+.adm-plan-weeknav { display: flex; align-items: center; gap: 8px; }
+.adm-plan-weeknav-title { flex: 1; min-width: 0; text-align: center; font-family: var(--slab); font-weight: 700; font-size: 17px; line-height: 1.2; }
+.adm-plan-weeknav-title small { display: block; font-family: var(--font-ui); font-weight: 400; font-size: 13px; color: var(--muted); }
+.adm-plan-weeknav-btn { padding: 0; width: 44px; font-size: 22px; }
+.adm-plan-view {
+  min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface); color: inherit; font: inherit; font-weight: 700;
+}
+.adm-plan-status { margin: 0; font-size: 13px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-plan-dirty { color: var(--warn); font-weight: 700; }
+.adm-plan-dirty[hidden] { display: none; }
+.adm-plan-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-plan-actions .adm-btn { flex: 1; }
+
+/* ---------- 空周 ---------- */
+.adm-plan-empty { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.adm-plan-empty p { margin: 0; }
+.adm-plan-empty-title { font-weight: 700; font-size: 16px; }
+
+/* ---------- 按天卡片 ---------- */
+.adm-plan-days { padding: 0; overflow: hidden; }
+.adm-plan-day { border-top: 1px solid var(--line); }
+.adm-plan-day:first-child { border-top: 0; }
+.adm-plan-day-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 4px; }
+.adm-plan-day-head b { font-weight: 700; font-size: 16px; }
+.adm-plan-day-head span { font-size: 13px; color: var(--muted); }
+.adm-plan-today .adm-plan-day-head b { color: var(--accent); }
+.adm-plan-slot { display: flex; gap: 10px; padding: 4px 14px 8px; }
+.adm-plan-slot-label {
+  width: 28px; height: 28px; border-radius: 8px; flex: none; margin-top: 8px;
+  background: var(--surface-2); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.adm-plan-slot-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* 一格 = 一个 .adm-field（data-pointer=/meals/N，applyFieldErrors 的父指针回退靠它）；压掉 admin.css 的行间距 */
+.adm-plan .adm-plan-entry.adm-field { padding: 0; gap: 0; margin: 0; }
+.adm-plan .adm-plan-entry.adm-field.adm-invalid { padding: 0 6px; margin: 0 -6px; }
+.adm-plan-entry-head {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 4px 6px; margin: 0 -6px;
+  border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.adm-plan-entry-head:hover { background: var(--surface-2); }
+.adm-plan-open > .adm-plan-entry-head { background: var(--warn-bg); }
+.adm-plan-dayview .adm-plan-entry-head { cursor: default; }
+.adm-plan-entry-name { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; line-height: 1.25; }
+.adm-plan-entry-name small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.adm-plan-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+.adm-plan-chips .chip { padding: 1px 7px; font-size: 11px; line-height: 1.5; min-height: 0; }
+.adm-plan-sv { flex: none; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.adm-plan-sv small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+.adm-plan-add {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: transparent;
+  color: var(--accent); font: inherit; font-weight: 600; cursor: pointer;
+}
+.adm-plan-add:disabled { opacity: .5; cursor: not-allowed; }
+.adm-plan-nodish { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* 展开面板 */
+.adm-plan-panel { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 10px; }
+.adm-plan-panel .adm-field { padding: 4px 0; }
+.adm-plan-hint { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.adm-plan-hint b { color: var(--ink); font-weight: 600; }
+.adm-plan-entry-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* 选菜 */
+.adm-plan-picker { display: flex; flex-direction: column; gap: 6px; }
+.adm-plan-picker-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 340px; overflow: auto; }
+.adm-plan-dish {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.adm-plan-dish:disabled { opacity: .5; cursor: not-allowed; }
+.adm-plan-dish[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.adm-plan-nomatch { margin: 0; padding: 8px 0; font-size: 13px; }
+
+/* ---------- 日视图：大号步进器 ---------- */
+.adm-plan-daynav { display: flex; align-items: center; gap: 8px; }
+.adm-plan-daynav-title { flex: 1; min-width: 0; text-align: center; font-weight: 700; font-size: 16px; }
+.adm-plan-daynav-title small { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+.adm-plan-dayview .adm-plan-sv { font-size: 24px; }
+.adm-plan-dayview .adm-stepper { gap: 10px; }
+.adm-plan-dayview .adm-stepper-btn { width: 60px; min-height: 60px; font-size: 28px; }
+.adm-plan-dayview .adm-stepper-input { min-width: 96px; min-height: 60px; font-size: 26px; }
+
+/* ---------- 月视图：只读日历 ---------- */
+.adm-plan-month { padding: 12px; }
+.adm-plan-month-title { margin: 0 0 8px; font-size: 16px; font-weight: 700; text-align: center; }
+.adm-plan-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.adm-plan-month-dow { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding-bottom: 2px; }
+.adm-plan-month-cell {
+  min-height: 52px; border-radius: 10px; padding: 4px 6px; background: var(--surface-2);
+  font-size: 13px; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.adm-plan-month-cell b { font-weight: 700; }
+.adm-plan-month-cell span { font-size: 11px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-plan-month-out { opacity: .35; }
+.adm-plan-month-has { background: var(--ok-bg); color: var(--ok); }
+.adm-plan-month-cur { outline: 2px solid var(--accent); outline-offset: -2px; }
+.adm-plan-month-note { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+
+/* ---------- 采购单预览 ---------- */
+.adm-plan-preview { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.adm-plan-preview:focus { outline: none; }
+.adm-plan-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.adm-plan-preview h3 { margin: 0; font-size: 17px; }
+.adm-plan-preview h4 { margin: 6px 0 0; font-size: 15px; }
+.adm-plan-preview p { margin: 0; }
+.adm-plan-preview table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-plan-preview th, .adm-plan-preview td { padding: 6px 4px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+.adm-plan-preview th { border-top: 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+.adm-plan-preview .adm-plan-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.adm-plan-preview tfoot td { font-weight: 700; }
+.adm-plan-preview-failed { font-weight: 700; color: var(--warn); }
+.adm-plan-preview-issues { margin: 0; padding-left: 18px; font-size: 13px; color: var(--warn); }
+.adm-plan-preview details { font-size: 13px; }
+.adm-plan-preview summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+.adm-plan-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; }
+.adm-plan-preview-notes { font-size: 13px; color: var(--warn); }
+
+/* ---------- 底部主操作（吸底） ---------- */
+.adm-plan-bottom {
+  position: sticky; bottom: 0; z-index: 1; display: flex; gap: 8px;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--bg);
+}
+.adm-plan-bottom .adm-btn { flex: 1; }
