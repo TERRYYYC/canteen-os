@@ -45,7 +45,7 @@
 .adm-plan .adm-plan-entry.adm-field { padding: 0; gap: 0; margin: 0; }
 .adm-plan .adm-plan-entry.adm-field.adm-invalid { padding: 0 6px; margin: 0 -6px; }
 .adm-plan-entry-head {
-  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 4px 6px; margin: 0 -6px;
+  display: flex; align-items: center; gap: 10px; width: calc(100% + 12px); min-height: 44px; padding: 4px 6px; margin: 0 -6px;
   border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
 .adm-plan-entry-head:hover { background: var(--surface-2); }

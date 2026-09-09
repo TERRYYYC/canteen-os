@@ -55,7 +55,7 @@ import {
   stepper,
   topBar,
 } from "../../admin/kit";
-import { clearDraftPlan, getDraftPlan, getDraftSource, setDraftPlan, undoDraftPlan } from "../../admin/store";
+import { clearDraftPlan, getDraftPlan, getDraftSource, setDraftPlan, undoDraftPlan, type DraftSource } from "../../admin/store";
 import { getApi } from "../../api/client";
 import { isApiError, type Catalog, type FieldError } from "../../api/types";
 import { h, replace } from "../../dom";
@@ -177,7 +177,7 @@ const T = {
 
 type Key = keyof typeof T;
 
-/** 当前语言：render 时从 ctx.lang 取；异步回调里的 paint() 也用它（语言切换后新 render 会先更新它） */
+/** 当前语言：render 时从 ctx.lang 取；异步回调里的 paint() 也用它（语言切换后新 render 会先更新它）。kit 的 adm() 一律显式传它，不依赖 i18n 模块内部状态 */
 let lang: Lang = "uk";
 
 function tt(key: Key, params?: Record<string, string | number>): string {
@@ -285,17 +285,19 @@ function fmtMd(iso: string): string {
 
 type View = "day" | "week" | "month";
 
+/** 顶部横幅。文案是 thunk：paint 时才按当前语言取值，切语言后横幅也跟着换语言（推论 A） */
 interface Banner {
   kind: "ok" | "warn" | "info";
-  text: string;
+  text: () => string;
   /** 右侧链接（已存好 → 去发布） */
-  action?: { label: string; href: string };
+  action?: { label: () => string; href: string };
   /** 右侧「撤销」（复制上周 / 导入草稿） */
   undo?: boolean;
 }
 
 interface ErrorBox {
-  text: string;
+  /** thunk：worker 的 message 原样；非 ApiError 时是本地文案，按当前语言取 */
+  text: () => string;
   /** 409：给「重新读取」 */
   reload?: boolean;
   /** 其它：给「重试」 */
@@ -412,6 +414,13 @@ function freshState(planId: string): ScreenState {
   };
 }
 
+/** 草稿来源 → 顶部黄条（可撤销）：已导入 N 行 / 已复制上周 N 餐 / 有改动还没保存 */
+function draftBanner(source: DraftSource | null, n: number): Banner {
+  if (source === "import") return { kind: "warn", text: () => tt("plan.imported", { n }), undo: true };
+  if (source === "copy-last-week") return { kind: "warn", text: () => tt("plan.copied", { n }), undo: true };
+  return { kind: "warn", text: () => tt("plan.unsaved"), undo: true };
+}
+
 /** store 里的草稿优先于服务端内容（§4.2 数据来源）；同一份只采纳一次，之后屏内的改动不会被它覆盖 */
 function adoptDraft(s: ScreenState): void {
   const draft = getDraftPlan(s.planId);
@@ -428,12 +437,7 @@ function adoptDraft(s: ScreenState): void {
   s.picking = false;
   s.preview = null;
   const source = getDraftSource(s.planId);
-  s.banner =
-    source === "import"
-      ? { kind: "warn", text: tt("plan.imported", { n: draft.meals.length }), undo: true }
-      : source === "copy-last-week"
-        ? { kind: "warn", text: tt("plan.copied", { n: draft.meals.length }), undo: true }
-        : { kind: "warn", text: tt("plan.unsaved"), undo: true };
+  s.banner = draftBanner(source, draft.meals.length);
 }
 
 function markDirty(s: ScreenState): void {
@@ -591,7 +595,7 @@ async function reload(s: ScreenState): Promise<void> {
   s.picking = false;
   s.preview = null;
   s.warnings = [];
-  s.banner = { kind: "info", text: tt("plan.reloaded") };
+  s.banner = { kind: "info", text: () => tt("plan.reloaded") };
   paint();
   await load(s);
 }
@@ -604,7 +608,7 @@ async function reload(s: ScreenState): Promise<void> {
 function leave(href: string): void {
   const s = state;
   if (s?.dirty) {
-    if (!window.confirm(adm("adm.leave.confirm"))) return;
+    if (!window.confirm(adm("adm.leave.confirm", undefined, lang))) return;
     state = null;
   }
   location.hash = href;
@@ -656,7 +660,7 @@ function copyLastWeek(): void {
   s.open = null;
   s.picking = false;
   markDirty(s);
-  s.banner = { kind: "warn", text: tt("plan.copied", { n: meals.length }), undo: true };
+  s.banner = draftBanner("copy-last-week", meals.length);
   paint();
 }
 
@@ -674,13 +678,7 @@ function undo(): void {
     s.plan = d;
     s.draftJson = JSON.stringify(d);
     s.dirty = true;
-    const source = getDraftSource(s.planId);
-    s.banner =
-      source === "import"
-        ? { kind: "warn", text: tt("plan.imported", { n: d.meals.length }), undo: true }
-        : source === "copy-last-week"
-          ? { kind: "warn", text: tt("plan.copied", { n: d.meals.length }), undo: true }
-          : { kind: "warn", text: tt("plan.unsaved"), undo: true };
+    s.banner = draftBanner(getDraftSource(s.planId), d.meals.length);
   } else {
     s.plan = s.stash ? s.stash.plan : emptyPlan(s.week);
     s.dirty = s.stash ? s.stash.dirty : false;
@@ -779,7 +777,7 @@ async function save(btn: HTMLButtonElement | null): Promise<void> {
   s.error = null;
   s.fieldErrors = null;
   if (s.plan.meals.length === 0) {
-    s.banner = { kind: "warn", text: tt("plan.err.emptyWeek") };
+    s.banner = { kind: "warn", text: () => tt("plan.err.emptyWeek") };
     paint();
     return;
   }
@@ -792,7 +790,7 @@ async function save(btn: HTMLButtonElement | null): Promise<void> {
   }
   const body = toSavePlan(s);
   s.saving = true;
-  const done = btn ? busy(btn, adm("adm.saving")) : (): void => undefined;
+  const done = btn ? busy(btn, adm("adm.saving", undefined, lang)) : (): void => undefined;
   try {
     const res = await getApi().savePlan(s.planId, body, s.blobSha ? { ifMatch: s.blobSha } : undefined);
     if (state !== s) return;
@@ -804,10 +802,11 @@ async function save(btn: HTMLButtonElement | null): Promise<void> {
     s.draftAdopted = false;
     s.stash = null;
     s.warnings = res.warnings.filter((w) => w !== "no-if-match");
+    const unchanged = res.unchanged;
     s.banner = {
       kind: "ok",
-      text: res.unchanged ? adm("adm.saved.unchanged") : adm("adm.saved"),
-      action: { label: adm("adm.saved.goPublish"), href: adminHref("publish") },
+      text: () => (unchanged ? adm("adm.saved.unchanged", undefined, lang) : adm("adm.saved", undefined, lang)),
+      action: { label: () => adm("adm.saved.goPublish", undefined, lang), href: adminHref("publish") },
     };
   } catch (err) {
     if (state !== s) return;
@@ -821,9 +820,10 @@ async function save(btn: HTMLButtonElement | null): Promise<void> {
       s.fieldErrors = err.errors;
       openFirstError(s, err.errors);
     } else if (isApiError(err) && err.status === 409) {
-      s.error = { text: err.message || tt("plan.conflict"), reload: true };
+      const msg = err.message;
+      s.error = { text: () => msg || tt("plan.conflict"), reload: true };
     } else {
-      s.error = { text: apiMessage(err, lang), retry: () => void save(null) };
+      s.error = { text: () => apiMessage(err, lang), retry: () => void save(null) };
     }
   } finally {
     done();
@@ -927,7 +927,7 @@ function statusLine(s: ScreenState): HTMLElement {
   return h(
     "p",
     { class: "adm-plan-status", "aria-live": "polite" },
-    h("span", {}, s.loaded ? tt("plan.planned", { n: s.plan.meals.length }) : adm("adm.loading")),
+    h("span", {}, s.loaded ? tt("plan.planned", { n: s.plan.meals.length }) : adm("adm.loading", undefined, lang)),
     h("span", { class: "adm-plan-dirty", hidden: s.dirty ? null : true }, tt("plan.unsaved")),
     outside > 0 ? h("span", {}, tt("plan.outside", { n: outside })) : null,
   );
@@ -936,7 +936,7 @@ function statusLine(s: ScreenState): HTMLElement {
 function errorBox(s: ScreenState): HTMLElement {
   const e = s.error;
   if (!e) return h("div");
-  const card = errorCard(e.text, e.retry);
+  const card = errorCard(e.text(), e.retry);
   if (e.reload) card.append(h("div", { class: "adm-error-actions" }, button({ label: tt("plan.reload"), onClick: () => void reload(s) })));
   return card;
 }
@@ -944,7 +944,8 @@ function errorBox(s: ScreenState): HTMLElement {
 function bannerEl(s: ScreenState): HTMLElement {
   const b = s.banner;
   if (!b) return h("div");
-  return notice({ kind: b.kind, text: b.text, action: b.undo ? { label: adm("adm.undo"), onClick: undo } : b.action });
+  const action = b.undo ? { label: adm("adm.undo", undefined, lang), onClick: undo } : b.action ? { label: b.action.label(), href: b.action.href } : undefined;
+  return notice({ kind: b.kind, text: b.text(), action });
 }
 
 function warningsEl(s: ScreenState): HTMLElement {
@@ -960,7 +961,7 @@ function actionRow(s: ScreenState): HTMLElement {
   const copy = s.lastWeek ? button({ label: tt("plan.copyLastWeek"), onClick: copyLastWeek }) : null;
   const imp = h("a", { class: "adm-btn", href: adminHref("plan", s.planId, "import") }, tt("plan.import"));
   imp.addEventListener("click", (ev) => {
-    if (s.dirty && !window.confirm(adm("adm.leave.confirm"))) ev.preventDefault();
+    if (s.dirty && !window.confirm(adm("adm.leave.confirm", undefined, lang))) ev.preventDefault();
   });
   return h("div", { class: "adm-plan-actions" }, copy, imp);
 }
@@ -1158,7 +1159,7 @@ interface PickItem {
 function pickerEl(s: ScreenState, key: string, index: number | null, date: string, mealType: MealType): HTMLElement {
   const wrap = h("div", { class: "adm-plan-picker" });
   const cancel = button({
-    label: adm("adm.cancel"),
+    label: adm("adm.cancel", undefined, lang),
     kind: "ghost",
     onClick: () => {
       if (index === null) s.open = null;
@@ -1396,6 +1397,6 @@ function bottomBar(s: ScreenState): HTMLElement {
     onClick: (ev) => void save(ev.currentTarget instanceof HTMLButtonElement ? ev.currentTarget : null),
   });
   saveBtn.dataset.key = "save";
-  if (s.saving) busy(saveBtn, adm("adm.saving"));
+  if (s.saving) busy(saveBtn, adm("adm.saving", undefined, lang));
   return h("div", { class: "adm-plan-bottom" }, preview, saveBtn);
 }
