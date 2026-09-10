@@ -10,3 +10,4 @@ export * from "./render/prep.js";
 export * from "./render/menu.js";
 export * from "./import/parse-plan-text.js";
 export * from "./formats.js";
+export * from "./team-meals.js";
