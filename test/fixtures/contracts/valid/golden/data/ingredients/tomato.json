@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄",
+    "en": "Tomato",
+    "uk": "Помідор"
+  },
+  "externalId": "Q23501",
+  "baseUnit": "g",
+  "role": "main",
+  "pcsToGram": 180,
+  "yield": 0.85,
+  "purchase": {
+    "supplier": "绿源农产品配送",
+    "packSize": 5,
+    "packUnit": "kg",
+    "minPacks": 2,
+    "lastPrice": { "amount": 28.5, "currency": "CNY" }
+  },
+  "trackStock": false
+}

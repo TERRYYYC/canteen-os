@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "未录成分样本",
+    "en": "No components recorded",
+    "uk": "Інгредієнти не записані"
+  },
+  "status": "draft",
+  "provenance": {
+    "source": "example"
+  }
+}

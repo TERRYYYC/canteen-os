@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "白糖",
+    "en": "Sugar",
+    "uk": "Цукор"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "trackStock": false
+}
