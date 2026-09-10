@@ -28,8 +28,12 @@ check/buy/available, bought and nonrecursive previous shapes. Negative samples
 keep 0/null/missing quantity value, steps.n, bought on non-buy, invalid revision,
 repeated selection, invalid previous and persisted names distinct.
 
-`semantic/duplicate-ingredient.json` passes shape validation and still awaits
-semantic admission's rejection for repeated ingredientRef. A passing schema does not
+At the frozen A1 checkpoint, `semantic/duplicate-ingredient.json` passed shape
+validation and awaited semantic rejection. The subsequent A2-S03 check now calls
+reviewed core `reconcileShoppingList` and observes `invalid_selection`; HTTP
+admission still awaits Worker verification. The manifest's semantic fields are
+the preserved A1-stage record; the newer pure-core scope is recorded separately
+in `../semantic-expectations.json` and `a2-semantic-evidence.md`. A passing schema does not
 validate candidate-set equality, path ID, ancestry, historical previous state
 or revision availability.
 

@@ -1,0 +1,31 @@
+{
+  "manifestVersion": 1,
+  "inputCommit": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+  "coreCommit": "ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2",
+  "fixedAt": "2026-09-10T00:00:00.000Z",
+  "scope": "Pure core with explicit local input objects; no Git history, Worker admission, asset bytes or real save verified.",
+  "revisionTokens": {
+    "a": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "b": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "c": "ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2"
+  },
+  "revisionCaveat": "These existing SHAs are format tokens only. The explicitly injected fixture objects are not their production data trees; no test asserts Git reachability, ancestry or authentic historical previous state.",
+  "cases": [
+    {"id": "A2-S01", "purpose": "All six original component addresses, same-name IDs, unknown fields and repeated-source multiplicity"},
+    {"id": "A2-S02", "purpose": "Missing plan/dish/ingredient/technique versus unrecorded components and known empty range"},
+    {"id": "A2-S03", "purpose": "Schema-accepted duplicate, omitted and extra stored candidates rejected by formal reconcile"},
+    {"id": "A2-S04", "purpose": "Create and manual decisions, changed quantity, same-basis recomputation, presentation-only rebase and explicit check"},
+    {"id": "A2-S05", "purpose": "Expanded empty scope, repeated review, cancelled plan and re-added candidates"},
+    {"id": "A2-S06", "purpose": "All three independent numerical oracles through the formal estimate adapter; covered stock does not remove candidates"},
+    {"id": "A2-S07", "purpose": "Mixed known/unknown quantities and opaque recipes cannot yield partial totals"},
+    {"id": "A2-S08", "purpose": "Original clip/provenance/Quantity/ImageRef JSON survives pure projection; bytes and history remain unverified"}
+  ],
+  "baseCandidateIds": ["cooking-oil", "salt", "tomato", "tomato-other"],
+  "sourceAddresses": {
+    "cooking-oil": [["first-dish", 0, 2]],
+    "salt": [["first-dish", 0, 1], ["second-dish", 1, 1]],
+    "tomato": [["first-dish", 0, 0], ["second-dish", 1, 0]],
+    "tomato-other": [["second-dish", 1, 2]]
+  },
+  "repeatedSourceCounts": {"cooking-oil": 2, "salt": 5, "tomato": 3, "tomato-other": 1}
+}
