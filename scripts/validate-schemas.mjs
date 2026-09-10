@@ -1,90 +1,88 @@
 #!/usr/bin/env node
-/**
- * CanteenOS schema 一致性校验（CI 入口）。
- * 用法: node scripts/validate-schemas.mjs
- * 逻辑: 遍历 data/ 知识库（ADR-0006 起取代 examples/——目录即知识库，一实体一文件、
- *       文件名即 ID），按下表映射到 schemas/*.schema.json，用 ajv（draft 2020-12）+
- *       ajv-formats 校验；任一失败即退出码 1。
- *       跨文件引用检查（techniqueRef 闭集等）在 scripts/local-validate.py 中。
+/** Formal Ajv 2020 validation, shared by the CLI and fixture consumers.
+ * Importing this module performs no validation, logging, or process exit.
+ * CLI: node scripts/validate-schemas.mjs [--root dir] [--data-dir dir] [--schema-dir dir]
+ * Cross-file references/assets remain separate checks; valid here means format only.
  */
-import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { join, dirname, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { readFileSync, readdirSync, existsSync, realpathSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SCHEMA_DIR = join(ROOT, "schemas");
-const DATA_DIR = join(ROOT, "data");
-
-/** 数据路径 → schema 文件名（新增实体时在此登记）。dir 校验目录下全部 .json；file 校验单文件。 */
-const DATA_TARGETS = [
-  { path: "ingredients", schema: "ingredient.schema.json", kind: "dir" },
-  { path: "dishes", schema: "dish.schema.json", kind: "dir" },
-  { path: "menu-plans", schema: "menu-plan.schema.json", kind: "dir" },
-  { path: "purchase-orders", schema: "purchase-order.schema.json", kind: "dir" },
-  { path: "techniques.json", schema: "techniques.schema.json", kind: "file" },
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const TARGETS = [
+  {path:'ingredients', kind:'ingredient', dir:true},
+  {path:'dishes', kind:'dish', dir:true},
+  {path:'menu-plans', kind:'plan', dir:true},
+  {path:'purchase-orders', kind:'purchase-order', dir:true},
+  {path:'techniques.json', kind:'techniques', dir:false},
 ];
+const SCHEMAS = {ingredient:'ingredient.schema.json',dish:'dish.schema.json',plan:'menu-plan.schema.json',
+  'purchase-order':'purchase-order.schema.json',techniques:'techniques.schema.json'};
+const error = (keyword,message,params={}) => ({instancePath:'',keyword,message,params});
 
-const ajv = new Ajv2020({ allErrors: true, strict: false });
-addFormats(ajv);
-
-// 预加载全部 schema，使跨文件 $ref（如 common.schema.json#/$defs/Id）可解析
-for (const file of readdirSync(SCHEMA_DIR).filter((f) => f.endsWith(".schema.json"))) {
-  const schema = JSON.parse(readFileSync(join(SCHEMA_DIR, file), "utf8"));
-  ajv.addSchema(schema, file);
+export function createSchemaValidators({schemaDir=path.join(ROOT,'schemas')}={}) {
+  const ajv = new Ajv2020({allErrors:true,strict:false});
+  addFormats(ajv);
+  for (const file of readdirSync(schemaDir).filter(f=>f.endsWith('.schema.json')).sort()) {
+    ajv.addSchema(JSON.parse(readFileSync(path.join(schemaDir,file),'utf8')),file);
+  }
+  return {
+    validateEntity(kind,value) {
+      const schema = Object.hasOwn(SCHEMAS,kind) ? SCHEMAS[kind] : null;
+      if (!schema) return {valid:false,schema:null,errors:[error('kind','unknown entity kind',{kind})]};
+      const validate = ajv.getSchema(schema);
+      if (!validate) throw new Error(`schema 未注册成功: ${schema}`);
+      const valid = validate(value);
+      return {valid,schema,errors:valid ? [] : structuredClone(validate.errors ?? [])};
+    },
+  };
 }
 
-// addSchema(schema, file) 已同时按文件 key 与 schema 内 $id 注册；
-// 此处必须复用已注册的 schema（getSchema），若再 compile 同一份 JSON
-// 会因重复注册同一 $id 抛 "schema with key or id already exists"。
-const validators = new Map();
-for (const { schema } of DATA_TARGETS) {
-  const validate = ajv.getSchema(schema);
-  if (!validate) {
-    console.error(`ERROR: schema 未注册成功: ${schema}`);
-    process.exit(1);
-  }
-  validators.set(schema, validate);
-}
-
-let passed = 0;
-let failed = 0;
-let total = 0;
-
-for (const { path, schema, kind } of DATA_TARGETS) {
-  const abs = join(DATA_DIR, path);
-  const files =
-    kind === "dir"
-      ? existsSync(abs)
-        ? readdirSync(abs)
-            .filter((f) => f.endsWith(".json"))
-            .sort()
-            .map((f) => join(abs, f))
-        : []
-      : [abs];
-  if (kind === "file" && !existsSync(abs)) {
-    console.error(`FAIL  ${path}: 文件缺失`);
-    failed++;
-    continue;
-  }
-  for (const file of files) {
-    total++;
-    const label = relative(ROOT, file);
-    const validate = validators.get(schema);
-    const data = JSON.parse(readFileSync(file, "utf8"));
-    if (validate(data)) {
-      console.log(`PASS  ${label}  ✓ ${schema}`);
-      passed++;
-    } else {
-      console.error(`FAIL  ${label}  ✗ ${schema}`);
-      for (const err of validate.errors ?? []) {
-        console.error(`      ${err.instancePath || "(root)"} ${err.message}`);
+export function validateData({root=ROOT,dataDir=path.join(root,'data'),schemaDir=path.join(root,'schemas')}={}) {
+  const {validateEntity} = createSchemaValidators({schemaDir});
+  const results = [];
+  for (const target of TARGETS) {
+    const location = path.resolve(dataDir,target.path);
+    const files = target.dir ? (existsSync(location)
+      ? readdirSync(location).filter(f=>f.endsWith('.json')).sort().map(f=>path.join(location,f)) : []) : [location];
+    for (const file of files) {
+      if (!existsSync(file)) {
+        results.push({file,schema:SCHEMAS[target.kind],valid:false,errors:[error('missing','文件缺失')]});
+        continue;
       }
-      failed++;
+      let value;
+      try { value = JSON.parse(readFileSync(file,'utf8')); }
+      catch { results.push({file,schema:SCHEMAS[target.kind],valid:false,errors:[error('parse','文件不是合法 JSON')]}); continue; }
+      results.push({file,...validateEntity(target.kind,value)});
     }
   }
+  const passed = results.filter(r=>r.valid).length;
+  return {passed,failed:results.length-passed,total:results.length,results};
 }
 
-console.log(`\n${passed} passed, ${failed} failed, ${total} total`);
-process.exit(failed === 0 ? 0 : 1);
+export function main(argv=process.argv.slice(2)) {
+  const options = {};
+  for (let i=0;i<argv.length;i++) {
+    const key = {'--root':'root','--data-dir':'dataDir','--schema-dir':'schemaDir'}[argv[i]];
+    if (!key || !argv[i+1] || argv[i+1].startsWith('--')) throw new Error(`未知参数或缺少值: ${argv[i]}`);
+    options[key] = path.resolve(argv[++i]);
+  }
+  const report = validateData(options);
+  for (const r of report.results) {
+    const label = path.relative(options.root ?? ROOT,r.file);
+    if (r.valid) console.log(`PASS  ${label}  ✓ ${r.schema}`);
+    else {
+      console.error(`FAIL  ${label}  ✗ ${r.schema}`);
+      for (const e of r.errors) console.error(`      ${e.instancePath || '(root)'} ${e.message}`);
+    }
+  }
+  console.log(`\n${report.passed} passed, ${report.failed} failed, ${report.total} total`);
+  return report.failed ? 1 : 0;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+  try { process.exitCode = main(); }
+  catch (err) { console.error(`ERROR: ${err.message}`); process.exitCode = 1; }
+}
