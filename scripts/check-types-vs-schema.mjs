@@ -371,6 +371,7 @@ function compareUnion(ts, entry, schemaNode, tsNode, mappingBySchema) {
       : ts.isLiteralTypeNode(n) && n.literal.kind === ts.SyntaxKind.NullKeyword ? "null"
       : ({[ts.SyntaxKind.StringKeyword]:"string",[ts.SyntaxKind.NumberKeyword]:"number",[ts.SyntaxKind.BooleanKeyword]:"boolean"}[n.kind] ?? ts.SyntaxKind[n.kind]));
   const problems = [];
+  if (keyword === "oneOf" && new Set(expected).size !== expected.length) problems.push(`oneOf 分支重复: ${expected.filter((t,i)=>expected.indexOf(t)!==i).join(", ")}`);
   for (const type of setDiff(expected,actual)) problems.push(`union schema 有而 types 没有: ${type}`);
   for (const type of setDiff(actual,expected)) problems.push(`union types 有而 schema 没有: ${type}`);
   return {problems,note:`${keyword}: ${expected.join(" | ")}`};

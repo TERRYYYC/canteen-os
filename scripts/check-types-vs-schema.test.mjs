@@ -219,3 +219,12 @@ test('version union cannot silently lose a TypeScript alternative', async () => 
     assert.match(out,/union.*AnyMenuPlan[\s\S]*MenuPlanV3/);
   });
 });
+
+test('oneOf duplicate version branch is rejected before it invalidates both readers', async () => {
+  await withTemp(tmp => {
+    editSchema(tmp,'any-menu-plan.schema.json',s=>s.oneOf.push({...s.oneOf[0]}));
+    const {status,out}=runCli(['--root',tmp]);
+    assert.equal(status,1,out);
+    assert.match(out,/oneOf.*重复.*MenuPlan/);
+  });
+});
