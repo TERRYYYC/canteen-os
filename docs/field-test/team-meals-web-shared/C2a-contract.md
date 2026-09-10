@@ -90,7 +90,7 @@ function previewTeamMealsDraft(request: DraftViewRequest): DraftTeamMealsView;
 
 All these functions are read/derive only. `mode:'mock'` remains visible and does not promise shared persistence. The factory rejects network/list operations when Worker is unconfigured; `previewTeamMealsDraft` is always available and remains a local preview. For edits, use the existing C1 editor with `authSession:()=>api.sessionKey()`, whole bodies, and captured context IDs. No persistent menu-row IDs, inferred servings/quantities or copied procurement math.
 
-Errors: existing C1 errors are preserved. VM-origin errors use `ApiError`: `invalid_view` for forged/foreign/cloned handles; `session_changed`/`worker_unconfigured` for unavailable scope; `basis_mismatch` for a list with a different revision/selection; `unresolved_ingredient` for forbidden confirmation; `basis_unavailable` for missing selected plans. Core errors (e.g. `invalid_selection`, `invalid_revision`) retain their code. D may pass codes through C1 kit; required dictionary changes are owned by C.
+Errors: existing C1 errors are preserved. VM-origin errors use `ApiError`: `invalid_view` for forged/foreign/cloned handles; `session_changed`/`worker_unconfigured` for unavailable scope; `basis_mismatch` for a list with a different revision/selection; `unresolved_ingredient` for forbidden confirmation; `basis_unavailable` for missing selected plans. Core list/projection errors (e.g. `invalid_selection`, `invalid_revision`) retain their code and become `ApiError` so D can pass them to C1 kit. Five new codes have zh/en/uk labels owned by C.
 
 ## Lifecycle and test obligations
 
@@ -121,3 +121,5 @@ INV-C2-6: no reference/unknown/status/price filter hides candidates (boundary fi
 6. Fix a local implementation commit, request independent non-author review, resolve findings with red/green evidence, and report exact approved SHA and limits to dispatch. All remote work and real B2/build integration remain paused.
 
 Open questions: none requiring a product decision. D routes shared router/dictionary/data needs through C. Backend shape validation/provenance acceptance is the Worker contract; mock reads exercise orchestration only and cannot prove real repository history or assets.
+
+Dependency update after initial contract: dispatch approved B2 code `32e674cd9bdc9f565cd1cfff263aa1f8c4367cde` with documentation-only head `a75250c36dfd2b280af2bb2d949c1e632af967e4` for local integration. C2a remains a fixed-input/shared-layer delivery; it has not merged that backend or claimed an HTTP integration run. C2b may now use that fixed backend; the new build pipeline still requires its own approval.

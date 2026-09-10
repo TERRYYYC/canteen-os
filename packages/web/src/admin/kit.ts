@@ -487,6 +487,11 @@ const CONTRACT_ERRORS: Record<string, Record<Lang, string>> = {
   invalid_precondition: { zh: "保存依据无效，请先重新读取并核对草稿", en: "The save condition is invalid. Reload and compare your draft", uk: "Умова збереження некоректна. Завантажте документ і звірте чернетку" },
   worker_unconfigured: { zh: "尚未连接保存服务，改动只在本页", en: "Saving is not connected. Changes are only on this page", uk: "Сервіс збереження не підключено. Зміни лише на цій сторінці" },
   session_changed: { zh: "访问会话已变更，请重新打开资料", en: "Your access session changed. Reopen the document", uk: "Сеанс доступу змінився. Відкрийте документ знову" },
+  invalid_view: { zh: "这份预览不能作为保存依据，请重新读取资料", en: "This preview cannot be used as a saved source. Reload the document", uk: "Цей перегляд не може бути збереженим джерелом. Завантажте документ знову" },
+  basis_mismatch: { zh: "清单和资料的版本或范围不一致，请先复核", en: "The list and source versions or selections differ. Review the list first", uk: "Версії або обсяг списку та джерел відрізняються. Спочатку перевірте список" },
+  unresolved_ingredient: { zh: "这项材料的资料缺失，暂时只能标为待核对", en: "This ingredient's details are missing. Keep it marked for checking", uk: "Дані інгредієнта відсутні. Залиште його на перевірці" },
+  invalid_selection: { zh: "清单范围或材料不一致，请重新选择并复核", en: "The list selection or ingredients do not match. Select and review again", uk: "Обсяг списку або інгредієнти не збігаються. Виберіть і перевірте знову" },
+  invalid_decision: { zh: "只有待买材料可以标记购买进度", en: "Only items marked to buy can have purchase progress", uk: "Стан купівлі можна вказати лише для позицій, які потрібно купити" },
 };
 
 export function apiMessage(err: unknown, lang: Lang = getLang()): string {
