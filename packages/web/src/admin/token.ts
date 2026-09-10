@@ -24,6 +24,25 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
 /** sessionStorage 不可用（隐私模式等）时的本页内存兜底：关标签页即失，与 sessionStorage 生命周期一致 */
 let memory: string | null = null;
+let observed: string | null = null;
+let sessionVersion = 0;
+const sessionListeners = new Set<() => void>();
+function changed(): void {
+  sessionVersion++;
+  for (const listener of sessionListeners) {
+    try { listener(); } catch { /* A render failure cannot prevent logout or cache invalidation. */ }
+  }
+}
+function observe(value: string | null): string | null {
+  if (observed !== value) { observed = value; changed(); }
+  return value;
+}
+/** Opaque lifetime marker; never exposes or hashes credentials. */
+export function getAuthSessionVersion(): number { getToken(); return sessionVersion; }
+export function onAuthSessionChange(listener: () => void): () => void {
+  sessionListeners.add(listener);
+  return () => { sessionListeners.delete(listener); };
+}
 
 const T = {
   "adm.lock.title": { uk: "Відкрийте за посиланням шефа", zh: "请用师傅链接打开", en: "Open with the chef link" },
@@ -42,11 +61,11 @@ function tt(lang: Lang, key: keyof typeof T): string {
 export function getToken(): string | null {
   try {
     const v = sessionStorage.getItem(STORAGE_KEY);
-    if (v !== null) return TOKEN_RE.test(v) ? v : null;
+    if (v !== null) return observe(TOKEN_RE.test(v) ? v : null);
   } catch {
     /* 隐私模式：退回内存 */
   }
-  return memory;
+  return observe(memory);
 }
 
 /** 401 时调用：清掉令牌，随后由屏自己回锁屏（kit.sessionExpired 已把这两步包在一起） */
@@ -57,6 +76,8 @@ export function clearToken(): void {
   } catch {
     /* 没存过 */
   }
+  observed = null;
+  changed();
 }
 
 function storeToken(token: string): void {
@@ -66,6 +87,7 @@ function storeToken(token: string): void {
   } catch {
     /* 隐私模式：只在本页内存里有效 */
   }
+  observe(token);
 }
 
 /** `#/admin` 或 `#/admin/<segs…>`（逐段编码；与 pages/admin.ts 的 adminHref 同形，这里不能 import 它——会成环） */
