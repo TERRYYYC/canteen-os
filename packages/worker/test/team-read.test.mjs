@@ -1,13 +1,14 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {FakeRepo,WORKER,REPO,bearer,call,makeEnv,makeFetch,ingredientFixture} from './helpers.mjs';
+import {PNG_A,PNG_B} from './image-fixtures.mjs';
 const worker=(await import(WORKER)).default;
 const owner='data/ingredients/tomato.json';
-const img='data/ingredients/tomato.jpg';
-const entity=(name)=>JSON.stringify(ingredientFixture({name:{zh:name},image:{src:'tomato.jpg',license:'CC0'}}));
+const img='data/ingredients/tomato.png';
+const entity=(name)=>JSON.stringify(ingredientFixture({name:{zh:name},image:{src:'tomato.png',license:'CC0'}}));
 function setup(){
- const repo=new FakeRepo();const a=repo.commit({[owner]:entity('A'),[img]:'image-A','data/techniques.json':'[]'});
- const b=repo.commit({[owner]:entity('B'),[img]:'image-B','data/techniques.json':'[]'});
+ const repo=new FakeRepo();const a=repo.commit({[owner]:entity('A'),[img]:PNG_A,'data/techniques.json':'[]'});
+ const b=repo.commit({[owner]:entity('B'),[img]:PNG_B,'data/techniques.json':'[]'});
  const env=makeEnv(repo).env;return {repo,a,b,env};
 }
 for(const endpoint of ['/source/ingredient/tomato','/catalog']){
@@ -38,12 +39,12 @@ test('B1 catalog tree truncation fails closed',async()=>{const {repo,env}=setup(
 });
 function url(a,ownerPath=owner,pointer='/image'){return `/asset?revision=${a}&owner=${encodeURIComponent(ownerPath)}&pointer=${encodeURIComponent(pointer)}`;}
 test('B1 asset returns historical bytes and version header',async()=>{const {env,a}=setup();const res=await worker.fetch(new Request(`https://worker.example${url(a)}`,{headers:bearer('buyer')}),env);
- assert.equal(res.status,200);assert.equal(await res.text(),'image-A');assert.equal(res.headers.get('X-Source-Revision'),a);assert.equal(res.headers.get('Content-Type'),'image/jpeg');
+ assert.equal(res.status,200);assert.deepEqual(Buffer.from(await res.arrayBuffer()),PNG_A);assert.equal(res.headers.get('X-Source-Revision'),a);assert.equal(res.headers.get('Content-Type'),'image/png');
 });
 test('B1 asset missing historical bytes has no current fallback',async()=>{const {repo,env}=setup();const a=repo.commit({[owner]:entity('missing')});repo.commit({[owner]:entity('current'),[img]:'current'});
  const r=await call(worker,env,'GET',url(a),{headers:bearer('buyer')});assert.equal(r.status,422);assert.equal(r.body.errors[0].code,'asset_unavailable');
 });
-for(const src of ['https://example.com/a.jpg','../../secrets.jpg','/data/ingredients/tomato.jpg'])test(`B1 asset path restriction ${src}`,async()=>{const {repo,env}=setup();const a=repo.commit({[owner]:JSON.stringify(ingredientFixture({image:{src,license:'CC0'}})),[img]:'unused'});
+for(const src of ['https://example.com/a.jpg','../../secrets.jpg','/data/ingredients/tomato.png'])test(`B1 asset path restriction ${src}`,async()=>{const {repo,env}=setup();const a=repo.commit({[owner]:JSON.stringify(ingredientFixture({image:{src,license:'CC0'}})),[img]:'unused'});
  const r=await call(worker,env,'GET',url(a),{headers:bearer('buyer')});assert.equal(r.status,422);assert.equal(r.body.errors[0].code,src.startsWith('https:')?'external_asset_unpinned':'asset_unavailable');
 });
 test('B1 asset validates owner and schema pointer; auth runs first',async()=>{const {env,a,repo}=setup();for(const u of [url(a,'README.md'),url(a,owner,'/name'),url(a,owner,'/components/0/prep/image')]){

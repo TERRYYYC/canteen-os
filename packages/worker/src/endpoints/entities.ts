@@ -83,7 +83,6 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
   const meals = Array.isArray(body.meals) ? (body.meals as Array<Record<string, unknown>>) : [];
   const dishRefs = new Set(meals.map((m) => String(m.dishRef)));
 
-
   const dateRange = body.dateRange as { start?: unknown } | undefined;
   const start =
     typeof dateRange?.start === "string"
@@ -96,15 +95,15 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
     path: entityPath("plan", planId),
     value: body,
     verify: async (head) => {
-  if (dishRefs.size > 0) {
-    const paths = await repoPaths(gh, head);
-    for (const ref of dishRefs) {
-      if (!paths.has(`data/dishes/${ref}.json`)) {
-        addWarning(ctx, "dangling-ref");
-        break;
+      if (dishRefs.size > 0) {
+        const paths = await repoPaths(gh, head);
+        for (const ref of dishRefs) {
+          if (!paths.has(`data/dishes/${ref}.json`)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
       }
-    }
-  }
     },
     subject: () => `data(plan): 排 ${start} 那周（${meals.length} 道菜）`,
   });
@@ -167,31 +166,30 @@ async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> 
   }
 
 
-
   const subject = forceDraft
     ? () => `data(dish): 草稿 ${id}`
     : (exists: boolean) => `data(dish): ${exists ? "更新" : "新增"} ${id}`;
 
   return writeEntity(ctx, gh, { path: entityPath("dish", id), value: body, subject,
     verify: async (head) => {
-  if (ingredientRefs.size > 0) {
-    const paths = await repoPaths(gh, head);
-    for (const ref of ingredientRefs) {
-      if (!paths.has(`data/ingredients/${ref}.json`)) {
-        addWarning(ctx, "dangling-ref");
-        break;
+      if (ingredientRefs.size > 0) {
+        const paths = await repoPaths(gh, head);
+        for (const ref of ingredientRefs) {
+          if (!paths.has(`data/ingredients/${ref}.json`)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
       }
-    }
-  }
-  if (techRefs.size > 0) {
-    const known = await techniqueIds(gh, head);
-    for (const ref of techRefs) {
-      if (!known.has(ref)) {
-        addWarning(ctx, "dangling-ref");
-        break;
+      if (techRefs.size > 0) {
+        const known = await techniqueIds(gh, head);
+        for (const ref of techRefs) {
+          if (!known.has(ref)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
       }
-    }
-  }
     },
   });
 }

@@ -2,6 +2,7 @@ import type { Ctx } from '../context.js';
 import { githubClient } from '../context.js';
 import { fail } from '../http.js';
 import { resolveRevision } from '../revision.js';
+import { inspectImage } from '../image-integrity.js';
 import { parseSource } from '../source.js';
 
 const OWNER = /^data\/(ingredients|dishes)\/[a-z][a-z0-9-]*\.json$/;
@@ -43,6 +44,8 @@ export async function handleAsset(ctx: Ctx): Promise<Response> {
   const asset = entries.find(e => e.path === path);
   if (!asset || asset.type !== 'blob' || asset.mode !== '100644') throw fail('asset_unavailable');
   const bytes = await gh.getBlobBytes(asset.sha);
+  const info = inspectImage(bytes);
+  if (!info || !path.endsWith(`.${info.ext}`)) throw fail('asset_unavailable');
   const type = path.endsWith('.png') ? 'image/png' : path.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
   return new Response(bytes as BodyInit, { headers: {
     'Content-Type': type, 'X-Source-Revision': revision,
