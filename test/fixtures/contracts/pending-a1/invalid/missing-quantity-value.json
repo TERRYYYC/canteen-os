@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "第二道样本菜",
+    "en": "Second test dish",
+    "uk": "Друга тестова страва"
+  },
+  "status": "draft",
+  "provenance": {
+    "source": "example"
+  },
+  "components": [
+    {
+      "ingredientRef": "tomato",
+      "qty": {
+        "unit": "g"
+      }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": {
+        "unit": "to-taste"
+      }
+    },
+    {
+      "ingredientRef": "tomato-other",
+      "qty": {
+        "value": 200,
+        "unit": "g"
+      }
+    }
+  ]
+}
