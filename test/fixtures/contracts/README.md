@@ -75,7 +75,16 @@ never fetched. No research POC media is copied into the numerical golden.
 The original v2 checkpoint `3d9f2aa` contains no new business formats. This follow-up
 also carries `pending-a1/` contract-derived samples and a T01–T09 matrix. The
 directory name records their preparation stage; formal A1 checks now match all
-19 expectations (7 accepted shapes, 12 rejected shapes). Semantic admission,
-real Worker basis/history, UI and L2 remain unverified. In particular, the
-duplicate ingredient sample passes schema and awaits a semantic rejection.
+19 expectations (7 accepted shapes, 12 rejected shapes). The separate A2 checks
+now exercise eight pure-core scenarios against reviewed `ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2`.
+The duplicate ingredient sample passes schema and is rejected by formal
+`reconcileShoppingList`; Worker admission and real basis/history remain unverified.
 Future DOM, production test rewiring and CI remain outside Q scope.
+
+Run `node --test --test-name-pattern='A2-S' scripts/validate-contract-fixtures.test.mjs`
+after building core to execute that semantic subset. It reuses these input bytes,
+with explicit in-memory variants documented in
+`docs/field-test/team-meals/a2-semantic-evidence.md`; `semantic-expectations.json`
+records the fixed dependency and manual source-address expectations. No new entity
+copies or alternative algorithm are introduced. The fixture CLI continues to run
+v2/format checks only; its success does not imply A2 execution. UI/L2 are unrun.
