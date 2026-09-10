@@ -461,7 +461,10 @@ export async function main(argv = process.argv.slice(2), out = console.log) {
   return 0;
 }
 
-if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+let directExecution = false;
+try { directExecution = Boolean(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); }
+catch { /* stdin/eval and virtual entry points are imports, not CLI execution. */ }
+if (directExecution) {
   main().then(
     (code) => process.exit(code),
     (err) => {

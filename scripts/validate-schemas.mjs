@@ -82,7 +82,10 @@ export function main(argv=process.argv.slice(2)) {
   return report.failed ? 1 : 0;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+let directExecution = false;
+try { directExecution = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href; }
+catch { /* stdin/eval and virtual entry points are imports, not CLI execution. */ }
+if (directExecution) {
   try { process.exitCode = main(); }
   catch (err) { console.error(`ERROR: ${err.message}`); process.exitCode = 1; }
 }
