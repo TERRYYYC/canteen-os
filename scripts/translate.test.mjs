@@ -318,8 +318,8 @@ function makeTempRepo() {
   const tmp = mkdtempSync(path.join(tmpdir(), "canteenos-translate-"));
   mkdirSync(path.join(tmp, "data/dishes"), { recursive: true });
   mkdirSync(path.join(tmp, "data/ingredients"), { recursive: true });
-  cpSync(path.join(ROOT, "data/techniques.json"), path.join(tmp, "data/techniques.json"));
-  cpSync(path.join(ROOT, "data/ingredients/tomato.json"), path.join(tmp, "data/ingredients/tomato.json"));
+  cpSync(path.join(ROOT, "test/fixtures/contracts/valid/golden/data/techniques.json"), path.join(tmp, "data/techniques.json"));
+  cpSync(path.join(ROOT, "test/fixtures/contracts/valid/golden/data/ingredients/tomato.json"), path.join(tmp, "data/ingredients/tomato.json"));
   // 一道缺 uk 的菜
   writeFileSync(
     path.join(tmp, "data/dishes/d.json"),

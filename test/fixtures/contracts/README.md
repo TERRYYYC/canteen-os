@@ -40,18 +40,24 @@ node scripts/build-data.mjs --root test/fixtures/contracts/valid/golden --check 
 
 The fixture CLI exits 0 only when each case fails at its recorded first layer
 (or is valid as expected). Expected failures are not accepted production data.
-`--case ID` selects a single known case; the entire inventory is still verified.
+The default run reports 22 v2 cases and 19 A1 format cases separately.
+`--case ID` selects a single known v2 case; `--formats` selects the 19 new-format
+samples. The entire inventory is still verified for either selection.
 Tests also protect the inventory, whole-file overlays, missing infrastructure,
 sample boundary facts and the three arithmetic oracles. Node >=20, installed
 workspace dependencies and Python 3 are required. Core build is required for the
 arithmetic tests, not for the fixture CLI.
 
-Format validation runs the unchanged `scripts/validate-schemas.mjs` in a temporary
-root with current official schemas/dependencies. References call
+Format validation calls the official `scripts/validate-schemas.mjs:validateData`
+API with a temporary fixture root and current official schema directory. References call
 `local-validate.py:check_references`; video/clip checks call
 `validate_dish.py:contract_checks`. The Python subset schema/fallback is never
-used. RC-A owns the upcoming reusable Ajv API; this temporary CLI adapter stays
-entirely in the new file and will consume that API after its fixed commit arrives.
+used. The current schema/API dependency is RC-A's reviewed A1
+`c9131559b8c703a3a8f3b823bc93c2acb3dd879c`; new-format samples call its
+`createSchemaValidators().validateEntity` API and assert the selected schema and
+the intended error field/keyword for negative cases. Q only changes its new
+adapter. The earlier v2 commit `3d9f2aa` used an isolated
+copy of the unchanged CLI while that API was being extracted.
 
 Asset checks cover referenced local file existence/nonzero size/200 KiB limit,
 fixture path containment, license allowlist and required CC BY attribution.
@@ -66,5 +72,19 @@ created for this suite and dedicated to CC0 by its fixture authors. It is not a
 food photograph. Invalid image/clip URLs are deliberate placeholders and are
 never fetched. No research POC media is copied into the numerical golden.
 
-No MenuPlan/Dish v3, ShoppingList, future DOM, production test rewiring or CI
-changes are included in this v2 checkpoint. A0/A1-dependent work is separate.
+The original v2 checkpoint `3d9f2aa` contains no new business formats. This follow-up
+also carries `pending-a1/` contract-derived samples and a T01–T09 matrix. The
+directory name records their preparation stage; formal A1 checks now match all
+19 expectations (7 accepted shapes, 12 rejected shapes). The separate A2 checks
+now exercise eight pure-core scenarios against reviewed `ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2`.
+The duplicate ingredient sample passes schema and is rejected by formal
+`reconcileShoppingList`; Worker admission and real basis/history remain unverified.
+Future DOM, production test rewiring and CI remain outside Q scope.
+
+Run `node --test --test-name-pattern='A2-S' scripts/validate-contract-fixtures.test.mjs`
+after building core to execute that semantic subset. It reuses these input bytes,
+with explicit in-memory variants documented in
+`docs/field-test/team-meals/a2-semantic-evidence.md`; `semantic-expectations.json`
+records the fixed dependency and manual source-address expectations. No new entity
+copies or alternative algorithm are introduced. The fixture CLI continues to run
+v2/format checks only; its success does not imply A2 execution. UI/L2 are unrun.

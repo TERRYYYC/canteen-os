@@ -29,7 +29,7 @@ import {
   renderPrepList,
 } from "../dist/index.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../test/fixtures/contracts/valid/golden");
 const readJson = (rel) => JSON.parse(readFileSync(path.join(ROOT, rel), "utf8"));
 const loadDir = (sub) =>
   Object.fromEntries(
