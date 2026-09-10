@@ -14,7 +14,7 @@
 
 支持特性：$ref（同文件/跨文件 #/$defs）、type（含 "null" 与类型数组）、properties、required、
 additionalProperties、enum、const、pattern、minimum/maximum、exclusiveMinimum、minLength、
-minItems、uniqueItems、items、anyOf、allOf、if/then。format 仅作注解不校验。
+minItems、uniqueItems、items、anyOf、oneOf、allOf、if/then。format 仅作注解不校验。
 
 注意：skills/video-recipe-ingest/scripts/validate_dishpack.py 通过 importlib 复用本文件的
 validate() / load_schema() / errors 模块级 API——修改时请保持这三个名字可用。
@@ -35,6 +35,7 @@ TARGETS = [
     ("menu-plans", "menu-plan.schema.json", True),
     ("purchase-orders", "purchase-order.schema.json", True),
     ("techniques.json", "techniques.schema.json", False),
+    ("shopping-lists", "shopping-list.schema.json", True),
 ]
 
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -151,6 +152,16 @@ def validate(node, schema: dict, current_file: Path, path: str):
             elif schema.get("additionalProperties") is False:
                 fail(path, f"存在未声明字段: {k}")
 
+    if "oneOf" in schema:
+        matches = 0
+        for sub in schema["oneOf"]:
+            before = len(errors)
+            validate(node, sub, current_file, path)
+            matches += len(errors) == before
+            del errors[before:]
+        if matches != 1:
+            fail(path, f"oneOf 必须恰好匹配一个分支，实际 {matches}")
+
     if "anyOf" in schema:
         ok = False
         for sub in schema["anyOf"]:
@@ -254,13 +265,19 @@ def main():
             label = str(f.relative_to(ROOT))
             data = json.loads(f.read_text(encoding="utf-8"))
             loaded[label] = (f, data)
+            version_schema = schema_name
+            if isinstance(data, dict) and data.get("schemaVersion") == "3":
+                if rel == "menu-plans": version_schema = "menu-plan-v3.schema.json"
+                if rel == "dishes": version_schema = "dish-v3.schema.json"
+            schema_file = SCHEMA_DIR / version_schema
+            schema = load_schema(schema_file)
             before = len(errors)
             validate(data, schema, schema_file, label)
             if len(errors) == before:
                 checked += 1
-                print(f"PASS  {label}  ✓ {schema_name}")
+                print(f"PASS  {label}  ✓ {version_schema}")
             else:
-                print(f"FAIL  {label}  ✗ {schema_name}")
+                print(f"FAIL  {label}  ✗ {version_schema}")
     check_references(loaded)
     if errors:
         print("\n错误明细:")

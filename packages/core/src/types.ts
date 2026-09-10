@@ -330,3 +330,56 @@ export interface PurchaseOrder {
   totalAmount?: Money;
   notes?: string;
 }
+
+// Explicit team-meals formats. Legacy numeric types above remain strict.
+export interface MenuPlanMealV3 {
+  date: string;
+  mealType: MealType;
+  dishRef: Id;
+  plannedServings?: number;
+  serviceWindow?: string;
+}
+export interface MenuPlanV3 {
+  schemaVersion: "3";
+  name?: I18nString;
+  dateRange?: DateRange;
+  margin?: number;
+  meals: MenuPlanMealV3[];
+}
+export type AnyMenuPlan = MenuPlan | MenuPlanV3;
+
+export interface DishComponentV3 {
+  ingredientRef: Id;
+  qty?: Quantity;
+  prep?: DishPrep;
+  confidence?: Confidence;
+}
+export interface DishV3 {
+  schemaVersion: "3";
+  name: I18nString;
+  description?: I18nString;
+  image?: ImageRef;
+  baseServings?: number;
+  components?: DishComponentV3[];
+  steps?: DishStep[];
+  provenance?: DishProvenance;
+  status?: DishStatus;
+}
+export type AnyDish = Dish | DishV3;
+
+export interface ShoppingSelection { menuPlanRef: Id; date: string; mealType: MealType }
+export interface ShoppingBasis { sourceRevision: string; selection: ShoppingSelection[] }
+export type ShoppingDecision = "check" | "buy" | "available";
+export interface ShoppingPrevious { basis: ShoppingBasis; decision: ShoppingDecision; bought?: boolean }
+export interface ShoppingItem {
+  ingredientRef: Id;
+  decision: ShoppingDecision;
+  bought?: boolean;
+  previous?: ShoppingPrevious;
+}
+export interface ShoppingList {
+  shoppingListVersion: "1";
+  id: Id;
+  basis: ShoppingBasis;
+  items: ShoppingItem[];
+}

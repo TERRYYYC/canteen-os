@@ -15,8 +15,8 @@
  * 覆盖性（两边封闭，保证"schema 改字段名而 types 未同步 → CI 必红"）：
  *   - schema 里每个 object / enum 节点、以及 $defs 的每个直接子项，都必须在 MAPPING 登记；
  *   - types.ts 里每个顶层 interface / type 声明，都必须是 MAPPING 的目标。
- * 不比对：标量类型（string/number/boolean）、数值约束、format/pattern、null 联合、
- *        applicator 内的条件（allOf/anyOf/oneOf/if/then 不遍历，如 Quantity 的 to-taste 条件必填）。
+ * 不比对：标量类型（string/number/boolean）、数值约束、format/pattern、
+ *        applicator 内的条件（allOf/if/then 不遍历；oneOf/anyOf 分支定义和联合成员显式覆盖）。
  * 输出：逐项 OK / MISMATCH / ERROR / UNMAPPED；任一非 OK → exit 1。
  */
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
@@ -68,11 +68,22 @@ export const MAPPING = [
   { schema: "menu-plan.schema.json#", ts: "MenuPlan" },
   { schema: "menu-plan.schema.json#/properties/dateRange", ts: "DateRange" },
   { schema: "menu-plan.schema.json#/properties/meals/items", ts: "MenuPlanMeal" },
+  // Explicit v3 documents and their read unions.
+  { schema: "menu-plan-v3.schema.json#", ts: "MenuPlanV3" },
+  { schema: "menu-plan-v3.schema.json#/properties/meals/items", ts: "MenuPlanMealV3" },
+  { schema: "dish-v3.schema.json#", ts: "DishV3" },
+  { schema: "dish-v3.schema.json#/properties/components/items", ts: "DishComponentV3" },
+  { schema: "any-menu-plan.schema.json#", ts: "AnyMenuPlan" },
+  { schema: "any-dish.schema.json#", ts: "AnyDish" },
+  { schema: "shopping-list.schema.json#", ts: "ShoppingList" },
+  ...["ShoppingBasis","ShoppingSelection","ShoppingDecision","ShoppingPrevious","ShoppingItem"]
+    .map(ts => ({ schema: `shopping-list.schema.json#/$defs/${ts}`, ts })),
   // ---- purchase-order.schema.json ----
   { schema: "purchase-order.schema.json#", ts: "PurchaseOrder" },
   { schema: "purchase-order.schema.json#/properties/lines/items", ts: "PurchaseOrderLine" },
   { schema: "purchase-order.schema.json#/properties/lines/items/properties/trace", ts: "LineTrace" },
   { schema: "purchase-order.schema.json#/properties/lines/items/properties/trace/properties/meals/items", ts: "TraceMeal" },
+  { schema: "purchase-order.schema.json#/properties/lines/items/properties/trace/properties/onHandDeducted", ts: "LineTrace.onHandDeducted" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -144,7 +155,7 @@ export function resolveSchemaRef(schemas, ref) {
 
 /** 规范化 $ref：同文件 `#/...` 补上文件名；跨文件 `x.schema.json#/...` 原样 */
 function normalizeRef(fromFile, ref) {
-  return ref.startsWith("#") ? `${fromFile}${ref}` : ref;
+  return ref.startsWith("#") ? `${fromFile}${ref}` : ref.includes("#") ? ref : `${ref}#`;
 }
 
 export function classifySchemaNode(node) {
@@ -152,25 +163,32 @@ export function classifySchemaNode(node) {
   if (hasOwn(node, "properties")) return "object";
   if (hasOwn(node, "enum")) return "enum";
   if (hasOwn(node, "$ref")) return "alias";
+  if (node.oneOf || node.anyOf) return "union";
   if (["string", "number", "integer", "boolean"].includes(node.type)) return "primitive";
   return null;
 }
 
 /**
  * 收集"必须映射"的 schema 定义：object / enum 节点，以及 $defs 的直接子项。
- * 只沿 $defs / properties / items 结构性下钻，不进 allOf/anyOf/oneOf/if/then（那些是约束，不是定义）。
+ * 沿 $defs / properties / items / oneOf / anyOf 下钻；不把 allOf/if/then 和 required-only 条件当定义。
  */
 export function collectSchemaDefinitions(schemas) {
   const out = [];
   const visit = (file, node, pointer) => {
     if (!node || typeof node !== "object" || Array.isArray(node)) return;
     const isDefsChild = /^#\/\$defs\/[^/]+$/.test(pointer);
-    if (isDefsChild || hasOwn(node, "properties") || hasOwn(node, "enum")) out.push(`${file}${pointer}`);
+    if (isDefsChild || hasOwn(node, "properties") || hasOwn(node, "enum") || classifySchemaNode(node) === "union") out.push(`${file}${pointer}`);
     if (node.$defs && typeof node.$defs === "object") {
       for (const [k, v] of Object.entries(node.$defs)) visit(file, v, `${pointer}/$defs/${escPtr(k)}`);
     }
     if (node.properties && typeof node.properties === "object") {
       for (const [k, v] of Object.entries(node.properties)) visit(file, v, `${pointer}/properties/${escPtr(k)}`);
+    }
+    for (const keyword of ["oneOf", "anyOf"]) {
+      for (const [i,branch] of (node[keyword] ?? []).entries()) {
+        // required-only branches (I18nString) constrain the parent; they define no type.
+        visit(file,branch,`${pointer}/${keyword}/${i}`);
+      }
     }
     if (node.items && typeof node.items === "object" && !Array.isArray(node.items)) visit(file, node.items, `${pointer}/items`);
   };
@@ -338,6 +356,26 @@ function compareAlias(ts, schemas, entry, schemaNode, tsNode, mappingBySchema) {
   return { problems, note: `→ ${target}` };
 }
 
+function compareUnion(ts, entry, schemaNode, tsNode, mappingBySchema) {
+  const keyword = schemaNode.oneOf ? "oneOf" : "anyOf";
+  const expected = schemaNode[keyword].map((branch,i) => {
+    if (["null","string","number","integer","boolean"].includes(branch.type) && !branch.properties && !branch.enum) return branch.type === "integer" ? "number" : branch.type;
+    const target = branch.$ref ? normalizeRef(splitRef(entry.schema).file,branch.$ref) : `${entry.schema}/${keyword}/${i}`;
+    const mapped = mappingBySchema.get(target);
+    if (!mapped) throw new Error(`union 分支 ${target} 未在 MAPPING 登记`);
+    return mapped.ts;
+  });
+  const node = unwrapAlias(ts,tsNode);
+  const actual = (ts.isUnionTypeNode(node) ? [...node.types] : [node]).map(n =>
+    ts.isTypeReferenceNode(n) ? entityName(ts,n.typeName)
+      : ts.isLiteralTypeNode(n) && n.literal.kind === ts.SyntaxKind.NullKeyword ? "null"
+      : ({[ts.SyntaxKind.StringKeyword]:"string",[ts.SyntaxKind.NumberKeyword]:"number",[ts.SyntaxKind.BooleanKeyword]:"boolean"}[n.kind] ?? ts.SyntaxKind[n.kind]));
+  const problems = [];
+  for (const type of setDiff(expected,actual)) problems.push(`union schema 有而 types 没有: ${type}`);
+  for (const type of setDiff(actual,expected)) problems.push(`union types 有而 schema 没有: ${type}`);
+  return {problems,note:`${keyword}: ${expected.join(" | ")}`};
+}
+
 function comparePrimitive(ts, schemaNode, tsNode) {
   const want = { string: ts.SyntaxKind.StringKeyword, number: ts.SyntaxKind.NumberKeyword, integer: ts.SyntaxKind.NumberKeyword, boolean: ts.SyntaxKind.BooleanKeyword }[schemaNode.type];
   const typeNode = unwrapAlias(ts, tsNode);
@@ -384,7 +422,9 @@ export function check({ root, ts, mapping = MAPPING }) {
             ? compareEnum(ts, schemaNode, tsNode, entry.ts)
             : kind === "alias"
               ? compareAlias(ts, schemas, entry, schemaNode, tsNode, mappingBySchema)
-              : comparePrimitive(ts, schemaNode, tsNode);
+              : kind === "union"
+                ? compareUnion(ts, entry, schemaNode, tsNode, mappingBySchema)
+                : comparePrimitive(ts, schemaNode, tsNode);
       r.note = cmp.note;
       if (cmp.problems.length) {
         r.status = "MISMATCH";

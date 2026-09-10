@@ -200,3 +200,22 @@ test('stdin imports do not resolve dash as an entry file or execute validation',
     assert.equal(r.stderr,'');
   }
 });
+
+test('union coverage includes inline definitions nested under oneOf and anyOf', () => {
+  for (const keyword of ['oneOf','anyOf']) {
+    const defs=collectSchemaDefinitions(new Map([['x.schema.json',{
+      [keyword]:[{type:'object',properties:{a:{type:'string'}}},{type:'object',properties:{b:{enum:['yes','no']}}}],
+    }]]));
+    assert.ok(defs.includes(`x.schema.json#/${keyword}/0`),defs.join('\n'));
+    assert.ok(defs.includes(`x.schema.json#/${keyword}/1/properties/b`),defs.join('\n'));
+  }
+});
+
+test('version union cannot silently lose a TypeScript alternative', async () => {
+  await withTemp(tmp => {
+    editTypes(tmp, src=>src.replace('export type AnyMenuPlan = MenuPlan | MenuPlanV3;','export type AnyMenuPlan = MenuPlan;'));
+    const {status,out}=runCli(['--root',tmp]);
+    assert.equal(status,1,out);
+    assert.match(out,/union.*AnyMenuPlan[\s\S]*MenuPlanV3/);
+  });
+});

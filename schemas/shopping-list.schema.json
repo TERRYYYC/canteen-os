@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/shopping-list.schema.json",
+  "title": "ShoppingList",
+  "type": "object",
+  "properties": {
+    "shoppingListVersion": {
+      "type": "string",
+      "const": "1"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/Id"
+    },
+    "basis": {
+      "$ref": "#/$defs/ShoppingBasis"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ShoppingItem"
+      }
+    }
+  },
+  "required": [
+    "shoppingListVersion",
+    "id",
+    "basis",
+    "items"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ShoppingSelection": {
+      "type": "object",
+      "properties": {
+        "menuPlanRef": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "mealType": {
+          "$ref": "common.schema.json#/$defs/MealType"
+        }
+      },
+      "required": [
+        "menuPlanRef",
+        "date",
+        "mealType"
+      ],
+      "additionalProperties": false
+    },
+    "ShoppingBasis": {
+      "type": "object",
+      "properties": {
+        "sourceRevision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "selection": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ShoppingSelection"
+          }
+        }
+      },
+      "required": [
+        "sourceRevision",
+        "selection"
+      ],
+      "additionalProperties": false
+    },
+    "ShoppingDecision": {
+      "type": "string",
+      "enum": [
+        "check",
+        "buy",
+        "available"
+      ]
+    },
+    "ShoppingPrevious": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "$ref": "#/$defs/ShoppingBasis"
+        },
+        "decision": {
+          "$ref": "#/$defs/ShoppingDecision"
+        },
+        "bought": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "basis",
+        "decision"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "bought"
+            ]
+          },
+          "then": {
+            "properties": {
+              "decision": {
+                "const": "buy"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ShoppingItem": {
+      "type": "object",
+      "properties": {
+        "ingredientRef": {
+          "$ref": "common.schema.json#/$defs/Id"
+        },
+        "decision": {
+          "$ref": "#/$defs/ShoppingDecision"
+        },
+        "bought": {
+          "type": "boolean"
+        },
+        "previous": {
+          "$ref": "#/$defs/ShoppingPrevious"
+        }
+      },
+      "required": [
+        "ingredientRef",
+        "decision"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "bought"
+            ]
+          },
+          "then": {
+            "properties": {
+              "decision": {
+                "const": "buy"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "previous"
+            ]
+          },
+          "then": {
+            "properties": {
+              "decision": {
+                "const": "check"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
