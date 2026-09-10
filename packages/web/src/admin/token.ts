@@ -24,6 +24,23 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
 /** sessionStorage 不可用（隐私模式等）时的本页内存兜底：关标签页即失，与 sessionStorage 生命周期一致 */
 let memory: string | null = null;
+let observed: string | null = null;
+let sessionVersion = 0;
+const sessionListeners = new Set<() => void>();
+function changed(): void {
+  sessionVersion++;
+  for (const listener of sessionListeners) listener();
+}
+function observe(value: string | null): string | null {
+  if (observed !== value) { observed = value; changed(); }
+  return value;
+}
+/** Opaque lifetime marker; never exposes or hashes credentials. */
+export function getAuthSessionVersion(): number { getToken(); return sessionVersion; }
+export function onAuthSessionChange(listener: () => void): () => void {
+  sessionListeners.add(listener);
+  return () => { sessionListeners.delete(listener); };
+}
 
 const T = {
   "adm.lock.title": { uk: "Відкрийте за посиланням шефа", zh: "请用师傅链接打开", en: "Open with the chef link" },
@@ -42,16 +59,18 @@ function tt(lang: Lang, key: keyof typeof T): string {
 export function getToken(): string | null {
   try {
     const v = sessionStorage.getItem(STORAGE_KEY);
-    if (v !== null) return TOKEN_RE.test(v) ? v : null;
+    if (v !== null) return observe(TOKEN_RE.test(v) ? v : null);
   } catch {
     /* 隐私模式：退回内存 */
   }
-  return memory;
+  return observe(memory);
 }
 
 /** 401 时调用：清掉令牌，随后由屏自己回锁屏（kit.sessionExpired 已把这两步包在一起） */
 export function clearToken(): void {
   memory = null;
+  observed = null;
+  changed();
   try {
     sessionStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -61,6 +80,7 @@ export function clearToken(): void {
 
 function storeToken(token: string): void {
   memory = token;
+  observe(token);
   try {
     sessionStorage.setItem(STORAGE_KEY, token);
   } catch {

@@ -471,10 +471,28 @@ export function stepper(opts: StepperOpts): HTMLElement {
  * ApiError → 给师傅看的一句话（worker 的 message 原样，不二次编造；§4.0）；
  * 不是 ApiError（fetch 抛的 TypeError、动态分包加载失败…）→ 「连不上后台」。
  */
+const CONTRACT_ERRORS: Record<string, Record<Lang, string>> = {
+  conflict: { zh: "有人改过这份资料，本地草稿已保留，请先核对", en: "This document changed. Your draft is kept; review it before saving", uk: "Документ змінився. Чернетку збережено локально; перевірте зміни" },
+  format_downgrade: { zh: "这份资料已用新版格式保存，不能用旧格式覆盖", en: "This document uses a newer format and cannot be overwritten with the old format", uk: "Документ має новий формат; старий формат не може його перезаписати" },
+  review_required: { zh: "来源或范围变了，请先保存复核结果，再逐项确认", en: "Sources or scope changed. Save the reviewed list, then confirm each item", uk: "Джерела або обсяг змінилися. Збережіть перевірений список, потім підтвердьте позиції" },
+  unsupported_format: { zh: "这个编辑页暂不支持资料的新格式", en: "This editor does not yet support the document format", uk: "Цей редактор поки не підтримує формат документа" },
+  revision_unavailable: { zh: "无法读取指定版本的资料", en: "The requested version is unavailable", uk: "Запитана версія недоступна" },
+  basis_unavailable: { zh: "无法读取这份清单的来源版本，判断已保留", en: "The list's source version is unavailable; decisions are kept", uk: "Версія джерел списку недоступна; рішення збережено" },
+  revision_mismatch: { zh: "返回的资料版本不一致，请重新读取", en: "The returned version does not match. Reload the document", uk: "Отримана версія не збігається. Завантажте документ знову" },
+  invalid_source: { zh: "这份来源资料格式有误，无法读取", en: "The source document has an invalid format", uk: "Документ джерела має некоректний формат" },
+  external_asset_unpinned: { zh: "外链图片未保留此版本，暂不能显示同版图片", en: "This external image was not preserved for this version", uk: "Це зовнішнє зображення не збережено для цієї версії" },
+  asset_unavailable: { zh: "此版本的图片不可用", en: "The image for this version is unavailable", uk: "Зображення для цієї версії недоступне" },
+  invalid_revision: { zh: "资料版本无效，请重新打开来源", en: "Invalid document version. Reopen the source", uk: "Некоректна версія документа. Відкрийте джерело знову" },
+  precondition_required: { zh: "缺少保存依据，请先重新读取并核对草稿", en: "A save condition is missing. Reload and compare your draft first", uk: "Немає умови збереження. Завантажте документ і звірте чернетку" },
+  invalid_precondition: { zh: "保存依据无效，请先重新读取并核对草稿", en: "The save condition is invalid. Reload and compare your draft", uk: "Умова збереження некоректна. Завантажте документ і звірте чернетку" },
+  worker_unconfigured: { zh: "尚未连接保存服务，改动只在本页", en: "Saving is not connected. Changes are only on this page", uk: "Сервіс збереження не підключено. Зміни лише на цій сторінці" },
+  session_changed: { zh: "访问会话已变更，请重新打开资料", en: "Your access session changed. Reopen the document", uk: "Сеанс доступу змінився. Відкрийте документ знову" },
+};
+
 export function apiMessage(err: unknown, lang: Lang = getLang()): string {
   if (isApiError(err)) {
     if (err.status === 401) return adm("adm.err.expired", undefined, lang);
-    return err.message || adm("adm.err.network", undefined, lang);
+    return CONTRACT_ERRORS[err.code]?.[lang] || err.message || adm("adm.err.network", undefined, lang);
   }
   return adm("adm.err.network", undefined, lang);
 }

@@ -1,0 +1,45 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C1 shared Web contract check</title>
+<h1>C1 shared Web contract check</h1>
+<p>This is a mock network verification of shared modules. It does not save real data or test production pages.</p>
+<button id="run">Run shared flow</button>
+<pre id="result" role="status">Ready</pre>
+<script type="module">
+import { createTeamMealsApi } from '../src/api/team-meals.ts';
+import { createEditSession } from '../src/view-models/edit-session.ts';
+const A='a'.repeat(40), B='b'.repeat(40);
+const assert=(value,message)=>{if(!value)throw Error(message);};
+document.querySelector('#run').onclick=async()=>{
+ const output=document.querySelector('#result');output.textContent='Running';
+ let release, saved=null, writes=0;
+ const api=createTeamMealsApi('https://mock.invalid',{mode:'mock',token:()=> 't'.repeat(43),fetch:async(url,init)=>{
+  if(init.method==='POST') {
+   writes++; assert(new Headers(init.headers).get('If-None-Match')==='*','creation lock missing');
+   saved=JSON.parse(init.body);await new Promise(resolve=>release=resolve);
+   return new Response(JSON.stringify({ok:true,commit:B,blobSha:B,unchanged:false,warnings:[]}));
+  }
+  const revision=new URL(url).searchParams.get('revision')??B;
+  if(new URL(url).pathname==='/asset')return new Response('image A',{headers:{'Content-Type':'image/png','X-Source-Revision':revision}});
+  return new Response(JSON.stringify({ok:true,commit:revision,blobSha:revision,content:saved}));
+ }});
+ const session=createEditSession({mode:()=>api.mode,save:(_,body,condition)=>api.savePlan('team-week',body,condition),read:(_,opts)=>api.getPlan('team-week',opts)});
+ try {
+  const original={schemaVersion:'3',meals:[{date:'2026-09-11',mealType:'lunch',dishRef:'soup'}]};
+  const context=session.open({kind:'plan',id:'team-week'},original);
+  const saving=session.save(context);
+  session.edit({...original,name:{en:'New edit'}},context);release();await saving;
+  assert(session.getState().phase==='dirty','late save cleared a new edit');
+  assert(!('plannedServings' in saved.meals[0]),'invented servings');
+  assert(session.getState().lastSave.mode==='mock','mock label lost');
+  const snapshot=await api.getPlan('team-week',{revision:A});assert(snapshot.commit===A,'wrong source revision');
+  const image=await api.getAsset({revision:A,owner:'data/dishes/soup.json',pointer:'/image'});
+  assert(image.sourceRevision===A && await image.bytes.text()==='image A','wrong asset bytes');
+  session.invalidate();assert(!session.edit(original,context),'departed page callback still active');
+  const unset=createTeamMealsApi('');try{await unset.saveShoppingList('l',{}, {ifNoneMatch:'*'});throw Error('unconfigured save succeeded');}catch(e){assert(e.code==='worker_unconfigured','unconfigured error mismatch');}finally{unset.dispose();}
+  assert(writes===1,'automatic duplicate write');
+  output.textContent='PASS — mock only\nconditional create; unknown servings preserved; edit-during-save retained; fixed revision source + authenticated asset bytes; stale page edit rejected; unconfigured write blocked.\nReal Worker roundtrip and page integration remain unverified.';
+ }catch(error){output.textContent=`FAIL — ${error.message}`;}finally{session.dispose();api.dispose();}
+};
+</script>

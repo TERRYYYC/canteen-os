@@ -16,13 +16,14 @@
  *
  * mock 与 client 在同一个动态分包里（都只被六屏引用，不进首屏）。
  */
-import { getToken } from "../admin/token";
+import { HttpTransport, conditionHeaders } from "./transport";
+import type { HttpApiOptions, RequestSpec, SessionBoundary } from "./transport";
+export type { HttpApiOptions } from "./transport";
 import { createMockApi } from "./mock";
 import type {
   Catalog,
   Changes,
   Dish,
-  FieldError,
   ImageMeta,
   ImageRef,
   Ingredient,
@@ -86,39 +87,6 @@ export interface AdminApi {
 // 真实 HTTP 实现（#27 前置；端点、请求体、响应体、错误形状以 packages/worker/src 为准）
 // ---------------------------------------------------------------------------
 
-export interface HttpApiOptions {
-  /** 默认 globalThis.fetch；测试注入用 */
-  fetch?: typeof fetch;
-  /** 默认 admin/token.ts 的 getToken()；测试注入用 */
-  token?: () => string | null;
-  /** 普通请求超时（毫秒），默认 30 秒 */
-  timeoutMs?: number;
-  /** POST /publish 的超时：worker 认领 runId 最多等 90 秒（publish.ts claimTimeoutMs），默认 150 秒 */
-  publishTimeoutMs?: number;
-}
-
-/** worker 错误响应体（packages/worker/src/http.ts jsonResponse / index.ts catch 分支）：`{ ok:false, errors:[…] }` */
-interface ErrorBody {
-  ok?: false;
-  errors?: FieldError[];
-}
-
-/** worker 的 fail("unauthorized") 文案（http.ts MESSAGES），无令牌时本地直接抛同一句，不发请求 */
-const UNAUTHORIZED_MESSAGE = "链接失效了，找 Terry 要新的";
-
-const DEFAULT_TIMEOUT_MS = 30_000;
-const DEFAULT_PUBLISH_TIMEOUT_MS = 150_000;
-
-interface RequestSpec {
-  method: "GET" | "POST";
-  path: string;
-  json?: unknown;
-  /** 二进制请求体（POST /image）：worker 按 rawBody 读，不是 multipart */
-  binary?: Blob;
-  headers?: Record<string, string>;
-  timeoutMs?: number;
-}
-
 function seg(value: string): string {
   return encodeURIComponent(value);
 }
@@ -140,25 +108,18 @@ function stripOk<T extends object>(body: T & { ok?: unknown }): Omit<T, "ok"> {
 }
 
 export class HttpAdminApi implements AdminApi {
-  private readonly base: string;
-  private readonly fetchFn: typeof fetch;
-  private readonly token: () => string | null;
-  private readonly timeoutMs: number;
+  readonly transport: HttpTransport;
   private readonly publishTimeoutMs: number;
-
   constructor(base: string, opts: HttpApiOptions = {}) {
-    this.base = base.replace(/\/+$/, "");
-    // 不在这里解构 globalThis.fetch：测试会在构造之后再替换 globalThis.fetch
-    this.fetchFn = opts.fetch ?? ((input, init) => globalThis.fetch(input, init));
-    this.token = opts.token ?? getToken;
-    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    this.publishTimeoutMs = opts.publishTimeoutMs ?? DEFAULT_PUBLISH_TIMEOUT_MS;
+    this.transport = new HttpTransport(base, opts);
+    this.publishTimeoutMs = opts.publishTimeoutMs ?? 150_000;
   }
 
   // —— 读 ——
 
   async getCatalog(): Promise<Catalog> {
     const body = await this.request<Catalog & { ok: true }>({ method: "GET", path: "/catalog" });
+    for (const dish of Object.values(body.dishes)) assertLegacyFormat(dish);
     return stripOk(body);
   }
 
@@ -183,9 +144,10 @@ export class HttpAdminApi implements AdminApi {
   private async source<T>(kind: "plan" | "ingredient" | "dish", id: string): Promise<Source<T> | null> {
     try {
       const body = await this.request<Source<T> & { ok: true }>({ method: "GET", path: `/source/${kind}/${seg(id)}` });
+      if (kind !== "ingredient") assertLegacyFormat(body.content);
       return { content: body.content, blobSha: body.blobSha, commit: body.commit };
     } catch (err) {
-      if (err instanceof ApiError && err.status === 404) return null;
+      if (err instanceof ApiError && err.status === 404 && err.code === "not_found") return null;
       throw err;
     }
   }
@@ -193,7 +155,7 @@ export class HttpAdminApi implements AdminApi {
   // —— 写 ——
 
   savePlan(planId: string, plan: MenuPlan, opts?: WriteOpts): Promise<WriteResult> {
-    return this.write(`/plan/${seg(planId)}`, plan, opts);
+    return this.write(`/plan/${seg(planId)}`, plan, opts, true);
   }
 
   saveIngredient(id: string, ingredient: Ingredient, opts?: WriteOpts): Promise<WriteResult> {
@@ -201,18 +163,19 @@ export class HttpAdminApi implements AdminApi {
   }
 
   saveDishDraft(id: string, dish: Dish, opts?: WriteOpts): Promise<WriteResult> {
-    return this.write(`/dish/${seg(id)}/draft`, dish, opts);
+    return this.write(`/dish/${seg(id)}/draft`, dish, opts, true);
   }
 
   saveDish(id: string, dish: Dish, opts?: WriteOpts): Promise<WriteResult> {
-    return this.write(`/dish/${seg(id)}`, dish, opts);
+    return this.write(`/dish/${seg(id)}`, dish, opts, true);
   }
 
   /** 四个实体写入的共同形状（worker entities.ts WriteResponse）；If-Match 透传 opts.ifMatch（§3.2） */
-  private async write(path: string, value: unknown, opts?: WriteOpts): Promise<WriteResult> {
+  private async write(path: string, value: unknown, opts?: WriteOpts, conditional = false): Promise<WriteResult> {
     const headers: Record<string, string> = {};
     const ifMatch = opts?.ifMatch?.trim();
-    if (ifMatch) headers["If-Match"] = ifMatch;
+    if (conditional) Object.assign(headers, conditionHeaders(opts?.ifMatch !== undefined ? { ifMatch: opts.ifMatch } : { ifNoneMatch: "*" }));
+    else if (ifMatch) headers["If-Match"] = ifMatch;
     const body = await this.request<WriteResult & { ok: true }>({ method: "POST", path, json: value, headers });
     return { commit: body.commit, blobSha: body.blobSha, unchanged: body.unchanged, warnings: body.warnings ?? [] };
   }
@@ -295,67 +258,14 @@ export class HttpAdminApi implements AdminApi {
    *     响应体不是 worker 的 JSON（Cloudflare 52x 页等）→ ApiError(status, "bad_response", "")，kit.apiMessage 会显示「连不上后台」；
    *   - 2xx → 返回解析后的 JSON。
    */
-  private async request<T>(spec: RequestSpec): Promise<T> {
-    const token = this.token();
-    if (token === null) throw new ApiError(401, "unauthorized", UNAUTHORIZED_MESSAGE);
+  private request<T>(spec: RequestSpec): Promise<T> { return this.transport.request<T>(spec); }
+}
 
-    const headers: Record<string, string> = { Authorization: `Bearer ${token}`, ...(spec.headers ?? {}) };
-    const init: RequestInit = { method: spec.method, headers };
-    if (spec.binary) {
-      headers["Content-Type"] = spec.binary.type || "application/octet-stream";
-      init.body = spec.binary;
-    } else if (spec.json !== undefined) {
-      headers["Content-Type"] = "application/json; charset=utf-8";
-      init.body = JSON.stringify(spec.json);
-    }
-    const timeoutMs = spec.timeoutMs ?? this.timeoutMs;
-    if (timeoutMs > 0 && typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
-      init.signal = AbortSignal.timeout(timeoutMs);
-    }
-
-    let res: Response;
-    try {
-      res = await this.fetchFn(`${this.base}${spec.path}`, init);
-    } catch {
-      // fetch 只在网络层失败 / 被 abort 时抛；具体原因不进 message（可能含 URL），屏显示「连不上后台」
-      throw new ApiError(0, "network", "");
-    }
-
-    const text = await res.text();
-    let parsed: unknown = null;
-    if (text.length > 0) {
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        parsed = null;
-      }
-    }
-
-    if (res.ok) {
-      if (parsed === null || typeof parsed !== "object") throw new ApiError(res.status, "bad_response", "");
-      return parsed as T;
-    }
-
-    const body = parsed !== null && typeof parsed === "object" ? (parsed as ErrorBody) : null;
-    const errors = Array.isArray(body?.errors) ? body.errors.filter(isFieldError) : [];
-    const first = errors[0];
-    const retryAfter = res.status === 429 ? parseRetryAfter(res.headers.get("Retry-After")) : undefined;
-    if (!first) throw new ApiError(res.status, "bad_response", "", undefined, retryAfter);
-    throw new ApiError(res.status, first.code, first.message, errors, retryAfter);
+/** Existing numeric pages must opt into the new API before consuming optional quantities. */
+function assertLegacyFormat(value: unknown): void {
+  if (value && typeof value === "object" && "schemaVersion" in value && value.schemaVersion !== undefined && value.schemaVersion !== "2") {
+    throw new ApiError(422, "unsupported_format", "");
   }
-}
-
-function isFieldError(value: unknown): value is FieldError {
-  if (value === null || typeof value !== "object") return false;
-  const v = value as Record<string, unknown>;
-  return typeof v.code === "string" && typeof v.message === "string" && typeof v.path === "string";
-}
-
-/** Retry-After 只认秒数（worker 只发这种形状）；HTTP-date 或缺失 → undefined */
-function parseRetryAfter(raw: string | null): number | undefined {
-  if (raw === null) return undefined;
-  const n = Number(raw.trim());
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -370,7 +280,7 @@ function parseRetryAfter(raw: string | null): number | undefined {
  *   - 失败的调用不动缓存；请求进行中发生失效 → 那次结果不入缓存（generation 计数）。
  * mock 自己已经带同样的缓存（且 latencyMs / failNext 要每次调用都过 enter()），所以只套在 HttpAdminApi 上。
  */
-export function withReadCache(inner: AdminApi): AdminApi {
+export function withReadCache(inner: AdminApi, session?: SessionBoundary): AdminApi {
   let catalog: Promise<Catalog> | null = null;
   let changes: Promise<Changes> | null = null;
   let gen = 0;
@@ -381,21 +291,28 @@ export function withReadCache(inner: AdminApi): AdminApi {
     if (which === "all") catalog = null;
   };
 
+  session?.onSessionChange(() => invalidate("all"));
+
   const cached = <T>(slot: () => Promise<T> | null, set: (p: Promise<T> | null) => void, load: () => Promise<T>, force: boolean): Promise<T> => {
+    const sessionAt = session?.sessionKey();
+    const guarded = (v: T): T => {
+      if (session && sessionAt !== session.sessionKey()) throw new ApiError(0, "session_changed", "");
+      return structuredClone(v);
+    };
     const hit = slot();
-    if (hit && !force) return hit.then((v) => structuredClone(v));
+    if (hit && !force) return hit.then(guarded);
     const at = gen;
     const p = load();
     set(p);
     p.then(
       () => {
-        if (gen !== at) set(null); // 加载期间有写入：这份可能已经旧了，下次重取
+        if (gen !== at && slot() === p) set(null); // 加载期间有写入：这份可能已经旧了，下次重取
       },
       () => {
         if (slot() === p) set(null);
       },
     );
-    return p.then((v) => structuredClone(v));
+    return p.then(guarded);
   };
 
   const afterWrite = async <T>(p: Promise<T>): Promise<T> => {
@@ -447,7 +364,8 @@ export function withReadCache(inner: AdminApi): AdminApi {
 
 /** 真实实现 = HTTP 客户端 + 读缓存；getApi() 与测试都用这一个工厂 */
 export function createHttpApi(base: string, opts?: HttpApiOptions): AdminApi {
-  return withReadCache(new HttpAdminApi(base, opts));
+  const inner = new HttpAdminApi(base, opts);
+  return withReadCache(inner, inner.transport);
 }
 
 // ---------------------------------------------------------------------------

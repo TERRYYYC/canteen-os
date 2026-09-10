@@ -1,0 +1,26 @@
+Observed behavioral RED summary (before implementation)
+Command: node --test packages/web/test/team-meals-api.test.mjs
+Exit: 1
+Creation actual headers [null,null,null,null], expected [*,*,*,null].
+Legacy v3 and non-not_found 404: missing expected rejection.
+New API factory: undefined rather than function.
+
+✖ legacy creates use If-None-Match and Ingredient retains its original semantics (9.497ms)
+✖ legacy typed readers reject v3 instead of casting optional fields to v2 (0.317542ms)
+✖ only explicit 404 not_found is absent, including the legacy reader (0.621ms)
+✖ new writes preserve unknown values, require strong conditions and never retry 409/428 (0.243084ms)
+✖ revision source/catalog cache is separate from current and deep cloned; mismatches never fallback (0.09925ms)
+✖ revision errors are kept and shopping-list source uses own kind (0.083833ms)
+✖ asset fetch authenticates bytes and checks exact revision; full owner/pointer cache keys (0.07725ms)
+✖ token and identity change discard cache and reject late replies (0.088458ms)
+✖ logout/relogin with same token invalidates pending and cached reads (0.10625ms)
+✖ response body network failure is an unknown network error (0.103584ms)
+✖ new unconfigured flow cannot save and explicit mock HTTP has a mock capability (0.084416ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 0
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 333.517
