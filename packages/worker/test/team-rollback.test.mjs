@@ -5,15 +5,16 @@ import { REPO, FakeRepo, WORKER, bearer, call, makeEnv } from "./helpers.mjs";
 
 const worker = (await import(WORKER)).default;
 const json = (value) => `${JSON.stringify(value)}\n`;
-const plan = (version = "2", label = "old") => json({ schemaVersion: version, name: { zh: label }, meals: [] });
+const plan = (version = "2", label = "old") => json({ schemaVersion: version, name: { zh: label }, meals: version === "3" ? [] : [{ date: "2026-10-19", mealType: "lunch", dishRef: "soup", plannedServings: 2 }] });
 const dish = (version = "2", label = "old") => json({ ...(version === undefined ? {} : { schemaVersion: version }), name: { zh: label } });
+const support = { "data/dishes/soup.json": dish(), "data/techniques.json": "[]\n" };
 const rollback = (env, sha) => call(worker, env, "POST", `/rollback/${sha}`, { headers: bearer("admin") });
 
 test("team rollback restores only allowed knowledge paths, keeping current lists and unknown paths byte-for-byte", async () => {
   const repo = new FakeRepo();
   const old = {
     "README.md": "old readme\n",
-    "data/ingredients/tomato.json": json({ schemaVersion: "2", name: { zh: "old" } }),
+    "data/ingredients/tomato.json": json({ schemaVersion: "2", name: { zh: "old" }, baseUnit: "g", trackStock: false }),
     "data/ingredients/old.jpg": "old image bytes",
     "data/dishes/soup.json": dish(),
     "data/menu-plans/week.json": plan(),
@@ -30,7 +31,7 @@ test("team rollback restores only allowed knowledge paths, keeping current lists
   const current = {
     ...old,
     "README.md": "current readme\n",
-    "data/ingredients/tomato.json": json({ schemaVersion: "2", name: { zh: "current" } }),
+    "data/ingredients/tomato.json": json({ schemaVersion: "2", name: { zh: "current" }, baseUnit: "g", trackStock: false }),
     "data/dishes/soup.json": dish("2", "current"),
     "data/dishes/new.jpg": "new image bytes",
     "data/menu-plans/week.json": plan("2", "current"),
@@ -100,8 +101,8 @@ for (const [kind, encode] of [["menu-plans", plan], ["dishes", dish]]) {
 test("team rollback permits current v3 to historical v3 without changing list bytes", async () => {
   const repo = new FakeRepo();
   const path = "data/menu-plans/current.json";
-  const target = repo.commit({ [path]: plan("3", "old") });
-  repo.commit({ [path]: plan("3", "current"), "data/shopping-lists/current.json": "keep\n" });
+  const target = repo.commit({ ...support, [path]: plan("3", "old") });
+  repo.commit({ ...support, [path]: plan("3", "current"), "data/shopping-lists/current.json": "keep\n" });
   const { env } = makeEnv(repo);
   const result = await rollback(env, target);
   assert.equal(result.status, 200);
@@ -112,8 +113,8 @@ test("team rollback permits current v3 to historical v3 without changing list by
 test("team rollback re-reads current head after ref conflict and preserves the latest shopping bytes", async () => {
   const repo = new FakeRepo();
   const path = "data/menu-plans/current.json";
-  const target = repo.commit({ [path]: plan("2", "old") });
-  const current = { [path]: plan("2", "current"), "data/shopping-lists/current.json": "before purchase\n" };
+  const target = repo.commit({ ...support, [path]: plan("2", "old") });
+  const current = { ...support, [path]: plan("2", "current"), "data/shopping-lists/current.json": "before purchase\n" };
   repo.commit(current);
   let attempts = 0;
   let concurrent;
@@ -142,13 +143,13 @@ test("team rollback re-reads current head after ref conflict and preserves the l
 test("team rollback rechecks v3 protection after a competing upgrade", async () => {
   const repo = new FakeRepo();
   const path = "data/menu-plans/current.json";
-  const target = repo.commit({ [path]: plan("2", "old") });
-  repo.commit({ [path]: plan("2", "current") });
+  const target = repo.commit({ ...support, [path]: plan("2", "old") });
+  repo.commit({ ...support, [path]: plan("2", "current") });
   let concurrent;
   const { env } = makeEnv(repo, {
     __extraRoutes: {
       [`PATCH /repos/${REPO}/git/refs/heads/main`]: () => {
-        concurrent = repo.commit({ [path]: plan("3", "upgraded"), "data/shopping-lists/current.json": "latest list\n" });
+        concurrent = repo.commit({ ...support, [path]: plan("3", "upgraded"), "data/shopping-lists/current.json": "latest list\n" });
         return new Response('{}', { status: 422 });
       },
     },

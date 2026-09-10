@@ -8,11 +8,14 @@ import type { Ctx } from "../context.js";
 import { githubClient } from "../context.js";
 import type { GitHubClient, TreeEntry } from "../github.js";
 import { commitMessage } from "../github.js";
-import { fail } from "../http.js";
+import { fail, HttpError } from "../http.js";
+import { localAssetPath } from "../asset-path.js";
+import { inspectImage } from "../image-integrity.js";
 import { resolveRevision } from "../revision.js";
+import { parseSource, parseTranslationLock } from "../source.js";
 import { SKIP_CI } from "../write.js";
 
-type BlobMap = Map<string, TreeEntry>;
+type EntryMap = Map<string, TreeEntry>;
 type TreeChange = { path: string; mode: string; type: string; sha: string | null };
 
 /** Do not replace data/ as a subtree: future paths are preserved by default. */
@@ -31,8 +34,8 @@ export async function handleRollback(ctx: Ctx): Promise<unknown> {
     const target = await resolveRevision(gh, head, raw);
     const headCommit = await gh.getCommit(head);
     const targetCommit = target === head ? headCommit : await gh.getCommit(target);
-    const current = await listBlobs(gh, headCommit.treeSha);
-    const historical = target === head ? current : await listBlobs(gh, targetCommit.treeSha);
+    const current = await listEntries(gh, headCommit.treeSha);
+    const historical = target === head ? current : await listEntries(gh, targetCommit.treeSha);
     const candidate = new Map(current);
 
     for (const path of current.keys()) {
@@ -42,7 +45,7 @@ export async function handleRollback(ctx: Ctx): Promise<unknown> {
       if (isKnowledgePath(path)) candidate.set(path, entry);
     }
 
-    await validateRollbackCandidate(gh, current, candidate);
+    await validateRollbackCandidate(gh, current, historical, candidate);
     const changes = treeChanges(current, candidate);
     if (changes.length === 0) {
       return { ok: true, commit: head, restoredFrom: target, changedFiles: 0, unchanged: true };
@@ -69,12 +72,15 @@ export async function handleRollback(ctx: Ctx): Promise<unknown> {
   throw fail("conflict");
 }
 
-async function listBlobs(gh: GitHubClient, treeSha: string): Promise<BlobMap> {
+async function listEntries(gh: GitHubClient, treeSha: string): Promise<EntryMap> {
   const entries = await gh.getTree(treeSha, true);
-  return new Map(entries.filter((entry) => entry.type === "blob").map((entry) => [entry.path, entry]));
+  // Keep submodules and malformed source directories visible to validation. Only
+  // ordinary directory scaffolding is omitted from the per-file candidate map.
+  return new Map(entries.filter((entry) => entry.type !== "tree" || entry.mode !== "040000" || entry.path.endsWith(".json"))
+    .map((entry) => [entry.path, entry]));
 }
 
-function treeChanges(current: BlobMap, candidate: BlobMap): TreeChange[] {
+function treeChanges(current: EntryMap, candidate: EntryMap): TreeChange[] {
   const changes: TreeChange[] = [];
   for (const [path, next] of candidate) {
     const before = current.get(path);
@@ -89,11 +95,10 @@ function treeChanges(current: BlobMap, candidate: BlobMap): TreeChange[] {
 }
 
 /**
- * This candidate validation boundary runs before createTree on every attempt.
- * B1 enforces the persistent version guard. B2 adds the shared version-selected
- * schema and reference validation here, against this complete candidate map.
+ * Validate the complete candidate before createTree on every attempt, even when
+ * its knowledge blobs match HEAD. Existing v3 protection precedes candidate errors.
  */
-async function validateRollbackCandidate(gh: GitHubClient, current: BlobMap, candidate: BlobMap): Promise<void> {
+async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, historical: EntryMap, candidate: EntryMap): Promise<void> {
   const versions = new Map<string, "2" | "3">();
   const readVersion = async (path: string, entry: TreeEntry): Promise<"2" | "3"> => {
     if (entry.mode !== "100644") throw fail("invalid_source", { path });
@@ -124,6 +129,99 @@ async function validateRollbackCandidate(gh: GitHubClient, current: BlobMap, can
     const next = candidate.get(path);
     if (!next || await readVersion(path, next) !== "3") {
       throw fail("format_downgrade", { path });
+    }
+  }
+
+  for (const input of [current, historical]) {
+    for (const [path, entry] of input) {
+      if (path === "data" || /^data\/(ingredients|dishes|menu-plans)$/.test(path)) {
+        throw fail("invalid_source", { path });
+      }
+      if (isKnowledgePath(path) && (entry.type !== "blob" || entry.mode !== "100644")) {
+        throw fail("invalid_source", { path });
+      }
+    }
+  }
+
+  if (!candidate.has("data/techniques.json")) throw fail("invalid_source", { path: "data/techniques.json" });
+  const sources = new Map<string, unknown>();
+  for (const [path, entry] of candidate) {
+    if (!isKnowledgePath(path) || !path.endsWith(".json")) continue;
+    const text = await gh.getBlobText(entry.sha);
+    if (path === "data/translations.lock.json") {
+      parseTranslationLock(text);
+    } else if (path === "data/techniques.json") {
+      sources.set(path, parseSource(text, "techniques", path));
+    } else {
+      const match = /^data\/(ingredients|dishes|menu-plans)\/[a-z][a-z0-9-]*\.json$/.exec(path);
+      if (!match) throw fail("invalid_source", { path });
+      const kind = match[1] === "ingredients" ? "ingredient" : match[1] === "dishes" ? "dish" : "plan";
+      sources.set(path, parseSource(text, kind, path));
+    }
+  }
+
+  const techniques = sources.get("data/techniques.json") as Array<{ id: string }>;
+  const techniqueIds = new Set(techniques.map((technique) => technique.id));
+  for (const [path, value] of sources) {
+    if (path.startsWith("data/menu-plans/")) {
+      for (const meal of (value as { meals: Array<{ dishRef: string }> }).meals) {
+        if (!sources.has(`data/dishes/${meal.dishRef}.json`)) throw fail("invalid_source", { path });
+      }
+    } else if (path.startsWith("data/dishes/")) {
+      const dish = value as {
+        components?: Array<{ ingredientRef: string; prep?: { techniqueRef: string } }>;
+        steps?: Array<{ techniqueRef?: string }>;
+      };
+      for (const component of dish.components ?? []) {
+        if (!sources.has(`data/ingredients/${component.ingredientRef}.json`) ||
+            (component.prep && !techniqueIds.has(component.prep.techniqueRef))) {
+          throw fail("invalid_source", { path });
+        }
+      }
+      for (const step of dish.steps ?? []) {
+        if (step.techniqueRef !== undefined && !techniqueIds.has(step.techniqueRef)) {
+          throw fail("invalid_source", { path });
+        }
+      }
+    }
+  }
+
+  await validateCandidateImages(gh, candidate, sources);
+}
+
+async function validateCandidateImages(gh: GitHubClient, candidate: EntryMap, sources: Map<string, unknown>): Promise<void> {
+  const checked = new Set<string>();
+  for (const [owner, value] of sources) {
+    const refs: Array<{ pointer: string; src: string }> = [];
+    const add = (pointer: string, image: unknown): void => {
+      if (image !== undefined) refs.push({ pointer, src: (image as { src: string }).src });
+    };
+    if (owner === "data/techniques.json") {
+      for (const [index, technique] of (value as Array<{ image?: unknown }>).entries()) add(`/${index}/image`, technique.image);
+    } else if (!owner.startsWith("data/menu-plans/")) {
+      const source = value as { image?: unknown; components?: Array<{ prep?: { image?: unknown } }>; steps?: Array<{ image?: unknown }> };
+      add("/image", source.image);
+      for (const [index, component] of (source.components ?? []).entries()) add(`/components/${index}/prep/image`, component.prep?.image);
+      for (const [index, step] of (source.steps ?? []).entries()) add(`/steps/${index}/image`, step.image);
+    }
+    for (const { pointer, src } of refs) {
+      const errorPath = `${owner}#${pointer}`;
+      let imagePath: string | null;
+      try {
+        imagePath = localAssetPath(owner, src);
+      } catch (error) {
+        if (error instanceof HttpError) throw fail("invalid_source", { path: errorPath });
+        throw error;
+      }
+      // An external source remains metadata; rollback never fetches mutable bytes.
+      if (imagePath === null) continue;
+      const entry = candidate.get(imagePath);
+      if (!entry || entry.type !== "blob" || entry.mode !== "100644") throw fail("invalid_source", { path: errorPath });
+      const cacheKey = `${imagePath}\0${entry.sha}`;
+      if (checked.has(cacheKey)) continue;
+      const info = inspectImage(await gh.getBlobBytes(entry.sha));
+      if (!info || !imagePath.endsWith(`.${info.ext}`)) throw fail("invalid_source", { path: errorPath });
+      checked.add(cacheKey);
     }
   }
 }

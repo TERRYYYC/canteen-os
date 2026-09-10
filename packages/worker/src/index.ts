@@ -17,12 +17,14 @@ import { handleImage } from "./endpoints/image.js";
 import { handlePublish, handlePublishLatest, handlePublishStatus } from "./endpoints/publish.js";
 import { handleCatalog, handleChanges, handleSource } from "./endpoints/read.js";
 import { handleRollback } from "./endpoints/rollback.js";
+import { handleShoppingList } from "./endpoints/shopping-list.js";
 import { handleTranslate } from "./endpoints/translate.js";
 import { UpstreamError } from "./github.js";
 import {
   corsHeaders,
   DEFAULT_ALLOWED_ORIGIN,
   HttpError,
+  ReviewRequiredError,
   fail,
   jsonResponse,
   preflightResponse,
@@ -71,6 +73,7 @@ export const ROUTES: Route[] = [
   route("POST", "/ingredient/:id", handleIngredient, "write"),
   route("POST", "/dish/:id/draft", handleDishDraft, "write"),
   route("POST", "/dish/:id", handleDish, "write"),
+  route("POST", "/shopping-list/:id", handleShoppingList, "write"),
   route("POST", "/publish", handlePublish, "publish"),
   route("GET", "/publish/latest", handlePublishLatest, "read"),
   route("GET", "/publish/:runId", handlePublishStatus, "read"),
@@ -227,7 +230,9 @@ export default {
     } catch (err) {
       if (err instanceof HttpError) {
         return finish(
-          jsonResponse({ ok: false, errors: err.errors }, err.status, allowedOrigin, err.headers),
+          jsonResponse({ ok: false, errors: err.errors,
+            ...(err instanceof ReviewRequiredError ? { reviewRequired: err.reviewRequired } : {}),
+          }, err.status, allowedOrigin, err.headers),
         );
       }
       if (err instanceof UpstreamError) {

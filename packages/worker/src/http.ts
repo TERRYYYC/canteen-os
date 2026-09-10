@@ -77,8 +77,19 @@ export class HttpError extends Error {
   }
 }
 
+/** Only this conflict carries a machine-readable list of rows needing review. */
+export class ReviewRequiredError extends HttpError {
+  readonly reviewRequired: string[];
+  constructor(ids: string[]) {
+    super(409, [{ path: '/items', code: 'review_required', message: '请先保存复核结果，再确认本次判断' }]);
+    this.reviewRequired = [...new Set(ids)].sort((a, b) => a.localeCompare(b, 'en'));
+  }
+}
+
 /** 契约 §1.8 的中文提示语（D-02）。前端原样显示。 */
 const MESSAGES: Record<ErrorCode, string> = {
+  review_required: "请先保存复核结果，再确认本次判断",
+  unresolved_reference: "这个材料的资料不可用，暂时不能确认",
   invalid_selection: "清单范围或候选内容不正确",
   invalid_precondition: "保存条件格式不正确",
   precondition_required: "新建或更新必须提供保存条件",
@@ -105,6 +116,7 @@ const MESSAGES: Record<ErrorCode, string> = {
 };
 
 const STATUS: Record<ErrorCode, number> = {
+  review_required: 409, unresolved_reference: 422,
   invalid_selection: 400,
   invalid_precondition: 400, precondition_required: 428, invalid_revision: 400,
   revision_unavailable: 422, basis_unavailable: 422, invalid_source: 422,

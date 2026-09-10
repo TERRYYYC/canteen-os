@@ -8,6 +8,8 @@
  * 为什么不让前端直读 GitHub：匿名 GitHub API 是 60 次/小时/IP，后台一屏就可能打光
  * （契约 §1.7）。
  */
+import type { ShoppingList } from "@canteenos/core";
+import { validateStoredList } from "../shopping-validation.js";
 import type { Ctx } from "../context.js";
 import { githubClient } from "../context.js";
 import { resolveRevision } from "../revision.js";
@@ -26,15 +28,20 @@ export async function handleSource(ctx: Ctx): Promise<unknown> {
   const kindRaw = ctx.params.kind ?? "";
   const idRaw = ctx.params.id ?? "";
   if (looksLikeTraversal(idRaw) || looksLikeTraversal(kindRaw)) throw fail("bad_path");
-  if (!isSourceKind(kindRaw)) throw fail("bad_id", { message: "只能读 plan / ingredient / dish" });
+  if (!isSourceKind(kindRaw)) throw fail("bad_id", { message: "只能读 plan / ingredient / dish / shopping-list" });
   if (!ID_RE.test(idRaw)) throw fail("bad_id");
 
   const gh = githubClient(ctx);
-  const head = await resolveRevision(gh, await gh.getHeadSha(), ctx.url.searchParams.get("revision"));
+  const currentHead = await gh.getHeadSha();
+  const head = await resolveRevision(gh, currentHead, ctx.url.searchParams.get("revision"));
   const file = await gh.getFile(entityPath(kindRaw, idRaw), head);
   if (!file) throw fail("not_found");
 
   const content = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
+  if (kindRaw === "shopping-list") {
+    const list = content as ShoppingList;
+    await validateStoredList(gh, currentHead, list, idRaw);
+  }
   return { ok: true, content, blobSha: file.sha, commit: head };
 }
 

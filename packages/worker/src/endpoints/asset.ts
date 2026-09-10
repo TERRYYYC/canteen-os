@@ -4,9 +4,9 @@ import { fail } from '../http.js';
 import { resolveRevision } from '../revision.js';
 import { inspectImage } from '../image-integrity.js';
 import { parseSource } from '../source.js';
+import { localAssetPath } from '../asset-path.js';
 
 const OWNER = /^data\/(ingredients|dishes)\/[a-z][a-z0-9-]*\.json$/;
-const IMAGE = /^data\/(ingredients|dishes)\/(?:[a-z][a-z0-9-]*\.(?:jpg|png|webp)|[a-z][a-z0-9-]*(?:\/images)?\/[a-z][a-z0-9-]*\.(?:jpg|png|webp))$/;
 
 /** Resolves only a schema ImageRef belonging to an owner at the captured commit. */
 export async function handleAsset(ctx: Ctx): Promise<Response> {
@@ -31,16 +31,8 @@ export async function handleAsset(ctx: Ctx): Promise<Response> {
   }
   const src = (ref as { src?: unknown } | null)?.src;
   if (typeof src !== 'string') throw fail('asset_unavailable');
-  if (/^https?:\/\//i.test(src)) throw fail('external_asset_unpinned');
-  if (/^[a-z][a-z0-9+.-]*:/i.test(src) || src.startsWith('/') || /[\\%?#\x00-\x20\x7f]/.test(src)) throw fail('asset_unavailable');
-  const parts = (src.startsWith('data/') ? src : `${owner.slice(0, owner.lastIndexOf('/'))}/${src}`).split('/');
-  const normalized: string[] = [];
-  for (const part of parts) {
-    if (part === '..') { if (normalized.length <= 1) throw fail('asset_unavailable'); normalized.pop(); }
-    else if (part !== '.' && part !== '') normalized.push(part);
-  }
-  const path = normalized.join('/');
-  if (!IMAGE.test(path)) throw fail('asset_unavailable');
+  const path = localAssetPath(owner, src);
+  if (path === null) throw fail('external_asset_unpinned');
   const asset = entries.find(e => e.path === path);
   if (!asset || asset.type !== 'blob' || asset.mode !== '100644') throw fail('asset_unavailable');
   const bytes = await gh.getBlobBytes(asset.sha);

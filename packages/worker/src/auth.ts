@@ -73,6 +73,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
   "POST /ingredient/:id": ["chef", "admin"],
   "POST /dish/:id/draft": ["chef", "admin"],
   "POST /dish/:id": ["chef", "admin"],
+  "POST /shopping-list/:id": ["chef", "buyer", "admin"],
   "POST /publish": ["chef", "admin"],
   "GET /publish/latest": ["chef", "buyer", "admin"],
   "GET /publish/:runId": ["chef", "buyer", "admin"],

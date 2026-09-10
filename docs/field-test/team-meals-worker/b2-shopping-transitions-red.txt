@@ -1,0 +1,311 @@
+✖ shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources (10.515708ms)
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"} (0.828458ms)
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true} (0.329833ms)
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"} (0.656791ms)
+✖ shopping create rejects missing candidate with a field path (0.539417ms)
+✖ shopping create rejects extra candidate with a field path (0.266917ms)
+✖ shopping create rejects duplicate candidate with a field path (0.2015ms)
+✖ shopping create cannot invent schema-valid previous judgment (0.195042ms)
+✖ shopping same-basis explicit manual check clears previous and leaves knowledge unchanged (0.316542ms)
+✖ shopping same-basis update cannot rewrite an existing previous judgment (0.342417ms)
+✖ shopping same-basis candidate equality is checked before accepting manual decisions (0.194292ms)
+✖ shopping changed basis requires saved check+previous before a separately locked bought decision (0.23475ms)
+✖ shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision (0.219542ms)
+✖ shopping unavailable stored previous cannot be bypassed by clear previous (0.14625ms)
+✖ shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan (0.138708ms)
+✖ shopping unresolved ingredient stays check while other ingredients can be decided (0.137625ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 0
+ℹ fail 16
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.081583
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-transitions.test.mjs:82:1
+✖ shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources (10.515708ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:86:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:96:4
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"} (0.828458ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:101:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:96:4
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true} (0.329833ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:101:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:96:4
+✖ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"} (0.656791ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:101:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:110:4
+✖ shopping create rejects missing candidate with a field path (0.539417ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:114:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:110:4
+✖ shopping create rejects extra candidate with a field path (0.266917ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:114:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:110:4
+✖ shopping create rejects duplicate candidate with a field path (0.2015ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:114:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:118:1
+✖ shopping create cannot invent schema-valid previous judgment (0.195042ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:122:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:126:1
+✖ shopping same-basis explicit manual check clears previous and leaves knowledge unchanged (0.316542ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:133:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:138:1
+✖ shopping same-basis update cannot rewrite an existing previous judgment (0.342417ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:147:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:153:1
+✖ shopping same-basis candidate equality is checked before accepting manual decisions (0.194292ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 400
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:159:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:163:1
+✖ shopping changed basis requires saved check+previous before a separately locked bought decision (0.23475ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 409
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:178:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:205:1
+✖ shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision (0.219542ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 409
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:216:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:221:82
+✖ shopping unavailable stored previous cannot be bypassed by clear previous (0.14625ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 422
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:233:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:221:82
+✖ shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan (0.138708ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 422
+
+      at assertFailure (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:72:10)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:233:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-transitions.test.mjs:239:1
+✖ shopping unresolved ingredient stays check while other ingredients can be decided (0.137625ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"errors":[{"path":"","code":"not_found","message":"没有这个接口"}]}
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-transitions.test.mjs:243:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
