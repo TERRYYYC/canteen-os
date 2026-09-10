@@ -11,7 +11,7 @@ const viteRequire = createRequire(require.resolve("vite/package.json"));
 const esbuild = await import(pathToFileURL(viteRequire.resolve("esbuild")).href);
 const bundled = await esbuild.build({
   stdin: {
-    contents: 'export * from "../src/view-models/edit-session.ts"; export { ApiError } from "../src/api/types.ts";',
+    contents: 'export * from "../src/view-models/edit-session.ts"; export { ApiError } from "../src/api/types.ts"; export { clearToken } from "../src/admin/token.ts";',
     resolveDir: dirname(fileURLToPath(import.meta.url)),
   },
   bundle: true, write: false, format: "esm", platform: "browser", target: "es2022", logLevel: "silent",
@@ -20,7 +20,7 @@ const dir = await mkdtemp(join(tmpdir(), "canteenos-edit-session-"));
 after(() => rm(dir, { recursive: true, force: true }));
 const entry = join(dir, "session.mjs");
 await writeFile(entry, bundled.outputFiles[0].text);
-const { createEditSession, ApiError } = await import(pathToFileURL(entry).href);
+const { createEditSession, ApiError, clearToken } = await import(pathToFileURL(entry).href);
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);
@@ -39,13 +39,15 @@ function deferred() {
 function setup({ mode = "real", save = async () => write(), read = async () => source() } = {}) {
   const writes = [], reads = [];
   let currentMode = mode;
+  let authVersion = 0;
   const session = createEditSession({
     mode: () => currentMode,
+    authSession: () => authVersion,
     save: (...args) => { writes.push(structuredClone(args)); return save(...args); },
     read: (...args) => { reads.push(structuredClone(args)); return read(...args); },
   });
   session.open(identity, original, source());
-  return { session, writes, reads, setMode: value => { currentMode = value; } };
+  return { session, writes, reads, setMode: value => { currentMode = value; }, setAuth: value => { authVersion = value; } };
 }
 
 test("save snapshots generation and strong lock, retaining later edits until their own save", async () => {
@@ -78,7 +80,7 @@ test("new document uses If-None-Match star; clean documents never write", async 
   const { session, writes } = setup();
   assert.equal(session.getState().phase, "clean");
   assert.equal((await session.save()).status, "unchanged");
-  session.open(identity, edited, null);
+  session.open({ kind: "plan", id: "week-42" }, { ...edited, id: "week-42" }, null);
   assert.equal(session.getState().dirty, true);
   await session.save();
   assert.deepEqual(writes[0][2], { ifNoneMatch: "*" });
@@ -101,7 +103,7 @@ test("pending save is not duplicated and external input/snapshot mutation cannot
   assert.deepEqual(session.getState().draft, edited);
 });
 
-for (const lifecycle of ["different-document", "same-document-language", "leave-page"]) {
+for (const lifecycle of ["different-document", "leave-page"]) {
   test(`late save response cannot mutate new context: ${lifecycle}`, async () => {
     const response = deferred();
     const { session } = setup({ save: () => response.promise });
@@ -109,7 +111,7 @@ for (const lifecycle of ["different-document", "same-document-language", "leave-
     const pending = session.save();
     if (lifecycle === "leave-page") session.invalidate();
     else {
-      const nextIdentity = lifecycle === "different-document" ? { kind: "plan", id: "week-42" } : identity;
+      const nextIdentity = { kind: "plan", id: "week-42" };
       const next = { ...original, id: nextIdentity.id, name: { uk: "Новий контекст" } };
       session.open(nextIdentity, next, source(next, revisionC, "blob-c"));
     }
@@ -192,7 +194,7 @@ test("confirmed original blob permits only an explicit retry using the original 
 
 test("explicit not-found after uncertain creation permits only another conditional create", async () => {
   const { session, writes } = setup({ save: async () => { throw new ApiError(0, "network", ""); }, read: async () => null });
-  session.open(identity, edited, null);
+  session.open({ kind: "plan", id: "week-42" }, { ...edited, id: "week-42" }, null);
   await session.save();
   assert.equal((await session.reconcileUnknown()).status, "not-saved");
   await session.save();
@@ -229,17 +231,213 @@ test("reread errors, invalid fixed response, and source deletion do not masquera
   }
 });
 
-test("late recovery cannot change a reopened session", async () => {
+test("late recovery cannot change a different opened document", async () => {
   const response = deferred();
   const { session } = setup({ save: async () => { throw new ApiError(0, "network", ""); }, read: () => response.promise });
   session.edit(edited);
   await session.save();
   const recovery = session.reconcileUnknown();
-  session.open(identity, later, source(later, revisionC, "blob-c"));
+  session.open({ kind: "plan", id: "week-42" }, later, source(later, revisionC, "blob-c"));
   const before = session.getState();
   response.resolve(source(edited, revisionB, "blob-b"));
   assert.equal((await recovery).status, "stale");
   assert.deepEqual(session.getState(), before);
+});
+
+test("reopening the same unknown document cannot unlock a second write", async () => {
+  const { session, writes, reads } = setup({ save: async () => { throw new ApiError(0, "network", ""); } });
+  session.edit(edited);
+  await session.save();
+  const unknown = session.getState();
+  session.open(identity, unknown.draft, unknown.source);
+  assert.equal((await session.save()).status, "blocked");
+  assert.equal(writes.length, 1);
+  assert.equal(reads.length, 0);
+  assert.equal(session.getState().operationId, unknown.operationId);
+  assert.equal((await session.reconcileUnknown()).status, "not-saved");
+  assert.deepEqual(reads.map(r => r[1]), [{ force: true }, { revision: revisionA, force: true }]);
+});
+
+test("saving then editing then language rebind preserves generation and acknowledges only submitted body", async () => {
+  const response = deferred();
+  const { session, writes } = setup({ save: () => response.promise });
+  const oldContext = session.getState().contextId;
+  session.edit(edited);
+  const pending = session.save(oldContext);
+  session.edit(later);
+  const generation = session.getState().generation;
+  const newContext = session.refreshView();
+  assert.notEqual(newContext, oldContext);
+  assert.equal(session.getState().generation, generation);
+  assert.equal(session.getState().phase, "saving");
+  assert.deepEqual(session.getState().draft, later);
+  assert.equal(session.edit(original, oldContext), false);
+  assert.equal((await session.save(oldContext)).status, "stale");
+  assert.equal((await session.save(newContext)).status, "blocked");
+  response.resolve(write());
+  assert.equal((await pending).status, "stale", "the old view callback must not act on this acknowledgement");
+  assert.equal(session.getState().phase, "dirty");
+  assert.deepEqual(session.getState().draft, later);
+  assert.deepEqual(session.getState().source, source(edited, revisionB, "blob-b"));
+  await session.save(newContext);
+  assert.deepEqual(writes[1][2], { ifMatch: "blob-b" });
+});
+
+test("unknown language rebind and explicit replacement stay blocked until recovery", async () => {
+  const { session, writes, reads } = setup({ save: async () => { throw new ApiError(0, "network", ""); } });
+  session.edit(edited);
+  await session.save();
+  session.edit(later);
+  const before = session.getState();
+  session.refreshView();
+  assert.equal(session.getState().phase, "outcome-unknown");
+  assert.equal(session.getState().operationId, before.operationId);
+  assert.equal(session.getState().generation, before.generation);
+  assert.deepEqual(session.getState().draft, later);
+  assert.equal(session.replace(original, source()), false);
+  assert.equal((await session.save()).status, "blocked");
+  assert.equal((await session.reconcileUnknown()).status, "not-saved");
+  assert.equal(writes.length, 1);
+  assert.equal(reads.length, 2);
+  assert.deepEqual(session.getState().draft, later);
+});
+
+for (const lifecycle of ["switch-away-and-back", "invalidate-and-reopen"]) {
+  test(`unknown document remains recoverable after ${lifecycle}`, async () => {
+    const { session, writes, reads } = setup({ save: async () => { throw new ApiError(0, "network", ""); } });
+    session.edit(edited);
+    await session.save();
+    session.edit(later);
+    const before = session.getState();
+    if (lifecycle === "switch-away-and-back") session.open({ kind: "plan", id: "week-42" }, original, source());
+    else session.invalidate();
+    session.open(identity, original, source());
+    assert.equal(session.getState().phase, "outcome-unknown");
+    assert.equal(session.getState().generation, before.generation);
+    assert.deepEqual(session.getState().draft, later);
+    assert.equal(session.getState().operationId, before.operationId);
+    assert.equal((await session.save()).status, "blocked");
+    assert.equal((await session.reconcileUnknown()).status, "not-saved");
+    assert.equal(writes.length, 1);
+    assert.equal(reads.length, 2);
+  });
+}
+
+test("offscreen acknowledgement settles only its document and preserves later draft on return", async () => {
+  const response = deferred();
+  const { session } = setup({ save: () => response.promise });
+  session.edit(edited);
+  const pending = session.save();
+  session.edit(later);
+  session.open({ kind: "plan", id: "week-42" }, original, source());
+  const other = session.getState();
+  response.resolve(write());
+  assert.equal((await pending).status, "stale");
+  assert.deepEqual(session.getState(), other);
+  session.open(identity, original, source());
+  assert.equal(session.getState().phase, "dirty");
+  assert.deepEqual(session.getState().draft, later);
+  assert.equal(session.getState().source.blobSha, "blob-b");
+});
+
+test("returning to a still-saving document keeps its lock and draft until acknowledgement", async () => {
+  const response = deferred();
+  const { session, writes } = setup({ save: () => response.promise });
+  session.edit(edited);
+  const pending = session.save();
+  session.edit(later);
+  const before = session.getState();
+  session.open({ kind: "plan", id: "week-42" }, original, source());
+  session.open(identity, original, source());
+  assert.equal(session.getState().phase, "saving");
+  assert.equal(session.getState().operationId, before.operationId);
+  assert.equal(session.getState().generation, before.generation);
+  assert.deepEqual(session.getState().draft, later);
+  assert.equal((await session.save()).status, "blocked");
+  assert.equal(session.replace(original, source()), false);
+  response.resolve(write());
+  assert.equal((await pending).status, "stale");
+  assert.equal(writes.length, 1);
+  assert.equal(session.getState().phase, "dirty");
+  assert.deepEqual(session.getState().draft, later);
+  assert.equal(session.getState().source.blobSha, "blob-b");
+});
+
+test("dispose refuses unresolved documents even offscreen instead of losing recovery", async () => {
+  const { session } = setup({ save: async () => { throw new ApiError(0, "network", ""); } });
+  session.edit(edited);
+  await session.save();
+  session.open({ kind: "plan", id: "week-42" }, original, source());
+  assert.equal(session.dispose(), false);
+  session.open(identity, original, source());
+  assert.equal(session.getState().phase, "outcome-unknown");
+  await session.reconcileUnknown();
+  assert.equal(session.dispose(), true);
+  session.open(identity, edited, source());
+  assert.equal(session.getState().phase, "closed", "disposed editors cannot silently restart");
+});
+
+test("new auth principal cannot expose or reconcile previous principal's unknown operation", async () => {
+  const { session, writes, reads, setAuth } = setup({ save: async () => { throw new ApiError(0, "network", ""); } });
+  session.edit(edited);
+  await session.save();
+  setAuth(1);
+  assert.equal(session.getState().phase, "closed");
+  assert.equal(session.getState().draft, null);
+  assert.equal(session.getState().source, null);
+  assert.equal(session.getState().error.code, "session_changed");
+  session.open(identity, original, source());
+  assert.equal((await session.reconcileUnknown()).status, "blocked");
+  assert.equal((await session.save()).status, "blocked");
+  setAuth(0);
+  session.open(identity, original, source());
+  assert.equal((await session.save()).status, "blocked", "returning identity cannot resurrect a destroyed auth lifetime");
+  assert.equal(writes.length, 1);
+  assert.equal(reads.length, 0);
+});
+
+test("late acknowledgement after auth changes cannot restore private data", async () => {
+  const response = deferred();
+  const { session, setAuth } = setup({ save: () => response.promise });
+  session.edit(edited);
+  const pending = session.save();
+  setAuth(1);
+  response.resolve(write());
+  assert.equal((await pending).status, "stale");
+  assert.equal(session.getState().phase, "closed");
+  assert.equal(session.getState().draft, null);
+  assert.equal(session.getState().source, null);
+  assert.equal(session.getState().lastSave, null);
+});
+
+test("default auth event immediately erases unknown drafts before another getState call", async () => {
+  const previousStorage = globalThis.sessionStorage;
+  const storage = new Map([["canteenos.token", "A".repeat(43)]]);
+  globalThis.sessionStorage = {
+    getItem: key => storage.get(key) ?? null,
+    setItem: (key, value) => storage.set(key, value),
+    removeItem: key => storage.delete(key),
+  };
+  try {
+    const observed = [];
+    const session = createEditSession({
+      mode: () => "real",
+      save: async () => { throw new ApiError(0, "network", ""); },
+      read: async () => { assert.fail("logout must not trigger recovery reads"); },
+    });
+    session.open(identity, edited, source());
+    session.subscribe(state => observed.push(state));
+    await session.save();
+    assert.equal(observed.at(-1).phase, "outcome-unknown");
+    clearToken();
+    assert.equal(observed.at(-1).phase, "closed");
+    assert.equal(observed.at(-1).draft, null);
+    assert.equal(observed.at(-1).source, null);
+    assert.equal(session.dispose(), true);
+  } finally {
+    if (previousStorage === undefined) delete globalThis.sessionStorage;
+    else globalThis.sessionStorage = previousStorage;
+  }
 });
 
 test("unconfigured save cannot invoke mock persistence; explicit mock results remain labelled", async () => {
@@ -256,7 +454,7 @@ test("unconfigured save cannot invoke mock persistence; explicit mock results re
   assert.equal(mock.session.getState().lastSave.mode, "mock");
 });
 
-test("mode changes invalidate an in-flight response and require reopening before writes", async () => {
+test("mode changes seal an in-flight editor and require a fresh editor before writes", async () => {
   const response = deferred();
   const { session, setMode, writes } = setup({ save: () => response.promise });
   session.edit(edited);

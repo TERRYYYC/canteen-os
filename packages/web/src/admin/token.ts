@@ -29,7 +29,9 @@ let sessionVersion = 0;
 const sessionListeners = new Set<() => void>();
 function changed(): void {
   sessionVersion++;
-  for (const listener of sessionListeners) listener();
+  for (const listener of sessionListeners) {
+    try { listener(); } catch { /* A render failure cannot prevent logout or cache invalidation. */ }
+  }
 }
 function observe(value: string | null): string | null {
   if (observed !== value) { observed = value; changed(); }
@@ -69,23 +71,23 @@ export function getToken(): string | null {
 /** 401 时调用：清掉令牌，随后由屏自己回锁屏（kit.sessionExpired 已把这两步包在一起） */
 export function clearToken(): void {
   memory = null;
-  observed = null;
-  changed();
   try {
     sessionStorage.removeItem(STORAGE_KEY);
   } catch {
     /* 没存过 */
   }
+  observed = null;
+  changed();
 }
 
 function storeToken(token: string): void {
   memory = token;
-  observe(token);
   try {
     sessionStorage.setItem(STORAGE_KEY, token);
   } catch {
     /* 隐私模式：只在本页内存里有效 */
   }
+  observe(token);
 }
 
 /** `#/admin` 或 `#/admin/<segs…>`（逐段编码；与 pages/admin.ts 的 adminHref 同形，这里不能 import 它——会成环） */

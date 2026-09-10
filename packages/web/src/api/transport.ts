@@ -17,7 +17,11 @@ export interface RequestSpec {
 export interface SessionBoundary {
   sessionKey(): number;
   onSessionChange(listener: () => void): () => void;
+  onMutation?(listener: () => void): () => void;
 }
+
+// Both facades share the same controlled repository. These events contain no credentials or data.
+const mutationListeners = new Map<string, Set<() => void>>();
 
 /** A single authenticated request; no retries, storage, URLs containing credentials, or fallback reads. */
 export class HttpTransport implements SessionBoundary {
@@ -37,7 +41,9 @@ export class HttpTransport implements SessionBoundary {
   }
   private invalidate(): void {
     this.generation++;
-    for (const listener of this.listeners) listener();
+    for (const listener of this.listeners) {
+      try { listener(); } catch { /* Cache and auth observers must not suppress one another. */ }
+    }
   }
   sessionKey(): number {
     const token = this.token();
@@ -50,6 +56,20 @@ export class HttpTransport implements SessionBoundary {
   }
   onSessionChange(listener: () => void): () => void {
     this.listeners.add(listener); return () => { this.listeners.delete(listener); };
+  }
+  onMutation(listener: () => void): () => void {
+    let listeners = mutationListeners.get(this.base);
+    if (!listeners) { listeners = new Set(); mutationListeners.set(this.base, listeners); }
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+      if (!listeners.size) mutationListeners.delete(this.base);
+    };
+  }
+  private mutated(): void {
+    for (const listener of mutationListeners.get(this.base) ?? []) {
+      try { listener(); } catch { /* Each facade owns its observers. */ }
+    }
   }
   dispose(): void { this.disposed = true; this.credential = undefined; this.invalidate(); this.unsubscribe(); this.listeners.clear(); }
   private assertSession(key: number): void {
@@ -67,7 +87,7 @@ export class HttpTransport implements SessionBoundary {
     if (spec.binary) { headers.set('Content-Type', spec.binary.type || 'application/octet-stream'); init.body = spec.binary; }
     else if (spec.json !== undefined) { headers.set('Content-Type', 'application/json; charset=utf-8'); init.body = JSON.stringify(spec.json); }
     const timeout = spec.timeoutMs ?? this.opts.timeoutMs ?? 30_000;
-    if (timeout > 0 && typeof AbortSignal?.timeout === 'function') init.signal = AbortSignal.timeout(timeout);
+    if (timeout > 0 && typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(timeout);
     let response: Response;
     try { response = await (this.opts.fetch ?? globalThis.fetch)(`${this.base}${spec.path}`, init); }
     catch { this.assertSession(key); throw new ApiError(0, 'network', ''); }
@@ -97,7 +117,9 @@ export class HttpTransport implements SessionBoundary {
   }
   async request<T>(spec: RequestSpec): Promise<T> {
     const {response, key} = await this.response(spec);
-    return await this.jsonBody(response, key) as T;
+    const body = await this.jsonBody(response, key) as T;
+    if (spec.method === 'POST' && spec.path !== '/translate') this.mutated();
+    return body;
   }
   async asset(path: string, revision: string): Promise<{bytes: Blob; sourceRevision: string}> {
     const {response, key} = await this.response({method:'GET',path});

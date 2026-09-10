@@ -12,6 +12,8 @@ export interface RevisionAsset { bytes: Blob; sourceRevision: string }
 export interface TeamApiOptions extends HttpApiOptions { mode?: 'real' | 'mock' }
 export interface TeamMealsApi {
   readonly mode: ApiMode;
+  /** Opaque auth lifetime for editor adapters; never a credential. */
+  sessionKey(): number;
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null>;
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null>;
   getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null>;
@@ -38,12 +40,15 @@ class TeamHttpApi implements TeamMealsApi {
   private readonly cache = new Map<string, Promise<unknown>>();
   private writeGeneration = 0;
   private readonly unsubscribe: () => void;
+  private readonly unsubscribeMutation: () => void;
   constructor(base: string, opts: TeamApiOptions) {
     this.mode = base.trim() ? opts.mode ?? 'real' : 'unconfigured';
     this.transport = new HttpTransport(base.trim(), opts);
     this.unsubscribe = this.transport.onSessionChange(() => this.cache.clear());
+    this.unsubscribeMutation = this.transport.onMutation(() => { this.writeGeneration++; this.cache.clear(); });
   }
-  dispose(): void { this.cache.clear(); this.unsubscribe(); this.transport.dispose(); }
+  sessionKey(): number { return this.transport.sessionKey(); }
+  dispose(): void { this.cache.clear(); this.unsubscribe(); this.unsubscribeMutation(); this.transport.dispose(); }
   private query(opts: ReadOptions): string {
     if (opts.revision === undefined) return '';
     requireRevision(opts.revision); return `?revision=${opts.revision}`;
@@ -102,8 +107,6 @@ class TeamHttpApi implements TeamMealsApi {
     const result = await this.transport.request<WriteResult>({method:'POST',path,json:content,headers:conditionHeaders(condition)});
     checkRevision(result.commit);
     if (typeof result.blobSha !== 'string' || !result.blobSha || typeof result.unchanged !== 'boolean') throw new ApiError(502,'bad_response','');
-    this.writeGeneration++;
-    this.cache.clear();
     return {commit:result.commit,blobSha:result.blobSha,unchanged:result.unchanged,warnings:result.warnings ?? []};
   }
   savePlan(id: string, plan: AnyMenuPlan, condition: WriteCondition): Promise<WriteResult> { return this.write(`/plan/${encodeURIComponent(id)}`,plan,condition); }

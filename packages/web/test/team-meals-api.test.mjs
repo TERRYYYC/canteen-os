@@ -134,3 +134,31 @@ test('writes invalidate current cached data while an older request cannot evict 
  const old=api.getCatalog();await api.savePlan('p',{}, {ifNoneMatch:'*'});await api.getCatalog({force:true});pending.resolve(json(catalog(A)));await old;
  assert.equal((await api.getCatalog()).commit,B);assert.equal(calls.length,3);
 });
+
+test('logout notifications see cleared credentials and observer failures cannot interrupt logout',()=>{
+ const storage=new Map([['canteenos.token',TOKEN]]);globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
+ mod.getToken();const seen=[];
+ const off=mod.onAuthSessionChange(()=>seen.push(mod.getToken()));
+ try {mod.clearToken();assert.deepEqual(seen,[null]);} finally {off();}
+ storage.set('canteenos.token',TOKEN);mod.getToken();
+ const bad=mod.onAuthSessionChange(()=>{throw Error('render failed');});
+ let notified=false,observerToken;const good=mod.onAuthSessionChange(()=>{notified=true;observerToken=mod.getToken();});
+ try {assert.doesNotThrow(()=>mod.clearToken());assert.equal(storage.get('canteenos.token'),undefined);assert.equal(mod.getToken(),null);assert.equal(notified,true);assert.equal(observerToken,null);}finally{bad();good();}
+});
+test('legacy and team facades invalidate one another after writes, including in-flight cached reads',async()=>{
+ let revision=A;const pending=deferred();let delay=false,first=true;
+ const opts={token:()=>TOKEN,fetch:async(url,init)=>{
+  if(init.method==='POST'){revision=B;return json(write);}
+  if(delay&&first){first=false;return pending.promise;}
+  return json({...catalog(new URL(url).searchParams.get('revision')??revision),dishes:{}});
+ }};
+ const old=mod.createHttpApi('https://shared.invalid/',opts);
+ const team=mod.createTeamMealsApi('https://shared.invalid',opts);after(()=>team.dispose());
+ await old.getCatalog();await team.saveDish('soup',{}, {ifNoneMatch:'*'});
+ assert.equal((await old.getCatalog()).commit,B);
+ revision=A;await team.getCatalog({force:true});await old.saveIngredient('salt',{});assert.equal((await team.getCatalog()).commit,B);
+ revision=A;delay=true;const earlier=team.getCatalog({force:true});await old.saveIngredient('salt',{});
+ pending.resolve(json({...catalog(A),dishes:{}}));await earlier;
+ assert.equal((await team.getCatalog()).commit,B);
+ await team.getCatalog({revision:A});await old.saveIngredient('salt',{});assert.equal((await team.getCatalog({revision:A})).commit,A);
+});

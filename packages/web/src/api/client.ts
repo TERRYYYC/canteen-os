@@ -43,6 +43,7 @@ export interface WriteOpts {
 }
 
 export interface AdminApi {
+  dispose?(): void;
   // —— 读 ——
   /** GET /catalog；有缓存，任何写入成功后自动失效（§3.5 边界） */
   getCatalog(opts?: { force?: boolean }): Promise<Catalog>;
@@ -114,6 +115,8 @@ export class HttpAdminApi implements AdminApi {
     this.transport = new HttpTransport(base, opts);
     this.publishTimeoutMs = opts.publishTimeoutMs ?? 150_000;
   }
+
+  dispose(): void { this.transport.dispose(); }
 
   // —— 读 ——
 
@@ -291,7 +294,8 @@ export function withReadCache(inner: AdminApi, session?: SessionBoundary): Admin
     if (which === "all") catalog = null;
   };
 
-  session?.onSessionChange(() => invalidate("all"));
+  const offSession = session?.onSessionChange(() => invalidate("all"));
+  const offMutation = session?.onMutation?.(() => invalidate("all"));
 
   const cached = <T>(slot: () => Promise<T> | null, set: (p: Promise<T> | null) => void, load: () => Promise<T>, force: boolean): Promise<T> => {
     const sessionAt = session?.sessionKey();
@@ -328,6 +332,7 @@ export function withReadCache(inner: AdminApi, session?: SessionBoundary): Admin
   };
 
   return {
+    dispose: () => { invalidate("all"); offSession?.(); offMutation?.(); inner.dispose?.(); },
     getCatalog: (opts) =>
       cached(
         () => catalog,

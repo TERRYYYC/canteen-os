@@ -24,3 +24,13 @@ New API factory: undefined rather than function.
 ℹ skipped 0
 ℹ todo 0
 ℹ duration_ms 333.517
+
+Independent-review regressions (before fixes)
+Target: 5975ba4dce5a4cfcbeb465c7276b10dfc6d1e2ba
+Command: node --test --test-name-pattern='logout notifications|facades invalidate' packages/web/test/team-meals-api.test.mjs
+Exit: 1; 2 failed. Logout subscribers saw authenticated state twice instead of null.
+Legacy/Team cross-facade current read returned revision A after a successful B write.
+Editor: node --test packages/web/test/edit-session.test.mjs
+Exit: 1; 29 tests, 21 pass, 8 fail (new lifecycle regressions against old implementation).
+Independent/root unknown-reopen probes: before writes=2, reads=0; after writes=1, still outcome-unknown until reconciliation.
+Final tests: Web82/82; editor32/32; no failures.
