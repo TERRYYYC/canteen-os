@@ -19,7 +19,7 @@
  *        applicator 内的条件（allOf/anyOf/oneOf/if/then 不遍历，如 Quantity 的 to-taste 条件必填）。
  * 输出：逐项 OK / MISMATCH / ERROR / UNMAPPED；任一非 OK → exit 1。
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -461,7 +461,10 @@ export async function main(argv = process.argv.slice(2), out = console.log) {
   return 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+let directExecution = false;
+try { directExecution = Boolean(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); }
+catch { /* stdin/eval and virtual entry points are imports, not CLI execution. */ }
+if (directExecution) {
   main().then(
     (code) => process.exit(code),
     (err) => {

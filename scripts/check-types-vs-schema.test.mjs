@@ -188,3 +188,15 @@ test("typescript 缺失：脚本副本放到没有 node_modules 的目录运行 
     assert.match(out, /pnpm install --dir packages\/core/);
   });
 });
+
+test('stdin imports do not resolve dash as an entry file or execute validation', () => {
+  for (const name of ['check-types-vs-schema.mjs','validate-schemas.mjs']) {
+    const url = new URL(name, import.meta.url).href;
+    const r = spawnSync(process.execPath, ['--input-type=module','-'], {
+      input:`await import(${JSON.stringify(url)}); console.log('IMPORT_OK');`, encoding:'utf8',
+    });
+    assert.equal(r.status,0,r.stderr);
+    assert.equal(r.stdout,'IMPORT_OK\n');
+    assert.equal(r.stderr,'');
+  }
+});
