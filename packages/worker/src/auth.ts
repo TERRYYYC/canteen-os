@@ -78,6 +78,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
   "GET /publish/:runId": ["chef", "buyer", "admin"],
   "POST /rollback/:sha": ["admin"],
   "GET /source/:kind/:id": ["chef", "buyer", "admin"],
+  "GET /asset": ["chef", "buyer", "admin"],
   "GET /catalog": ["chef", "buyer", "admin"],
   "GET /changes": ["chef", "buyer", "admin"],
   "POST /translate": ["chef", "admin"],

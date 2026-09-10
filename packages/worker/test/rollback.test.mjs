@@ -33,25 +33,25 @@ function twoCommits() {
   return { repo, a, b };
 }
 
-test("T-41 POST /rollback/zzzz → 400 bad_id", async () => {
+test("T-41 POST /rollback/zzzz → 400 invalid_revision", async () => {
   const { repo } = twoCommits();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/rollback/zzzz", {
     headers: bearer("admin"),
   });
   assert.equal(status, 400);
-  assert.equal(body.errors[0].code, "bad_id");
+  assert.equal(body.errors[0].code, "invalid_revision");
   assert.equal(repo.writeCalls().length, 0);
 });
 
-test("T-42 POST /rollback/<合法但不存在的 sha> → 404 not_found", async () => {
+test("T-42 POST /rollback/<合法但不存在的 sha> → 422 revision_unavailable", async () => {
   const { repo } = twoCommits();
   const { env } = makeEnv(repo);
-  const { status, body } = await call(worker, env, "POST", "/rollback/0123456789abcdef", {
+  const { status, body } = await call(worker, env, "POST", `/rollback/${"0".repeat(40)}`, {
     headers: bearer("admin"),
   });
-  assert.equal(status, 404);
-  assert.equal(body.errors[0].code, "not_found");
+  assert.equal(status, 422);
+  assert.equal(body.errors[0].code, "revision_unavailable");
   assert.equal(repo.writeCalls().length, 0);
 });
 
@@ -59,7 +59,7 @@ test("T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外�
   const { repo, a, b } = twoCommits();
   const { env } = makeEnv(repo);
 
-  const { status, body } = await call(worker, env, "POST", `/rollback/${a.slice(0, 7)}`, {
+  const { status, body } = await call(worker, env, "POST", `/rollback/${a}`, {
     headers: bearer("admin"),
   });
 
@@ -80,7 +80,7 @@ test("T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外�
   const message = repo.commits.get(repo.head).message;
   assert.equal(
     message,
-    `revert(data): 恢复到 ${a.slice(0, 7)} [skip ci]\n\nX-CanteenOS-Role: admin\nX-CanteenOS-Endpoint: POST /rollback/${a.slice(0, 7)}`,
+    `revert(data): 恢复到 ${a.slice(0, 7)} [skip ci]\n\nX-CanteenOS-Role: admin\nX-CanteenOS-Endpoint: POST /rollback/${a}`,
   );
 });
 

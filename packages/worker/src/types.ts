@@ -11,6 +11,9 @@ export type Role = "chef" | "buyer" | "admin";
 
 /** 契约 §1.8 的错误 code 全集（D-02）。校验类的 code 逐字用 ajv 的 keyword，不在这里穷举。 */
 export type ErrorCode =
+  | "invalid_precondition" | "precondition_required" | "invalid_revision"
+  | "revision_unavailable" | "basis_unavailable" | "invalid_source"
+  | "format_downgrade" | "asset_unavailable" | "external_asset_unpinned"
   | "bad_id"
   | "bad_path"
   | "bad_json"

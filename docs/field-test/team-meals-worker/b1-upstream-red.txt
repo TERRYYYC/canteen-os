@@ -1,0 +1,30 @@
+✖ B1 malformed upstream JSON remains upstream_error (9.788459ms)
+✔ B1 asset rejects symlink mode despite image owner/pointer being valid (1.98725ms)
+✔ B1 omitted revision captures one H even if branch advances while reading (0.926875ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.856583
+
+✖ failing tests:
+
+test at packages/worker/test/github-boundary.test.mjs:5:1
+✖ B1 malformed upstream JSON remains upstream_error (9.788459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  500 !== 502
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/github-boundary.test.mjs:7:83)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 500,
+    expected: 502,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

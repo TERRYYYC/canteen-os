@@ -250,13 +250,13 @@ test("T-34 写入桶 60 次/小时：第 61 次 429", async () => {
   const { env } = makeEnv(repo);
   for (let i = 0; i < 60; i++) {
     const { status } = await call(worker, env, "POST", "/plan/week-43", {
-      headers: bearer("chef"),
+      headers: { ...bearer("chef"), ...(i === 0 ? { "If-None-Match": "*" } : { "If-Match": repo.trees.get(repo.commits.get(repo.head).tree).get("data/menu-plans/week-43.json") }) },
       body: planFixture(),
     });
     assert.equal(status, 200, `第 ${i + 1} 次写入应该成功`);
   }
   const { status, body, res } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: planFixture(),
   });
   assert.equal(status, 429);
@@ -299,7 +299,7 @@ test("读端点走独立的读桶，不吃写入配额（D-16）", async () => {
     assert.equal(status, 200);
   }
   const { status } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: planFixture(),
   });
   assert.equal(status, 200);

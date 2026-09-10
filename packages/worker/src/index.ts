@@ -12,6 +12,7 @@
 import { isAllowed, resolveRole } from "./auth.js";
 import type { Ctx } from "./context.js";
 import { handleDish, handleDishDraft, handleIngredient, handlePlan } from "./endpoints/entities.js";
+import { handleAsset } from "./endpoints/asset.js";
 import { handleImage } from "./endpoints/image.js";
 import { handlePublish, handlePublishLatest, handlePublishStatus } from "./endpoints/publish.js";
 import { handleCatalog, handleChanges, handleSource } from "./endpoints/read.js";
@@ -19,6 +20,7 @@ import { handleRollback } from "./endpoints/rollback.js";
 import { handleTranslate } from "./endpoints/translate.js";
 import { UpstreamError } from "./github.js";
 import {
+  corsHeaders,
   DEFAULT_ALLOWED_ORIGIN,
   HttpError,
   fail,
@@ -74,6 +76,7 @@ export const ROUTES: Route[] = [
   route("GET", "/publish/:runId", handlePublishStatus, "read"),
   route("POST", "/rollback/:sha", handleRollback, "rollback"),
   route("GET", "/source/:kind/:id", handleSource, "read"),
+  route("GET", "/asset", handleAsset, "read"),
   route("GET", "/catalog", handleCatalog, "read"),
   route("GET", "/changes", handleChanges, "read"),
   route("POST", "/translate", handleTranslate, "write"),
@@ -215,6 +218,11 @@ export default {
       };
 
       const result = await match.route.handler(ctx);
+      if (result instanceof Response) {
+        const headers = new Headers(result.headers);
+        for (const [key, value] of Object.entries(corsHeaders(allowedOrigin))) headers.set(key, value);
+        return finish(new Response(result.body, { status: result.status, headers }));
+      }
       return finish(jsonResponse(result, 200, allowedOrigin));
     } catch (err) {
       if (err instanceof HttpError) {

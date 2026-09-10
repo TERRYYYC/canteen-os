@@ -1,0 +1,39 @@
+✔ team rollback restores only allowed knowledge paths, keeping current lists and unknown paths byte-for-byte (15.9435ms)
+✔ team rollback ignores protected-only differences without making a commit (1.293916ms)
+✔ team rollback rejects current v3 menu-plans to 2, with zero Git writes (0.61ms)
+✔ team rollback rejects current v3 menu-plans to missing, with zero Git writes (0.44575ms)
+✔ team rollback rejects current v3 dishes to 2, with zero Git writes (0.480166ms)
+✔ team rollback rejects current v3 dishes to missing, with zero Git writes (0.395916ms)
+✔ team rollback rejects current v3 dishes to implicit-v2, with zero Git writes (0.929042ms)
+✔ team rollback permits current v3 to historical v3 without changing list bytes (0.512084ms)
+✔ team rollback re-reads current head after ref conflict and preserves the latest shopping bytes (0.736833ms)
+✔ team rollback rechecks v3 protection after a competing upgrade (0.699709ms)
+✔ team rollback fails closed when current protected JSON cannot reveal its version (0.347166ms)
+✖ team rollback cannot reuse a cached version to replace v3 JSON with a symlink (0.803542ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 11
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58.573666
+
+✖ failing tests:
+
+test at packages/worker/test/team-rollback.test.mjs:178:1
+✖ team rollback cannot reuse a cached version to replace v3 JSON with a symlink (0.803542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 422
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:193:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

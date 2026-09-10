@@ -41,6 +41,7 @@ const ROOTS = {
   validateMenuPlan: "menu-plan.schema.json",
   validateIngredient: "ingredient.schema.json",
   validateDish: "dish.schema.json",
+  validateTechniques: "techniques.schema.json",
 };
 
 /** 产物顶部的运行时 prelude：ucs2length + 两个 format 实现，均为本仓库自写，零依赖。 */
