@@ -1,0 +1,214 @@
+[
+  {
+    "id": "roll-cut-chunks",
+    "kind": "cut",
+    "name": { "zh": "滚刀块", "en": "Roll-cut chunks", "uk": "Шматки рулонним нарізанням" },
+    "note": {
+      "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+      "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+      "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+    }
+  },
+  {
+    "id": "fine-shreds",
+    "kind": "cut",
+    "name": { "zh": "细丝", "en": "Fine shreds (julienne)", "uk": "Тонка соломка (жульєн)" },
+    "note": { "zh": "约 2–3 mm 见方的细条，如土豆丝、姜丝。", "en": "≈2–3 mm matchsticks, e.g. shredded potato, ginger.", "uk": "Соломка ≈2–3 мм, напр. картопля чи імбир." }
+  },
+  {
+    "id": "coarse-shreds",
+    "kind": "cut",
+    "name": { "zh": "粗丝", "en": "Coarse shreds", "uk": "Товста соломка" },
+    "note": { "zh": "约 5 mm 见方的条，口感更挺。", "en": "≈5 mm shreds with more bite.", "uk": "Соломка ≈5 мм, щільніша текстура." }
+  },
+  {
+    "id": "thin-slices",
+    "kind": "cut",
+    "name": { "zh": "薄片", "en": "Thin slices", "uk": "Тонкі скибочки" },
+    "note": { "zh": "1–2 mm 厚，快熟易入味，如姜蒜片、肉片。", "en": "1–2 mm; cooks fast, e.g. ginger/garlic/meat slices.", "uk": "1–2 мм; швидко готується." }
+  },
+  {
+    "id": "thick-slices",
+    "kind": "cut",
+    "name": { "zh": "厚片", "en": "Thick slices", "uk": "Товсті скибочки" },
+    "note": { "zh": "4–5 mm 厚，耐煮不碎。", "en": "4–5 mm; holds shape in longer cooking.", "uk": "4–5 мм; тримає форму." }
+  },
+  {
+    "id": "small-cubes",
+    "kind": "cut",
+    "name": { "zh": "丁", "en": "Small cubes (dice)", "uk": "Дрібні кубики" },
+    "note": { "zh": "1–1.5 cm 见方，如鸡丁、黄瓜丁。", "en": "1–1.5 cm dice, e.g. diced chicken, cucumber.", "uk": "Кубики 1–1,5 см." }
+  },
+  {
+    "id": "minced",
+    "kind": "cut",
+    "name": { "zh": "末", "en": "Minced", "uk": "Дрібно рублене" },
+    "note": { "zh": "细碎颗粒：葱花、姜末、蒜末。", "en": "Finely chopped: scallion greens, ginger, garlic.", "uk": "Дуже дрібне рублення: зелена цибуля, імбир, часник." }
+  },
+  {
+    "id": "strips",
+    "kind": "cut",
+    "name": { "zh": "条", "en": "Strips (batons)", "uk": "Смужки" },
+    "note": { "zh": "约 5–6 mm 见方、4–6 cm 长的条。", "en": "≈5–6 mm thick, 4–6 cm long batons.", "uk": "Смужки ≈5–6 мм завтовшки." }
+  },
+  {
+    "id": "sections",
+    "kind": "cut",
+    "name": { "zh": "段", "en": "Sections", "uk": "Сегменти" },
+    "note": { "zh": "3–4 cm 长的段，如葱段、芹菜段。", "en": "3–4 cm sections, e.g. scallion or celery sections.", "uk": "Відрізки 3–4 см." }
+  },
+  {
+    "id": "chunks",
+    "kind": "cut",
+    "name": { "zh": "块", "en": "Chunks", "uk": "Шматки" },
+    "note": { "zh": "2–3 cm 见方的规则块，如土豆块、肉块。", "en": "Regular 2–3 cm cubes/blocks.", "uk": "Рівні шматки 2–3 см." }
+  },
+  {
+    "id": "scored",
+    "kind": "cut",
+    "name": { "zh": "花刀", "en": "Scored (decorative scoring)", "uk": "Декоративне надрізання" },
+    "note": { "zh": "表面剞出十字/麦穗/荔枝等刀纹，受热后卷曲成形、易挂汁；用于腰花、鱿鱼等。", "en": "Shallow cross/wheat-ear scoring that curls when cooked and holds sauce; for kidney, squid etc.", "uk": "Надрізи (хрестиком/«колоском»), що скручуються при готуванні." }
+  },
+  {
+    "id": "oblique-slices",
+    "kind": "cut",
+    "name": { "zh": "斜批", "en": "Oblique slices", "uk": "Косі скибочки" },
+    "note": { "zh": "刀身倾斜批出的椭圆大片，增大断面，如斜批鱼片。", "en": "Knife held at an angle for wide oval slices, e.g. fish fillets.", "uk": "Ніж під кутом — овальні скибочки з великим перерізом." }
+  },
+  {
+    "id": "blanch",
+    "kind": "pretreat",
+    "name": { "zh": "焯水", "en": "Blanching", "uk": "Бланшування" },
+    "note": {
+      "zh": "原料入水锅预煮去腥/去血沫/断生：肉类多冷水下锅（冷水锅），蔬菜多开水下锅（热水锅）。",
+      "en": "Par-boil to remove odor/scum or partially cook: meats start in cold water, vegetables in boiling water.",
+      "uk": "Попереднє відварювання: м'ясо — у холодну воду, овочі — у окріп."
+    }
+  },
+  {
+    "id": "velvet",
+    "kind": "pretreat",
+    "name": { "zh": "上浆", "en": "Velveting", "uk": "Вельветинг (осадження в крохмально-білковій суміші)" },
+    "note": {
+      "zh": "原料裹水粉浆/全蛋浆/蛋清浆后滑油或滑水，成品滑嫩；肉丝、鸡片、鱼片常用。",
+      "en": "Coat in starch/egg slurry, then pass through oil or water for a silky texture — for slivers of pork, chicken, fish.",
+      "uk": "Покриття крохмально-яєчною сумішшю перед обсмажуванням — ніжна текстура."
+    }
+  },
+  {
+    "id": "batter-coat",
+    "kind": "pretreat",
+    "name": { "zh": "挂糊", "en": "Batter coating", "uk": "Обвалювання в клярі" },
+    "note": { "zh": "裹较厚的糊（水粉糊/全蛋糊/脆皮糊等）后炸制，起酥壳。", "en": "Thicker batter (water-starch / whole-egg / crispy) before frying, forms a crust.", "uk": "Товстий шар кляру перед фритюром — хрустка скоринка." }
+  },
+  {
+    "id": "starch-dust",
+    "kind": "pretreat",
+    "name": { "zh": "拍粉", "en": "Starch dusting", "uk": "Припудрювання крохмалем" },
+    "note": { "zh": "表面拍一层干粉（淀粉/面粉）再炸或煎，定型防粘。", "en": "Dust with dry starch/flour before frying; sets shape and prevents sticking.", "uk": "Легкий шар сухого крохмалю перед смаженням." }
+  },
+  {
+    "id": "marinate",
+    "kind": "pretreat",
+    "name": { "zh": "腌制", "en": "Marinating", "uk": "Маринування" },
+    "note": { "zh": "加盐/料酒/酱油等静置入味去腥。", "en": "Rest with salt/wine/soy to season and deodorize.", "uk": "Витримка з сіллю/вином/соєвим соусом." }
+  },
+  {
+    "id": "starch-thicken",
+    "kind": "pretreat",
+    "name": { "zh": "勾芡", "en": "Starch thickening (slurry)", "uk": "Загущення крохмальною рідиною" },
+    "note": { "zh": "起锅前淋入水淀粉使汤汁裹菜，分薄芡/厚芡。", "en": "Stir in starch slurry before plating so sauce clings; thin or thick slurry.", "uk": "Крохмальна рідина в кінці — соус обволікає страву." }
+  },
+  {
+    "id": "water-soak",
+    "kind": "pretreat",
+    "name": { "zh": "水发", "en": "Water rehydrating (dried goods)", "uk": "Відмочування сушених продуктів" },
+    "note": { "zh": "干货（木耳、香菇、粉丝等）冷水或温水泡发回软。", "en": "Soak dried goods (wood ear, shiitake, vermicelli) in cold/warm water.", "uk": "Замочування сушених грибів/фунчози у воді." }
+  },
+  {
+    "id": "oil-pass",
+    "kind": "pretreat",
+    "name": { "zh": "过油", "en": "Oil passing (pre-frying)", "uk": "Попереднє обсмажування в олії" },
+    "note": { "zh": "走油/滑油：原料过一遍温油或热油定形增香，再正式烹调。", "en": "Pass through warm/hot oil to set shape and add aroma before final cooking.", "uk": "Коротке занурення в олію для форми й аромату." }
+  },
+  {
+    "id": "pre-steam",
+    "kind": "pretreat",
+    "name": { "zh": "预蒸", "en": "Pre-steaming", "uk": "Попереднє пропарювання" },
+    "note": { "zh": "先蒸至半熟/全熟，再改刀或正式烹调（如扣肉先蒸）。", "en": "Steam to partial/full doneness before cutting or final cooking.", "uk": "Пропарювання до напівготовності перед подальшою обробкою." }
+  },
+  {
+    "id": "flash-fry",
+    "kind": "heat",
+    "name": { "zh": "爆炒", "en": "Flash-frying (high-heat stir-fry)", "uk": "Швидке смаження на сильному вогні" },
+    "note": {
+      "zh": "猛火宽油、极短时间成菜，原料多上浆或切小；要的是镬气与脆嫩。",
+      "en": "Maximum heat, ample oil, seconds-fast cooking; ingredients are velveted or cut small — for wok hei and crisp tenderness.",
+      "uk": "Максимальний вогонь, лічені секунди; інгредієнти дрібні або вельветинг."
+    }
+  },
+  {
+    "id": "stir-fry",
+    "kind": "heat",
+    "name": { "zh": "炒", "en": "Stir-frying", "uk": "Смаження з постійним помішуванням" },
+    "note": {
+      "zh": "中大火少油快速翻拌成菜的总称；分子型清炒/煸炒/滑炒/干煸/软炒。",
+      "en": "Umbrella method: quick tossing over medium-high heat; sub-types: plain / dry / moist / extreme-heat / scramble stir-fry.",
+      "uk": "Швидке смаження з помішуванням; підвиди: чао, бяньчао, хуачао тощо."
+    }
+  },
+  {
+    "id": "pan-fry",
+    "kind": "heat",
+    "name": { "zh": "煎", "en": "Pan-frying", "uk": "Смаження на сковороді (невелика кількість олії)" },
+    "note": { "zh": "少量油、中小火，两面煎至金黄。", "en": "A little oil over medium-low heat, browned on both sides.", "uk": "Небагато олії, до золотистості з двох боків." }
+  },
+  {
+    "id": "deep-fry",
+    "kind": "heat",
+    "name": { "zh": "炸", "en": "Deep-frying", "uk": "Фритюр" },
+    "note": { "zh": "宽油没顶炸制；分清炸/干炸/软炸/酥炸。", "en": "Fully submerged in oil; sub-types: plain / dry / soft / crisp deep-frying.", "uk": "Повне занурення в олію." }
+  },
+  {
+    "id": "braise",
+    "kind": "heat",
+    "name": { "zh": "烧", "en": "Braising", "uk": "Тушкування" },
+    "note": { "zh": "先煎炒后加汤汁烧透收汁；分红烧/白烧/干烧。", "en": "Sear, then simmer in sauce and reduce; sub-types: red / white / dry braising.", "uk": "Обсмажити, потім тушкувати в соусі; «червоне»/«біле» тушкування." }
+  },
+  {
+    "id": "braise-covered",
+    "kind": "heat",
+    "name": { "zh": "焖", "en": "Covered braising (steam stewing)", "uk": "Томління під кришкою" },
+    "note": { "zh": "加盖小火长时间加热，靠蒸汽循环使原料酥烂。", "en": "Lid on, low heat, long time; steam circulation tenderizes.", "uk": "Під кришкою на слабкому вогні до м'якості." }
+  },
+  {
+    "id": "stew",
+    "kind": "heat",
+    "name": { "zh": "炖", "en": "Stewing (gradual simmering)", "uk": "Томління (повільне кип'ятіння)" },
+    "note": { "zh": "汤水宽、微火长煮，汤菜合一；含隔水炖。", "en": "Generous liquid at a bare simmer; includes double-steaming.", "uk": "Багато рідини, мінімальне кипіння, довго." }
+  },
+  {
+    "id": "boil",
+    "kind": "heat",
+    "name": { "zh": "煮", "en": "Boiling", "uk": "Варіння" },
+    "note": { "zh": "旺火宽汤煮熟原料，如水煮肉片。", "en": "Cook through in plenty of boiling liquid.", "uk": "Варіння у великій кількості рідини." }
+  },
+  {
+    "id": "quick-boil",
+    "kind": "heat",
+    "name": { "zh": "汆", "en": "Quick boiling", "uk": "Коротке кип'ятіння" },
+    "note": { "zh": "薄片/蓉状原料入滚汤快速烫熟，汤清味鲜，如汆丸子。", "en": "Slivers or pastes cooked seconds in rolling broth; clear soup, e.g. quick-boiled meatballs.", "uk": "Тонкі скибочки/фарш кілька секунд у киплячому бульйоні." }
+  },
+  {
+    "id": "steam",
+    "kind": "heat",
+    "name": { "zh": "蒸", "en": "Steaming", "uk": "Пропарювання" },
+    "note": { "zh": "蒸汽加热成菜；分清蒸/粉蒸/扣蒸。", "en": "Cook by steam; sub-types: clear / rice-flour / inverted-bowl steaming.", "uk": "Готування паром: чисте, з рисовим борошном, «наперевернені» миски." }
+  },
+  {
+    "id": "roast",
+    "kind": "heat",
+    "name": { "zh": "烤", "en": "Roasting / baking", "uk": "Запікання" },
+    "note": { "zh": "明炉/暗炉辐射热烤制。", "en": "Radiant-heat roasting in open or closed ovens.", "uk": "Запікання радіантним жаром." }
+  }
+]

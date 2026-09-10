@@ -188,3 +188,43 @@ test("typescript 缺失：脚本副本放到没有 node_modules 的目录运行 
     assert.match(out, /pnpm install --dir packages\/core/);
   });
 });
+
+test('stdin imports do not resolve dash as an entry file or execute validation', () => {
+  for (const name of ['check-types-vs-schema.mjs','validate-schemas.mjs']) {
+    const url = new URL(name, import.meta.url).href;
+    const r = spawnSync(process.execPath, ['--input-type=module','-'], {
+      input:`await import(${JSON.stringify(url)}); console.log('IMPORT_OK');`, encoding:'utf8',
+    });
+    assert.equal(r.status,0,r.stderr);
+    assert.equal(r.stdout,'IMPORT_OK\n');
+    assert.equal(r.stderr,'');
+  }
+});
+
+test('union coverage includes inline definitions nested under oneOf and anyOf', () => {
+  for (const keyword of ['oneOf','anyOf']) {
+    const defs=collectSchemaDefinitions(new Map([['x.schema.json',{
+      [keyword]:[{type:'object',properties:{a:{type:'string'}}},{type:'object',properties:{b:{enum:['yes','no']}}}],
+    }]]));
+    assert.ok(defs.includes(`x.schema.json#/${keyword}/0`),defs.join('\n'));
+    assert.ok(defs.includes(`x.schema.json#/${keyword}/1/properties/b`),defs.join('\n'));
+  }
+});
+
+test('version union cannot silently lose a TypeScript alternative', async () => {
+  await withTemp(tmp => {
+    editTypes(tmp, src=>src.replace('export type AnyMenuPlan = MenuPlan | MenuPlanV3;','export type AnyMenuPlan = MenuPlan;'));
+    const {status,out}=runCli(['--root',tmp]);
+    assert.equal(status,1,out);
+    assert.match(out,/union.*AnyMenuPlan[\s\S]*MenuPlanV3/);
+  });
+});
+
+test('oneOf duplicate version branch is rejected before it invalidates both readers', async () => {
+  await withTemp(tmp => {
+    editSchema(tmp,'any-menu-plan.schema.json',s=>s.oneOf.push({...s.oneOf[0]}));
+    const {status,out}=runCli(['--root',tmp]);
+    assert.equal(status,1,out);
+    assert.match(out,/oneOf.*重复.*MenuPlan/);
+  });
+});

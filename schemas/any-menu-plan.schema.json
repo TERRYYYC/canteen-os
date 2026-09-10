@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/any-menu-plan.schema.json",
+  "title": "AnyMenuPlan",
+  "oneOf": [
+    {
+      "$ref": "menu-plan.schema.json#"
+    },
+    {
+      "$ref": "menu-plan-v3.schema.json#"
+    }
+  ]
+}

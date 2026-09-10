@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "食盐",
+    "en": "Salt",
+    "uk": "Сіль"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "purchase": {
+    "supplier": "宏达粮油调味批发",
+    "packSize": 500,
+    "packUnit": "g",
+    "minPacks": 20,
+    "lastPrice": { "amount": 2.5, "currency": "CNY" }
+  },
+  "trackStock": true,
+  "onHand": 500
+}

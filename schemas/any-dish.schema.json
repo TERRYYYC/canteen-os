@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/any-dish.schema.json",
+  "title": "AnyDish",
+  "oneOf": [
+    {
+      "$ref": "dish.schema.json#"
+    },
+    {
+      "$ref": "dish-v3.schema.json#"
+    }
+  ]
+}
