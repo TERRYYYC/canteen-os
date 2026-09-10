@@ -13,6 +13,9 @@
     "build": "npm run gen:validators && tsc -p tsconfig.build.json",
     "test": "npm run build && node --test test/*.test.mjs"
   },
+  "dependencies": {
+    "@canteenos/core": "workspace:*"
+  },
   "devDependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
