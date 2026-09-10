@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "固定样本菜单",
+    "en": "Fixed test menu",
+    "uk": "Фіксоване тестове меню"
+  },
+  "dateRange": {
+    "start": "2026-09-14",
+    "end": "2026-09-15"
+  },
+  "meals": [
+    {
+      "date": "2026-02-30",
+      "mealType": "lunch",
+      "dishRef": "first-dish",
+      "plannedServings": 2
+    },
+    {
+      "date": "2026-09-14",
+      "mealType": "lunch",
+      "dishRef": "second-dish",
+      "plannedServings": 2
+    },
+    {
+      "date": "2026-09-15",
+      "mealType": "dinner",
+      "dishRef": "name-only",
+      "plannedServings": 2
+    }
+  ]
+}

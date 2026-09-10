@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "第一道样本菜",
+    "en": "First test dish",
+    "uk": "Перша тестова страва"
+  },
+  "baseServings": 2,
+  "status": "active",
+  "provenance": {
+    "source": "example"
+  },
+  "components": [
+    {
+      "ingredientRef": "missing-ingredient",
+      "qty": {
+        "value": 300,
+        "unit": "g"
+      }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": {
+        "unit": "to-taste"
+      }
+    },
+    {
+      "ingredientRef": "cooking-oil",
+      "qty": {
+        "value": 20,
+        "unit": "ml"
+      }
+    }
+  ]
+}
