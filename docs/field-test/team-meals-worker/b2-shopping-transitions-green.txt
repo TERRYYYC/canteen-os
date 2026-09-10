@@ -1,0 +1,28 @@
+✔ shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources (22.617875ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"} (0.9925ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true} (0.815958ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"} (0.720167ms)
+✔ shopping create rejects missing candidate with a field path (0.755625ms)
+✔ shopping create rejects extra candidate with a field path (1.202958ms)
+✔ shopping create rejects duplicate candidate with a field path (0.635708ms)
+✔ shopping create cannot invent schema-valid previous judgment (0.726166ms)
+✔ shopping same-basis explicit manual check clears previous and leaves knowledge unchanged (1.717667ms)
+✔ shopping same-basis update cannot rewrite an existing previous judgment (1.188917ms)
+✔ shopping same-basis candidate equality is checked before accepting manual decisions (1.331625ms)
+✔ shopping changed basis requires saved check+previous before a separately locked bought decision (5.037292ms)
+✔ shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision (1.003917ms)
+✔ shopping unavailable stored previous cannot be bypassed by clear previous (0.664875ms)
+✔ shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan (0.556541ms)
+✔ shopping unresolved ingredient stays check while other ingredients can be decided (3.57075ms)
+✔ shopping repeated demand changes keep only the last manual judgment as previous (5.464875ms)
+✔ shopping saved empty plan removes bought items and a later saved re-add starts fresh check (3.745167ms)
+✔ shopping select an additional empty dinner requires review although its ingredient IDs are unchanged (2.509459ms)
+✔ shopping replace dish with the same ingredients requires review although its ingredient IDs are unchanged (1.780792ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.59925

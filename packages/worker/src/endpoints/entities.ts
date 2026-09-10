@@ -13,8 +13,11 @@ import { addWarning, githubClient } from "../context.js";
 import type { GitHubClient } from "../github.js";
 import { fail, validationFailure } from "../http.js";
 import { ID_RE, entityPath, looksLikeTraversal } from "../paths.js";
+import { parseSource } from "../source.js";
+import { planRangeError } from "../plan-range.js";
 import { stableSerialize } from "../serialize.js";
 import { validateEntity } from "../validate.js";
+import { writePrecondition } from "../preconditions.js";
 import { commitSingleFile } from "../write.js";
 
 /** D-08：planId 不是 week-NN 形状**不拒绝**，只带 warning。 */
@@ -28,13 +31,13 @@ export interface WriteResponse {
   warnings: string[];
 }
 
-function assertId(raw: string): string {
+export function assertId(raw: string): string {
   if (looksLikeTraversal(raw)) throw fail("bad_path");
   if (!ID_RE.test(raw)) throw fail("bad_id");
   return raw;
 }
 
-function asObject(body: unknown): Record<string, unknown> {
+export function asObject(body: unknown): Record<string, unknown> {
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
     throw validationFailure([{ path: "", code: "type", message: "这里应该是一组字段" }]);
   }
@@ -78,19 +81,9 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
   if (!WEEK_ID_RE.test(planId)) addWarning(ctx, "plan-id-shape");
 
   const gh = githubClient(ctx);
-  const branch = gh.branch;
 
   const meals = Array.isArray(body.meals) ? (body.meals as Array<Record<string, unknown>>) : [];
   const dishRefs = new Set(meals.map((m) => String(m.dishRef)));
-  if (dishRefs.size > 0) {
-    const paths = await repoPaths(gh, branch);
-    for (const ref of dishRefs) {
-      if (!paths.has(`data/dishes/${ref}.json`)) {
-        addWarning(ctx, "dangling-ref");
-        break;
-      }
-    }
-  }
 
   const dateRange = body.dateRange as { start?: unknown } | undefined;
   const start =
@@ -103,6 +96,17 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
   return writeEntity(ctx, gh, {
     path: entityPath("plan", planId),
     value: body,
+    verify: async (head) => {
+      if (dishRefs.size > 0) {
+        const paths = await repoPaths(gh, head);
+        for (const ref of dishRefs) {
+          if (!paths.has(`data/dishes/${ref}.json`)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
+      }
+    },
     subject: () => `data(plan): 排 ${start} 那周（${meals.length} 道菜）`,
   });
 }
@@ -147,7 +151,6 @@ async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> 
   }
 
   const gh = githubClient(ctx);
-  const branch = gh.branch;
 
   const components = Array.isArray(body.components)
     ? (body.components as Array<Record<string, unknown>>)
@@ -164,36 +167,39 @@ async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> 
     if (typeof s.techniqueRef === "string") techRefs.add(s.techniqueRef);
   }
 
-  if (ingredientRefs.size > 0) {
-    const paths = await repoPaths(gh, branch);
-    for (const ref of ingredientRefs) {
-      if (!paths.has(`data/ingredients/${ref}.json`)) {
-        addWarning(ctx, "dangling-ref");
-        break;
-      }
-    }
-  }
-  if (techRefs.size > 0) {
-    const known = await techniqueIds(gh, branch);
-    for (const ref of techRefs) {
-      if (!known.has(ref)) {
-        addWarning(ctx, "dangling-ref");
-        break;
-      }
-    }
-  }
 
   const subject = forceDraft
     ? () => `data(dish): 草稿 ${id}`
     : (exists: boolean) => `data(dish): ${exists ? "更新" : "新增"} ${id}`;
 
-  return writeEntity(ctx, gh, { path: entityPath("dish", id), value: body, subject });
+  return writeEntity(ctx, gh, { path: entityPath("dish", id), value: body, subject,
+    verify: async (head) => {
+      if (ingredientRefs.size > 0) {
+        const paths = await repoPaths(gh, head);
+        for (const ref of ingredientRefs) {
+          if (!paths.has(`data/ingredients/${ref}.json`)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
+      }
+      if (techRefs.size > 0) {
+        const known = await techniqueIds(gh, head);
+        for (const ref of techRefs) {
+          if (!known.has(ref)) {
+            addWarning(ctx, "dangling-ref");
+            break;
+          }
+        }
+      }
+    },
+  });
 }
 
 async function writeEntity(
   ctx: Ctx,
   gh: GitHubClient,
-  params: { path: string; value: unknown; subject: (exists: boolean) => string },
+  params: { path: string; value: unknown; subject: (exists: boolean) => string; verify?: (head: string) => Promise<void> },
 ): Promise<WriteResponse> {
   const content = stableSerialize(params.value);
   const outcome = await commitSingleFile(gh, {
@@ -202,7 +208,24 @@ async function writeEntity(
     subject: params.subject,
     role: ctx.role,
     endpoint: ctx.endpointConcrete,
-    ifMatch: ifMatch(ctx),
+    ifMatch: params.path.startsWith("data/ingredients/") ? ifMatch(ctx) : null,
+    precondition: params.path.startsWith("data/ingredients/") ? undefined : writePrecondition(ctx.request.headers),
+    verify: async (head, current) => {
+      if (!params.path.startsWith("data/ingredients/")) {
+        const kind = params.path.startsWith("data/menu-plans/") ? "plan" : "dish";
+        const next = params.value as { schemaVersion?: string };
+        if (current) {
+          const previous = parseSource(current.text, kind, params.path) as { schemaVersion?: string };
+          if (previous.schemaVersion === "3" && next.schemaVersion !== "3") throw fail("format_downgrade");
+        }
+        if (kind === "plan") {
+          const path = planRangeError(params.value);
+          if (path) throw fail("invalid_selection", { path });
+        }
+      }
+      ctx.warnings = ctx.warnings.filter(w => w !== "dangling-ref");
+      await params.verify?.(head);
+    },
   });
 
   return {

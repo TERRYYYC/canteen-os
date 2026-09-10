@@ -1,0 +1,250 @@
+✖ B2 shopping create permission chef and only list bytes change (10.169584ms)
+✖ B2 shopping create permission buyer and only list bytes change (0.408542ms)
+✖ B2 shopping create permission admin and only list bytes change (0.76ms)
+✖ B2 shopping lock precondition_required {} (0.378958ms)
+✖ B2 shopping lock invalid_precondition {"If-Match":"*"} (0.284625ms)
+✖ B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"} (0.347208ms)
+✖ B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"} (0.258334ms)
+✖ B2 shopping auth precedes bad body and all source reads (0.426667ms)
+✖ B2 shopping ID mismatch occurs after lock and points at ID (0.391542ms)
+✖ B2 shopping duplicate create and stale idempotent retry cannot overwrite (0.392792ms)
+✖ B2 shopping concurrent creators produce one winner (0.63425ms)
+✖ B2 retry repeats basis ancestry against the new captured head (0.177542ms)
+✖ B2 shopping upstream error is not a missing basis (0.141625ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 0
+ℹ fail 13
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.56525
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-write.test.mjs:9:44
+✖ B2 shopping create permission chef and only list bytes change (10.169584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:10:112)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:9:44
+✖ B2 shopping create permission buyer and only list bytes change (0.408542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:10:112)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:9:44
+✖ B2 shopping create permission admin and only list bytes change (0.76ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:10:112)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:12:238
+✖ B2 shopping lock precondition_required {} (0.378958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 428
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:13:117)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 428,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:12:238
+✖ B2 shopping lock invalid_precondition {"If-Match":"*"} (0.284625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:13:117)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:12:238
+✖ B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"} (0.347208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:13:117)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:12:238
+✖ B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"} (0.258334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:13:117)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:15:1
+✖ B2 shopping auth precedes bad body and all source reads (0.426667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 401
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:16:112)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:18:1
+✖ B2 shopping ID mismatch occurs after lock and points at ID (0.391542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:19:106)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:21:1
+✖ B2 shopping duplicate create and stale idempotent retry cannot overwrite (0.392792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:22:94)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:27:1
+✖ B2 shopping concurrent creators produce one winner (0.63425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+  +   404,
+  +   404
+  -   200,
+  -   409
+    ]
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:28:142)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 404, 404 ],
+    expected: [ 200, 409 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:30:1
+✖ B2 retry repeats basis ancestry against the new captured head (0.177542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:33:62)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-write.test.mjs:35:1
+✖ B2 shopping upstream error is not a missing basis (0.141625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  404 !== 502
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:36:218)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 404,
+    expected: 502,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

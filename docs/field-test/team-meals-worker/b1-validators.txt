@@ -1,0 +1,5 @@
+
+> @canteenos/worker@0.0.3 check:validators
+> node scripts/gen-validators.mjs --check
+
+OK  ajv standalone 产物与 schemas/ 一致且冒烟通过（schema-digest f7942836457e）

@@ -10,7 +10,7 @@
  */
 
 /** 实体：data/<ingredients|dishes|menu-plans>/<id>.json */
-export const ENTITY_PATH_RE = /^data\/(ingredients|dishes|menu-plans)\/[a-z][a-z0-9-]*\.json$/;
+export const ENTITY_PATH_RE = /^data\/(ingredients|dishes|menu-plans|shopping-lists)\/[a-z][a-z0-9-]*\.json$/;
 
 /** 图片：data/<ingredients|dishes>/<id>[/images]/<name>.<jpg|png|webp> */
 export const IMAGE_PATH_RE =
@@ -44,16 +44,17 @@ export function looksLikeTraversal(raw: string): boolean {
   return SUSPICIOUS_CHARS.test(raw);
 }
 
-export type SourceKind = "plan" | "ingredient" | "dish";
+export type SourceKind = "plan" | "ingredient" | "dish" | "shopping-list";
 
 const KIND_DIR: Record<SourceKind, string> = {
   plan: "menu-plans",
   ingredient: "ingredients",
   dish: "dishes",
+  "shopping-list": "shopping-lists",
 };
 
 export function isSourceKind(value: string): value is SourceKind {
-  return value === "plan" || value === "ingredient" || value === "dish";
+  return value === "plan" || value === "ingredient" || value === "dish" || value === "shopping-list";
 }
 
 export function entityPath(kind: SourceKind, id: string): string {

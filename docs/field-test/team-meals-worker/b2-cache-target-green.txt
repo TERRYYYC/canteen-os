@@ -1,0 +1,37 @@
+✔ B2 shopping inputs come entirely from their saved source revision (15.206708ms)
+✔ B2 shopping inputs reject missing selected plan as unavailable basis (1.056292ms)
+✔ B2 shopping inputs reject malformed source data/menu-plans/team.json (0.442334ms)
+✔ B2 shopping inputs reject malformed source data/dishes/soup.json (0.173375ms)
+✔ B2 shopping inputs reject malformed source data/ingredients/salt.json (0.186541ms)
+✔ B2 shopping inputs reject malformed source data/techniques.json (0.30875ms)
+✔ B2 shopping inputs preserve unresolved refs as absent records (0.395458ms)
+✔ B2 empty v3 plan remains a real selected plan (0.218625ms)
+✔ B2 shopping source read failures remain upstream errors (0.164709ms)
+✔ B2 fixed-input cache never retains a failed tree read (0.958167ms)
+✔ B2 fixed-input cache never retains a failed blob read (0.309958ms)
+✔ B2 shopping create permission chef and only list bytes change (15.779583ms)
+✔ B2 shopping create permission buyer and only list bytes change (1.220333ms)
+✔ B2 shopping create permission admin and only list bytes change (1.341084ms)
+✔ B2 shopping lock precondition_required {} (0.419709ms)
+✔ B2 shopping lock invalid_precondition {"If-Match":"*"} (0.337ms)
+✔ B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"} (0.269ms)
+✔ B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"} (0.424125ms)
+✔ B2 shopping auth precedes bad body and all source reads (0.233625ms)
+✔ B2 shopping ID mismatch occurs after lock and points at ID (0.556792ms)
+✔ B2 shopping duplicate create and stale idempotent retry cannot overwrite (2.802417ms)
+✔ B2 shopping concurrent creators produce one winner (1.174333ms)
+✔ B2 retry repeats basis ancestry against the new captured head (0.766417ms)
+✔ B2 shopping upstream error is not a missing basis (0.345458ms)
+✔ B2 equivalent selection ordering normalizes once without resetting decisions (6.56725ms)
+✔ B2 schema errors retain Ajv keywords and never carry reviewRequired (0.388625ms)
+✔ B2 each shopping save fits the Free 50-subrequest limit for nine ingredients (6.518625ms)
+ℹ fetch counts create/buy/reconcile/confirm-with-retry: 21/23/25/38
+✔ B2 immutable reads are shared on ref retry but head and ancestry are checked again (0.995875ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.86075

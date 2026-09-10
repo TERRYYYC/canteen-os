@@ -107,7 +107,7 @@ test("T-07 轮换 TOKEN_HASH_CHEF 之后，旧 chef 令牌立刻 401", async () 
   const repo = seeded();
   const { env } = makeEnv(repo);
   const before = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: planFixture(),
   });
   assert.equal(before.status, 200);
@@ -142,6 +142,7 @@ test("T-09 OPTIONS 预检 → 200，Max-Age 600，允许 Authorization 头", asy
   assert.equal(status, 200);
   assert.equal(res.headers.get("Access-Control-Max-Age"), "600");
   assert.match(res.headers.get("Access-Control-Allow-Headers"), /Authorization/);
+  assert.match(res.headers.get("Access-Control-Allow-Headers"), /If-None-Match/);
   assert.equal(res.headers.get("Access-Control-Allow-Origin"), "https://terryyyc.github.io");
   assert.equal(res.headers.get("Access-Control-Allow-Credentials"), null);
 });

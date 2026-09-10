@@ -236,7 +236,8 @@ export function makeFetch(repo, extra = {}) {
         });
         cursor = commit.parents[0];
       }
-      return json({ commits: chain });
+      return json({ commits: chain, status: cursor === base0 ? (headSha === base0 ? "identical" : "ahead") : "diverged",
+        merge_base_commit: { sha: cursor === base0 ? base0 : "0".repeat(40) } });
     }
 
     if (method === "POST" && rest === "/git/blobs") {
@@ -282,6 +283,9 @@ export function makeFetch(repo, extra = {}) {
       }
       const commit = repo.commits.get(body.sha);
       if (!commit) return NOT_FOUND();
+      if (!commit.parents.includes(repo.head) && body.sha !== repo.head) {
+        return json({ message: "Update is not a fast forward" }, 422);
+      }
       repo.head = body.sha;
       return json({ object: { sha: body.sha } });
     }
