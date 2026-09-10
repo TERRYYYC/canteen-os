@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "2",
+  "supplier": "宏达粮油调味批发",
+  "generatedAt": "2026-10-03T00:00:00.000Z",
+  "lines": [
+    {
+      "ingredientRef": "cooking-oil",
+      "qty": {
+        "value": 10,
+        "unit": "l"
+      },
+      "packs": 2,
+      "trace": {
+        "meals": [
+          {
+            "date": "2026-10-05",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 200
+          },
+          {
+            "date": "2026-10-07",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 160
+          },
+          {
+            "date": "2026-10-09",
+            "mealType": "dinner",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 120
+          }
+        ],
+        "netNeed": {
+          "value": 4800,
+          "unit": "ml"
+        },
+        "yieldApplied": null,
+        "marginApplied": 1.1,
+        "onHandDeducted": {
+          "value": 1000,
+          "unit": "ml"
+        },
+        "grossNeed": {
+          "value": 4280,
+          "unit": "ml"
+        },
+        "packSize": 5,
+        "packUnit": "l",
+        "packsRaw": 0.856,
+        "minPacksApplied": true
+      },
+      "unitPrice": {
+        "amount": 68,
+        "currency": "CNY"
+      },
+      "amount": {
+        "amount": 136,
+        "currency": "CNY"
+      }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": {
+        "value": 10000,
+        "unit": "g"
+      },
+      "packs": 20,
+      "trace": {
+        "meals": [
+          {
+            "date": "2026-10-05",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 200
+          },
+          {
+            "date": "2026-10-07",
+            "mealType": "lunch",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 160
+          },
+          {
+            "date": "2026-10-09",
+            "mealType": "dinner",
+            "dishRef": "tomato-egg-stir-fry",
+            "servings": 120
+          }
+        ],
+        "netNeed": {
+          "value": 720,
+          "unit": "g"
+        },
+        "yieldApplied": null,
+        "marginApplied": 1.1,
+        "onHandDeducted": {
+          "value": 500,
+          "unit": "g"
+        },
+        "grossNeed": {
+          "value": 292,
+          "unit": "g"
+        },
+        "packSize": 500,
+        "packUnit": "g",
+        "packsRaw": 0.584,
+        "minPacksApplied": true
+      },
+      "unitPrice": {
+        "amount": 2.5,
+        "currency": "CNY"
+      },
+      "amount": {
+        "amount": 50,
+        "currency": "CNY"
+      }
+    }
+  ],
+  "menuPlanRef": "missing-plan",
+  "totalAmount": {
+    "amount": 186,
+    "currency": "CNY"
+  }
+}

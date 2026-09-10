@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "淀粉",
+    "en": "Starch",
+    "uk": "Крохмаль"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "trackStock": false
+}

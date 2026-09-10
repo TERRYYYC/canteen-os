@@ -1,0 +1,27 @@
+✔ golden: fails at none (0.361333ms)
+✔ boundaries: fails at none (0.040333ms)
+✖ v2-missing-servings: fails at schema (0.328458ms)
+✖ invalid-date: fails at schema (0.07175ms)
+✖ unknown-qty: fails at schema (0.05275ms)
+✖ dish-step-n: fails at schema (0.037458ms)
+✖ on-hand-object: fails at schema (0.045375ms)
+✖ empty-components: fails at schema (0.040958ms)
+✖ missing-ingredient: fails at reference (0.066708ms)
+✖ missing-dish: fails at reference (0.078083ms)
+✖ missing-technique: fails at reference (0.057417ms)
+✖ missing-license: fails at schema (0.043584ms)
+✖ missing-image: fails at asset (0.030167ms)
+✖ disallowed-license: fails at asset (0.025583ms)
+✖ missing-attribution: fails at asset (0.024375ms)
+✖ clip-order: fails at asset (0.0235ms)
+✖ video-without-source: fails at asset (0.022334ms)
+✖ bad-json: fails at json (0.363958ms)
+✔ local-image: fails at none (0.0315ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 3
+ℹ fail 16
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.650209

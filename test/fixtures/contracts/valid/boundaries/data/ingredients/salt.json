@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "盐",
+    "en": "Salt",
+    "uk": "Сіль"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "trackStock": true,
+  "onHand": 1000
+}
