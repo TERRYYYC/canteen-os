@@ -23,9 +23,9 @@
 test at packages/worker/test/team-rollback.test.mjs:12:1
 ✖ team rollback restores only allowed knowledge paths, keeping current lists and unknown paths byte-for-byte (13.1075ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   14 !== 7
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:52:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
@@ -40,9 +40,9 @@ test at packages/worker/test/team-rollback.test.mjs:12:1
 test at packages/worker/test/team-rollback.test.mjs:66:1
 ✖ team rollback ignores protected-only differences without making a commit (1.666333ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   false !== true
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:74:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -57,9 +57,9 @@ test at packages/worker/test/team-rollback.test.mjs:66:1
 test at packages/worker/test/team-rollback.test.mjs:82:5
 ✖ team rollback rejects current v3 menu-plans to 2, with zero Git writes (0.7065ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 409
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:91:14)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -74,9 +74,9 @@ test at packages/worker/test/team-rollback.test.mjs:82:5
 test at packages/worker/test/team-rollback.test.mjs:82:5
 ✖ team rollback rejects current v3 menu-plans to missing, with zero Git writes (0.599708ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 409
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:91:14)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -91,9 +91,9 @@ test at packages/worker/test/team-rollback.test.mjs:82:5
 test at packages/worker/test/team-rollback.test.mjs:82:5
 ✖ team rollback rejects current v3 dishes to 2, with zero Git writes (0.59625ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 409
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:91:14)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -108,9 +108,9 @@ test at packages/worker/test/team-rollback.test.mjs:82:5
 test at packages/worker/test/team-rollback.test.mjs:82:5
 ✖ team rollback rejects current v3 dishes to missing, with zero Git writes (1.190875ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 409
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:91:14)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -125,9 +125,9 @@ test at packages/worker/test/team-rollback.test.mjs:82:5
 test at packages/worker/test/team-rollback.test.mjs:82:5
 ✖ team rollback rejects current v3 dishes to implicit-v2, with zero Git writes (0.507667ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 409
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:91:14)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -142,9 +142,9 @@ test at packages/worker/test/team-rollback.test.mjs:82:5
 test at packages/worker/test/team-rollback.test.mjs:100:1
 ✖ team rollback permits current v3 to historical v3 without changing list bytes (0.54525ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   null !== 'keep\n'
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:109:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -160,10 +160,10 @@ test at packages/worker/test/team-rollback.test.mjs:112:1
 ✖ team rollback re-reads current head after ref conflict and preserves the latest shopping bytes (1.075667ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected
-  
+
   + null
   - 'bought during rollback\n'
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:139:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -179,10 +179,10 @@ test at packages/worker/test/team-rollback.test.mjs:142:1
 ✖ team rollback rechecks v3 protection after a competing upgrade (0.823583ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected
-  
+
   + 'conflict'
   - 'format_downgrade'
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:158:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
@@ -197,9 +197,9 @@ test at packages/worker/test/team-rollback.test.mjs:142:1
 test at packages/worker/test/team-rollback.test.mjs:165:1
 ✖ team rollback fails closed when current protected JSON cannot reveal its version (0.518209ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 422
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:172:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {

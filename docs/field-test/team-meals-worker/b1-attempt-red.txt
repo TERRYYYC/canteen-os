@@ -26,9 +26,9 @@
 test at packages/worker/test/team-write.test.mjs:40:1
 ✖ B1 write semantic reads use the attempt head, never mutable branch (2.168958ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(trees.every(c=>c.path.endsWith('/'+head)))
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:45:36)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {

@@ -9,7 +9,7 @@
  * （JSON Pointer，前端按它把输入框标黄）。
  */
 import type { CompiledValidator, ValidatorError } from "../generated/validators.js";
-import { validateDish, validateIngredient, validateMenuPlan, validateTechniques } from "../generated/validators.js";
+import { validateDish, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList } from "../generated/validators.js";
 import type { FieldError } from "./types.js";
 
 export const VALIDATORS = {
@@ -17,6 +17,7 @@ export const VALIDATORS = {
   ingredient: validateIngredient as CompiledValidator,
   dish: validateDish as CompiledValidator,
   techniques: validateTechniques as CompiledValidator,
+  "shopping-list": validateShoppingList as CompiledValidator,
 };
 
 /** 契约 §1.8 的示例文案是绑在具体字段上的（「份数至少 1」「净料率不能超过 1」）。
@@ -102,7 +103,9 @@ export interface ValidationOutcome {
 }
 
 export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown): ValidationOutcome {
-  const validate = VALIDATORS[kind];
+  const version = data && typeof data === "object" ? (data as {schemaVersion?: unknown}).schemaVersion : undefined;
+  const validate = kind === "plan" && version === "3" ? validateMenuPlanV3
+    : kind === "dish" && version === "3" ? validateDishV3 : VALIDATORS[kind];
   const valid = validate(data);
   return { valid, errors: valid ? [] : toFieldErrors(validate.errors) };
 }

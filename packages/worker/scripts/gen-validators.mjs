@@ -39,13 +39,24 @@ const OUT_DTS = join(OUT_DIR, "validators.d.ts");
 /** 导出名 → schemas/ 下的文件名。写入端点各一个；techniques.json 没有写入端点，不编译。 */
 const ROOTS = {
   validateMenuPlan: "menu-plan.schema.json",
+  validateMenuPlanV3: "menu-plan-v3.schema.json",
+  validateDishV3: "dish-v3.schema.json",
+  validateShoppingList: "shopping-list.schema.json",
   validateIngredient: "ingredient.schema.json",
   validateDish: "dish.schema.json",
   validateTechniques: "techniques.schema.json",
 };
 
 /** 产物顶部的运行时 prelude：ucs2length + 两个 format 实现，均为本仓库自写，零依赖。 */
-const PRELUDE = `// ucs2length：JSON Schema 的 minLength/maxLength 按 Unicode 码点计，不按 UTF-16 码元计。
+const PRELUDE = `// JSON structural equality for uniqueItems, independent of object key ordering.
+function jsonEqual(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every(key => Object.prototype.hasOwnProperty.call(b, key) && jsonEqual(a[key], b[key]));
+}
+// ucs2length：JSON Schema 的 minLength/maxLength 按 Unicode 码点计，不按 UTF-16 码元计。
 function ucs2length(str) {
   const len = str.length;
   let length = 0;
@@ -129,6 +140,9 @@ function generate() {
   // 后处理 1：干掉 ajv esm 产物里残留的 require（ajv 8.x 只有 ucs2length 这一处）。
   const UCS2 = 'require("ajv/dist/runtime/ucs2length").default';
   if (code.includes(UCS2)) code = code.split(UCS2).join("ucs2length");
+
+  const EQUAL = 'require("ajv/dist/runtime/equal").default';
+  if (code.includes(EQUAL)) code = code.split(EQUAL).join("jsonEqual");
 
   // 后处理 2：断言。产物里再出现 require / eval / new Function 就说明 ajv 换了行为，
   // 与其产出一份在 Workers 上必然崩的文件，不如现在就红。

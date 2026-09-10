@@ -1,3 +1,4 @@
+import { planRangeError } from './plan-range.js';
 import { fail } from './http.js';
 import { validateEntity, VALIDATORS } from './validate.js';
 
@@ -5,7 +6,7 @@ export function parseSource(text: string, kind: keyof typeof VALIDATORS, path: s
   let parsed: unknown;
   try { parsed = JSON.parse(text); }
   catch { throw fail('invalid_source', { path, message: '已存资料不是合法 JSON' }); }
-  if (!validateEntity(kind, parsed).valid) throw fail('invalid_source', { path });
+  if (!validateEntity(kind, parsed).valid || (kind === 'plan' && planRangeError(parsed))) throw fail('invalid_source', { path });
   return parsed;
 }
 

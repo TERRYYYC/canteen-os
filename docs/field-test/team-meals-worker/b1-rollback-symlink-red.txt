@@ -24,9 +24,9 @@
 test at packages/worker/test/team-rollback.test.mjs:178:1
 ✖ team rollback cannot reuse a cached version to replace v3 JSON with a symlink (0.803542ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   200 !== 422
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback.test.mjs:193:10)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {

@@ -79,6 +79,7 @@ export class HttpError extends Error {
 
 /** 契约 §1.8 的中文提示语（D-02）。前端原样显示。 */
 const MESSAGES: Record<ErrorCode, string> = {
+  invalid_selection: "清单范围或候选内容不正确",
   invalid_precondition: "保存条件格式不正确",
   precondition_required: "新建或更新必须提供保存条件",
   invalid_revision: "版本必须是完整的小写提交 SHA",
@@ -104,6 +105,7 @@ const MESSAGES: Record<ErrorCode, string> = {
 };
 
 const STATUS: Record<ErrorCode, number> = {
+  invalid_selection: 400,
   invalid_precondition: 400, precondition_required: 428, invalid_revision: 400,
   revision_unavailable: 422, basis_unavailable: 422, invalid_source: 422,
   format_downgrade: 409, asset_unavailable: 422, external_asset_unpinned: 422,

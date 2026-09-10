@@ -3,7 +3,7 @@ feature_ids: []
 topics: [team-meals, worker, independent-review, asset]
 doc_kind: review-record
 created: 2026-09-11
-status: fix-awaiting-review
+status: B1-approved
 ---
 
 # B1 independent review
@@ -19,3 +19,8 @@ Author reproduced five failing cases before the fix (`b1-review-red.txt`), then 
 B1 API capability evidence: GitHub's [compare endpoint](https://docs.github.com/en/rest/commits/commits#compare-two-commits) exposes status and merge_base_commit; ancestry checks use both rather than enumerating commits. [Recursive trees](https://docs.github.com/en/rest/git/trees#get-a-tree) report truncation, which is rejected. [Blob reads](https://docs.github.com/en/rest/git/blobs#get-a-blob) provide base64 content for exact byte decoding. These official API descriptions were checked; no live repository write or L2 result is implied.
 
 The repair commit containing this record is returned to the same reviewer for delta review. Approval has not been assumed from the green tests.
+
+
+Final B1 verdict: `/root/b1_review` independently approved `865be4c30a094e8874c43067f2b6db034a4c7057`, no open B1 P1/P2. It reran 135 tests/typecheck/check:validators/diff and rejected all 839 strict prefixes of the four complete image fixtures, plus CRC corruption. Dispatch separately reproduced 135 tests from a fixed archive. This approval does not cover subsequent B2 work.
+
+Evidence hygiene correction: the original working-tree diff check passed, but dispatch's committed-range check `git diff --check 8448d495..865be4c` found trailing whitespace in red logs. All evidence text logs have now had trailing whitespace stripped; substantive captured output is unchanged. Subsequent checks explicitly cover the committed range too.

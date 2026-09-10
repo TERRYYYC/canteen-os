@@ -13,6 +13,8 @@ import { addWarning, githubClient } from "../context.js";
 import type { GitHubClient } from "../github.js";
 import { fail, validationFailure } from "../http.js";
 import { ID_RE, entityPath, looksLikeTraversal } from "../paths.js";
+import { parseSource } from "../source.js";
+import { planRangeError } from "../plan-range.js";
 import { stableSerialize } from "../serialize.js";
 import { validateEntity } from "../validate.js";
 import { writePrecondition } from "../preconditions.js";
@@ -29,13 +31,13 @@ export interface WriteResponse {
   warnings: string[];
 }
 
-function assertId(raw: string): string {
+export function assertId(raw: string): string {
   if (looksLikeTraversal(raw)) throw fail("bad_path");
   if (!ID_RE.test(raw)) throw fail("bad_id");
   return raw;
 }
 
-function asObject(body: unknown): Record<string, unknown> {
+export function asObject(body: unknown): Record<string, unknown> {
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
     throw validationFailure([{ path: "", code: "type", message: "这里应该是一组字段" }]);
   }
@@ -208,7 +210,19 @@ async function writeEntity(
     endpoint: ctx.endpointConcrete,
     ifMatch: params.path.startsWith("data/ingredients/") ? ifMatch(ctx) : null,
     precondition: params.path.startsWith("data/ingredients/") ? undefined : writePrecondition(ctx.request.headers),
-    verify: async (head) => {
+    verify: async (head, current) => {
+      if (!params.path.startsWith("data/ingredients/")) {
+        const kind = params.path.startsWith("data/menu-plans/") ? "plan" : "dish";
+        const next = params.value as { schemaVersion?: string };
+        if (current) {
+          const previous = parseSource(current.text, kind, params.path) as { schemaVersion?: string };
+          if (previous.schemaVersion === "3" && next.schemaVersion !== "3") throw fail("format_downgrade");
+        }
+        if (kind === "plan") {
+          const path = planRangeError(params.value);
+          if (path) throw fail("invalid_selection", { path });
+        }
+      }
       ctx.warnings = ctx.warnings.filter(w => w !== "dangling-ref");
       await params.verify?.(head);
     },

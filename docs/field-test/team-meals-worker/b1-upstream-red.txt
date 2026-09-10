@@ -15,9 +15,9 @@
 test at packages/worker/test/github-boundary.test.mjs:5:1
 ✖ B1 malformed upstream JSON remains upstream_error (9.788459ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   500 !== 502
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/github-boundary.test.mjs:7:83)
       at async Test.run (node:internal/test_runner/test:1332:7)
       at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
