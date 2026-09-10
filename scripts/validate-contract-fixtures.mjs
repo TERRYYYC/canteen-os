@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 /** Fixed test inputs only. No business schemas and no production writes.
- * Schema: execute the unchanged official Ajv CLI in a temporary fixture root.
+ * Schema: consume RC-A's formal validateData API with an isolated fixture root.
  * References and clip/source checks: call existing Python APIs, never their
- * fallback schema validators. RC-A owns extraction of the reusable Ajv API.
+ * fallback schema validators. RC-A owns the shared format implementation.
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createSchemaValidators, validateData } from "./validate-schemas.mjs";
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CONTRACTS_ROOT = path.join(REPO_ROOT, "test/fixtures/contracts");
@@ -170,14 +171,10 @@ export function validateFixtureCase(id, { contractsRoot = CONTRACTS_ROOT, repoRo
       try { documents.push([file, JSON.parse(readFileSync(file, "utf8"))]); }
       catch (error) { return finish("json", [`${path.relative(root, file)}: ${error.message}`]); }
     }
-    mkdirSync(path.join(root, "scripts"));
-    copyFileSync(path.join(repoRoot, "scripts/validate-schemas.mjs"), path.join(root, "scripts/validate-schemas.mjs"));
-    symlinkSync(path.join(repoRoot, "schemas"), path.join(root, "schemas"), "dir");
-    symlinkSync(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"), "dir");
-    const schema = run(process.execPath, [path.join(root, "scripts/validate-schemas.mjs")]);
-    if (schema.status !== 0) {
-      if (!/^FAIL\s/m.test(schema.stderr)) throw new Error(`Official Ajv validator could not run: ${schema.stderr}`);
-      return finish("schema", [schema.stderr.trim()]);
+    const schema = validateData({ root, schemaDir: path.join(repoRoot, "schemas") });
+    if (schema.failed) {
+      return finish("schema", schema.results.filter(r => !r.valid).flatMap(r =>
+        r.errors.map(e => `${path.relative(root, r.file)} ${e.instancePath || "(root)"} ${e.keyword}: ${e.message}`)));
     }
     const python = run(process.env.PYTHON ?? "python3", ["-c", PYTHON_CHECKS, repoRoot, root]);
     if (python.status !== 0) throw new Error(`Reference/source validator could not run: ${python.stderr}`);
@@ -191,18 +188,67 @@ export function validateFixtureCase(id, { contractsRoot = CONTRACTS_ROOT, repoRo
   }
 }
 
+/** Single-entity A1 format checks. Semantic admission is deliberately not run. */
+export function validateFormatFixtures({ contractsRoot = CONTRACTS_ROOT, repoRoot = REPO_ROOT } = {}) {
+  const root = path.join(contractsRoot, "pending-a1");
+  const manifest = JSON.parse(readFileSync(path.join(root, "manifest.json"), "utf8"));
+  if (manifest.manifestVersion !== 1 || !Array.isArray(manifest.cases) || !manifest.cases.length) throw new Error("Invalid format fixture manifest");
+  const schemas = { plan: "menu-plan-v3.schema.json", dish: "dish-v3.schema.json", "shopping-list": "shopping-list.schema.json" };
+  const files = new Set();
+  for (const fixture of manifest.cases) {
+    if (!Object.hasOwn(schemas, fixture.kind) || fixture.expectedSchema !== schemas[fixture.kind]
+      || fixture.formatVersion !== (fixture.kind === "shopping-list" ? "1" : "3")
+      || typeof fixture.expectedFormatValid !== "boolean" || files.has(fixture.file)
+      || (!fixture.expectedFormatValid && (!fixture.expectedDiagnostic?.keyword || typeof fixture.expectedDiagnostic.instancePath !== "string"))) {
+      throw new Error(`Invalid format fixture metadata: ${fixture.file}`);
+    }
+    within(root, fixture.file);
+    files.add(fixture.file);
+  }
+  const { validateEntity } = createSchemaValidators({ schemaDir: path.join(repoRoot, "schemas") });
+  return manifest.cases.map(fixture => {
+    // Missing files and validator failures are infrastructure errors, never an expected rejection.
+    const text = readFileSync(within(root, fixture.file), "utf8");
+    let value;
+    try { value = JSON.parse(text); }
+    catch (error) { return { file: fixture.file, actualFailureLayer: "json", matched: false, diagnostics: [error.message] }; }
+    const result = validateEntity(fixture.kind, value);
+    if (result.schema !== fixture.expectedSchema) throw new Error(`Unexpected schema dispatch for ${fixture.file}: ${result.schema}`);
+    const expectedError = fixture.expectedDiagnostic;
+    const diagnosticMatched = fixture.expectedFormatValid || result.errors.some(error =>
+      error.keyword === expectedError.keyword && error.instancePath === expectedError.instancePath
+      && Object.entries(expectedError.params ?? {}).every(([key, value]) => error.params?.[key] === value));
+    return {
+      file: fixture.file, schema: result.schema,
+      expectedFormatValid: fixture.expectedFormatValid, actualFormatValid: result.valid,
+      actualFailureLayer: result.valid ? "none" : "schema",
+      matched: result.valid === fixture.expectedFormatValid && diagnosticMatched,
+      diagnostics: result.errors.map(e => `${e.instancePath || "(root)"} ${e.keyword}: ${e.message}`),
+      semanticValidation: "not-executed",
+    };
+  });
+}
+
 export function main(argv = process.argv.slice(2), out = console.log) {
   const manifest = verifyManifest();
-  if (argv.length && (argv.length !== 2 || argv[0] !== "--case")) throw new Error("Usage: node scripts/validate-contract-fixtures.mjs [--case ID]");
-  const ids = argv.length ? [findCase(argv[1], CONTRACTS_ROOT).id] : manifest.cases.map(c => c.id);
+  const formatsOnly = argv.length === 1 && argv[0] === "--formats";
+  const singleCase = argv.length === 2 && argv[0] === "--case";
+  if (argv.length && !formatsOnly && !singleCase) throw new Error("Usage: node scripts/validate-contract-fixtures.mjs [--case ID | --formats]");
+  const ids = formatsOnly ? [] : singleCase ? [findCase(argv[1], CONTRACTS_ROOT).id] : manifest.cases.map(c => c.id);
   const results = ids.map(id => validateFixtureCase(id));
   for (const result of results) {
     out(`${result.matched ? "PASS" : "FAIL"} ${result.id}: expected=${result.expectedFailureLayer}, actual=${result.actualFailureLayer}`);
     for (const note of result.review ?? []) out(`  REVIEW ${note}`);
     if (!result.matched) for (const error of result.diagnostics) out(`  ${error}`);
   }
-  out(`${results.filter(r => r.matched).length}/${results.length} fixture expectations matched; local validation only, no real save or media provenance verified.`);
-  return results.every(r => r.matched) ? 0 : 1;
+  if (results.length) out(`${results.filter(r => r.matched).length}/${results.length} v2 fixture expectations matched; local validation only, no real save or media provenance verified.`);
+  const formats = singleCase ? [] : validateFormatFixtures();
+  for (const result of formats) {
+    out(`${result.matched ? "PASS" : "FAIL"} format ${result.file}: expectedValid=${result.expectedFormatValid}, actual=${result.actualFailureLayer}, schema=${result.schema ?? "not-reached"}`);
+    if (!result.matched) for (const error of result.diagnostics) out(`  ${error}`);
+  }
+  if (formats.length) out(`${formats.filter(r => r.matched).length}/${formats.length} format expectations matched; semantic admission not executed, no real Worker basis or save verified.`);
+  return [...results, ...formats].every(r => r.matched) ? 0 : 1;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -1,11 +1,32 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { CONTRACTS_ROOT, materializeFixture, validateFixtureCase, verifyManifest } from "./validate-contract-fixtures.mjs";
+import { CONTRACTS_ROOT, REPO_ROOT, main, materializeFixture, validateFixtureCase, validateFormatFixtures, verifyManifest } from "./validate-contract-fixtures.mjs";
 
 const manifest = JSON.parse(readFileSync(new URL("../test/fixtures/contracts/manifest.json", import.meta.url)));
+
+test("CLI runs the formal new-format samples without claiming semantic validation", () => {
+  const output = [];
+  assert.equal(main(["--formats"], line => output.push(line)), 0);
+  assert.ok(output.some(line => line.includes("19/19 format expectations matched")));
+  assert.ok(output.some(line => line.includes("semantic admission not executed")));
+});
+
+const formatManifest = JSON.parse(readFileSync(path.join(CONTRACTS_ROOT, "pending-a1/manifest.json")));
+const formatResults = validateFormatFixtures();
+for (const fixture of formatManifest.cases) {
+  test(`formal A1 format: ${fixture.file}`, () => {
+    const result = formatResults.find(r => r.file === fixture.file);
+    assert.equal(result.matched, true, result.diagnostics.join("\n"));
+    assert.equal(result.schema, fixture.expectedSchema);
+    assert.equal(result.actualFormatValid, fixture.expectedFormatValid);
+    assert.equal(result.actualFormatValid, fixture.actualFormatValid);
+    assert.equal(result.actualFailureLayer, fixture.actualFailureLayer);
+    assert.equal(result.semanticValidation, "not-executed");
+  });
+}
 
 for (const fixture of manifest.cases) {
   test(`${fixture.id}: expected layer ${fixture.expectedFailureLayer}`, () => {
@@ -27,6 +48,43 @@ function temp(t) {
   return root;
 }
 
+test("format negatives must fail at their intended field, not malformed JSON or an unrelated date", (t) => {
+  const contractsRoot = temp(t);
+  cpSync(CONTRACTS_ROOT, contractsRoot, { recursive: true });
+  const file = path.join(contractsRoot, "pending-a1/invalid/zero-servings.json");
+  const plan = JSON.parse(readFileSync(file));
+  plan.meals[0].plannedServings = 1;
+  plan.meals[0].date = "not-a-date";
+  writeFileSync(file, JSON.stringify(plan));
+  writeFileSync(path.join(contractsRoot, "pending-a1/invalid/null-servings.json"), "{");
+  const results = validateFormatFixtures({ contractsRoot });
+  assert.equal(results.find(r => r.file === "invalid/zero-servings.json").matched, false);
+  const badJson = results.find(r => r.file === "invalid/null-servings.json");
+  assert.equal(badJson.actualFailureLayer, "json");
+  assert.equal(badJson.matched, false);
+});
+
+test("format fixtures cannot accidentally exercise a legacy schema", (t) => {
+  const contractsRoot = temp(t);
+  cpSync(CONTRACTS_ROOT, contractsRoot, { recursive: true });
+  const file = path.join(contractsRoot, "pending-a1/valid/menu-plan-v3.json");
+  const plan = JSON.parse(readFileSync(file));
+  plan.schemaVersion = "2";
+  writeFileSync(file, JSON.stringify(plan));
+  assert.throws(() => validateFormatFixtures({ contractsRoot }), /Unexpected schema dispatch/);
+});
+
+test("format metadata and missing schemas fail as infrastructure, not expected invalid entities", (t) => {
+  assert.throws(() => validateFormatFixtures({ repoRoot: temp(t) }), /ENOENT/);
+  const contractsRoot = temp(t);
+  cpSync(CONTRACTS_ROOT, contractsRoot, { recursive: true });
+  const file = path.join(contractsRoot, "pending-a1/manifest.json");
+  const manifest = JSON.parse(readFileSync(file));
+  manifest.cases.find(c => !c.expectedFormatValid).kind = "typo";
+  writeFileSync(file, JSON.stringify(manifest));
+  assert.throws(() => validateFormatFixtures({ contractsRoot }), /Invalid format fixture metadata/);
+});
+
 test("editing a frozen ingredient is rejected as drift", (t) => {
   const root = temp(t);
   cpSync(CONTRACTS_ROOT, root, { recursive: true });
@@ -45,6 +103,18 @@ test("unexpected input files cannot silently join the library", (t) => {
 test("unknown cases and missing validator infrastructure are errors, not expected invalid data", (t) => {
   assert.throws(() => validateFixtureCase("typo"), /Unknown fixture/);
   assert.throws(() => validateFixtureCase("v2-missing-servings", { repoRoot: temp(t) }), /ENOENT/);
+});
+
+test("fixture format validation consumes the shared API without copying the Ajv CLI", (t) => {
+  const repoRoot = temp(t);
+  cpSync(path.join(REPO_ROOT, "schemas"), path.join(repoRoot, "schemas"), { recursive: true });
+  for (const file of ["scripts/local-validate.py", "skills/video-recipe-ingest/scripts/validate_dish.py"]) {
+    mkdirSync(path.dirname(path.join(repoRoot, file)), { recursive: true });
+    copyFileSync(path.join(REPO_ROOT, file), path.join(repoRoot, file));
+  }
+  // No validate-schemas.mjs CLI or node_modules in this test root.
+  assert.equal(validateFixtureCase("boundaries", { repoRoot }).actualFailureLayer, "none");
+  assert.equal(validateFixtureCase("invalid-date", { repoRoot }).actualFailureLayer, "schema");
 });
 
 test("whole-file overlays preserve unknown/missing fields without repairing them", (t) => {
