@@ -4,7 +4,8 @@ import type { GitHubClient } from './github.js';
 import { fail } from './http.js';
 import { stableSerialize } from './serialize.js';
 import { resolveListRevisions } from './shopping-basis.js';
-import { loadShoppingInputs } from './shopping-inputs.js';
+import { createShoppingInputReader } from './shopping-inputs.js';
+import type { ShoppingInputReader } from './shopping-inputs.js';
 
 export const sameValue = (a: unknown, b: unknown): boolean => stableSerialize(a) === stableSerialize(b);
 const normalizedBasis = (basis: ShoppingBasis): ShoppingBasis => ({ ...basis, selection: normalizeSelection(basis.selection) });
@@ -26,10 +27,13 @@ export function assertCandidates(list: ShoppingList, expected: ShoppingList, cod
 }
 
 /** Stored previous bases are validated even when the next request removes them. */
-export async function validateStoredList(gh: GitHubClient, head: string, list: ShoppingList, id: string): Promise<TeamMealInputs> {
+export async function validateStoredList(
+  gh: GitHubClient, head: string, list: ShoppingList, id: string,
+  readInputs: ShoppingInputReader = createShoppingInputReader(gh), checkedRevisions = new Set<string>(),
+): Promise<TeamMealInputs> {
   if (list.id !== id) throw fail('invalid_source', { path: '/id' });
-  await resolveListRevisions(gh, head, list);
-  const inputs = await loadShoppingInputs(gh, list.basis);
+  await resolveListRevisions(gh, head, list, checkedRevisions);
+  const inputs = await readInputs(list.basis);
   assertCandidates(list, createShoppingList(id, list.basis, inputs), 'invalid_source');
   const loaded = new Map<string, TeamMealInputs>([[stableSerialize(list.basis), inputs]]);
   for (const [index, item] of list.items.entries()) {
@@ -38,7 +42,7 @@ export async function validateStoredList(gh: GitHubClient, head: string, list: S
     const key = stableSerialize(basis);
     let previousInputs = loaded.get(key);
     if (!previousInputs) {
-      previousInputs = await loadShoppingInputs(gh, basis, `/items/${index}/previous/basis`);
+      previousInputs = await readInputs(basis, `/items/${index}/previous/basis`);
       loaded.set(key, previousInputs);
     }
     if (!createShoppingList(id, basis, previousInputs).items.some(candidate => candidate.ingredientRef === item.ingredientRef)) {

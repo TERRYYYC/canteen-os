@@ -1,0 +1,29 @@
+✖ B2 each shopping save fits the Free 50-subrequest limit for nine ingredients (28.401667ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73.131833
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-write.test.mjs:47:1
+✖ B2 each shopping save fits the Free 50-subrequest limit for nine ingredients (28.401667ms)
+  AssertionError [ERR_ASSERTION]: {"fetches":51,"body":{"ok":false,"errors":[{"path":"","code":"upstream_error","message":"GitHub 那边出问题了，先看看 PAT 是不是到期了"}]}}
+
+  502 !== 200
+
+      at capped (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:52:94)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-write.test.mjs:56:82)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 502,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

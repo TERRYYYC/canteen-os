@@ -3,7 +3,7 @@ feature_ids: []
 topics: [team-meals, worker, formats, shopping-list, rollback]
 doc_kind: implementation-evidence
 created: 2026-09-11
-status: B2-ready-for-independent-review
+status: B2-repaired-ready-for-review
 ---
 
 # B2 Worker implementation and review evidence
@@ -47,4 +47,8 @@ Dogfood boundary: real fetch-handler calls through L1 FakeRepo cover create → 
 
 Production data entries remain identical by path, mode and Git blob to A0. Existing unrelated main workspace files, .DS_Store and .poc-venv were not changed. No main merge, production data write, deployment, external PR/issue/comment, or branch publication has occurred. Local commits are reviewable; publication remains a dispatch authorization check.
 
-Fresh verification: `npm --prefix packages/worker test` passed 237/237; `npm --prefix packages/worker run typecheck` and `check:validators` passed; working diff and `git diff --check 8448d495..HEAD` passed. Full current outputs are b2-worker-green.txt, b2-typecheck.txt and b2-validators.txt. These commands build core before Worker through the approved CI dependency; no package metadata was changed by B.
+Initial candidate verification: `npm --prefix packages/worker test` passed 237/237; `npm --prefix packages/worker run typecheck` and `check:validators` passed; working diff and `git diff --check 8448d495..HEAD` passed. Full current outputs are b2-worker-green.txt, b2-typecheck.txt and b2-validators.txt. These commands build core before Worker through the approved CI dependency; no package metadata was changed by B.
+
+Independent review of 7188e0d returned four P2 despite passing baseline checks. Repair details and the exact review target are tracked in B2-review.md; that candidate is not approved.
+
+Post-review repair verification: Worker 259/259, typecheck and standalone-validator checks pass; see b2-repair-worker-green.txt, b2-repair-typecheck.txt and b2-repair-validators.txt. The nine-candidate quota test counts every injected fetch, including a complete ref retry, with 21/23/25/38 calls for create/buy/reconcile/confirm. Only successful immutable trees/blobs are cached per request; ancestry cache keys include captured H and are recreated per attempt. All conditions and semantic validation still run on each attempt. Rollback now rejects duplicate technique IDs, preserves downgrade priority and emits precise owner#field pointers.

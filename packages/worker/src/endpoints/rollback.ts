@@ -100,7 +100,7 @@ function treeChanges(current: EntryMap, candidate: EntryMap): TreeChange[] {
  */
 async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, historical: EntryMap, candidate: EntryMap): Promise<void> {
   const versions = new Map<string, "2" | "3">();
-  const readVersion = async (path: string, entry: TreeEntry): Promise<"2" | "3"> => {
+  const readVersion = async (path: string, entry: TreeEntry, isCandidate = false): Promise<"2" | "3"> => {
     if (entry.mode !== "100644") throw fail("invalid_source", { path });
     const cacheKey = `${path}\0${entry.sha}`;
     const cached = versions.get(cacheKey);
@@ -114,23 +114,34 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
       throw error;
     }
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      throw fail("invalid_source", { path });
+      throw fail("invalid_source", { path: isCandidate ? `${path}#` : path });
     }
     const explicit = (value as { schemaVersion?: unknown }).schemaVersion;
     const version = explicit === undefined && path.startsWith("data/dishes/") ? "2" : explicit;
-    if (version !== "2" && version !== "3") throw fail("invalid_source", { path });
+    if (version !== "2" && version !== "3") throw fail("invalid_source", { path: isCandidate ? `${path}#/schemaVersion` : path });
     versions.set(cacheKey, version);
     return version;
   };
 
+  let candidateVersionError: HttpError | undefined;
   for (const [path, before] of current) {
     if (!/^data\/(menu-plans|dishes)\/[^/]+\.json$/.test(path)) continue;
     if (await readVersion(path, before) !== "3") continue;
     const next = candidate.get(path);
-    if (!next || await readVersion(path, next) !== "3") {
-      throw fail("format_downgrade", { path });
+    if (!next) throw fail("format_downgrade", { path });
+    try {
+      if (await readVersion(path, next, true) !== "3") throw fail("format_downgrade", { path });
+    } catch (error) {
+      // Only candidate format failures can wait. A later definite v3 deletion or
+      // downgrade has priority; network, permission and current-file failures do not.
+      if (error instanceof HttpError && error.errors.every((entry) => entry.code === "invalid_source")) {
+        candidateVersionError ??= error;
+      } else {
+        throw error;
+      }
     }
   }
+  if (candidateVersionError) throw candidateVersionError;
 
   for (const input of [current, historical]) {
     for (const [path, entry] of input) {
@@ -149,38 +160,40 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
     if (!isKnowledgePath(path) || !path.endsWith(".json")) continue;
     const text = await gh.getBlobText(entry.sha);
     if (path === "data/translations.lock.json") {
-      parseTranslationLock(text);
+      parseTranslationLock(text, true);
     } else if (path === "data/techniques.json") {
-      sources.set(path, parseSource(text, "techniques", path));
+      sources.set(path, parseSource(text, "techniques", path, true));
     } else {
       const match = /^data\/(ingredients|dishes|menu-plans)\/[a-z][a-z0-9-]*\.json$/.exec(path);
       if (!match) throw fail("invalid_source", { path });
       const kind = match[1] === "ingredients" ? "ingredient" : match[1] === "dishes" ? "dish" : "plan";
-      sources.set(path, parseSource(text, kind, path));
+      sources.set(path, parseSource(text, kind, path, true));
     }
   }
 
   const techniques = sources.get("data/techniques.json") as Array<{ id: string }>;
-  const techniqueIds = new Set(techniques.map((technique) => technique.id));
+  const techniqueIds = new Set<string>();
+  for (const [index, technique] of techniques.entries()) {
+    if (techniqueIds.has(technique.id)) throw fail("invalid_source", { path: `data/techniques.json#/${index}/id` });
+    techniqueIds.add(technique.id);
+  }
   for (const [path, value] of sources) {
     if (path.startsWith("data/menu-plans/")) {
-      for (const meal of (value as { meals: Array<{ dishRef: string }> }).meals) {
-        if (!sources.has(`data/dishes/${meal.dishRef}.json`)) throw fail("invalid_source", { path });
+      for (const [index, meal] of (value as { meals: Array<{ dishRef: string }> }).meals.entries()) {
+        if (!sources.has(`data/dishes/${meal.dishRef}.json`)) throw fail("invalid_source", { path: `${path}#/meals/${index}/dishRef` });
       }
     } else if (path.startsWith("data/dishes/")) {
       const dish = value as {
         components?: Array<{ ingredientRef: string; prep?: { techniqueRef: string } }>;
         steps?: Array<{ techniqueRef?: string }>;
       };
-      for (const component of dish.components ?? []) {
-        if (!sources.has(`data/ingredients/${component.ingredientRef}.json`) ||
-            (component.prep && !techniqueIds.has(component.prep.techniqueRef))) {
-          throw fail("invalid_source", { path });
-        }
+      for (const [index, component] of (dish.components ?? []).entries()) {
+        if (!sources.has(`data/ingredients/${component.ingredientRef}.json`)) throw fail("invalid_source", { path: `${path}#/components/${index}/ingredientRef` });
+        if (component.prep && !techniqueIds.has(component.prep.techniqueRef)) throw fail("invalid_source", { path: `${path}#/components/${index}/prep/techniqueRef` });
       }
-      for (const step of dish.steps ?? []) {
+      for (const [index, step] of (dish.steps ?? []).entries()) {
         if (step.techniqueRef !== undefined && !techniqueIds.has(step.techniqueRef)) {
-          throw fail("invalid_source", { path });
+          throw fail("invalid_source", { path: `${path}#/steps/${index}/techniqueRef` });
         }
       }
     }

@@ -82,12 +82,15 @@ function messageFor(err: ValidatorError): string {
 }
 
 /** ajv 的 errors[] → 契约 §1.8 的 errors[]。path 用 instancePath，非字段级为 ""。 */
-export function toFieldErrors(errors: readonly ValidatorError[] | null | undefined): FieldError[] {
+export function toFieldErrors(errors: readonly ValidatorError[] | null | undefined, precisePaths = false): FieldError[] {
   const list = errors ?? [];
   const out: FieldError[] = [];
   const seen = new Set<string>();
   for (const err of list) {
-    const path = err.instancePath;
+    const member = err.keyword === "required" ? err.params.missingProperty
+      : err.keyword === "additionalProperties" ? err.params.additionalProperty : undefined;
+    const path = err.instancePath + (precisePaths && typeof member === "string"
+      ? `/${member.replace(/~/g, "~0").replace(/\//g, "~1")}` : "");
     const code = err.keyword;
     const key = `${path}|${code}|${JSON.stringify(err.params)}`;
     if (seen.has(key)) continue;
@@ -102,10 +105,10 @@ export interface ValidationOutcome {
   errors: FieldError[];
 }
 
-export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown): ValidationOutcome {
+export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown, precisePaths = false): ValidationOutcome {
   const version = data && typeof data === "object" ? (data as {schemaVersion?: unknown}).schemaVersion : undefined;
   const validate = kind === "plan" && version === "3" ? validateMenuPlanV3
     : kind === "dish" && version === "3" ? validateDishV3 : VALIDATORS[kind];
   const valid = validate(data);
-  return { valid, errors: valid ? [] : toFieldErrors(validate.errors) };
+  return { valid, errors: valid ? [] : toFieldErrors(validate.errors, precisePaths) };
 }

@@ -46,23 +46,25 @@ for (const kind of ["plan", "dish", "ingredient", "techniques", "translations"])
   });
 }
 
-for (const [label, path, value] of [
-  ["v2 empty plan", paths.plan, { schemaVersion: "2", meals: [] }],
-  ["v3 impossible date", paths.plan, { schemaVersion: "3", meals: [{ date: "2026-02-30", mealType: "lunch", dishRef: "soup" }] }],
-  ["v3 range relation", paths.plan, { schemaVersion: "3", dateRange: { start: "2026-10-20", end: "2026-10-21" }, meals: [{ date: "2026-10-19", mealType: "lunch", dishRef: "soup" }] }],
-  ["unknown dish version", paths.dish, { ...dish(), schemaVersion: "4" }],
-  ["v2 dish missing qty", paths.dish, { ...dish(), components: [{ ingredientRef: "salt" }] }],
-  ["ingredient required fields", paths.ingredient, { schemaVersion: "2", name: { zh: "盐" } }],
-  ["technique item", paths.techniques, [{ id: "mix", name: { zh: "拌" } }]],
-  ["translation status", paths.translations, { entry: { status: "guessed" } }],
+for (const [label, path, value, pointer] of [
+  ["v2 empty plan", paths.plan, { schemaVersion: "2", meals: [] }, "/meals"],
+  ["v3 impossible date", paths.plan, { schemaVersion: "3", meals: [{ date: "2026-02-30", mealType: "lunch", dishRef: "soup" }] }, "/meals/0/date"],
+  ["v3 range relation", paths.plan, { schemaVersion: "3", dateRange: { start: "2026-10-20", end: "2026-10-21" }, meals: [{ date: "2026-10-19", mealType: "lunch", dishRef: "soup" }] }, "/meals/0/date"],
+  ["unknown dish version", paths.dish, { ...dish(), schemaVersion: "4" }, "/schemaVersion"],
+  ["v2 dish missing qty", paths.dish, { ...dish(), components: [{ ingredientRef: "salt" }] }, "/components/0/qty"],
+  ["ingredient required fields", paths.ingredient, { schemaVersion: "2", name: { zh: "盐" } }, "/baseUnit"],
+  ["technique item", paths.techniques, [{ id: "mix", name: { zh: "拌" } }], "/0/kind"],
+  ["translation status", paths.translations, { entry: { status: "guessed" } }, "/entry/status"],
+  ["translation stale", paths.translations, { "a/b~c": { status: "human", stale: 1 } }, "/a~1b~0c/stale"],
+  ["additional property", paths.dish, { ...dish(), "a/b~c": true }, "/a~1b~0c"],
 ]) {
   test(`B2 rollback rejects candidate schema failure: ${label}`, async () => {
-    await rejectsCandidate({ ...knowledge(), [path]: json(value) }, path);
+    await rejectsCandidate({ ...knowledge(), [path]: json(value) }, `${path}#${pointer}`);
   });
 }
 
 test("B2 rollback validates unchanged invalid candidate files, including a no-op rollback", async () => {
-  await rejectsCandidate({ ...knowledge(), [paths.ingredient]: "null\n" }, paths.ingredient, { unchanged: true });
+  await rejectsCandidate({ ...knowledge(), [paths.ingredient]: "null\n" }, `${paths.ingredient}#`, { unchanged: true });
 });
 
 test("B2 rollback requires the techniques file even when no dish references it", async () => {
@@ -72,14 +74,14 @@ test("B2 rollback requires the techniques file even when no dish references it",
   await rejectsCandidate(files, paths.techniques);
 });
 
-for (const [label, missing, referringPath] of [
-  ["plan dish", paths.dish, paths.plan],
-  ["component ingredient", paths.ingredient, paths.dish],
+for (const [label, missing, referringPath, pointer] of [
+  ["plan dish", paths.dish, paths.plan, "/meals/0/dishRef"],
+  ["component ingredient", paths.ingredient, paths.dish, "/components/0/ingredientRef"],
 ]) {
   test(`B2 rollback rejects dangling ${label} using the candidate, not current HEAD`, async () => {
     const files = knowledge();
     delete files[missing];
-    await rejectsCandidate(files, referringPath);
+    await rejectsCandidate(files, `${referringPath}#${pointer}`);
   });
 }
 
@@ -88,7 +90,7 @@ for (const field of ["prep", "steps"]) {
     const value = dish();
     if (field === "prep") value.components[0].prep.techniqueRef = "missing";
     else value.steps[0].techniqueRef = "missing";
-    await rejectsCandidate({ ...knowledge(), [paths.dish]: json(value) }, paths.dish);
+    await rejectsCandidate({ ...knowledge(), [paths.dish]: json(value) }, `${paths.dish}#${field === "prep" ? "/components/0/prep/techniqueRef" : "/steps/0/techniqueRef"}`);
   });
 }
 
@@ -228,3 +230,92 @@ test("B2 rollback preserves remote ImageRef without fetching or claiming pinned 
   assert.equal(repo.fileText(paths.dish), files[paths.dish]);
   assert.ok(repo.calls.every((entry) => entry.path.startsWith(`/repos/${REPO}/`)));
 });
+
+for (const second of [{ id: "mix", kind: "heat", name: { zh: "另一技法" } }, { id: "mix", kind: "pretreat", name: { zh: "拌" } }]) {
+  test(`B2 review rejects duplicate technique ID even when ${second.kind === "heat" ? "different" : "identical"}`, async () => {
+    const files = knowledge();
+    files[paths.techniques] = json([...JSON.parse(files[paths.techniques]), second]);
+    await rejectsCandidate(files, `${paths.techniques}#/1/id`);
+  });
+}
+
+function guardedSources(badDish) {
+  const repo = new FakeRepo();
+  const base = knowledge();
+  // Put soup before the plan so candidate invalid_source is encountered first.
+  const target = repo.commit({ [paths.dish]: badDish, ...base, [paths.plan]: json(plan()), [paths.dish]: badDish });
+  const before = repo.commit({ [paths.dish]: json({ schemaVersion: "3", name: { zh: "汤" } }), ...base,
+    [paths.plan]: json({ schemaVersion: "3", meals: [] }), [paths.dish]: json({ schemaVersion: "3", name: { zh: "汤" } }) });
+  return { repo, target, before };
+}
+
+for (const badDish of ["null", "{ broken", "[]", json({ schemaVersion: "4", name: { zh: "汤" } }), json({ schemaVersion: "3", name: null })]) {
+  test(`B2 review a later explicit v3 downgrade wins over candidate dish ${badDish}`, async () => {
+    const { repo, target, before } = guardedSources(badDish);
+    const { env } = makeEnv(repo);
+    const result = await rollback(env, target);
+    assert.equal(result.status, 409);
+    assert.equal(result.body.errors[0].code, "format_downgrade");
+    assert.equal(result.body.errors[0].path, paths.plan);
+    assert.equal(repo.head, before);
+    assert.equal(repo.writeCalls().length, 0);
+  });
+}
+
+for (const failure of [401, 403, "network"]) {
+  test(`B2 review does not swallow ${failure} while collecting candidate version errors`, async () => {
+    const { repo, target, before } = guardedSources("null");
+    const blob = repo.trees.get(repo.commits.get(target).tree).get(paths.dish);
+    const { env } = makeEnv(repo, { __extraRoutes: {
+      [`GET /repos/${REPO}/git/blobs/${blob}`]: () => {
+        if (failure === "network") throw new TypeError("network down");
+        return response({ message: "permission denied" }, failure);
+      },
+    } });
+    const result = await rollback(env, target);
+    assert.equal(result.status, 502);
+    assert.equal(result.body.errors[0].code, "upstream_error");
+    assert.equal(repo.head, before);
+    assert.equal(repo.writeCalls().length, 0);
+  });
+}
+
+test("B2 review detailed source errors are opt-in for rollback", async () => {
+  const { parseSource, parseTranslationLock } = await import("../dist/source.js");
+  assert.throws(() => parseSource(json({ ...dish(), components: [{ ingredientRef: "salt" }] }), "dish", paths.dish), (error) => error.errors[0].path === paths.dish);
+  assert.throws(() => parseTranslationLock(json({ entry: { status: "bad" } })), (error) => error.errors[0].path === paths.translations);
+});
+
+test("B2 review preserves the existing pcs with yield warning-only contract", async () => {
+  const repo = new FakeRepo();
+  const files = { ...knowledge(), [paths.ingredient]: json({ schemaVersion: "2", name: { zh: "一块盐" }, baseUnit: "pcs", trackStock: false, yield: 0.9 }) };
+  const target = repo.commit(files);
+  repo.commit(knowledge());
+  const { env } = makeEnv(repo);
+  const result = await rollback(env, target);
+  assert.equal(result.status, 200);
+  assert.equal(repo.fileText(paths.ingredient), files[paths.ingredient]);
+});
+
+for (const kind of ["meal", "ingredient", "prep", "step"]) {
+  test(`B2 review retains the actual row index for a second ${kind} reference error`, async () => {
+    const files = knowledge();
+    const value = kind === "meal" ? plan() : dish();
+    let pointer;
+    const owner = kind === "meal" ? paths.plan : paths.dish;
+    if (kind === "meal") {
+      value.meals.push({ ...value.meals[0], dishRef: "missing" });
+      pointer = "/meals/1/dishRef";
+    } else if (kind === "step") {
+      value.steps.push({ text: { zh: "下一步" }, techniqueRef: "missing" });
+      pointer = "/steps/1/techniqueRef";
+    } else {
+      const next = structuredClone(value.components[0]);
+      if (kind === "ingredient") next.ingredientRef = "missing";
+      else next.prep.techniqueRef = "missing";
+      value.components.push(next);
+      pointer = kind === "ingredient" ? "/components/1/ingredientRef" : "/components/1/prep/techniqueRef";
+    }
+    await rejectsCandidate({ ...files, [owner]: json(value) }, `${owner}#${pointer}`);
+  });
+}

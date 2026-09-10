@@ -37,3 +37,10 @@ test('B2 shopping source read failures remain upstream errors',async()=>{
  const repo=new FakeRepo();const revision=repo.commit(files());const gh=client(repo,{[`GET /repos/${REPO}/git/trees/${revision}`]:()=>new Response('{}',{status:403})});
  await assert.rejects(load(gh,{sourceRevision:revision,selection}),e=>e.name==='UpstreamError'&&e.status===403);
 });
+for(const failure of ['tree','blob'])test(`B2 fixed-input cache never retains a failed ${failure} read`,async()=>{
+ const repo=new FakeRepo();const revision=repo.commit(files());const real=makeFetch(repo);let failOnce=true;
+ const gh=new GitHubClient({repo:REPO,branch:'main',apiBase:'https://api.github.com',token:'test',fetch:(input,init)=>{
+  const url=new URL(typeof input==='string'?input:input.url);if(failOnce&&url.pathname.includes(failure==='tree'?'/git/trees/':'/git/blobs/')){failOnce=false;return Promise.resolve(new Response('{}',{status:403}));}return real(input,init);
+ }});const readInputs=(await import('../dist/shopping-inputs.js')).createShoppingInputReader(gh);const basis={sourceRevision:revision,selection};
+ await assert.rejects(readInputs(basis),e=>e.name==='UpstreamError'&&e.status===403);const inputs=await readInputs(basis);assert.deepEqual(inputs.menuPlans.team,plan);assert.deepEqual(inputs.ingredients.salt,ingredient);
+});

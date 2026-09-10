@@ -4,7 +4,7 @@ import {FakeRepo,WORKER,bearer,call,makeEnv,makeFetch,REPO} from './helpers.mjs'
 const worker=(await import(WORKER)).default;
 const path='data/shopping-lists/trip.json';
 const selection=[{menuPlanRef:'team',date:'2026-10-19',mealType:'lunch'}];
-function setup(){const repo=new FakeRepo();const files={'data/techniques.json':'[]','data/menu-plans/team.json':JSON.stringify({schemaVersion:'3',meals:[{date:'2026-10-19',mealType:'lunch',dishRef:'soup'}]}),'data/dishes/soup.json':JSON.stringify({schemaVersion:'3',name:{zh:'汤'},components:[{ingredientRef:'salt'}]}),'data/ingredients/salt.json':JSON.stringify({schemaVersion:'2',name:{zh:'盐'},baseUnit:'g',trackStock:false,onHand:8}),'data/purchase-orders/stored.json':'preserve original PO bytes'};const revision=repo.commit(files);const list={shoppingListVersion:'1',id:'trip',basis:{sourceRevision:revision,selection},items:[{ingredientRef:'salt',decision:'check'}]};return {repo,files,list,env:makeEnv(repo).env};}
+function setup(){const repo=new FakeRepo();const files={'data/techniques.json':'[]','data/menu-plans/team.json':JSON.stringify({schemaVersion:'3',meals:[{date:'2026-10-19',mealType:'lunch',dishRef:'soup'}]}),'data/dishes/soup.json':JSON.stringify({schemaVersion:'3',name:{zh:'汤'},components:[{ingredientRef:'salt'}]}),'data/ingredients/salt.json':JSON.stringify({schemaVersion:'2',name:{zh:'盐'},baseUnit:'g',trackStock:false,onHand:8}),'data/purchase-orders/stored.json':'preserve original PO bytes'};const revision=repo.commit(files);const list={shoppingListVersion:'1',id:'trip',basis:{sourceRevision:revision,selection:structuredClone(selection)},items:[{ingredientRef:'salt',decision:'check'}]};return {repo,files,list,env:makeEnv(repo).env};}
 const post=(env,list,headers={})=>call(worker,env,'POST','/shopping-list/trip',{headers:{...bearer('buyer'),...headers},body:list});
 for(const role of ['chef','buyer','admin'])test(`B2 shopping create permission ${role} and only list bytes change`,async()=>{
  const {repo,list,env,files}=setup();const r=await post(env,list,{...bearer(role),'If-None-Match':'*'});assert.equal(r.status,200);assert.equal(r.body.unchanged,false);assert.deepEqual(JSON.parse(repo.fileText(path)),list);for(const [p,v]of Object.entries(files))assert.equal(repo.fileText(p),v);assert.equal(repo.commits.get(r.body.commit).parents.length,1);
@@ -43,4 +43,21 @@ test('B2 equivalent selection ordering normalizes once without resetting decisio
 });
 test('B2 schema errors retain Ajv keywords and never carry reviewRequired',async()=>{
  const {repo,list,env}=setup();list.items[0]={ingredientRef:'salt',decision:'available',bought:false};const r=await post(env,list,{'If-None-Match':'*'});assert.equal(r.status,400);assert.ok(r.body.errors.some(e=>['if','not','enum','const'].includes(e.code)));assert.ok(!('reviewRequired' in r.body));assert.equal(repo.writeCalls().length,0);
+});
+test('B2 each shopping save fits the Free 50-subrequest limit for nine ingredients',async(t)=>{
+ const {repo,list,env,files}=setup();const ids=Array.from({length:9},(_,i)=>`ingredient-${i}`);const dish=JSON.parse(files['data/dishes/soup.json']);dish.components=ids.map(ingredientRef=>({ingredientRef}));files['data/dishes/soup.json']=JSON.stringify(dish);
+ for(const id of ids)files[`data/ingredients/${id}.json`]=JSON.stringify({schemaVersion:'2',name:{zh:id},baseUnit:'g',trackStock:false});
+ list.basis.sourceRevision=repo.commit(files);list.items=ids.map(ingredientRef=>({ingredientRef,decision:'check'}));
+ const counts=[];const realFetch=makeFetch(repo);let fetches=0;env.__fetch=(input,init)=>{if(++fetches>50)throw new Error('Free subrequest cap exceeded');return realFetch(input,init);};
+ async function capped(value,headers){fetches=0;const r=await post(env,value,headers);assert.equal(r.status,200,JSON.stringify({fetches,body:r.body}));assert.ok(fetches<=50);counts.push(fetches);return r;}
+ let saved=await capped(list,{'If-None-Match':'*'});list.items=list.items.map(item=>({...item,decision:'buy',bought:true}));saved=await capped(list,{'If-Match':saved.body.blobSha});
+ const previous=structuredClone(list);const plan=JSON.parse(files['data/menu-plans/team.json']);plan.meals[0].plannedServings=3;files['data/menu-plans/team.json']=JSON.stringify(plan);
+ const revision=repo.commit({...files,[path]:repo.fileText(path)});list.basis={...list.basis,sourceRevision:revision};list.items=ids.map(ingredientRef=>({ingredientRef,decision:'check',previous:{basis:previous.basis,decision:'buy',bought:true}}));saved=await capped(list,{'If-Match':saved.body.blobSha});
+ list.items=ids.map(ingredientRef=>({ingredientRef,decision:'buy',bought:true}));repo.refUpdateFailures=1;await capped(list,{'If-Match':saved.body.blobSha});
+ const pinned=JSON.parse(repo.fileText(path));assert.deepEqual(pinned,list);t.diagnostic(`fetch counts create/buy/reconcile/confirm-with-retry: ${counts.join('/')}`);
+});
+test('B2 immutable reads are shared on ref retry but head and ancestry are checked again',async()=>{
+ const {repo,list,env,files}=setup();repo.commit({...files,'data/note.txt':'later head'});repo.refUpdateFailures=1;const realFetch=makeFetch(repo);let trees=0;let heads=0;let comparisons=0;
+ env.__fetch=(input,init={})=>{const url=new URL(typeof input==='string'?input:input.url);if(url.pathname.endsWith(`/git/trees/${list.basis.sourceRevision}`))trees++;if(url.pathname.endsWith('/git/ref/heads/main'))heads++;if(url.pathname.includes('/compare/'))comparisons++;return realFetch(input,init);};
+ const result=await post(env,list,{'If-None-Match':'*'});assert.equal(result.status,200);assert.equal(trees,1);assert.equal(heads,2);assert.equal(comparisons,2);assert.deepEqual(JSON.parse(repo.fileText(path)),list);
 });

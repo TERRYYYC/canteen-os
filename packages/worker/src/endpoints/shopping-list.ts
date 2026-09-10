@@ -7,7 +7,7 @@ import { entityPath } from '../paths.js';
 import { writePrecondition } from '../preconditions.js';
 import { stableSerialize } from '../serialize.js';
 import { resolveListRevisions } from '../shopping-basis.js';
-import { loadShoppingInputs } from '../shopping-inputs.js';
+import { createShoppingInputReader } from '../shopping-inputs.js';
 import { assertCandidates, normalizeList, sameValue, validateStoredList } from '../shopping-validation.js';
 import { parseSource } from '../source.js';
 import { validateEntity } from '../validate.js';
@@ -24,6 +24,7 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
   const received = body as unknown as ShoppingList;
   const next = normalizeList(received);
   const gh = githubClient(ctx);
+  const readInputs = createShoppingInputReader(gh);
   const path = entityPath('shopping-list', id);
   const outcome = await commitSingleFile(gh, {
     path, bytes: new TextEncoder().encode(stableSerialize(next)),
@@ -31,9 +32,10 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
     role: ctx.role, endpoint: ctx.endpointConcrete, ifMatch: null,
     precondition: writePrecondition(ctx.request.headers),
     verify: async (head, current) => {
+      const checkedRevisions = new Set<string>();
       if (next.id !== id) throw fail('invalid_selection', { path: '/id' });
-      await resolveListRevisions(gh, head, next);
-      const inputs = await loadShoppingInputs(gh, next.basis);
+      await resolveListRevisions(gh, head, next, checkedRevisions);
+      const inputs = await readInputs(next.basis);
       const fresh = createShoppingList(id, next.basis, inputs);
       if (!current) {
         assertCandidates(received, fresh, 'invalid_selection');
@@ -44,7 +46,7 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
         return;
       }
       const stored = parseSource(current.text, 'shopping-list', path) as ShoppingList;
-      const previousInputs = await validateStoredList(gh, head, stored, id);
+      const previousInputs = await validateStoredList(gh, head, stored, id, readInputs, checkedRevisions);
       const previous = normalizeList(stored);
       if (!sameValue(previous.basis, next.basis)) {
         const reconciled = reconcileShoppingList(previous, previousInputs, next.basis, inputs);
