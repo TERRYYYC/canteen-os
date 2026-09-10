@@ -20,11 +20,11 @@ status: proposed-technical-contract
 
 ## Decision
 
-1. 本次仅在以下方面取代旧执行简报 §1.2/§7、ADR-0006 的冻结：允许显式 MenuPlan v3 可选 plannedServings、Dish v3 可选 component.qty，以及独立 ShoppingList v1。其他旧字段和 v2 校验不放宽；Ingredient、Technique、PurchaseOrder 和原数量算法保留。
+1. 本次仅在以下方面取代旧执行简报 §1.2/§7、ADR-0006 的冻结：允许显式 MenuPlan v3 可选 plannedServings 且可保存空 meals 以取消安排、Dish v3 可选 component.qty，以及独立 ShoppingList v1。其他旧字段和 v2 校验不放宽；Ingredient、Technique、PurchaseOrder 和原数量算法保留。
 2. 读新/旧并存；显式升级保留全部真实值，不补份数、数量或适量。已升级对象禁止旧客户端或 rollback 降级，即使有最新锁。无需迁移永久菜单行 ID。
 3. core 直接收集所有 components 引用，按材料身份去重并保留所有版本内来源；缺项如实报告。收集成功不等于真实配方完整，active 不当人工确认依据。
 4. ShoppingList 只存来源基线、选中范围和本次判断/可选已买。来源与失效由纯比较得到；需求变化变 check，旧判断最多保留一份参考，移除项退出当前集合。判断不写 onHand/Dish/PO。
-5. 扩展 ADR-0007 的写入合同：plan/dish/list 新建需 If-None-Match:*，更新需 If-Match，基线与判断原子保存，固定 revision 读取和同版资产不可读时显式失败。回退只恢复受控知识路径并保留工作清单；禁止删除或降级已升级资料。其余授权、限流、受控 Git 写入及保存/发布分离不变。
+5. 扩展 ADR-0007 的写入合同：plan/dish/list 新建需 If-None-Match:*，更新需 If-Match，基线与判断原子保存，所有清单新旧/previous 基线、source/catalog/asset 读取与 rollback target 使用同一受控分支祖先可达性 resolver；固定 revision 读取和同版资产不可读时显式失败。回退只恢复受控知识路径并保留工作清单；禁止删除或降级已升级资料。其余授权、限流、受控 Git 写入及保存/发布分离不变。
 6. 构建显式分 legacy-numeric 与 team-meals。新主流程缺数量只关闭参考，不遗漏材料；引用/格式/本地资产错误仍是发布阻断。旧数值黄金在固定样本独立运行，不按正常生产菜单变动改 expected。
 7. 历史 Git revision 足以作为本期资料基线；完整快照平台不是前置，不推导供餐、消耗或浪费。所有 API/Web/CI 由唯一 owner 消费共享合同；RC-A 仅交 schema/core/build。
 

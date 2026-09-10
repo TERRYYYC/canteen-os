@@ -28,13 +28,13 @@ JSON Schema draft 2020-12 是持久格式事实源。已有 `menu-plan.schema.js
 | 实体 / 类型 | 必填与变化 | 保留 |
 |---|---|---|
 | MenuPlan / MenuPlanMeal | 旧 `schemaVersion:"2"`；每行 plannedServings 整数 ≥1，meals ≥1 | 原校验、默认 margin 计算语义及真实数值 |
-| MenuPlanV3 / MenuPlanMealV3 | `schemaVersion:"3"`、meals ≥1；每行 date、mealType、dishRef 必填，plannedServings 可省略但填写仍为整数 ≥1 | name、dateRange、margin、serviceWindow 与 v2 相同；无 ID/状态新增 |
+| MenuPlanV3 / MenuPlanMealV3 | `schemaVersion:"3"`、meals 数组（允许 []）；每行 date、mealType、dishRef 必填，plannedServings 可省略但填写仍为整数 ≥1 | name、dateRange、margin、serviceWindow 与 v2 相同；无 ID/状态新增 |
 | Dish / DishComponent | 旧 schemaVersion 可省略或为 `"2"`；name 必填；已填 component 的 ingredientRef、qty 均必填 | 旧 Quantity 条件、prep、steps、来源、状态 |
 | DishV3 / DishComponentV3 | `schemaVersion:"3"`、name 必填；components 可省略但若出现仍 ≥1；每项 ingredientRef 必填，qty 可省略 | 其余字段/约束与 v2 相同；qty 一旦出现必须是合法 Quantity |
 | AnyMenuPlan / AnyDish | `MenuPlan | MenuPlanV3` / `Dish | DishV3` | 仅新引用/投影入口使用；不把旧严格类型改成可选 |
 | ShoppingList | `shoppingListVersion:"1"`、id、basis、items 必填 | 独立于 PurchaseOrder；路径 `data/shopping-lists/<id>.json`，id 必须等于文件名 |
 
-MenuPlanV3 的 dateRange 若存在须 start ≤ end 且包含所有 meals 日期；API/core 语义检查负责跨字段关系。空计划编辑可留本地，持久格式仍要求至少一行。所有对象 additionalProperties:false。Id 使用现有小写 kebab-case；日期使用真实日历 date format；sourceRevision 是小写 40 位十六进制完整 commit，不接受分支名、短 SHA、local 或工作副本占位。
+MenuPlanV3 的 dateRange 若存在须 start ≤ end 且包含所有 meals 日期；API/core 语义检查负责跨字段关系。v3 允许持久保存 meals:[]，表示已取消全部安排；若有 dateRange 仍保留其范围且 start ≤ end。v2 仍至少一行。ShoppingSelection 可选择存在计划中的空日期/餐次；空计划的投影保留计划/dateRange，collection.items 与 estimates.items 均为空，budgetStatus=not-applicable；清单 items:[] 合法。删除最后一餐必须先保存并重读真实空计划，再以该 revision 复核旧清单，不能只停在本地空稿。所有对象 additionalProperties:false。Id 使用现有小写 kebab-case；日期使用真实日历 date format；sourceRevision 是小写 40 位十六进制完整 commit，不接受分支名、短 SHA、local 或工作副本占位。
 
 ```ts
 interface ShoppingSelection { menuPlanRef: Id; date: string; mealType: MealType }
@@ -72,7 +72,12 @@ DishV3 缺 qty 表示未知；`{unit:"to-taste"}` 仅保留来源确实写适量
 
 公共入口位于 `packages/core/src/team-meals.ts`，由 `index.ts` 导出。输入已通过对应 schema；生产持久输入在读取固定 revision 后形成 `TeamMealInputs { menuPlans:Record<Id,AnyMenuPlan>, dishes:Record<Id,AnyDish>, ingredients:Record<Id,Ingredient>, techniques:Technique[] }`。纯函数不得读磁盘/网络/时钟。
 
-`collectIngredientReferences(inputs, selection)` 返回 `{items, issues, recordedReferencesCollected:true, recipeCompleteness:"unverified"}`。
+`collectIngredientReferences(inputs, selection)` 返回 `{items,issues,coverage:{enumeration:"complete"|"incomplete",references:"resolved"|"unresolved",recipeCompleteness:"unverified"}}`。这三个维度不互相推出：
+
+- enumeration 表示是否能遍历所有选中来源；missing-plan、missing-dish、components-unrecorded 任一存在则 incomplete，即使另有非空候选也不变。
+- references 表示所有已遇引用能否解析；missing-plan/dish/ingredient/technique 任一存在则 unresolved。missing-ingredient 仍保留其 ID 和 sources，枚举可以 complete，但 references 必须 unresolved。
+- recipeCompleteness 固定 unverified，表示从未由本合同证明真实配方完整；不能由 active、非空数组或 enumeration complete 推出人工确认。
+- 已知空计划/已知未安排餐次是可完整遍历的空集合（enumeration complete、references resolved、仍 recipeCompleteness unverified）；明确缺成分的菜则 enumeration incomplete，不能混成同一种空。
 
 - items 按 ingredientRef 稳定排序；每项 `{ingredientRef, sources}`，所有 components 引用均进入候选，包括 seasoning、to-taste、缺 qty、缺包装、缺 baseServings、draft/archived。不存在的 ingredientRef 仍保留其 ID；同名不同 ID 不合并。
 - 每个来源 `{menuPlanRef,date,mealType,dishRef,mealIndex,componentIndex,plannedServings?,baseServings?,qty?}`。索引只定位当前固定输入；重复菜/重复配料均保留来源，不当重复错误删除。selection 元组排序去重后遍历，防重复选中同餐倍增需求。
@@ -111,6 +116,9 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 
 沿用 Bearer 角色授权、请求大小、限流、错误体 `{ok:false,errors:[{path,code,message}]}` 与成功 `{ok:true,commit,blobSha,unchanged,warnings}`。错误 message 是 API 文案而非持久实体字段；客户端按 code 本地化并保留 path。所有新/扩展查询错误禁止回退 main。
 
+**统一版本解析器：** 每个请求只解析一次配置的受控分支 head H。所有显式 revision——清单新 basis、旧 basis、各项 previous.basis、source/catalog/asset 的 revision、rollback target——必须解析为完整 commit，且经 ancestry 验证为 H 本身或 H 的祖先；仅 resolveCommit 成功不够。不存在/非祖先/不在本仓受控历史的 SHA 在读端和 rollback 返回 422 revision_unavailable，在清单验证返回 422 basis_unavailable。格式非法返回 400 invalid_revision（清单字段仍可由 schema pattern 报错）；上游权限、网络或超时不得映射成不存在，使用真实授权错误或 502 upstream_error。无 latest fallback。省略 revision 的普通读取使用该 H，后续全部子读取固定 H。写入因 ref 竞争重试时，新尝试重新取得 H 并重新验证 ancestry、条件锁及全部语义，不能混用两次 head。
+
+
 | 路由 | 权限 / 精确行为 |
 |---|---|
 | POST /plan/:planId | chef/admin；v2/v3 双写，受下述必需条件头与降级检查保护 |
@@ -120,7 +128,7 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 | GET /catalog?revision=<fullSha> | 三角色；所有 entities、techniques、供应商、翻译状态来自同一 commit。schema/JSON 坏项不再静默跳过；超过上限 fail-closed |
 | GET /asset?revision=<fullSha>&owner=<entityPath>&pointer=<jsonPointer> | 三角色；server 在指定 revision 读取 owner 的 ImageRef 并解析允许路径，禁止客户端指定任意 URL 代理。成功为真实图片 bytes + Content-Type + X-Source-Revision；失败为标准 JSON；无当前图兜底 |
 
-资产 owner 只允许 `data/(ingredients|dishes)/<id>.json` 或 `data/techniques.json`；pointer 只接受 schema 中 ImageRef 的 /image、components/<n>/prep/image、steps/<n>/image、技术词表 /<n>/image。查询 CORS 暴露 X-Source-Revision；缓存键包含完整 revision、owner、pointer。旧 ImageRef 中 remote src 在此接口返回 422 external_asset_unpinned，非代理。
+资产 owner 只允许 `data/(ingredients|dishes)/<id>.json` 或 `data/techniques.json`；pointer 只接受 schema 中 ImageRef 的 /image、/components/<n>/prep/image、/steps/<n>/image、技术词表 /<n>/image；n 必须为该 revision 中真实存在的非负数组下标。查询 CORS 暴露 X-Source-Revision；缓存键包含完整 revision、owner、pointer。旧 ImageRef 中 remote src 在此接口返回 422 external_asset_unpinned，非代理。
 
 **条件头：** 新建必须 `If-None-Match: *`；更新必须 `If-Match: <blobSha>`（允许一对双引号，拒绝列表、weak ETag、*、空值）。两头同时出现返回 400 invalid_precondition；未提供必需条件返回 428 precondition_required。CORS 加入 If-None-Match。过期 blob/并发双创建返回 409 conflict（与现客户端习惯一致），不使用读后无条件写。所有新 plan/dish 及 shopping 写入按此执行；Ingredient 原写入不在本变更范围。
 
@@ -145,7 +153,7 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 
 ## 6. 回退与构建准入
 
-RC-B 将整树替换改成受控知识资料回退；允许恢复 `data/ingredients/**`、`data/dishes/**`、`data/menu-plans/**`、`data/techniques.json`、`data/translations.lock.json`。保留当前 `data/shopping-lists/**`、`data/purchase-orders/**` 以及任何不在允许集的 data 路径（包含未来快照）；不能顺便删新文件。
+RC-B 的 rollback target 也采用 §5 统一 resolver，要求完整 SHA 且为本次 H 可达祖先；将整树替换改成受控知识资料回退；允许恢复 `data/ingredients/**`、`data/dishes/**`、`data/menu-plans/**`、`data/techniques.json`、`data/translations.lock.json`。保留当前 `data/shopping-lists/**`、`data/purchase-orders/**` 以及任何不在允许集的 data 路径（包含未来快照）；不能顺便删新文件。
 
 在同一 H 上构造候选树并校验格式、引用和升级保护。任何当前 v3 MenuPlan/Dish 在目标中缺失或更旧，整个回退返回 409 format_downgrade，保持零写入；不自动补份数/qty。成功仍是新 commit、非 force、[skip ci]，不自动发布。并发清单写入与 rollback 争用时重读 H，保留最新清单字节。旧 basis 的资料不会因 rollback 改变。
 
@@ -193,9 +201,9 @@ RC-B 将整树替换改成受控知识资料回退；允许恢复 `data/ingredie
 
 | 用例 / 对应验收 | 输入/攻击 | 预期证据 / owner |
 |---|---|---|
-| A01 / T01,T05,INV-1 | v2 无份数；v3 无份数/0/null；旧 200 份升级 | 旧拒绝、新缺省合法、非法填写拒绝、200 原样 / A,Q |
+| A01 / T01,T05,INV-1 | v2 无份数；v3 无份数/0/null；旧 200 份升级 | 旧拒绝、新缺省合法、非法填写拒绝、200 原样；删除最后一餐→保存/重读 meals:[]→清单 reconcile removed（buy/bought 参考与不撤销购买提示）/ A,B,Q |
 | A02 / T03,T09,INV-1 | v2 component 无 qty；v3 无 qty/to-taste/null/steps.n | 显式新格式才可未知，非法 qty/步骤仍拒绝 / A,Q |
-| A03 / T02,T03,INV-7,9 | 多菜、调料、重名 ID、缺引用、draft、重复配料 | 一个材料全部来源和问题可定位 / A,Q |
+| A03 / T02,T03,INV-7,9 | 多菜、调料、重名 ID、缺引用、draft、重复配料 | 一个材料全部来源和问题可定位；缺菜/未录成分+其他非空候选时 enumeration incomplete；坏材料保留 ID 且 references unresolved / A,Q |
 | A04 / T04,INV-3,10 | 排序/图片/翻译；换菜/日期/范围/qty/baseServings/margin/yield | 前三保留、需求变化 check+previous、移除不复活 / A,B |
 | A05 / T09,INV-8 | 已知+未知来源、to-taste、缺包装/缺价/混币种 | 不输出伪总量；旧数字不变 / A,Q |
 | A06 / T04,T07,INV-4,5 | 双创建、双更新、同内容但错锁、建提交后断网、ref 竞争 | 一方成功/冲突；重读结果，永不无锁重试 / B,C |
@@ -205,7 +213,7 @@ RC-B 将整树替换改成受控知识资料回退；允许恢复 `data/ingredie
 | A10 / T07,T08 | saving 再编辑、切页切语、晚 success、离线重开 | 新输入仍 dirty，版本/判断不串，mock 无共享承诺 / C,D |
 | A11 / C01,C03,C04 | 固定黄金 480；首餐 200→220；库存足够及 minPacks | 番茄 19→20 件；原全单 1525.50；适量原处理保留 / A,Q |
 | A12 / T03,T06,T09 | team 缺包装/基准；legacy 同输入；生产改变 week-41 | team warning 可发布，legacy 严格，黄金独立固定 / A,CI |
-| A13 / INV-5,6 | 伪 revision、非祖先 commit、catalog 截断、上游 404/超时混淆 | 401/403 优先、明确错误、从不部分成功 / B |
+| A13 / INV-5,6 | source/catalog/asset 每个读入口、rollback target、清单新旧/previous basis 分别传非祖先/不存在 SHA、非法 SHA，并注入上游超时/权限错误；catalog 截断 | 统一 resolver：非祖先/不存在→revision_unavailable（清单 basis_unavailable），非法格式→invalid_revision/schema；上游失败不误报不存在；鉴权优先；无 latest fallback / B |
 | A14 / T05,T07 | rollback 与清单购买进度写并发 | ref 重试保留最新清单且不降级 / B |
 
 A0：本合同+一篇新 scope ADR 提交供调度独立核查。A1：schema 红灯→新 schema→types/checker→消费 RC-Q 样本→模块文档。A2：纯引用/规范化/复核/估算/投影行为先红后绿，再构建分流和固定黄金消费。文件边界以调度任务表为准；A 不实现 B/C，不编辑 shared fixture。每部分独立提交、可审阅 PR，不合并 main。
