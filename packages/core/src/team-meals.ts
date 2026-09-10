@@ -31,6 +31,8 @@ export interface IngredientCollection {
 }
 const lookup = <T>(map: Record<string,T>, key: string): T | undefined => Object.hasOwn(map,key) ? map[key] : undefined;
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+const finiteNumbers = (value: unknown): boolean => typeof value === 'number' ? Number.isFinite(value)
+  : value !== null && typeof value === 'object' ? Object.values(value).every(finiteNumbers) : true;
 const selectionKey = (s: ShoppingSelection) => JSON.stringify([s.menuPlanRef,s.date,s.mealType]);
 const ordered = <T>(values: T[]): T[] => values.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b),'en'));
 const opaqueIssues = new Set<ReferenceIssueCode>(['missing-plan','missing-dish','components-unrecorded']);
@@ -87,19 +89,34 @@ export function collectIngredientReferences(inputs: TeamMealInputs, selection: S
   };
 }
 
+// Scale base-ten input representations exactly; do not introduce binary float
+// tails or round away genuinely different small demands while comparing units.
+function decimalKey(value: number, shift: number): string {
+  const [mantissa, exponent='0'] = value.toString().toLowerCase().split('e');
+  const [whole, fraction=''] = mantissa!.split('.');
+  let digits=(whole!+fraction).replace(/^0+/, '') || '0';
+  let power=Number(exponent)-fraction.length+shift;
+  while (digits.length>1 && digits.endsWith('0')) { digits=digits.slice(0,-1); power++; }
+  return `${digits}e${power}`;
+}
 function normalizedQty(qty?: Quantity): unknown {
   if (!qty) return ['unknown'];
   if (qty.unit === 'to-taste') return ['to-taste'];
-  return qty.unit === 'kg' ? ['g',(qty.value as number)*1000]
-    : qty.unit === 'l' ? ['ml',(qty.value as number)*1000] : [qty.unit,qty.value];
+  return [qty.unit==='kg'?'g':qty.unit==='l'?'ml':qty.unit,
+    qty.value===undefined ? null : decimalKey(qty.value,qty.unit==='kg'||qty.unit==='l'?3:0)];
 }
 export interface NormalizedDemand { selection: ShoppingSelection[]; ingredients: Record<Id,string> }
 export function normalizeDemand(inputs: TeamMealInputs, selection: ShoppingSelection[]): NormalizedDemand {
   const scope = normalizeSelection(selection);
   const collection = collectIngredientReferences(inputs,scope);
-  const context = ordered(collection.issues.filter(i=>opaqueIssues.has(i.code)).map(i=>[
-    i.code,i.menuPlanRef,i.date,i.mealType,i.dishRef,
-  ]));
+  const context = ordered(collection.issues.filter(i=>opaqueIssues.has(i.code)).map(i=>{
+    const plan=i.menuPlanRef ? lookup(inputs.menuPlans,i.menuPlanRef) : undefined;
+    const meal=i.mealIndex===undefined ? undefined : plan?.meals[i.mealIndex];
+    const dish=i.dishRef ? lookup(inputs.dishes,i.dishRef) : undefined;
+    return [i.code,i.menuPlanRef,i.date,i.mealType,i.dishRef,
+      meal?.plannedServings ?? null,plan?.margin ?? DEFAULT_MARGIN,
+      dish?.baseServings ?? null,dish?.status ?? 'draft'];
+  }));
   const ingredients: Record<Id,string> = {};
   for (const item of collection.items) {
     const ingredient = lookup(inputs.ingredients,item.ingredientRef);
@@ -217,7 +234,7 @@ export function estimateShoppingList(inputs: TeamMealInputs, selection: Shopping
         .filter(c=>c.ingredientRef===item.ingredientRef).map(c=>({...clone(c),qty:clone(c.qty!)}))};
     }
     const result=expand(plan,dishes,inputs.ingredients);
-    if (result.issues.length || result.pending.length) {
+    if (result.issues.length || result.pending.length || !finiteNumbers(result.lines)) {
       const conversion=result.issues.some(i=>i.code==='unit-conversion-missing');
       return {ingredientRef:item.ingredientRef,status:'unavailable',reasons:[{code:conversion?'unit-conversion-missing':'engine-issue'}]};
     }
@@ -226,7 +243,8 @@ export function estimateShoppingList(inputs: TeamMealInputs, selection: Shopping
   const lines=items.flatMap(i=>i.status==='complete'?i.lines:[]);
   const currencies=new Set(lines.flatMap(l=>l.line.amount?[l.line.amount.currency]:[]));
   const opaque=collection.coverage.enumeration==='incomplete';
-  const complete=!opaque && items.every(i=>i.status==='complete') && lines.every(l=>l.line.amount!==undefined) && currencies.size<=1;
+  const complete=!opaque && items.every(i=>i.status==='complete') && lines.every(l=>l.line.amount!==undefined)
+    && currencies.size<=1 && Number.isFinite(lines.reduce((sum,l)=>sum+(l.line.amount?.amount ?? 0),0));
   return {items,budgetStatus:!items.length&&!opaque?'not-applicable':complete?'complete':'incomplete'};
 }
 

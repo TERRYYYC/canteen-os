@@ -115,7 +115,7 @@ test("purchase/<planId>.json：orders 与快照同构（generatedAt = --at、men
     }
   }
   // 与仓库快照同构：字段集一致（数字逐行一致由快照比对测试锁定）
-  const snap = readJson(path.join(ROOT, "data/purchase-orders/week-41-lvyuan.json"));
+  const snap = readJson(path.join(ROOT, "test/fixtures/contracts/valid/golden/data/purchase-orders/week-41-lvyuan.json"));
   const gen = purchase.orders.find((po) => po.supplier === snap.supplier);
   assert.deepEqual(Object.keys(gen).sort(), Object.keys(snap).sort());
   assert.deepEqual(Object.keys(gen.lines[0]).sort(), Object.keys(snap.lines[0]).sort());

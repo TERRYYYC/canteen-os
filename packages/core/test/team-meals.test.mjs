@@ -149,3 +149,43 @@ test('prototype property names remain unresolved IDs rather than phantom records
  const r=core.collectIngredientReferences(x,selection);
  assert.ok(r.issues.some(i=>i.code==='missing-dish'&&i.dishRef==='constructor'));
 });
+
+test('opaque recipe quantity changes trigger conservative review of surviving known materials',()=>{
+ const x=sample();x.dishes.unknown={schemaVersion:'3',name:{en:'Unknown recipe'},status:'active',baseServings:2};
+ x.menuPlans['team-week'].meals.push({date:selection[0].date,mealType:'lunch',dishRef:'unknown',plannedServings:2});
+ const list=core.applyShoppingDecision(core.createShoppingList('shop-one',basis,x),'tomato','available');
+ const y=copy(x);y.menuPlans['team-week'].meals.at(-1).plannedServings=200;
+ assert.ok(core.reconcileShoppingList(list,x,basis,y).reviewRequired.includes('tomato'));
+});
+
+test('decimal-equivalent quantities preserve decisions without rounding away real small changes',()=>{
+ const x=sample();x.dishes['first-dish'].components[0].qty={value:1001,unit:'g'};
+ const list=core.applyShoppingDecision(core.createShoppingList('shop-one',basis,x),'tomato','available');
+ const y=copy(x);y.dishes['first-dish'].components[0].qty={value:1.001,unit:'kg'};
+ assert.deepEqual(core.reconcileShoppingList(list,x,basis,y).reviewRequired,[]);
+ y.dishes['first-dish'].components[0].qty.value=1.001000000001;
+ assert.ok(core.reconcileShoppingList(list,x,basis,y).reviewRequired.includes('tomato'));
+});
+
+test('schema-valid numeric overflow cannot become complete estimates with null quantities or prices',()=>{
+ const original=fixture('golden');
+ const scope=original.menuPlans['week-41'].meals.map(m=>({menuPlanRef:'week-41',date:m.date,mealType:m.mealType}));
+ for(const change of [x=>x.ingredients.tomato.purchase.lastPrice.amount=1e308,
+   x=>{x.dishes['tomato-egg-stir-fry'].components[0].qty.value=1e308;x.ingredients.tomato.yield=1e-308;}]) {
+   const x=copy(original);change(x);const before=JSON.stringify(x);
+   const r=core.estimateShoppingList(x,scope,AT),item=r.items.find(i=>i.ingredientRef==='tomato');
+   assert.equal(item.status,'unavailable');assert.deepEqual(item.reasons,[{code:'engine-issue'}]);
+   assert.equal('lines' in item,false);assert.equal(r.budgetStatus,'incomplete');assert.equal(JSON.stringify(x),before);
+ }
+});
+
+test('explicit human check clears previous while pure same-basis reconciliation preserves it',()=>{
+ const x=sample();let list=core.applyShoppingDecision(core.createShoppingList('shop-one',basis,x),'salt','buy',true);
+ const changed=copy(x);changed.dishes['first-dish'].components[1].qty={value:2,unit:'g'};
+ list=core.reconcileShoppingList(list,x,basis,changed).list;
+ const retained=core.reconcileShoppingList(list,changed,basis,changed).list;
+ assert.deepEqual(retained.items.find(i=>i.ingredientRef==='salt').previous,{basis,decision:'buy',bought:true});
+ const decided=core.applyShoppingDecision(retained,'salt','check');
+ assert.equal(decided.items.find(i=>i.ingredientRef==='salt').previous,undefined);
+ assert.ok(retained.items.find(i=>i.ingredientRef==='salt').previous);
+});

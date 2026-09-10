@@ -88,17 +88,17 @@ DishV3 缺 qty 表示未知；`{unit:"to-taste"}` 仅保留来源确实写适量
 `normalizeDemand(inputs, selection)` 返回可稳定比较的 `{selection, ingredients}`，不是持久记录。selection 是唯一、排序后的全部日期/餐次/plan 元组；扩大到空餐也属于范围变化。每个 ingredient 的 demand 是排序后的来源多重集合，保留重复次数而不含数组索引：
 
 - 元组含 menuPlanRef/date/mealType/dishRef、plannedServings 或缺省标记、baseServings 或缺省标记、qty 或 unknown/to-taste 标记、实际 margin（省略等于旧默认 1.1）、dish 是否解析/status（省略按 draft）、ingredient 是否解析。
-- qty 的 g/kg、ml/l 统一为 g/ml；其它单位保持原值；没有依据不把 pcs 换重量。plannedServings 与 baseServings 分别比较，即使比例相等，真实输入改变也需复核。
+- qty 的 g/kg、ml/l 按十进制有效位和指数统一为 g/ml，不引入二进制乘法尾差，不舍弃真实小差异；其它单位保持原值；没有依据不把 pcs 换重量。plannedServings 与 baseServings 分别比较，即使比例相等，真实输入改变也需复核。
 - 食材需求参数含 baseUnit、pcsToGram、yield（缺省与计算默认 1 等价）。改变这些或来源数量必须复核，禁止因为 ingredientRef 相同就继承。
 - 不含名字、描述、翻译、图片/许可、步骤文本、prep 展示字段、supplier、包装、价格、trackStock/onHand；这些资料更新显示新基线资料，不宣称需求变了。人工 available 不由 onHand 推断。纯排序和语种变化不得清判断。
-- 全局无法解析计划/菜品、成分未录等可能隐藏材料的问题也进入规范化上下文；它们变化时所有存续材料需复核，避免在未知来源修复后误留旧结论。
+- 全局无法解析计划/菜品、成分未录等可能隐藏材料的问题也进入规范化上下文，包括该来源的 plannedServings、plan margin、dish baseServings/status；它们变化时所有存续材料需复核，避免在未知来源修复后误留旧结论。
 
 `reconcileShoppingList(previous, previousInputs, nextBasis, nextInputs)` 返回 `{list, added, removed, reviewRequired, retained}`。两份输入必须分别来自自己的 sourceRevision；调用方不可提供 main 代替历史输入。输出 list 的 id/version 保留、basis 更新，items 与新候选集准确相等。
 
 - 新材料 check；需求相同且 selection 相同保留原 decision/bought/previous；来源版本本身变更不清判断。
 - 需求或范围变化：存续项变 check、删除 bought；原非 check 判断写 previous={旧 basis,decision,bought?}。已有 check+previous 在再次变化时保留该唯一最近人工判断，不嵌套、不伪造当前 check 为旧人工确认。
 - 移除项退出 items 和当前待买/已买集合，出现在 removed 返回值中（带原判断）；存储历史仍可从旧 Git blob 读取。移除前为 buy 或 bought 的项必须展示原判断/已买参考并提示“不在新菜单中；取消排菜不撤销既有购买”。不留永久 tombstone，不声称购买已撤销。
-- `createShoppingList(id,basis,inputs)` 返回全 check。`applyShoppingDecision(list,ingredientRef,decision,bought?)` 校验合法转换、深拷贝、不改 basis/资料。相同输入重复执行结果相同。
+- `createShoppingList(id,basis,inputs)` 返回全 check。`applyShoppingDecision(list,ingredientRef,decision,bought?)` 校验合法转换、深拷贝、不改 basis/资料；显式人工选择 check 也会清 previous。渲染或相同需求复算不得自动清 previous，也不允许变造旧判断。相同输入重复执行结果相同。
 
 ## 4. 可选估算与同版投影
 
@@ -106,7 +106,7 @@ DishV3 缺 qty 表示未知；`{unit:"to-taste"}` 仅保留来源确实写适量
 
 先完整检查再调用旧 core：同材料任一来源未知/适量/不支持转换时不返回该材料已知部分的总量、金额或包装。未知菜品/成分可能隐藏任意材料时全部估算 unavailable。为避免不同计划 margin 的聚合改公式，本版多 plan selection 的数量参考统一 unavailable/multiple-plans，引用与人工清单照常可用。单 plan 将满足完整性条件的全部来源保留，再以内存适配接原 expand/renderPurchaseOrders；禁止页面重写公式。旧 core 原始数字不改。
 
-budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且单一币种时为 complete；其它为 incomplete（空范围为 not-applicable）。缺价仍可显示包数，不能显示完整预算；不得从采购量/价格推算实际供餐、消耗或浪费。此次不提供跨计划预算或自动购买量。
+原 core 输出在深拷贝/序列化前递归检查全部数值；出现 Infinity/NaN 时，该材料 unavailable/engine-issue，不返回被 JSON 转成 null 的行。budgetStatus 仅在全部候选 complete、每个实际采购行有 amount、单一币种且合计有限时为 complete；其它为 incomplete（空范围为 not-applicable）。缺价仍可显示包数，不能显示完整预算；不得从采购量/价格推算实际供餐、消耗或浪费。此次不提供跨计划预算或自动购买量。
 
 `projectTeamMeals(inputs,context,options?)` 返回 `{projectionVersion:"1",sourceRevision,selection,menuPlans,dishes,ingredients,techniques,collection}`；仅包含选中计划、引用菜、全部配料及所需技法，保留原 JSON 字段、Quantity、图片 ImageRef、clip 和来源。缺项由 collection.issues 表达，不按同名替换。该纯投影中的 ImageRef 原始地址是资料，不代表图片字节已解析。
 
@@ -137,7 +137,7 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 **清单原子提交：** 读取 head H，核查目标 blob/不存在条件、所有 sourceRevision 是否可达配置仓库受控分支的历史，读取该版本 inputs，校验 selection 所有 plan 存在且格式合法；计算候选/需求。Git tree+commit 的 parent 必须 H，非 force 更新 ref。并发落后时在新 head 重新跑全部条件与语义检查，不能只重试写内容；上限两次后 409。同 ID 两个新建只一方成功，不能覆盖；响应丢失先 GET 重读比较，不用无锁重试。
 
 - 创建内容必须等于 createShoppingList 的全 check 结果，不能用第一次创建伪造已确认项；后续人工判断再写。不符返回 400 invalid_selection 和准确 JSON Pointer。
-- basis 不变：服务端确保候选精确相等，只允许 decision/bought 转移；previous 只能保留或在人工确认时清除。遗漏/多余候选、伪造 previous 返回 400 invalid_selection 和准确 path。schema 失败继续返回原 keyword，权限/条件冲突检查优先，不能被语义错误掩盖。
+- basis 不变：服务端确保候选精确相等，只允许 decision/bought 转移；previous 只能保留或在明确人工操作时清除，包含 applyShoppingDecision(...,'check')，不能由渲染/复算自动清除或任意变造。遗漏/多余候选、伪造 previous 返回 400 invalid_selection 和准确 path。schema 失败继续返回原 keyword，权限/条件冲突检查优先，不能被语义错误掩盖。
 - basis 改变：仅接受 reconcileShoppingList 的精确结果；否则 409 review_required 在标准错误体外返回顶层 `reviewRequired:Id[]`（共享 reconcile.reviewRequired，排序且无重复），其他错误不附该字段。客户端不能解析 message 获取材料，也不能把 [] 当自动重试或强写授权。重算与换基线作为一次保存，不能在同次请求把受影响项重新标 available/bought。用户看到新资料后另次受锁保存确认。
 - 旧基线不可读取时返回 422 basis_unavailable，不以当前资料猜旧需求，不清空原判断强写。sourceRevision 不要求当前 head：清单可明确保留已保存的旧输入；“是否需要更新”由显式同版比较得出。
 - 固定 basis 内坏 dish/ingredient/technique refs、未录成分可保留 check 与缺项，不伪造实体。悬空 Ingredient 项禁止变 buy/available/bought（422 unresolved_reference）；其他可解析材料可人工判断，不代表整配方完整。缺 plan 为无有效基线，拒绝持久清单。
@@ -158,6 +158,8 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 RC-B 的 rollback target 也采用 §5 统一 resolver，要求完整 SHA 且为本次 H 可达祖先；将整树替换改成受控知识资料回退；允许恢复 `data/ingredients/**`、`data/dishes/**`、`data/menu-plans/**`、`data/techniques.json`、`data/translations.lock.json`。保留当前 `data/shopping-lists/**`、`data/purchase-orders/**` 以及任何不在允许集的 data 路径（包含未来快照）；不能顺便删新文件。
 
 在同一 H 上构造候选树并校验格式、引用和升级保护。任何当前 v3 MenuPlan/Dish 在目标中缺失或更旧，整个回退返回 409 format_downgrade，保持零写入；不自动补份数/qty。成功仍是新 commit、非 force、[skip ci]，不自动发布。并发清单写入与 rollback 争用时重读 H，保留最新清单字节。旧 basis 的资料不会因 rollback 改变。
+
+回退候选的 schema 或引用校验失败返回 422 invalid_source，并给出精确资料路径与字段定位；若同一候选还会删除/降级当前 v3，优先 409 format_downgrade。鉴权、网络/超时和受控 revision 的解析错误沿用 §5 对应错误，不吞为 invalid_source。
 
 构建增加显式 `--target legacy-numeric|team-meals`，默认 legacy-numeric 保留现有行为；不根据某条资料缺失自动切模式。
 
