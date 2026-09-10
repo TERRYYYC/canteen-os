@@ -17,9 +17,10 @@ const TARGETS = [
   {path:'menu-plans', kind:'plan', dir:true},
   {path:'purchase-orders', kind:'purchase-order', dir:true},
   {path:'techniques.json', kind:'techniques', dir:false},
+  {path:'shopping-lists', kind:'shopping-list', dir:true},
 ];
 const SCHEMAS = {ingredient:'ingredient.schema.json',dish:'dish.schema.json',plan:'menu-plan.schema.json',
-  'purchase-order':'purchase-order.schema.json',techniques:'techniques.schema.json'};
+  'purchase-order':'purchase-order.schema.json',techniques:'techniques.schema.json','shopping-list':'shopping-list.schema.json'};
 const error = (keyword,message,params={}) => ({instancePath:'',keyword,message,params});
 
 export function createSchemaValidators({schemaDir=path.join(ROOT,'schemas')}={}) {
@@ -30,7 +31,10 @@ export function createSchemaValidators({schemaDir=path.join(ROOT,'schemas')}={})
   }
   return {
     validateEntity(kind,value) {
-      const schema = Object.hasOwn(SCHEMAS,kind) ? SCHEMAS[kind] : null;
+      let schema = Object.hasOwn(SCHEMAS,kind) ? SCHEMAS[kind] : null;
+      if ((kind === 'plan' || kind === 'dish') && value?.schemaVersion === '3') {
+        schema = kind === 'plan' ? 'menu-plan-v3.schema.json' : 'dish-v3.schema.json';
+      }
       if (!schema) return {valid:false,schema:null,errors:[error('kind','unknown entity kind',{kind})]};
       const validate = ajv.getSchema(schema);
       if (!validate) throw new Error(`schema 未注册成功: ${schema}`);

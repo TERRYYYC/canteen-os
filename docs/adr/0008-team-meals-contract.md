@@ -3,12 +3,12 @@ feature_ids: []
 topics: [team-meals, scope, schema-evolution, shopping-list]
 doc_kind: adr
 created: 2026-09-11
-status: proposed-technical-contract
+status: technically-checked
 ---
 
 # ADR-0008: 小团队餐食范围与显式格式演进
 
-- Status: Proposed（技术 A0 待调度独立核查；用户的小团队范围已于 2026-09-11 明确授权，不重新审批）
+- Status: Accepted technical contract（A0 于提交 8448d49525da02c2e3fceb65167c8cedb3d6df11 经调度独立核查；用户的小团队范围已于 2026-09-11 明确授权，不重新审批）
 - Deciders: Terry（产品范围）；调度与非作者 reviewer（技术合同核查）
 - Contract: [小团队餐食终态合同](../specs/team-meals-contract.md)
 

@@ -3,12 +3,12 @@ feature_ids: []
 topics: [team-meals, schema, core, shopping-list, revision, api]
 doc_kind: implementation-contract
 created: 2026-09-11
-status: A0-pending-independent-check
+status: A0-technically-checked
 ---
 
 # 小团队餐食终态合同
 
-本合同服务“每天吃什么 → 全部已录食材/调料引用 → 本次人工 check/buy/available → 同版材料和来源菜品”。份数为可选估算输入。依据用户 2026-09-11 派工和 [ADR-0008](../adr/0008-team-meals-contract.md)；技术 A0 需调度独立核查，用户已定范围不重新审批。本文件描述终态要求，不表示 API、页面或真实环境已实现。
+本合同服务“每天吃什么 → 全部已录食材/调料引用 → 本次人工 check/buy/available → 同版材料和来源菜品”。份数为可选估算输入。依据用户 2026-09-11 派工和 [ADR-0008](../adr/0008-team-meals-contract.md)；技术 A0 已由调度独立核查通过（核查提交 8448d49525da02c2e3fceb65167c8cedb3d6df11）；用户已定范围不重新审批。本文件描述终态要求，不表示 API、页面或真实环境已实现。
 
 基线 `1fdaf7bf78264199ce87c80d20a4d37976cf05f2`。四份输入为设计工作区的未提交草稿，未复制到本分支，也不是已批准实现：
 
@@ -230,6 +230,6 @@ validateData 返回 `{passed,failed,total,results}`，results 每项 `{file,sche
 
 ## 9. 技术决议与待验
 
-版本、未知 qty 策略、清单最小字段、来源索引、需求比较、强制条件头、固定 revision、同版资产错误和回退保护在本 A0 给出具体决议，等待独立技术核查。没有待用户重新批准的产品方向。
+版本、未知 qty 策略、清单最小字段、来源索引、需求比较、强制条件头、固定 revision、同版资产错误和回退保护在本 A0 给出具体决议，已于 8448d49525da02c2e3fceb65167c8cedb3d6df11 经调度独立技术核查通过；该结论不批准 A1/A2 实现。没有待用户重新批准的产品方向。
 
 真实隔离仓、凭据、Worker 部署尚待 B/Q 核实；T04/T05/T07 的真实保存/并发/回退未验。A0 不是 A1/A2 完成声明。任何 schema 注册、包清单或 CI 变更交调度指定 owner；若实施细节需要改变本共享合同，先给调度提交 diff 与影响，不让下游猜接口。
