@@ -40,7 +40,9 @@ node scripts/build-data.mjs --root test/fixtures/contracts/valid/golden --check 
 
 The fixture CLI exits 0 only when each case fails at its recorded first layer
 (or is valid as expected). Expected failures are not accepted production data.
-`--case ID` selects a single known case; the entire inventory is still verified.
+The default run reports 22 v2 cases and 19 A1 format cases separately.
+`--case ID` selects a single known v2 case; `--formats` selects the 19 new-format
+samples. The entire inventory is still verified for either selection.
 Tests also protect the inventory, whole-file overlays, missing infrastructure,
 sample boundary facts and the three arithmetic oracles. Node >=20, installed
 workspace dependencies and Python 3 are required. Core build is required for the
@@ -50,8 +52,11 @@ Format validation calls the official `scripts/validate-schemas.mjs:validateData`
 API with a temporary fixture root and current official schema directory. References call
 `local-validate.py:check_references`; video/clip checks call
 `validate_dish.py:contract_checks`. The Python subset schema/fallback is never
-used. The API dependency is RC-A's reviewed `35a8658c96c294c77de127366fbf63a5387d680d`;
-Q only changes its new adapter. The earlier v2 commit `3d9f2aa` used an isolated
+used. The current schema/API dependency is RC-A's reviewed A1
+`c9131559b8c703a3a8f3b823bc93c2acb3dd879c`; new-format samples call its
+`createSchemaValidators().validateEntity` API and assert the selected schema and
+the intended error field/keyword for negative cases. Q only changes its new
+adapter. The earlier v2 commit `3d9f2aa` used an isolated
 copy of the unchanged CLI while that API was being extracted.
 
 Asset checks cover referenced local file existence/nonzero size/200 KiB limit,
@@ -68,6 +73,9 @@ food photograph. Invalid image/clip URLs are deliberate placeholders and are
 never fetched. No research POC media is copied into the numerical golden.
 
 The original v2 checkpoint `3d9f2aa` contains no new business formats. This follow-up
-also carries `pending-a1/` contract-derived samples and a T01–T09 matrix; their
-formal new-format validation remains pending. They are not counted in the 22 v2
-case outcomes. Future DOM, production test rewiring and CI remain outside Q scope.
+also carries `pending-a1/` contract-derived samples and a T01–T09 matrix. The
+directory name records their preparation stage; formal A1 checks now match all
+19 expectations (7 accepted shapes, 12 rejected shapes). Semantic admission,
+real Worker basis/history, UI and L2 remain unverified. In particular, the
+duplicate ingredient sample passes schema and awaits a semantic rejection.
+Future DOM, production test rewiring and CI remain outside Q scope.

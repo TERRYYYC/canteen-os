@@ -3,9 +3,13 @@ feature_ids: []
 topics: [team-meals, acceptance, fixtures, revision, shopping-list, api]
 doc_kind: acceptance-matrix
 created: 2026-09-11
-status: prepared-not-executed
+status: format-checked-semantics-not-executed
 contract_commit: 8448d49525da02c2e3fceb65167c8cedb3d6df11
 fixture_commit: 3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96
+format_schema_commit: c9131559b8c703a3a8f3b823bc93c2acb3dd879c
+format_input_commit: 2c9c7e1a70b0749afbccad5020c05b0fb915293f
+format_execution_head: e26ee915c06d90f11de96aca31d9b2fb2fbf8b66
+format_recorded_at: 2026-09-10T23:05:50Z
 ---
 
 # T01–T09 小团队餐食验收矩阵
@@ -15,12 +19,12 @@ fixture_commit: 3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96
 编写时逐字读取 `git show` 的该对象；Q 工作区 HEAD 为
 `3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96`，分支为
 `codex/team-meals-acceptance`。A0 原文件仍带待独立检查状态文字；本表的冻结依据是调度本次派工，
-不修改历史合同，也不据此宣称 A1/A2、Worker 或页面已实现。
+不修改历史合同。后续正式 A1 样本格式检查见下文；它不表示 A1 全部功能、A2、Worker 或页面验收完成。
 
 目标为“每天吃什么 → 全部已录食材/调料 → 本次人工判断 → 同版材料与来源菜品”。
 T 编号继承设计草稿的主流程；格式、状态、API 和失败行为以以上 A0 为准。
 不验收顾客业务、供餐统计、库存流水、完整归档平台或永久菜单行 ID。
-作者仅准备测试计划；执行者须记录实现 commit，非作者另行审查，本文不是批准记录。
+本文包含测试计划及已执行的有限格式结果；执行者记录实现 commit，非作者另行审查，本文不是批准记录。
 
 ## 输入与证据边界
 
@@ -35,7 +39,7 @@ T 编号继承设计草稿的主流程；格式、状态、API 和失败行为�
 | V2-B | [valid/boundaries/data/menu-plans/team-week.json](../../../test/fixtures/contracts/valid/boundaries/data/menu-plans/team-week.json)；[first-dish](../../../test/fixtures/contracts/valid/boundaries/data/dishes/first-dish.json)、[second-dish](../../../test/fixtures/contracts/valid/boundaries/data/dishes/second-dish.json)、[name-only](../../../test/fixtures/contracts/valid/boundaries/data/dishes/name-only.json) | 共享 tomato/salt、适量盐、缺包装油、无基准份数、同名 tomato-other、名称草稿；显式测试份数 2 不是未知值默认数；`source=example` 仅用于本地测试，不能据此声称正式发布成功 |
 | V2-N | `test/fixtures/contracts/invalid/{v2-missing-servings,unknown-qty,quantity-missing-value,empty-components,dish-step-n,invalid-date,bad-json,missing-dish,missing-ingredient,missing-technique,on-hand-object,pcs-with-yield}/data/` | 既有 v2 格式/引用负例，具体首个失败层以 manifest 为准；v3 省略 qty 需独立新例，不能把 v2 负例改称合法 |
 | V2-A | [valid/local-image/data/ingredients/tomato.json](../../../test/fixtures/contracts/valid/local-image/data/ingredients/tomato.json)；`test/fixtures/contracts/invalid/{missing-image,missing-license,missing-attribution,disallowed-license,clip-order,video-without-source}/data/` | 本地合成图和素材负例；例子 URL 不表示视频、外链字节或实际许可已核实 |
-| V3/S1 | RC-Q 主任务已准备 [pending-a1/manifest.json](../../../test/fixtures/contracts/pending-a1/manifest.json) 登记的 19 份样本及 [README](../../../test/fixtures/contracts/pending-a1/README.md)；例如 `test/fixtures/contracts/pending-a1/valid/{menu-plan-v3,empty-menu-plan-v3,dish-v3,shopping-list-v1,shopping-decisions-v1,empty-shopping-list-v1}.json` | valid/ 只是预期格式合法；全部 formatValidation=pending-A1，basis/previous 语义未验。invalid/ 为格式负例，semantic/duplicate-ingredient.json 为语义负例。真实 A/B revision 对、需求变化及端点故障输入仍待实现 owner 准备 |
+| V3/S1 | RC-Q 主任务已准备 [pending-a1/manifest.json](../../../test/fixtures/contracts/pending-a1/manifest.json) 登记的 19 份样本及 [README](../../../test/fixtures/contracts/pending-a1/README.md)；例如 `test/fixtures/contracts/pending-a1/valid/{menu-plan-v3,empty-menu-plan-v3,dish-v3,shopping-list-v1,shopping-decisions-v1,empty-shopping-list-v1}.json` | 目录仍名 pending-a1；本次正式格式比较 19/19 符合 expectedFormatValid，basis/previous 语义未验。invalid/ 为格式负例，semantic/duplicate-ingredient.json 仅格式被接受，语义拒绝未执行。真实 A/B revision 对、需求变化及端点故障输入仍待实现 owner 准备 |
 
 新样本固定时钟沿用 `2026-09-10T00:00:00.000Z`；原 PO 的
 `2026-10-03T00:00:00.000Z` 字节保持不变。用于真实 revision/basis 的值必须来自隔离测试仓
@@ -47,14 +51,57 @@ pending-a1 清单内的完整 `3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96` 仅作�
 
 | 证据层 | 本矩阵全部 T 用例当前状态 | 进入执行的前提 |
 |---|---|---|
-| F：正式 fixture 格式 | **待 A1**；既有 v2 检查另见 [v2 证据](fixture-evidence.md)，不等于本表通过 | A1 的固定 schema/正式 Ajv 入口到位；按实体 kind+显式版本验证，再验证 refs/assets |
-| L：正式本地实现 | **待 A2 / RC-B / RC-C，页面另待 RC-D** | 固定实现 commit 的纯函数、构建、端点和会话测试；新行为先 red 后 green |
+| F：正式 fixture 格式 | **19/19 预期与实际吻合：7 接受、12 拒绝**，仅下节所列样本及固定 A1；既有 v2 检查另见 [v2 证据](fixture-evidence.md) | 本次只调用正式 validateEntity；refs/assets、跨字段/候选语义与全部 T 场景并未因此通过 |
+| L：正式本地实现 | **待 A2 / RC-B（含 B2）/ RC-C，页面另待 RC-D** | 固定实现 commit 的纯函数、构建、端点和会话测试；新行为先 red 后 green |
 | M：mock 交互 | **待执行** | 页面接线及依赖已由 owner 登记；mock 仅替代网络，不替代收集/估算算法 |
 | R：真实 L2 | **未确认环境可用，未执行** | [环境缺口](l2-environment.md)：隔离仓、专用受限凭据、隔离 Worker 端点及可运行测试入口；不得改用生产写入 |
 | U：浏览器 / 人工 | **zh/en/uk × 393×852、1440×900 均未运行** | RC-C/RC-D 接线固定后，六组合截图、动作与网络/存储证据；厨房走查另记 |
 
-下表每行的 `F/L/M/R/U` 均指以上待验状态，无一行标记通过；不适用的层也须在实际执行时说明原因，
+下表每行的 `F/L/M/R/U` 指以上分层状态；F 只记录 19 份输入的格式比较，T01–T09 完整场景均未执行、无一行标记通过。
+不适用的层也须在实际执行时说明原因，
 不能用原型或 mock 结果填入正式本地/真实 L2 栏。
+
+## 已执行的 A1 正式格式检查
+
+RC-Q 的 `golden_math` 在 `codex/team-meals-acceptance-next`、HEAD
+`e26ee915c06d90f11de96aca31d9b2fb2fbf8b66` 实际执行；schema/API 来自已审核的 RC-A
+`c9131559b8c703a3a8f3b823bc93c2acb3dd879c`，该提交与执行 HEAD 的 schemas 及
+scripts/validate-schemas.mjs 无差异。样本目录最近提交为
+`2c9c7e1a70b0749afbccad5020c05b0fb915293f`；manifest 内 sourceCommit 是样本来源记录，
+不是本次校验器版本。
+
+执行方式：`node --input-type=module` 导入
+`scripts/validate-schemas.mjs:createSchemaValidators`，调用 `createSchemaValidators()`，
+读取 pending-a1/manifest.json 的全部 cases，逐项将实际 JSON 与 manifest.kind 传给
+`validateEntity(kind, value)`，比较返回 valid 与 expectedFormatValid，输出实际 schema/errors；
+任一不符则设退出码 1。本次退出码 0，输出汇总为
+`{"total":19,"matches":19,"formatAccepted":7,"formatRejected":12}`。
+plan/dish 正例实际选择 menu-plan-v3.schema.json/dish-v3.schema.json；清单选择 shopping-list.schema.json。
+
+以下文件路径均相对 `test/fixtures/contracts/pending-a1/`；拒绝栏保留实际 instancePath 与主 keyword，
+条件规则可能同时返回 `if`。表中“接受”严格指 schema 格式，未执行 semantic admission。
+
+| 文件 / 数量 | 实际结果（全部与预期吻合） | 实际错误定位 |
+|---|---|---|
+| valid/menu-plan-v3.json、valid/dish-v3.json、valid/empty-menu-plan-v3.json、valid/shopping-list-v1.json、valid/shopping-decisions-v1.json、valid/empty-shopping-list-v1.json（6） | 格式接受 | 无 |
+| semantic/duplicate-ingredient.json（1） | 格式接受；重复 ingredientRef 的语义拒绝仍待 A2/B2 | 无 |
+| invalid/zero-servings.json | 拒绝 | /meals/0/plannedServings · minimum |
+| invalid/null-servings.json | 拒绝 | /meals/0/plannedServings · type |
+| invalid/null-qty.json | 拒绝 | /components/0/qty · type |
+| invalid/missing-quantity-value.json | 拒绝 | /components/0/qty · required、if |
+| invalid/dish-steps-n.json | 拒绝 | /steps/0 · additionalProperties |
+| invalid/check-bought.json | 拒绝 | /items/0/decision · const；/items/0 · if |
+| invalid/available-bought-false.json | 拒绝 | /items/0/decision · const；/items/0 · if |
+| invalid/branch-as-revision.json | 拒绝 | /basis/sourceRevision · pattern |
+| invalid/duplicate-selection.json | 拒绝 | /basis/selection · uniqueItems |
+| invalid/previous-on-confirmed.json | 拒绝 | /items/0/decision · const；/items/0 · if |
+| invalid/previous-check-bought.json | 拒绝 | /items/0/previous/decision · const；/items/0/previous · if |
+| invalid/persisted-name.json | 拒绝 | /items/0 · additionalProperties |
+
+本次没有调用 A2 收集、去重、basis/history、reconcile 或 estimates，也没有调用 B2 端点、mock、
+浏览器或真实 L2。ShoppingList 的 sourceRevision 仍只是格式 token；合法 previous 的结构不证明
+真实历史，合法空清单不证明该 revision 的候选确实为空。19 份输入的结果不覆盖全部 T01–T09，
+也不覆盖其未包含的升级、条件写、日期范围关系、资产与真实往返行为。
 
 ## 主流程矩阵
 
@@ -123,5 +170,6 @@ RC-A 实现、RC-CI 后续接线，RC-Q 独立验收：
 回读 JSON/资产 revision、并发/故障结果；上线另有 build/run 证据，不能只记录保存响应。
 所有 UI 组合分别留语言、尺寸、截图、导出内容与 dirty/冲突/离线状态，不猜未来选择器。
 
-当前仅完成本文准备；新格式合法性、实现正确性、mock、真实 L2 和六组浏览器均待执行。
+当前已完成本文准备及上述 19 份样本的正式格式比较；T01–T09 场景、A2/RC-B（含 B2）/RC-C/RC-D
+实现、mock、真实 L2 和六组浏览器均待执行，不以格式结果外推通过。
 环境缺口由调度/RC-B 处理，不阻塞 RC-Q fixture 工作，也不以生产写入、自动建令牌或部署补齐。

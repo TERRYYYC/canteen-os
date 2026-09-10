@@ -46,7 +46,12 @@ message `rcq-a0-prep-review-2c9c7e1-20260911`, against A0
 failure layers against the contract, inventory continuity and T01–T09 fidelity.
 That verdict does not certify formal A1 legality, new semantic behavior or L2.
 
-A1 remains a distinct dependency. All 19 new-format records still say
-`formatValidation: pending-A1`; the 22-case CLI result concerns v2 only. A later
-A1 integration must run the actual version-selecting official schemas and
-semantic cases before changing those statuses. UI/mock/real L2 remain unrun.
+At adapter checkpoint `78b1c3b`, A1 remained a distinct dependency. All 19 new-format records still said
+`formatValidation: pending-A1`; the 22-case CLI result concerned v2 only. The
+later A1 integration runs the actual version-selecting official schemas before
+changing format status; semantic status needs separate execution against its
+released implementation. UI/mock/real L2 remain unrun.
+
+The subsequent reviewed A1 integration and executed format results are recorded
+in `a1-format-evidence.md`. That follow-up updates format status only; semantic
+admission and UI/mock/real L2 are still unrun.

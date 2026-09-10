@@ -272,7 +272,7 @@
     "pending-a1/invalid/previous-check-bought.json": "aedd8ad528d5f5f26b6765e30560616477c98e5983b81893e4313e441c538784",
     "pending-a1/invalid/previous-on-confirmed.json": "38c5a2a4a6bcec6e338d64448f4f7d28b58bd230ca1359f12b290ee330e32487",
     "pending-a1/invalid/zero-servings.json": "1ee9c4747fc0c585c06dd2fcc1e35b9fe0940160a746dcd380da5a01b1133789",
-    "pending-a1/manifest.json": "a5048964a77e41c15787b1b59f3cda9ae20d2fba859e474243c205fd4f3d77b9",
+    "pending-a1/manifest.json": "12b65b99d79af85c23a914dc37e64c0200fef9e5a0211c74df76473feea60ee8",
     "pending-a1/semantic/duplicate-ingredient.json": "eda37615ac0f769804df6a1ae2f48cf288c80d00ea8d58e360a49563966ed022",
     "pending-a1/valid/dish-v3.json": "b15481bf6f3a083f44b71451c988dd0e06a09005b105236a42b52758ba4090fc",
     "pending-a1/valid/empty-menu-plan-v3.json": "57cae5dcddcff20078ae47076d3c2f795a4ef6c4363811b6a859286f3bf6eed7",
