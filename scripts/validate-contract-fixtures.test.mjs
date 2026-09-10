@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { CONTRACTS_ROOT, materializeFixture, validateFixtureCase, verifyManifest } from "./validate-contract-fixtures.mjs";
+import { CONTRACTS_ROOT, REPO_ROOT, materializeFixture, validateFixtureCase, verifyManifest } from "./validate-contract-fixtures.mjs";
 
 const manifest = JSON.parse(readFileSync(new URL("../test/fixtures/contracts/manifest.json", import.meta.url)));
 
@@ -45,6 +45,18 @@ test("unexpected input files cannot silently join the library", (t) => {
 test("unknown cases and missing validator infrastructure are errors, not expected invalid data", (t) => {
   assert.throws(() => validateFixtureCase("typo"), /Unknown fixture/);
   assert.throws(() => validateFixtureCase("v2-missing-servings", { repoRoot: temp(t) }), /ENOENT/);
+});
+
+test("fixture format validation consumes the shared API without copying the Ajv CLI", (t) => {
+  const repoRoot = temp(t);
+  cpSync(path.join(REPO_ROOT, "schemas"), path.join(repoRoot, "schemas"), { recursive: true });
+  for (const file of ["scripts/local-validate.py", "skills/video-recipe-ingest/scripts/validate_dish.py"]) {
+    mkdirSync(path.dirname(path.join(repoRoot, file)), { recursive: true });
+    copyFileSync(path.join(REPO_ROOT, file), path.join(repoRoot, file));
+  }
+  // No validate-schemas.mjs CLI or node_modules in this test root.
+  assert.equal(validateFixtureCase("boundaries", { repoRoot }).actualFailureLayer, "none");
+  assert.equal(validateFixtureCase("invalid-date", { repoRoot }).actualFailureLayer, "schema");
 });
 
 test("whole-file overlays preserve unknown/missing fields without repairing them", (t) => {

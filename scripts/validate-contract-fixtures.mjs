@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 /** Fixed test inputs only. No business schemas and no production writes.
- * Schema: execute the unchanged official Ajv CLI in a temporary fixture root.
+ * Schema: consume RC-A's formal validateData API with an isolated fixture root.
  * References and clip/source checks: call existing Python APIs, never their
- * fallback schema validators. RC-A owns extraction of the reusable Ajv API.
+ * fallback schema validators. RC-A owns the shared format implementation.
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateData } from "./validate-schemas.mjs";
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const CONTRACTS_ROOT = path.join(REPO_ROOT, "test/fixtures/contracts");
@@ -170,14 +171,10 @@ export function validateFixtureCase(id, { contractsRoot = CONTRACTS_ROOT, repoRo
       try { documents.push([file, JSON.parse(readFileSync(file, "utf8"))]); }
       catch (error) { return finish("json", [`${path.relative(root, file)}: ${error.message}`]); }
     }
-    mkdirSync(path.join(root, "scripts"));
-    copyFileSync(path.join(repoRoot, "scripts/validate-schemas.mjs"), path.join(root, "scripts/validate-schemas.mjs"));
-    symlinkSync(path.join(repoRoot, "schemas"), path.join(root, "schemas"), "dir");
-    symlinkSync(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"), "dir");
-    const schema = run(process.execPath, [path.join(root, "scripts/validate-schemas.mjs")]);
-    if (schema.status !== 0) {
-      if (!/^FAIL\s/m.test(schema.stderr)) throw new Error(`Official Ajv validator could not run: ${schema.stderr}`);
-      return finish("schema", [schema.stderr.trim()]);
+    const schema = validateData({ root, schemaDir: path.join(repoRoot, "schemas") });
+    if (schema.failed) {
+      return finish("schema", schema.results.filter(r => !r.valid).flatMap(r =>
+        r.errors.map(e => `${path.relative(root, r.file)} ${e.instancePath || "(root)"} ${e.keyword}: ${e.message}`)));
     }
     const python = run(process.env.PYTHON ?? "python3", ["-c", PYTHON_CHECKS, repoRoot, root]);
     if (python.status !== 0) throw new Error(`Reference/source validator could not run: ${python.stderr}`);

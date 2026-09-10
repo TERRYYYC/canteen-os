@@ -46,12 +46,13 @@ sample boundary facts and the three arithmetic oracles. Node >=20, installed
 workspace dependencies and Python 3 are required. Core build is required for the
 arithmetic tests, not for the fixture CLI.
 
-Format validation runs the unchanged `scripts/validate-schemas.mjs` in a temporary
-root with current official schemas/dependencies. References call
+Format validation calls the official `scripts/validate-schemas.mjs:validateData`
+API with a temporary fixture root and current official schema directory. References call
 `local-validate.py:check_references`; video/clip checks call
 `validate_dish.py:contract_checks`. The Python subset schema/fallback is never
-used. RC-A owns the upcoming reusable Ajv API; this temporary CLI adapter stays
-entirely in the new file and will consume that API after its fixed commit arrives.
+used. The API dependency is RC-A's reviewed `35a8658c96c294c77de127366fbf63a5387d680d`;
+Q only changes its new adapter. The earlier v2 commit `3d9f2aa` used an isolated
+copy of the unchanged CLI while that API was being extracted.
 
 Asset checks cover referenced local file existence/nonzero size/200 KiB limit,
 fixture path containment, license allowlist and required CC BY attribution.
@@ -66,5 +67,7 @@ created for this suite and dedicated to CC0 by its fixture authors. It is not a
 food photograph. Invalid image/clip URLs are deliberate placeholders and are
 never fetched. No research POC media is copied into the numerical golden.
 
-No MenuPlan/Dish v3, ShoppingList, future DOM, production test rewiring or CI
-changes are included in this v2 checkpoint. A0/A1-dependent work is separate.
+The original v2 checkpoint `3d9f2aa` contains no new business formats. This follow-up
+also carries `pending-a1/` contract-derived samples and a T01–T09 matrix; their
+formal new-format validation remains pending. They are not counted in the 22 v2
+case outcomes. Future DOM, production test rewiring and CI remain outside Q scope.
