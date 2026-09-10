@@ -108,7 +108,9 @@ DishV3 缺 qty 表示未知；`{unit:"to-taste"}` 仅保留来源确实写适量
 
 budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且单一币种时为 complete；其它为 incomplete（空范围为 not-applicable）。缺价仍可显示包数，不能显示完整预算；不得从采购量/价格推算实际供餐、消耗或浪费。此次不提供跨计划预算或自动购买量。
 
-`projectTeamMeals(inputs,basis)` 返回 `{projectionVersion:"1",sourceRevision,selection,menuPlans,dishes,ingredients,techniques,collection}`；仅包含选中计划、引用菜、全部配料及所需技法，保留原 JSON 字段、Quantity、图片 ImageRef、clip 和来源。缺项由 collection.issues 表达，不按同名替换。该纯投影中的 ImageRef 原始地址是资料，不代表图片字节已解析。
+`projectTeamMeals(inputs,context,options?)` 返回 `{projectionVersion:"1",sourceRevision,selection,menuPlans,dishes,ingredients,techniques,collection}`；仅包含选中计划、引用菜、全部配料及所需技法，保留原 JSON 字段、Quantity、图片 ImageRef、clip 和来源。缺项由 collection.issues 表达，不按同名替换。该纯投影中的 ImageRef 原始地址是资料，不代表图片字节已解析。
+
+只读 `TeamProjectionContext {sourceRevision,selection}` 与持久 ShoppingBasis 分开：投影 context 可含 selection:[]，不能直接保存成清单基线。空计划构建显式使用 options:{emptyMenuPlanRefs:[真实 planId]}；仅当 selection 为空、ID 存在且 meals:[] 才保留该计划（包括缺省 dateRange）。不存在 ID、非空计划或非空 selection 搭配此 option 均拒绝 invalid_selection。不造日期、份数或空持久 basis。
 
 图片处理属于构建/读取适配：使用 `{sourceRevision,ownerPath,jsonPointer,src}` 定位；相对路径以该实体文件目录为基准，显式 `data/` 前缀从仓库根解析。规范化后仅允许 data 内已批准图片，禁止 `..` 逃逸/绝对路径/符号链接。任何 revision 的 JSON 不得配当前同路径图片。remote URL 只能作为原始来源展示；没有保留字节/可验证不可变资源时在同版模式标 `external-unpinned`，不声称可回放同版图。
 
@@ -134,9 +136,9 @@ budgetStatus 仅在全部候选 complete、每个实际采购行有 amount 且�
 
 **清单原子提交：** 读取 head H，核查目标 blob/不存在条件、所有 sourceRevision 是否可达配置仓库受控分支的历史，读取该版本 inputs，校验 selection 所有 plan 存在且格式合法；计算候选/需求。Git tree+commit 的 parent 必须 H，非 force 更新 ref。并发落后时在新 head 重新跑全部条件与语义检查，不能只重试写内容；上限两次后 409。同 ID 两个新建只一方成功，不能覆盖；响应丢失先 GET 重读比较，不用无锁重试。
 
-- 创建内容必须等于 createShoppingList 的全 check 结果，不能用第一次创建伪造已确认项；后续人工判断再写。
-- basis 不变：服务端确保候选精确相等，只允许 decision/bought 转移；previous 只能保留或在人工确认时清除。
-- basis 改变：仅接受 reconcileShoppingList 的精确结果，409 review_required 返回需复核 ingredientRef 列表；重算与换基线作为一次保存，不能在同次请求把受影响项重新标 available/bought。用户看到新资料后另次受锁保存确认。
+- 创建内容必须等于 createShoppingList 的全 check 结果，不能用第一次创建伪造已确认项；后续人工判断再写。不符返回 400 invalid_selection 和准确 JSON Pointer。
+- basis 不变：服务端确保候选精确相等，只允许 decision/bought 转移；previous 只能保留或在人工确认时清除。遗漏/多余候选、伪造 previous 返回 400 invalid_selection 和准确 path。schema 失败继续返回原 keyword，权限/条件冲突检查优先，不能被语义错误掩盖。
+- basis 改变：仅接受 reconcileShoppingList 的精确结果；否则 409 review_required 在标准错误体外返回顶层 `reviewRequired:Id[]`（共享 reconcile.reviewRequired，排序且无重复），其他错误不附该字段。客户端不能解析 message 获取材料，也不能把 [] 当自动重试或强写授权。重算与换基线作为一次保存，不能在同次请求把受影响项重新标 available/bought。用户看到新资料后另次受锁保存确认。
 - 旧基线不可读取时返回 422 basis_unavailable，不以当前资料猜旧需求，不清空原判断强写。sourceRevision 不要求当前 head：清单可明确保留已保存的旧输入；“是否需要更新”由显式同版比较得出。
 - 固定 basis 内坏 dish/ingredient/technique refs、未录成分可保留 check 与缺项，不伪造实体。悬空 Ingredient 项禁止变 buy/available/bought（422 unresolved_reference）；其他可解析材料可人工判断，不代表整配方完整。缺 plan 为无有效基线，拒绝持久清单。
 

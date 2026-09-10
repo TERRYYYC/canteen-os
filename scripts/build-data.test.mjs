@@ -29,7 +29,7 @@ const writeJson = (abs, data) => writeFileSync(abs, JSON.stringify(data, null, 2
 /** 临时仓库：复制 data/（无 .git → commit 为 "local"） */
 function tempRepo() {
   const root = mkdtempSync(path.join(tmpdir(), "build-data-"));
-  cpSync(path.join(ROOT, "data"), path.join(root, "data"), { recursive: true });
+  cpSync(path.join(ROOT, "test/fixtures/contracts/valid/golden/data"), path.join(root, "data"), { recursive: true });
   return root;
 }
 

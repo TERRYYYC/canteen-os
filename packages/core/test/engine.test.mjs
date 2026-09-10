@@ -28,7 +28,7 @@ import {
   renderPurchaseOrders,
 } from "../dist/procurement/engine.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../test/fixtures/contracts/valid/golden");
 const readJson = (rel) => JSON.parse(readFileSync(path.join(ROOT, rel), "utf8"));
 
 // --- 装载 data/（调用方读文件注入，引擎纯函数） ---
