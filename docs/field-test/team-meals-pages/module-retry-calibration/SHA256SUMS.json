@@ -1,0 +1,14 @@
+[
+  {
+    "path": "server.mjs",
+    "source": "/private/tmp/canteen-d1-native-module-probe/server.mjs",
+    "sha256": "f364d21f3aeb6ef74e607b6276b41964056817fd382f3ee70765e820897db6f6",
+    "bytes": 1757
+  },
+  {
+    "path": "same-url-retry.json",
+    "source": "/private/tmp/canteen-d1-native-module-probe/same-url-retry.json",
+    "sha256": "eddd5e617d228a9c248d6998c1bb0f1991a7395c14a855a1cb535d7d59d09c59",
+    "bytes": 863
+  }
+]
