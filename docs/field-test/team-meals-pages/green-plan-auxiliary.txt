@@ -1,0 +1,31 @@
+✔ dish reload inspection uses pure peek and hides changed-scope identity (5.272375ms)
+✔ dish without pure peek stays unknown without polling sessionKey (0.111584ms)
+✔ plan reload inspection uses pure peek and hides changed-scope identity (0.157667ms)
+✔ plan without pure peek stays unknown without polling sessionKey (0.061334ms)
+✔ shopping-list reload inspection uses pure peek and hides changed-scope identity (0.167917ms)
+✔ shopping-list without pure peek stays unknown without polling sessionKey (0.065708ms)
+✔ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (18.139667ms)
+✔ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (4.702375ms)
+✔ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (6.83775ms)
+✔ removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row (4.677708ms)
+✔ unrelated later row removal never consumes an earlier invalid raw value (3.456167ms)
+✔ stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans (4.056916ms)
+✔ saving existing JSON does not consume unapplied Add choices, including unknown result and route return (4.770667ms)
+✔ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (6.873291ms)
+✔ Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag (3.631709ms)
+✔ clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document (2.935708ms)
+✔ registered raw Plan input protects offscreen updates while C1 stays the only JSON owner (3.853083ms)
+✔ initial Source and catalog reads each register before awaiting and finish their original coverage (3.539917ms)
+✔ old initialization result closes only old scope while B same-page read remains protected (3.762833ms)
+✔ a known Source error releases its read and page coverage without clearing existing raw input (3.420541ms)
+✔ saving optional servings explicitly upgrades to v3 without invented counts (0.62225ms)
+✔ day filter cannot truncate the whole saved plan or true top-level values (0.10375ms)
+✔ deleting the last meal produces a legal empty v3 document (0.048083ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 131.997917

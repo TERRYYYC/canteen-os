@@ -7,7 +7,12 @@ import { parseServingsInput } from './servings-input';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
-export function createPlanForm(api: TeamMealsApi) {
+export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void } } = {}) {
+  async function read<T>(id: string, request: () => Promise<T>): Promise<T> {
+    const operation = options.beginRead?.(id);
+    try { const value = await request(); operation?.finish(false); return value; }
+    catch (error) { operation?.finish(true); throw error; }
+  }
   const session = createEditSession<AnyMenuPlan>({
     mode: () => api.mode, authSession: () => api.sessionKey(),
     peekAuthSession: () => api.peekSessionKey?.(),
@@ -25,7 +30,7 @@ export function createPlanForm(api: TeamMealsApi) {
     const key = revision ?? 'current-unsaved';
     if (!force && catalogs.has(key)) return catalogs.get(key)!;
     if (pending.has(key)) return pending.get(key)!;
-    const request = api.getCatalog({...(revision ? {revision} : {}), ...(force ? {force:true} : {})}).then(catalog => {
+    const request = read(state.identity!.id, () => api.getCatalog({...(revision ? {revision} : {}), ...(force ? {force:true} : {})})).then(catalog => {
       if (revision && catalog.commit !== revision) throw new Error('catalog_revision_mismatch');
       if (auth === api.sessionKey()) catalogs.set(key,catalog);
       return catalog;
@@ -48,7 +53,7 @@ export function createPlanForm(api: TeamMealsApi) {
         if (state.identity?.id === id && state.phase !== 'closed') session.refreshView();
         else session.open({kind:'plan',id},{schemaVersion:'3',meals:[]},null);
       } else {
-        const source = await api.getPlan(id);
+        const source = await read(id, () => api.getPlan(id));
         if (!live()) return null;
         const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',meals:[]};
         session.open({kind:'plan',id},initial,source); known.add(id);
@@ -77,7 +82,7 @@ export function createPlanForm(api: TeamMealsApi) {
     remove(index: number, contextId?: number) {return mutate(plan => {plan.meals.splice(index,1);},contextId);},
     async compareRemote(): Promise<Source<AnyMenuPlan> | null> {
       const state=session.getState(); if(!state.identity)return null;
-      return api.getPlan(state.identity.id,{force:true});
+      return read(state.identity.id, () => api.getPlan(state.identity!.id,{force:true}));
     },
     detach() { sequence++; session.invalidate(); },
   };

@@ -14,38 +14,52 @@ import { createPlanForm, toSavePlan } from './plan-form';
 import {previewTeamMealsDraft} from '../../view-models/team-meals';
 import {renderCandidates} from '../purchase-list';
 import {hrefOf} from '../../router';
+import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { preview?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number }
-export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle' }
+interface View { preview?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
+export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
 
 /** An injected API changes transport only; browser fixtures still execute this production page. */
 export function createPlanRenderer(api:TeamMealsApi) {
-  let form=createPlanForm(api),auth=api.sessionKey();
   const views=new Map<string,View>();
+  const auxiliary=new WeakMap<View,AuxiliaryEditHandle>();
   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
   const touch=(view:View)=>{view.generation=++rawGeneration;};
+  const createForm=()=>createPlanForm(api,{beginRead(id){
+    const view=views.get(id),handle=view&&auxiliary.get(view);
+    if(!view||!handle)throw new Error('Plan read owner is not registered');
+    const ticket=handle.beginOperation('read');view.reads++;touch(view);
+    return {finish(failed){view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');}};
+  }});
+  let form=createForm(),auth=api.sessionKey();
   async function renderPlan(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void> {
     const drafts=bindDraftStore(api);
     cleanup(); const renderTicket=++renderSequence;
-    if(auth!==api.sessionKey()){form=createPlanForm(api);auth=api.sessionKey();views.clear();}
+    if(auth!==api.sessionKey()){
+      form.session.getState();
+      for(const view of views.values())auxiliary.get(view)?.dispose();
+      views.clear();form=createForm();auth=api.sessionKey();
+    }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
     const id=rest||ctx.planId||planIdOfDate(new Date().toISOString().slice(0,10))||'';
-    if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));return;}
+    if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
     el.classList.add('tm-page');
     const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
     const body=h('div',{});el.append(header,body);
-    if(api.mode==='unconfigured'){body.append(h('div',{class:'tm-status',role:'status'},tr('unconfigured')));return;}
+    if(api.mode==='unconfigured'){body.append(h('div',{class:'tm-status',role:'status'},tr('unconfigured')));ctx.setReloadCoverage?.('read-only');return;}
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
     const today=new Date().toISOString().slice(0,10);
     const defaultDate=weekStartOfPlanId(id,today)??today;
-    const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:'',addBaseline:[defaultDate,'lunch',''],initialized:false,generation:++rawGeneration};views.set(id,view);
+    const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:'',addBaseline:[defaultDate,'lunch',''],initialized:false,generation:++rawGeneration,reads:0};views.set(id,view);
+    if(!auxiliary.has(view))auxiliary.set(view,registerAuxiliaryEdits({ownerId:`plan-buffer/${id}`,identity:{kind:'plan',id},boundary:api,operationTracking:'tickets',
+      read:()=>({generation:view.generation,dirty:rawPending(view),phase:view.reads?'busy':'idle'})}));
     const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
     const sourceKey=()=>owner.session.getState().source?.commit??'current-unsaved';
     // Bind what actually arrived, never whichever source happens to be current after an await.
@@ -210,14 +224,15 @@ export function createPlanRenderer(api:TeamMealsApi) {
         view.initialized=true;
       }
     }catch(error){if(isLive())loadError=error;}
+    finally{ctx.setReloadCoverage?.('tracked');}
     initialized=true;requestedKey=loadError?sourceKey():boundKey;
     paint();
   }
   return Object.assign(renderPlan,{
-    /** Actual raw-buffer summary only; registration and C1 JSON coverage belong to shared C. */
+    /** Read-only metadata for the page buffer registered above; C1 owns saved JSON. */
     readAuxiliary(id:string):PlanAuxiliaryState|null {
       const view=views.get(id);if(!view)return null;
-      return Object.freeze({ownerId:`plan-buffer/${id}`,identity:Object.freeze({kind:'plan' as const,id}),generation:view.generation,dirty:rawPending(view),phase:'idle' as const});
+      return Object.freeze({ownerId:`plan-buffer/${id}`,identity:Object.freeze({kind:'plan' as const,id}),generation:view.generation,dirty:rawPending(view),phase:view.reads?'busy' as const:'idle' as const});
     },
   });
 }
