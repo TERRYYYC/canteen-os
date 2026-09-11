@@ -111,6 +111,10 @@ export interface PublishStep {
 
 export interface PublishProgress {
   runId: number | null;
+  /** Only boolean true for the already-known matching runId proves completion; older Workers omit it. */
+  runCompleted?: boolean;
+  /** Same run's raw outcome. Null/unknown values are not success; completion is separate. */
+  runConclusion?: string | null;
   status: "queued" | "in_progress" | "success" | "failure" | "timeout" | "unmapped";
   htmlUrl: string;
   steps: PublishStep[];
