@@ -9,7 +9,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 const require=createRequire(import.meta.url);
 const vr=createRequire(require.resolve('vite/package.json'));
 const esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
-const bundle=await esbuild.build({stdin:{contents:await readFile(join(here,'../src/pages/admin/dish-new.ts'),'utf8')+'\nexport { ApiError, createIngredientDraft };',resolveDir:join(here,'../src/pages/admin'),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:await readFile(join(here,'../src/pages/admin/dish-new.ts'),'utf8')+'\nexport { ApiError, createIngredientDraft };\nexport {createTeamMealsApi} from "../../api/team-meals";\nexport {clearToken as changeAuth} from "../../admin/token";\nexport {inspectReloadSafety} from "../../view-models/reload-safety";',resolveDir:join(here,'../src/pages/admin'),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-pages-dish-'));
 after(()=>rm(dir,{recursive:true,force:true}));
 await writeFile(join(dir,'dish.mjs'),bundle.outputFiles[0].text);
@@ -36,7 +36,7 @@ const source=content=>({content,commit:A,blobSha:'blob-a'});
 const initial={schemaVersion:'3',name:{zh:'汤'},components:[{ingredientRef:'salt'}],status:'active'};
 function setup(save=async()=>({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]}),mode='mock') {
  const writes=[],reads=[];let current=source(initial);
- const api={mode,sessionKey:()=>0,getDish:async(id,opts)=>{reads.push([id,opts]);return current;},saveDish:async(...args)=>{writes.push(['active',...structuredClone(args)]);return save(...args);},saveDishDraft:async(...args)=>{writes.push(['draft',...structuredClone(args)]);return save(...args);}};
+ const api={mode,sessionKey:()=>0,peekSessionKey:()=>0,getDish:async(id,opts)=>{reads.push([id,opts]);return current;},saveDish:async(...args)=>{writes.push(['active',...structuredClone(args)]);return save(...args);},saveDishDraft:async(...args)=>{writes.push(['draft',...structuredClone(args)]);return save(...args);}};
  assert.equal(typeof page.createDishForm,'function','dish page must expose the C1 form adapter actually used by render');
  return {form:page.createDishForm(api),writes,reads,setCurrent:v=>current=v};
 }
@@ -71,7 +71,7 @@ test('conflict retains edited draft and explicit adoption is required before a n
  const remote={content:{...initial,name:{zh:'远端汤'}},commit:B,blobSha:'blob-b'};assert.equal(form.adopt(remote,true),true);await form.save('draft');assert.equal(writes[1][2].name.zh,'我的汤');assert.deepEqual(writes[1][3],{ifMatch:'blob-b'});
 });
 test('late read cannot open a different dish after detaching',async()=>{
- let resolve;const api={mode:'mock',sessionKey:()=>0,getDish:()=>new Promise(r=>resolve=r)};const form=page.createDishForm(api);
+ let resolve;const api={mode:'mock',sessionKey:()=>0,peekSessionKey:()=>0,getDish:()=>new Promise(r=>resolve=r)};const form=page.createDishForm(api);
  const loading=form.load('soup');form.detach();resolve(source(initial));assert.equal(await loading,null);assert.equal(form.session.getState().phase,'closed');
 });
 
@@ -135,4 +135,51 @@ test('review: unknown auxiliary outcomes remain protected across route changes a
  form.refresh();await form.save('draft',aux);assert.equal(uploads,1);assert.equal(writes.length,0);assert.equal(form.newDocument(),false);
  await form.load('soup');await form.save('draft');assert.equal(form.newDocument(),true);await form.load('new');
  assert.equal(form.draft.id,'photo-soup');assert.equal(form.readAuxiliary().phase,'unknown');assert.equal(form.readAuxiliary().dirty,true);
+});
+
+
+let auxiliarySerial=0;
+async function auxiliarySetup({getDish,save}={}) {
+ const p=await import(`${pathToFileURL(join(dir,'dish.mjs'))}?auxiliary=${++auxiliarySerial}`);let identity=0;const writes=[];
+ const api=p.createTeamMealsApi('https://dish-auxiliary.local.invalid',{token:()=> 'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{
+  const path=new URL(url).pathname;if(init.method==='GET')return Response.json(await(getDish?.()??source(initial)));
+  writes.push(JSON.parse(init.body));return Response.json(await(save?.()??{commit:B,blobSha:'blob-b',unchanged:false,warnings:[]}));
+ }});
+ return{p,api,form:p.createDishForm(api),writes,auth(){identity++;p.changeAuth();},cleanup(){api.dispose();}};
+}
+const gate=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
+test('Dish source loading is registered before its first await and canceled read ends only its own ticket',async()=>{
+ const hold=gate(),s=await auxiliarySetup({getDish:()=>hold.promise});try{const loading=s.form.load('soup');assert.equal(s.p.inspectReloadSafety().reason,'saving');s.form.detach();hold.resolve(source(initial));await loading;assert.equal(s.p.inspectReloadSafety().reason,'clear');}finally{hold.resolve(source(initial));s.cleanup();}
+});
+test('Dish raw and processing owners remain registered across detach and return',async()=>{
+ const s=await auxiliarySetup();try{await s.form.load('soup');s.form.draft.pending=pendingPhoto();s.form.changed();assert.ok(s.p.inspectReloadSafety().records.some(r=>r.ownerId.startsWith('auxiliary-')&&r.dirty));const operation=s.form.beginAuxiliary('photo','processing');assert.equal(s.p.inspectReloadSafety().reason,'saving');s.form.detach();await s.form.load('other');assert.equal(s.p.inspectReloadSafety().reason,'saving');operation.finish();assert.equal(s.p.inspectReloadSafety().reason,'dirty');await s.form.load('soup');assert.ok(s.form.draft.pending);}finally{s.cleanup();}
+});
+test('Dish C1 save is protected once and does not create an auxiliary write ticket',async()=>{
+ const hold=gate(),s=await auxiliarySetup({save:()=>hold.promise});try{await s.form.load('soup');const saving=s.form.save('draft');await new Promise(r=>setImmediate(r));const snapshot=s.p.inspectReloadSafety();assert.equal(snapshot.reason,'saving');assert.ok(snapshot.records.some(r=>r.ownerId.startsWith('auxiliary-')&&r.phase==='idle'),'raw owner registered without duplicate C1 saving phase');assert.equal(snapshot.records.filter(r=>r.pending||r.phase==='saving'||r.phase==='busy').length,1);hold.resolve({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]});await saving;assert.equal(s.p.inspectReloadSafety().reason,'clear');}finally{hold.resolve({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]});s.cleanup();}
+});
+test('Dish unknown upload remains an original anonymous operation after auth and cannot save B',async()=>{
+ const hold=gate(),s=await auxiliarySetup();try{await s.form.load('soup');s.form.draft.pending=pendingPhoto();s.form.changed();const saving=s.form.save('draft',{uploadImage:()=>hold.promise});assert.equal(s.p.inspectReloadSafety().reason,'saving');s.auth();const b=s.p.createDishForm(s.api);await b.load('soup');assert.equal(s.p.inspectReloadSafety().reason,'unknown');hold.reject(new s.p.ApiError(0,'session_changed','hidden ACK'));await assert.rejects(saving);assert.equal(s.p.inspectReloadSafety().reason,'unknown');assert.ok(s.p.inspectReloadSafety().records.some(r=>r.id==='previous-session-operation'&&r.phase==='unknown'));assert.equal(s.writes.length,0);assert.equal(b.draft.pending,null);}finally{hold.resolve(uploadedPhoto);s.cleanup();}
+});
+
+
+test('Dish parallel old read tasks remain anonymous until both actual results finish',async()=>{
+ const one=gate(),two=gate(),s=await auxiliarySetup();try{await s.form.load('soup');const first=s.form.read(()=>one.promise),second=s.form.read(()=>two.promise);assert.equal(s.p.inspectReloadSafety().reason,'saving');s.auth();const b=s.p.createDishForm(s.api);await b.load('soup');b.draft.pending=pendingPhoto();b.changed();assert.equal(s.p.inspectReloadSafety().reason,'unknown');one.resolve(1);await first;assert.equal(s.p.inspectReloadSafety().reason,'unknown');two.resolve(2);await second;assert.equal(s.p.inspectReloadSafety().reason,'dirty');assert.ok(b.draft.pending);}finally{one.resolve(1);two.resolve(2);s.cleanup();}
+});
+test('Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities',async()=>{
+ const held=gate();let count=0;const s=await auxiliarySetup({getDish:()=>{count++;return held.promise;}});try{const a=s.form.load('soup');s.form.detach();const b=s.form.load('soup');assert.equal(s.p.inspectReloadSafety().records.filter(r=>r.ownerId.startsWith('auxiliary-')).length,1);assert.equal(s.p.inspectReloadSafety().reason,'saving');held.resolve(source(initial));assert.equal(await a,null);await b;assert.equal(count,1,'real TeamMealsApi coalesces the same source request');assert.equal(s.p.inspectReloadSafety().reason,'clear');assert.equal(s.form.draft.name.zh,'汤');}finally{held.resolve(source(initial));s.cleanup();}
+});
+test('Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown',async()=>{
+ for(const outcome of ['known','unrecognized','malformed']){const s=await auxiliarySetup();try{await s.form.load('soup');s.form.draft.pending=pendingPhoto();s.form.changed();await assert.rejects(s.form.save('draft',{uploadImage:async()=>{if(outcome==='known')throw new s.p.ApiError(409,'conflict','rejected');if(outcome==='unrecognized')throw new s.p.ApiError(409,'unknown_error','conflict-looking');return{};}}));assert.equal(s.p.inspectReloadSafety().reason,outcome==='known'?'dirty':'unknown');assert.equal(s.form.auxiliaryUnknown,outcome!=='known');assert.equal(s.writes.length,0);}finally{s.cleanup();}}
+});
+test('inline Ingredient upload and save wrappers use separate tickets and exact result evidence',async()=>{
+ const s=await auxiliarySetup(),held=gate();try{await s.form.load('soup');const api=s.form.auxiliaryApi({uploadImage:async()=>uploadedPhoto,saveIngredient:()=>held.promise});await api.uploadImage('ingredients','local',new Blob(['photo']),{license:'own'});assert.equal(s.p.inspectReloadSafety().reason,'clear');const saving=api.saveIngredient('local',{schemaVersion:'2',name:{zh:'本地'},baseUnit:'g',trackStock:false});assert.equal(s.p.inspectReloadSafety().reason,'saving');held.resolve({commit:B,blobSha:'inline-b',unchanged:false,warnings:[]});await saving;assert.equal(s.p.inspectReloadSafety().reason,'clear');}finally{held.resolve({commit:B,blobSha:'inline-b',unchanged:false,warnings:[]});s.cleanup();}
+});
+test('inline unknown write cannot be cleared by ending its UI task or by an unrelated read',async()=>{
+ const s=await auxiliarySetup();try{await s.form.load('soup');const operation=s.form.beginAuxiliary('inline','saving','none'),api=s.form.auxiliaryApi({uploadImage:async()=>uploadedPhoto,saveIngredient:async()=>{throw new TypeError('lost ACK');}});await assert.rejects(api.saveIngredient('local',{}));operation.finish();assert.equal(s.p.inspectReloadSafety().reason,'unknown');await s.form.read(async()=>source(initial));assert.equal(s.p.inspectReloadSafety().reason,'unknown');assert.equal(s.form.auxiliaryUnknown,true);}finally{s.cleanup();}
+});
+test('captured inline API cannot dispatch a save after an old visible upload ACK under B',async()=>{
+ const s=await auxiliarySetup(),held=gate();let saves=0;try{await s.form.load('soup');const api=s.form.auxiliaryApi({uploadImage:()=>held.promise,saveIngredient:async()=>{saves++;return{commit:B,blobSha:'b',unchanged:false,warnings:[]};}});const upload=api.uploadImage('ingredients','local',new Blob(['photo']),{license:'own'});s.auth();const b=s.p.createDishForm(s.api);await b.load('soup');assert.equal(s.p.inspectReloadSafety().reason,'unknown');held.resolve(uploadedPhoto);await upload;assert.equal(s.p.inspectReloadSafety().reason,'clear');await assert.rejects(api.saveIngredient('local',{}),e=>e.code==='session_changed');assert.equal(saves,0);assert.equal(s.p.inspectReloadSafety().reason,'clear');}finally{held.resolve(uploadedPhoto);s.cleanup();}
+});
+test('old and new raw registration snapshots never observe credentials or return private old IDs',async()=>{
+ const s=await auxiliarySetup();try{await s.form.load('private-old-dish');s.form.draft.pending=pendingPhoto();s.form.changed();let calls=0;const original=s.api.sessionKey.bind(s.api);s.api.sessionKey=()=>{calls++;return original();};const before=s.p.inspectReloadSafety();for(let n=0;n<4;n++)assert.deepEqual(s.p.inspectReloadSafety(),before);assert.equal(calls,0);s.auth();const b=s.p.createDishForm(s.api);await b.load('public-new-dish');calls=0;const changed=s.p.inspectReloadSafety();assert.equal(calls,0);assert.equal(JSON.stringify(changed).includes('private-old-dish'),false);assert.equal(changed.reason,'clear');}finally{s.cleanup();}
 });

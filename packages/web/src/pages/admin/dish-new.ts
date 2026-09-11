@@ -4,11 +4,12 @@ import "./dish-new.css";
 import { type AnyDish, type DishV3, type DishComponentV3, type DishComponent, type DishPrep, type DishProvenance, type DishStatus, type DishStep, type I18nString, type PrepTiming, type Technique, type Unit } from "@canteenos/core";
 
 import { getApi, type AdminApi } from "../../api/client";
-import { ApiError, isApiError, type Source, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
+import { ApiError, FIELD_ERROR_CODES, isApiError, type Source, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
 import { createEditSession, type EditState } from "../../view-models/edit-session";
 import { bindDraftStore } from "../../admin/store";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle, type AuxiliaryOperation } from "../../view-models/reload-safety";
 import { append, h } from "../../dom";
 import { pick, type Lang } from "../../i18n";
 import type { PageCtx } from "../../types";
@@ -570,9 +571,19 @@ function formatQty(c: ComponentDraft, lang: Lang): string {
   return v ? `${v} ${tt(lang, UNIT_KEY[c.unit])}` : "";
 }
 
+/** Only an explicit Worker rejection proves that an auxiliary write was refused. */
+function dishAuxiliaryWriteRejected(error: unknown): boolean {
+  if (!isApiError(error)) return false;
+  if (error.status === 400 && (FIELD_ERROR_CODES.has(error.code) || ["bad_id", "bad_path", "bad_json", "bad_image"].includes(error.code))) return true;
+  return ({ unauthorized: 401, forbidden: 403, not_found: 404, conflict: 409, too_large: 413, rate_limited: 429, not_configured: 503, worker_unconfigured: 0 } as { [key: string]: number })[error.code] === error.status;
+}
+
 /** Page adapter owns raw form inputs; C1 owns conditional writes and their unresolved outcome. */
 export function createDishForm(api: TeamMealsApi) {
   type Record = {
+    reload: AuxiliaryEditHandle;
+    operations: Map<AuxiliaryOperation, { kind: "read" | "write"; unknown: boolean }>;
+    initialized: boolean;
     draft: DishDraft;
     source: Source<AnyDish> | null;
     identity: string;
@@ -599,6 +610,71 @@ export function createDishForm(api: TeamMealsApi) {
   }
   function rawPending(record: Record): boolean {
     return !!record.draft.pending || record.draft.components.some(c => c.newIngredient !== null) || record.detachedChanges;
+  }
+  function metadata(record: Record) {
+    return { generation: record.rawGeneration, dirty: rawPending(record),
+      phase: [...record.operations.values()].some(operation => operation.unknown) ? "unknown" as const : record.operations.size ? "busy" as const : "idle" as const };
+  }
+  function prepare(key: string, seed: { zh?: string } = {}): Record {
+    let record = records.get(key);
+    if (!record) {
+      const local: Omit<Record, "reload"> = {
+        draft: createDishDraft(seed), source: null, identity: key === "new" ? `$new-${++sequence}` : key,
+        target: key === "new" ? "" : key, state: null, initialized: key === "new", detachedChanges: false,
+        auxiliary: new Map(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0, operations: new Map(),
+      };
+      const owner: Record = Object.assign(local, { reload: registerAuxiliaryEdits({
+        ownerId: `dish-input/${key}`, identity: { kind: "dish", id: key }, boundary: api,
+        operationTracking: "tickets", read: () => metadata(owner),
+      }) });
+      records.set(key, owner); identities.set(owner.identity, owner); record = owner;
+    }
+    return record;
+  }
+  function start(record: Record, kind: "read" | "write"): AuxiliaryOperation {
+    const ticket = record.reload.beginOperation(kind);
+    record.operations.set(ticket, { kind, unknown: false }); record.rawGeneration++;
+    return ticket;
+  }
+  function finish(record: Record, ticket: AuxiliaryOperation, outcome: "completed" | "failed"): void {
+    record.operations.delete(ticket); record.rawGeneration++;
+    record.reload.settleOperation(ticket, outcome);
+  }
+  function fail(record: Record, ticket: AuxiliaryOperation, error: unknown): void {
+    const operation = record.operations.get(ticket);
+    if (!operation) return;
+    if (operation.kind === "read" || dishAuxiliaryWriteRejected(error)) finish(record, ticket, "failed");
+    else {
+      operation.unknown = true; record.auxiliaryUnknown = true; record.rawGeneration++;
+      record.reload.markUnknown(ticket);
+    }
+  }
+  async function read<T>(record: Record, work: () => Promise<T>): Promise<T> {
+    if (!valid()) throw new ApiError(0, "session_changed", "");
+    const ticket = start(record, "read");
+    let outcome: "completed" | "failed" = "completed";
+    try { return await work(); }
+    catch (error) { outcome = "failed"; throw error; }
+    finally { finish(record, ticket, outcome); }
+  }
+  function auxiliaryApi(legacy: AdminApi, record = active): AdminApi {
+    if (!record) throw new Error("Missing dish owner");
+    const owner = record;
+    async function write<T>(work: () => Promise<T>, accepted: (value: T) => boolean): Promise<T> {
+      // Check before dispatch. A session_changed thrown after dispatch may hide
+      // an actual Worker ACK and must keep this original write unknown.
+      if (!valid() || identities.get(owner.identity) !== owner) throw new ApiError(0, "session_changed", "");
+      const ticket = start(owner, "write");
+      try {
+        const value = await work();
+        if (!accepted(value)) throw new ApiError(502, "bad_response", "");
+        finish(owner, ticket, "completed"); return value;
+      } catch (error) { fail(owner, ticket, error); throw error; }
+    }
+    const scoped = Object.create(legacy) as AdminApi;
+    scoped.uploadImage = (...args) => write(() => legacy.uploadImage(...args), value => !!value && typeof value.src === "string" && !!value.src && typeof value.license === "string" && !!value.license);
+    scoped.saveIngredient = (...args) => write(() => legacy.saveIngredient(...args), value => !!value && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === "string" && !!value.blobSha && typeof value.unchanged === "boolean" && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === "string"));
+    return scoped;
   }
   function imageMeta(pending: PendingImage): ImageMeta {
     return { license: pending.license.trim(), ...(pending.author.trim() ? { author: pending.author.trim() } : {}), ...(pending.sourceUrl.trim() ? { sourceUrl: pending.sourceUrl.trim() } : {}) };
@@ -634,9 +710,10 @@ export function createDishForm(api: TeamMealsApi) {
     notify(record);
   }
   /** Auxiliary writes belong to a document, never to one rendering of its form. */
-  function beginAuxiliary(key: string, activity: "saving" | "processing" = "saving") {
+  function beginAuxiliary(key: string, activity: "saving" | "processing" = "saving", tracking: "read" | "write" | "none" = activity === "processing" ? "read" : "write") {
     const record = active;
     if (!record || !valid() || record.auxiliary.size || record.auxiliaryUnknown || session.getState().operationId) return null;
+    const ticket = tracking === "none" ? null : start(record, tracking);
     record.rawGeneration++;
     record.auxiliary.set(key, activity); record.auxiliaryError = null; notify(record);
     return {
@@ -644,9 +721,13 @@ export function createDishForm(api: TeamMealsApi) {
       current: () => valid() && active === record,
       fail(error: unknown) {
         record.auxiliaryError = error;
-        record.auxiliaryUnknown = !isApiError(error) || error.status >= 500 || (error.status === 0 && !["unconfigured", "session_changed"].includes(error.code));
+        if (ticket) fail(record, ticket, error);
       },
-      finish(contentChanged = false) { record.rawGeneration++; record.auxiliary.delete(key); notify(record, contentChanged); },
+      finish(contentChanged = false) {
+        record.rawGeneration++; record.auxiliary.delete(key);
+        if (ticket && record.operations.has(ticket) && !record.operations.get(ticket)?.unknown) finish(record, ticket, "completed");
+        notify(record, contentChanged);
+      },
     };
   }
   return {
@@ -658,24 +739,30 @@ export function createDishForm(api: TeamMealsApi) {
     get processing() { return !!active && [...active.auxiliary.values()].includes("processing"); },
     get auxiliaryError() { return active?.auxiliaryError; },
     get auxiliaryUnknown() { return active?.auxiliaryUnknown ?? false; },
-    /** Read-only summary of actual raw buffers; shared reload registration is wired by its owner when available. */
+    /** Pure raw metadata; actual asynchronous operations are tracked per document. */
     readAuxiliary(key = currentKey) {
       const record = records.get(key);
-      return record ? { generation: record.rawGeneration, dirty: rawPending(record), phase: record.auxiliaryUnknown ? "unknown" as const : record.auxiliary.size ? "busy" as const : "idle" as const } : null;
+      return record ? metadata(record) : null;
     },
     subscribe(listener: (contentChanged: boolean) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     beginAuxiliary,
+    auxiliaryApi,
+    prepare,
+    read<T>(work: () => Promise<T>): Promise<T> {
+      if (!active) return Promise.reject(new Error("Missing dish owner"));
+      return read(active, work);
+    },
+    retireAuxiliary() { for (const record of records.values()) record.reload.dispose(); },
     async load(key: string, seed: { zh?: string } = {}): Promise<DishDraft | null> {
       const generation = ++loadGeneration;
       if (!valid()) return null;
-      let record = records.get(key);
-      if (!record) {
-        const source = key === "new" ? null : await api.getDish(key);
+      const record = prepare(key, seed);
+      if (!record.initialized) {
+        const source = await read(record, () => api.getDish(key));
         if (!valid() || generation !== loadGeneration) return null;
-        if (!source && key !== "new") return null;
-        const form = source ? draftFromDish(source.content, key, source.blobSha) : createDishDraft(seed);
-        record = { draft: form, source, identity: key === "new" ? `$new-${++sequence}` : key, target: source ? key : "", state: null, detachedChanges: false, auxiliary: new Map(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0 };
-        records.set(key, record); identities.set(record.identity, record);
+        if (!source) return null;
+        record.draft = draftFromDish(source.content, key, source.blobSha);
+        record.source = source; record.initialized = true; record.rawGeneration++;
       }
       active = record; currentKey = key;
       context = session.open({ kind: "dish", id: record.identity }, record.source?.content ?? draftToDish(record.draft), record.source);
@@ -690,6 +777,7 @@ export function createDishForm(api: TeamMealsApi) {
       if (!valid() || active?.draft.dirty || active?.auxiliary.size || active?.auxiliaryUnknown || session.getState().operationId) return false;
       const previous = records.get("new");
       if (previous && previous !== active && (previous.draft.dirty || previous.auxiliary.size || previous.auxiliaryUnknown || previous.state?.operationId || previous.state?.phase === "conflict")) return true;
+      if (previous && !previous.reload.dispose()) return false;
       if (previous) { previous.rawGeneration++; identities.delete(previous.identity); }
       records.delete("new"); return true;
     },
@@ -703,12 +791,12 @@ export function createDishForm(api: TeamMealsApi) {
       changed();
       const body = draftToDish(form), pending = form.pending;
       const meta = pending ? imageMeta(pending) : null;
-      const operation = beginAuxiliary("dish-save");
+      const operation = beginAuxiliary("dish-save", "saving", "none");
       if (!operation) return null;
       try {
         if (pending && meta) {
           if (api.mode !== "real" || !auxiliary) throw new ApiError(0, "unconfigured", "");
-          const ref = await auxiliary.uploadImage("dishes", record.target, pending.blob, meta);
+          const ref = await auxiliaryApi(auxiliary as AdminApi, record).uploadImage("dishes", record.target, pending.blob, meta);
           if (!operation.valid()) return null;
           body.image = { ...ref };
           if (form.pending === pending && JSON.stringify(imageMeta(pending)) === JSON.stringify(meta)) {
@@ -790,12 +878,15 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
   const auth = teamApi.sessionKey();
   if (!formOwner || formAuth !== auth || formApi !== teamApi) {
     discardDraft();
+    formOwner?.retireAuxiliary();
     formOwner = createDishForm(teamApi); formAuth = auth; formApi = teamApi;
   }
   const owner = formOwner;
   if (draftKey !== rest) {
     discardDraft(); draftKey = rest;
     const hand = drafts.takeHandoff(); returnTo = hand.returnTo ?? null;
+    owner.prepare(rest, hand.newDishName ? { zh: hand.newDishName } : {});
+    ctx.setReloadCoverage?.("tracked");
     const load = ++renderGeneration;
     const bar = (): HTMLElement => topBar({ back: adminHref(), title: tt(lang, rest === "new" ? "dish.title.new" : "dish.title.edit") });
     const root = h("div", { class: "adm adm-dish" }, bar(), h("p", { class: "muted" }, adm("adm.loading", undefined, lang)));
@@ -811,7 +902,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
       draftKey = null;
       root.replaceChildren(bar(), errorCard(apiMessage(err, lang), () => { el.replaceChildren(); void render(el, ctx, rest, teamApi); }));
       return;
-    }
+    } finally { ctx.setReloadCoverage?.("tracked"); }
     el.replaceChildren();
   } else if (!draft) {
     // A second language render supersedes any pending first read.
@@ -823,6 +914,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
   for (const c of draft?.components ?? []) {
     if (c.newIngredient?.pending && !c.newIngredient.pending.previewUrl) c.newIngredient.pending.previewUrl = URL.createObjectURL(c.newIngredient.pending.blob);
   }
+  ctx.setReloadCoverage?.("tracked");
   watchLeave(rest);
   paintScreen(el, ctx, rest, api, []);
 }
@@ -1665,7 +1757,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     paintFeedback();
     async function saveInline(): Promise<void> {
       if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode !== "real") return;
-      const operation = owner.beginAuxiliary(operationKey);
+      const operation = owner.beginAuxiliary(operationKey, "saving", "none");
       if (!operation) return;
       inlineIngredientFeedback.delete(ingDraft);
       form.clearErrors();
@@ -1673,13 +1765,16 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       try {
         if (!catalog) {
           try {
-            catalog = await teamApi.getCatalog();
+            catalog = await owner.read(() => teamApi.getCatalog());
             if (!alive()) return;
             form.setCatalog(catalog);
           } catch {
             /* 查不了重也让存 */
           }
         }
+        // A failed preflight read may have ended after a route/auth change.
+        // Only this original inline owner can proceed to the external writes.
+        if (!operation.valid() || !alive()) return;
         const local = form.localErrors();
         if (local.length > 0) {
           inlineIngredientFeedback.set(ingDraft, { kind: "local" });
@@ -1695,7 +1790,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
             if (operation.valid() && current?.blob === pending?.blob && JSON.stringify(current?.meta) === JSON.stringify(pending?.meta)) form.setImage(ref);
           },
         };
-        const out = await submitIngredientForm(api, submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
+        const out = await submitIngredientForm(owner.auxiliaryApi(api), submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
         if (!operation.valid()) return;
         if (out.ok) {
           if (c.newIngredient === ingDraft && d.components.includes(c)) {
@@ -1708,7 +1803,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           }
           if (!alive()) return;
           try {
-            catalog = await teamApi.getCatalog(); // 写入成功后 api 层已失效缓存（§3.5）：这里拿到的就带新食材
+            catalog = await owner.read(() => teamApi.getCatalog()); // 写入成功后 api 层已失效缓存（§3.5）：这里拿到的就带新食材
           } catch {
             /* 名字先用 id 顶着 */
           }
@@ -1940,10 +2035,10 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const before = owner.session.getState();
     if (!alive() || before.phase !== "conflict") return;
     try {
-      const current = await teamApi.getDish(d.id.trim(), { force: true });
+      const current = await owner.read(() => teamApi.getDish(d.id.trim(), { force: true }));
       if (!alive()) return;
       if (!current) { compareBox.replaceChildren(h("p", {}, L("dish.notFound"))); return; }
-      const remote = await teamApi.getDish(d.id.trim(), { revision: current.commit, force: true });
+      const remote = await owner.read(() => teamApi.getDish(d.id.trim(), { revision: current.commit, force: true }));
       if (!alive() || owner.session.getState().phase !== "conflict") return;
       if (!remote || remote.commit !== current.commit || remote.blobSha !== current.blobSha) throw new ApiError(422, "invalid_source", "");
       const adopt = (keepLocal: boolean): void => {
@@ -1985,8 +2080,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   };
 
   // Dual-format catalog supplies ingredient search and technique choices.
-  void teamApi
-    .getCatalog()
+  void owner
+    .read(() => teamApi.getCatalog())
     .then((c) => {
       if (!alive()) return;
       catalog = c;
@@ -2000,7 +2095,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       catalogFailed = true;
       paintComponents();
       paintSteps();
-    });
+    })
+    .finally(() => ctx.setReloadCoverage?.("tracked"));
   // ---- 保存 ------------------------------------------------------------------------
   /** Blank optional quantities are valid; reject invalid entered numbers and incomplete form controls. */
   function localErrors(): FieldError[] {

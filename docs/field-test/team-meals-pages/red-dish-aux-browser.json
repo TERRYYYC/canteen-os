@@ -1,0 +1,325 @@
+{
+  "summary": "0/8",
+  "results": [
+    {
+      "name": "source-coverage",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at source-coverage (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:22:110)\n    at http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:89",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "catalog-read",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":0,\\\"dirty\\\":false,\\\"phase\\\":\\\"clean\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at catalog-read (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:23:96)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "photo-decode",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":0,\\\"dirty\\\":false,\\\"phase\\\":\\\"clean\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at photo-decode (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:24:283)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "translation",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":0,\\\"dirty\\\":false,\\\"phase\\\":\\\"clean\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at Object.translation (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:25:140)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "c1-no-duplicate",
+      "passed": false,
+      "error": "Error: raw owner is registered\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at c1-no-duplicate (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:26:211)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "saving",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "saving",
+            "pending": true,
+            "recovering": false,
+            "context": 2,
+            "operation": 1
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"saving\",\"pending\":true,\"recovering\":false,\"context\":2,\"operation\":1},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "inline-upload-save",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":1,\\\"dirty\\\":true,\\\"phase\\\":\\\"dirty\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at inline-upload-save (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:27:322)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "two-old-uploads",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"other\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":4,\"operation\":0},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/other\",\"kind\":\"page\",\"id\":\"admin/dish/other\",\"generation\":4,\"dirty\":false,\"phase\":\"untracked\"},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":4,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[4,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"],[\\\"page:admin/dish/other\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"other\\\",\\\"generation\\\":0,\\\"dirty\\\":false,\\\"phase\\\":\\\"clean\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":4,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":0,\\\"dirty\\\":false,\\\"phase\\\":\\\"clean\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/other\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/other\\\",\\\"generation\\\":4,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":4,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at two-old-uploads (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:28:311)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "saving",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 3,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "other",
+            "generation": 1,
+            "dirty": true,
+            "phase": "saving",
+            "pending": true,
+            "recovering": false,
+            "context": 4,
+            "operation": 1
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 1
+          },
+          {
+            "ownerId": "page:admin/dish/other",
+            "kind": "page",
+            "id": "admin/dish/other",
+            "generation": 4,
+            "dirty": false,
+            "phase": "untracked"
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 4,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[4,0,[[\"page:admin/dish/soup\",\"untracked\"],[\"page:admin/dish/other\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"other\",\"generation\":1,\"dirty\":true,\"phase\":\"saving\",\"pending\":true,\"recovering\":false,\"context\":4,\"operation\":1},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":1},{\"ownerId\":\"page:admin/dish/other\",\"kind\":\"page\",\"id\":\"admin/dish/other\",\"generation\":4,\"dirty\":false,\"phase\":\"untracked\"},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":4,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    },
+    {
+      "name": "hidden-inline-ack",
+      "passed": false,
+      "error": "Error: saving expected: {\"reason\":\"untracked\",\"records\":[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}],\"stamp\":\"[3,0,[[\\\"page:admin/dish/soup\\\",\\\"untracked\\\"]],[{\\\"ownerId\\\":\\\"draft-store\\\",\\\"kind\\\":\\\"store\\\",\\\"id\\\":\\\"draft-store\\\",\\\"generation\\\":2,\\\"dirty\\\":false,\\\"phase\\\":\\\"idle\\\"},{\\\"ownerId\\\":\\\"editor-1\\\",\\\"kind\\\":\\\"dish\\\",\\\"id\\\":\\\"soup\\\",\\\"generation\\\":1,\\\"dirty\\\":true,\\\"phase\\\":\\\"dirty\\\",\\\"pending\\\":false,\\\"recovering\\\":false,\\\"context\\\":2,\\\"operation\\\":0},{\\\"ownerId\\\":\\\"page:admin/dish/soup\\\",\\\"kind\\\":\\\"page\\\",\\\"id\\\":\\\"admin/dish/soup\\\",\\\"generation\\\":3,\\\"dirty\\\":false,\\\"phase\\\":\\\"untracked\\\"}]]\"}\n    at assert (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:42)\n    at reason (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:11:127)\n    at hidden-inline-ack (http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:29:598)\n    at async http://localhost:4195/test/team-meals-pages-dish-aux-browser.html?html-proxy&index=0.js:32:70",
+      "snapshot": {
+        "reason": "untracked",
+        "records": [
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          },
+          {
+            "ownerId": "page:admin/dish/soup",
+            "kind": "page",
+            "id": "admin/dish/soup",
+            "generation": 3,
+            "dirty": false,
+            "phase": "untracked"
+          }
+        ],
+        "stamp": "[3,0,[[\"page:admin/dish/soup\",\"untracked\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"page:admin/dish/soup\",\"kind\":\"page\",\"id\":\"admin/dish/soup\",\"generation\":3,\"dirty\":false,\"phase\":\"untracked\"}]]"
+      }
+    }
+  ]
+}
