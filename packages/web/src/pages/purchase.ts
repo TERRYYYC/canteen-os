@@ -13,7 +13,8 @@ import {adminHref} from './admin';
 import {action,field,onDetached,status,text} from './team-ui';
 import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {renderTeamDetails} from './team-details';
-import {shoppingText,shoppingCopy,renderCandidates,type ShoppingWord} from './purchase-list';
+import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
+import {shoppingCopy} from './shopping-copy';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
 interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;active:number;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
@@ -183,7 +184,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
   function copyPanel(list:ShoppingList){
-   const content=shoppingCopy(list,form.basis!.projection,lang),feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':t('copy')});area.value=content;area.hidden=true;
+   const content=shoppingCopy(list,form.basis!.projection,lang,form.basis!.estimate),feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':t('copy')});area.value=content;area.hidden=true;
    const fallback=()=>{if(live()){feedback.textContent=t('copyFailed');area.hidden=false;area.focus();area.select();}};
    const button=action(t('copy'),()=>{
     if(!live())return;if(!navigator.clipboard){fallback();return;}
