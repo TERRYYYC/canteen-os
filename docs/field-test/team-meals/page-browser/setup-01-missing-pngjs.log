@@ -1,0 +1,53 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: formal producer must accept the published fixture
++ actual - expected
+
++ [
++   {
++     code: 'asset-unavailable',
++     jsonPointer: '/image',
++     kind: 'error',
++     message: 'Same-revision image is unavailable: data/ingredients/pattern.png',
++     ownerPath: 'data/ingredients/tomato.json',
++     planId: 'team-week'
++   },
++   {
++     code: 'asset-unavailable',
++     jsonPointer: '/1/image',
++     kind: 'error',
++     message: 'Same-revision image is unavailable: data/ingredients/pattern.png',
++     ownerPath: 'data/techniques.json',
++     planId: 'team-week'
++   }
++ ]
+- []
+    at createPageFixture (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/page-fixture.mjs:58:10)
+    at file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/page-server.mjs:19:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      planId: 'team-week',
+      kind: 'error',
+      code: 'asset-unavailable',
+      ownerPath: 'data/ingredients/tomato.json',
+      jsonPointer: '/image',
+      message: 'Same-revision image is unavailable: data/ingredients/pattern.png'
+    },
+    {
+      planId: 'team-week',
+      kind: 'error',
+      code: 'asset-unavailable',
+      ownerPath: 'data/techniques.json',
+      jsonPointer: '/1/image',
+      message: 'Same-revision image is unavailable: data/ingredients/pattern.png'
+    }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual'
+}
+
+Node.js v20.20.2
