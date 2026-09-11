@@ -1,0 +1,135 @@
+TAP version 13
+# Subtest: shell-only loading is read-only across auth changes before the first page starts
+ok 1 - shell-only loading is read-only across auth changes before the first page starts
+  ---
+  duration_ms: 2.50775
+  ...
+# Subtest: leaving or redrawing a shell-only loading route does not orphan page coverage
+ok 2 - leaving or redrawing a shell-only loading route does not orphan page coverage
+  ---
+  duration_ms: 0.565875
+  ...
+# Subtest: loading coverage never retires an unrelated unresolved owner
+ok 3 - loading coverage never retires an unrelated unresolved owner
+  ---
+  duration_ms: 0.814833
+  ...
+# Subtest: main passes the winning publication kind and safe route context to team navigation
+ok 4 - main passes the winning publication kind and safe route context to team navigation
+  ---
+  duration_ms: 0.737709
+  ...
+# Subtest: startup evaluates no unselected page and waits for selected renderer
+ok 5 - startup evaluates no unselected page and waits for selected renderer
+  ---
+  duration_ms: 2.346083
+  ...
+# Subtest: route ABA and language changes cannot start late renderers or settle new coverage
+ok 6 - route ABA and language changes cannot start late renderers or settle new coverage
+  ---
+  duration_ms: 1.011667
+  ...
+# Subtest: auth changed during module load starts only a fresh session context
+ok 7 - auth changed during module load starts only a fresh session context
+  ---
+  duration_ms: 0.704292
+  ...
+# Subtest: winning publication replaces pending editor load but preserves an already started editor
+ok 8 - winning publication replaces pending editor load but preserves an already started editor
+  ---
+  duration_ms: 0.554042
+  ...
+# Subtest: loader rejection and abandoned failure never create orphan coverage or paint new outlet
+ok 9 - loader rejection and abandoned failure never create orphan coverage or paint new outlet
+  ---
+  duration_ms: 0.474667
+  ...
+# Subtest: loading does not acknowledge an earlier untracked render of the same route
+ok 10 - loading does not acknowledge an earlier untracked render of the same route
+  ---
+  duration_ms: 0.698291
+  ...
+# Subtest: unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+ok 11 - unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+  ---
+  duration_ms: 1.406375
+  ...
+# Subtest: renderer rejection cannot declare a started but unresolved page read-only
+ok 12 - renderer rejection cannot declare a started but unresolved page read-only
+  ---
+  duration_ms: 0.615334
+  ...
+# Subtest: actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+ok 13 - actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+  ---
+  duration_ms: 3.489166
+  ...
+# Subtest: actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+ok 14 - actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+  ---
+  duration_ms: 1.028916
+  ...
+# Subtest: actual PWA keeps old-auth write protection without offering an inaccessible private editor
+ok 15 - actual PWA keeps old-auth write protection without offering an inaccessible private editor
+  ---
+  duration_ms: 0.332042
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+ok 16 - actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+  ---
+  duration_ms: 0.446833
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+ok 17 - actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+  ---
+  duration_ms: 0.413833
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+ok 18 - actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+  ---
+  duration_ms: 0.281583
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+ok 19 - actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+  ---
+  duration_ms: 0.281791
+  ...
+# Subtest: actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+ok 20 - actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+  ---
+  duration_ms: 0.153125
+  ...
+# Subtest: actual PWA rejects target activation after generation invalidates consent
+ok 21 - actual PWA rejects target activation after generation invalidates consent
+  ---
+  duration_ms: 0.688667
+  ...
+# Subtest: actual PWA rejects target activation after pending invalidates consent
+ok 22 - actual PWA rejects target activation after pending invalidates consent
+  ---
+  duration_ms: 0.280917
+  ...
+# Subtest: actual PWA rejects target activation after unknown invalidates consent
+ok 23 - actual PWA rejects target activation after unknown invalidates consent
+  ---
+  duration_ms: 0.190959
+  ...
+# Subtest: actual PWA rejects target activation after timeout invalidates consent
+ok 24 - actual PWA rejects target activation after timeout invalidates consent
+  ---
+  duration_ms: 0.214916
+  ...
+# Subtest: actual PWA rejects target activation after cancel invalidates consent
+ok 25 - actual PWA rejects target activation after cancel invalidates consent
+  ---
+  duration_ms: 0.168541
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56.654834

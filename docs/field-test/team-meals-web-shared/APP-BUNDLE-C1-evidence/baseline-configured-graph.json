@@ -1,0 +1,412 @@
+[
+  {
+    "file": "assets/index-B_R8e6Ee.js",
+    "isEntry": true,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/index.html",
+    "imports": [],
+    "dynamicImports": [
+      "assets/home-DxfeemT0.js",
+      "assets/plan-DKearscT.js",
+      "assets/import-CvrvXLqm.js",
+      "assets/ingredient-new-verYh16D.js",
+      "assets/dish-new-DcogcHRR.js",
+      "assets/publish-GILJpFQ1.js",
+      "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+    ],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/prep.ts",
+        "renderedLength": 35904
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/purchase.ts",
+        "renderedLength": 21148
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/menu.ts",
+        "renderedLength": 20001
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/view-models/published.ts",
+        "renderedLength": 16532
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/admin/kit.ts",
+        "renderedLength": 15762
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/view-models/edit-session.ts",
+        "renderedLength": 15014
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/published-meals.ts",
+        "renderedLength": 14560
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/core/src/team-meals.ts",
+        "renderedLength": 14410
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/team-details.ts",
+        "renderedLength": 9855
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/view-models/reload-safety.ts",
+        "renderedLength": 9740
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/purchase-form.ts",
+        "renderedLength": 9244
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/shell.ts",
+        "renderedLength": 8692
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pwa.ts",
+        "renderedLength": 8314
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/purchase-list.ts",
+        "renderedLength": 7868
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/core/src/procurement/engine.ts",
+        "renderedLength": 7365
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/i18n.ts",
+        "renderedLength": 7275
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/api/transport.ts",
+        "renderedLength": 6529
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/api/team-meals.ts",
+        "renderedLength": 5084
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/view-models/team-meals.ts",
+        "renderedLength": 5033
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/qr.ts",
+        "renderedLength": 4812
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/team-ui.ts",
+        "renderedLength": 4778
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin.ts",
+        "renderedLength": 3763
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/admin/token.ts",
+        "renderedLength": 3379
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/main.ts",
+        "renderedLength": 2681
+      },
+      {
+        "id": "/@vite-plugin-pwa/virtual:pwa-register",
+        "renderedLength": 2339
+      },
+      {
+        "id": "\u0000vite/preload-helper.js",
+        "renderedLength": 2294
+      },
+      {
+        "id": "\u0000vite/modulepreload-polyfill.js",
+        "renderedLength": 1280
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/router.ts",
+        "renderedLength": 1237
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/api/types.ts",
+        "renderedLength": 1232
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/theme.ts",
+        "renderedLength": 848
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/dom.ts",
+        "renderedLength": 589
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/data.ts",
+        "renderedLength": 263
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/tokens.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/styles.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/menu.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/prep.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/plan.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/purchase.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/admin.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/qr.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/index.html",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 182234,
+    "finalGzipBytes": 63700
+  },
+  {
+    "file": "assets/home-DxfeemT0.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/home.ts",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/index-B_R8e6Ee.js",
+      "assets/client-CTB5X9XR.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/home.ts",
+        "renderedLength": 14940
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/home.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 10702,
+    "finalGzipBytes": 4628
+  },
+  {
+    "file": "assets/plan-DKearscT.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/plan.ts",
+    "imports": [
+      "assets/index-B_R8e6Ee.js",
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/store-WSjA-hER.js",
+      "assets/servings-input-DNG9trXJ.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/plan.ts",
+        "renderedLength": 17621
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/plan-form.ts",
+        "renderedLength": 4171
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/core/src/formats.ts",
+        "renderedLength": 159
+      }
+    ],
+    "finalUtf8Bytes": 12921,
+    "finalGzipBytes": 5622
+  },
+  {
+    "file": "assets/import-CvrvXLqm.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/import.ts",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/index-B_R8e6Ee.js",
+      "assets/store-WSjA-hER.js",
+      "assets/servings-input-DNG9trXJ.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/import.ts",
+        "renderedLength": 41743
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/import.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 29103,
+    "finalGzipBytes": 11738
+  },
+  {
+    "file": "assets/servings-input-DNG9trXJ.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/servings-input.ts",
+        "renderedLength": 842
+      }
+    ],
+    "finalUtf8Bytes": 492,
+    "finalGzipBytes": 317
+  },
+  {
+    "file": "assets/parse-plan-text-DBZQVSv5.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/core/src/import/parse-plan-text.ts",
+        "renderedLength": 23252
+      }
+    ],
+    "finalUtf8Bytes": 13248,
+    "finalGzipBytes": 5767
+  },
+  {
+    "file": "assets/dish-new-DcogcHRR.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/dish-new.ts",
+    "imports": [
+      "assets/client-CTB5X9XR.js",
+      "assets/index-B_R8e6Ee.js",
+      "assets/store-WSjA-hER.js",
+      "assets/ingredient-new-verYh16D.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/dish-new.ts",
+        "renderedLength": 92182
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/dish-new.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 65545,
+    "finalGzipBytes": 22706
+  },
+  {
+    "file": "assets/ingredient-new-verYh16D.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/ingredient-new.ts",
+    "imports": [
+      "assets/client-CTB5X9XR.js",
+      "assets/index-B_R8e6Ee.js",
+      "assets/store-WSjA-hER.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/ingredient-new.ts",
+        "renderedLength": 56305
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/ingredient-new.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 39875,
+    "finalGzipBytes": 15441
+  },
+  {
+    "file": "assets/store-WSjA-hER.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-B_R8e6Ee.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/admin/store.ts",
+        "renderedLength": 3705
+      }
+    ],
+    "finalUtf8Bytes": 1981,
+    "finalGzipBytes": 899
+  },
+  {
+    "file": "assets/publish-GILJpFQ1.js",
+    "isEntry": false,
+    "facade": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/publish.ts",
+    "imports": [
+      "assets/index-B_R8e6Ee.js",
+      "assets/client-CTB5X9XR.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/publish.ts",
+        "renderedLength": 41104
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/pages/admin/publish.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 29760,
+    "finalGzipBytes": 11463
+  },
+  {
+    "file": "assets/client-CTB5X9XR.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-B_R8e6Ee.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/api/mock.ts",
+        "renderedLength": 38742
+      },
+      {
+        "id": "/private/tmp/app-bundle-c1-baseline/packages/web/src/api/client.ts",
+        "renderedLength": 8991
+      }
+    ],
+    "finalUtf8Bytes": 32134,
+    "finalGzipBytes": 12709
+  },
+  {
+    "file": "assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+        "renderedLength": 5763
+      }
+    ],
+    "finalUtf8Bytes": 5706,
+    "finalGzipBytes": 2343
+  }
+]

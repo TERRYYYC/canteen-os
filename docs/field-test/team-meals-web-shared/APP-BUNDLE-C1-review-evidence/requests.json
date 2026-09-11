@@ -1,0 +1,47 @@
+[
+  {
+    "url": "/canteen/sw.js",
+    "version": "a",
+    "available": true
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "version": "a",
+    "available": true
+  },
+  {
+    "url": "/canteen/sw.js",
+    "version": "b",
+    "available": true
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "version": "b",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "version": "b",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json",
+    "version": "b",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/build.json?__publication=1789102525388-1-1",
+    "version": "b",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json?__publication=1789102525388-1-1",
+    "version": "b",
+    "available": false
+  },
+  {
+    "url": "/canteen/sw.js",
+    "version": "b",
+    "available": false
+  }
+]

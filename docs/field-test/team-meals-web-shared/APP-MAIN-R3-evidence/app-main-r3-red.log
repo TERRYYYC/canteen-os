@@ -1,0 +1,123 @@
+TAP version 13
+# Subtest: actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+ok 1 - actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+  ---
+  duration_ms: 3.308833
+  ...
+# Subtest: actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+ok 2 - actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+  ---
+  duration_ms: 0.945167
+  ...
+# Subtest: actual PWA keeps old-auth write protection without offering an inaccessible private editor
+ok 3 - actual PWA keeps old-auth write protection without offering an inaccessible private editor
+  ---
+  duration_ms: 0.30325
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+not ok 4 - actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+  ---
+  duration_ms: 0.754084
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:98:76'
+  failureType: 'testCodeFailure'
+  error: |-
+    Actual approved worker takeover must finish reload, even without the plugin callback
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:108:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+not ok 5 - actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+  ---
+  duration_ms: 0.261167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:98:76'
+  failureType: 'testCodeFailure'
+  error: |-
+    Actual approved worker takeover must finish reload, even without the plugin callback
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:108:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+ok 6 - actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+  ---
+  duration_ms: 0.327833
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+ok 7 - actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+  ---
+  duration_ms: 0.289375
+  ...
+# Subtest: actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+not ok 8 - actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+  ---
+  duration_ms: 0.211167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:115:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    An unrelated worker cannot spend the target consent
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/pwa-integration.test.mjs:118:58)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: actual PWA rejects target activation after generation invalidates consent
+ok 9 - actual PWA rejects target activation after generation invalidates consent
+  ---
+  duration_ms: 0.309834
+  ...
+# Subtest: actual PWA rejects target activation after pending invalidates consent
+ok 10 - actual PWA rejects target activation after pending invalidates consent
+  ---
+  duration_ms: 0.699167
+  ...
+# Subtest: actual PWA rejects target activation after unknown invalidates consent
+ok 11 - actual PWA rejects target activation after unknown invalidates consent
+  ---
+  duration_ms: 0.207542
+  ...
+# Subtest: actual PWA rejects target activation after timeout invalidates consent
+ok 12 - actual PWA rejects target activation after timeout invalidates consent
+  ---
+  duration_ms: 0.2125
+  ...
+# Subtest: actual PWA rejects target activation after cancel invalidates consent
+ok 13 - actual PWA rejects target activation after cancel invalidates consent
+  ---
+  duration_ms: 0.160875
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 10
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.269625

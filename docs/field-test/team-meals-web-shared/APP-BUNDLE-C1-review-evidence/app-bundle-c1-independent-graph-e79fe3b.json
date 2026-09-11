@@ -1,0 +1,147 @@
+{
+  "head": "e79fe3b49b2a5d3c06c5d7298d9207adc5cc3c71",
+  "node": "v20.20.2",
+  "staticAndDynamicEdgesVerified": 20,
+  "preloadGroupsVerified": 10,
+  "routes": {
+    "prep": {
+      "gzip": 32099,
+      "noSW": 29756,
+      "files": [
+        "assets/index-CqcMpFug.js",
+        "assets/prep-BlcfSxaz.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "menu": {
+      "gzip": 38227,
+      "noSW": 35884,
+      "files": [
+        "assets/index-CqcMpFug.js",
+        "assets/menu-DsXJe1ME.js",
+        "assets/prep-BlcfSxaz.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "purchase": {
+      "gzip": 52441,
+      "noSW": 50098,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/edit-session-CbDKY5c-.js",
+        "assets/index-CqcMpFug.js",
+        "assets/purchase-Ne4Pn5eA.js",
+        "assets/purchase-list-BEAOmA_E.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "qr": {
+      "gzip": 20698,
+      "noSW": 18355,
+      "files": [
+        "assets/index-CqcMpFug.js",
+        "assets/qr-CAGZr4uS.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "locked-admin": {
+      "gzip": 20180,
+      "noSW": 17837,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/index-CqcMpFug.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "home": {
+      "gzip": 52859,
+      "noSW": 50516,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/client-DBf-T-ku.js",
+        "assets/home-UDpVHyZQ.js",
+        "assets/index-CqcMpFug.js",
+        "assets/parse-plan-text-DBZQVSv5.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "plan": {
+      "gzip": 58846,
+      "noSW": 56503,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/edit-session-CbDKY5c-.js",
+        "assets/index-CqcMpFug.js",
+        "assets/parse-plan-text-DBZQVSv5.js",
+        "assets/plan-DhH3arQr.js",
+        "assets/purchase-list-BEAOmA_E.js",
+        "assets/servings-input-DNG9trXJ.js",
+        "assets/store-BWF_Zuub.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "import": {
+      "gzip": 50042,
+      "noSW": 47699,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/import-D2XYJ1wM.js",
+        "assets/index-CqcMpFug.js",
+        "assets/parse-plan-text-DBZQVSv5.js",
+        "assets/servings-input-DNG9trXJ.js",
+        "assets/store-BWF_Zuub.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "ingredient-new": {
+      "gzip": 58826,
+      "noSW": 56483,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/client-DBf-T-ku.js",
+        "assets/index-CqcMpFug.js",
+        "assets/ingredient-new-RQkCJG8U.js",
+        "assets/store-BWF_Zuub.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "dish-new": {
+      "gzip": 84090,
+      "noSW": 81747,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/client-DBf-T-ku.js",
+        "assets/dish-new-XgdSPY-V.js",
+        "assets/edit-session-CbDKY5c-.js",
+        "assets/index-CqcMpFug.js",
+        "assets/ingredient-new-RQkCJG8U.js",
+        "assets/store-BWF_Zuub.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    },
+    "publish": {
+      "gzip": 53926,
+      "noSW": 51583,
+      "files": [
+        "assets/admin-ClR1t7JZ.js",
+        "assets/client-DBf-T-ku.js",
+        "assets/index-CqcMpFug.js",
+        "assets/publish-C7fiLDgq.js",
+        "assets/team-ui-9JWp_aO-.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ]
+    }
+  },
+  "allJS": {
+    "files": 20,
+    "gzip": 164233,
+    "bytes": 421662
+  },
+  "allAppJSDeclaredInPrecache": true
+}
