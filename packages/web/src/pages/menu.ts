@@ -15,6 +15,7 @@
  * 过敏原：第一轮 allergens 恒为 []（schema 冻结，见 core/sheets.ts）——为空时如实写「暂无信息」，不是「无过敏原」。
  */
 import "./menu.css";
+import { renderPublishedMeals } from "./published-meals";
 
 import type { I18nString, ImageRef, MealType, MenuSheet, MenuSheetDay, MenuSheetDish, MenuSheetMeal } from "@canteenos/core";
 import { h, replace } from "../dom";
@@ -416,6 +417,7 @@ function openSheet(el: HTMLElement, page: HTMLElement, day: MenuSheetDay, meal: 
 
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   teardownSheet();
+  if (await renderPublishedMeals(el, ctx, "menu", renderFrozenMenu, renderFrozenPrep, selectFrozenMealRows)) return;
   const lang = ctx.lang;
   if (!ctx.planId) {
     el.append(h("p", { class: "muted" }, ctx.t("data.notReady")));
@@ -567,6 +569,8 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
       return record ? pick(record.name, lang) : component.ingredientRef;
     });
     body.append(h("p", { class: "muted" }, `${t("ingredients")}: ${ingredients.length ? ingredients.join(" · ") : t("missing")}`));
+    const recipeHref = options.recipeHref?.(row);
+    if (recipeHref?.startsWith("#/")) { body.append(h("a", { class: "chip", href: recipeHref, "data-recipe-link": meal.dishRef, "data-recipe-index": mealIndex }, t("original"))); continue; }
     const detail = h("details", {}, h("summary", { class: "chip" }, t("original")));
     const host = h("div", {}); detail.append(host); card.append(detail);
     let rendered = false;

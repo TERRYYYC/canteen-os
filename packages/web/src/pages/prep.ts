@@ -14,6 +14,8 @@
  * 这里没有任何技法词。图片 src 以 http 开头直接用，否则相对 BASE_URL。
  */
 import "./prep.css";
+import { renderPublishedMeals } from "./published-meals";
+import type { PublishedAsset } from "../data";
 
 import type {
   AnyDish,
@@ -275,6 +277,7 @@ function resolve(sheet: PrepSheet, rest: string): Sel | null {
 // ---------------------------------------------------------------------------
 
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
+  if (await renderPublishedMeals(el, ctx, "prep", renderFrozenPrep, renderFrozenPrep, selectFrozenMealRows)) return;
   const { lang } = ctx;
   const status = h("p", { class: "muted" }, ctx.t("data.loading"));
   el.append(status);
@@ -342,12 +345,17 @@ export interface FrozenMealSelection {
   /** Position in this fixed plan only; never a persistent menu-row ID. */
   mealIndex?: number;
 }
+export type FrozenImageResult = RevisionAsset | PublishedAsset;
 export interface FrozenMealRenderOptions {
+  ingredientRef?: string;
+  timing?: string;
+  recipeHref?: (row: FrozenMealRow) => string;
+  onReference?: (kind: "ingredient" | "dish", id: string) => void;
   lang: Lang;
   selection?: FrozenMealSelection;
-  asset?: (query: { revision: string; owner: string; pointer: string }) => Promise<RevisionAsset>;
+  asset?: (query: { revision: string; owner: string; pointer: string }) => Promise<FrozenImageResult>;
   /** The owner resolves the ID in its original catalog or branded publication. */
-  techniqueAsset?: (techniqueRef: string) => Promise<RevisionAsset>;
+  techniqueAsset?: (techniqueRef: string) => Promise<FrozenImageResult>;
   href?: (kind: "ingredient" | "dish", id: string) => string;
 }
 export interface FrozenMealRow {
@@ -357,6 +365,9 @@ export interface FrozenMealRow {
   readonly dish: AnyDish | undefined;
 }
 const RAW_COPY = {
+  selectedComponents: { zh: "所选材料与调料", en: "Selected ingredients and seasonings", uk: "Вибрані інгредієнти й приправи" },
+  imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Зображення не записано" },
+  externalImage: { zh: "外链图片未固定到此版本", en: "External image is not pinned to this version", uk: "Зовнішнє зображення не закріплено за цією версією" },
   title: { zh: "原配方与备料资料", en: "Recipes and preparation", uk: "Рецепти й підготовка" },
   issues: { zh: "需要核对的资料", en: "Information to review", uk: "Дані для перевірки" },
   "missing-plan": { zh: "排菜计划未找到", en: "Meal plan unavailable", uk: "План харчування недоступний" },
@@ -476,28 +487,34 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   };
   const reference = (kind: "dish" | "ingredient", id: string, name: string): HTMLElement => {
     const href = options.href?.(kind, id);
-    return href?.startsWith("#/") ? h("a", { href }, name) : h("span", {}, name);
+    if (!href?.startsWith("#/")) return h("span", {}, name);
+    const link = h("a", { href }, name);
+    link.addEventListener("click", () => options.onReference?.(kind, id));
+    return link;
   };
-  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<RevisionAsset>): HTMLElement {
+  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>): HTMLElement {
     const box = h("figure", {});
     const load = read ?? (options.asset ? () => options.asset!({ revision: projection.sourceRevision, owner, pointer }) : undefined);
-    const state = h("p", { class: "muted", role: "status" }, t(ref && load ? "imageLoading" : "imageMissing"));
+    const state = h("p", { class: "muted", role: "status" }, t(!ref ? "imageUnrecorded" : load ? "imageLoading" : "imageMissing"));
     box.append(state);
-    if (!ref) return box;
+    if (!ref) { box.setAttribute("data-asset-state", "not-recorded"); return box; }
     box.append(h("figcaption", { class: "muted" }, `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, ref.sourceUrl ?? t("missing"))));
     if (load) {
       void Promise.resolve().then(load).then(result => {
         if (!live || !el.isConnected) return;
+        if ("kind" in result && result.kind === "not-recorded") { box.setAttribute("data-asset-state", "not-recorded"); state.textContent = t("imageUnrecorded"); return; }
         if (result.sourceRevision !== projection.sourceRevision) throw new Error("revision_mismatch");
+        if ("kind" in result && result.kind === "external-unpinned") { box.setAttribute("data-asset-state", result.kind); state.textContent = t("externalImage"); box.append(external(result.source.src, result.source.src)); return; }
+        box.setAttribute("data-asset-state", "available");
         const url = URL.createObjectURL(result.bytes); urls.add(url);
         const img = h("img", { src: url, alt: "", loading: "lazy" });
         img.style.maxWidth = "100%"; img.style.height = "auto";
         img.addEventListener("error", () => {
           img.remove(); URL.revokeObjectURL(url); urls.delete(url);
-          if (live) state.textContent = t("imageMissing");
+          if (live) { box.setAttribute("data-asset-state", "unavailable"); state.textContent = t("imageMissing"); }
         });
         state.textContent = ""; box.prepend(img);
-      }).catch(() => { if (live && el.isConnected) state.textContent = t("imageMissing"); });
+      }).catch(() => { if (live && el.isConnected) { box.setAttribute("data-asset-state", "unavailable"); state.textContent = t("imageMissing"); } });
     }
     return box;
   }
@@ -522,9 +539,13 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const owner = `data/dishes/${meal.dishRef}.json`;
     section.append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), dish.status), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"), h("h3", { class: "section-label" }, t("components")), h("p", { class: "muted" }, t("original")));
     if (!dish.components?.length) section.append(h("p", { class: "muted", role: "status" }, t("missing")));
+    if (options.ingredientRef && !dish.components?.some(component => component.ingredientRef === options.ingredientRef)) section.append(h("p", { role: "status" }, `${t("missingRecord")} · ${options.ingredientRef}`));
     for (const [componentIndex, component] of (dish.components ?? []).entries()) {
+      if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
+      if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
       const card = h("section", { class: "card", "data-component-index": componentIndex }, h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : component.ingredientRef)), names(ingredient?.name), h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang)), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      if (ingredient?.image) card.append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(h("p", { role: "status" }, t("missingRecord")));
       card.append(fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
       if (prep) card.append(technique(prep.techniqueRef), fact(t("size"), prep.size), fact(t("timing"), prep.timing), fact(t("note"), prep.note ? pick(prep.note, lang) : undefined), image(prep.image, owner, `/components/${componentIndex}/prep/image`));
