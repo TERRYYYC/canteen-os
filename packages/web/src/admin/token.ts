@@ -39,6 +39,8 @@ function observe(value: string | null): string | null {
 }
 /** Opaque lifetime marker; never exposes or hashes credentials. */
 export function getAuthSessionVersion(): number { getToken(); return sessionVersion; }
+/** Metadata inspection cannot trigger auth listeners or erase an editor as a side effect. */
+export function peekAuthSessionVersion(): number { return sessionVersion; }
 export function onAuthSessionChange(listener: () => void): () => void {
   sessionListeners.add(listener);
   return () => { sessionListeners.delete(listener); };
@@ -104,11 +106,17 @@ function adminUrl(rest: string): string {
  * 消费 rest 里的令牌段（`t/<token>[/<rest…>]`），返回剥掉令牌段后的 rest。
  * 幂等：已有令牌时忽略 rest 里的那份；令牌串为空或长度不是 43 → 当作无令牌（仍然把它从地址栏抹掉）。
  */
+export function stripTokenFromRest(rest: string): string {
+  let safe = rest;
+  while (safe === 't' || safe.startsWith('t/')) safe = safe.split('/').slice(2).join('/');
+  return safe;
+}
+
 export function consumeTokenFromRest(rest: string): string {
   if (rest !== "t" && !rest.startsWith("t/")) return rest;
   const segs = rest.split("/");
   const candidate = segs[1] ?? "";
-  const remainder = segs.slice(2).join("/");
+  const remainder = stripTokenFromRest(rest);
   if (getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
   // 无论存没存成功，令牌都不能留在地址栏（红线）。replaceState 不触发 hashchange。
   if (/^#\/?admin\/t(\/|$)/.test(location.hash)) {

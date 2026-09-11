@@ -14,7 +14,8 @@
  */
 import { ApiError } from "../api/types";
 import type { ApiMode, FieldError, Source, WriteCondition, WriteResult } from "../api/types";
-import { getAuthSessionVersion, onAuthSessionChange } from "../admin/token";
+import { getAuthSessionVersion, peekAuthSessionVersion, onAuthSessionChange } from "../admin/token";
+import { registerReloadRecords } from './reload-safety';
 
 export interface EditIdentity {
   kind: "plan" | "dish" | "shopping-list";
@@ -130,6 +131,17 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
   const authSession = adapters.authSession ?? getAuthSessionVersion;
   const authIdentity = authSession();
   const documents = new Map<string, DocumentRecord<T>>();
+  const reloadOwner = `editor-${sessionId}`;
+  const unregisterReload = registerReloadRecords(reloadOwner, () => {
+    // Read every document, including detached views. Never invoke scopeMatches here.
+    if ((adapters.authSession ? authSession() : peekAuthSessionVersion()) !== authIdentity || adapters.mode() !== mode) throw new Error('Editor scope changed');
+    return [...documents.values()].map(({ state, pending }) => ({
+      ownerId: reloadOwner, kind: state.identity!.kind, id: state.identity!.id,
+      generation: state.generation, dirty: state.dirty, phase: state.phase,
+      pending: pending !== null, recovering: state.recovering,
+      context: state.contextId, operation: operationSequence,
+    }));
+  });
   let active: DocumentRecord<T> | null = null;
   const emptyState = (): EditState<T> => ({
     contextId: viewSequence, identity: null, generation: 0, mode, phase: "closed",
@@ -155,6 +167,7 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
     viewSequence++;
     active = null;
     documents.clear();
+    unregisterReload();
     detached = erase ? emptyState() : { ...previous, contextId: viewSequence, phase: "closed", operationId: null, recovering: false };
     detached.error = error;
     unsubscribeAuth();
