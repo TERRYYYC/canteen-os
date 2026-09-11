@@ -30,10 +30,10 @@ class Element extends EventTarget {
 const originalTimers={setTimeout,clearTimeout};
 const flush=async()=>{for(let i=0;i<20;i++)await Promise.resolve();};
 let m;
-async function setup(){
+async function setup({controlled=true}={}){
  const root=new Element('main'),events=new EventTarget(),sw=new EventTarget(),timers=new Map();
  const counts={reloads:0,activations:0,refreshes:0};let timerId=0,callbacks;
- sw.controller={};const registration={waiting:{},update:async()=>{}};
+ sw.controller=controlled?{}:null;const registration={waiting:{scriptURL:'https://example.invalid/canteen/sw.js'},update:async()=>{}};
  Object.assign(globalThis,{
   document:Object.assign(new EventTarget(),{baseURI:'https://example.invalid/canteen/',body:root,getElementById:()=>root,createElement:tag=>new Element(tag),createTextNode:text=>new Element('#text',text)}),
   location:{reload(){counts.reloads++;}},
@@ -49,6 +49,7 @@ async function setup(){
  const button=text=>{const found=walk(root).find(n=>n.tag==='button'&&n.textContent===text);assert.ok(found,`Button missing: ${text}`);return found;};
  m.initPwa({refresh(){}},{async refreshPublication(){counts.refreshes++;}});
  return {root,sw,callbacks,counts,registration,button,
+  async control(worker,{plugin=controlled,pluginFirst=false}={}){sw.controller=worker;if(plugin&&pluginFirst)callbacks.onNeedReload();sw.dispatchEvent(new Event('controllerchange'));if(plugin&&!pluginFirst)callbacks.onNeedReload();await flush();},
   async click(text){button(text).dispatchEvent(new Event('click'));await flush();},
   async advance(ms){for(const [id,t] of [...timers])if(t.ms<=ms){timers.delete(id);t.fn();}await flush();},
   close(){Object.assign(globalThis,originalTimers);},
@@ -92,4 +93,45 @@ test('actual PWA keeps old-auth write protection without offering an inaccessibl
   resolve({commit:'b'.repeat(40),blobSha:'b'.repeat(40),unchanged:false,warnings:[]});await save;
   assert.equal(e.getState().draft,null);assert.equal(m.inspectReloadSafety().reason,'clear');
  } finally {e.dispose();env.close();}
+});
+
+for(const controlled of [false,true])for(const pluginFirst of [false,true])test(`actual PWA completes one approved worker takeover (initial control=${controlled}, plugin first=${pluginFirst})`,async()=>{
+ const env=await setup({controlled});let state={ownerId:'stable-draft',kind:'plan',id:'plan',generation:1,dirty:true,phase:'dirty'};
+ const off=m.registerReloadRecords('stable-draft',()=>[state]);
+ try {
+  // A first document is initially uncontrolled, then claimed by A without a reload intent.
+  if(!controlled){await env.control({});assert.equal(env.counts.reloads,0);}
+  env.callbacks.onNeedRefresh();await env.click('New version availableReload');
+  await env.click('Discard listed local changes and update');const target=env.registration.waiting;
+  assert.equal(env.counts.activations,1);assert.equal(env.counts.reloads,0);const before=m.inspectReloadSafety();
+  env.registration.waiting=null;await env.control(target,{pluginFirst});
+  assert.equal(env.counts.reloads,1,'Actual approved worker takeover must finish reload, even without the plugin callback');
+  assert.deepEqual(m.inspectReloadSafety(),before,'Reload must not clear any owner or draft');
+  // The other callback, duplicate native events and the old timeout cannot reload again.
+  env.callbacks.onNeedReload();await env.control(target,{plugin:true});await env.advance(3000);
+  assert.equal(env.counts.reloads,1);assert.equal(env.root.textContent.includes('has not completed'),false);
+ } finally {off();env.close();}
+});
+test('actual PWA binds consent to the worker object, not a matching script URL or any plugin callback',async()=>{
+ const env=await setup();try {
+  env.callbacks.onNeedRefresh();await env.click('New version availableReload');const target=env.registration.waiting;
+  await env.control({scriptURL:target.scriptURL});assert.equal(env.counts.reloads,0,'An unrelated worker cannot spend the target consent');
+  env.registration.waiting=null;await env.control(target);assert.equal(env.counts.reloads,1);
+ } finally {env.close();}
+});
+for(const boundary of ['generation','pending','unknown','timeout','cancel'])test(`actual PWA rejects target activation after ${boundary} invalidates consent`,async()=>{
+ const env=await setup({controlled:false});let state={ownerId:'changed-draft',kind:'plan',id:'plan',generation:1,dirty:true,phase:'dirty'};
+ const off=m.registerReloadRecords('changed-draft',()=>[state]);
+ try {
+  env.callbacks.onNeedRefresh();await env.click('New version availableReload');await env.click('Discard listed local changes and update');
+  const target=env.registration.waiting;
+  if(boundary==='generation')state={...state,generation:2};
+  if(boundary==='pending')state={...state,generation:2,pending:true,phase:'saving'};
+  if(boundary==='unknown')state={...state,generation:2,pending:true,phase:'unknown'};
+  if(boundary==='timeout')await env.advance(2000);
+  if(boundary==='cancel'){await env.advance(2000);await env.click('Continue editing, update later');}
+  const before=m.inspectReloadSafety();env.registration.waiting=null;
+  await env.control(target,{plugin:true});assert.equal(env.counts.reloads,0);assert.deepEqual(m.inspectReloadSafety(),before);
+  env.callbacks.onNeedReload();await env.advance(4000);assert.equal(env.counts.reloads,0);
+ } finally {off();env.close();}
 });
