@@ -3,7 +3,8 @@ import "./dish-new.css";
 
 import { type AnyDish, type DishV3, type DishComponentV3, type DishComponent, type DishPrep, type DishProvenance, type DishStatus, type DishStep, type I18nString, type PrepTiming, type Technique, type Unit } from "@canteenos/core";
 
-import { getApi, type AdminApi } from "../../api/client";
+import type { AdminApi } from "../../api/client";
+import { loadLegacyApi, EditorModuleUnavailable, legacyModuleUnavailable, imageModuleUnavailable, loadEditorImage, moduleUnavailableMessage } from "./editor-actions";
 import { ApiError, FIELD_ERROR_CODES, isApiError, type Source, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
@@ -14,15 +15,12 @@ import { append, h } from "../../dom";
 import { pick, type Lang } from "../../i18n";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
-import {
-  buildIngredientForm,
-  compressImage,
-  createIngredientDraft,
-  slugify,
-  submitIngredientForm,
-  type CompressedImage,
-  type IngredientDraft,
-} from "./ingredient-new";
+import { createIngredientDraft, slugify, type IngredientDraft } from "./ingredient-draft";
+import type { CompressedImage } from "./editor-image";
+
+type InlineModule = typeof import("./ingredient-form");
+let inlineModule: InlineModule | null = null;
+const inlineLoading = new WeakMap<IngredientDraft, { phase: "loading" | "failed"; error?: unknown }>();
 
 // ---------------------------------------------------------------------------
 // 文案（§5.2：点分小写，前缀 dish.，三语缺一即编译错误；§5.4 的最小集 + 本屏自用）
@@ -781,7 +779,7 @@ export function createDishForm(api: TeamMealsApi) {
       if (previous) { previous.rawGeneration++; identities.delete(previous.identity); }
       records.delete("new"); return true;
     },
-    async save(status: "draft" | "active", auxiliary?: Pick<AdminApi, "uploadImage">) {
+    async save(status: "draft" | "active", auxiliary?: Pick<AdminApi, "uploadImage"> | (() => Promise<AdminApi>)) {
       if (!active || !valid()) return null;
       const state = session.getState();
       if (state.operationId || state.phase === "conflict" || active.auxiliary.size || active.auxiliaryUnknown) return null;
@@ -796,7 +794,9 @@ export function createDishForm(api: TeamMealsApi) {
       try {
         if (pending && meta) {
           if (api.mode !== "real" || !auxiliary) throw new ApiError(0, "unconfigured", "");
-          const ref = await auxiliaryApi(auxiliary as AdminApi, record).uploadImage("dishes", record.target, pending.blob, meta);
+          const legacy = typeof auxiliary === "function" ? await read(record, auxiliary) : auxiliary;
+          if (!operation.valid()) return null;
+          const ref = await auxiliaryApi(legacy as AdminApi, record).uploadImage("dishes", record.target, pending.blob, meta);
           if (!operation.valid()) return null;
           body.image = { ...ref };
           if (form.pending === pending && JSON.stringify(imageMeta(pending)) === JSON.stringify(meta)) {
@@ -869,7 +869,6 @@ function watchLeave(key: string): void {
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamApi: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   const drafts = bindDraftStore(teamApi);
   const lang = ctx.lang;
-  const api = getApi();
   const auth = teamApi.sessionKey();
   if (!formOwner || formAuth !== auth || formApi !== teamApi) {
     discardDraft();
@@ -911,7 +910,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
   }
   ctx.setReloadCoverage?.("tracked");
   watchLeave(rest);
-  paintScreen(el, ctx, rest, api, []);
+  paintScreen(el, ctx, rest, []);
 }
 
 // ---------------------------------------------------------------------------
@@ -921,7 +920,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
 /** 待撤销的一次删除 */
 type Removed = { kind: "component"; index: number; item: ComponentDraft } | { kind: "step"; index: number; item: StepDraft };
 
-function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi, flash: HTMLElement[]): void {
+function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLElement[]): void {
   const lang = ctx.lang;
   if (!draft) return;
   const d: DishDraft = draft;
@@ -1105,7 +1104,9 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       const done = busy(translateBtn, L("dish.translating"));
       hint.hidden = true;
       try {
-        const r = await api.translate(zh, ["en", "uk"]);
+        const legacy = await loadLegacyApi();
+        if (!stillOwned() || names !== JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched])) return;
+        const r = await legacy.translate(zh, ["en", "uk"]);
         if (!stillOwned() || names !== JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched])) return;
         t.translatedFrom = zh;
         if (r.en && (manual || !t.enTouched)) {
@@ -1127,9 +1128,10 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         paintMachine();
         o.onTranslated?.();
         owner.changed(d);
-      } catch {
+      } catch (error) {
+        if (error instanceof EditorModuleUnavailable) operation.fail(error);
         // 不阻塞保存（I18nString 只要求至少一种语言）；401 留给保存那一步去锁屏
-        if (alive()) { hint.textContent = L("dish.translateFailed"); hint.hidden = false; }
+        if (alive()) { hint.textContent = error instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : L("dish.translateFailed"); hint.hidden = false; }
       } finally {
         done();
         translating = false;
@@ -1323,9 +1325,13 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     setPhotoMsg(L("dish.photo.compressing"));
     try {
       let out: CompressedImage | null;
-      try { out = await compressImage(file); }
-      catch {
-        if (operation.valid()) operation.fail(new ApiError(400, "image_decode", L("dish.photo.unreadable")));
+      try {
+        const image = await loadEditorImage();
+        if (!operation.valid()) return;
+        out = await image.compressImage(file);
+      }
+      catch (error) {
+        if (operation.valid()) operation.fail(error instanceof EditorModuleUnavailable ? error : new ApiError(400, "image_decode", L("dish.photo.unreadable")));
         return;
       }
       if (!operation.valid()) return;
@@ -1577,8 +1583,12 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           label: c.search.trim() ? `${L("dish.components.newIngredient")}：${c.search.trim()}` : L("dish.components.newIngredient"),
           class: "adm-dish-result adm-dish-result-new",
           onClick: () => {
-            c.newIngredient = createIngredientDraft(c.search.trim() ? { zh: c.search.trim() } : {});
+            if (!alive() || owner.busy || owner.auxiliaryUnknown || owner.session.getState().operationId || c.newIngredient) return;
+            // Intent is raw-owned synchronously, before module loading or any other await.
+            const buffer = createIngredientDraft(c.search.trim() ? { zh: c.search.trim() } : {});
+            c.newIngredient = buffer;
             changed();
+            void loadInline(c, buffer);
             paintComponents();
           },
         });
@@ -1675,16 +1685,53 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     return h("li", { class: "card adm-dish-card", "aria-label": nth, "data-key": String(c.key) }, head, body);
   }
 
+  async function loadInline(c: ComponentDraft, buffer: IngredientDraft): Promise<void> {
+    if (inlineModule || inlineLoading.has(buffer) || c.newIngredient !== buffer || !d.components.includes(c)) return;
+    const operation = owner.beginAuxiliary(`ingredient-${c.key}-module`, "processing");
+    if (!operation) return;
+    inlineLoading.set(buffer, { phase: "loading" });
+    try {
+      const module = await import("./ingredient-form");
+      if (!operation.valid() || c.newIngredient !== buffer || !d.components.includes(c)) return;
+      inlineModule = module;
+      inlineLoading.delete(buffer);
+    } catch (error) {
+      operation.fail(error);
+      if (operation.valid() && c.newIngredient === buffer && d.components.includes(c)) inlineLoading.set(buffer, { phase: "failed", error });
+    } finally {
+      // A removed/replaced buffer may return through undo; it must not retain a
+      // completed operation's loading marker.
+      if (inlineLoading.get(buffer)?.phase === "loading") inlineLoading.delete(buffer);
+      // finish notifies the current subscriber synchronously. Publish readiness first;
+      // its one repaint can start auto-translation after the loading ticket is removed.
+      operation.finish(true);
+    }
+  }
+
   /** 「食材库里没有 · 新建」：就地内联 #23 的表单件；存成功 → 本行引用新 id，catalog 重取 */
   function inlineIngredient(c: ComponentDraft): HTMLElement {
     const buffer = c.newIngredient;
     if (teamApi.mode !== "real") return h("p", { role: "status" }, statusText("auxUnavailable", lang));
     if (!buffer) return h("div");
     const ingDraft: IngredientDraft = buffer;
+    if (!inlineModule) {
+      if (!inlineLoading.has(buffer)) void loadInline(c, buffer);
+      const state = inlineLoading.get(buffer);
+      const message = state?.phase === "failed"
+        ? ({ zh: "食材表单模块未能加载。输入仍保留；可以继续编辑菜品，或取消这次新建。", en: "The ingredient form module could not load. Your input is retained; continue editing the dish or cancel this new ingredient.", uk: "Модуль форми інгредієнта не завантажився. Введені дані збережено; редагуйте страву далі або скасуйте створення інгредієнта." })[lang]
+        : adm("adm.loading", undefined, lang);
+      const seed = text(buffer.zh, { lang: "zh", "aria-label": L("dish.name.zh") }, value => { buffer.zh = value; });
+      const cancel = button({ label: adm("adm.cancel", undefined, lang), onClick: () => {
+        if (!alive() || c.newIngredient !== buffer) return;
+        c.newIngredient = null; changed(); paintComponents();
+      } });
+      return h("div", { class: "adm-dish-inline-loading", "data-state": state?.phase ?? "waiting" }, h("p", { role: "status" }, message), seed, cancel);
+    }
+    const { buildIngredientForm, submitIngredientForm } = inlineModule;
     let taskResultAccepted = false, taskContentChanged = false;
     const form = buildIngredientForm({
       lang,
-      api,
+      api: loadLegacyApi,
       draft: ingDraft,
       editing: !!ingDraft.blobSha,
       catalog,
@@ -1694,6 +1741,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         owner.changed(d);
       },
       onTaskStart: kind => {
+        if (!alive() || owner.draft !== d || c.newIngredient !== ingDraft || !d.components.includes(c)) return null;
         const operation = owner.beginAuxiliary(`ingredient-${c.key}-${kind}`, "processing");
         if (!operation) return null;
         taskResultAccepted = false; taskContentChanged = false;
@@ -1728,9 +1776,9 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const operationKey = `ingredient-${c.key}`;
     const syncInline = (): void => {
       const blocked = owner.busy || owner.auxiliaryUnknown || !!owner.session.getState().operationId;
-      for (const control of form.el.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea")) control.disabled = blocked;
-      for (const control of msg.querySelectorAll<HTMLButtonElement>("button")) control.disabled = blocked;
-      saveBtn.disabled = blocked; cancelBtn.disabled = blocked;
+      for (const control of form.el.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea")) control.disabled = blocked || (control.matches(".adm-ing-translate") && legacyModuleUnavailable()) || (control.matches('input[type="file"]') && imageModuleUnavailable());
+      for (const control of msg.querySelectorAll<HTMLButtonElement>("button")) control.disabled = blocked || (control.matches(".adm-ing-translate") && legacyModuleUnavailable()) || (control.matches('input[type="file"]') && imageModuleUnavailable());
+      saveBtn.disabled = blocked || legacyModuleUnavailable(); cancelBtn.disabled = blocked;
     };
     inlineBusyViews.push(syncInline); syncInline();
     saveBtn.addEventListener("click", () => void saveInline());
@@ -1745,7 +1793,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       } else if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
         form.showErrors(err.errors);
       } else {
-        msg.append(errorCard(apiMessage(err, lang), owner.auxiliaryUnknown ? undefined : () => void saveInline()));
+        msg.append(errorCard(err instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(err, lang), owner.auxiliaryUnknown || err instanceof EditorModuleUnavailable ? undefined : () => void saveInline()));
         syncInline();
       }
     }
@@ -1785,7 +1833,16 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
             if (operation.valid() && current?.blob === pending?.blob && JSON.stringify(current?.meta) === JSON.stringify(pending?.meta)) form.setImage(ref);
           },
         };
-        const out = await submitIngredientForm(owner.auxiliaryApi(api), submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
+        let legacy: AdminApi;
+        try { legacy = await owner.read(loadLegacyApi); }
+        catch (error) {
+          operation.fail(error);
+          inlineIngredientFeedback.set(ingDraft, { kind: "failure", stage: "save", error });
+          if (alive()) paintFeedback();
+          return;
+        }
+        if (!operation.valid() || !alive() || c.newIngredient !== ingDraft || !d.components.includes(c)) return;
+        const out = await submitIngredientForm(owner.auxiliaryApi(legacy), submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
         if (!operation.valid()) return;
         if (out.ok) {
           if (c.newIngredient === ingDraft && d.components.includes(c)) {
@@ -1988,8 +2045,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     draftBtn.disabled = blocked;
     activeBtn.disabled = blocked;
     idInput.readOnly = !!state.source || owner.busy || !!state.operationId;
-    cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real" || blocked;
-    for (const control of formEl.querySelectorAll<HTMLButtonElement>(".adm-dish-translate")) control.disabled = teamApi.mode !== "real" || blocked;
+    cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real" || blocked || imageModuleUnavailable();
+    for (const control of formEl.querySelectorAll<HTMLButtonElement>(".adm-dish-translate")) control.disabled = teamApi.mode !== "real" || blocked || legacyModuleUnavailable();
     for (const syncInline of inlineBusyViews) syncInline();
   }
   function compareDish(value:AnyDish,label:string):HTMLElement {
@@ -2002,8 +2059,9 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const state = owner.session.getState();
     const phase = owner.busy ? owner.processing ? "processing" : "saving" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
     editStatus.replaceChildren(h("p", {}, statusText(state.mode, lang)), h("p", {}, statusText(phase, lang)));
+    if (!owner.auxiliaryError && (legacyModuleUnavailable() || imageModuleUnavailable())) editStatus.append(h("p", {}, moduleUnavailableMessage(lang)));
     if (owner.auxiliaryUnknown) editStatus.append(h("p", {}, statusText("auxUnknown", lang)));
-    if (owner.auxiliaryError) editStatus.append(h("p", {}, apiMessage(owner.auxiliaryError, lang)));
+    if (owner.auxiliaryError) editStatus.append(h("p", {}, owner.auxiliaryError instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(owner.auxiliaryError, lang)));
     if (state.source) editStatus.append(h("details", { class: "muted" }, h("summary", {}, state.source.commit.slice(0,8)), h("code", {}, state.source.commit)));
     if (state.error) {
       const e = state.error;
@@ -2038,7 +2096,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       if (!remote || remote.commit !== current.commit || remote.blobSha !== current.blobSha) throw new ApiError(422, "invalid_source", "");
       const adopt = (keepLocal: boolean): void => {
         if (!alive() || !owner.adopt(remote, keepLocal)) return;
-        draft = owner.draft; el.replaceChildren(); paintScreen(el, ctx, rest, api, []);
+        draft = owner.draft; el.replaceChildren(); paintScreen(el, ctx, rest, []);
       };
       compareBox.replaceChildren(
         compareDish(draftToDish(d), lang === 'zh' ? '本地修改' : lang === 'en' ? 'Local changes' : 'Локальні зміни'),
@@ -2150,13 +2208,13 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     if (d.baseServings.trim() && (!Number.isInteger(num(d.baseServings)) || num(d.baseServings) < 1)) local.push({ path: "/baseServings", code: "minimum", message: L("dish.qty.required") });
     if (local.length) { showErrors(local); return; }
     try {
-      await owner.save(mode, api);
+      await owner.save(mode, loadLegacyApi);
       if (!alive()) return;
       const state = owner.session.getState();
       if (state.error?.errors.some(error => error.path)) showErrors(state.error.errors.filter(error => error.path));
       // Retain the form, including any later edits. Publication remains a separate action.
     } catch (err) {
-      if (alive()) addTransient(errorCard(apiMessage(err, lang)));
+      if (alive()) addTransient(errorCard(err instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(err, lang)));
     } finally { if (alive()) syncNet(); }
   }
 }

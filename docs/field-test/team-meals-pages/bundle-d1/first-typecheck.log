@@ -1,0 +1,6 @@
+
+> @canteenos/web@0.0.3 typecheck
+> tsc --noEmit
+
+src/pages/admin/dish-new.ts(344,3): error TS1131: Property or signature expected.
+src/pages/admin/dish-new.ts(366,1): error TS1128: Declaration or statement expected.
