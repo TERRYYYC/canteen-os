@@ -107,23 +107,29 @@ function adminUrl(rest: string): string {
  * 消费 rest 里的令牌段（`t/<token>[/<rest…>]`），返回剥掉令牌段后的 rest。
  * 幂等：已有令牌时忽略 rest 里的那份；令牌串为空或长度不是 43 → 当作无令牌（仍然把它从地址栏抹掉）。
  */
+function normalizedAdminRest(rest: string): string | null {
+  // parseHash keeps the raw string when URI decoding fails. Such a route is not an identity.
+  try { return decodeURIComponent(rest).split('/').filter(Boolean).join('/'); }
+  catch { return null; }
+}
+
 export function stripTokenFromRest(rest: string): string {
-  let safe = rest.split('/').filter(Boolean).join('/');
+  let safe = normalizedAdminRest(rest) ?? '';
   while (safe === 't' || safe.startsWith('t/')) safe = safe.split('/').slice(2).join('/');
   return safe;
 }
 
 export function consumeTokenFromRest(rest: string): string {
-  const normalized = rest.split('/').filter(Boolean).join('/');
-  if (normalized !== "t" && !normalized.startsWith("t/")) return normalized;
-  const segs = normalized.split("/");
+  const normalized = normalizedAdminRest(rest);
+  if (normalized !== null && normalized !== "t" && !normalized.startsWith("t/")) return normalized;
+  const segs = normalized?.split("/") ?? [];
   const candidate = segs[1] ?? "";
   const remainder = stripTokenFromRest(rest);
-  if (getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
+  if (normalized !== null && getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
   // 无论存没存成功，令牌都不能留在地址栏（红线）。replaceState 不触发 hashchange。
   const address = parseHash(location.hash);
-  const addressRest = address?.rest.split('/').filter(Boolean).join('/');
-  if (address?.page === 'admin' && (addressRest === 't' || addressRest?.startsWith('t/'))) {
+  const addressRest = address ? normalizedAdminRest(address.rest) : null;
+  if (address?.page === 'admin' && (addressRest === null || addressRest === 't' || addressRest.startsWith('t/'))) {
     try {
       history.replaceState(null, "", adminUrl(remainder));
     } catch {

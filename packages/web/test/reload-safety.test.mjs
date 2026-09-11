@@ -10,7 +10,7 @@ const root=dirname(fileURLToPath(new URL('../package.json',import.meta.url))),re
 const esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')).href);
 const dir=await mkdtemp(join(tmpdir(),'c2b-reload-'));after(()=>rm(dir,{recursive:true,force:true}));
 const entry=existsSync(join(root,'src/view-models/reload-safety.ts'))?"export * from './src/view-models/reload-safety';":'';
-const bundle=await esbuild.build({stdin:{contents:`export * from './src/view-models/edit-session';export * from './src/admin/store';export * from './src/admin/token';${entry}`,resolveDir:root},bundle:true,write:false,format:'esm',platform:'browser',logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:`export * from './src/router';export * from './src/view-models/edit-session';export * from './src/admin/store';export * from './src/admin/token';${entry}`,resolveDir:root},bundle:true,write:false,format:'esm',platform:'browser',logLevel:'silent'});
 await writeFile(join(dir,'edit.mjs'),bundle.outputFiles[0].text);const m=await import(pathToFileURL(join(dir,'edit.mjs')).href);
 const deferred=()=>{let resolve,reject;const promise=new Promise((r,j)=>{resolve=r;reject=j;});return {promise,resolve,reject};};
 const A='a'.repeat(40),B='b'.repeat(40),body={name:'draft'},source={content:{name:'saved'},commit:A,blobSha:A};
@@ -24,6 +24,19 @@ test('offscreen dirty documents block updates, with no disposal or hidden saves'
  const before=e.getState(),{c,counts}=coordinator();const result=await c.requestUpdate();
  assert.equal(result.status,'confirm-discard');assert.ok(result.snapshot.records.some(r=>r.id==='p'&&r.dirty));
  assert.equal('draft' in result.snapshot.records[0],false);assert.deepEqual(e.getState(),before);assert.deepEqual(counts(),{reloads:0,activations:0});close(e);
+});
+test('malformed URI fallback cannot retain an encoded credential in URL or page coverage',()=>{
+ globalThis.location={hash:''};globalThis.history={replaceState:(_a,_b,url)=>{location.hash=url;}};
+ const pages=m.createPageReloadCoverage(),synthetic='Z'.repeat(43);
+ try {
+  for(const tail of ['%','%GG','%C0%AF','%E0%A4%A','%ED%A0%80']) {
+   location.hash=`#/admin/%2Ft%2F${synthetic}%2Fdish%2Fnew${tail}`;
+   const raw=m.parseHash(location.hash).rest;
+   assert.equal(m.consumeTokenFromRest(raw),'');assert.equal(location.hash,'#/admin');
+   const done=pages.beginRender('admin',raw);assert.equal(JSON.stringify(m.inspectReloadSafety()).includes(synthetic),false);
+   done('read-only');
+  }
+ } finally {delete globalThis.location;delete globalThis.history;}
 });
 test('pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload',async()=>{
  const gate=deferred(),e=editor({save:()=>gate.promise});e.open({kind:'plan',id:'p'},body,source);const save=e.save();e.invalidate();
