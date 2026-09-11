@@ -16,6 +16,9 @@ import {PNG_B} from '../../../../worker/test/image-fixtures.mjs';
 const repoRoot=fileURLToPath(new URL('../../../../../',import.meta.url));
 const head=execFileSync('git',['rev-parse','HEAD'],{cwd:repoRoot,encoding:'utf8'}).trim();
 const packagesTree=execFileSync('git',['rev-parse','HEAD:packages'],{cwd:repoRoot,encoding:'utf8'}).trim();
+const approvedProduction=process.env.RCQ_APPROVED_PRODUCTION;
+if(approvedProduction)assert.match(approvedProduction,/^[a-f0-9]{40}$/);
+const clipboardControls=process.env.RCQ_CLIPBOARD_CONTROLS==='1';
 const fixture=createPageFixture();
 const worker=(await import(WORKER)).default;
 const root=realpathSync(mkdtempSync(join(tmpdir(),'rcq-page-browser-'))),web=join(root,'web'),evidence=join(root,'evidence');
@@ -33,6 +36,7 @@ for(const file of sourcePaths) {
   const actual=await readFile(join(web,file.slice('packages/web/'.length)));
   const expected=execFileSync('git',['show',`${head}:${file}`],{cwd:repoRoot});
   assert.ok(actual.equals(expected),file);
+  if(approvedProduction)assert.ok(actual.equals(execFileSync('git',['show',`${approvedProduction}:${file}`],{cwd:repoRoot})),`approved production: ${file}`);
   sourceIntegrity.push({file,sha256:createHash('sha256').update(actual).digest('hex')});
 }
 // Infrastructure-only bootstrap: fixed date and public test credentials. No page
@@ -41,14 +45,26 @@ await writeFile(join(web,'fixture-boot.js'),`const D=Date; globalThis.Date=class
 let html=await readFile(join(repoRoot,'packages/web/index.html'),'utf8');
 html=html.replace(/<link[^>]*href="https:\/\/[^"]+"[^>]*>/g,'');
 html=html.replace('<script type="module" src="/src/main.ts"></script>','<script type="module" src="/fixture-boot.js"></script><script type="module" src="/src/main.ts"></script>');
+let clipboardControlSha256;
+if(clipboardControls){
+  // Reuse the approved D-authored visible boundary controls verbatim. Native
+  // success remains native; rejection/hold explicitly model only the clipboard.
+  const file='docs/field-test/team-meals-pages/q-ui-t08-01-browser/copy-controls.js';
+  const bytes=await readFile(join(repoRoot,file));
+  assert.ok(bytes.equals(execFileSync('git',['show',`f33dd42f1033073329d12579783d470e89dec00d:${file}`],{cwd:repoRoot})));
+  clipboardControlSha256=createHash('sha256').update(bytes).digest('hex');
+  await writeFile(join(web,'fixture-copy-controls.js'),bytes);
+  html=html.replace('</body>','<script type="module" src="/fixture-copy-controls.js"></script></body>');
+}
 await writeFile(join(web,'index.html'),html);
 const require=createRequire(join(web,'package.json'));
 const {build}=await import(require.resolve('vite/package.json').replace('package.json','dist/node/index.js'));
 process.env.VITE_WORKER_URL='/worker';
 await build({root:web,configFile:join(web,'vite.config.ts'),build:{outDir:join(web,'dist'),emptyOutDir:true}});
 const metadata={head,packagesTree,node:process.version,nodePath:process.execPath,fixedAt,fixtureRevision:fixture.revision,fixtureRoot:fixture.root,root,sourceIntegrity,
+  approvedProduction,approvedProductionPackagesTree:approvedProduction?execFileSync('git',['rev-parse',`${approvedProduction}:packages`],{cwd:repoRoot,encoding:'utf8'}).trim():undefined,clipboardControlSha256,
   boundary:'L1/browser: actual main, client and Worker; GitHub modeled; no real publish or rollback',
-  htmlChanges:['fixed-date/public-test-token bootstrap','remove external font links for offline isolation'],producer:{blocking:0,warnings:fixture.built.issues.length}};
+  htmlChanges:['fixed-date/public-test-token bootstrap','remove external font links for offline isolation',...(clipboardControls?['verbatim approved D visible clipboard boundary controls']:[])],producer:{blocking:0,warnings:fixture.built.issues.length}};
 await writeFile(join(evidence,'source-integrity.json'),json(metadata));
 let state={dropNext:null,holdNext:null,release:false};
 const requests=[],controls=[];let serial=0,chain=Promise.resolve();
