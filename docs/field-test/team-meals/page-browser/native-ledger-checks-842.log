@@ -1,0 +1,45 @@
+TAP version 13
+# Subtest: native source custody binds actual Node20, 842 source and deterministic formal fixture
+ok 1 - native source custody binds actual Node20, 842 source and deterministic formal fixture
+  ---
+  duration_ms: 594.245917
+  ...
+# Subtest: T01 day-filter save sends all four rows, no defaults; empty v3 creates and reloads
+ok 2 - T01 day-filter save sends all four rows, no defaults; empty v3 creates and reloads
+  ---
+  duration_ms: 0.351875
+  ...
+# Subtest: T02/T04 all four IDs, scoped judgments, metadata preservation and two-stage demand rebase
+ok 3 - T02/T04 all four IDs, scoped judgments, metadata preservation and two-stage demand rebase
+  ---
+  duration_ms: 0.246
+  ...
+# Subtest: T07 conflict retains stale lock; unknown recovery reads current and pinned; late ACK preserves later input
+ok 4 - T07 conflict retains stale lock; unknown recovery reads current and pinned; late ACK preserves later input
+  ---
+  duration_ms: 1.774125
+  ...
+# Subtest: T06 ingredient and technique assets use their exact historical revision and owner/index
+ok 5 - T06 ingredient and technique assets use their exact historical revision and owner/index
+  ---
+  duration_ms: 0.318083
+  ...
+# Subtest: T08 six main pages have actual three-language/two-size captures with no horizontal overflow
+ok 6 - T08 six main pages have actual three-language/two-size captures with no horizontal overflow
+  ---
+  duration_ms: 2.902292
+  ...
+# Subtest: T04 complete final repository differs only in explicitly exercised fixture paths
+ok 7 - T04 complete final repository differs only in explicitly exercised fixture paths
+  ---
+  duration_ms: 396.88375
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1045.33975
