@@ -1,0 +1,266 @@
+✔ B2 rollback rejects bad JSON in candidate plan (14.311958ms)
+✔ B2 rollback rejects bad JSON in candidate dish (0.933333ms)
+✔ B2 rollback rejects bad JSON in candidate ingredient (0.659292ms)
+✔ B2 rollback rejects bad JSON in candidate techniques (1.088917ms)
+✔ B2 rollback rejects bad JSON in candidate translations (1.055208ms)
+✔ B2 rollback rejects candidate schema failure: v2 empty plan (0.636084ms)
+✔ B2 rollback rejects candidate schema failure: v3 impossible date (0.726208ms)
+✔ B2 rollback rejects candidate schema failure: v3 range relation (1.095625ms)
+✔ B2 rollback rejects candidate schema failure: unknown dish version (0.577834ms)
+✔ B2 rollback rejects candidate schema failure: v2 dish missing qty (0.521833ms)
+✔ B2 rollback rejects candidate schema failure: ingredient required fields (0.458ms)
+✔ B2 rollback rejects candidate schema failure: technique item (0.504167ms)
+✔ B2 rollback rejects candidate schema failure: translation status (0.54975ms)
+✔ B2 rollback validates unchanged invalid candidate files, including a no-op rollback (0.468333ms)
+✔ B2 rollback requires the techniques file even when no dish references it (0.4065ms)
+✔ B2 rollback rejects dangling plan dish using the candidate, not current HEAD (1.028375ms)
+✔ B2 rollback rejects dangling component ingredient using the candidate, not current HEAD (0.579333ms)
+✔ B2 rollback rejects dangling prep technique references (0.576167ms)
+✔ B2 rollback rejects dangling steps technique references (0.457708ms)
+✔ B2 rollback keeps v3 downgrade rejection ahead of candidate schema and reference errors (0.413459ms)
+✔ B2 rollback rejects non-regular knowledge entry commit at data/dishes/submodule (0.484917ms)
+✔ B2 rollback rejects non-regular knowledge entry commit at data/ingredients (0.341166ms)
+✔ B2 rollback rejects non-regular knowledge entry tree at data/menu-plans/folder.json (0.326833ms)
+✔ B2 rollback rejects non-regular knowledge entry blob at data/ingredients/salt.jpg (0.725541ms)
+✔ B2 rollback accepts empty v3 plan and unknown v3 qty while preserving non-knowledge bytes (0.930625ms)
+✔ B2 rollback revalidates all candidate sources after a competing list write (1.082291ms)
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/image (0.86275ms)
+✖ B2 rollback rejects missing historical image at data/ingredients/salt.json#/image (0.890125ms)
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/components/0/prep/image (1.224208ms)
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/steps/0/image (0.768458ms)
+✖ B2 rollback rejects missing historical image at data/techniques.json#/0/image (0.6235ms)
+✖ B2 rollback rejects illegal historical image src /data/ingredients/salt.png (0.606ms)
+✖ B2 rollback rejects illegal historical image src ../../../secret.png (0.5845ms)
+✖ B2 rollback rejects illegal historical image src data:text/plain,test (0.556917ms)
+✖ B2 rollback rejects illegal historical image src salt%2epng (1.045416ms)
+✖ B2 rollback rejects illegal historical image src data/menu-plans/secret.png (0.673084ms)
+✖ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.png (5.348166ms)
+✖ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.jpg (0.650375ms)
+✔ B2 rollback restores valid historical local image bytes instead of current bytes (0.523583ms)
+✔ B2 rollback preserves remote ImageRef without fetching or claiming pinned bytes (0.433208ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 28
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.842209
+
+✖ failing tests:
+
+test at packages/worker/test/team-rollback-validation.test.mjs:189:3
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/image (0.86275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:190:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:189:3
+✖ B2 rollback rejects missing historical image at data/ingredients/salt.json#/image (0.890125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:190:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:189:3
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/components/0/prep/image (1.224208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:190:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:189:3
+✖ B2 rollback rejects missing historical image at data/dishes/soup.json#/steps/0/image (0.768458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:190:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:189:3
+✖ B2 rollback rejects missing historical image at data/techniques.json#/0/image (0.6235ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:190:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:195:3
+✖ B2 rollback rejects illegal historical image src /data/ingredients/salt.png (0.606ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:196:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:195:3
+✖ B2 rollback rejects illegal historical image src ../../../secret.png (0.5845ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:196:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:195:3
+✖ B2 rollback rejects illegal historical image src data:text/plain,test (0.556917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:196:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:195:3
+✖ B2 rollback rejects illegal historical image src salt%2epng (1.045416ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:196:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:195:3
+✖ B2 rollback rejects illegal historical image src data/menu-plans/secret.png (0.673084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:196:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:201:3
+✖ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.png (5.348166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:202:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:201:3
+✖ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.jpg (0.650375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:202:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

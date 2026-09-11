@@ -36,7 +36,7 @@ test("T-10 plannedServings 是字符串 → 400 type，路径是 /meals/0/planne
   const plan = planFixture();
   plan.meals[0].plannedServings = "200";
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 400);
@@ -53,7 +53,7 @@ test("T-11 缺 schemaVersion → 400 required，path 是根（\"\"）", async ()
   const plan = planFixture();
   delete plan.schemaVersion;
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 400);
@@ -67,7 +67,7 @@ test("T-12 mealType = brunch → 400 enum", async () => {
   const plan = planFixture();
   plan.meals[0].mealType = "brunch";
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 400);
@@ -81,7 +81,7 @@ test("T-13 多一个 meals[0].notes 键 → 400 additionalProperties", async () 
   const plan = planFixture();
   plan.meals[0].notes = "多写的";
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 400);
@@ -92,7 +92,7 @@ test("T-14 POST /plan/WEEK-43（大写）→ 400 bad_id", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/plan/WEEK-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: planFixture(),
   });
   assert.equal(status, 400);
@@ -104,7 +104,7 @@ test("T-15 POST /ingredient/:id 请求体 name 三语全空 → 400 anyOf，path
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/ingredient/tomato", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: ingredientFixture({ name: {} }),
   });
   assert.equal(status, 400);
@@ -116,7 +116,7 @@ test("T-16 POST /dish/:id/draft 带 status active → 200，落盘是 draft，wa
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/dish/hong-shao-rou/draft", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: { name: { zh: "红烧肉" }, status: "active" },
   });
   assert.equal(status, 200);
@@ -130,7 +130,7 @@ test("POST /dish/:id（决议追加第 2 条）status 由请求体决定，可�
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/dish/hong-shao-rou", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: { name: { zh: "红烧肉" }, status: "active" },
   });
   assert.equal(status, 200);
@@ -145,7 +145,7 @@ test("T-17 dishRef 指向不存在的菜 → 200（不拒绝），warnings 含 d
   const plan = planFixture();
   plan.meals[0].dishRef = "no-such-dish";
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 200);
@@ -159,7 +159,7 @@ test("T-18 路径穿越 → 400 bad_path，且日志里不含请求体", async (
   const { env, logs } = makeEnv(repo);
   const evil = "..%2F..%2Fpackages%2Fweb%2Findex.html";
   const { status, body } = await call(worker, env, "POST", `/plan/${evil}`, {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: planFixture({ name: { zh: "秘密数据不该进日志" } }),
   });
   assert.equal(status, 400);
@@ -178,7 +178,7 @@ test("T-19 300 KB JSON → 413 too_large", async () => {
   const { env } = makeEnv(repo);
   const plan = planFixture({ name: { zh: "x".repeat(300 * 1024) } });
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), "If-None-Match": "*" },
     body: plan,
   });
   assert.equal(status, 413);

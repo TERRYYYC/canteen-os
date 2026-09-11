@@ -1,52 +1,58 @@
 /**
- * POST /rollback/:sha（契约 §1.6 / §4.5，ADR-0007 §7 逐字）：
- *   读目标 sha 的 data/ 目录树 → 用 Git Data API 造一个新 tree（**只替换 data/ 这一个条目，
- * 其余路径原样保留**）→ 以当前 main 为父提交 → 更新 ref（**非 force**）。
- *
- * 三条硬约束：绝不 force push（历史不改写）；只回退 data/；**回退不自动发布** ——
- * 所以 commit 带 [skip ci]（D-15，§7 的必然推论）。权限只有 admin。
+ * POST /rollback/:sha restores only the knowledge paths in team-meals contract §6.
+ * Every attempt starts at one head: current lists and unrelated paths remain in its
+ * base tree, version guards run before any write, and the new commit uses that head
+ * as its parent. A ref conflict repeats all of those checks once.
  */
 import type { Ctx } from "../context.js";
 import { githubClient } from "../context.js";
-import type { GitHubClient } from "../github.js";
+import type { GitHubClient, TreeEntry } from "../github.js";
 import { commitMessage } from "../github.js";
-import { fail } from "../http.js";
-import { SHA_RE, looksLikeTraversal } from "../paths.js";
+import { fail, HttpError } from "../http.js";
+import { localAssetPath } from "../asset-path.js";
+import { inspectImage } from "../image-integrity.js";
+import { resolveRevision } from "../revision.js";
+import { parseSource, parseTranslationLock } from "../source.js";
 import { SKIP_CI } from "../write.js";
 
-const DATA_DIR = "data";
-const TREE_MODE = "040000";
+type EntryMap = Map<string, TreeEntry>;
+type TreeChange = { path: string; mode: string; type: string; sha: string | null };
+
+/** Do not replace data/ as a subtree: future paths are preserved by default. */
+function isKnowledgePath(path: string): boolean {
+  return /^data\/(ingredients|dishes|menu-plans)\//.test(path)
+    || path === "data/techniques.json"
+    || path === "data/translations.lock.json";
+}
 
 export async function handleRollback(ctx: Ctx): Promise<unknown> {
   const raw = ctx.params.sha ?? "";
-  if (looksLikeTraversal(raw)) throw fail("bad_path");
-  if (!SHA_RE.test(raw)) throw fail("bad_id", { message: "版本号只能是 7–40 位十六进制" });
-
   const gh = githubClient(ctx);
-  const target = await gh.resolveCommit(raw);
-  if (!target) throw fail("not_found");
-
-  const targetCommit = await gh.getCommit(target.sha);
-  const targetDataSha = await dataTreeSha(gh, targetCommit.treeSha);
-  if (!targetDataSha) throw fail("not_found", { message: "那个版本里没有 data/ 目录" });
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const head = await gh.getHeadSha();
+    const target = await resolveRevision(gh, head, raw);
     const headCommit = await gh.getCommit(head);
-    const headDataSha = await dataTreeSha(gh, headCommit.treeSha);
+    const targetCommit = target === head ? headCommit : await gh.getCommit(target);
+    const current = await listEntries(gh, headCommit.treeSha);
+    const historical = target === head ? current : await listEntries(gh, targetCommit.treeSha);
+    const candidate = new Map(current);
 
-    if (headDataSha === targetDataSha) {
-      // data/ 已经就是那个版本：不造空 commit（与 §3.1 的内容幂等同一口径）。
-      return { ok: true, commit: head, restoredFrom: target.sha, changedFiles: 0, unchanged: true };
+    for (const path of current.keys()) {
+      if (isKnowledgePath(path) && !historical.has(path)) candidate.delete(path);
+    }
+    for (const [path, entry] of historical) {
+      if (isKnowledgePath(path)) candidate.set(path, entry);
     }
 
-    const changedFiles = await countChangedFiles(gh, headDataSha, targetDataSha);
+    await validateRollbackCandidate(gh, current, historical, candidate);
+    const changes = treeChanges(current, candidate);
+    if (changes.length === 0) {
+      return { ok: true, commit: head, restoredFrom: target, changedFiles: 0, unchanged: true };
+    }
 
-    // 只替换 data/ 这一个条目，其余路径由 base_tree 原样保留。
-    const treeSha = await gh.createTree(headCommit.treeSha, [
-      { path: DATA_DIR, mode: TREE_MODE, type: "tree", sha: targetDataSha },
-    ]);
-    const subject = `revert(data): 恢复到 ${target.sha.slice(0, 7)} ${SKIP_CI}`;
+    const treeSha = await gh.createTree(headCommit.treeSha, changes);
+    const subject = `revert(data): 恢复到 ${target.slice(0, 7)} ${SKIP_CI}`;
     const commitSha = await gh.createCommit(
       commitMessage(subject, ctx.role, ctx.endpointConcrete),
       treeSha,
@@ -56,8 +62,8 @@ export async function handleRollback(ctx: Ctx): Promise<unknown> {
       return {
         ok: true,
         commit: commitSha,
-        restoredFrom: target.sha,
-        changedFiles,
+        restoredFrom: target,
+        changedFiles: changes.length,
         unchanged: false,
       };
     }
@@ -66,25 +72,169 @@ export async function handleRollback(ctx: Ctx): Promise<unknown> {
   throw fail("conflict");
 }
 
-async function dataTreeSha(gh: GitHubClient, rootTreeSha: string): Promise<string | null> {
-  const entries = await gh.getTree(rootTreeSha, false);
-  const dir = entries.find((e) => e.path === DATA_DIR && e.type === "tree");
-  return dir?.sha ?? null;
-}
-
-/** #25 的二次确认弹框要显示「会改动几个文件」。按 path→blob sha 的对称差集算。 */
-async function countChangedFiles(gh: GitHubClient, fromSha: string | null, toSha: string): Promise<number> {
-  const to = await listBlobs(gh, toSha);
-  const from = fromSha ? await listBlobs(gh, fromSha) : new Map<string, string>();
-  let changed = 0;
-  for (const [path, sha] of to) if (from.get(path) !== sha) changed++;
-  for (const path of from.keys()) if (!to.has(path)) changed++;
-  return changed;
-}
-
-async function listBlobs(gh: GitHubClient, treeSha: string): Promise<Map<string, string>> {
+async function listEntries(gh: GitHubClient, treeSha: string): Promise<EntryMap> {
   const entries = await gh.getTree(treeSha, true);
-  const out = new Map<string, string>();
-  for (const entry of entries) if (entry.type === "blob") out.set(entry.path, entry.sha);
-  return out;
+  // Keep submodules and malformed source directories visible to validation. Only
+  // ordinary directory scaffolding is omitted from the per-file candidate map.
+  return new Map(entries.filter((entry) => entry.type !== "tree" || entry.mode !== "040000" || entry.path.endsWith(".json"))
+    .map((entry) => [entry.path, entry]));
+}
+
+function treeChanges(current: EntryMap, candidate: EntryMap): TreeChange[] {
+  const changes: TreeChange[] = [];
+  for (const [path, next] of candidate) {
+    const before = current.get(path);
+    if (before?.sha !== next.sha || before.mode !== next.mode) {
+      changes.push({ path, mode: next.mode, type: next.type, sha: next.sha });
+    }
+  }
+  for (const [path, before] of current) {
+    if (!candidate.has(path)) changes.push({ path, mode: before.mode, type: before.type, sha: null });
+  }
+  return changes.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+/**
+ * Validate the complete candidate before createTree on every attempt, even when
+ * its knowledge blobs match HEAD. Existing v3 protection precedes candidate errors.
+ */
+async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, historical: EntryMap, candidate: EntryMap): Promise<void> {
+  const versions = new Map<string, "2" | "3">();
+  const readVersion = async (path: string, entry: TreeEntry, isCandidate = false): Promise<"2" | "3"> => {
+    if (entry.mode !== "100644") throw fail("invalid_source", { path });
+    const cacheKey = `${path}\0${entry.sha}`;
+    const cached = versions.get(cacheKey);
+    if (cached) return cached;
+    const text = await gh.getBlobText(entry.sha);
+    let value: unknown;
+    try {
+      value = JSON.parse(text);
+    } catch (error) {
+      if (error instanceof SyntaxError) throw fail("invalid_source", { path });
+      throw error;
+    }
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+      throw fail("invalid_source", { path: isCandidate ? `${path}#` : path });
+    }
+    const explicit = (value as { schemaVersion?: unknown }).schemaVersion;
+    const version = explicit === undefined && path.startsWith("data/dishes/") ? "2" : explicit;
+    if (version !== "2" && version !== "3") throw fail("invalid_source", { path: isCandidate ? `${path}#/schemaVersion` : path });
+    versions.set(cacheKey, version);
+    return version;
+  };
+
+  let candidateVersionError: HttpError | undefined;
+  for (const [path, before] of current) {
+    if (!/^data\/(menu-plans|dishes)\/[^/]+\.json$/.test(path)) continue;
+    if (await readVersion(path, before) !== "3") continue;
+    const next = candidate.get(path);
+    if (!next) throw fail("format_downgrade", { path });
+    try {
+      if (await readVersion(path, next, true) !== "3") throw fail("format_downgrade", { path });
+    } catch (error) {
+      // Only candidate format failures can wait. A later definite v3 deletion or
+      // downgrade has priority; network, permission and current-file failures do not.
+      if (error instanceof HttpError && error.errors.every((entry) => entry.code === "invalid_source")) {
+        candidateVersionError ??= error;
+      } else {
+        throw error;
+      }
+    }
+  }
+  if (candidateVersionError) throw candidateVersionError;
+
+  for (const input of [current, historical]) {
+    for (const [path, entry] of input) {
+      if (path === "data" || /^data\/(ingredients|dishes|menu-plans)$/.test(path)) {
+        throw fail("invalid_source", { path });
+      }
+      if (isKnowledgePath(path) && (entry.type !== "blob" || entry.mode !== "100644")) {
+        throw fail("invalid_source", { path });
+      }
+    }
+  }
+
+  if (!candidate.has("data/techniques.json")) throw fail("invalid_source", { path: "data/techniques.json" });
+  const sources = new Map<string, unknown>();
+  for (const [path, entry] of candidate) {
+    if (!isKnowledgePath(path) || !path.endsWith(".json")) continue;
+    const text = await gh.getBlobText(entry.sha);
+    if (path === "data/translations.lock.json") {
+      parseTranslationLock(text, true);
+    } else if (path === "data/techniques.json") {
+      sources.set(path, parseSource(text, "techniques", path, true));
+    } else {
+      const match = /^data\/(ingredients|dishes|menu-plans)\/[a-z][a-z0-9-]*\.json$/.exec(path);
+      if (!match) throw fail("invalid_source", { path });
+      const kind = match[1] === "ingredients" ? "ingredient" : match[1] === "dishes" ? "dish" : "plan";
+      sources.set(path, parseSource(text, kind, path, true));
+    }
+  }
+
+  const techniques = sources.get("data/techniques.json") as Array<{ id: string }>;
+  const techniqueIds = new Set<string>();
+  for (const [index, technique] of techniques.entries()) {
+    if (techniqueIds.has(technique.id)) throw fail("invalid_source", { path: `data/techniques.json#/${index}/id` });
+    techniqueIds.add(technique.id);
+  }
+  for (const [path, value] of sources) {
+    if (path.startsWith("data/menu-plans/")) {
+      for (const [index, meal] of (value as { meals: Array<{ dishRef: string }> }).meals.entries()) {
+        if (!sources.has(`data/dishes/${meal.dishRef}.json`)) throw fail("invalid_source", { path: `${path}#/meals/${index}/dishRef` });
+      }
+    } else if (path.startsWith("data/dishes/")) {
+      const dish = value as {
+        components?: Array<{ ingredientRef: string; prep?: { techniqueRef: string } }>;
+        steps?: Array<{ techniqueRef?: string }>;
+      };
+      for (const [index, component] of (dish.components ?? []).entries()) {
+        if (!sources.has(`data/ingredients/${component.ingredientRef}.json`)) throw fail("invalid_source", { path: `${path}#/components/${index}/ingredientRef` });
+        if (component.prep && !techniqueIds.has(component.prep.techniqueRef)) throw fail("invalid_source", { path: `${path}#/components/${index}/prep/techniqueRef` });
+      }
+      for (const [index, step] of (dish.steps ?? []).entries()) {
+        if (step.techniqueRef !== undefined && !techniqueIds.has(step.techniqueRef)) {
+          throw fail("invalid_source", { path: `${path}#/steps/${index}/techniqueRef` });
+        }
+      }
+    }
+  }
+
+  await validateCandidateImages(gh, candidate, sources);
+}
+
+async function validateCandidateImages(gh: GitHubClient, candidate: EntryMap, sources: Map<string, unknown>): Promise<void> {
+  const checked = new Set<string>();
+  for (const [owner, value] of sources) {
+    const refs: Array<{ pointer: string; src: string }> = [];
+    const add = (pointer: string, image: unknown): void => {
+      if (image !== undefined) refs.push({ pointer, src: (image as { src: string }).src });
+    };
+    if (owner === "data/techniques.json") {
+      for (const [index, technique] of (value as Array<{ image?: unknown }>).entries()) add(`/${index}/image`, technique.image);
+    } else if (!owner.startsWith("data/menu-plans/")) {
+      const source = value as { image?: unknown; components?: Array<{ prep?: { image?: unknown } }>; steps?: Array<{ image?: unknown }> };
+      add("/image", source.image);
+      for (const [index, component] of (source.components ?? []).entries()) add(`/components/${index}/prep/image`, component.prep?.image);
+      for (const [index, step] of (source.steps ?? []).entries()) add(`/steps/${index}/image`, step.image);
+    }
+    for (const { pointer, src } of refs) {
+      const errorPath = `${owner}#${pointer}`;
+      let imagePath: string | null;
+      try {
+        imagePath = localAssetPath(owner, src);
+      } catch (error) {
+        if (error instanceof HttpError) throw fail("invalid_source", { path: errorPath });
+        throw error;
+      }
+      // An external source remains metadata; rollback never fetches mutable bytes.
+      if (imagePath === null) continue;
+      const entry = candidate.get(imagePath);
+      if (!entry || entry.type !== "blob" || entry.mode !== "100644") throw fail("invalid_source", { path: errorPath });
+      const cacheKey = `${imagePath}\0${entry.sha}`;
+      if (checked.has(cacheKey)) continue;
+      const info = inspectImage(await gh.getBlobBytes(entry.sha));
+      if (!info || !imagePath.endsWith(`.${info.ext}`)) throw fail("invalid_source", { path: errorPath });
+      checked.add(cacheKey);
+    }
+  }
 }

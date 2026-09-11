@@ -1,0 +1,86 @@
+✔ B2 source supports strict ShoppingList with pinned commit (11.852292ms)
+✔ B2 source checks stored basis ancestry (2.0515ms)
+✔ B2 source checks stored previous ancestry (0.840959ms)
+✔ B2 stored ShoppingList ID must match its source path (0.404125ms)
+✖ B2 source rejects missing selected basis plan (0.750666ms)
+✖ B2 source rejects json selected basis plan (0.609708ms)
+✖ B2 source rejects format selected basis plan (0.438625ms)
+✖ B2 source rejects duplicate stored ingredient IDs (0.839458ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 4
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56.766833
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-source.test.mjs:13:46
+✖ B2 source rejects missing selected basis plan (0.750666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:16:104)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:13:46
+✖ B2 source rejects json selected basis plan (0.609708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:16:104)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:13:46
+✖ B2 source rejects format selected basis plan (0.438625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:16:104)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:18:1
+✖ B2 source rejects duplicate stored ingredient IDs (0.839458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:20:104)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

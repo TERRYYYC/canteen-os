@@ -15,6 +15,7 @@ export const ALLOWED_HEADERS = [
   "Authorization",
   "Content-Type",
   "If-Match",
+  "If-None-Match",
   "X-Image-License",
   "X-Image-Author",
   "X-Image-Source-Url",
@@ -25,6 +26,7 @@ export function corsHeaders(allowedOrigin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     Vary: "Origin",
+    "Access-Control-Expose-Headers": "X-Source-Revision",
   };
 }
 
@@ -75,8 +77,29 @@ export class HttpError extends Error {
   }
 }
 
+/** Only this conflict carries a machine-readable list of rows needing review. */
+export class ReviewRequiredError extends HttpError {
+  readonly reviewRequired: string[];
+  constructor(ids: string[]) {
+    super(409, [{ path: '/items', code: 'review_required', message: '请先保存复核结果，再确认本次判断' }]);
+    this.reviewRequired = [...new Set(ids)].sort((a, b) => a.localeCompare(b, 'en'));
+  }
+}
+
 /** 契约 §1.8 的中文提示语（D-02）。前端原样显示。 */
 const MESSAGES: Record<ErrorCode, string> = {
+  review_required: "请先保存复核结果，再确认本次判断",
+  unresolved_reference: "这个材料的资料不可用，暂时不能确认",
+  invalid_selection: "清单范围或候选内容不正确",
+  invalid_precondition: "保存条件格式不正确",
+  precondition_required: "新建或更新必须提供保存条件",
+  invalid_revision: "版本必须是完整的小写提交 SHA",
+  revision_unavailable: "这个版本不在受控分支历史中",
+  basis_unavailable: "清单的来源版本不可用",
+  invalid_source: "已存资料格式不合法",
+  format_downgrade: "不能删除或降级已升级的资料",
+  asset_unavailable: "同版图片不可用",
+  external_asset_unpinned: "外部图片未保留同版字节",
   bad_id: "名称只能用小写字母、数字和短横线",
   bad_path: "这个位置不允许写入",
   bad_json: "数据没发全，重试一次",
@@ -93,6 +116,11 @@ const MESSAGES: Record<ErrorCode, string> = {
 };
 
 const STATUS: Record<ErrorCode, number> = {
+  review_required: 409, unresolved_reference: 422,
+  invalid_selection: 400,
+  invalid_precondition: 400, precondition_required: 428, invalid_revision: 400,
+  revision_unavailable: 422, basis_unavailable: 422, invalid_source: 422,
+  format_downgrade: 409, asset_unavailable: 422, external_asset_unpinned: 422,
   bad_id: 400,
   bad_path: 400,
   bad_json: 400,

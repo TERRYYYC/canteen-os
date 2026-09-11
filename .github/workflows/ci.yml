@@ -70,16 +70,27 @@ jobs:
 
       # web 的 api/client.ts HTTP 客户端单测（#86，假 fetch，node:test）。
       - name: packages/web tests
-        run: pnpm -C packages/web test
+        # The preceding Worker test step builds Worker/core for the nested contract cases.
+        run: |
+          set -e
+          pnpm -C packages/web test
+          node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
 
       - name: scripts tests
         run: node --test scripts/*.test.mjs
 
       - name: Gate — build-data --check --compare-snapshots
-        run: node scripts/build-data.mjs --check --compare-snapshots
+        run: |
+          set -e
+          TEAM_MEALS_SOURCE_REVISION="$(git rev-parse HEAD)"
+          node scripts/build-data.mjs --target team-meals --check --revision "$TEAM_MEALS_SOURCE_REVISION"
+          node scripts/build-data.mjs --target legacy-numeric --check --compare-snapshots --root test/fixtures/contracts/valid/golden --at 2026-10-03T00:00:00.000Z
+          printf 'TEAM_MEALS_SOURCE_REVISION=%s\n' "$TEAM_MEALS_SOURCE_REVISION" >> "$GITHUB_ENV"
 
       - name: Build data (three sheets + build.json → packages/web/public/data/)
-        run: node scripts/build-data.mjs
+        run: |
+          set -e
+          node scripts/build-data.mjs --target team-meals --revision "${TEAM_MEALS_SOURCE_REVISION:?Missing checked source revision}" --out packages/web/public/data
 
       - name: Typecheck packages/web
         run: pnpm -C packages/web typecheck

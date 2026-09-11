@@ -8,16 +8,18 @@ import { FakeRepo, WORKER, bearer, call, makeEnv } from "./helpers.mjs";
 
 const worker = (await import(WORKER)).default;
 
-const GOOD = '{\n  "meals": [],\n  "schemaVersion": "2"\n}\n';
+const GOOD = `${JSON.stringify({ schemaVersion: "2", meals: [{ date: "2026-10-19", mealType: "lunch", dishRef: "soup", plannedServings: 2 }] })}\n`;
 const BROKEN = '{\n  "meals": "坏了",\n  "schemaVersion": "2"\n}\n';
+const DISH = `${JSON.stringify({ name: { zh: "汤" } })}\n`;
 
 /** commit A（data/ 正确）→ commit B（改坏 data/，同时也改了 data/ 之外的 README.md）。 */
-function twoCommits() {
+function twoCommits(validHead = false) {
   const repo = new FakeRepo();
   const a = repo.commit(
     {
       "README.md": "# A\n",
       "data/menu-plans/week-43.json": GOOD,
+      "data/dishes/soup.json": DISH,
       "data/techniques.json": "[]\n",
     },
     "A",
@@ -25,7 +27,8 @@ function twoCommits() {
   const treeB = repo.registerTree(
     new Map([
       ["README.md", repo.addBlob(Buffer.from("# B\n", "utf8"))],
-      ["data/menu-plans/week-43.json", repo.addBlob(Buffer.from(BROKEN, "utf8"))],
+      ["data/menu-plans/week-43.json", repo.addBlob(Buffer.from(validHead ? GOOD : BROKEN, "utf8"))],
+      ["data/dishes/soup.json", repo.addBlob(Buffer.from(DISH, "utf8"))],
       ["data/techniques.json", repo.addBlob(Buffer.from("[]\n", "utf8"))],
     ]),
   );
@@ -33,25 +36,25 @@ function twoCommits() {
   return { repo, a, b };
 }
 
-test("T-41 POST /rollback/zzzz → 400 bad_id", async () => {
+test("T-41 POST /rollback/zzzz → 400 invalid_revision", async () => {
   const { repo } = twoCommits();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/rollback/zzzz", {
     headers: bearer("admin"),
   });
   assert.equal(status, 400);
-  assert.equal(body.errors[0].code, "bad_id");
+  assert.equal(body.errors[0].code, "invalid_revision");
   assert.equal(repo.writeCalls().length, 0);
 });
 
-test("T-42 POST /rollback/<合法但不存在的 sha> → 404 not_found", async () => {
+test("T-42 POST /rollback/<合法但不存在的 sha> → 422 revision_unavailable", async () => {
   const { repo } = twoCommits();
   const { env } = makeEnv(repo);
-  const { status, body } = await call(worker, env, "POST", "/rollback/0123456789abcdef", {
+  const { status, body } = await call(worker, env, "POST", `/rollback/${"0".repeat(40)}`, {
     headers: bearer("admin"),
   });
-  assert.equal(status, 404);
-  assert.equal(body.errors[0].code, "not_found");
+  assert.equal(status, 422);
+  assert.equal(body.errors[0].code, "revision_unavailable");
   assert.equal(repo.writeCalls().length, 0);
 });
 
@@ -59,7 +62,7 @@ test("T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外�
   const { repo, a, b } = twoCommits();
   const { env } = makeEnv(repo);
 
-  const { status, body } = await call(worker, env, "POST", `/rollback/${a.slice(0, 7)}`, {
+  const { status, body } = await call(worker, env, "POST", `/rollback/${a}`, {
     headers: bearer("admin"),
   });
 
@@ -80,12 +83,12 @@ test("T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外�
   const message = repo.commits.get(repo.head).message;
   assert.equal(
     message,
-    `revert(data): 恢复到 ${a.slice(0, 7)} [skip ci]\n\nX-CanteenOS-Role: admin\nX-CanteenOS-Endpoint: POST /rollback/${a.slice(0, 7)}`,
+    `revert(data): 恢复到 ${a.slice(0, 7)} [skip ci]\n\nX-CanteenOS-Role: admin\nX-CanteenOS-Endpoint: POST /rollback/${a}`,
   );
 });
 
 test("回退到当前就是的那个版本 → 不造空 commit", async () => {
-  const { repo, b } = twoCommits();
+  const { repo, b } = twoCommits(true);
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", `/rollback/${b}`, {
     headers: bearer("admin"),

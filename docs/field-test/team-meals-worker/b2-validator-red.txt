@@ -1,0 +1,18 @@
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/scripts/gen-validators.mjs:140
+    throw new Error(
+          ^
+
+Error: ajv standalone 产物里还有未处理的 require: require("ajv/dist/runtime/equal")
+（ESM 里没有 require，Workers 上会直接崩）。请在 gen-validators.mjs 里补一条替换规则。
+    at generate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/scripts/gen-validators.mjs:140:11)
+    at main (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/scripts/gen-validators.mjs:222:31)
+    at file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/scripts/gen-validators.mjs:256:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.18.0
