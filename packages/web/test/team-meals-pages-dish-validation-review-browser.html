@@ -14,6 +14,7 @@ async function photo(inputSelector='#adm-dish-photo-pick',previewSelector='.adm-
 
 function report(name,passed,detail){results.push({name,passed,...detail});document.querySelector('#review-result').textContent=JSON.stringify(results,null,2);}
 function errors(){return [...document.querySelectorAll('#app .adm-field-error:not([hidden]),#app .adm-form-errors')].map(x=>x.textContent);}
+async function waitReady(){for(let i=0;i<100&&document.querySelector('.adm-dish-save-draft')?.disabled;i++)await tick();if(document.querySelector('.adm-dish-save-draft')?.disabled)throw new Error('processing did not finish');}
 async function inline(api){await draw(api);findButton('Add an ingredient').click();document.querySelector('.adm-dish-result-new').click();}
 document.querySelector('#run-review').onclick=async()=>{try{
  const aux=getApi(),oldSave=aux.saveIngredient,oldUpload=aux.uploadImage;
@@ -29,10 +30,11 @@ document.querySelector('#run-review').onclick=async()=>{try{
  const local=setup('real');await inline(local.api);findButton('Save this ingredient').click();await tick();await draw(local.api,'soup','uk');
  report('local error is revalidated in the current language',document.querySelector('#adm-dish-c1-ing-id')?.getAttribute('aria-invalid')==='true'&&errors().length>0,{errors:errors()});
  const generic=setup('real');await inline(generic.api);set('#adm-dish-c1-ing-id','generic-ingredient');set('#adm-dish-c1-ing-name-zh','测试');let genericWrites=0;aux.saveIngredient=async()=>{genericWrites++;throw new ApiError(409,'conflict','Inline conflict');};findButton('Save this ingredient').click();await tick();await draw(generic.api,'soup','uk');
+ if(document.querySelector('.adm-dish-save-draft').disabled&&!document.querySelector('.adm-dish-inline-msg button')?.disabled)throw new Error('retry must be disabled while a real task is pending');await waitReady();
  report('generic recoverable error and retry survive repaint',!!document.querySelector('.adm-dish-inline-msg [role="alert"]')&&!!document.querySelector('.adm-dish-inline-msg button')&&genericWrites===1,{message:document.querySelector('.adm-dish-inline-msg')?.textContent,writes:genericWrites});
  aux.saveIngredient=async()=>{genericWrites++;return{commit:B,blobSha:'ingredient-ok',unchanged:false,warnings:[]};};document.querySelector('.adm-dish-inline-msg button')?.click();await tick();await tick();
  report('explicit retry consumes the inline buffer once',genericWrites===2&&!document.querySelector('.adm-dish-inline'),{writes:genericWrites});
- const uploadField=setup('real');await inline(uploadField.api);set('#adm-dish-c1-ing-id','upload-ingredient');set('#adm-dish-c1-ing-name-zh','测试');await photo('#adm-dish-c1-ing-photo-pick','.adm-ing-preview img');
+ const uploadField=setup('real');await inline(uploadField.api);set('#adm-dish-c1-ing-id','upload-ingredient');set('#adm-dish-c1-ing-name-zh','测试');await waitReady();await photo('#adm-dish-c1-ing-photo-pick','.adm-ing-preview img');await waitReady();
  aux.uploadImage=async()=>{throw new ApiError(400,'required','Invalid photo',[{path:'/license',code:'required',message:'Please check this photo license'}]);};findButton('Save this ingredient').click();await tick();await draw(uploadField.api,'soup','uk');
  report('upload field error remains attached to its preserved photo',errors().some(e=>e.includes('Please check this photo license'))&&document.querySelector('#adm-dish-c1-ing-image-license')?.getAttribute('aria-invalid')==='true'&&!!document.querySelector('.adm-ing-preview img'),{errors:errors()});
  const three=setup('real');await draw(three.api);await photo();let releases=[],uploads=0;aux.uploadImage=async()=>{uploads++;await new Promise(r=>releases.push(r));return{src:'data/dishes/soup/images/review.png',license:'own'};};document.querySelector('.adm-dish-save-draft').click();await tick();set('#adm-dish-name-zh','编辑期间新增名字');await draw(three.api,'soup','uk');releases.forEach(r=>r());await tick();await tick();

@@ -225,6 +225,7 @@ type Key = keyof typeof T;
 type Params = Record<string, string | number>;
 
 const EDIT_COPY = {
+  processing: { zh: "正在处理照片或翻译", en: "Working on a photo or translation", uk: "Обробляється фото або переклад" },
   unconfigured: { zh: "未连接保存服务 · 草稿仅在本页内存中", en: "Save service is not connected · draft stays in memory", uk: "Сервіс збереження не підключено · чернетка лише в пам’яті" },
   mock: { zh: "模拟演示 · 未写入真实仓库", en: "Mock demonstration · no real repository write", uk: "Демонстрація · реальний репозиторій не змінено" },
   real: { zh: "已配置保存服务", en: "Save service configured", uk: "Сервіс збереження налаштовано" },
@@ -578,7 +579,7 @@ export function createDishForm(api: TeamMealsApi) {
     target: string;
     state: EditState<AnyDish> | null;
     detachedChanges: boolean;
-    auxiliary: Set<string>;
+    auxiliary: Map<string, "saving" | "processing">;
     auxiliaryError: unknown;
     auxiliaryUnknown: boolean;
     rawGeneration: number;
@@ -632,11 +633,11 @@ export function createDishForm(api: TeamMealsApi) {
     notify(record);
   }
   /** Auxiliary writes belong to a document, never to one rendering of its form. */
-  function beginAuxiliary(key: string) {
+  function beginAuxiliary(key: string, activity: "saving" | "processing" = "saving") {
     const record = active;
     if (!record || !valid() || record.auxiliary.size || record.auxiliaryUnknown || session.getState().operationId) return null;
     record.rawGeneration++;
-    record.auxiliary.add(key); record.auxiliaryError = null; notify(record);
+    record.auxiliary.set(key, activity); record.auxiliaryError = null; notify(record);
     return {
       valid: () => valid() && identities.get(record.identity) === record,
       current: () => valid() && active === record,
@@ -653,6 +654,7 @@ export function createDishForm(api: TeamMealsApi) {
     get key() { return currentKey; },
     get context() { return context; },
     get busy() { return !!active?.auxiliary.size; },
+    get processing() { return !!active && [...active.auxiliary.values()].includes("processing"); },
     get auxiliaryError() { return active?.auxiliaryError; },
     get auxiliaryUnknown() { return active?.auxiliaryUnknown ?? false; },
     /** Read-only summary of actual raw buffers; shared reload registration is wired by its owner when available. */
@@ -671,7 +673,7 @@ export function createDishForm(api: TeamMealsApi) {
         if (!valid() || generation !== loadGeneration) return null;
         if (!source && key !== "new") return null;
         const form = source ? draftFromDish(source.content, key, source.blobSha) : createDishDraft(seed);
-        record = { draft: form, source, identity: key === "new" ? `$new-${++sequence}` : key, target: source ? key : "", state: null, detachedChanges: false, auxiliary: new Set(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0 };
+        record = { draft: form, source, identity: key === "new" ? `$new-${++sequence}` : key, target: source ? key : "", state: null, detachedChanges: false, auxiliary: new Map(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0 };
         records.set(key, record); identities.set(record.identity, record);
       }
       active = record; currentKey = key;
@@ -863,6 +865,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   /** 配料 / 步骤卡收起时的一行摘要：随输入实时刷新（不重建卡） */
   const summaries: Array<() => void> = [];
   const stepSummaries: Array<() => void> = [];
+  const triViews: Array<() => void> = [];
   function changed(): void {
     if (!alive()) return;
     d.dirty = true;
@@ -1005,12 +1008,16 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       const zh = t.zh.trim();
       if (!alive() || teamApi.mode !== "real" || !zh || translating) return;
       if (!manual && (zh === t.translatedFrom || (t.enTouched && t.ukTouched))) return;
+      const operation = owner.beginAuxiliary(`translate-${o.name}`, "processing");
+      if (!operation) return;
+      const names = JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched]);
+      const stillOwned = (): boolean => operation.valid() && (t === d.name || t === d.description || d.components.some(c => c.note === t) || d.steps.some(s => s.text === t));
       translating = true;
       const done = busy(translateBtn, L("dish.translating"));
       hint.hidden = true;
       try {
         const r = await api.translate(zh, ["en", "uk"]);
-        if (!alive() || t.zh.trim() !== zh) return;
+        if (!stillOwned() || names !== JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched])) return;
         t.translatedFrom = zh;
         if (r.en && (manual || !t.enTouched)) {
           t.en = r.en;
@@ -1030,17 +1037,18 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         }
         paintMachine();
         o.onTranslated?.();
-        changed();
+        owner.changed(d);
       } catch {
         // 不阻塞保存（I18nString 只要求至少一种语言）；401 留给保存那一步去锁屏
-        hint.textContent = L("dish.translateFailed");
-        hint.hidden = false;
+        if (alive()) { hint.textContent = L("dish.translateFailed"); hint.hidden = false; }
       } finally {
         done();
         translating = false;
+        operation.finish(true);
       }
     }
     const el = h("div", { class: "adm-dish-tri" }, zhRow, sub, h("div", { class: "adm-dish-grid2" }, enRow, ukRow), hint);
+    triViews.push(() => { if (el.isConnected) { zhInput.value = t.zh; enInput.value = t.en; ukInput.value = t.uk; paintMachine(); } });
     return { el, zhInput, translate };
   }
 
@@ -1221,26 +1229,26 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   }
   async function takePhoto(file: File): Promise<void> {
     if (!alive() || teamApi.mode !== "real") return;
+    const operation = owner.beginAuxiliary("dish-photo", "processing");
+    if (!operation) return;
     setPhotoMsg(L("dish.photo.compressing"));
-    let out: CompressedImage | null;
     try {
-      out = await compressImage(file);
-    } catch {
-      if (!alive()) return;
-      setPhotoMsg(L("dish.photo.unreadable"));
-      return;
+      let out: CompressedImage | null;
+      try { out = await compressImage(file); }
+      catch {
+        if (operation.valid()) operation.fail(new ApiError(400, "image_decode", L("dish.photo.unreadable")));
+        return;
+      }
+      if (!operation.valid()) return;
+      if (!out) { operation.fail(new ApiError(400, "image_size", L("dish.photo.tooBig"))); return; }
+      dropPending();
+      d.pending = { blob: out.blob, width: out.width, height: out.height, previewUrl: URL.createObjectURL(out.blob), license: "own", author: "", sourceUrl: "" };
+      d.image = null;
+      owner.changed(d);
+    } finally {
+      if (alive()) setPhotoMsg("");
+      operation.finish(true);
     }
-    if (!alive()) return;
-    if (!out) {
-      setPhotoMsg(L("dish.photo.tooBig"));
-      return;
-    }
-    dropPending();
-    d.pending = { blob: out.blob, width: out.width, height: out.height, previewUrl: URL.createObjectURL(out.blob), license: "own", author: "", sourceUrl: "" };
-    d.image = null;
-    setPhotoMsg("");
-    changed();
-    paintPhoto();
   }
   function paintPhoto(): void {
     photoView.replaceChildren();
@@ -1584,6 +1592,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     if (teamApi.mode !== "real") return h("p", { role: "status" }, statusText("auxUnavailable", lang));
     if (!buffer) return h("div");
     const ingDraft: IngredientDraft = buffer;
+    let taskResultAccepted = false, taskContentChanged = false;
     const form = buildIngredientForm({
       lang,
       api,
@@ -1592,7 +1601,19 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       catalog,
       idPrefix: `${ID_PREFIX}-c${c.key}-ing`,
       onChange: () => {
+        if (taskResultAccepted) taskContentChanged = true;
         owner.changed(d);
+      },
+      onTaskStart: kind => {
+        const operation = owner.beginAuxiliary(`ingredient-${c.key}-${kind}`, "processing");
+        if (!operation) return null;
+        taskResultAccepted = false; taskContentChanged = false;
+        const names = JSON.stringify([ingDraft.zh, ingDraft.en, ingDraft.uk, ingDraft.enTouched, ingDraft.ukTouched]);
+        return {
+          valid: () => taskResultAccepted = operation.valid() && c.newIngredient === ingDraft && d.components.includes(c)
+            && (kind !== "translation" || names === JSON.stringify([ingDraft.zh, ingDraft.en, ingDraft.uk, ingDraft.enTouched, ingDraft.ukTouched])),
+          finish: () => { operation.finish(taskContentChanged); taskResultAccepted = false; },
+        };
       },
       onGoEdit: (id) => {
         // 库里已有：直接用它，不再新建
@@ -1619,6 +1640,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const syncInline = (): void => {
       const blocked = owner.busy || owner.auxiliaryUnknown || !!owner.session.getState().operationId;
       for (const control of form.el.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea")) control.disabled = blocked;
+      for (const control of msg.querySelectorAll<HTMLButtonElement>("button")) control.disabled = blocked;
       saveBtn.disabled = blocked; cancelBtn.disabled = blocked;
     };
     inlineBusyViews.push(syncInline); syncInline();
@@ -1635,6 +1657,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         form.showErrors(err.errors);
       } else {
         msg.append(errorCard(apiMessage(err, lang), owner.auxiliaryUnknown ? undefined : () => void saveInline()));
+        syncInline();
       }
     }
     paintFeedback();
@@ -1873,6 +1896,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     draftBtn.disabled = blocked;
     activeBtn.disabled = blocked;
     idInput.readOnly = !!state.source || owner.busy || !!state.operationId;
+    cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real" || blocked;
+    for (const control of formEl.querySelectorAll<HTMLButtonElement>(".adm-dish-translate")) control.disabled = teamApi.mode !== "real" || blocked;
     for (const syncInline of inlineBusyViews) syncInline();
   }
   function compareDish(value:AnyDish,label:string):HTMLElement {
@@ -1883,7 +1908,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   function syncStatus(): void {
     if (!alive()) return;
     const state = owner.session.getState();
-    const phase = owner.busy ? "saving" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
+    const phase = owner.busy ? owner.processing ? "processing" : "saving" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
     editStatus.replaceChildren(h("p", {}, statusText(state.mode, lang)), h("p", {}, statusText(phase, lang)));
     if (owner.auxiliaryUnknown) editStatus.append(h("p", {}, statusText("auxUnknown", lang)));
     if (owner.auxiliaryError) editStatus.append(h("p", {}, apiMessage(owner.auxiliaryError, lang)));
@@ -1938,7 +1963,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   });
   const unsubscribeAuxiliary = owner.subscribe(contentChanged => {
     if (!alive()) return;
-    if (contentChanged) { paintPhoto(); paintComponents(); paintSteps(); paintReadiness(); }
+    if (contentChanged) { paintPhoto(); paintComponents(); paintSteps(); paintReadiness(); for (const sync of triViews) sync(); }
     syncStatus();
   });
   window.addEventListener("online", syncNet);
