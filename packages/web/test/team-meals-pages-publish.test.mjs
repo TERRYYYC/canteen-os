@@ -13,7 +13,7 @@ const injected={
  '../../api/team-meals':'export const getTeamMealsApi=()=>globalThis.__publishFixture.team;',
  '../admin':'export const adminHref=()=>"#/admin";',
 };
-const bundle=await esbuild.build({stdin:{contents:await readFile(entry,'utf8')+`\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {HttpAdminApi} from ${JSON.stringify(join(here,'../src/api/client.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};`,resolveDir:dirname(entry),loader:'ts'},plugins:[{name:'publish-test-dependencies',setup(b){b.onResolve({filter:/^\.\.\//},a=>injected[a.path]&&(a.importer===''||a.importer==='<stdin>'||a.importer.endsWith('/publish.ts'))?{path:a.path,namespace:'fixture'}:undefined);b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:injected[a.path],loader:'js'}));}}],bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:await readFile(entry,'utf8')+`\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {HttpAdminApi} from ${JSON.stringify(join(here,'../src/api/client.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here,'../src/view-models/reload-safety.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};`,resolveDir:dirname(entry),loader:'ts'},plugins:[{name:'publish-test-dependencies',setup(b){b.onResolve({filter:/^\.\.\//},a=>injected[a.path]&&(a.importer===''||a.importer==='<stdin>'||a.importer.endsWith('/publish.ts'))?{path:a.path,namespace:'fixture'}:undefined);b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:injected[a.path],loader:'js'}));}}],bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const output=join(dir,'publish.mjs');await writeFile(output,bundle.outputFiles[0].text);
 class Element {
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.text=text;this.attrs={};this.children=[];this.listeners={};this.parentNode=null;this.disabled=false;this.style={};this.classList={add:x=>this.setAttribute('class',`${this.attrs.class??''} ${x}`),remove:x=>this.setAttribute('class',(this.attrs.class??'').split(' ').filter(c=>c!==x).join(' '))};}
@@ -41,7 +41,8 @@ async function setup({mode='real',respond}={}){
  const fetch=async(url,init)=>{const path=new URL(url).pathname;calls.push({path,method:init.method});if(respond){const response=await respond(path,init);if(response)return response;}const body=path==='/changes'?changes():path==='/publish'?{runId:11,mode:'dispatch'}:path.startsWith('/publish/')?progress():path.startsWith('/rollback/')?{commit:C,restoredFrom:A,changedFiles:2}:{};return new Response(JSON.stringify({ok:true,...body}));};
  const opts={fetch,token:()=>'explicit-local-fixture',identity:()=>identity},team=page.createTeamMealsApi(mode==='unconfigured'?'':'https://publish-fixture.invalid',{...opts,...(mode==='mock'?{mode:'mock'}:{})}),legacy=new page.HttpAdminApi('https://publish-fixture.invalid',opts);
  globalThis.__publishFixture={team,getLegacy:()=>{legacyCalls++;return legacy;}};
- const mount=(lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);page.render(el,{lang,planId:'week-38',rest:'publish'},'');return el;};
+ const coverage=page.createPageReloadCoverage();
+ const mount=(lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);page.render(el,{lang,planId:'week-38',rest:'publish',setReloadCoverage:coverage.beginRender('admin','publish')},'');return el;};
  const flush=async()=>{for(let i=0;i<6;i++)await tick();};
  return{page,calls,events,team,legacy,mount,flush,legacyCalls:()=>legacyCalls,leave(){location.hash='#/admin';document.body.replaceChildren();for(const f of events.hashchange??[])f();},auth(){identity++;page.changeAuth();},async timer(){const fs=[...timers.values()];timers.clear();for(const f of fs)f();await flush();},cleanup(){team.dispose();legacy.dispose();document.body.replaceChildren();}};
 }
@@ -118,4 +119,21 @@ test('completed evidence for another run is not ownership, and a failed step bef
   const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...body}):undefined});
   try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(publish(el).disabled,true);assert.doesNotMatch(el.textContent,/Live · everyone/);}finally{f.cleanup();}
  }
+});
+
+
+test('Publish initial read registers before awaiting and finishes original coverage after an auth replacement',async()=>{
+ const held=deferred();let reads=0;const f=await setup({respond:p=>p==='/changes'&&++reads===1?held.promise:undefined});try{f.mount();await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'saving');f.auth();f.mount('uk');await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'unknown');held.resolve(Response.json({ok:true,...changes()}));await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'clear');}finally{f.cleanup();}
+});
+test('real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish',async()=>{
+ const held=deferred(),f=await setup({respond:p=>p.startsWith('/rollback/')?held.promise:undefined});try{const old=f.mount();await f.flush();rollback(old).click();confirm(old).click();await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'saving');f.auth();const next=f.mount('uk');await f.flush();held.resolve(Response.json({ok:true,commit:C,restoredFrom:A,changedFiles:2}));await f.flush();const snapshot=f.page.inspectReloadSafety();assert.equal(snapshot.reason,'unknown');assert(snapshot.records.some(r=>r.kind==='unknown'&&r.id==='previous-session-operation'));assert.doesNotMatch(next.textContent,/Rolled back/);assert.equal(f.page.readPublishAuxiliary().phase,'idle');}finally{f.cleanup();}
+});
+test('each original run read can end only its matching old write; another old run remains unknown',async()=>{
+ const a=deferred(),b=deferred();let count=0;const f=await setup();try{f.legacy.getPublish=()=>++count===1?a.promise:b.promise;
+ let el=f.mount();await f.flush();publish(el).click();await f.flush();f.auth();el=f.mount();await f.flush();publish(el).click();await f.flush();f.auth();f.mount('uk');await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'unknown');
+ a.resolve(completedProgress('cancelled'));await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.equal(f.page.inspectReloadSafety().records.filter(r=>r.kind==='unknown'&&r.phase==='unknown').length,1);
+ b.resolve(completedProgress('failure'));await f.flush();assert.equal(f.page.inspectReloadSafety().reason,'clear');assert.equal(f.page.readPublishAuxiliary().phase,'idle');}finally{f.cleanup();}
+});
+test('known terminal proof clears registry while legacy failure and ambiguous dispatch protect it',async()=>{
+ for(const [body,expected] of [[completedProgress('cancelled'),'clear'],[progress('failure'),'unknown']]){const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...body}):undefined});try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.inspectReloadSafety().reason,expected);}finally{f.cleanup();}}
 });

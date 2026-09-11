@@ -1,0 +1,106 @@
+✔ unconfigured and explicit simulation never enter the default legacy mock publish flow (7.560458ms)
+✔ rollback remains one pending operation across language, close and route return, blocking publish too (18.244667ms)
+✔ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (4.324709ms)
+✔ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.520375ms)
+✔ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (7.139167ms)
+✔ unknown rollback never becomes success merely after changes refresh or repaint (3.903875ms)
+✔ auth replacement immediately removes private state and late publish response cannot bind new session (3.557958ms)
+✔ same run ID can be verified read-only after timeout and only confirmed success releases both actions (6.126792ms)
+✔ a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused (6.870375ms)
+✔ known pre-write rejection releases protection; upstream ambiguity keeps it (15.32975ms)
+✔ publish pending blocks rollback immediately, survives language and protects unload until confirmed completion (4.4475ms)
+✔ unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target (6.693209ms)
+✔ late prior-session rollback response cannot fill new session, and dialog rebind restores body (3.931083ms)
+✔ late prior-session changes cannot replace the new-session list (3.035833ms)
+✔ late known-run progress from a prior session cannot claim success or clear new-operation protection (4.029583ms)
+✔ legacy success and false or malformed completion never release a known run or claim it is live (12.842625ms)
+✔ matching completed runs release operation regardless of legacy status while conclusion alone determines result (138.495ms)
+✔ completed evidence for another run is not ownership, and a failed step before completion stays unknown (6.592791ms)
+✖ Publish initial read registers before awaiting and finishes original coverage after an auth replacement (4.177209ms)
+✖ real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish (7.0285ms)
+✖ each original run read can end only its matching old write; another old run remains unknown (4.723667ms)
+✖ known terminal proof clears registry while legacy failure and ambiguous dispatch protect it (3.465709ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 18
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 326.309958
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:125:1
+✖ Publish initial read registers before awaiting and finishes original coverage after an auth replacement (4.177209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:126:158)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:128:1
+✖ real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish (7.0285ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:129:208)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:131:1
+✖ each original run read can end only its matching old write; another old run remains unknown (4.723667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:134:127)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:137:1
+✖ known terminal proof clears registry while legacy failure and ambiguous dispatch protect it (3.465709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:138:284)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

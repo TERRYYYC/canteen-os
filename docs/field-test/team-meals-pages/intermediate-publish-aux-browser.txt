@@ -1,0 +1,66 @@
+{
+  "summary": "4/5",
+  "sourceHash": "83cd2af83d6a24c7eddc99523461f763ef57a858b3e93a224d27c23927ad0605",
+  "checks": [
+    {
+      "name": "initial changes read registers before awaiting",
+      "pass": true
+    },
+    {
+      "name": "unfinished old initialization remains anonymous and protected",
+      "pass": true
+    },
+    {
+      "name": "actual old read finally releases only original coverage",
+      "pass": true
+    },
+    {
+      "name": "strict matching terminal clears registered write",
+      "pass": true
+    },
+    {
+      "name": "cancelled build does not claim successful publication",
+      "pass": false
+    }
+  ],
+  "calls": [
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/publish",
+      "method": "POST"
+    },
+    {
+      "path": "/publish/11",
+      "method": "GET"
+    }
+  ],
+  "snapshot": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "publish",
+        "id": "publish",
+        "generation": 8,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 8
+      }
+    ],
+    "stamp": "[19,1,[[\"page:admin/publish\",\"tracked\"]],[{\"ownerId\":\"auxiliary-2\",\"kind\":\"publish\",\"id\":\"publish\",\"generation\":8,\"dirty\":false,\"phase\":\"idle\",\"operation\":8}]]"
+  }
+}
+FAIL Error: cancelled build does not claim successful publication
+    at check (http://localhost:4195/test/team-meals-pages-publish-aux-browser.html?html-proxy&index=0.js:10:294)
+    at document.querySelector.onclick (http://localhost:4195/test/team-meals-pages-publish-aux-browser.html?html-proxy&index=0.js:13:227)

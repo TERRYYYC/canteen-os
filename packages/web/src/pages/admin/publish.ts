@@ -9,7 +9,7 @@
  *   4. 打印贴墙 → #/qr（既有路由，不改）。
  *
  * 轮询（worker 契约 §4.6 / §4.4，D-16 / D-14）：
- *   - 前 30 秒每 2 秒一次，之后每 5 秒；success 证明完成；failure / timeout / unmapped 停止自动轮询，保留未知保护并可只读核实；
+ *   - 前 30 秒每 2 秒一次，之后每 5 秒；同一 runId 且 runCompleted=true 才证明结束；其余 legacy 终态保留未知保护并可只读核实；
  *   - 429 → 退避 15 秒，最多 3 次，仍 429 → 停 + 「查太频繁了，去 Actions 页面看」；
  *   - runId 为 null 或确认丢失 → 结果未知；legacy API 无关联凭据，禁止用 latest 认领本次；
  *   - 页面隐藏（visibilitychange）暂停，回前台立即补一次；hashchange 离开本屏立即停；
@@ -28,6 +28,7 @@ import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } fr
 import { getApi, type AdminApi } from "../../api/client";
 import { getTeamMealsApi, type TeamMealsApi } from "../../api/team-meals";
 import { onAuthSessionChange } from "../../admin/token";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle, type AuxiliaryOperation } from "../../view-models/reload-safety";
 import type { ChangeItem, Changes, PublishProgress, PublishRecord, PublishResult, PublishStep, PublishStepKey } from "../../api/types";
 import { ApiError, isApiError } from "../../api/types";
 import { h, replace } from "../../dom";
@@ -305,8 +306,8 @@ let publishError: string | null = null;
 let rollbackDone: { sha: string; n: number } | null = null;
 let ticker: number | null = null;
 let listenersBound = false;
-interface PublishOwner { readonly identity: number; readonly team: TeamMealsApi; readonly session: number; readonly api: AdminApi }
-interface Operation { readonly kind: "publish" | "rollback"; phase: "busy" | "unknown"; readonly target?: string }
+interface PublishOwner { readonly identity: number; readonly team: TeamMealsApi; readonly session: number; readonly api: AdminApi; registration: AuxiliaryEditHandle; operation: Operation | null; reads: number; generation: number }
+interface Operation { readonly kind: "publish" | "rollback"; phase: "busy" | "unknown"; readonly target?: string; readonly ticket: AuxiliaryOperation }
 let owner: PublishOwner | null = null;
 let ownerSequence = 0;
 let operation: Operation | null = null;
@@ -330,12 +331,38 @@ interface View {
 
 let view: View | null = null;
 
-/** Real page-owned lifetime state; shared reload registration is a separate integration. */
+/** Current presentation metadata; each original owner retains its own registered operation. */
 export function readPublishAuxiliary(): { identity: number | null; generation: number; dirty: boolean; phase: "idle" | "busy" | "unknown" } {
   return { identity: owner?.identity ?? null, generation: operationGeneration, dirty: operation !== null, phase: operation?.phase ?? "idle" };
 }
-function changeOperation(next: Operation | null): void { operation = next; operationGeneration++; }
+function changeOperation(next: Operation | null): void {
+  operation = next; operationGeneration++;
+  if (owner) { owner.operation = next; owner.generation++; }
+}
+function beginWrite(context: PublishOwner, kind: Operation["kind"], target?: string): Operation {
+  const next: Operation = { kind, phase: "busy", ticket: context.registration.beginOperation("write"), ...(target ? { target } : {}) };
+  changeOperation(next); return next;
+}
+function settleWrite(context: PublishOwner, original: Operation, outcome: "completed" | "failed"): void {
+  if (context.operation !== original) return;
+  context.operation = null; context.generation++;
+  if (owner === context && operation === original) { operation = null; operationGeneration++; }
+  context.registration.settleOperation(original.ticket, outcome);
+}
+function unknownWrite(context: PublishOwner, original: Operation): void {
+  if (context.operation !== original) return;
+  original.phase = "unknown"; context.generation++;
+  if (owner === context) operationGeneration++;
+  context.registration.markUnknown(original.ticket);
+}
+function beginRead(context: PublishOwner): () => void {
+  const ticket = context.registration.beginOperation("read");
+  context.reads++; context.generation++;
+  return () => { context.reads--; context.generation++; context.registration.settleOperation(ticket, "completed"); };
+}
 function invalidateOwner(): void {
+  if (owner?.operation) unknownWrite(owner, owner.operation);
+  owner?.registration.dispose();
   closeDialog?.(); clearTimer(); stopTicker(); owner = null; poll = null; pollSeq++;
   changes = null; changesError = null; changesLoading = false; publishing = false;
   publishOff = false; publishError = null; rollbackDone = null; changeOperation(null);
@@ -352,7 +379,7 @@ function repaint(): void {
   paintNotices(v); paintProgress(v); paintLogIfWaitingChanged(v); syncButton(v);
 }
 function markUnknown(): void {
-  if (operation) changeOperation({ ...operation, phase: "unknown" });
+  if (owner && operation) unknownWrite(owner, operation);
 }
 
 /** 当前还挂在 DOM 上的视图；旧 el 被壳层摘掉后为 null */
@@ -408,21 +435,25 @@ async function tick(): Promise<void> {
   if (!live() || document.hidden) { pausePolling(); return; }
   // No request ID survives the legacy facade. A latest run is not this operation's identity.
   if (p.runId === null) { markUnknown(); finish("unknown"); repaint(); return; }
+  const original = context.operation;
+  if (!original || original.kind !== "publish") return;
+  const endRead = beginRead(context);
   p.inflight = true;
   try {
     const progress = await context.api.getPublish(p.runId);
-    if (!current(context) || poll !== p) return;
     if (progress.runId !== p.runId || !["queued", "in_progress", "success", "failure", "timeout", "unmapped"].includes(progress.status) || !Array.isArray(progress.steps)) throw new ApiError(502, "bad_response", "");
+    if (progress.runCompleted === true) settleWrite(context, original, "completed");
+    if (!current(context) || poll !== p) return;
     p.rateLimited = 0; p.transientError = null; p.progress = progress;
     if (progress.runCompleted === true) {
-      finish("terminal"); changeOperation(null);
+      finish("terminal");
       if (progress.runConclusion === "success") void loadChanges(true);
     } else if (TERMINAL.has(progress.status)) {
       // Worker can report failedStep/unmapped before run completion, and timeout while running.
       markUnknown(); finish("unknown");
     } else schedule(nextDelay());
   } catch (err) {
-    if (!current(context) || poll !== p) return;
+    if (!current(context) || poll !== p) { unknownWrite(context, original); return; }
     if (isApiError(err) && err.status === 401) {
       finish("expired"); const v = live(); if (v) sessionExpired(v.el, v.lang); return;
     }
@@ -433,13 +464,13 @@ async function tick(): Promise<void> {
     } else if (isApiError(err) && (err.status === 404 || err.code === "bad_response")) {
       p.transientError = apiMessage(err); markUnknown(); finish("unknown");
     } else { p.transientError = apiMessage(err); schedule(nextDelay()); }
-  } finally { p.inflight = false; }
+  } finally { p.inflight = false; endRead(); }
   if (current(context)) repaint();
 }
 
 function verifyPublish(): void {
   if (!current(owner) || operation?.kind !== "publish" || operation.phase !== "unknown" || !poll || poll.runId === null || poll.inflight) return;
-  changeOperation({ ...operation, phase: "busy" }); poll.stop = null; poll.state = "paused";
+  operation.phase = "busy"; changeOperation(operation); poll.stop = null; poll.state = "paused";
   repaint(); ensurePolling();
 }
 
@@ -491,6 +522,7 @@ function bindListeners(): void {
 async function loadChanges(force: boolean): Promise<void> {
   const context = owner;
   if (changesLoading || !current(context)) return;
+  const endRead = beginRead(context);
   changesLoading = true;
   const v0 = live(); if (v0) { paintChanges(v0); syncButton(v0); }
   try {
@@ -503,7 +535,7 @@ async function loadChanges(force: boolean): Promise<void> {
       const v = live(); if (v) sessionExpired(v.el, v.lang); return;
     }
     changesError = apiMessage(err);
-  } finally { if (current(context)) changesLoading = false; }
+  } finally { endRead(); if (current(context)) changesLoading = false; }
   if (!current(context)) return;
   const v = live(); if (v) { paintChanges(v); paintLog(v); paintNotices(v); syncButton(v); }
 }
@@ -518,46 +550,49 @@ function definitelyRejected(err: unknown): boolean {
 async function onPublish(): Promise<void> {
   const context = owner;
   if (!live() || !current(context) || writeBlocked() || publishOff || changesLoading || !changes?.unpublished.length) return;
-  changeOperation({ kind: "publish", phase: "busy" }); publishing = true;
+  const original = beginWrite(context, "publish"); publishing = true;
   publishError = null; clearTimer(); stopTicker(); poll = null; rollbackDone = null; repaint();
   try {
     const result = await context.api.publish();
-    if (!current(context)) return;
     if (!["dispatch", "push-trigger"].includes(result.mode) || (result.runId !== null && (!Number.isSafeInteger(result.runId) || result.runId <= 0))) throw new ApiError(502, "bad_response", "");
+    if (!current(context)) { unknownWrite(context, original); return; }
     poll = { seq: ++pollSeq, runId: result.runId, mode: result.mode, startedAt: Date.now(), progress: null,
       state: result.runId === null ? "done" : "polling", timer: null, inflight: false, rateLimited: 0,
       stop: result.runId === null ? "unknown" : null, transientError: null };
     if (result.runId === null) markUnknown();
     else { ensureTicker(); void tick(); }
   } catch (err) {
+    if (definitelyRejected(err)) settleWrite(context, original, "failed");
+    else unknownWrite(context, original);
     if (!current(context)) return;
     if (definitelyRejected(err)) {
-      changeOperation(null);
       if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
       if (isApiError(err) && err.code === "dispatch_unavailable") publishOff = true;
       else publishError = apiMessage(err);
-    } else { markUnknown(); publishError = apiMessage(err); }
+    } else publishError = apiMessage(err);
   } finally { if (current(context)) { publishing = false; repaint(); } }
 }
 
 async function onRollback(sha: string): Promise<void> {
   const context = owner;
   if (!live() || !current(context) || writeBlocked()) return;
-  changeOperation({ kind: "rollback", phase: "busy", target: sha });
+  const original = beginWrite(context, "rollback", sha);
   rollbackDone = null; publishError = null; repaint();
   try {
     const result = await context.api.rollback(sha);
-    if (!current(context)) return;
     if (!/^[0-9a-f]{40}$/.test(result.commit) || result.restoredFrom !== sha || !Number.isSafeInteger(result.changedFiles) || result.changedFiles < 0) throw new ApiError(502, "bad_response", "");
-    changeOperation(null); rollbackDone = { sha: result.restoredFrom.slice(0, 7), n: result.changedFiles };
+    settleWrite(context, original, "completed");
+    if (!current(context)) return;
+    rollbackDone = { sha: result.restoredFrom.slice(0, 7), n: result.changedFiles };
     if (poll?.state === "done") poll = null;
     await loadChanges(true);
   } catch (err) {
+    if (definitelyRejected(err)) settleWrite(context, original, "failed");
+    else unknownWrite(context, original);
     if (!current(context)) return;
     if (definitelyRejected(err)) {
-      changeOperation(null);
       if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
-    } else markUnknown();
+    }
     publishError = apiMessage(err);
   } finally { if (current(context)) repaint(); }
 }
@@ -1005,11 +1040,14 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   if (team.mode !== "real") {
     invalidateOwner();
     replace(el, h("div", { class: "adm adm-pub", "data-mode": team.mode }, topBar({ back: adminHref(), title: tt(lang, "pub.title") }), h("p", { role: "status" }, teamText(lang, team.mode === "mock" ? "mock" : "unconfigured"))));
-    return;
+    ctx.setReloadCoverage?.("read-only"); return;
   }
   if (!owner || owner.team !== team || owner.session !== session) {
     invalidateOwner();
-    owner = { identity: ++ownerSequence, team, session, api: getApi() };
+    const context: PublishOwner = { identity: ++ownerSequence, team, session, api: getApi(), operation: null, reads: 0, generation: 0,
+      registration: registerAuxiliaryEdits({ ownerId: "publish-operations", identity: { kind: "publish", id: "publish" }, boundary: team, operationTracking: "tickets",
+        read: () => ({ generation: context.generation, dirty: context.operation !== null, phase: context.operation?.phase === "unknown" ? "unknown" : context.operation || context.reads ? "busy" : "idle" }) }) };
+    owner = context;
   }
   bindListeners();
 
@@ -1031,6 +1069,6 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   paintNotices(v);
   paintPrint(v);
   syncButton(v);
-  void loadChanges(false);
+  void loadChanges(false).finally(() => ctx.setReloadCoverage?.("tracked"));
   ensurePolling();
 }
