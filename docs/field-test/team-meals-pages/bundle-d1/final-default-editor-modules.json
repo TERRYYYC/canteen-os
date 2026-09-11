@@ -1,0 +1,89 @@
+[
+  {
+    "file": "assets/ingredient-new-CC8PHMqZ.js",
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.ts",
+    "static": [
+      "assets/ingredient-draft-XR2x4329.js",
+      "assets/kit-p8B6S97J.js",
+      "assets/index-BC83liXh.js",
+      "assets/team-ui-C4DK3aGy.js",
+      "assets/store-DGXvR_V7.js",
+      "assets/admin-CHY-95zP.js",
+      "assets/ingredient-form-S1FAGS72.js"
+    ],
+    "optional": [],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.ts"
+    ]
+  },
+  {
+    "file": "assets/dish-new-rQuZHwd4.js",
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.ts",
+    "static": [
+      "assets/index-BC83liXh.js",
+      "assets/ingredient-draft-XR2x4329.js",
+      "assets/kit-p8B6S97J.js",
+      "assets/edit-session-DzcranXx.js",
+      "assets/store-DGXvR_V7.js",
+      "assets/admin-CHY-95zP.js"
+    ],
+    "optional": [
+      "assets/ingredient-form-S1FAGS72.js"
+    ],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.ts",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.css"
+    ]
+  },
+  {
+    "file": "assets/ingredient-draft-XR2x4329.js",
+    "facade": null,
+    "static": [
+      "assets/index-BC83liXh.js"
+    ],
+    "optional": [
+      "assets/client-BJK-nlBj.js",
+      "assets/editor-image-B408a5BL.js"
+    ],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-draft.ts",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-actions.ts"
+    ]
+  },
+  {
+    "file": "assets/client-BJK-nlBj.js",
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/client.ts",
+    "static": [
+      "assets/kit-p8B6S97J.js",
+      "assets/index-BC83liXh.js"
+    ],
+    "optional": [],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/client.ts"
+    ]
+  },
+  {
+    "file": "assets/editor-image-B408a5BL.js",
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-image.ts",
+    "static": [],
+    "optional": [],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-image.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-form-S1FAGS72.js",
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-form.ts",
+    "static": [
+      "assets/ingredient-draft-XR2x4329.js",
+      "assets/kit-p8B6S97J.js",
+      "assets/index-BC83liXh.js",
+      "assets/admin-CHY-95zP.js"
+    ],
+    "optional": [],
+    "ownedModules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-form.ts",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.css"
+    ]
+  }
+]
