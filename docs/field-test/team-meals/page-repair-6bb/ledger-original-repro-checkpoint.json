@@ -1,0 +1,1605 @@
+{
+  "metadata": {
+    "head": "9084fcc64689ddb66ef925d97b0e2e4a40433233",
+    "packagesTree": "a39e86a397e6dc94fd91a68638bddd6f58a9903a",
+    "node": "v20.20.2",
+    "nodePath": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+    "fixedAt": "2026-09-10T00:00:00.000Z",
+    "fixtureRevision": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+    "fixtureRoot": "/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-page-fixture-af9G4e",
+    "root": "/private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-page-browser-AWiEzg",
+    "sourceIntegrity": [
+      {
+        "file": "packages/web/src/admin/kit.ts",
+        "sha256": "b3a0b378cfa1a94932552f2cb072d4b2c04b75f274535ff38aa1b04ebc233de5"
+      },
+      {
+        "file": "packages/web/src/admin/store.ts",
+        "sha256": "7082f80729b436b1c21db4e91f100282d22644ec19d2e8540de56eea59585b2d"
+      },
+      {
+        "file": "packages/web/src/admin/token.ts",
+        "sha256": "bc52456bd287fa5509caf501dc9f095f131d6ef60ac799d8585e4a9291f58f51"
+      },
+      {
+        "file": "packages/web/src/api/client.ts",
+        "sha256": "702da78ecb2384b16c3307b3db8aa844f989a22b5096642feacec09d5a6c2e4a"
+      },
+      {
+        "file": "packages/web/src/api/mock.ts",
+        "sha256": "d3fe30e67dc29daa70eb41c0d2de56cf804947d0551bedd75f4f95c62fde9c8f"
+      },
+      {
+        "file": "packages/web/src/api/team-meals.ts",
+        "sha256": "ee8992e5eb08ffb44e43abcc86a3995f387ebd89425707e16df3b09f4f79c256"
+      },
+      {
+        "file": "packages/web/src/api/transport.ts",
+        "sha256": "4db2955217cb6cdeaa49570ca07f122c327cff06f6b350959dfe86be3d103ce5"
+      },
+      {
+        "file": "packages/web/src/api/types.ts",
+        "sha256": "ed75628e930c0afcafd6f632fd551bbd2546d94b4b1b37a9d2ff96cc9bec5561"
+      },
+      {
+        "file": "packages/web/src/data.ts",
+        "sha256": "5cdfab89948ca5bb0859f0b744368083d9adc7f2d720779172c897196dd3cd00"
+      },
+      {
+        "file": "packages/web/src/dom.ts",
+        "sha256": "3eb6663c19dfee4093cefa63d5bd95eb041213d0e085da976488a106e4252510"
+      },
+      {
+        "file": "packages/web/src/i18n.ts",
+        "sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+      },
+      {
+        "file": "packages/web/src/main.ts",
+        "sha256": "60673d40a9e8256addab574cb618e0888312662cb17d9eb3554c01311a0656b1"
+      },
+      {
+        "file": "packages/web/src/pages/admin.ts",
+        "sha256": "23ec854967e90441116dd90c79844044dfbc6b151f3f8df51d60f52bd334da74"
+      },
+      {
+        "file": "packages/web/src/pages/admin/admin.css",
+        "sha256": "0aa9261d6b2be0fd04234aff551ca00334f427febf1c0182aaf9c80feea866e9"
+      },
+      {
+        "file": "packages/web/src/pages/admin/dish-new.css",
+        "sha256": "c761a6e4b724203554a5eb07e401242c9139c76efe8eccae8af52725cdfe30f3"
+      },
+      {
+        "file": "packages/web/src/pages/admin/dish-new.ts",
+        "sha256": "dfd89858c706f5f80d238a2c614622436fbb75fd3e0bf27e5f2e44c62e49c4d9"
+      },
+      {
+        "file": "packages/web/src/pages/admin/editor-actions.ts",
+        "sha256": "36e2d42b21f4e5f3d691a202fa5f935cf2e290f4c0cb72ab8ad2dd1db31c4255"
+      },
+      {
+        "file": "packages/web/src/pages/admin/editor-image.ts",
+        "sha256": "4f8d413579565fa5af165fb36a95b9fbc808456006bd84eb82adf127d4db1d1a"
+      },
+      {
+        "file": "packages/web/src/pages/admin/home.css",
+        "sha256": "e1fa522d3c56066a6cf730993bd7bac64191b8913ce97d1124ae29c87c863dfe"
+      },
+      {
+        "file": "packages/web/src/pages/admin/home.ts",
+        "sha256": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5"
+      },
+      {
+        "file": "packages/web/src/pages/admin/import.css",
+        "sha256": "c0ed3104b1af3bc48a4d1a805138b552163d12013741d9f0e7e9ba3e8aeb1b83"
+      },
+      {
+        "file": "packages/web/src/pages/admin/import.ts",
+        "sha256": "34bd052707bdba898eb2b0902a5d280afbbec3798c56c1eab5a6bf641f67dd70"
+      },
+      {
+        "file": "packages/web/src/pages/admin/ingredient-draft.ts",
+        "sha256": "3902ebaa47cc8a676eb272587a6683d64eac7bc56d3dccb71b115f43beb4995f"
+      },
+      {
+        "file": "packages/web/src/pages/admin/ingredient-form.ts",
+        "sha256": "2a356e1f7b89938b78c54b1bf2e8ccff9134a515e3cd269f57648ef742422d42"
+      },
+      {
+        "file": "packages/web/src/pages/admin/ingredient-new.css",
+        "sha256": "a8d08e4c6983b567647678db8b42797fda0efa351b7badd3ada44c280e465fc0"
+      },
+      {
+        "file": "packages/web/src/pages/admin/ingredient-new.ts",
+        "sha256": "26abc05a2a7dc24e9ace4c74bbf4c50c8091bae918083fa1dc2e1e38ae88e81f"
+      },
+      {
+        "file": "packages/web/src/pages/admin/plan-form.ts",
+        "sha256": "f6e456359f74250e6e147a881f8c0e5cafd1143c176583eddc95f05a6489e48f"
+      },
+      {
+        "file": "packages/web/src/pages/admin/plan-import.ts",
+        "sha256": "db94625717b353f66d52bf8e22bcd268f9f3876b0c0e75883db0b8e12d51ad5b"
+      },
+      {
+        "file": "packages/web/src/pages/admin/plan.css",
+        "sha256": "53abb92d56805e1fe3e9360c0ef3af2a305b68fdb8f36e975b2ccda8a19a4b39"
+      },
+      {
+        "file": "packages/web/src/pages/admin/plan.ts",
+        "sha256": "e914c3836142ea5026cfe693ef86bbd479bbeea95f19b329591f435cc8ecbd50"
+      },
+      {
+        "file": "packages/web/src/pages/admin/publish.css",
+        "sha256": "51fde411397144af5353c598d0e0af9185761212023fe0c8a7bb423ddb388cb5"
+      },
+      {
+        "file": "packages/web/src/pages/admin/publish.ts",
+        "sha256": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29"
+      },
+      {
+        "file": "packages/web/src/pages/admin/servings-input.ts",
+        "sha256": "a785c055a3701ce40baac0157f9d00e02699dae3305a0d1092aa14522bd8cb24"
+      },
+      {
+        "file": "packages/web/src/pages/menu.css",
+        "sha256": "825305f00ddf3acb6df77f0a6bb5ca581369256178eac4f1ba13bce84e2b20f8"
+      },
+      {
+        "file": "packages/web/src/pages/menu.ts",
+        "sha256": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d"
+      },
+      {
+        "file": "packages/web/src/pages/prep.css",
+        "sha256": "68a26bea91433c8c4fc8943532cdc4940080c4210e26e53a08bbc0de14fb4572"
+      },
+      {
+        "file": "packages/web/src/pages/prep.ts",
+        "sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+      },
+      {
+        "file": "packages/web/src/pages/published-meals.ts",
+        "sha256": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1"
+      },
+      {
+        "file": "packages/web/src/pages/purchase-form.ts",
+        "sha256": "0ba62e8ca2860a9d009f02ea2c4c1fb909dbc10b766bdfdb42d4f6f3121a4089"
+      },
+      {
+        "file": "packages/web/src/pages/purchase-list.ts",
+        "sha256": "40ffbee4eab329de0fc02b139517ce8cbd02e2dc003379e59be3c083e20e92b0"
+      },
+      {
+        "file": "packages/web/src/pages/purchase.css",
+        "sha256": "36736377724983eeba425cbd02006ba662276f994bb42511ef3c89ae9ea6fb0e"
+      },
+      {
+        "file": "packages/web/src/pages/purchase.ts",
+        "sha256": "c814eeda5bfb5cec86a280675e36545a613b498971acdfde46779876ce31c382"
+      },
+      {
+        "file": "packages/web/src/pages/qr.css",
+        "sha256": "7653128483b376d6066f24a5055aeeabd83902e0d0494e57ac549afabcdcbce0"
+      },
+      {
+        "file": "packages/web/src/pages/qr.ts",
+        "sha256": "c1e78ada7901a28a086d5f24c05148fcf67e96b3691e07787d7a69819af2e755"
+      },
+      {
+        "file": "packages/web/src/pages/shopping-copy.ts",
+        "sha256": "d09f9ff311a54089452693fc769c309f6b51ecfe44cae40083e4c8381d1377d1"
+      },
+      {
+        "file": "packages/web/src/pages/team-details.ts",
+        "sha256": "7e11c51482927ac11b2e75d8604e01a3de8d6fadd9b0e2db4d4fc8ccf43c2aab"
+      },
+      {
+        "file": "packages/web/src/pages/team-ui.ts",
+        "sha256": "60835d22ba43f44bec30505eecb0b2d817498e95a87039ad7ec14358fb117832"
+      },
+      {
+        "file": "packages/web/src/pwa.ts",
+        "sha256": "4711d76dafe7d32c171c2de2c41285020a13690c1977c05a228007fea0b7173a"
+      },
+      {
+        "file": "packages/web/src/router.ts",
+        "sha256": "cc73d98ce769ab37e379f554e5c93bd50ad58275a7bce8381c97a5b6d2173812"
+      },
+      {
+        "file": "packages/web/src/shell.ts",
+        "sha256": "29621bc8ba8d4c5bc7ea3121817b4d63216b232e18dcda0777f1454a26a63373"
+      },
+      {
+        "file": "packages/web/src/styles.css",
+        "sha256": "9dd667db3c8ffe092ec50a9c2553998fed94126534a3397a3a46ee89c13ac6b3"
+      },
+      {
+        "file": "packages/web/src/theme.ts",
+        "sha256": "6befd39469c0e718b726fadbb8cf7785f2e0559f0d8e98fbab96220a7f7cfd34"
+      },
+      {
+        "file": "packages/web/src/tokens.css",
+        "sha256": "32e2eea759ebe4e36ed43fd5766b5e9607ef61444de3428c2fe95335ac86ddcb"
+      },
+      {
+        "file": "packages/web/src/types.ts",
+        "sha256": "4ce433ac1c809f09d878aa51270ad2384e04df7fc0efd7005f847117c0c01094"
+      },
+      {
+        "file": "packages/web/src/view-models/edit-session.ts",
+        "sha256": "dcfc2409ec119999e9d9b89542218d9d4c3c10eecea156730e965f7eafb70ec1"
+      },
+      {
+        "file": "packages/web/src/view-models/published.ts",
+        "sha256": "184aa5a1f29f9c9df9f03f4755e09cb4cad00b8bc660f8faefd0fe325fdcc90b"
+      },
+      {
+        "file": "packages/web/src/view-models/reload-safety.ts",
+        "sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+      },
+      {
+        "file": "packages/web/src/view-models/team-meals.ts",
+        "sha256": "87259084084498df170cbe49be0ede700729aa1136d91ddf1902b869e1421af7"
+      }
+    ],
+    "approvedProduction": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+    "approvedProductionPackagesTree": "38957ad074a6b7d102e730023613c9a5bb153ed7",
+    "boundary": "L1/browser: actual main, client and Worker; GitHub modeled; no real publish or rollback",
+    "htmlChanges": [
+      "fixed-date/public-test-token bootstrap",
+      "remove external font links for offline isolation"
+    ],
+    "producer": {
+      "blocking": 0,
+      "warnings": 25
+    }
+  },
+  "requests": [
+    {
+      "id": 1,
+      "actor": "browser",
+      "method": "GET",
+      "path": "/source/plan/team-week",
+      "search": "",
+      "ifMatch": null,
+      "ifNoneMatch": null,
+      "status": 200,
+      "responseHeaders": {
+        "access-control-allow-origin": "https://terryyyc.github.io",
+        "access-control-expose-headers": "X-Source-Revision",
+        "cache-control": "no-store",
+        "content-type": "application/json; charset=utf-8",
+        "vary": "Origin"
+      },
+      "response": {
+        "ok": true,
+        "content": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "固定样本菜单",
+            "en": "Fixed test menu",
+            "uk": "Фіксоване тестове меню"
+          },
+          "dateRange": {
+            "start": "2026-09-14",
+            "end": "2026-09-15"
+          },
+          "meals": [
+            {
+              "date": "2026-09-14",
+              "mealType": "lunch",
+              "dishRef": "first-dish"
+            },
+            {
+              "date": "2026-09-14",
+              "mealType": "lunch",
+              "dishRef": "second-dish"
+            },
+            {
+              "date": "2026-09-15",
+              "mealType": "dinner",
+              "dishRef": "name-only",
+              "plannedServings": 2
+            }
+          ]
+        },
+        "blobSha": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96",
+        "commit": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d"
+      },
+      "responseSha256": "ba194b82227463118ccd3a526ef85adec152378e943fd0544008a0e440038865",
+      "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d"
+    },
+    {
+      "id": 2,
+      "actor": "browser",
+      "method": "GET",
+      "path": "/catalog",
+      "search": "?revision=ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "ifMatch": null,
+      "ifNoneMatch": null,
+      "status": 200,
+      "responseHeaders": {
+        "access-control-allow-origin": "https://terryyyc.github.io",
+        "access-control-expose-headers": "X-Source-Revision",
+        "cache-control": "no-store",
+        "content-type": "application/json; charset=utf-8",
+        "vary": "Origin"
+      },
+      "response": {
+        "ok": true,
+        "commit": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+        "dishes": {
+          "first-dish": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "第一道样本菜",
+              "en": "First test dish",
+              "uk": "Перша тестова страва"
+            },
+            "baseServings": 2,
+            "status": "active",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato",
+                "qty": {
+                  "value": 300,
+                  "unit": "g"
+                },
+                "prep": {
+                  "techniqueRef": "roll-cut-chunks"
+                }
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "cooking-oil",
+                "qty": {
+                  "value": 20,
+                  "unit": "ml"
+                }
+              }
+            ],
+            "steps": [
+              {
+                "text": {
+                  "zh": "按原始记录准备番茄。",
+                  "en": "Prepare tomatoes using the recorded instructions.",
+                  "uk": "Підготуйте томати за записаними вказівками."
+                },
+                "techniqueRef": "roll-cut-chunks"
+              }
+            ]
+          },
+          "name-only": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "未录成分样本",
+              "en": "No components recorded",
+              "uk": "Інгредієнти не записані"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            }
+          },
+          "second-dish": {
+            "schemaVersion": "3",
+            "name": {
+              "zh": "第二道样本菜",
+              "en": "Second test dish",
+              "uk": "Друга тестова страва"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato"
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "tomato-other",
+                "qty": {
+                  "value": 200,
+                  "unit": "g"
+                }
+              }
+            ]
+          }
+        },
+        "ingredients": {
+          "cooking-oil": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "油",
+              "en": "Oil",
+              "uk": "Олія"
+            },
+            "baseUnit": "ml",
+            "role": "seasoning",
+            "trackStock": false
+          },
+          "salt": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "盐",
+              "en": "Salt",
+              "uk": "Сіль"
+            },
+            "baseUnit": "g",
+            "role": "seasoning",
+            "trackStock": true,
+            "onHand": 1000
+          },
+          "tomato-other": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false
+          },
+          "tomato": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false,
+            "purchase": {
+              "supplier": "Fixture supplier",
+              "packSize": 1,
+              "packUnit": "kg",
+              "lastPrice": {
+                "amount": 10,
+                "currency": "CNY"
+              }
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        },
+        "techniques": [
+          {
+            "id": "unused-leading",
+            "kind": "cut",
+            "name": {
+              "zh": "未引用技法",
+              "en": "Unselected technique",
+              "uk": "Невикористаний прийом"
+            }
+          },
+          {
+            "id": "roll-cut-chunks",
+            "kind": "cut",
+            "name": {
+              "zh": "滚刀块",
+              "en": "Roll-cut chunks",
+              "uk": "Шматки рулонним нарізанням"
+            },
+            "note": {
+              "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+              "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+              "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        ],
+        "suppliers": [
+          "Fixture supplier"
+        ],
+        "translations": {
+          "machine": 0,
+          "human": 0,
+          "stale": 0
+        }
+      },
+      "responseSha256": "368518a831c2e89eeaddf9f7d5c97f17ece3a95a2949725b3cc2795a6cc76ffa",
+      "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d"
+    },
+    {
+      "id": 3,
+      "actor": "browser",
+      "method": "POST",
+      "path": "/plan/team-week",
+      "search": "",
+      "ifMatch": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96",
+      "ifNoneMatch": null,
+      "body": {
+        "schemaVersion": "3",
+        "name": {
+          "zh": "固定样本菜单",
+          "en": "Fixed test menu",
+          "uk": "Фіксоване тестове меню"
+        },
+        "dateRange": {
+          "start": "2026-09-14",
+          "end": "2026-09-15"
+        },
+        "meals": [
+          {
+            "date": "2026-09-14",
+            "mealType": "lunch",
+            "dishRef": "first-dish",
+            "plannedServings": 8
+          },
+          {
+            "date": "2026-09-14",
+            "mealType": "lunch",
+            "dishRef": "second-dish"
+          },
+          {
+            "date": "2026-09-15",
+            "mealType": "dinner",
+            "dishRef": "name-only",
+            "plannedServings": 2
+          },
+          {
+            "date": "2026-09-15",
+            "mealType": "breakfast",
+            "dishRef": "first-dish"
+          }
+        ]
+      },
+      "status": 200,
+      "responseHeaders": {
+        "access-control-allow-origin": "https://terryyyc.github.io",
+        "access-control-expose-headers": "X-Source-Revision",
+        "cache-control": "no-store",
+        "content-type": "application/json; charset=utf-8",
+        "vary": "Origin"
+      },
+      "response": {
+        "ok": true,
+        "commit": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+        "blobSha": "64851f851dd8b49677a18d1e016f68c3a25b2847",
+        "unchanged": false,
+        "warnings": [
+          "plan-id-shape"
+        ]
+      },
+      "responseSha256": "8f72778440fa472f2223a714973d5efc44f322e2f4692cdcc1f3a117ebd232bf",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61"
+    },
+    {
+      "id": 4,
+      "actor": "browser",
+      "method": "GET",
+      "path": "/catalog",
+      "search": "?revision=9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "ifMatch": null,
+      "ifNoneMatch": null,
+      "status": 200,
+      "responseHeaders": {
+        "access-control-allow-origin": "https://terryyyc.github.io",
+        "access-control-expose-headers": "X-Source-Revision",
+        "cache-control": "no-store",
+        "content-type": "application/json; charset=utf-8",
+        "vary": "Origin"
+      },
+      "response": {
+        "ok": true,
+        "commit": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+        "dishes": {
+          "first-dish": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "第一道样本菜",
+              "en": "First test dish",
+              "uk": "Перша тестова страва"
+            },
+            "baseServings": 2,
+            "status": "active",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato",
+                "qty": {
+                  "value": 300,
+                  "unit": "g"
+                },
+                "prep": {
+                  "techniqueRef": "roll-cut-chunks"
+                }
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "cooking-oil",
+                "qty": {
+                  "value": 20,
+                  "unit": "ml"
+                }
+              }
+            ],
+            "steps": [
+              {
+                "text": {
+                  "zh": "按原始记录准备番茄。",
+                  "en": "Prepare tomatoes using the recorded instructions.",
+                  "uk": "Підготуйте томати за записаними вказівками."
+                },
+                "techniqueRef": "roll-cut-chunks"
+              }
+            ]
+          },
+          "name-only": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "未录成分样本",
+              "en": "No components recorded",
+              "uk": "Інгредієнти не записані"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            }
+          },
+          "second-dish": {
+            "schemaVersion": "3",
+            "name": {
+              "zh": "第二道样本菜",
+              "en": "Second test dish",
+              "uk": "Друга тестова страва"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato"
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "tomato-other",
+                "qty": {
+                  "value": 200,
+                  "unit": "g"
+                }
+              }
+            ]
+          }
+        },
+        "ingredients": {
+          "cooking-oil": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "油",
+              "en": "Oil",
+              "uk": "Олія"
+            },
+            "baseUnit": "ml",
+            "role": "seasoning",
+            "trackStock": false
+          },
+          "salt": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "盐",
+              "en": "Salt",
+              "uk": "Сіль"
+            },
+            "baseUnit": "g",
+            "role": "seasoning",
+            "trackStock": true,
+            "onHand": 1000
+          },
+          "tomato-other": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false
+          },
+          "tomato": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false,
+            "purchase": {
+              "supplier": "Fixture supplier",
+              "packSize": 1,
+              "packUnit": "kg",
+              "lastPrice": {
+                "amount": 10,
+                "currency": "CNY"
+              }
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        },
+        "techniques": [
+          {
+            "id": "unused-leading",
+            "kind": "cut",
+            "name": {
+              "zh": "未引用技法",
+              "en": "Unselected technique",
+              "uk": "Невикористаний прийом"
+            }
+          },
+          {
+            "id": "roll-cut-chunks",
+            "kind": "cut",
+            "name": {
+              "zh": "滚刀块",
+              "en": "Roll-cut chunks",
+              "uk": "Шматки рулонним нарізанням"
+            },
+            "note": {
+              "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+              "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+              "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        ],
+        "suppliers": [
+          "Fixture supplier"
+        ],
+        "translations": {
+          "machine": 0,
+          "human": 0,
+          "stale": 0
+        }
+      },
+      "responseSha256": "ee278d4992497c8325c8a877efb9f0c5c6fc658442ca55a26ca6565f4eb55e42",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61"
+    },
+    {
+      "id": 5,
+      "actor": "browser",
+      "method": "GET",
+      "path": "/catalog",
+      "search": "",
+      "ifMatch": null,
+      "ifNoneMatch": null,
+      "status": 200,
+      "responseHeaders": {
+        "access-control-allow-origin": "https://terryyyc.github.io",
+        "access-control-expose-headers": "X-Source-Revision",
+        "cache-control": "no-store",
+        "content-type": "application/json; charset=utf-8",
+        "vary": "Origin"
+      },
+      "response": {
+        "ok": true,
+        "commit": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+        "dishes": {
+          "first-dish": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "第一道样本菜",
+              "en": "First test dish",
+              "uk": "Перша тестова страва"
+            },
+            "baseServings": 2,
+            "status": "active",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato",
+                "qty": {
+                  "value": 300,
+                  "unit": "g"
+                },
+                "prep": {
+                  "techniqueRef": "roll-cut-chunks"
+                }
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "cooking-oil",
+                "qty": {
+                  "value": 20,
+                  "unit": "ml"
+                }
+              }
+            ],
+            "steps": [
+              {
+                "text": {
+                  "zh": "按原始记录准备番茄。",
+                  "en": "Prepare tomatoes using the recorded instructions.",
+                  "uk": "Підготуйте томати за записаними вказівками."
+                },
+                "techniqueRef": "roll-cut-chunks"
+              }
+            ]
+          },
+          "name-only": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "未录成分样本",
+              "en": "No components recorded",
+              "uk": "Інгредієнти не записані"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            }
+          },
+          "second-dish": {
+            "schemaVersion": "3",
+            "name": {
+              "zh": "第二道样本菜",
+              "en": "Second test dish",
+              "uk": "Друга тестова страва"
+            },
+            "status": "draft",
+            "provenance": {
+              "source": "manual"
+            },
+            "components": [
+              {
+                "ingredientRef": "tomato"
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "unit": "to-taste"
+                }
+              },
+              {
+                "ingredientRef": "tomato-other",
+                "qty": {
+                  "value": 200,
+                  "unit": "g"
+                }
+              }
+            ]
+          }
+        },
+        "ingredients": {
+          "cooking-oil": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "油",
+              "en": "Oil",
+              "uk": "Олія"
+            },
+            "baseUnit": "ml",
+            "role": "seasoning",
+            "trackStock": false
+          },
+          "salt": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "盐",
+              "en": "Salt",
+              "uk": "Сіль"
+            },
+            "baseUnit": "g",
+            "role": "seasoning",
+            "trackStock": true,
+            "onHand": 1000
+          },
+          "tomato-other": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false
+          },
+          "tomato": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "trackStock": false,
+            "purchase": {
+              "supplier": "Fixture supplier",
+              "packSize": 1,
+              "packUnit": "kg",
+              "lastPrice": {
+                "amount": 10,
+                "currency": "CNY"
+              }
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        },
+        "techniques": [
+          {
+            "id": "unused-leading",
+            "kind": "cut",
+            "name": {
+              "zh": "未引用技法",
+              "en": "Unselected technique",
+              "uk": "Невикористаний прийом"
+            }
+          },
+          {
+            "id": "roll-cut-chunks",
+            "kind": "cut",
+            "name": {
+              "zh": "滚刀块",
+              "en": "Roll-cut chunks",
+              "uk": "Шматки рулонним нарізанням"
+            },
+            "note": {
+              "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+              "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+              "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+            },
+            "image": {
+              "src": "data/ingredients/pattern.png",
+              "license": "CC0",
+              "author": "CanteenOS fixture authors",
+              "sourceUrl": "data/ingredients/pattern.png"
+            }
+          }
+        ],
+        "suppliers": [
+          "Fixture supplier"
+        ],
+        "translations": {
+          "machine": 0,
+          "human": 0,
+          "stale": 0
+        }
+      },
+      "responseSha256": "ee278d4992497c8325c8a877efb9f0c5c6fc658442ca55a26ca6565f4eb55e42",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61"
+    }
+  ],
+  "controls": [],
+  "head": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+  "githubCalls": [
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/ref/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/contents/data/menu-plans/team-week.json",
+      "search": "?ref=ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d"
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/ref/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/trees/ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "search": "?recursive=1"
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/bf47ce3f4a095714522036083d3228a36fd61cb1",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/b710269439b0fc59446b7a4d2cfec2d0604058b9",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/9b5cd97fff4b20021caa97a75c5994c1b9d3259e",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/f1c5a5bd6285a71ca8b40e2266173e0706e6a6c6",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/319cb2ba5df53819c9cc7dad94ee896dcd01e95b",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/00e50d67f21e1a94abb2d2f0885fcf60775a41af",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a0379cc388f59e39ca88a0388d3b78afeb0f5274",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a44b4c01814a517ce7c2e1afa17540cda3716542",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/ref/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/contents/data/menu-plans/team-week.json",
+      "search": "?ref=ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d"
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/trees/ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "search": "?recursive=1"
+    },
+    {
+      "method": "POST",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/commits/ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "search": ""
+    },
+    {
+      "method": "POST",
+      "path": "/repos/TERRYYYC/canteen-os/git/trees",
+      "search": ""
+    },
+    {
+      "method": "POST",
+      "path": "/repos/TERRYYYC/canteen-os/git/commits",
+      "search": ""
+    },
+    {
+      "method": "PATCH",
+      "path": "/repos/TERRYYYC/canteen-os/git/refs/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/ref/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/trees/9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "search": "?recursive=1"
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/bf47ce3f4a095714522036083d3228a36fd61cb1",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/b710269439b0fc59446b7a4d2cfec2d0604058b9",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/9b5cd97fff4b20021caa97a75c5994c1b9d3259e",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/f1c5a5bd6285a71ca8b40e2266173e0706e6a6c6",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/319cb2ba5df53819c9cc7dad94ee896dcd01e95b",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/00e50d67f21e1a94abb2d2f0885fcf60775a41af",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a0379cc388f59e39ca88a0388d3b78afeb0f5274",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a44b4c01814a517ce7c2e1afa17540cda3716542",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/ref/heads/main",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/trees/9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "search": "?recursive=1"
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/bf47ce3f4a095714522036083d3228a36fd61cb1",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/b710269439b0fc59446b7a4d2cfec2d0604058b9",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/9b5cd97fff4b20021caa97a75c5994c1b9d3259e",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/f1c5a5bd6285a71ca8b40e2266173e0706e6a6c6",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/319cb2ba5df53819c9cc7dad94ee896dcd01e95b",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/00e50d67f21e1a94abb2d2f0885fcf60775a41af",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a0379cc388f59e39ca88a0388d3b78afeb0f5274",
+      "search": ""
+    },
+    {
+      "method": "GET",
+      "path": "/repos/TERRYYYC/canteen-os/git/blobs/a44b4c01814a517ce7c2e1afa17540cda3716542",
+      "search": ""
+    }
+  ],
+  "files": {
+    "data/dishes/first-dish.json": {
+      "sha256": "2cdc2a4559f2276b17c5f3f5c3c504f2f7060c2a5b43d7dc03f3100e5ee91251",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "第一道样本菜",
+          "en": "First test dish",
+          "uk": "Перша тестова страва"
+        },
+        "baseServings": 2,
+        "status": "active",
+        "provenance": {
+          "source": "manual"
+        },
+        "components": [
+          {
+            "ingredientRef": "tomato",
+            "qty": {
+              "value": 300,
+              "unit": "g"
+            },
+            "prep": {
+              "techniqueRef": "roll-cut-chunks"
+            }
+          },
+          {
+            "ingredientRef": "salt",
+            "qty": {
+              "unit": "to-taste"
+            }
+          },
+          {
+            "ingredientRef": "cooking-oil",
+            "qty": {
+              "value": 20,
+              "unit": "ml"
+            }
+          }
+        ],
+        "steps": [
+          {
+            "text": {
+              "zh": "按原始记录准备番茄。",
+              "en": "Prepare tomatoes using the recorded instructions.",
+              "uk": "Підготуйте томати за записаними вказівками."
+            },
+            "techniqueRef": "roll-cut-chunks"
+          }
+        ]
+      }
+    },
+    "data/dishes/name-only.json": {
+      "sha256": "9cdaadb43b9d7af6d59dd78b207934a75dbdd7613bf0331ba795df023a76e2bd",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "未录成分样本",
+          "en": "No components recorded",
+          "uk": "Інгредієнти не записані"
+        },
+        "status": "draft",
+        "provenance": {
+          "source": "manual"
+        }
+      }
+    },
+    "data/dishes/second-dish.json": {
+      "sha256": "472830beddbbdf2dd1599589734da0ee12421a4de5eab911ddeeb9bc8d20344d",
+      "json": {
+        "schemaVersion": "3",
+        "name": {
+          "zh": "第二道样本菜",
+          "en": "Second test dish",
+          "uk": "Друга тестова страва"
+        },
+        "status": "draft",
+        "provenance": {
+          "source": "manual"
+        },
+        "components": [
+          {
+            "ingredientRef": "tomato"
+          },
+          {
+            "ingredientRef": "salt",
+            "qty": {
+              "unit": "to-taste"
+            }
+          },
+          {
+            "ingredientRef": "tomato-other",
+            "qty": {
+              "value": 200,
+              "unit": "g"
+            }
+          }
+        ]
+      }
+    },
+    "data/ingredients/cooking-oil.json": {
+      "sha256": "1bc0e4a30601f07cf8fc393eabc3e1dc21a4ff03adae622754c9cdbfa246f8b4",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "油",
+          "en": "Oil",
+          "uk": "Олія"
+        },
+        "baseUnit": "ml",
+        "role": "seasoning",
+        "trackStock": false
+      }
+    },
+    "data/ingredients/pattern.png": {
+      "sha256": "b1ff9c8ea3a780bad09b346c423d2d0e46815926879b18e841d928376a946640"
+    },
+    "data/ingredients/salt.json": {
+      "sha256": "811411f5c4b86151b2df18759bf598f0bca097256255aa541df182db7a6e1c9a",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "盐",
+          "en": "Salt",
+          "uk": "Сіль"
+        },
+        "baseUnit": "g",
+        "role": "seasoning",
+        "trackStock": true,
+        "onHand": 1000
+      }
+    },
+    "data/ingredients/tomato-other.json": {
+      "sha256": "3440300a0a980c3c52dedaf20c16ffa25eeb9b8679964658492c7f9ba77930ef",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "番茄",
+          "en": "Tomato",
+          "uk": "Помідор"
+        },
+        "baseUnit": "g",
+        "role": "main",
+        "trackStock": false
+      }
+    },
+    "data/ingredients/tomato.json": {
+      "sha256": "075caacd6c89766550eeaec1525bd64026dc2cbff08e11d4a5b2820294c63723",
+      "json": {
+        "schemaVersion": "2",
+        "name": {
+          "zh": "番茄",
+          "en": "Tomato",
+          "uk": "Помідор"
+        },
+        "baseUnit": "g",
+        "role": "main",
+        "trackStock": false,
+        "purchase": {
+          "supplier": "Fixture supplier",
+          "packSize": 1,
+          "packUnit": "kg",
+          "lastPrice": {
+            "amount": 10,
+            "currency": "CNY"
+          }
+        },
+        "image": {
+          "src": "data/ingredients/pattern.png",
+          "license": "CC0",
+          "author": "CanteenOS fixture authors",
+          "sourceUrl": "data/ingredients/pattern.png"
+        }
+      }
+    },
+    "data/menu-plans/team-week.json": {
+      "sha256": "29534502267f8f593d552ee0ab4dcd15c9d1be52248bcec623578616532882d1",
+      "json": {
+        "dateRange": {
+          "end": "2026-09-15",
+          "start": "2026-09-14"
+        },
+        "meals": [
+          {
+            "date": "2026-09-14",
+            "dishRef": "first-dish",
+            "mealType": "lunch",
+            "plannedServings": 8
+          },
+          {
+            "date": "2026-09-14",
+            "dishRef": "second-dish",
+            "mealType": "lunch"
+          },
+          {
+            "date": "2026-09-15",
+            "dishRef": "name-only",
+            "mealType": "dinner",
+            "plannedServings": 2
+          },
+          {
+            "date": "2026-09-15",
+            "dishRef": "first-dish",
+            "mealType": "breakfast"
+          }
+        ],
+        "name": {
+          "en": "Fixed test menu",
+          "uk": "Фіксоване тестове меню",
+          "zh": "固定样本菜单"
+        },
+        "schemaVersion": "3"
+      }
+    },
+    "data/purchase-orders/week-41-hongda.json": {
+      "sha256": "a3e9cf2dfe300452be4e6414f9b0a250fb71fd064b6bc90acc4d16e96a941b36",
+      "json": {
+        "schemaVersion": "2",
+        "supplier": "宏达粮油调味批发",
+        "generatedAt": "2026-10-03T00:00:00.000Z",
+        "lines": [
+          {
+            "ingredientRef": "cooking-oil",
+            "qty": {
+              "value": 10,
+              "unit": "l"
+            },
+            "packs": 2,
+            "trace": {
+              "meals": [
+                {
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 200
+                },
+                {
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 160
+                },
+                {
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 120
+                }
+              ],
+              "netNeed": {
+                "value": 4800,
+                "unit": "ml"
+              },
+              "yieldApplied": null,
+              "marginApplied": 1.1,
+              "onHandDeducted": {
+                "value": 1000,
+                "unit": "ml"
+              },
+              "grossNeed": {
+                "value": 4280,
+                "unit": "ml"
+              },
+              "packSize": 5,
+              "packUnit": "l",
+              "packsRaw": 0.856,
+              "minPacksApplied": true
+            },
+            "unitPrice": {
+              "amount": 68,
+              "currency": "CNY"
+            },
+            "amount": {
+              "amount": 136,
+              "currency": "CNY"
+            }
+          },
+          {
+            "ingredientRef": "salt",
+            "qty": {
+              "value": 10000,
+              "unit": "g"
+            },
+            "packs": 20,
+            "trace": {
+              "meals": [
+                {
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 200
+                },
+                {
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 160
+                },
+                {
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "servings": 120
+                }
+              ],
+              "netNeed": {
+                "value": 720,
+                "unit": "g"
+              },
+              "yieldApplied": null,
+              "marginApplied": 1.1,
+              "onHandDeducted": {
+                "value": 500,
+                "unit": "g"
+              },
+              "grossNeed": {
+                "value": 292,
+                "unit": "g"
+              },
+              "packSize": 500,
+              "packUnit": "g",
+              "packsRaw": 0.584,
+              "minPacksApplied": true
+            },
+            "unitPrice": {
+              "amount": 2.5,
+              "currency": "CNY"
+            },
+            "amount": {
+              "amount": 50,
+              "currency": "CNY"
+            }
+          }
+        ],
+        "menuPlanRef": "week-41",
+        "totalAmount": {
+          "amount": 186,
+          "currency": "CNY"
+        }
+      }
+    },
+    "data/techniques.json": {
+      "sha256": "bbe322f7e66a3c1d6a250a1d948ffbbf36da95a1f6725019326d4c84054eec8e",
+      "json": [
+        {
+          "id": "unused-leading",
+          "kind": "cut",
+          "name": {
+            "zh": "未引用技法",
+            "en": "Unselected technique",
+            "uk": "Невикористаний прийом"
+          }
+        },
+        {
+          "id": "roll-cut-chunks",
+          "kind": "cut",
+          "name": {
+            "zh": "滚刀块",
+            "en": "Roll-cut chunks",
+            "uk": "Шматки рулонним нарізанням"
+          },
+          "note": {
+            "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+            "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+            "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+          },
+          "image": {
+            "src": "data/ingredients/pattern.png",
+            "license": "CC0",
+            "author": "CanteenOS fixture authors",
+            "sourceUrl": "data/ingredients/pattern.png"
+          }
+        }
+      ]
+    }
+  }
+}

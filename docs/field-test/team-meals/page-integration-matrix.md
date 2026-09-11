@@ -8,7 +8,9 @@ status: executing
 
 # 最终页面组合验收矩阵
 
-本轮调度明确授权恢复 Q；准备文件中“Q idle”的旧状态被此次固定版本派工取代。输入实现由 `feda0ad68b68a050dc35f579e04b811ec690edf8` 快进到预算元数据修正 `842b778bd352c0dba8921584ce142d94665e5ca2`，生产 packages tree 始终为 `dce6d72208652c80d2aa5b40865bef4a56732226`，等于已审 `7920496e06996eedac6e08e862fa097453ed9462` / 生产 `734e295edbfa03b360e0052a782f8b5c6f0c980c`。不采用旧预算工具的 df992 标签。后续 Q 测试提交会改变 packages tree，不能冒称该完整 tree 仍等于生产输入。
+本轮调度明确授权恢复 Q；准备文件中“Q idle”的旧状态被此次固定版本派工取代。原始验收输入由 `feda0ad68b68a050dc35f579e04b811ec690edf8` 快进到预算元数据修正 `842b778bd352c0dba8921584ce142d94665e5ca2`，当时生产 packages tree 为 `dce6d72208652c80d2aa5b40865bef4a56732226`，等于已审 `7920496e06996eedac6e08e862fa097453ed9462` / 生产 `734e295edbfa03b360e0052a782f8b5c6f0c980c`。不采用旧预算工具的 df992 标签。后续 Q 测试提交会改变 packages tree，不能冒称该完整 tree 仍等于生产输入。
+
+当前集成生产输入为已审导入修复 `6bb1ce916c9b4117b6e03db23a78a5d0b9724a10`（完整交付fa6），包括先前已闭合的复制修复5049。新原生执行源9084的58份Web源与6bb逐字一致；C/core/Worker/main/冻结输入未改，沿用原本已审证据。仅复测受影响的Plan/Import及保存边界，不把历史检查改称新执行。
 
 原始验收来源：设计工作区 `docs/design/reference-v3/STANDARD-DATA-AND-ACCEPTANCE.md`，本轮读取并核验 SHA256 `6aaff3f33b65aad6f6952297abae9dd2dafef379bcc0fa64066c07f5300f0352`。这里只映射既定 T01–T09，不增加业务范围。
 
@@ -18,13 +20,13 @@ status: executing
 
 | 编号 | 本轮具体动作 / 断言 | 继承证据及不重做边界 | 结果 |
 |---|---|---|---|
-| T01 | 实际日筛选保存全部四餐，无自动份数，保留原2；新空v3保存/刷新回读；追加实际周筛选保全三条/回读；导入无份数与错误原文可见 | 本轮 Node20 Worker/Core/夹具严格格式回归通过；追加周筛选见 page-additional-842，独立于原52请求快照 | **未通过：Q-UI-T01-02** 导入丢失其他餐次11份草稿，待原D修复复验 |
+| T01 | 原日筛选四餐/空v3、追加周筛选三餐已审；6bb真实11保留、原2/空值、raw13.7排序、无数量保留、显式7/清空、增删、日筛选整份七餐保存并回读 | Worker/Core/夹具旧固定回归继承；6bb扩展auth/404/unknown/conflict等为D原非作者组合测试，非新增Q原生 | **Q-UI-T01-02 新原生GREEN，待原v2_review固定追加复核** |
 | T02 | 四候选全部可见；tomato两来源，tomato-other同名独立；salt适量、oil缺包装存在；可点来源菜品 | 本轮复跑Q64的独立来源/数值断言 | 本地已执行通过 |
 | T03 | draft、缺基准、未录成分实际可见；已有候选仍保留完整性限制；缺引用补充负例2/2 | 实际Worker保存发dangling-ref警告；正式producer按missing-dish/ingredient阻止发布且旧输出字节不变；负例未装到浏览器公共数据 | 本地已执行通过 |
 | T04 | 真实保存范围→全check创建→buy/available/bought；元数据rebase保留判断；改份数rebase先保存check+previous，再单独确认保存；其他知识/PO字节不变 | 实际52条handler流水及7个捕获断言；本轮另复跑正式client/handler5/5 | 本地已执行通过 |
 | T05 | 页面v3原值/空值与强条件头正确；本轮Worker team118/118（含禁止降级、并发、回退隔离） | 本地真实handler+FakeRepo，不是GitHub/Cloudflare往返；没有浏览器/远端回退 | 本地已执行通过 |
 | T06 | A同版材料/菜谱/技法字段与红图，当前B另入口且可返回A；B basis详情/蓝图另验证；技法owner=data/techniques.json、index=1 | C published reader源码等于已审3dd9；自动64项reader/update检查本轮重跑；公共图是1×1合法像素夹具，非设计图签收 | 本地已执行通过 |
-| T07 | 实际双客户端旧锁409保5；成功后丢响应，服务端6/本地7经current+pinned双读保7；超时保8；短延迟ACK服务端8/本地9离页返回保9；三语留稿 | 更新/离线原生证据有界继承，详见执行记录；当前更新自动检查通过，未新发原生SW更新 | **保存/冲突分支通过；导航到导入的丢稿归T01-02，未整格宣称通过** |
+| T07 | 原双客户端旧锁409、unknown双读、超时/短ACK保后续稿已审；6bb新增真实保存六行期间导入第七行，迟到ACK后七行仍dirty，下一明确Save才保存第七行；raw跨三语保留 | 原C保存/离线/更新证据有界继承；导入auth/unknown/conflict扩展消费D独立组合证据，非新原生操作 | **保存/冲突旧分支通过；导入边界新原生GREEN，待T01-02追加复核后整格关闭** |
 | T08 | 六主页面×三语×双尺寸36组及actual innerWidth；冲突三语；缺项/旧版；原生复制在获批5049追加复测三语成功/回退/未应用B仍复制A；导航无顾客入口 | 离线/部署交错原生继承3dd9独立原件；no-SW只消费现有自动/预算边界，未新做原生no-SW；新复制控制面板横溢出另记，截图非用户签收 | **本地通过；Q-UI-T08-01 已经原 v2_review 对810df70追加批准并闭合**；旧RED原件保留 |
 | T09 | unknown份数/qty保持未录；盐为原适量；部分来源未知不出总需求；缺包装仍在候选；原配方300g/20ml与参考区分 | 本轮Core103/103、Q64/64含独立黄金和部分数值语义；不把未知字段变零或适量 | 本地已执行通过 |
 
@@ -39,3 +41,5 @@ status: executing
 原 v2_review 已有界 APPROVE 固定 `4813ebb2cb57330554f793a60d9d7d7ea09fa405` 的证据准确性，没有关闭两项产品 RED。周筛选追加见 [原生周保存](page-additional-842/README.md)；获批复制修复的原始 lunch-only 重放见 [5049复制追加](page-repair-5049/README.md)，均不属于该 4813 审核范围。
 
 随后同一原 reviewer 对 `810df706519c92622d4706b03c69484ba2fb9911` 有界 APPROVE，覆盖复制追加及周筛选追加；复制问题的当前闭合状态见 [Q-UI-T08-01闭合记录](Q-UI-T08-01-closure.md)。封存目录 README 的 pending 状态是送审当时快照，未改写；本矩阵和闭合记录反映后续状态。T01/T07 导入丢稿继续未通过，整体仍 executing。
+
+导入修复的新原生GREEN与11请求账本见 [6bb追加记录](page-repair-6bb/README.md)。现阶段T01/T07仅待新固定证据的原非作者复核，尚未声明整体验收通过。截图和测试数量均不是用户走查、视觉签收或L2完成数量。
