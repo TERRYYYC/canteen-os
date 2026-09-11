@@ -1,0 +1,17 @@
+✔ B2 shopping inputs come entirely from their saved source revision (13.641625ms)
+✔ B2 shopping inputs reject missing selected plan as unavailable basis (0.941833ms)
+✔ B2 shopping inputs reject malformed source data/menu-plans/team.json (0.461166ms)
+✔ B2 shopping inputs reject malformed source data/dishes/soup.json (0.169834ms)
+✔ B2 shopping inputs reject malformed source data/ingredients/salt.json (0.202541ms)
+✔ B2 shopping inputs reject malformed source data/techniques.json (0.313834ms)
+✔ B2 shopping inputs preserve unresolved refs as absent records (0.262583ms)
+✔ B2 empty v3 plan remains a real selected plan (0.193625ms)
+✔ B2 shopping source read failures remain upstream errors (0.152166ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.437083

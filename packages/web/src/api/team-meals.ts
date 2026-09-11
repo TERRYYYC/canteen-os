@@ -14,6 +14,8 @@ export interface TeamMealsApi {
   readonly mode: ApiMode;
   /** Opaque auth lifetime for editor adapters; never a credential. */
   sessionKey(): number;
+  /** Pure observation for reload safety. null/absent means identity cannot yet be verified. */
+  peekSessionKey?(): number | null;
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null>;
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null>;
   getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null>;
@@ -48,6 +50,7 @@ class TeamHttpApi implements TeamMealsApi {
     this.unsubscribeMutation = this.transport.onMutation(() => { this.writeGeneration++; this.cache.clear(); });
   }
   sessionKey(): number { return this.transport.sessionKey(); }
+  peekSessionKey(): number | null { return this.transport.peekSessionKey(); }
   dispose(): void { this.cache.clear(); this.unsubscribe(); this.unsubscribeMutation(); this.transport.dispose(); }
   private query(opts: ReadOptions): string {
     if (opts.revision === undefined) return '';

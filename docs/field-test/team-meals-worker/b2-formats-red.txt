@@ -1,0 +1,178 @@
+✖ B2 v3 plan saves and rereads with 1 meals without invented servings (10.289833ms)
+✖ B2 v3 plan saves and rereads with 0 meals without invented servings (0.782833ms)
+✖ B2 v3 dish unknown qty saves unchanged; v2 still requires qty (2.154792ms)
+✖ B2 newest lock cannot downgrade plan to 2 (1.321ms)
+✖ B2 newest lock cannot downgrade dish to undefined (0.713958ms)
+✖ B2 newest lock cannot downgrade dish to 2 (0.524625ms)
+✔ B2 version guard does not hide stale lock conflict (0.913417ms)
+✖ B2 v3 range relation {"start":"2026-10-25","end":"2026-10-19"} (0.388917ms)
+✖ B2 v3 range relation {"start":"2026-10-20","end":"2026-10-25"} (0.501041ms)
+✖ B2 explicit version selection and standalone ShoppingList validator (0.177208ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 1
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 52.024833
+
+✖ failing tests:
+
+test at packages/worker/test/team-formats.test.mjs:9:46
+✖ B2 v3 plan saves and rereads with 1 meals without invented servings (10.289833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:11:9)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:9:46
+✖ B2 v3 plan saves and rereads with 0 meals without invented servings (0.782833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:11:9)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:13:1
+✖ B2 v3 dish unknown qty saves unchanged; v2 still requires qty (2.154792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:15:200)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:19:200
+✖ B2 newest lock cannot downgrade plan to 2 (1.321ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:21:142)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:19:200
+✖ B2 newest lock cannot downgrade dish to undefined (0.713958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:21:142)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:19:200
+✖ B2 newest lock cannot downgrade dish to 2 (0.524625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:21:142)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:26:102
+✖ B2 v3 range relation {"start":"2026-10-25","end":"2026-10-19"} (0.388917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'const'
+  - 'invalid_selection'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:27:187)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'const',
+    expected: 'invalid_selection',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:26:102
+✖ B2 v3 range relation {"start":"2026-10-20","end":"2026-10-25"} (0.501041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'const'
+  - 'invalid_selection'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:27:187)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'const',
+    expected: 'invalid_selection',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-formats.test.mjs:29:1
+✖ B2 explicit version selection and standalone ShoppingList validator (0.177208ms)
+  AssertionError [ERR_ASSERTION]: ShoppingList version-selected validator is registered
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-formats.test.mjs:33:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

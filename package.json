@@ -18,6 +18,8 @@
     "translate": "node scripts/translate.mjs",
     "translate:dry": "node scripts/translate.mjs --dry-run",
     "test:scripts": "node --test scripts/*.test.mjs",
+    "prepare:team-image-tools": "node scripts/prepare-team-image-tools.mjs",
+    "check:team-image-tools": "node scripts/prepare-team-image-tools.mjs --check",
     "land": "node scripts/land.mjs",
     "land:dry": "node scripts/land.mjs --dry-run",
     "build:data": "node scripts/build-data.mjs",
@@ -27,7 +29,9 @@
   },
   "devDependencies": {
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "jpeg-js": "0.4.4",
+    "pngjs": "5.0.0"
   },
   "engines": {
     "node": ">=20"

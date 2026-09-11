@@ -9,13 +9,15 @@
  * （JSON Pointer，前端按它把输入框标黄）。
  */
 import type { CompiledValidator, ValidatorError } from "../generated/validators.js";
-import { validateDish, validateIngredient, validateMenuPlan } from "../generated/validators.js";
+import { validateDish, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList } from "../generated/validators.js";
 import type { FieldError } from "./types.js";
 
 export const VALIDATORS = {
   plan: validateMenuPlan as CompiledValidator,
   ingredient: validateIngredient as CompiledValidator,
   dish: validateDish as CompiledValidator,
+  techniques: validateTechniques as CompiledValidator,
+  "shopping-list": validateShoppingList as CompiledValidator,
 };
 
 /** 契约 §1.8 的示例文案是绑在具体字段上的（「份数至少 1」「净料率不能超过 1」）。
@@ -80,12 +82,15 @@ function messageFor(err: ValidatorError): string {
 }
 
 /** ajv 的 errors[] → 契约 §1.8 的 errors[]。path 用 instancePath，非字段级为 ""。 */
-export function toFieldErrors(errors: readonly ValidatorError[] | null | undefined): FieldError[] {
+export function toFieldErrors(errors: readonly ValidatorError[] | null | undefined, precisePaths = false): FieldError[] {
   const list = errors ?? [];
   const out: FieldError[] = [];
   const seen = new Set<string>();
   for (const err of list) {
-    const path = err.instancePath;
+    const member = err.keyword === "required" ? err.params.missingProperty
+      : err.keyword === "additionalProperties" ? err.params.additionalProperty : undefined;
+    const path = err.instancePath + (precisePaths && typeof member === "string"
+      ? `/${member.replace(/~/g, "~0").replace(/\//g, "~1")}` : "");
     const code = err.keyword;
     const key = `${path}|${code}|${JSON.stringify(err.params)}`;
     if (seen.has(key)) continue;
@@ -100,8 +105,10 @@ export interface ValidationOutcome {
   errors: FieldError[];
 }
 
-export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown): ValidationOutcome {
-  const validate = VALIDATORS[kind];
+export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown, precisePaths = false): ValidationOutcome {
+  const version = data && typeof data === "object" ? (data as {schemaVersion?: unknown}).schemaVersion : undefined;
+  const validate = kind === "plan" && version === "3" ? validateMenuPlanV3
+    : kind === "dish" && version === "3" ? validateDishV3 : VALIDATORS[kind];
   const valid = validate(data);
-  return { valid, errors: valid ? [] : toFieldErrors(validate.errors) };
+  return { valid, errors: valid ? [] : toFieldErrors(validate.errors, precisePaths) };
 }

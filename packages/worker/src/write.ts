@@ -11,6 +11,9 @@
  *
  * 幂等命中时**一次写 API 都不调**（T-21）。
  */
+import type { WritePrecondition } from "./preconditions.js";
+import { checkPrecondition } from "./preconditions.js";
+import type { FileContent } from "./github.js";
 import type { GitHubClient } from "./github.js";
 import { bytesToBase64, commitMessage } from "./github.js";
 import { gitBlobSha } from "./gitsha.js";
@@ -28,6 +31,9 @@ export interface CommitFileParams {
   /** 进 X-CanteenOS-Endpoint trailer 的具体端点，如 "POST /plan/week-43"。 */
   endpoint: string;
   ifMatch: string | null;
+  precondition?: WritePrecondition;
+  /** Runs on every attempt, before idempotence and any write; all reads use this head. */
+  verify?: (head: string, current: FileContent | null) => Promise<void>;
   /** 写入 commit 带 [skip ci]（ADR-0007 §3）；只有 publish 的触发 commit 不带。 */
   skipCi?: boolean;
 }
@@ -51,10 +57,14 @@ export async function commitSingleFile(
     const head = await gh.getHeadSha();
     const current = await gh.getFile(params.path, head);
 
+    if (params.precondition) checkPrecondition(params.precondition, current);
+
     // 文件级冲突：立即 409，不重试。
     if (params.ifMatch !== null && current?.sha !== params.ifMatch) {
       throw fail("conflict");
     }
+
+    await params.verify?.(head, current);
 
     // 内容幂等：逐字节相同 → 不产生 commit，一次写 API 都不调。
     if (current && current.sha === nextBlobSha) {
