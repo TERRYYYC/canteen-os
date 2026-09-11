@@ -59,10 +59,10 @@ document.querySelector('#run').onclick=async()=>{
   document.querySelector('#scenario').value='lost';document.querySelector('.tm-actions button').click();await tick();
   assert(document.querySelector('[data-phase="outcome-unknown"]'),'lost response stays unknown');away=true;await paint();await tick();away=false;await paint();
   assert(document.querySelector('[data-phase="outcome-unknown"]'),'unknown resumes after return');
-  const writes=ledger.filter(x=>x.method==='POST').length,reads=ledger.filter(x=>x.method==='GET').length;
+  const writes=ledger.filter(x=>x.method==='POST').length,reads=ledger.filter(x=>x.method==='GET'&&x.path==='/source/plan/team-week').length;
   [...document.querySelectorAll('button')].find(x=>x.textContent==='Перевірити результат збереження').click();await tick();
   assert(document.querySelector('[data-phase="saved-but-unpublished"]'),'verified saved result');
-  assert(ledger.filter(x=>x.method==='POST').length===writes,'no duplicate writes');assert(ledger.filter(x=>x.method==='GET').length-reads===2,'two recovery reads');
+  assert(ledger.filter(x=>x.method==='POST').length===writes,'no duplicate writes');assert(ledger.filter(x=>x.method==='GET'&&x.path==='/source/plan/team-week').length-reads===2,'two recovery reads');
   assert(ledger.filter(x=>x.method==='POST').every(x=>x.body.meals.length===3&&x.body.schemaVersion==='3'&&x.ifMatch),'full plan and lock');
   out.textContent=' PASS — real page + C1, mock network only';
  }catch(error){out.textContent=` FAIL — ${error.message}`;}

@@ -15,9 +15,9 @@
 test at packages/web/test/team-meals-pages-plan.test.mjs:22:1
 ✖ saving optional servings explicitly upgrades to v3 without invented counts (0.650291ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   '2' !== '3'
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:24:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)
@@ -36,7 +36,7 @@ test at packages/web/test/team-meals-pages-plan.test.mjs:28:1
   AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
   + actual - expected
   ... Skipped lines
-  
+
     {
       dateRange: {
         end: '2026-10-11',
@@ -47,7 +47,7 @@ test at packages/web/test/team-meals-pages-plan.test.mjs:28:1
   +   schemaVersion: '2'
   -   schemaVersion: '3'
     }
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:31:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)
@@ -67,13 +67,13 @@ test at packages/web/test/team-meals-pages-plan.test.mjs:33:1
 ✖ deleting the last meal produces a legal empty v3 document (0.144625ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
   + actual - expected
-  
+
     {
       meals: [],
   +   schemaVersion: '2'
   -   schemaVersion: '3'
     }
-  
+
       at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:34:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)

@@ -19,7 +19,7 @@ function setup(save=async()=>done()){
  const writes=[],reads=[];let current=src();
  const api={mode:'mock',sessionKey:()=>0,getPlan:async(id,opts)=>{reads.push([id,opts]);return current;},getCatalog:async()=>({commit:A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}}),savePlan:async(...args)=>{writes.push(structuredClone(args));return save(...args);}};
  assert.equal(typeof module.createPlanForm,'function','the actual plan page must expose its C1 form adapter');
- return {form:module.createPlanForm(api),writes,reads,setCurrent:v=>{current=v;}};
+ return {form:module.createPlanForm(api),api,writes,reads,setCurrent:v=>{current=v;}};
 }
 test('page adapter saves complete plan, preserving true values and omitting cleared counts',async()=>{
  const {form,writes}=setup();await form.load('week-41');form.servings(0,'');await form.session.save();
@@ -42,4 +42,24 @@ test('empty new plan only follows not_found and uses creation lock',async()=>{
 });
 test('invalid optional count is not silently converted to unknown or zero',async()=>{
  const {form,writes}=setup();await form.load('week-41');assert.throws(()=>form.servings(0,'0'));assert.throws(()=>form.servings(0,'2.5'));assert.equal(form.session.getState().draft.meals[0].plannedServings,200);assert.equal(writes.length,0);
+});
+
+test('R1 requested identity retry rereads B after its source failure',async()=>{
+ const {form,api}=setup();let reads=0;api.getPlan=async id=>{if(id==='week-b'&&++reads===1)throw new Error('503');return src();};
+ await form.load('week-a');await assert.rejects(form.load('week-b'));await form.load('week-b');assert.equal(reads,2);assert.equal(form.session.getState().identity.id,'week-b');
+});
+test('R2 import is applied before awaiting catalog, so subsequent edits survive',async()=>{
+ const {form,api}=setup();let release;api.getCatalog=()=>new Promise(r=>release=r);
+ const loading=form.load('week-import',()=>true,{schemaVersion:'3',meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'soup',plannedServings:2}]});
+ await new Promise(r=>setTimeout(r,0));assert.equal(form.session.getState().draft.meals[0].plannedServings,2);
+ form.servings(0,'9');release({commit:A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}});await loading;assert.equal(form.session.getState().draft.meals[0].plannedServings,9);
+});
+test('R3 catalog cache follows adopted source and acknowledged save revision',async()=>{
+ const {form,api}=setup();const revisions=[];api.getCatalog=async options=>{revisions.push(options?.revision);return {commit:options?.revision??A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}};};
+ await form.load('week-a');form.session.replace(plan,src(plan,B,'blob-b'));const catalog=await form.load('week-a');assert.equal(catalog.commit,B);assert.deepEqual(revisions,[A,B]);
+});
+test('R5 language rebind joins pending exact revision catalog',async()=>{
+ const {form,api}=setup();let release,calls=0;api.getCatalog=()=>{calls++;return new Promise(r=>release=r);};
+ const first=form.load('week-a');await new Promise(r=>setTimeout(r,0));const second=form.load('week-a');
+ release({commit:A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}});const [,catalog]=await Promise.all([first,second]);assert.equal(catalog?.commit,A);assert.equal(calls,1);
 });

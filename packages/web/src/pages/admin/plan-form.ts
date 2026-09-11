@@ -13,8 +13,23 @@ export function createPlanForm(api: TeamMealsApi) {
     read: (identity, options) => api.getPlan(identity.id, options),
   });
   const known = new Set<string>();
+  // Catalogs are versioned data, never metadata owned by a plan id.
   const catalogs = new Map<string, TeamCatalog>();
+  const pending = new Map<string, Promise<TeamCatalog>>();
   let sequence = 0;
+  const loadCatalog = async (force = false): Promise<TeamCatalog> => {
+    const state = session.getState(), auth = api.sessionKey();
+    const revision = state.source?.commit;
+    const key = revision ?? 'current-unsaved';
+    if (!force && catalogs.has(key)) return catalogs.get(key)!;
+    if (pending.has(key)) return pending.get(key)!;
+    const request = api.getCatalog({...(revision ? {revision} : {}), ...(force ? {force:true} : {})}).then(catalog => {
+      if (revision && catalog.commit !== revision) throw new Error('catalog_revision_mismatch');
+      if (auth === api.sessionKey()) catalogs.set(key,catalog);
+      return catalog;
+    }).finally(() => pending.delete(key));
+    pending.set(key,request); return request;
+  };
   const mutate = (fn: (draft: MenuPlanV3) => void, contextId = session.getState().contextId) => {
     const state = session.getState();
     if (!state.draft || state.contextId !== contextId) return false;
@@ -23,30 +38,28 @@ export function createPlanForm(api: TeamMealsApi) {
   };
   return {
     session, api,
-    async load(id: string, isCurrent: () => boolean = () => true): Promise<TeamCatalog | null> {
+    async load(id: string, isCurrent: () => boolean = () => true, imported?: AnyMenuPlan, consumed?: () => void): Promise<TeamCatalog | null> {
       const ticket = ++sequence, auth = api.sessionKey();
       const live = () => ticket === sequence && isCurrent() && auth === api.sessionKey();
       if (known.has(id)) {
         const state = session.getState();
         if (state.identity?.id === id && state.phase !== 'closed') session.refreshView();
         else session.open({kind:'plan',id},{schemaVersion:'3',meals:[]},null);
-        return catalogs.get(id) ?? null;
+      } else {
+        const source = await api.getPlan(id);
+        if (!live()) return null;
+        const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',meals:[]};
+        session.open({kind:'plan',id},initial,source); known.add(id);
       }
-      const source = await api.getPlan(id);
-      if (!live()) return null;
-      // A failed catalog cannot turn a genuine source into an empty document.
-      const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',meals:[]};
-      session.open({kind:'plan',id},initial,source); known.add(id);
-      const catalog = await api.getCatalog(source ? {revision:source.commit} : {});
-      if (!live()) return null;
-      catalogs.set(id,catalog); return catalog;
+      // Import before the next asynchronous boundary: later typing is always newer.
+      const state = session.getState();
+      if (imported && !state.operationId && state.phase !== 'conflict') {
+        if (session.edit(toSavePlan({plan:imported}),state.contextId)) consumed?.();
+      }
+      const catalog = await loadCatalog();
+      return live() ? catalog : null;
     },
-    async loadCatalog(): Promise<TeamCatalog> {
-      const state=session.getState(), auth=api.sessionKey();
-      const catalog=await api.getCatalog(state.source ? {revision:state.source.commit,force:true} : {force:true});
-      if(auth===api.sessionKey() && state.identity) catalogs.set(state.identity.id,catalog);
-      return catalog;
-    },
+    loadCatalog,
     servings(index: number, raw: string, contextId?: number) {
       const value = raw.trim() === '' ? undefined : Number(raw);
       if (value !== undefined && (!Number.isInteger(value) || value < 1)) throw new Error('invalid_servings');

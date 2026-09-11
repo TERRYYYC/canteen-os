@@ -21,9 +21,9 @@ interface View { range:'all'|'day'|'week'; date:string; invalid:Map<number,strin
 export function createPlanRenderer(api:TeamMealsApi) {
   let form=createPlanForm(api),auth=api.sessionKey();
   const views=new Map<string,View>();
-  let cleanup:()=>void=()=>{};
+  let cleanup:()=>void=()=>{}, renderSequence=0;
   return async function renderPlan(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void> {
-    cleanup();
+    cleanup(); const renderTicket=++renderSequence;
     if(auth!==api.sessionKey()){form=createPlanForm(api);auth=api.sessionKey();views.clear();}
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
     const id=rest||ctx.planId||planIdOfDate(new Date().toISOString().slice(0,10))||'';
@@ -34,14 +34,18 @@ export function createPlanRenderer(api:TeamMealsApi) {
     if(api.mode==='unconfigured'){body.append(h('div',{class:'tm-status',role:'status'},tr('unconfigured')));return;}
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
+    let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
     const today=new Date().toISOString().slice(0,10);
     const defaultDate=weekStartOfPlanId(id,today)??today;
     const view=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:''};views.set(id,view);
-    const isLive=()=>el.isConnected&&owner===form&&auth===api.sessionKey();
+    const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
+    const sourceKey=()=>owner.session.getState().source?.commit??'current-unsaved';
     function paint() {
       if(!isLive())return;
       const s=owner.session.getState();contextId=s.contextId;
       if(s.identity?.id!==id){replace(body,h('p',{role:'status'},tr('loading')),...(loadError?[h('p',{role:'alert'},apiMessage(loadError,lang)),action(tr('retry'),()=>void reloadCatalog())]:[]));return;}
+      if(boundKey!==sourceKey())catalog=null;
+      if(initialized&&!catalog&&requestedKey!==sourceKey()){requestedKey=sourceKey();void reloadCatalog(false);}
       const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;
       const output:HTMLElement[]=[status(s,lang)];
       if(loadError)output.push(h('div',{class:'tm-error',role:'alert'},apiMessage(loadError,lang),action(tr('retry'),()=>void reloadCatalog())));
@@ -81,7 +85,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     function dishSelect(value:string,key:string):HTMLSelectElement {
       const select=h('select',{'data-focus':key});select.append(h('option',{value:''},tr('choose')));
-      if(value&&!catalog?.dishes[value])select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
+      if(value&&!Object.hasOwn(catalog?.dishes??{},value))select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
       for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${dish.status}`:''}`));
       select.value=value;return select;
     }
@@ -93,7 +97,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       const input=h('input',{type:'number',min:1,step:1,value:view.invalid.get(index)??meal.plannedServings??'','data-focus':`servings-${index}`,'aria-invalid':view.invalid.has(index)?'true':undefined});
       input.addEventListener('input',()=>{
         if(input.validity.badInput){view.invalid.set(index,input.value);paint();return;}
-        try{view.invalid.delete(index);owner.servings(index,input.value,captured);}catch{view.invalid.set(index,input.value);paint();}
+        try{const invalid=view.invalid.delete(index);owner.servings(index,input.value,captured);if(invalid)paint();}catch{view.invalid.set(index,input.value);paint();}
       });
       const remove=action(tr('remove'),()=>{view.invalid.clear();owner.remove(index,captured);});
       const node=h('div',{class:'tm-meal-row','data-meal-index':index},field(tr('dish'),dish),field(tr('servings'),input),remove);
@@ -117,31 +121,45 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(compareError)card.append(h('p',{role:'alert'},apiMessage(compareError,lang)));
       if(remote!==undefined){
         const s=owner.session.getState(),captured=s.contextId;
-        card.append(h('div',{class:'tm-compare'},h('section',{},h('h3',{},tr('local')),h('pre',{},JSON.stringify(s.draft,null,2))),h('section',{},h('h3',{},tr('remote')),h('pre',{},JSON.stringify(remote?.content??null,null,2)))));
+        card.append(h('div',{class:'tm-compare'},comparePlan(tr('local'),s.draft),comparePlan(tr('remote'),remote?.content??null)));
+        card.append(h('p',{},lang==='zh'?'保留本地稿会更新保存基线，仍需再次保存；采用远端会替换本地稿。':lang==='en'?'Keeping local changes updates the baseline and requires another save. Using remote content replaces the local draft.':'Локальні зміни отримають нову базу й потребуватимуть збереження. Віддалені дані замінять локальну чернетку.'));
         card.append(action(tr('keep'),()=>{if(s.draft)owner.session.replace(s.draft,remote??null,captured);}),action(tr('adopt'),()=>{owner.session.replace(remote?toSavePlan({plan:remote.content}):{schemaVersion:'3',meals:[]},remote??null,captured);}));
       }return card;
+    }
+    function comparePlan(label:string,plan:AnyMenuPlan|null):HTMLElement {
+      return h('section',{},h('h3',{},label),plan&&plan.meals.length?h('ul',{},...plan.meals.map(meal=>h('li',{},
+        `${meal.date} · ${tr(meal.mealType)} · ${meal.dishRef} · ${meal.plannedServings??(lang==='zh'?'份数未录':lang==='en'?'Count unspecified':'Кількість не вказана')}`))):h('p',{},tr('empty')),
+        h('details',{},h('summary',{},lang==='zh'?'原始数据':lang==='en'?'Raw data':'Вихідні дані'),h('pre',{},JSON.stringify(plan,null,2))));
     }
     async function compare(){
       const captured=owner.session.getState().contextId;comparing=true;compareError=null;paint();
       try{const result=await owner.compareRemote();if(isLive()&&owner.session.getState().contextId===captured)remote=result;}catch(error){if(isLive())compareError=error;}
       finally{if(isLive()){comparing=false;paint();}}
     }
-    async function reloadCatalog(){
-      try{const result=owner.session.getState().draft?await owner.loadCatalog():await owner.load(id,isLive);if(isLive()){catalog=result;loadError=null;}}catch(error){if(isLive())loadError=error;}paint();
+    async function reloadCatalog(force=true){
+      const state=owner.session.getState();
+      try{
+        const key=sourceKey();
+        const result=state.identity?.id===id&&state.phase!=='closed'
+          ? await owner.loadCatalog(force)
+          : await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
+        if(isLive()&&owner.session.getState().identity?.id===id&&(state.identity?.id!==id||sourceKey()===key)){
+          catalog=result;boundKey=sourceKey();requestedKey=boundKey;loadError=null;
+        }
+      }catch(error){if(isLive())loadError=error;}paint();
     }
     replace(body,h('p',{role:'status'},tr('loading')));
     const unsubscribe=owner.session.subscribe(()=>paint());
     const stopObserve=onDetached(el,()=>{unsubscribe();if(owner.session.getState().contextId===contextId)owner.detach();});
     cleanup=()=>{unsubscribe();stopObserve();};
     try{
-      catalog=await owner.load(id,isLive);
+      catalog=await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
       if(!isLive())return;
-      const imported=getDraftPlan(id),s=owner.session.getState();
-      if(imported&&!s.operationId&&s.phase!=='conflict'){
-        owner.session.edit(toSavePlan({plan:imported}),s.contextId);clearDraftPlan(id);
-      }
+      boundKey=sourceKey();
+      const s=owner.session.getState();
       const date=s.draft?.meals[0]?.date;if(date&&view.date===defaultDate){view.date=date;view.addDate=date;}
     }catch(error){if(isLive())loadError=error;}
+    initialized=true;requestedKey=sourceKey();
     paint();
   };
 }
