@@ -1,0 +1,279 @@
+TAP version 13
+# Subtest: independent ingredient array proof boundary
+ok 1 - independent ingredient array proof boundary
+  ---
+  duration_ms: 56.810666
+  ...
+# Subtest: independent ingredient boxed string proof boundary
+ok 2 - independent ingredient boxed string proof boundary
+  ---
+  duration_ms: 41.781625
+  ...
+# Subtest: independent ingredient custom coercion proof boundary
+ok 3 - independent ingredient custom coercion proof boundary
+  ---
+  duration_ms: 40.706583
+  ...
+# Subtest: independent ingredient empty proof boundary
+ok 4 - independent ingredient empty proof boundary
+  ---
+  duration_ms: 39.892833
+  ...
+# Subtest: independent ingredient short proof boundary
+ok 5 - independent ingredient short proof boundary
+  ---
+  duration_ms: 41.664333
+  ...
+# Subtest: independent ingredient null proof boundary
+ok 6 - independent ingredient null proof boundary
+  ---
+  duration_ms: 42.898959
+  ...
+# Subtest: independent ingredient string proof boundary
+ok 7 - independent ingredient string proof boundary
+  ---
+  duration_ms: 38.750708
+  ...
+# Subtest: independent dish array proof boundary
+ok 8 - independent dish array proof boundary
+  ---
+  duration_ms: 44.645292
+  ...
+# Subtest: independent dish boxed string proof boundary
+ok 9 - independent dish boxed string proof boundary
+  ---
+  duration_ms: 45.037625
+  ...
+# Subtest: independent dish custom coercion proof boundary
+ok 10 - independent dish custom coercion proof boundary
+  ---
+  duration_ms: 44.93225
+  ...
+# Subtest: independent dish empty proof boundary
+ok 11 - independent dish empty proof boundary
+  ---
+  duration_ms: 42.598583
+  ...
+# Subtest: independent dish short proof boundary
+ok 12 - independent dish short proof boundary
+  ---
+  duration_ms: 43.222792
+  ...
+# Subtest: independent dish null proof boundary
+ok 13 - independent dish null proof boundary
+  ---
+  duration_ms: 42.747584
+  ...
+# Subtest: independent dish string proof boundary
+ok 14 - independent dish string proof boundary
+  ---
+  duration_ms: 42.799084
+  ...
+# Subtest: independent ingredient: B completes first and cannot settle malformed retired A
+ok 15 - independent ingredient: B completes first and cannot settle malformed retired A
+  ---
+  duration_ms: 74.25225
+  ...
+# BROWSER_GLOBAL_DESCRIPTORS_RESTORED v20.20.2: 13 globals; native Event.prototype unchanged
+# Subtest: independent dish: B completes first and cannot settle malformed retired A
+ok 16 - independent dish: B completes first and cannot settle malformed retired A
+  ---
+  duration_ms: 81.173875
+  ...
+# Subtest: ingredient: actual Http current-auth array ACK cannot prove completion
+ok 17 - ingredient: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 53.988167
+  ...
+# Subtest: ingredient: actual Http current-auth string ACK settles only its write
+ok 18 - ingredient: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 41.707083
+  ...
+# Subtest: ingredient: available old-auth array ACK cannot prove completion
+ok 19 - ingredient: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 40.849083
+  ...
+# Subtest: ingredient: available old-auth string ACK settles only its write
+ok 20 - ingredient: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 42.07475
+  ...
+# Subtest: dish: actual Http current-auth array ACK cannot prove completion
+ok 21 - dish: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 45.858333
+  ...
+# Subtest: dish: actual Http current-auth string ACK settles only its write
+ok 22 - dish: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 48.999375
+  ...
+# Subtest: dish: available old-auth array ACK cannot prove completion
+ok 23 - dish: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 43.121917
+  ...
+# Subtest: dish: available old-auth string ACK settles only its write
+ok 24 - dish: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 45.55275
+  ...
+# Subtest: ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 25 - ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 38.791625
+  ...
+# Subtest: dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 26 - dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 45.3135
+  ...
+# Subtest: ingredient: valid available old ACK settles A only while B still owns its write
+ok 27 - ingredient: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 71.682834
+  ...
+# BROWSER_GLOBAL_DESCRIPTORS_RESTORED v20.20.2: 13 globals; native Event.prototype unchanged
+# Subtest: dish: valid available old ACK settles A only while B still owns its write
+ok 28 - dish: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 78.557667
+  ...
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 29 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 11.310875
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 30 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 12.036292
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 31 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 3.674334
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 32 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 6.638667
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 33 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 6.923917
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 34 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 5.751125
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 35 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 6.069792
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 36 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 12.716792
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 37 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 3.066167
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 38 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 11.731958
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 39 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 11.446958
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 40 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 4.984584
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 41 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 6.019417
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 42 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 3.384375
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 43 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 3.504917
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+ok 44 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 9.891542
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 45 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 10.28375
+  ...
+# BROWSER_GLOBAL_DESCRIPTORS_RESTORED v20.20.2: 13 globals; native Event.prototype unchanged
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 46 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 10.506167
+  ...
+# Subtest: ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 47 - ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 54.979209
+  ...
+# Subtest: dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 48 - dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 40.629
+  ...
+# Subtest: paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 49 - paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 39.21625
+  ...
+# Subtest: Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+ok 50 - Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+  ---
+  duration_ms: 31.088417
+  ...
+# Subtest: ingredient: actual pending and unknown operation still veto manual and application reload
+ok 51 - ingredient: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 63.604916
+  ...
+# Subtest: dish: actual pending and unknown operation still veto manual and application reload
+ok 52 - dish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 61.20175
+  ...
+# BROWSER_GLOBAL_DESCRIPTORS_RESTORED v20.20.2: 13 globals; native Event.prototype unchanged
+# Subtest: publish: actual pending and unknown operation still veto manual and application reload
+ok 53 - publish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 61.390459
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 833.365375

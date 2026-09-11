@@ -1,0 +1,11 @@
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-app-r2-review-34dd336/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-FrLD2T/a/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-app-r2-review-34dd336/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-FrLD2T/a-time/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-app-r2-review-34dd336/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-FrLD2T/b/test/application-review.ts, dynamic import will not move module into another chunk.
+
+{"url":"http://127.0.0.1:4250/canteen/","entry":"application","stateFile":"/private/tmp/c2b-real-sw-FrLD2T/state.json","snapshots":{"a":{"root":"/private/tmp/c2b-real-sw-FrLD2T/a/dist","revision":"e14f92bba6f6e650984b185cb7f54952fd37d3ed"},"a-time":{"root":"/private/tmp/c2b-real-sw-FrLD2T/a-time/dist","revision":"e14f92bba6f6e650984b185cb7f54952fd37d3ed"},"b":{"root":"/private/tmp/c2b-real-sw-FrLD2T/b/dist","revision":"9d04666292c1447d6ce52d9103b9105e7d2b1422"}}}
+{"url":"http://127.0.0.1:4251/canteen/","entry":"application","stateFile":"/private/tmp/c2b-real-sw-FrLD2T/state.json","snapshots":{"a":{"root":"/private/tmp/c2b-real-sw-FrLD2T/a/dist","revision":"e14f92bba6f6e650984b185cb7f54952fd37d3ed"},"a-time":{"root":"/private/tmp/c2b-real-sw-FrLD2T/a-time/dist","revision":"e14f92bba6f6e650984b185cb7f54952fd37d3ed"},"b":{"root":"/private/tmp/c2b-real-sw-FrLD2T/b/dist","revision":"9d04666292c1447d6ce52d9103b9105e7d2b1422"}}}

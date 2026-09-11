@@ -1,0 +1,688 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "37/37",
+  "checks": [
+    {
+      "name": "actual main Home ready with no untracked residue",
+      "pass": true
+    },
+    {
+      "name": "actual Home registers all three reads before await",
+      "pass": true
+    },
+    {
+      "name": "language redraw reuses Home reads",
+      "pass": true
+    },
+    {
+      "name": "old Home and Plan reads survive auth without old identity disclosure",
+      "pass": true
+    },
+    {
+      "name": "one old read cannot release its siblings",
+      "pass": true
+    },
+    {
+      "name": "late old initializations preserve new Home DOM and clear own coverage",
+      "pass": true
+    },
+    {
+      "name": "failed real Plan initialization is readable and ends protection",
+      "pass": true
+    },
+    {
+      "name": "actual dispatcher unknown route is read-only",
+      "pass": true
+    },
+    {
+      "name": "offscreen invalid Plan raw blocks globally",
+      "pass": true
+    },
+    {
+      "name": "all five offscreen actual editor raw owners coexist",
+      "pass": true,
+      "detail": [
+        {
+          "kind": "shopping-list",
+          "id": "new/week-41"
+        },
+        {
+          "kind": "plan",
+          "id": "week-41"
+        },
+        {
+          "kind": "import",
+          "id": "week-41"
+        },
+        {
+          "kind": "ingredient",
+          "id": "salt"
+        },
+        {
+          "kind": "dish",
+          "id": "soup"
+        }
+      ]
+    },
+    {
+      "name": "Plan raw survives real route and language",
+      "pass": true
+    },
+    {
+      "name": "Import raw survives real route and language",
+      "pass": true
+    },
+    {
+      "name": "Dish raw survives real route and language",
+      "pass": true
+    },
+    {
+      "name": "Ingredient raw survives real route and language",
+      "pass": true
+    },
+    {
+      "name": "Purchase raw survives real route and language",
+      "pass": true
+    },
+    {
+      "name": "actual C1 save stays pending offscreen with later raw",
+      "pass": true
+    },
+    {
+      "name": "unknown Plan returns with later input and no repost",
+      "pass": true
+    },
+    {
+      "name": "two forced Source reads confirm ACK while later edits stay dirty",
+      "pass": true
+    },
+    {
+      "name": "actual Ingredient auxiliary read is protected offscreen",
+      "pass": true
+    },
+    {
+      "name": "translation settles original ticket into retained dirty draft",
+      "pass": true
+    },
+    {
+      "name": "accepted Publish remains protected offscreen until proven terminal",
+      "pass": true
+    },
+    {
+      "name": "known same-run completion clears actual Publish owner",
+      "pass": true
+    },
+    {
+      "name": "actual main C2 creates all-check list before any persistence",
+      "pass": true
+    },
+    {
+      "name": "actual Purchase C1 save protects application offscreen",
+      "pass": true
+    },
+    {
+      "name": "manual decisions unlock only after actual C1 ACK",
+      "pass": true
+    },
+    {
+      "name": "two actual Purchase clipboard writes remain separate offscreen",
+      "pass": true
+    },
+    {
+      "name": "one clipboard completion does not settle sibling",
+      "pass": true
+    },
+    {
+      "name": "actual Dish auxiliary translation remains protected offscreen",
+      "pass": true
+    },
+    {
+      "name": "old Dish read is anonymous under actual auth switch",
+      "pass": true
+    },
+    {
+      "name": "late old Dish translation cannot fill current raw",
+      "pass": true
+    },
+    {
+      "name": "SW phase starts with actual Plan dirty draft",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual update dialog lists offscreen/visible dirty Plan and explicit choice",
+      "pass": true
+    },
+    {
+      "name": "actual controller change refreshes reader without replacing editing DOM",
+      "pass": true,
+      "detail": {
+        "refreshes": 2
+      }
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual controller change refreshes reader without replacing editing DOM",
+      "pass": true,
+      "detail": {
+        "refreshes": 3
+      }
+    },
+    {
+      "name": "actual offscreen pending save blocks update without discard",
+      "pass": true
+    }
+  ],
+  "route": "#/admin",
+  "safety": {
+    "reason": "saving",
+    "records": [
+      {
+        "ownerId": "auxiliary-17",
+        "kind": "unknown",
+        "id": "previous-session-operation",
+        "generation": 4,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "auxiliary-18",
+        "kind": "unknown",
+        "id": "previous-session-operation",
+        "generation": 8,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "auxiliary-20",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-21",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 29,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-22",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 15,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-8",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 2,
+        "operation": 0
+      },
+      {
+        "ownerId": "editor-9",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 1,
+        "dirty": true,
+        "phase": "saving",
+        "pending": true,
+        "recovering": false,
+        "context": 1,
+        "operation": 1
+      }
+    ],
+    "stamp": "[298,11,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/dish/soup\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"],[\"page:admin/\",\"tracked\"]],[{\"ownerId\":\"auxiliary-17\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":4,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"auxiliary-18\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":8,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"auxiliary-20\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-21\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":29,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-22\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":15,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-8\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"editor-9\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"saving\",\"pending\":true,\"recovering\":false,\"context\":1,\"operation\":1}]]"
+  },
+  "controller": true,
+  "pending": [
+    {
+      "kind": "write",
+      "path": "/plan/sw-plan"
+    }
+  ],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/private-old",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/read-fails",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-41",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/save-flow",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/plan/save-flow",
+      "revision": null,
+      "ifMatch": "plan-save-flow-original",
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/save-flow",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/save-flow",
+      "revision": "0000000000000000000000000000000000000001",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "0000000000000000000000000000000000000001",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/plan/save-flow",
+      "revision": null,
+      "ifMatch": "saved-1",
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "0000000000000000000000000000000000000002",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-41",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-41",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/shopping-list/integration-shop",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": "*"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/sw-plan",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "POST",
+      "path": "/plan/sw-plan",
+      "revision": null,
+      "ifMatch": "plan-sw-plan-original",
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReloadBack office1 changes not published yetLast published Sep 10, 2026, 3:00 AMPublishPlan the menuWeek 37 · 1 meals planned this weekAdd a dishType it in by hand11 pendingTo confirm1 draft dishesIngredients1 ingredients · 20 common seasonings still missingTranslations to review0 machine-translatedReview screen comes in a later roundQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous versionCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 12, 2026, 3:00 AMOnline",
+  "inputs": []
+}

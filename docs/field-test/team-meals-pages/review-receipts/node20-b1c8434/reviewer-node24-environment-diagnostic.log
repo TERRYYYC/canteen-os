@@ -1,0 +1,334 @@
+node:internal/test_runner/harness:122
+      throw err;
+      ^
+
+AssertionError [ERR_ASSERTION]: Values have same structure but are not reference-equal:
+
+... Skipped lines
+{
+  Symbol(Symbol.toStringTag): {
+    configurable: true,
+    enumerable: false,
+    value: 'Event',
+    writable: false
+  },
+  Symbol(nodejs.util.inspect.custom): {
+    configurable: true,
+    enumerable: false,
+    value: [Function: [nodejs.util.inspect.custom]],
+    writable: true
+  },
+  bubbles: {
+    configurable: true,
+    enumerable: true,
+    get: [Function: get bubbles],
+    set: undefined
+  },
+  cancelBubble: {
+    configurable: true,
+    enumerable: true,
+    get: [Function: get cancelBubble],
+    set: [Function: set cancelBubble]
+  },
+  cancelable: {
+    configurable: true,
+    enumerable: true,
+    get: [Function: get cancelable],
+    set: undefined
+  },
+  composed: {
+    configurable: true,
+    enumerable: true,
+    get: [Function: get composed],
+    set: undefined
+  },
+  composedPath: {
+    configurable: true,
+    enumerable: true,
+    value: [Function: composedPath],
+    writable: true
+  },
+  constructor: {
+    configurable: true,
+    enumerable: false,
+    value: [class Event] {
+      AT_TARGET: 2,
+      BUBBLING_PHASE: 3,
+      CAPTURING_PHASE: 1,
+...}
+
+    at sameGlobals (file:///private/tmp/canteen-node20-harness-review-b1c8434/reviewer-environment-probe.mjs:7:456)
+    at file:///private/tmp/canteen-node20-harness-review-b1c8434/reviewer-environment-probe.mjs:19:15 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    constructor: {
+      value: [class Event] {
+        NONE: 0,
+        CAPTURING_PHASE: 1,
+        AT_TARGET: 2,
+        BUBBLING_PHASE: 3
+      },
+      writable: true,
+      enumerable: false,
+      configurable: true
+    },
+    initEvent: {
+      value: [Function: initEvent],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    stopImmediatePropagation: {
+      value: [Function: stopImmediatePropagation],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    preventDefault: {
+      value: [Function: preventDefault],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    target: {
+      get: [Function: get target],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    currentTarget: {
+      get: [Function: get currentTarget],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    srcElement: {
+      get: [Function: get srcElement],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    type: {
+      get: [Function: get type],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    cancelable: {
+      get: [Function: get cancelable],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    defaultPrevented: {
+      get: [Function: get defaultPrevented],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    timeStamp: {
+      get: [Function: get timeStamp],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    composedPath: {
+      value: [Function: composedPath],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    returnValue: {
+      get: [Function: get returnValue],
+      set: [Function: set returnValue],
+      enumerable: true,
+      configurable: true
+    },
+    bubbles: {
+      get: [Function: get bubbles],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    composed: {
+      get: [Function: get composed],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    eventPhase: {
+      get: [Function: get eventPhase],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    cancelBubble: {
+      get: [Function: get cancelBubble],
+      set: [Function: set cancelBubble],
+      enumerable: true,
+      configurable: true
+    },
+    stopPropagation: {
+      value: [Function: stopPropagation],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    isTrusted: {
+      get: [Function: get isTrusted],
+      set: undefined,
+      enumerable: true,
+      configurable: false
+    },
+    Symbol(nodejs.util.inspect.custom): {
+      value: [Function: [nodejs.util.inspect.custom]],
+      writable: true,
+      enumerable: false,
+      configurable: true
+    },
+    Symbol(Symbol.toStringTag): {
+      value: 'Event',
+      writable: false,
+      enumerable: false,
+      configurable: true
+    }
+  },
+  expected: {
+    constructor: {
+      value: [class Event] {
+        NONE: 0,
+        CAPTURING_PHASE: 1,
+        AT_TARGET: 2,
+        BUBBLING_PHASE: 3
+      },
+      writable: true,
+      enumerable: false,
+      configurable: true
+    },
+    initEvent: {
+      value: [Function: initEvent],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    stopImmediatePropagation: {
+      value: [Function: stopImmediatePropagation],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    preventDefault: {
+      value: [Function: preventDefault],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    target: {
+      get: [Function: get target],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    currentTarget: {
+      get: [Function: get currentTarget],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    srcElement: {
+      get: [Function: get srcElement],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    type: {
+      get: [Function: get type],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    cancelable: {
+      get: [Function: get cancelable],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    defaultPrevented: {
+      get: [Function: get defaultPrevented],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    timeStamp: {
+      get: [Function: get timeStamp],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    composedPath: {
+      value: [Function: composedPath],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    returnValue: {
+      get: [Function: get returnValue],
+      set: [Function: set returnValue],
+      enumerable: true,
+      configurable: true
+    },
+    bubbles: {
+      get: [Function: get bubbles],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    composed: {
+      get: [Function: get composed],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    eventPhase: {
+      get: [Function: get eventPhase],
+      set: undefined,
+      enumerable: true,
+      configurable: true
+    },
+    cancelBubble: {
+      get: [Function: get cancelBubble],
+      set: [Function: set cancelBubble],
+      enumerable: true,
+      configurable: true
+    },
+    stopPropagation: {
+      value: [Function: stopPropagation],
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    isTrusted: {
+      get: [Function: get isTrusted],
+      set: undefined,
+      enumerable: true,
+      configurable: false
+    },
+    Symbol(nodejs.util.inspect.custom): {
+      value: [Function: [nodejs.util.inspect.custom]],
+      writable: true,
+      enumerable: false,
+      configurable: true
+    },
+    Symbol(Symbol.toStringTag): {
+      value: 'Event',
+      writable: false,
+      enumerable: false,
+      configurable: true
+    }
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.18.0

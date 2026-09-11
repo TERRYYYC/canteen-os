@@ -1,0 +1,45 @@
+✔ ingredient: actual Http current-auth array ACK cannot prove completion (67.275417ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (76.081958ms)
+✔ ingredient: available old-auth array ACK cannot prove completion (54.952542ms)
+✔ ingredient: available old-auth string ACK settles only its write (45.0085ms)
+✔ dish: actual Http current-auth array ACK cannot prove completion (49.111542ms)
+✔ dish: actual Http current-auth string ACK settles only its write (46.115417ms)
+✔ dish: available old-auth array ACK cannot prove completion (45.435625ms)
+✔ dish: available old-auth string ACK settles only its write (46.397208ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (41.796ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (47.127ms)
+✔ ingredient: valid available old ACK settles A only while B still owns its write (72.433375ms)
+✔ dish: valid available old ACK settles A only while B still owns its write (80.669584ms)
+✔ raw list ID, plan IDs and selections have stable dirty generations across language and route return (20.86875ms)
+✔ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (31.484709ms)
+✔ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (8.871875ms)
+✔ initialization is registered before async and original auth settlement cannot clear the next auth read (6.6945ms)
+✔ held initialization stays guarded through language even when the real API coalesces identical GETs (10.083291ms)
+✔ create consumes only its captured inputs and routes to captured ID while later raw survives (11.262791ms)
+✔ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (11.487ms)
+✔ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (18.462625ms)
+✔ unconfigured and malformed routes finish read-only coverage without fake transport (3.935875ms)
+✔ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (84.329375ms)
+✔ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (26.205959ms)
+✔ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (12.326584ms)
+✔ two distinct simultaneous initialization reads remain protected until both original tickets finish (7.664791ms)
+✔ late input events from the prior language/auth cannot change the active raw owner (3.398833ms)
+✔ an old discard proposal is invalidated by another raw edit through the real reload coordinator (3.534334ms)
+✔ concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback (11.006708ms)
+✔ adopting a different remote basis refreshes untouched scope inputs and their real baseline (12.790708ms)
+✔ remote adoption does not consume a later raw edit after its C1 replacement notification (15.924917ms)
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (67.839167ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (56.153375ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (48.465291ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (45.924834ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (69.05325ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (63.998042ms)
+✔ publish: actual pending and unknown operation still veto manual and application reload (60.507042ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 792.607791

@@ -1,0 +1,135 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "8/8",
+  "checks": [
+    {
+      "name": "actual main Menu uses frozen published revision while Plan raw stays protected",
+      "pass": true
+    },
+    {
+      "name": "real Menu recipe retains all five components and three steps",
+      "pass": true
+    },
+    {
+      "name": "real full recipe keeps 7500 g original quantity with no planned-serving multiplication",
+      "pass": true,
+      "detail": "7500 g"
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in en",
+      "pass": true
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in zh",
+      "pass": true
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in uk",
+      "pass": true
+    },
+    {
+      "name": "actual public image bytes decode without private API fallback",
+      "pass": true,
+      "detail": {
+        "revision": "62a139ba49114bcbfe512fb8daa0062b09731dc2",
+        "naturalWidth": 2
+      }
+    },
+    {
+      "name": "public navigation returns to retained invalid Plan input",
+      "pass": true
+    }
+  ],
+  "route": "#/admin",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 12,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 12
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "public-guard",
+        "generation": 7,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "public-guard",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 3,
+        "operation": 0
+      }
+    ],
+    "stamp": "[35,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/public-guard\",\"tracked\"],[\"page:menu/\",\"read-only\"],[\"page:menu/2026-10-05/tomato-egg-stir-fry\",\"read-only\"],[\"page:prep/2026-10-05/lunch/tomato\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":12,\"dirty\":false,\"phase\":\"idle\",\"operation\":12},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"public-guard\",\"generation\":7,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"public-guard\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/public-guard",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENBack office1 changes not published yetLast published Sep 10, 2026, 3:00 AMPublishPlan the menuWeek 37 · 1 meals planned this weekAdd a dishType it in by hand11 pendingTo confirm1 draft dishesIngredients1 ingredients · 20 common seasonings still missingTranslations to review0 machine-translatedReview screen comes in a later roundQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous versionCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": []
+}

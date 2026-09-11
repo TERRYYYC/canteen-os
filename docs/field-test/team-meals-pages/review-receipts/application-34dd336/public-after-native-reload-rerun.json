@@ -1,0 +1,1199 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 2,
+  "summary": "3/6",
+  "checks": [
+    {
+      "name": "new application JS lifetime follows exactly one user-authorized reload",
+      "pass": true,
+      "detail": {
+        "beforeBoot": 1,
+        "actualBoot": 2,
+        "caseName": "explicit-dirty-discard:ingredient"
+      }
+    },
+    {
+      "name": "native reload remains exactly once after the update settles",
+      "pass": true,
+      "detail": {
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    {
+      "name": "Check actual public journey with offscreen raw",
+      "pass": false,
+      "error": "Error: Timed out: Home\n    at M (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:19541)\n    at async http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:40140\n    at async n.onclick (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:21213)"
+    },
+    {
+      "name": "actual Plan supports no servings and previews recorded ingredient",
+      "pass": true
+    },
+    {
+      "name": "Check Plan preview to Purchase continuity",
+      "pass": false,
+      "error": "Error: Missing a[href=\"#/purchase/new/continuity\"]\n    at Le (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:19431)\n    at de (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:20407)\n    at http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:42661\n    at async n.onclick (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:21213)"
+    },
+    {
+      "name": "Check actual public journey with offscreen raw",
+      "pass": false,
+      "error": "Error: Timed out: Home clear\n    at M (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:19541)\n    at async http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:40175\n    at async n.onclick (http://127.0.0.1:4191/canteen/assets/index-qBdlnZn4.js:2:21213)"
+    }
+  ],
+  "route": "#/admin",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "continuity",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "continuity",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[27,1,[[\"page:admin/ingredient/salt\",\"tracked\"],[\"page:admin/plan/continuity\",\"tracked\"],[\"page:admin/\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"continuity\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"continuity\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/continuity",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENBack office1 changes not published yetLast published Sep 10, 2026, 3:00 AMPublishPlan the menuWeek 37 · 1 meals planned this weekAdd a dishType it in by hand11 pendingTo confirm1 draft dishesIngredients1 ingredients · 20 common seasonings still missingTranslations to review0 machine-translatedReview screen comes in a later roundQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous versionCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [],
+  "nativeIntent": {
+    "caseName": "explicit-dirty-discard:ingredient",
+    "beforeBoot": 1,
+    "beforeEvidence": {
+      "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+      "boot": 1,
+      "summary": "8/9",
+      "checks": [
+        {
+          "name": "minimal clean actual Home control does not cancel beforeunload",
+          "pass": true,
+          "detail": {
+            "defaultPrevented": false,
+            "returnValue": true
+          }
+        },
+        {
+          "name": "minimal actual Ingredient raw enters dirty registry",
+          "pass": true
+        },
+        {
+          "name": "auth retires pure local Ingredient raw from shared registry",
+          "pass": true
+        },
+        {
+          "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+          "pass": true,
+          "detail": {
+            "defaultPrevented": false,
+            "returnValue": true
+          }
+        },
+        {
+          "name": "actual Ingredient raw is dirty before any update",
+          "pass": true
+        },
+        {
+          "name": "new generated service worker waits without reload or activation",
+          "pass": true
+        },
+        {
+          "name": "actual update requires one explicit discard decision",
+          "pass": true,
+          "detail": [
+            {
+              "kind": "ingredient",
+              "id": "salt"
+            }
+          ]
+        },
+        {
+          "name": "actual native reload completes after user consent",
+          "pass": false,
+          "caseName": "explicit-dirty-discard:ingredient",
+          "detail": {
+            "expected": 2,
+            "actual": 1
+          }
+        },
+        {
+          "name": "actual update requires one explicit discard decision",
+          "pass": true,
+          "detail": [
+            {
+              "kind": "ingredient",
+              "id": "salt"
+            }
+          ]
+        }
+      ],
+      "route": "#/admin/ingredient/salt",
+      "safety": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-3",
+            "kind": "home",
+            "id": "home",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 6
+          },
+          {
+            "ownerId": "auxiliary-4",
+            "kind": "ingredient",
+            "id": "salt",
+            "generation": 7,
+            "dirty": true,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 5,
+            "dirty": false,
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[41,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-4\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "controller": true,
+      "pending": [],
+      "ledger": [
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": false
+        },
+        {
+          "method": "GET",
+          "path": "/changes",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-37",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": true
+        },
+        {
+          "method": "GET",
+          "path": "/source/ingredient/salt",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/changes",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-37",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/ingredient/salt",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": true
+        }
+      ],
+      "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.ingredient: saltContinue editing, update laterDiscard listed local changes and update",
+      "inputs": [
+        {
+          "id": "adm-ing-name-zh",
+          "value": "未保存食材"
+        },
+        {
+          "id": "adm-ing-name-en",
+          "value": "Salt"
+        },
+        {
+          "id": "adm-ing-name-uk",
+          "value": "Сіль"
+        },
+        {
+          "id": "adm-ing-id",
+          "value": "salt"
+        },
+        {
+          "id": "adm-ing-photo",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-photo-pick",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-externalId",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-baseUnit",
+          "value": "g"
+        },
+        {
+          "id": "",
+          "value": "ml"
+        },
+        {
+          "id": "",
+          "value": "pcs"
+        },
+        {
+          "id": "adm-ing-pcsToGram",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-yield",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-role",
+          "value": "on"
+        },
+        {
+          "id": "adm-ing-supplier",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-packSize",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-minPacks",
+          "value": "1"
+        },
+        {
+          "id": "adm-ing-lastPrice",
+          "value": ""
+        },
+        {
+          "id": "adm-ing-trackStock",
+          "value": "on"
+        },
+        {
+          "id": "adm-ing-onHand",
+          "value": ""
+        }
+      ],
+      "unloadDiagnostic": {
+        "clean": {
+          "defaultPrevented": false,
+          "returnValue": true
+        },
+        "retired": {
+          "defaultPrevented": false,
+          "returnValue": true
+        }
+      },
+      "nativeSW": {
+        "active": "activated",
+        "controller": "activated"
+      },
+      "nativeIntent": {
+        "caseName": "explicit-dirty-discard:ingredient",
+        "beforeBoot": 1,
+        "beforeEvidence": {
+          "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+          "boot": 1,
+          "summary": "7/7",
+          "checks": [
+            {
+              "name": "minimal clean actual Home control does not cancel beforeunload",
+              "pass": true,
+              "detail": {
+                "defaultPrevented": false,
+                "returnValue": true
+              }
+            },
+            {
+              "name": "minimal actual Ingredient raw enters dirty registry",
+              "pass": true
+            },
+            {
+              "name": "auth retires pure local Ingredient raw from shared registry",
+              "pass": true
+            },
+            {
+              "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+              "pass": true,
+              "detail": {
+                "defaultPrevented": false,
+                "returnValue": true
+              }
+            },
+            {
+              "name": "actual Ingredient raw is dirty before any update",
+              "pass": true
+            },
+            {
+              "name": "new generated service worker waits without reload or activation",
+              "pass": true
+            },
+            {
+              "name": "actual update requires one explicit discard decision",
+              "pass": true,
+              "detail": [
+                {
+                  "kind": "ingredient",
+                  "id": "salt"
+                }
+              ]
+            }
+          ],
+          "route": "#/admin/ingredient/salt",
+          "safety": {
+            "reason": "dirty",
+            "records": [
+              {
+                "ownerId": "auxiliary-3",
+                "kind": "home",
+                "id": "home",
+                "generation": 6,
+                "dirty": false,
+                "phase": "idle",
+                "operation": 6
+              },
+              {
+                "ownerId": "auxiliary-4",
+                "kind": "ingredient",
+                "id": "salt",
+                "generation": 7,
+                "dirty": true,
+                "phase": "idle",
+                "operation": 4
+              },
+              {
+                "ownerId": "draft-store",
+                "kind": "store",
+                "id": "draft-store",
+                "generation": 5,
+                "dirty": false,
+                "phase": "idle"
+              }
+            ],
+            "stamp": "[41,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-4\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"}]]"
+          },
+          "controller": true,
+          "pending": [],
+          "ledger": [
+            {
+              "method": "GET",
+              "path": "/canteen/data/build.json",
+              "probe": false
+            },
+            {
+              "method": "GET",
+              "path": "/changes",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/catalog",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/source/plan/week-37",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/canteen/data/build.json",
+              "probe": true
+            },
+            {
+              "method": "GET",
+              "path": "/source/ingredient/salt",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/changes",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/catalog",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/source/plan/week-37",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/source/ingredient/salt",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            }
+          ],
+          "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.ingredient: saltContinue editing, update laterDiscard listed local changes and update",
+          "inputs": [
+            {
+              "id": "adm-ing-name-zh",
+              "value": "未保存食材"
+            },
+            {
+              "id": "adm-ing-name-en",
+              "value": "Salt"
+            },
+            {
+              "id": "adm-ing-name-uk",
+              "value": "Сіль"
+            },
+            {
+              "id": "adm-ing-id",
+              "value": "salt"
+            },
+            {
+              "id": "adm-ing-photo",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-photo-pick",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-externalId",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-baseUnit",
+              "value": "g"
+            },
+            {
+              "id": "",
+              "value": "ml"
+            },
+            {
+              "id": "",
+              "value": "pcs"
+            },
+            {
+              "id": "adm-ing-pcsToGram",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-yield",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-role",
+              "value": "on"
+            },
+            {
+              "id": "adm-ing-supplier",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-packSize",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-minPacks",
+              "value": "1"
+            },
+            {
+              "id": "adm-ing-lastPrice",
+              "value": ""
+            },
+            {
+              "id": "adm-ing-trackStock",
+              "value": "on"
+            },
+            {
+              "id": "adm-ing-onHand",
+              "value": ""
+            }
+          ],
+          "unloadDiagnostic": {
+            "clean": {
+              "defaultPrevented": false,
+              "returnValue": true
+            },
+            "retired": {
+              "defaultPrevented": false,
+              "returnValue": true
+            }
+          },
+          "nativeSW": {
+            "active": "activated",
+            "controller": "activated"
+          }
+        },
+        "expectedAfterBoot": 2,
+        "at": 1789098468037
+      },
+      "nativeReloadFailure": true
+    },
+    "expectedAfterBoot": 2,
+    "at": 1789098624480
+  },
+  "nativeReloadStable": true,
+  "priorBootEvidence": {
+    "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+    "boot": 1,
+    "summary": "8/9",
+    "checks": [
+      {
+        "name": "minimal clean actual Home control does not cancel beforeunload",
+        "pass": true,
+        "detail": {
+          "defaultPrevented": false,
+          "returnValue": true
+        }
+      },
+      {
+        "name": "minimal actual Ingredient raw enters dirty registry",
+        "pass": true
+      },
+      {
+        "name": "auth retires pure local Ingredient raw from shared registry",
+        "pass": true
+      },
+      {
+        "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+        "pass": true,
+        "detail": {
+          "defaultPrevented": false,
+          "returnValue": true
+        }
+      },
+      {
+        "name": "actual Ingredient raw is dirty before any update",
+        "pass": true
+      },
+      {
+        "name": "new generated service worker waits without reload or activation",
+        "pass": true
+      },
+      {
+        "name": "actual update requires one explicit discard decision",
+        "pass": true,
+        "detail": [
+          {
+            "kind": "ingredient",
+            "id": "salt"
+          }
+        ]
+      },
+      {
+        "name": "actual native reload completes after user consent",
+        "pass": false,
+        "caseName": "explicit-dirty-discard:ingredient",
+        "detail": {
+          "expected": 2,
+          "actual": 1
+        }
+      },
+      {
+        "name": "actual update requires one explicit discard decision",
+        "pass": true,
+        "detail": [
+          {
+            "kind": "ingredient",
+            "id": "salt"
+          }
+        ]
+      }
+    ],
+    "route": "#/admin/ingredient/salt",
+    "safety": {
+      "reason": "dirty",
+      "records": [
+        {
+          "ownerId": "auxiliary-3",
+          "kind": "home",
+          "id": "home",
+          "generation": 6,
+          "dirty": false,
+          "phase": "idle",
+          "operation": 6
+        },
+        {
+          "ownerId": "auxiliary-4",
+          "kind": "ingredient",
+          "id": "salt",
+          "generation": 7,
+          "dirty": true,
+          "phase": "idle",
+          "operation": 4
+        },
+        {
+          "ownerId": "draft-store",
+          "kind": "store",
+          "id": "draft-store",
+          "generation": 5,
+          "dirty": false,
+          "phase": "idle"
+        }
+      ],
+      "stamp": "[41,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-4\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"}]]"
+    },
+    "controller": true,
+    "pending": [],
+    "ledger": [
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": false
+      },
+      {
+        "method": "GET",
+        "path": "/changes",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-37",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": true
+      },
+      {
+        "method": "GET",
+        "path": "/source/ingredient/salt",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/changes",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-37",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/ingredient/salt",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": true
+      }
+    ],
+    "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.ingredient: saltContinue editing, update laterDiscard listed local changes and update",
+    "inputs": [
+      {
+        "id": "adm-ing-name-zh",
+        "value": "未保存食材"
+      },
+      {
+        "id": "adm-ing-name-en",
+        "value": "Salt"
+      },
+      {
+        "id": "adm-ing-name-uk",
+        "value": "Сіль"
+      },
+      {
+        "id": "adm-ing-id",
+        "value": "salt"
+      },
+      {
+        "id": "adm-ing-photo",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-photo-pick",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-externalId",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-baseUnit",
+        "value": "g"
+      },
+      {
+        "id": "",
+        "value": "ml"
+      },
+      {
+        "id": "",
+        "value": "pcs"
+      },
+      {
+        "id": "adm-ing-pcsToGram",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-yield",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-role",
+        "value": "on"
+      },
+      {
+        "id": "adm-ing-supplier",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-packSize",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-minPacks",
+        "value": "1"
+      },
+      {
+        "id": "adm-ing-lastPrice",
+        "value": ""
+      },
+      {
+        "id": "adm-ing-trackStock",
+        "value": "on"
+      },
+      {
+        "id": "adm-ing-onHand",
+        "value": ""
+      }
+    ],
+    "unloadDiagnostic": {
+      "clean": {
+        "defaultPrevented": false,
+        "returnValue": true
+      },
+      "retired": {
+        "defaultPrevented": false,
+        "returnValue": true
+      }
+    },
+    "nativeSW": {
+      "active": "activated",
+      "controller": "activated"
+    },
+    "nativeIntent": {
+      "caseName": "explicit-dirty-discard:ingredient",
+      "beforeBoot": 1,
+      "beforeEvidence": {
+        "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+        "boot": 1,
+        "summary": "7/7",
+        "checks": [
+          {
+            "name": "minimal clean actual Home control does not cancel beforeunload",
+            "pass": true,
+            "detail": {
+              "defaultPrevented": false,
+              "returnValue": true
+            }
+          },
+          {
+            "name": "minimal actual Ingredient raw enters dirty registry",
+            "pass": true
+          },
+          {
+            "name": "auth retires pure local Ingredient raw from shared registry",
+            "pass": true
+          },
+          {
+            "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+            "pass": true,
+            "detail": {
+              "defaultPrevented": false,
+              "returnValue": true
+            }
+          },
+          {
+            "name": "actual Ingredient raw is dirty before any update",
+            "pass": true
+          },
+          {
+            "name": "new generated service worker waits without reload or activation",
+            "pass": true
+          },
+          {
+            "name": "actual update requires one explicit discard decision",
+            "pass": true,
+            "detail": [
+              {
+                "kind": "ingredient",
+                "id": "salt"
+              }
+            ]
+          }
+        ],
+        "route": "#/admin/ingredient/salt",
+        "safety": {
+          "reason": "dirty",
+          "records": [
+            {
+              "ownerId": "auxiliary-3",
+              "kind": "home",
+              "id": "home",
+              "generation": 6,
+              "dirty": false,
+              "phase": "idle",
+              "operation": 6
+            },
+            {
+              "ownerId": "auxiliary-4",
+              "kind": "ingredient",
+              "id": "salt",
+              "generation": 7,
+              "dirty": true,
+              "phase": "idle",
+              "operation": 4
+            },
+            {
+              "ownerId": "draft-store",
+              "kind": "store",
+              "id": "draft-store",
+              "generation": 5,
+              "dirty": false,
+              "phase": "idle"
+            }
+          ],
+          "stamp": "[41,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-4\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"}]]"
+        },
+        "controller": true,
+        "pending": [],
+        "ledger": [
+          {
+            "method": "GET",
+            "path": "/canteen/data/build.json",
+            "probe": false
+          },
+          {
+            "method": "GET",
+            "path": "/changes",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/catalog",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/source/plan/week-37",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/canteen/data/build.json",
+            "probe": true
+          },
+          {
+            "method": "GET",
+            "path": "/source/ingredient/salt",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/changes",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/catalog",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/source/plan/week-37",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/source/ingredient/salt",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          }
+        ],
+        "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.ingredient: saltContinue editing, update laterDiscard listed local changes and update",
+        "inputs": [
+          {
+            "id": "adm-ing-name-zh",
+            "value": "未保存食材"
+          },
+          {
+            "id": "adm-ing-name-en",
+            "value": "Salt"
+          },
+          {
+            "id": "adm-ing-name-uk",
+            "value": "Сіль"
+          },
+          {
+            "id": "adm-ing-id",
+            "value": "salt"
+          },
+          {
+            "id": "adm-ing-photo",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-photo-pick",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-externalId",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-baseUnit",
+            "value": "g"
+          },
+          {
+            "id": "",
+            "value": "ml"
+          },
+          {
+            "id": "",
+            "value": "pcs"
+          },
+          {
+            "id": "adm-ing-pcsToGram",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-yield",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-role",
+            "value": "on"
+          },
+          {
+            "id": "adm-ing-supplier",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-packSize",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-minPacks",
+            "value": "1"
+          },
+          {
+            "id": "adm-ing-lastPrice",
+            "value": ""
+          },
+          {
+            "id": "adm-ing-trackStock",
+            "value": "on"
+          },
+          {
+            "id": "adm-ing-onHand",
+            "value": ""
+          }
+        ],
+        "unloadDiagnostic": {
+          "clean": {
+            "defaultPrevented": false,
+            "returnValue": true
+          },
+          "retired": {
+            "defaultPrevented": false,
+            "returnValue": true
+          }
+        },
+        "nativeSW": {
+          "active": "activated",
+          "controller": "activated"
+        }
+      },
+      "expectedAfterBoot": 2,
+      "at": 1789098468037
+    },
+    "nativeReloadFailure": true
+  }
+}

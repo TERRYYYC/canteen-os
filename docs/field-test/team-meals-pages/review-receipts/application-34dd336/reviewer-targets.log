@@ -1,0 +1,43 @@
+✔ independent ingredient array proof boundary (52.172084ms)
+✔ independent ingredient boxed string proof boundary (36.992958ms)
+✔ independent ingredient custom coercion proof boundary (37.574417ms)
+✔ independent ingredient empty proof boundary (38.338333ms)
+✔ independent ingredient short proof boundary (38.933625ms)
+✔ independent ingredient null proof boundary (39.562792ms)
+✔ independent ingredient string proof boundary (37.56025ms)
+✔ independent dish array proof boundary (44.150833ms)
+✔ independent dish boxed string proof boundary (45.253916ms)
+✔ independent dish custom coercion proof boundary (41.662917ms)
+✔ independent dish empty proof boundary (41.384292ms)
+✔ independent dish short proof boundary (42.519583ms)
+✔ independent dish null proof boundary (41.71525ms)
+✔ independent dish string proof boundary (43.05975ms)
+✔ independent ingredient: B completes first and cannot settle malformed retired A (70.700167ms)
+✔ independent dish: B completes first and cannot settle malformed retired A (79.095917ms)
+✔ ingredient: actual Http current-auth array ACK cannot prove completion (52.387208ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (37.720958ms)
+✔ ingredient: available old-auth array ACK cannot prove completion (38.206875ms)
+✔ ingredient: available old-auth string ACK settles only its write (39.965333ms)
+✔ dish: actual Http current-auth array ACK cannot prove completion (44.920875ms)
+✔ dish: actual Http current-auth string ACK settles only its write (43.287167ms)
+✔ dish: available old-auth array ACK cannot prove completion (41.164ms)
+✔ dish: available old-auth string ACK settles only its write (43.856708ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (39.229958ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (41.109792ms)
+✔ ingredient: valid available old ACK settles A only while B still owns its write (69.533625ms)
+✔ dish: valid available old ACK settles A only while B still owns its write (77.65425ms)
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (53.150125ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (39.886ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (38.319709ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (28.966875ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (60.398209ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (61.650292ms)
+✔ publish: actual pending and unknown operation still veto manual and application reload (58.530667ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 793.917416

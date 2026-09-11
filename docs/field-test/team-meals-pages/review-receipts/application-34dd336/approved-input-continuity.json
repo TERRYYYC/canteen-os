@@ -1,0 +1,50 @@
+[
+  {
+    "anchor": "d31661123b23bc2a80a9c8c613b1f9947d7c5665",
+    "path": "packages/web/src/pages/menu.ts",
+    "same": true,
+    "candidate_sha256": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d"
+  },
+  {
+    "anchor": "d31661123b23bc2a80a9c8c613b1f9947d7c5665",
+    "path": "packages/web/src/pages/prep.ts",
+    "same": true,
+    "candidate_sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+  },
+  {
+    "anchor": "d31661123b23bc2a80a9c8c613b1f9947d7c5665",
+    "path": "packages/web/src/pages/published-meals.ts",
+    "same": true,
+    "candidate_sha256": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1"
+  },
+  {
+    "anchor": "8bb39a3d11f281405d3da2c2f42be3091aa111ea",
+    "path": "packages/web/src/main.ts",
+    "same": true,
+    "candidate_sha256": "348364ab639618bd12789842027e25a698b633182371e07e4099d689cd90eaf0"
+  },
+  {
+    "anchor": "8bb39a3d11f281405d3da2c2f42be3091aa111ea",
+    "path": "packages/web/src/shell.ts",
+    "same": true,
+    "candidate_sha256": "29621bc8ba8d4c5bc7ea3121817b4d63216b232e18dcda0777f1454a26a63373"
+  },
+  {
+    "anchor": "8bb39a3d11f281405d3da2c2f42be3091aa111ea",
+    "path": "packages/web/src/i18n.ts",
+    "same": true,
+    "candidate_sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+  },
+  {
+    "anchor": "3eb2f351755b73122b26f2a2cee5a523dee49aaa",
+    "path": "packages/web/src/pwa.ts",
+    "same": true,
+    "candidate_sha256": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94"
+  },
+  {
+    "anchor": "3eb2f351755b73122b26f2a2cee5a523dee49aaa",
+    "path": "packages/web/src/view-models/reload-safety.ts",
+    "same": true,
+    "candidate_sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+  }
+]
