@@ -8,8 +8,9 @@
  * losing document drafts or unresolved operations. Returning with open() resumes them.
  * replace() explicitly adopts a resolved source/draft and refuses pending operations.
  * dispose() returns false while any document has an unresolved write, true otherwise;
- * a disposed editor cannot reopen. Auth changes erase and seal it immediately; create
- * a new editor with freshly authenticated sources. A mode change also seals it.
+ * a disposed editor cannot reopen. Auth changes erase and seal private editor state;
+ * unresolved dispatched writes retain only generic reload protection until a definite
+ * result from their original operation. A new identity cannot settle those markers.
  * Adapters must save the whole supplied body unchanged and read null only for not_found.
  */
 import { ApiError } from "../api/types";
@@ -122,6 +123,15 @@ function localFailure(code: string, status = 0): EditFailure {
   return { status, code, message: "", errors: [{ path: "", code, message: "" }] };
 }
 
+function definiteRejection(detail: EditFailure): boolean {
+  return detail.status >= 400 && detail.status < 500 && detail.status !== 408 && detail.status !== 499 &&
+    detail.code !== 'session_changed' && detail.code !== 'bad_response';
+}
+function acknowledged(value: WriteResult): boolean {
+  return !!value && typeof value.commit === 'string' && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === 'string' && !!value.blobSha &&
+    typeof value.unchanged === 'boolean' && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === 'string');
+}
+
 let sessionSequence = 0;
 
 export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
@@ -132,12 +142,18 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
   const mode = adapters.mode();
   const authSession = adapters.authSession ?? getAuthSessionVersion;
   const authIdentity = authSession();
+  const globalAuthIdentity = getAuthSessionVersion();
   const documents = new Map<string, DocumentRecord<T>>();
   const reloadOwner = `editor-${sessionId}`;
+  // Only opaque operation numbers are retained after auth erases the documents.
+  const unresolvedWrites = new Set<string>();
+  let retirementGeneration = 0;
   const unregisterReload = registerReloadRecords(reloadOwner, () => {
+    if (sealed) return unresolvedWrites.size ? [{ ownerId: reloadOwner, kind: 'unknown', id: 'previous-session-save',
+      generation: retirementGeneration, dirty: false, phase: 'unknown', pending: true, operation: unresolvedWrites.size }] : [];
     // Read every document, including detached views. Never invoke scopeMatches here.
     const verified = adapters.authSession ? adapters.peekAuthSession?.() : peekAuthSessionVersion();
-    if (verified == null || verified !== authIdentity || adapters.mode() !== mode) throw new Error('Editor scope unknown or changed');
+    if (peekAuthSessionVersion() !== globalAuthIdentity || verified == null || verified !== authIdentity || adapters.mode() !== mode) throw new Error('Editor scope unknown or changed');
     return [...documents.values()].map(({ state, pending }) => ({
       ownerId: reloadOwner, kind: state.identity!.kind, id: state.identity!.id,
       generation: state.generation, dirty: state.dirty, phase: state.phase,
@@ -145,6 +161,11 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
       context: state.contextId, operation: operationSequence,
     }));
   });
+  const settleReload = (operation: Operation<T>) => {
+    if (!unresolvedWrites.delete(operation.operationId)) return;
+    retirementGeneration++;
+    if (sealed && unresolvedWrites.size === 0) unregisterReload();
+  };
   let active: DocumentRecord<T> | null = null;
   const emptyState = (): EditState<T> => ({
     contextId: viewSequence, identity: null, generation: 0, mode, phase: "closed",
@@ -170,7 +191,7 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
     viewSequence++;
     active = null;
     documents.clear();
-    unregisterReload();
+    if (unresolvedWrites.size === 0) unregisterReload();
     detached = erase ? emptyState() : { ...previous, contextId: viewSequence, phase: "closed", operationId: null, recovering: false };
     detached.error = error;
     unsubscribeAuth();
@@ -179,6 +200,7 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
   };
   const scopeMatches = () => {
     if (sealed) return false;
+    if (getAuthSessionVersion() !== globalAuthIdentity) { seal(localFailure("session_changed"), true); return false; }
     if (authSession() !== authIdentity) { seal(localFailure("session_changed"), true); return false; }
     if (adapters.mode() !== mode) { seal(localFailure("mode_changed"), false); return false; }
     return true;
@@ -190,6 +212,7 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
   const completion = (status: EditResult["status"], document: DocumentRecord<T>, operation: Operation<T>, contextId: number) =>
     result(active === document && document.state.contextId === contextId ? status : "stale", operation, contextId);
   const clearOperation = (document: DocumentRecord<T>) => {
+    if (document.pending) settleReload(document.pending);
     document.pending = null;
     document.state.operationId = null;
     document.state.recovering = false;
@@ -296,20 +319,24 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
       state.error = null;
       emit();
       if (!isLive(document, operation)) return result("stale", operation, contextId);
+      unresolvedWrites.add(operation.operationId);
       try {
         const acknowledgement = await adapters.save(
           structuredClone(operation.identity), structuredClone(operation.body), structuredClone(operation.condition),
           { operationId: operation.operationId },
         );
+        if (!acknowledged(acknowledgement)) throw new ApiError(502, 'bad_response', '');
+        settleReload(operation);
         if (!isLive(document, operation)) return result("stale", operation, contextId);
         return saved(document, operation, contextId, { content: operation.body, commit: acknowledgement.commit, blobSha: acknowledgement.blobSha }, acknowledgement);
       } catch (error) {
-        if (!isLive(document, operation)) return result("stale", operation, contextId);
         const detail = failure(error);
+        if (definiteRejection(detail)) settleReload(operation);
+        if (!isLive(document, operation)) return result("stale", operation, contextId);
         if (detail.code === "session_changed") { seal(detail, true); return result("stale", operation, contextId); }
-        if (detail.status === 409) return conflicted(document, operation, contextId, detail);
+        if (detail.status === 409 && definiteRejection(detail)) return conflicted(document, operation, contextId, detail);
         state.error = detail;
-        if (detail.status === 0 || detail.status >= 500 || detail.code === "bad_response") {
+        if (!definiteRejection(detail)) {
           state.phase = "outcome-unknown";
           emitDocument(document);
           return completion("outcome-unknown", document, operation, contextId);

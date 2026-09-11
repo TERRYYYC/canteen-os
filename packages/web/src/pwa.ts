@@ -1,26 +1,16 @@
 /**
- * PWA 壳层逻辑（issue #12）：service worker 注册 + 「有新版本」提示 + build.json 版本检查 + iOS 加到主屏幕提示。
- *
- *   initPwa(shell)   —— main.ts 挂完壳后调一次；没有 serviceWorker 的环境（file://、旧浏览器、jsdom）只挂 iOS 提示。
- *
- * 更新流程（vite.config.ts registerType "prompt"，不自动刷新）：
- *   1. 新 SW 装好在等待（precache 清单变了——build.json 每次构建必变，所以每次部署都会到这一步）
- *      → onNeedRefresh → 顶栏下方出一条 .update-bar「有新版本 · 点此刷新」；
- *   2. 用户点它 → updateSW() 发 SKIP_WAITING → 新 SW 接管 → workbox-window 的 controlling 事件 → reload。
- *      没有等待中的 SW（只是 build.json 检查发现了新 commit）→ 直接 reload，网络上已经是新页面。
- *   3. 另一层：页面回到前台（visibilitychange → visible）且距上次检查 ≥ 10 分钟，
- *      带时间戳参数拉一次 ./data/build.json（绕过 precache 与 HTTP 缓存），commit 与内存里的不同
- *      → 同样出提示条，并让浏览器立刻查一次 SW 更新（registration.update()）。
- *
- * 文案全部走 i18n.ts（update.* / offline.ready / ios.*）；语言切换时由 shell/main 重画页面，提示条自己监听 onLangChange 重写文字。
- * localStorage 只记一个键：canteenos.iosHintDismissed = "1"（try/catch，隐私模式下静默）。
+ * Prompt-only PWA updates. A controller change refreshes publication data without
+ * replacing editor views; application reloads require a fresh all-owner safety check.
+ * The installed plugin's onNeedReload hook owns the final synchronous check.
+ * A two-second timeout cancels update consent and offers a retry, never a forced reload.
  */
 /// <reference types="vite-plugin-pwa/client" />
 import { registerSW } from "virtual:pwa-register";
-import { dataUrl, loadBuild } from "./data";
+import { dataApi, publicationKey } from "./data";
 import { h } from "./dom";
 import { onLangChange, t } from "./i18n";
 import type { Shell } from "./shell";
+import { createReloadCoordinator, inspectReloadSafety, type ReloadDecision } from './view-models/reload-safety';
 
 /** 两次 build.json 检查之间的最短间隔 */
 export const CHECK_INTERVAL_MS = 10 * 60 * 1000;
@@ -162,7 +152,7 @@ export function mountIosHint(root: HTMLElement, env: { ios: boolean; standalone:
 // 入口
 // ---------------------------------------------------------------------------
 
-export function initPwa(shell: Shell): PwaHandle {
+export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<void> } = { refreshPublication: async () => {} }): PwaHandle {
   const root = document.getElementById("app") ?? document.body;
 
   mountIosHint(root, { ios: isIOS(), standalone: isStandalone(), dismissed: readDismissed() });
@@ -172,12 +162,66 @@ export function initPwa(shell: Shell): PwaHandle {
   let lastCheck = Date.now(); // 首屏刚读过 build.json，从现在起算 10 分钟
 
   const hasSW = typeof navigator !== "undefined" && Boolean(navigator.serviceWorker); // file:// / 旧浏览器 / 非安全上下文没有
+  let updateTimer: ReturnType<typeof setTimeout> | undefined;
+  let approvedReload = false;
+  let dialog: HTMLDialogElement | null = null;
+  let lastController = hasSW ? navigator.serviceWorker.controller : null;
+  const coordinator = createReloadCoordinator({
+    reload() { approvedReload = true; location.reload(); },
+    hasWaiting: () => !!registration?.waiting,
+    async activate() {
+      if (!updateSW || !registration?.waiting) throw new Error('No waiting worker');
+      // This plugin ignores updateSW(false); onNeedReload is the final reload gate.
+      await updateSW();
+    },
+  });
+
+  function closeDecision(): void { dialog?.remove(); dialog = null; }
+  function showDecision(result: ReloadDecision, timedOut = false): void {
+    closeDecision();
+    if (result.status === 'started') {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(() => {
+        coordinator.timeout();
+        showDecision({ status: 'blocked', snapshot: inspectReloadSafety() }, true);
+      }, 2000);
+      return;
+    }
+    const reason = result.snapshot.reason;
+    const previousSession = result.snapshot.records.some(r => r.phase === 'unknown' && r.id.startsWith('previous-session-'));
+    const key = timedOut ? 'update.timeout' : result.status === 'confirm-discard' ? 'update.dirty' :
+      reason === 'saving' ? 'update.saving' : reason === 'unknown' ? previousSession ? 'update.previousSession' : 'update.unknown' : reason === 'untracked' ? 'update.untracked' : 'update.changed';
+    const keep = h('button', { type: 'button', autofocus: true }, t('update.continue'));
+    const list = h('ul');
+    const identities = new Set(result.snapshot.records.filter(r => r.dirty || r.pending || r.recovering || ['unknown', 'outcome-unknown', 'busy', 'untracked'].includes(r.phase)).map(r => `${r.kind}: ${r.id}`));
+    for (const identity of identities) list.append(h('li', {}, identity));
+    const currentDialog = h('dialog', { 'aria-label': t('update.checkTitle') }, h('h2', {}, t('update.checkTitle')), h('p', {}, t(key)), list, keep);
+    keep.addEventListener('click', () => { coordinator.cancel(); closeDecision(); });
+    currentDialog.addEventListener('cancel', () => { coordinator.cancel(); closeDecision(); });
+    if (result.status === 'confirm-discard') {
+      const discard = h('button', { type: 'button' }, t('update.discard'));
+      discard.addEventListener('click', () => { discard.disabled = true; void coordinator.confirmDiscard(result.snapshot).then(showDecision); });
+      currentDialog.append(discard);
+    }
+    dialog = currentDialog;
+    root.append(currentDialog);
+    currentDialog.showModal();
+  }
+  function requestUpdate(): void {
+    clearTimeout(updateTimer);
+    void coordinator.requestUpdate().then(showDecision);
+  }
+  onLangChange(() => { coordinator.cancel(); closeDecision(); });
 
   const updateSW = hasSW
     ? registerSW({
         immediate: true,
         onNeedRefresh() {
-          bar.showUpdate(reload);
+          bar.showUpdate(requestUpdate);
+        },
+        onNeedReload() {
+          clearTimeout(updateTimer);
+          if (!coordinator.onNeedReload()) bar.showUpdate(requestUpdate);
         },
         onOfflineReady() {
           bar.showOfflineReady();
@@ -192,41 +236,37 @@ export function initPwa(shell: Shell): PwaHandle {
       })
     : null;
 
-  /** 点「点此刷新」：有等待中的 SW → skipWaiting，接管后 workbox-window 会 reload；否则直接 reload（网络上已是新页面）。
-   *  兜底：2 秒内没被接管也强制 reload，不让用户点了没反应。 */
-  function reload(): void {
-    if (updateSW && registration?.waiting) {
-      void updateSW(true);
-      setTimeout(() => location.reload(), 2000);
-    } else {
-      location.reload();
-    }
-  }
-
   if (hasSW) {
-    navigator.serviceWorker.addEventListener("controllerchange", () => shell.refresh());
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      shell.refresh();
+      const controller = navigator.serviceWorker.controller;
+      if (controller === lastController) return;
+      lastController = controller;
+      void hooks.refreshPublication();
+    });
   }
+  window.addEventListener('beforeunload', event => {
+    if (!approvedReload && inspectReloadSafety().reason !== 'clear') { event.preventDefault(); event.returnValue = ''; }
+  });
 
-  /** build.json.commit 变了？（带时间戳参数：precache 只认原 URL，参数一变就走网络；no-store 再绕过 HTTP 缓存） */
+  /** Probe the complete validated publication identity; probing never adopts it. */
   async function checkVersion(): Promise<void> {
     lastCheck = Date.now();
     if (!navigator.onLine) return;
-    let baseline: string | undefined;
+    let baseline: string;
     try {
-      baseline = (await loadBuild()).commit;
+      baseline = publicationKey(await dataApi.loadPublication());
     } catch {
       return; // 首屏都没读到 build.json，没有可比较的基线
     }
-    let fresh: { commit?: unknown } | null = null;
+    let fresh: string;
     try {
-      const res = await fetch(`${dataUrl.build()}?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return;
-      fresh = (await res.json()) as { commit?: unknown };
+      fresh = publicationKey(await dataApi.probePublication());
     } catch {
       return; // 离线 / 网络抖动：下次再查
     }
-    if (typeof fresh?.commit === "string" && fresh.commit !== baseline) {
-      bar.showUpdate(reload);
+    if (fresh !== baseline) {
+      bar.showUpdate(requestUpdate);
       void registration?.update().catch(() => undefined);
     }
   }
