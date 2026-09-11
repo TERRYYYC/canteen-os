@@ -1,0 +1,43 @@
+{
+  "node": "v20.20.2",
+  "entry": {
+    "file": "assets/index-DF_HOFym.js",
+    "utf8Bytes": 182181,
+    "gzipBytes": 63675
+  },
+  "paths": {
+    "readers": {
+      "files": [
+        "assets/index-DF_HOFym.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ],
+      "gzipBytes": 66018
+    },
+    "authenticatedHome": {
+      "files": [
+        "assets/home-DySXwMX6.js",
+        "assets/parse-plan-text-DBZQVSv5.js",
+        "assets/index-DF_HOFym.js",
+        "assets/client-BSRY7ACf.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ],
+      "gzipBytes": 87572
+    },
+    "authenticatedPlan": {
+      "files": [
+        "assets/plan-Cne7g-xp.js",
+        "assets/index-DF_HOFym.js",
+        "assets/parse-plan-text-DBZQVSv5.js",
+        "assets/store-DshXBA3X.js",
+        "assets/servings-input-DNG9trXJ.js",
+        "assets/workbox-window.prod.es5-BqEJf4Xk.js"
+      ],
+      "gzipBytes": 78623
+    }
+  },
+  "allPrecachedJs": {
+    "count": 12,
+    "gzipBytes": 155758,
+    "utf8Bytes": 418923
+  }
+}

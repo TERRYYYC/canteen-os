@@ -1,0 +1,45 @@
+{
+  "implementation": "7f3b4e65c03b4329ffd5b72ad4846937830f6d9c",
+  "source": "Selected facts observed from the actual native application diagnostic DOM through CUA; raw Node/build logs are separate.",
+  "firstDocument": {
+    "url": "http://127.0.0.1:60500/canteen/",
+    "initialController": false,
+    "beforeChecks": "3/3",
+    "afterChecks": "2/2",
+    "bootBefore": 1,
+    "bootAfter": 2,
+    "stableAfterFourSeconds": true,
+    "waitingExternal": true,
+    "productionDirtyDiscardDecisions": 1,
+    "actualPostCount": 0
+  },
+  "controlledStart": {
+    "url": "http://127.0.0.1:60501/canteen/",
+    "initialController": true,
+    "beforeChecks": "3/3",
+    "afterChecks": "2/2",
+    "bootBefore": 1,
+    "bootAfter": 2,
+    "stableAfterFourSeconds": true,
+    "waitingExternal": true,
+    "productionDirtyDiscardDecisions": 1,
+    "actualPostCount": 0
+  },
+  "externalAndUnsafe": {
+    "url": "http://127.0.0.1:60502/canteen/",
+    "checks": "6/6",
+    "initialController": false,
+    "externalActivationWithoutConsent": true,
+    "inputNodePreserved": true,
+    "inputValue": "11",
+    "readerRefreshed": true,
+    "bootBefore": 1,
+    "bootAfter": 1,
+    "heldSaveBlocked": true,
+    "unknownBlocked": true,
+    "noDiscardOverride": true,
+    "localFixturePosts": [
+      "/plan/sw-plan"
+    ]
+  }
+}

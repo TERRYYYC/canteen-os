@@ -1,0 +1,404 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 2,
+  "summary": "2/2",
+  "checks": [
+    {
+      "name": "new application JS lifetime follows exactly one user-authorized reload",
+      "pass": true,
+      "detail": {
+        "beforeBoot": 1,
+        "actualBoot": 2,
+        "caseName": "explicit-dirty-discard:plan"
+      }
+    },
+    {
+      "name": "native reload remains exactly once after the update settles",
+      "pass": true,
+      "detail": {
+        "expected": 2,
+        "actual": 2
+      }
+    }
+  ],
+  "route": "#/admin/plan/sw-plan",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[11,1,[[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/sw-plan",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENBackPlan mealsPaste importLoaded; unchangedSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 12, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "8"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ],
+  "nativeIntent": {
+    "caseName": "explicit-dirty-discard:plan",
+    "beforeBoot": 1,
+    "beforeEvidence": {
+      "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+      "boot": 1,
+      "summary": "3/3",
+      "checks": [
+        {
+          "name": "control only actual Plan is dirty",
+          "pass": true
+        },
+        {
+          "name": "new generated service worker waits without reload or activation",
+          "pass": true
+        },
+        {
+          "name": "actual update requires one explicit discard decision",
+          "pass": true,
+          "detail": [
+            {
+              "kind": "plan",
+              "id": "sw-plan"
+            }
+          ]
+        }
+      ],
+      "route": "#/admin/plan/sw-plan",
+      "safety": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "home",
+            "id": "home",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 6
+          },
+          {
+            "ownerId": "auxiliary-2",
+            "kind": "plan",
+            "id": "sw-plan",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 1,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "plan",
+            "id": "sw-plan",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 1,
+            "operation": 0
+          }
+        ],
+        "stamp": "[22,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+      },
+      "controller": true,
+      "pending": [],
+      "ledger": [
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": false
+        },
+        {
+          "method": "GET",
+          "path": "/changes",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-37",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/sw-plan",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "kind": "workbox-event",
+          "path": "",
+          "type": "installed",
+          "isExternal": true,
+          "controllerAtProbeStart": true,
+          "controllerNow": true
+        },
+        {
+          "kind": "workbox-event",
+          "path": "",
+          "type": "waiting",
+          "isExternal": true,
+          "controllerAtProbeStart": true,
+          "controllerNow": true
+        }
+      ],
+      "viewText": "Back officeLanguageUA中ENNew version availableReloadBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.plan: sw-planContinue editing, update laterDiscard listed local changes and update",
+      "inputs": [
+        {
+          "id": "",
+          "focus": "filter-date",
+          "value": "2026-09-14"
+        },
+        {
+          "id": "",
+          "focus": "servings-0",
+          "value": "11"
+        },
+        {
+          "id": "",
+          "focus": "add-date",
+          "value": "2026-09-14"
+        }
+      ]
+    },
+    "expectedAfterBoot": 2,
+    "at": 1789099168013
+  },
+  "nativeReloadStable": true,
+  "priorBootEvidence": {
+    "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+    "boot": 1,
+    "summary": "3/3",
+    "checks": [
+      {
+        "name": "control only actual Plan is dirty",
+        "pass": true
+      },
+      {
+        "name": "new generated service worker waits without reload or activation",
+        "pass": true
+      },
+      {
+        "name": "actual update requires one explicit discard decision",
+        "pass": true,
+        "detail": [
+          {
+            "kind": "plan",
+            "id": "sw-plan"
+          }
+        ]
+      }
+    ],
+    "route": "#/admin/plan/sw-plan",
+    "safety": {
+      "reason": "dirty",
+      "records": [
+        {
+          "ownerId": "auxiliary-1",
+          "kind": "home",
+          "id": "home",
+          "generation": 6,
+          "dirty": false,
+          "phase": "idle",
+          "operation": 6
+        },
+        {
+          "ownerId": "auxiliary-2",
+          "kind": "plan",
+          "id": "sw-plan",
+          "generation": 6,
+          "dirty": false,
+          "phase": "idle",
+          "operation": 4
+        },
+        {
+          "ownerId": "draft-store",
+          "kind": "store",
+          "id": "draft-store",
+          "generation": 1,
+          "dirty": false,
+          "phase": "idle"
+        },
+        {
+          "ownerId": "editor-1",
+          "kind": "plan",
+          "id": "sw-plan",
+          "generation": 1,
+          "dirty": true,
+          "phase": "dirty",
+          "pending": false,
+          "recovering": false,
+          "context": 1,
+          "operation": 0
+        }
+      ],
+      "stamp": "[22,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+    },
+    "controller": true,
+    "pending": [],
+    "ledger": [
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": false
+      },
+      {
+        "method": "GET",
+        "path": "/changes",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-37",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/sw-plan",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "kind": "workbox-event",
+        "path": "",
+        "type": "installed",
+        "isExternal": true,
+        "controllerAtProbeStart": true,
+        "controllerNow": true
+      },
+      {
+        "kind": "workbox-event",
+        "path": "",
+        "type": "waiting",
+        "isExternal": true,
+        "controllerAtProbeStart": true,
+        "controllerNow": true
+      }
+    ],
+    "viewText": "Back officeLanguageUA中ENNew version availableReloadBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.plan: sw-planContinue editing, update laterDiscard listed local changes and update",
+    "inputs": [
+      {
+        "id": "",
+        "focus": "filter-date",
+        "value": "2026-09-14"
+      },
+      {
+        "id": "",
+        "focus": "servings-0",
+        "value": "11"
+      },
+      {
+        "id": "",
+        "focus": "add-date",
+        "value": "2026-09-14"
+      }
+    ]
+  }
+}

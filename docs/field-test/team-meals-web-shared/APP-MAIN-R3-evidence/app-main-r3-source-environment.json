@@ -1,0 +1,809 @@
+{
+  "node20": "v20.20.2",
+  "node24": "v24.18.0",
+  "lockSha256": "7f9afb80c0e0108d7ac6b3d6b9a33ee58d1ba4b24e150184406579027bd3ebe8",
+  "sharedDependencyDirectories": {
+    "node_modules": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/node_modules",
+    "packages/web/node_modules": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/node_modules",
+    "packages/core/node_modules": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/core/node_modules"
+  },
+  "baseline": "/private/tmp/app-main-r3-baseline-34dd336",
+  "candidate": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared",
+  "checks": [
+    {
+      "variant": "a",
+      "file": "data.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "dom.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "main.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "styles.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "router.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "i18n.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pwa.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "tokens.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "types.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "shell.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "theme.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "admin/token.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "admin/kit.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "admin/store.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "view-models/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "view-models/reload-safety.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "view-models/published.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "view-models/edit-session.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "api/mock.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "api/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "api/types.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "api/client.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "api/transport.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/published-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/purchase-form.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/prep.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/qr.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/menu.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/purchase.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/team-ui.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/purchase.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/prep.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/team-details.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/menu.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/purchase-list.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/qr.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/publish.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/dish-new.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/ingredient-new.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/home.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/dish-new.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/import.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/admin.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/publish.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/plan.css",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/ingredient-new.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/servings-input.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/home.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/plan.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/plan-form.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "pages/admin/import.ts",
+      "same": true
+    },
+    {
+      "variant": "a",
+      "file": "index.html (only diagnostic script inserted)",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "data.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "dom.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "main.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "styles.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "router.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "i18n.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pwa.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "tokens.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "types.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "shell.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "theme.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "admin/token.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "admin/kit.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "admin/store.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "view-models/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "view-models/reload-safety.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "view-models/published.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "view-models/edit-session.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "api/mock.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "api/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "api/types.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "api/client.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "api/transport.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/published-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/purchase-form.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/prep.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/qr.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/menu.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/purchase.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/team-ui.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/purchase.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/prep.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/team-details.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/menu.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/purchase-list.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/qr.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/publish.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/dish-new.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/ingredient-new.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/home.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/dish-new.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/import.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/admin.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/publish.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/plan.css",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/ingredient-new.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/servings-input.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/home.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/plan.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/plan-form.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "pages/admin/import.ts",
+      "same": true
+    },
+    {
+      "variant": "a-time",
+      "file": "index.html (only diagnostic script inserted)",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "data.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "dom.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "main.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "styles.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "router.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "i18n.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pwa.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "tokens.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "types.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "shell.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "theme.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "admin/token.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "admin/kit.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "admin/store.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "view-models/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "view-models/reload-safety.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "view-models/published.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "view-models/edit-session.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "api/mock.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "api/team-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "api/types.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "api/client.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "api/transport.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/published-meals.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/purchase-form.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/prep.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/qr.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/menu.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/purchase.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/team-ui.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/purchase.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/prep.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/team-details.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/menu.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/purchase-list.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/qr.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/publish.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/dish-new.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/ingredient-new.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/home.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/dish-new.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/import.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/admin.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/publish.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/plan.css",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/ingredient-new.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/servings-input.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/home.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/plan.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/plan-form.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "pages/admin/import.ts",
+      "same": true
+    },
+    {
+      "variant": "b",
+      "file": "index.html (only diagnostic script inserted)",
+      "same": true
+    }
+  ]
+}
