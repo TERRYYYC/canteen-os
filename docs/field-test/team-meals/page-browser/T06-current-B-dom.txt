@@ -1,0 +1,86 @@
+- banner:
+  - button "打开目录"
+  - heading "师傅后台" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - button "返回":
+    - generic: ←
+  - heading "改食材" [level=2]
+  - status: 已读取，尚未修改
+  - generic: 中文名
+  - textbox "中文名": 番茄 B版
+  - paragraph: 必填；英文、乌克兰语可以机翻
+  - generic: 英文 · 乌克兰语
+  - button "机翻"
+  - generic: 英文名
+  - textbox "英文名": Tomato revision B
+  - generic: 乌克兰语名
+  - textbox "乌克兰语名": Томат версії B
+  - generic: 英文短名（当文件名用）
+  - textbox "英文短名（当文件名用）": tomato
+  - paragraph: 文件名存过就不能改了
+  - generic: 照片
+  - button "照片"
+  - button "Choose File"
+  - paragraph: "许可: CC0"
+  - paragraph: "作者（可不填）: CanteenOS fixture authors"
+  - paragraph:
+    - text: "来源:"
+    - link "data/ingredients/pattern.png":
+      - /url: data/ingredients/pattern.png
+  - button "去掉照片"
+  - generic: Wikidata 编号
+  - textbox "Wikidata 编号"
+  - paragraph: 形如 Q23501；可不填
+  - generic: 按什么算
+  - radiogroup "按什么算":
+    - radio "按什么算 按重量（克）" [checked]
+    - generic: 按重量（克）
+    - radio "按体积（毫升）"
+    - generic: 按体积（毫升）
+    - radio "按个数"
+    - generic: 按个数
+  - generic: 用 100 g 能剩多少
+  - textbox "用 100 g 能剩多少":
+    - /placeholder: "100"
+  - generic: "%"
+  - paragraph: 去皮去根之后还剩下的部分；不确定就留着不填（按 100% 算）
+  - generic: 调料 · 适量就行
+  - generic: 菜谱里可以写「适量」，备料单不催切配
+  - switch "调料 · 适量就行"
+  - paragraph: 怎么买
+  - paragraph: 包装信息影响可选的数量参考；未填写时，仍可在采购清单中人工核对这个食材。
+  - generic: 从谁那儿买
+  - combobox "从谁那儿买": Fixture supplier
+  - paragraph: 选已有的，或直接输入新供应商
+  - generic: 一包多少
+  - textbox "一包多少": "1"
+  - generic: 单位
+  - combobox "单位":
+    - option "克"
+    - option "千克" [selected]
+    - option "毫升"
+    - option "升"
+    - option "个"
+    - option "包"
+  - generic: 最少买几包
+  - group "最少买几包":
+    - button "减 1" [disabled]: −
+    - textbox "最少买几包": "1"
+    - button "加 1": +
+  - generic: 上次一包多少钱
+  - textbox "上次一包多少钱": "10"
+  - generic: 币种
+  - combobox "币种":
+    - option "CNY" [selected]
+    - option "USD"
+    - option "UAH"
+    - option "EUR"
+  - generic: 耐放 · 记库存
+  - generic: 油盐米这类打开；生鲜关掉，按菜单买
+  - switch "耐放 · 记库存"
+  - button "保存"
