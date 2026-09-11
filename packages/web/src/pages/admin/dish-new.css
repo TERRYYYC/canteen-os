@@ -136,3 +136,10 @@
 .adm-dish-bottom-btns .adm-btn { flex: 1; }
 .adm-dish-saved { flex-wrap: wrap; }
 .adm-dish-saved p { flex: 1 1 100%; }
+
+/* C1 save state and explicit source comparison. */
+.adm-dish-edit-state { padding: 12px; overflow-wrap: anywhere; }
+.adm-dish-edit-state p { margin: 4px 0 8px; }
+.adm-dish-compare { display: grid; gap: 8px; min-width: 0; }
+.adm-dish-json { max-width: 100%; max-height: 320px; overflow: auto; margin: 0; padding: 12px; font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
+.adm-dish-edit-state .adm-btn, .adm-dish-compare .adm-btn { white-space: normal; }

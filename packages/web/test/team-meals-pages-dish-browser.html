@@ -1,0 +1,16 @@
+<!doctype html><html lang="zh"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dish editor · explicit mock</title>
+<style>body{margin:0}#controls{padding:12px;background:#ffeac5;display:flex;gap:8px;flex-wrap:wrap}#controls button{min-height:44px}#app{max-width:760px;margin:auto}</style>
+<div id="controls"><strong>模拟网络，仅内存数据 · no real write</strong><button data-lang="zh">中文</button><button data-lang="en">English</button><button data-lang="uk">Українська</button><button id="new">新建</button><button id="existing">原菜谱</button><button id="hold">下次延迟回应</button><button id="release">释放回应</button><button id="unknown">下次回应丢失</button><button id="conflict">下次冲突</button></div><div id="app"></div>
+<script type="module">
+import '../src/tokens.css'; import '../src/styles.css';
+import {render} from '../src/pages/admin/dish-new.ts';
+import {ApiError} from '../src/api/types.ts';
+const A='a'.repeat(40),B='b'.repeat(40);let lang='zh',rest='soup',behavior='normal',release;
+const dish={schemaVersion:'3',name:{zh:'配方未知份数的汤',en:'Soup with unknown recipe servings',uk:'Суп без відомої кількості порцій'},components:[{ingredientRef:'water',qty:{value:850,unit:'ml'}},{ingredientRef:'salt',confidence:{value:.8,source:'video'}}],steps:[{text:{zh:'煮开后加入盐',en:'Bring to boil and add salt',uk:'Доведіть до кипіння та додайте сіль'},clip:{videoUrl:'https://example.org/recipe',start:2,end:4}}],provenance:{source:'video',videoUrl:'https://example.org/recipe'},status:'draft'};
+let current={content:dish,commit:A,blobSha:'blob-a'};const writes=[];
+async function write(id,content,condition){writes.push(structuredClone({id,content,condition}));const next=behavior;behavior='normal';if(next==='conflict'){current={content:{...dish,name:{zh:'远端汤'}},commit:B,blobSha:'blob-b'};throw new ApiError(409,'conflict','');}current={content:structuredClone(content),commit:B,blobSha:'blob-b'};if(next==='unknown')throw new TypeError('response lost');if(next==='hold')await new Promise(resolve=>release=resolve);return{commit:B,blobSha:'blob-b',unchanged:false,warnings:[]};}
+const api={mode:'mock',sessionKey:()=>0,getDish:async(id)=>id==='soup'?structuredClone(current):null,getCatalog:async()=>({commit:A,dishes:{soup:dish},ingredients:{water:{schemaVersion:'2',name:{zh:'水',en:'Water',uk:'Вода'},baseUnit:'ml',role:'main'},salt:{schemaVersion:'2',name:{zh:'盐',en:'Salt',uk:'Сіль'},baseUnit:'g',role:'seasoning'}},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}),saveDish:write,saveDishDraft:write};
+async function paint(){location.hash='#/admin/dish/'+rest;const el=document.createElement('section');document.querySelector('#app').replaceChildren(el);await render(el,{lang,planId:null,rest,route:'admin',data:{},t:k=>k},rest,api);}
+for(const b of document.querySelectorAll('[data-lang]'))b.onclick=()=>{lang=b.dataset.lang;paint();};
+document.querySelector('#hold').onclick=()=>behavior='hold';document.querySelector('#release').onclick=()=>release?.();document.querySelector('#unknown').onclick=()=>behavior='unknown';document.querySelector('#conflict').onclick=()=>behavior='conflict';document.querySelector('#new').onclick=()=>{rest='new';paint();};document.querySelector('#existing').onclick=()=>{rest='soup';paint();};window.dishMockWrites=writes;paint();
+</script></html>
