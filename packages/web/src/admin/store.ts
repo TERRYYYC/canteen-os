@@ -8,20 +8,20 @@
  *
  * 存取都做一次 structuredClone：屏内后续改动不会悄悄改掉 store 里的那份，反之亦然。
  */
-import type { MenuPlan } from "@canteenos/core";
+import type { AnyMenuPlan } from "@canteenos/core";
 
 export type DraftSource = "import" | "copy-last-week" | "edit";
 
 interface DraftEntry {
-  plan: MenuPlan;
+  plan: AnyMenuPlan;
   source: DraftSource;
   /** 上一层（一层撤销）；null = 撤销后回到「没有草稿」 */
-  prev: { plan: MenuPlan; source: DraftSource } | null;
+  prev: { plan: AnyMenuPlan; source: DraftSource } | null;
 }
 
 const drafts = new Map<string, DraftEntry>();
 
-export function getDraftPlan(planId: string): MenuPlan | null {
+export function getDraftPlan(planId: string): AnyMenuPlan | null {
   const entry = drafts.get(planId);
   return entry ? structuredClone(entry.plan) : null;
 }
@@ -31,7 +31,7 @@ export function getDraftSource(planId: string): DraftSource | null {
   return drafts.get(planId)?.source ?? null;
 }
 
-export function setDraftPlan(planId: string, plan: MenuPlan, source: DraftSource): void {
+export function setDraftPlan(planId: string, plan: AnyMenuPlan, source: DraftSource): void {
   const current = drafts.get(planId);
   drafts.set(planId, {
     plan: structuredClone(plan),
