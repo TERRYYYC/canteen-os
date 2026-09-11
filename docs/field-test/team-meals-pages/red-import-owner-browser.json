@@ -1,0 +1,108 @@
+{
+  "summary": "6/13",
+  "checks": [
+    {
+      "name": "raw and invalid servings return to original plan",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "other plan retains own raw",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "CSV survives language",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "late file never enters other plan",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "CSV survives plan",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "new file wins",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "new paste wins",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "Source busy survives language",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "pending Source action cannot duplicate",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "canceled action keeps invalid raw and no draft",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "file error survives repaint",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "old auth file cannot enter new owner",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "all requests read-only",
+      "pass": true,
+      "detail": {}
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    }
+  ]
+}

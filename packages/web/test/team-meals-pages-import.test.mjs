@@ -7,9 +7,9 @@ import {tmpdir} from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages/admin/import.ts'),source=await readFile(entry,'utf8');
-const bundle=await esbuild.build({stdin:{contents:source+'\nexport { effective, mergePlan, parsePlanText, dishList, getDraftPlan, setDraftPlan, undoDraftPlan }; export {clearDraftPlan} from "../../admin/store"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList, getDraftPlan, setDraftPlan, undoDraftPlan }; export {clearDraftPlan} from "../../admin/store"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
-const {effective,mergePlan,parsePlanText,dishList,render,getDraftPlan,setDraftPlan,undoDraftPlan,clearDraftPlan,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
+const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,getDraftPlan,setDraftPlan,undoDraftPlan,clearDraftPlan,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
 const week='2026-09-14',catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
 const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
 const row={date:week,mealType:'lunch',dishRef:'soup'};
@@ -117,4 +117,47 @@ test('approved core invalid servings are shown as unparsed original text with no
  for(const raw of ['周一午 原汤 2.5份','周一午 原汤 2.0000000000000001份','周一午 原汤 9007199254740993份']){
   const f=setup(),el=await preview(f,raw);assert.ok(el.querySelector('.adm-import-line-unparsed'));assert.ok(el.textContent.includes(raw));assert.match(el.textContent,/份数/);assert.equal(el.querySelector('.adm-import-submit').disabled,true);assert.equal(getDraftPlan('week-38'),null);assert.equal(f.calls.length,1);
  }
+});
+
+const deferredFile=(name,contents)=>{let release;const promise=new Promise(r=>release=()=>r(new TextEncoder().encode(contents).buffer));return {file:{name,size:contents.length,arrayBuffer:()=>promise},release};};
+const chooseFile=(el,file)=>{const field=el.querySelector('#adm-import-file');field.files=[file];field.dispatch('change');};
+test('raw paste and invalid line edit belong to the original plan across another plan and language',async()=>{
+ const f=setup();let el=await preview(f,'周一午 原汤 8');let field=el.querySelector('.adm-import-servings');field.value='2.0000000000000001';field.dispatch('input');
+ el=mount();await render(el,ctx('en'),'week-39',f.api);let ta=el.querySelector('#adm-import-text');ta.value='another week raw input';ta.dispatch('input');
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(el.querySelector('#adm-import-text').value,'周一午 原汤 8');assert.equal(el.querySelector('.adm-import-servings')?.value,'2.0000000000000001');assert.equal(el.querySelector('.adm-import-submit').disabled,true);
+ el=mount();await render(el,ctx('zh'),'week-39',f.api);assert.equal(el.querySelector('#adm-import-text').value,'another week raw input');
+});
+test('selected CSV completes into the original owner after a language repaint or navigating away',async()=>{
+ for(const detour of ['language','plan']){
+  const f=setup(),file=deferredFile('original.csv','date,meal,dish,servings\nMon,lunch,原汤,8');let el=await preview(f);chooseFile(el,file.file);
+  el=mount();await render(el,ctx('uk'),detour==='plan'?'week-39':'week-38',f.api);file.release();await tick();await tick();
+  if(detour==='plan'){assert.equal(el.querySelector('.adm-import-servings'),null);el=mount();await render(el,ctx('en'),'week-38',f.api);}
+  assert.match(el.textContent,/original.csv/,detour);assert.equal(el.querySelector('.adm-import-servings')?.value,'8',detour);
+ }
+});
+test('a newer CSV or paste wins over an older selected file without changing the wrong owner',async()=>{
+ const f=setup();let el=await preview(f);const old=deferredFile('old.csv','date,meal,dish,servings\nMon,lunch,原汤,3'),fresh=deferredFile('fresh.csv','date,meal,dish,servings\nMon,lunch,原汤,9');chooseFile(el,old.file);
+ el=mount();await render(el,ctx('en'),'week-38',f.api);chooseFile(el,fresh.file);fresh.release();await tick();await tick();old.release();await tick();await tick();assert.match(el.textContent,/fresh.csv/);assert.equal(el.querySelector('.adm-import-servings')?.value,'9');
+ const last=deferredFile('late.csv','date,meal,dish,servings\nMon,lunch,原汤,99');chooseFile(el,last.file);const ta=el.querySelector('#adm-import-text');ta.value='周一午 原汤 6';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');last.release();await tick();await tick();assert.equal(el.querySelector('.adm-import-servings')?.value,'6');
+});
+test('Source-read busy state survives language repaint and cancellation preserves raw validity',async()=>{
+ const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(el.querySelector('.adm-import-submit').disabled,true,'same pending read still owned after repaint');el.querySelector('.adm-import-submit').dispatch('click');assert.equal(f.calls.filter(c=>c.path.includes('/source/')).length,1);
+ const field=el.querySelector('.adm-import-servings');field.value='1.5';field.dispatch('input');release();await tick();await tick();assert.equal(getDraftPlan('week-38'),null);assert.equal(field.value,'1.5');assert.equal(el.querySelector('.adm-import-submit').disabled,true);assert.equal(el.querySelector('.adm-import-submit').getAttribute('aria-busy'),null);
+});
+test('late file failure is retained for its owner across repaint and cannot leak into a new auth session',async()=>{
+ const f=setup();let reject;const promise=new Promise((_,r)=>reject=r);let el=await preview(f);chooseFile(el,{name:'broken.csv',size:2,arrayBuffer:()=>promise});el=mount();await render(el,ctx('en'),'week-38',f.api);reject(new Error('local read failed'));await tick();await tick();assert.match(el.textContent,/Couldn't read the file/);
+ const late=deferredFile('private.csv','date,meal,dish,servings\nMon,lunch,原汤,9');chooseFile(el,late.file);f.changeAuth();el=mount();await render(el,ctx('en'),'week-38',f.api);late.release();await tick();await tick();assert.equal(el.querySelector('#adm-import-text').value,'');assert.equal(el.querySelector('.adm-import-servings'),null);assert.doesNotMatch(el.textContent,/private.csv/);
+});
+
+test('raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle',async()=>{
+ const f=setup();let el=await preview(f,'not parsed yet');const owner=getImportInputOwner(f.api,'week-38');let calls=0;const original=f.api.sessionKey.bind(f.api);f.api.sessionKey=()=>{calls++;return original();};
+ const before=owner.readAuxiliary();assert.equal(before.dirty,true);for(let n=0;n<5;n++)assert.deepEqual(owner.readAuxiliary(),before);assert.equal(calls,0,'metadata does not observe auth or read any service');
+ const file=deferredFile('pending.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(owner.readAuxiliary().phase,'busy');assert.equal(owner.readAuxiliary().dirty,true);assert.ok(owner.readAuxiliary().generation>before.generation);
+ el.querySelector('.adm-import-clear').dispatch('click');const cleared=owner.readAuxiliary();assert.equal(cleared.dirty,false);assert.equal(cleared.phase,'busy','clear cancels acceptance, not the actual read');file.release();await tick();await tick();assert.equal(owner.readAuxiliary().phase,'idle');assert.equal(owner.readAuxiliary().dirty,false);assert.equal(el.querySelector('.adm-import-servings'),null);
+});
+test('a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft',async()=>{
+ const f=setup();let el=await preview(f,'周一午 原汤 8\n这行无法解析');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.ok(getDraftPlan('week-38'));assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,true);
+ el=mount();await render(el,ctx('en'),'week-38',f.api);el.querySelector('.adm-import-clear').dispatch('click');const ta=el.querySelector('#adm-import-text');ta.value='周一午 原汤 8';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,false);
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,false,'language does not invent fresh raw changes after handoff');
 });

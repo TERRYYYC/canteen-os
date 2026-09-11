@@ -12,7 +12,7 @@
  *   4. 底部 sticky 「导入 N 行，跳过 M 行」→ 合并成 MenuPlan → store.setDraftPlan(planId, plan, "import")
  *      → 跳 #/admin/plan/<planId>；导入本身不调任何写入端点。已有导入草稿时顶部可「撤销」（store.undoDraftPlan）。
  *
- * 推论 A：textarea 内容、上传的表、解析结果、行内改动全部存模块级变量，切语言 = 重新 render 时回填。
+ * 原始输入按 API 会话与计划保留；语言与导航只更换视图，异步文件结果回到原 owner。
  * 目标周：rest 里的 planId，缺省 = 今天所在 ISO 周（D-06：week-<ISO 周号>，换算只有 core 那一份实现）。
  * 样式：根元素 class="adm adm-import"，import.css 里每条选择器以 .adm-import 开头（§3.4）。
  * 文案：本文件私有字典，前缀 `import.`，三语齐全（§5.2 / §5.4）；共用文案用 admin/kit.ts 的 adm()。
@@ -23,6 +23,7 @@ import type { AnyMenuPlan, MealType, MenuPlanV3, MenuPlanMealV3, ParsedLine } fr
 import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPlanId } from "@canteenos/core";
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getDraftPlan, getDraftSource, setDraftPlan, setHandoff, undoDraftPlan } from "../../admin/store";
+import { onAuthSessionChange } from "../../admin/token";
 import { parseServingsInput } from "./servings-input";
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
 import { text as teamText } from "../team-ui";
@@ -72,6 +73,8 @@ const T = {
   "import.upload.tooBig": { uk: "Файл завеликий (понад 256 KB)", zh: "文件太大（超过 256 KB）", en: "File too large (over 256 KB)" },
   "import.upload.empty": { uk: "Файл порожній", zh: "这个文件是空的", en: "This file is empty" },
   "import.upload.truncated": { uk: "Прочитано лише перші {n} рядків", zh: "只读了前 {n} 行", en: "Only the first {n} rows were read" },
+  "import.upload.reading": { uk: "Читаю файл {f}…", zh: "正在读取文件 {f}…", en: "Reading file {f}…" },
+  "import.source.reading": { uk: "Читаю збережене меню; введені дані збережено", zh: "正在读取已存计划；当前输入已保留", en: "Reading the saved plan; current input is retained" },
   "import.upload.failed": { uk: "Не вдалося прочитати файл", zh: "文件读不出来", en: "Couldn't read the file" },
   "import.col.date": { uk: "Дата", zh: "日期", en: "Date" },
   "import.col.meal": { uk: "Прийом їжі", zh: "餐次", en: "Meal" },
@@ -149,7 +152,7 @@ const MAX_ROWS = 200;
 const MEAL_ORDER: Record<MealType, number> = { breakfast: 0, lunch: 1, dinner: 2 };
 
 // ---------------------------------------------------------------------------
-// 模块级状态（推论 A：切语言 = 重新 render，靠这些回填）
+// 原始输入 owner（跨语言与导航；共享 store 仍是 JSON 草稿的唯一 owner）
 // ---------------------------------------------------------------------------
 
 type ColRole = "date" | "meal" | "dish" | "servings";
@@ -164,7 +167,7 @@ interface CsvState {
   /** 自动识别是否可信；false 时显示「自己点一下」 */
   confident: boolean;
   /** 「只读了前 N 行」这类提示 */
-  note: string | null;
+  truncated: boolean;
 }
 
 /** 行内改动：换一个 / 改份数；key = 结果数组下标 */
@@ -177,7 +180,7 @@ interface LineEdit {
 }
 
 interface State {
-  /** 这份状态属于哪一周；换周即清空 */
+  /** 这份原始输入属于哪一周；换周只换视图。 */
   planId: string;
   text: string;
   source: "paste" | "csv";
@@ -188,24 +191,70 @@ interface State {
   imported: boolean;
 }
 
-let state: State = freshState("");
-let activeApi: TeamMealsApi | null = null;
-let activeAuth: number | null = null;
+interface ImportInputOwner {
+  readonly planId: string;
+  readonly api: TeamMealsApi;
+  readonly session: number;
+  readonly authGeneration: number;
+  readonly state: State;
+  generation: number;
+  inputGeneration: number;
+  fileTasks: Set<symbol>;
+  upload: { name: string; phase: "reading" | "error"; error?: Key } | null;
+  importing: boolean;
+  catalogReads: number;
+  notify: (() => void) | null;
+  readAuxiliary(): { generation: number; dirty: boolean; phase: "idle" | "busy" };
+}
+let ownerAuthGeneration = 0;
 let renderGeneration = 0;
-let inputGeneration = 0;
-
+const importInputs = new WeakMap<TeamMealsApi, { session: number; generation: number; plans: Map<string, ImportInputOwner> }>();
+const currentInputOwners = new Set<ImportInputOwner>();
+onAuthSessionChange(() => {
+  ownerAuthGeneration++;
+  renderGeneration++;
+  currentInputOwners.clear();
+});
 function freshState(planId: string): State {
   return { planId, text: "", source: "paste", csv: null, parsed: null, edits: new Map(), imported: false };
 }
-
-/** 有解析结果且还没导入 → 刷新 / 关标签页前提醒（§4.0） */
-function isDirty(): boolean {
-  return !!state.parsed && state.parsed.length > 0 && !state.imported;
+function isDirty(state: State): boolean {
+  return !state.imported && (state.text.length > 0 || !!state.csv || state.edits.size > 0);
 }
-
-/** 只在本屏是当前屏时才拦 beforeunload（模块级状态在别的屏也活着，但那时不该打扰） */
-function onImportScreen(): boolean {
-  return /^#\/admin\/plan(\/[^/]+)?\/import$/.test(location.hash);
+function ownerValid(owner: ImportInputOwner): boolean {
+  return owner.authGeneration === ownerAuthGeneration && owner.api.sessionKey() === owner.session;
+}
+function getImportInputOwner(api: TeamMealsApi, planId: string): ImportInputOwner {
+  const session = api.sessionKey();
+  let lifetime = importInputs.get(api);
+  if (!lifetime || lifetime.session !== session || lifetime.generation !== ownerAuthGeneration) {
+    if (lifetime) for (const old of lifetime.plans.values()) currentInputOwners.delete(old);
+    lifetime = { session, generation: ownerAuthGeneration, plans: new Map() };
+    importInputs.set(api, lifetime);
+  }
+  let owner = lifetime.plans.get(planId);
+  if (!owner) {
+    owner = {
+      planId, api, session, authGeneration: ownerAuthGeneration, state: freshState(planId),
+      generation: 0, inputGeneration: 0, fileTasks: new Set(), upload: null,
+      importing: false, catalogReads: 0, notify: null,
+      // Pure metadata: no store/API reads, state transitions, credentials or content.
+      readAuxiliary() { return { generation: this.generation, dirty: isDirty(this.state) || !!this.upload, phase: this.importing || this.fileTasks.size > 0 || this.catalogReads > 0 ? "busy" : "idle" }; },
+    };
+    lifetime.plans.set(planId, owner);
+    currentInputOwners.add(owner);
+  }
+  return owner;
+}
+function inputChanged(owner: ImportInputOwner): void {
+  owner.inputGeneration++;
+  owner.generation++;
+  owner.state.imported = false;
+  // Input replaces a pending file selection; the actual read still owns its busy task.
+  owner.upload = null;
+}
+function notifyInputOwner(owner: ImportInputOwner): void {
+  if (ownerValid(owner)) owner.notify?.();
 }
 
 let unloadGuardInstalled = false;
@@ -213,7 +262,7 @@ function installUnloadGuard(): void {
   if (unloadGuardInstalled) return;
   unloadGuardInstalled = true;
   window.addEventListener("beforeunload", (ev) => {
-    if (!isDirty() || !onImportScreen()) return;
+    if (![...currentInputOwners].some(owner => { const meta = owner.readAuxiliary(); return meta.dirty || meta.phase === "busy"; })) return;
     ev.preventDefault();
     ev.returnValue = "";
   });
@@ -446,12 +495,12 @@ function dishList(catalog: TeamCatalog): DishList {
   return Object.entries(catalog.dishes).map(([id, d]) => ({ id, name: d.name, status: d.status }));
 }
 
-function currentText(): string {
+function currentText(state: State): string {
   return state.source === "csv" && state.csv ? csvToText(state.csv) : state.text;
 }
 
-function runParse(catalog: TeamCatalog, weekStart: string): void {
-  const text = currentText();
+function runParse(state: State, catalog: TeamCatalog, weekStart: string): void {
+  const text = currentText(state);
   if (!text.trim()) {
     state.parsed = null;
     state.edits = new Map();
@@ -468,7 +517,6 @@ function runParse(catalog: TeamCatalog, weekStart: string): void {
       .filter((l) => l.raw);
   }
   state.parsed = lines;
-  state.imported = false;
 }
 
 type EffStatus = ParsedLine["status"];
@@ -530,10 +578,9 @@ function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: st
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   const lang = ctx.lang;
   const { planId, weekStart } = resolveWeek(rest, ctx);
-  const auth = api.sessionKey(), ticket = ++renderGeneration;
-  if (state.planId !== planId || activeApi !== api || activeAuth !== auth) state = freshState(planId);
-  activeApi = api; activeAuth = auth;
-  const live = () => el.isConnected && ticket === renderGeneration && activeApi === api && api.sessionKey() === auth;
+  const owner = getImportInputOwner(api, planId), state = owner.state;
+  const ticket = ++renderGeneration;
+  const live = () => el.isConnected && ticket === renderGeneration && ownerValid(owner);
   installUnloadGuard();
 
   const returnTo = adminHref("plan", planId, "import");
@@ -547,7 +594,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   const bottom = h("div", { class: "adm-import-bottom" });
 
   const goBack = (): void => {
-    if (isDirty() && !window.confirm(adm("adm.leave.confirm", undefined, lang))) return;
+    if (!live()) return;
+    if (isDirty(state) && !window.confirm(adm("adm.leave.confirm", undefined, lang))) return;
     location.hash = planHref;
   };
   root.append(
@@ -574,6 +622,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       action: {
         label: adm("adm.undo", undefined, lang),
         onClick: () => {
+          if (!live()) return;
           undoDraftPlan(planId);
           paintDraftNotice();
           noticeHost.prepend(notice({ kind: "info", text: tt(lang, "import.draft.undone") }));
@@ -609,8 +658,9 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     kind: "ghost",
     class: "adm-import-clear",
     onClick: () => {
-      inputGeneration++;
-      state = freshState(planId);
+      if (!live()) return;
+      inputChanged(owner);
+      Object.assign(state, freshState(planId));
       ta.value = "";
       fitRows();
       fileInput.value = "";
@@ -651,17 +701,18 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
 
   // —— 数据：菜品名单 ——
   let catalog: TeamCatalog | null = null;
-  let importing = false;
 
   function paintUpload(): void {
     replace(uploadMsg);
     replace(colsHost);
+    const selected = owner.upload;
+    if (selected) uploadMsg.append(h("span", { class: selected.phase === "error" ? "adm-import-cols-warn" : "" }, selected.phase === "reading" ? tt(lang, "import.upload.reading", { f: selected.name }) : `${selected.name} · ${tt(lang, selected.error ?? "import.upload.failed")}`));
     const csv = state.csv;
     if (!csv) return;
     append(
       uploadMsg,
       h("span", {}, csv.name),
-      csv.note ? h("span", {}, ` · ${csv.note}`) : null,
+      csv.truncated ? h("span", {}, ` · ${tt(lang, "import.upload.truncated", { n: MAX_ROWS })}`) : null,
       h("span", { class: csv.confident ? "" : "adm-import-cols-warn" }, ` · ${tt(lang, csv.confident ? "import.upload.columns.ok" : "import.upload.columns")}`),
     );
     const width = Math.max(csv.header?.length ?? 0, ...csv.rows.map((r) => r.length));
@@ -676,10 +727,11 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       }
       sel.value = String(csv.mapping[role]);
       sel.addEventListener("change", () => {
-        inputGeneration++;
+        if (!live()) return;
+        inputChanged(owner);
         csv.mapping[role] = Number(sel.value);
         state.source = "csv";
-        if (catalog) runParse(catalog, weekStart);
+        if (catalog) runParse(state, catalog, weekStart);
         paintResults();
       });
       colsHost.append(h("label", { class: "adm-import-col-row", for: `adm-import-col-${role}` }, h("span", {}, tt(lang, `import.col.${role}`)), sel));
@@ -688,44 +740,47 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   paintUpload();
 
   fileInput.addEventListener("change", async () => {
-    const file = fileInput.files?.[0];
-    const fileTicket = ++inputGeneration;
-    if (!file) return;
-    replace(uploadMsg);
-    if (file.size > MAX_FILE_BYTES) {
-      state.csv = null;
-      uploadMsg.append(h("span", { class: "adm-import-cols-warn" }, tt(lang, "import.upload.tooBig")));
-      return;
-    }
-    let text: string;
-    try {
-      text = await readFileText(file);
-    } catch {
-      uploadMsg.append(h("span", { class: "adm-import-cols-warn" }, tt(lang, "import.upload.failed")));
-      return;
-    }
     if (!live()) return;
-    if (fileTicket !== inputGeneration) return;
-    let rows = parseCsv(text);
-    if (rows.length === 0) {
-      state.csv = null;
-      uploadMsg.append(h("span", { class: "adm-import-cols-warn" }, tt(lang, "import.upload.empty")));
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    inputChanged(owner);
+    const fileTicket = owner.inputGeneration;
+    owner.upload = { name: file.name, phase: "reading" };
+    const currentFile = (): boolean => ownerValid(owner) && fileTicket === owner.inputGeneration;
+    if (file.size > MAX_FILE_BYTES) {
+      owner.upload = { name: file.name, phase: "error", error: "import.upload.tooBig" };
+      owner.generation++;
+      paintUpload();
       return;
     }
-    const header = looksLikeHeader(rows[0] ?? []) ? (rows[0] ?? []) : null;
-    if (header) rows = rows.slice(1);
-    let note: string | null = null;
-    if (rows.length > MAX_ROWS) {
-      rows = rows.slice(0, MAX_ROWS);
-      note = tt(lang, "import.upload.truncated", { n: MAX_ROWS });
+    const task = Symbol("local-file-read");
+    owner.fileTasks.add(task);
+    notifyInputOwner(owner);
+    try {
+      const text = await readFileText(file);
+      if (!currentFile()) return;
+      let rows = parseCsv(text);
+      if (rows.length === 0) {
+        owner.upload = { name: file.name, phase: "error", error: "import.upload.empty" };
+        return;
+      }
+      const header = looksLikeHeader(rows[0] ?? []) ? (rows[0] ?? []) : null;
+      if (header) rows = rows.slice(1);
+      const truncated = rows.length > MAX_ROWS;
+      if (truncated) rows = rows.slice(0, MAX_ROWS);
+      const { mapping, confident } = detectColumns(header, rows);
+      state.csv = { name: file.name, header, rows, mapping, confident, truncated };
+      state.source = "csv";
+      state.edits = new Map();
+      state.parsed = null;
+      owner.upload = null;
+    } catch {
+      if (currentFile()) owner.upload = { name: file.name, phase: "error", error: "import.upload.failed" };
+    } finally {
+      owner.fileTasks.delete(task);
+      owner.generation++;
+      notifyInputOwner(owner);
     }
-    const { mapping, confident } = detectColumns(header, rows);
-    state.csv = { name: file.name, header, rows, mapping, confident, note };
-    state.source = "csv";
-    state.edits = new Map();
-    paintUpload();
-    if (catalog) runParse(catalog, weekStart);
-    paintResults();
   });
 
   // —— 结果表 ——
@@ -749,7 +804,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
           { class: "card adm-import-none", role: "status" },
           h("p", { class: "adm-import-none-title" }, tt(lang, "import.none")),
           h("p", { class: "muted" }, tt(lang, "import.none.hint")),
-          h("pre", { class: "adm-import-raw" }, currentText()),
+          h("pre", { class: "adm-import-raw" }, currentText(state)),
         ),
       );
     }
@@ -763,9 +818,10 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       label: okCount > 0 ? tt(lang, "import.submit", { n: okCount, m: skip }) : tt(lang, "import.submit.none"),
       kind: "primary",
       class: "adm-import-submit",
-      disabled: importing || okCount === 0,
+      disabled: owner.importing || owner.fileTasks.size > 0 || okCount === 0,
       onClick: () => void doImport(submit),
     });
+    if (owner.importing) submit.setAttribute("aria-busy", "true");
     bottom.append(submit);
   }
 
@@ -843,7 +899,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
         edit.servingsRaw = raw;
         edit.servings = parsed.valid ? parsed.value : undefined;
         edit.servingsInvalid = inp.validity.badInput || !parsed.valid;
-        state.edits.set(idx, edit); inputGeneration++;
+        state.edits.set(idx, edit); inputChanged(owner);
         const next = effective(line, edit, cat, weekStart);
         inp.setAttribute("aria-invalid", String(!next.servingsValid));
         hint.textContent = !next.servingsValid ? tt(lang, "import.servings.invalid") : next.servings === undefined ? tt(lang, "import.servings.cleared") : "";
@@ -868,6 +924,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
           label: tt(lang, "import.action.new"),
           class: "adm-import-act",
           onClick: () => {
+            if (!live()) return;
             setHandoff({ newDishName: line.dishNameRaw ?? "", returnTo });
             location.hash = adminHref("dish", "new");
           },
@@ -881,6 +938,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
           label: tt(lang, "import.action.complete"),
           class: "adm-import-act",
           onClick: () => {
+            if (!live()) return;
             setHandoff({ returnTo });
             location.hash = adminHref("dish", id);
           },
@@ -921,7 +979,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     sel.value = eff.dishRef ?? "";
     sel.addEventListener("change", () => {
       if (!live()) return;
-      inputGeneration++;
+      inputChanged(owner);
       const edit = state.edits.get(idx) ?? {};
       if (sel.value) edit.dishRef = sel.value;
       else delete edit.dishRef;
@@ -939,17 +997,19 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     const btn = bottom.querySelector<HTMLButtonElement>(".adm-import-submit");
     if (btn) {
       btn.textContent = okCount > 0 ? tt(lang, "import.submit", { n: okCount, m: effs.length - okCount }) : tt(lang, "import.submit.none");
-      btn.disabled = importing || okCount === 0;
+      btn.disabled = owner.importing || owner.fileTasks.size > 0 || okCount === 0;
+      if (owner.importing) btn.setAttribute("aria-busy", "true");
+      else btn.removeAttribute("aria-busy");
     }
   }
 
   // —— 导入：合并成 MenuPlan → store（不调写入端点）→ 跳周视图 ——
   async function doImport(btn: HTMLButtonElement): Promise<void> {
-    if (!catalog || !state.parsed || !live() || importing) return;
+    if (!catalog || !state.parsed || !live() || owner.importing || owner.fileTasks.size > 0) return;
     const cat = catalog;
     const meals: MenuPlanMealV3[] = [];
     const clearServings = new Set<number>();
-    const inputTicket = inputGeneration;
+    const inputTicket = owner.inputGeneration;
     state.parsed.forEach((line, i) => {
       const eff = effective(line, state.edits.get(i), cat, weekStart);
       if (!eff.importable || !eff.dishRef || !line.date || !line.mealType) return;
@@ -958,7 +1018,9 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       meals.push({ date: line.date, mealType: line.mealType, dishRef: eff.dishRef, ...(eff.servings === undefined ? {} : { plannedServings: eff.servings }) });
     });
     if (meals.length === 0) return;
-    importing = true;
+    owner.importing = true;
+    owner.generation++;
+    paintReadStatus();
     const done = busyButton(btn);
     try {
       let base: AnyMenuPlan | null = getDraftPlan(planId);
@@ -967,9 +1029,10 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
         base = saved?.content ?? null;
       }
       if (!live()) return;
-      if (inputTicket !== inputGeneration) return;
+      if (inputTicket !== owner.inputGeneration) return;
       setDraftPlan(planId, mergePlan(base, meals, planId, weekStart, clearServings), "import");
-      state.imported = true;
+      state.imported = meals.length === state.parsed.length;
+      owner.generation++;
       location.hash = planHref;
     } catch (err) {
       if (!live()) return;
@@ -980,9 +1043,10 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       replace(noticeHost, errorCard(apiMessage(err, lang), () => void doImport(btn)));
       noticeHost.scrollIntoView({ block: "start", behavior: "smooth" });
     } finally {
-      importing = false;
+      owner.importing = false;
+      owner.generation++;
       done();
-      if (live()) paintBottomOnly();
+      notifyInputOwner(owner);
     }
   }
 
@@ -1003,32 +1067,37 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     timer = window.setTimeout(() => {
       timer = null;
       if (!catalog || !live()) return;
-      runParse(catalog, weekStart);
+      runParse(state, catalog, weekStart);
       paintResults();
     }, PARSE_DEBOUNCE_MS);
   };
   ta.addEventListener("input", () => {
     if (!live()) return;
-    inputGeneration++;
+    inputChanged(owner);
     state.text = ta.value;
     state.source = "paste";
     state.edits = new Map();
+    state.parsed = null;
+    paintResults();
     fitRows();
     parseBtn.disabled = !catalog || !ta.value.trim();
     scheduleParse();
   });
   parseBtn.addEventListener("click", () => {
-    if (!catalog) return;
+    if (!catalog || !live()) return;
+    inputChanged(owner);
     if (timer !== null) window.clearTimeout(timer);
     timer = null;
     state.text = ta.value;
     state.source = "paste";
-    runParse(catalog, weekStart);
+    runParse(state, catalog, weekStart);
     paintResults();
   });
 
   // —— 读菜品名单（模糊匹配的字典）；失败 → errorCard + 重试；401 → 锁屏 ——
   async function loadCatalog(): Promise<void> {
+    if (!live()) return;
+    owner.catalogReads++; owner.generation++;
     replace(catalogHint, tt(lang, "import.catalog.loading"));
     try {
       const c = await api.getCatalog();
@@ -1038,7 +1107,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       paintDraftNotice(); // 重试成功后把 errorCard 撤掉
       parseBtn.disabled = !ta.value.trim();
       // 回填：有旧结果（切语言 / 从「新建」回来）就用新的名单重算一遍，行内改动按下标保留
-      if (currentText().trim()) runParse(catalog, weekStart);
+      if (currentText(state).trim()) runParse(state, catalog, weekStart);
       paintResults();
     } catch (err) {
       if (!live()) return;
@@ -1048,7 +1117,21 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       }
       replace(catalogHint);
       replace(noticeHost, errorCard(apiMessage(err, lang), () => void loadCatalog()));
+    } finally {
+      owner.catalogReads--; owner.generation++;
     }
   }
+  const readStatus = h("p", { class: "muted", role: "status" });
+  pasteHost.append(readStatus);
+  function paintReadStatus(): void { readStatus.textContent = owner.importing ? tt(lang, "import.source.reading") : ""; }
+  owner.notify = () => {
+    if (!live()) return;
+    paintUpload();
+    if (catalog && currentText(state).trim() && state.parsed === null) runParse(state, catalog, weekStart);
+    paintReadStatus();
+    paintResults();
+    paintBottomOnly();
+  };
+  paintReadStatus();
   await loadCatalog();
 }
