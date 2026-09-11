@@ -1,6 +1,6 @@
 /** Team plan page. D0 design: docs/design/team-meals-pages/. */
 import './plan.css';
-import { weekStartOfPlanId, planIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
+import { weekStartOfPlanId, planIdOfDate, normalizeSelection, type MealType, type AnyMenuPlan } from '@canteenos/core';
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
 import { apiMessage } from '../../admin/kit';
@@ -11,11 +11,14 @@ import type { PageCtx } from '../../types';
 import { adminHref } from '../admin';
 import { text, action, field, status, onDetached } from '../team-ui';
 import { createPlanForm, toSavePlan } from './plan-form';
+import {previewTeamMealsDraft} from '../../view-models/team-meals';
+import {renderCandidates} from '../purchase-list';
+import {hrefOf} from '../../router';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string }
+interface View { preview?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string }
 
 /** An injected API changes transport only; browser fixtures still execute this production page. */
 export function createPlanRenderer(api:TeamMealsApi) {
@@ -37,7 +40,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
     const today=new Date().toISOString().slice(0,10);
     const defaultDate=weekStartOfPlanId(id,today)??today;
-    const view=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:''};views.set(id,view);
+    const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:''};views.set(id,view);
     const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
     const sourceKey=()=>owner.session.getState().source?.commit??'current-unsaved';
     // Bind what actually arrived, never whichever source happens to be current after an await.
@@ -70,7 +73,15 @@ export function createPlanRenderer(api:TeamMealsApi) {
           output.push(h('section',{class:'tm-card'},h('h3',{},`${date} · ${tr(meal as MealType)}`),...indices.map(index=>row(index))));
         }
         if(groups.size===0)output.push(h('p',{class:'tm-card'},tr('empty')));
-        if(catalog)output.push(addForm());
+        if(catalog){
+          output.push(addForm(),action(tr('preview'),()=>{view.preview=!view.preview;paint();}));
+          if(view.preview){
+            const selection=normalizeSelection([...groups.values()].flat().map(index=>{const meal=plan.meals[index]!;return{menuPlanRef:id,date:meal.date,mealType:meal.mealType};}));
+            const preview=previewTeamMealsDraft({inputs:{menuPlans:{[id]:plan},dishes:catalog.dishes,ingredients:catalog.ingredients,techniques:catalog.techniques},selection,at:new Date().toISOString()});
+            output.push(h('section',{'data-preview':'draft'},h('h3',{},tr('localPreview')),renderCandidates({lang,collection:preview.collection,estimate:preview.estimate,ingredients:catalog.ingredients,dishes:catalog.dishes})));
+          }
+        }
+        output.push(h('a',{href:hrefOf('purchase',`new/${id}`)},lang==='zh'?'从已保存计划建立采购清单':lang==='en'?'Create shopping list from saved plan':'Створити список покупок зі збереженого плану'));
         const save=action(tr('save'),()=>void owner.session.save(s.contextId),true);
         save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0;
         output.push(h('div',{class:'tm-actions'},save,h('a',{href:adminHref('publish')},tr('publish'))));

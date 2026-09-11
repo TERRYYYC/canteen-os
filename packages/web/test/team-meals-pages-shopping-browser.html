@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>采购页面 · 本地模拟验证</title>
+<style>.fixture-toolbar{padding:16px;border-bottom:2px solid #98794d;background:#fff8e8;display:flex;flex-wrap:wrap;gap:10px;align-items:center}.fixture-toolbar p{flex-basis:100%;margin:0}.fixture-toolbar label{display:flex;gap:6px;align-items:center}#app{max-width:1100px;padding:20px;margin:auto}#result{display:block;white-space:pre-wrap;padding:12px}#ledger{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px}body>details{margin:16px}@media(max-width:500px){#app{padding:12px}.fixture-toolbar{padding:12px}.fixture-toolbar button{min-height:40px}}</style></head><body>
+<aside class="fixture-toolbar">
+<strong>采购页面验证 · MOCK ONLY · 本地示意资料</strong>
+<p>真实页面 + C1/C2；仅网络响应为模拟。Q afc3289 样本是本地输入，A/B 是格式令牌，既不代表这些提交的真实历史资料，也不代表当前仓库或已发布版本。</p>
+<label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<label>下一次保存 <select id="scenario"><option value="success">成功 / success</option><option value="hold">等待并释放 / hold</option><option value="lost">写入后丢失响应 / lost</option><option value="conflict">远端冲突 / conflict</option></select></label>
+<button id="release">释放等待响应 / release</button><button id="away">离开 / 返回</button>
+<label>最新计划场景 <select id="scope"><option value="A">A · 原范围</option><option value="B">B · 新餐次、盐退出、番茄资料变化</option></select></label>
+<button id="reload">重新打开已存清单</button><button id="reset">重置本地样本</button><button id="run">运行真实页面主流程</button>
+<p>改变计划场景后，须在页面点击「读取最新已保存计划」并应用范围。剪贴板在此入口固定失败，可查看页面提供的可读文本。</p>
+</aside><output id="result" aria-live="polite">尚未运行。所有保存只在本页内存中。</output><main id="app"></main>
+<details><summary>本地请求与断言记录（无凭据）</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {createPurchaseRenderer} from '../src/pages/purchase.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {shoppingText} from '../src/pages/purchase-list.ts';
+import {text} from '../src/pages/team-ui.ts';
+import {parseHash,hrefOf} from '../src/router.ts';
+import semantic from '../../../test/fixtures/contracts/semantic-expectations.json';
+const files=import.meta.glob('../../../test/fixtures/contracts/valid/boundaries/data/**/*.json',{eager:true,import:'default'});
+const seed={menuPlans:{},dishes:{},ingredients:{},techniques:[]};
+for(const [path,value] of Object.entries(files)){
+ const m=path.match(/data\/(menu-plans|dishes|ingredients)\/([^/]+)\.json$/);if(m)seed[m[1]==='menu-plans'?'menuPlans':m[1]][m[2]]=value;
+ if(path.endsWith('/techniques.json'))seed.techniques=value;
+}
+const clone=x=>structuredClone(x),{a:A,b:B}=semantic.revisionTokens;
+const original=clone(seed),changed=clone(seed);
+// Explicit local scenario B, not a claim about historical fixture objects at commit B.
+for(const id of ['first-dish','second-dish'])changed.dishes[id].components=changed.dishes[id].components.filter(c=>c.ingredientRef!=='salt');
+changed.dishes['first-dish'].components[0].qty.value=301;
+changed.ingredients.tomato.name={zh:'场景 B 番茄',en:'Scenario B tomato',uk:'Помідор сценарію B'};
+changed.menuPlans['team-week'].meals.push({date:'2026-09-16',mealType:'dinner',dishRef:'first-dish'});
+const snapshots=new Map([[A,original],[B,changed]]),sources=new Map(),history=new Map(),ledger=[];
+let api,render,seq=0,pending=null,lastPurchase=hrefOf('purchase','new/team-week'),paintEpoch=0;
+const $=s=>document.querySelector(s),lang=()=>$('#lang').value,t=k=>shoppingText(lang(),k),u=k=>text(lang(),k);
+const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
+const failure=(status,code)=>json({ok:false,errors:[{path:'',code,message:code}]},status);
+function log(entry){ledger.push(entry);$('#ledger').textContent=JSON.stringify(ledger,null,2);}
+function store(id,content){const commit=(++seq).toString(16).padStart(40,'0'),source={content:clone(content),commit,blobSha:`mock-list-${seq}`};sources.set(id,source);history.set(`${id}:${commit}`,clone(source));return source;}
+async function fetchMock(url,init={}){
+ const parsed=new URL(String(url)),method=init.method??'GET',path=parsed.pathname,requested=parsed.searchParams.get('revision');
+ if(parsed.origin!=='https://explicit-shopping-mock.invalid')throw new Error('Mock harness refuses an unexpected origin');
+ if(method==='POST'){
+  const match=path.match(/^\/shopping-list\/([^/]+)$/);if(!match)throw new Error(`Unexpected write ${path}`);
+  const id=decodeURIComponent(match[1]),body=JSON.parse(init.body),headers=new Headers(init.headers),prior=sources.get(id);
+  const scenario=$('#scenario').value;$('#scenario').value='success';
+  log({method,path,scenario,ifMatch:headers.get('If-Match'),ifNoneMatch:headers.get('If-None-Match'),body:clone(body)});
+  if(prior?headers.get('If-Match')!==prior.blobSha:headers.get('If-None-Match')!=='*')return failure(409,'conflict');
+  if(!prior&&body.items.some(i=>i.decision!=='check'||Object.hasOwn(i,'bought')||Object.hasOwn(i,'previous')))return failure(400,'invalid_selection');
+  if(scenario==='conflict'){
+   if(prior){const remote=clone(prior.content),oil=remote.items.find(i=>i.ingredientRef==='cooking-oil');if(oil){oil.decision='available';delete oil.bought;delete oil.previous;}store(id,remote);}
+   return failure(409,'conflict');
+  }
+  const source=store(id,body);
+  if(scenario==='lost')throw new TypeError('Explicit mock: write applied, response lost');
+  if(scenario==='hold')await new Promise(resolve=>{pending=resolve;log({event:'response-held'});});
+  return json({commit:source.commit,blobSha:source.blobSha,unchanged:false,warnings:[]});
+ }
+ if(method!=='GET')throw new Error(`Unexpected method ${method}`);
+ log({method,path,revision:requested,owner:parsed.searchParams.get('owner'),pointer:parsed.searchParams.get('pointer')});
+ const list=path.match(/^\/source\/shopping-list\/([^/]+)$/);
+ if(list){const id=decodeURIComponent(list[1]),source=requested?history.get(`${id}:${requested}`):sources.get(id);return source?json(source):failure(404,'not_found');}
+ const revision=requested??($('#scope').value==='B'?B:A),input=snapshots.get(revision);
+ if(!input)return failure(422,'revision_unavailable');
+ if(path==='/catalog')return json({commit:revision,...clone(input),suppliers:[],translations:{machine:0,human:0,stale:0}});
+ const plan=path.match(/^\/source\/plan\/([^/]+)$/);
+ if(plan){const content=input.menuPlans[decodeURIComponent(plan[1])];return content?json({content:clone(content),commit:revision,blobSha:`mock-plan-${revision}`}):failure(404,'not_found');}
+ // This boundary fixture has no real image bytes. Never substitute external or current images.
+ if(path==='/asset')return failure(404,'not_found');
+ throw new Error(`Unexpected read ${path}`);
+}
+function connect(){api?.dispose();api=createTeamMealsApi('https://explicit-shopping-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});render=createPurchaseRenderer(api);}
+async function paint(){
+ const epoch=++paintEpoch,route=parseHash(location.hash),outlet=document.createElement('section');$('#app').replaceChildren(outlet);document.documentElement.lang=lang();
+ if(route?.page!=='purchase'){outlet.textContent='已离开采购页面 / Purchase page detached / Сторінку покупок закрито';return;}
+ lastPurchase=location.hash;
+ try{await render(outlet,{lang:lang(),route:'purchase',rest:route.rest,planId:'team-week',data:{},t:key=>key});}
+ catch(error){if(epoch===paintEpoch)$('#result').textContent=`页面错误 / Page error: ${error.message}`;throw error;}
+}
+async function go(rest){historyReplace(hrefOf('purchase',rest));await paint();}
+function historyReplace(hash){window.history.replaceState(null,'',`${location.pathname}${location.search}${hash}`);}
+function release(){const resolve=pending;pending=null;resolve?.();}
+async function reset(){release();sources.clear();history.clear();ledger.length=0;seq=0;$('#scope').value='A';$('#scenario').value='success';connect();$('#result').textContent='本地样本已重置；尚未保存。';await go('new/team-week');log({event:'reset',fixtureManifest:'Q afc3289',scope:semantic.scope,revisionCaveat:semantic.revisionCaveat});}
+Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw new Error('Explicit local clipboard-failure scenario');}}});
+$('#lang').onchange=()=>void paint();$('#release').onclick=release;
+$('#away').onclick=()=>{location.hash=parseHash(location.hash)?.page==='purchase'?'#/menu':lastPurchase;};
+$('#scope').onchange=()=>log({event:'current-plan-scenario',scenario:$('#scope').value,revision:$('#scope').value==='B'?B:A});
+$('#reload').onclick=()=>{render=createPurchaseRenderer(api);void paint();};$('#reset').onclick=()=>void reset();
+window.addEventListener('hashchange',()=>void paint());
+const pause=()=>new Promise(resolve=>setTimeout(resolve,20));
+async function until(test,message){for(let i=0;i<180;i++){if(test())return;await pause();}throw new Error(message);}
+function assert(ok,message){if(!ok)throw new Error(message);log({assertion:message,result:'pass'});}
+function button(label,within=$('#app')){const found=[...within.querySelectorAll('button')].find(el=>el.textContent===label);if(!found)throw new Error(`Missing button: ${label}`);return found;}
+function click(label,within){const found=button(label,within);assert(!found.disabled,`action enabled: ${label}`);found.click();}
+function input(selector,value){const el=$(selector);if(!el)throw new Error(`Missing input: ${selector}`);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));}
+const card=id=>$(`.tm-material[data-ingredient="${id}"]`),phase=value=>!!$(`[data-phase="${value}"]`),writes=()=>ledger.filter(x=>x.method==='POST');
+const allChecked=()=>[...document.querySelectorAll('.tm-material')].every(el=>button(t('check'),el).getAttribute('aria-pressed')==='true');
+async function save(scenario='success'){$('#scenario').value=scenario;click(t('save'));await until(()=>scenario==='hold'?!!pending:phase(scenario==='lost'?'outcome-unknown':scenario==='conflict'?'conflict':'saved-but-unpublished'),`save response: ${scenario}`);}
+async function choose(id,decision,bought=false){click(t(decision),card(id));await pause();if(bought){const box=card(id).querySelector('input[type="checkbox"]');assert(!!box,'buy reveals bought checkbox');box.click();await pause();}}
+async function listRoute(){await go('team-shop');await until(()=>!!card('tomato'),'shopping candidates restored');}
+async function run(){
+ const out=$('#result');$('#run').disabled=true;
+ try{
+  $('#lang').value='zh';await reset();input('[data-focus="new-list-id"]','team-shop');click(t('read'));
+  await until(()=>$('#app').textContent.includes('2026-09-15'),'current saved plan scope loaded');
+  for(const box of document.querySelectorAll('.tm-slot input[type="checkbox"]'))if(box.closest('label').textContent.includes('2026-09-15'))box.click();
+  click(t('create'));await until(()=>!!card('tomato'),'created list routed to candidates');
+  assert(document.querySelectorAll('.tm-material').length===4&&allChecked(),'creation displays four real collected all-check candidates');
+  assert([...document.querySelectorAll('.tm-decisions button')].every(el=>el.disabled),'creation decisions blocked before acknowledgement');
+  await save();assert(writes()[0].ifNoneMatch==='*'&&!writes()[0].ifMatch,'creation uses If-None-Match *');
+  assert(writes()[0].body.items.every(i=>i.decision==='check'&&!Object.hasOwn(i,'bought')&&!Object.hasOwn(i,'previous')),'creation writes exact all-check body');
+  await choose('tomato','buy',true);await choose('salt','buy',true);await save();
+  assert(writes()[1].ifMatch==='mock-list-1'&&!writes()[1].ifNoneMatch,'manual decision save uses acknowledged If-Match');
+  assert(writes()[1].body.items.filter(i=>i.bought).length===2,'manual bought decisions are separate from creation');
+  $('#lang').value='uk';render=createPurchaseRenderer(api);await paint();await until(()=>!!card('tomato'),'fresh controller loads existing list after language change');
+  assert(button(t('buy'),card('tomato')).getAttribute('aria-pressed')==='true'&&card('tomato').querySelector('input').checked,'saved decisions loaded in Ukrainian');
+  $('#scope').value='B';
+  card('tomato').querySelector('h3 a').click();await until(()=>!!$('#app article h2'),'same-version ingredient opens');
+  assert($('#app').textContent.includes(A)&&!$('#app').textContent.includes('Помідор сценарію B'),'ingredient detail retains original A metadata while latest is B');
+  const dishLink=[...$('#app').querySelectorAll('a')].find(a=>parseHash(new URL(a.href).hash)?.rest==='team-shop/dish/first-dish');assert(!!dishLink,'ingredient links to original source dish');dishLink.click();
+  await until(()=>!!$('[data-component-index]'),'same-version dish opens');
+  assert($('#app').textContent.includes(A)&&$('[data-component-index="0"]').textContent.includes('300 g')&&!$('[data-component-index="0"]').textContent.includes('301 g'),'dish original quantity and version stay at A');
+  await listRoute();click(t('copy'));await until(()=>!!$('#app textarea:not([hidden])'),'clipboard failure exposes readable text');
+  assert($('#app textarea').value.includes(A)&&$('#app textarea').value.includes(t('bought')),'clipboard fallback includes basis and explicit decisions');
+  click(t('read'));await until(()=>$('#app').textContent.includes('2026-09-16'),'read latest saved plan exposes new B meal');
+  const newSlot=[...document.querySelectorAll('.tm-slot input[type="checkbox"]')].find(el=>el.closest('label').textContent.includes('2026-09-16'));assert(!!newSlot,'new scope can be selected');newSlot.click();
+  click(t('apply'));await until(()=>!card('salt')&&!!$('.tm-removed'),'rebase moves removed bought ingredient outside current list');
+  assert(allChecked(),'rebase current list is entirely check');assert($('.tm-removed').textContent.includes('salt')&&$('.tm-removed').textContent.includes(t('bought')),'removed salt retains old bought warning separately');
+  assert([...document.querySelectorAll('.tm-decisions button')].every(el=>el.disabled),'rebase requires acknowledgement before decisions');
+  await save();const rebase=writes().at(-1);
+  assert(rebase.body.basis.sourceRevision===B&&rebase.body.basis.selection.some(s=>s.date==='2026-09-16'),'rebase saves actual B source and selected expanded scope');
+  assert(rebase.body.items.every(i=>i.decision==='check'&&!Object.hasOwn(i,'bought'))&&allChecked(),'rebase acknowledgement keeps all current candidates check');
+  await choose('tomato','available');await save();assert(writes().at(-1).body.items.find(i=>i.ingredientRef==='tomato').decision==='available','new confirmation is a later conditional write');
+  await choose('tomato','buy');await save('hold');assert([...document.querySelectorAll('.tm-decisions button')].every(el=>el.disabled),'in-flight write disables manual decisions');
+  $('#lang').value='en';await paint();$('#away').click();await until(()=>parseHash(location.hash)?.page==='menu','route leaves during held response');release();await pause();$('#away').click();await until(()=>phase('saved-but-unpublished'),'held acknowledgement restored after route return');
+  await choose('tomato','available');await save('lost');$('#away').click();await pause();$('#away').click();await until(()=>phase('outcome-unknown'),'unknown outcome survives route return');
+  const beforeWrites=writes().length,beforeReads=ledger.filter(x=>x.method==='GET'&&x.path==='/source/shopping-list/team-shop').length;
+  click(u('recover'));await until(()=>phase('saved-but-unpublished'),'unknown outcome verified');
+  const recovery=ledger.filter(x=>x.method==='GET'&&x.path==='/source/shopping-list/team-shop').slice(beforeReads);
+  assert(writes().length===beforeWrites&&recovery.length===2&&recovery[0].revision===null&&/^[a-f0-9]{40}$/.test(recovery[1].revision),'recovery reads current then exact commit without another write');
+  await choose('tomato','buy',true);await save('conflict');click(u('compare'));await until(()=>!!$('.tm-compare'),'conflict comparison displays remote');
+  click(u('adopt'));await until(()=>!phase('conflict'),'adopt compared remote source');
+  assert(button(t('available'),card('cooking-oil')).getAttribute('aria-pressed')==='true','remote decision adopted through real controller');
+  assert(writes().slice(1).every(w=>!!w.ifMatch&&!w.ifNoneMatch),'every subsequent save uses If-Match');
+  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；创建、人工判断、同版详情、范围全量复核、复制降级、等待/丢响应/冲突与返回。未验证真实 Worker、真实历史、发布或图片字节。';
+ }catch(error){out.textContent=`FAIL · ${error.message}\n请保留请求记录；页面实现由主任务检查修复。`;log({failure:error.message});}
+ finally{$('#run').disabled=false;}
+}
+$('#run').onclick=()=>void run();
+Object.defineProperty(window,'shoppingHarness',{value:Object.freeze({get ledger(){return clone(ledger);},get revisions(){return{A,B};},run}),writable:false});
+const params=new URLSearchParams(location.search);if(['zh','en','uk'].includes(params.get('lang')))$('#lang').value=params.get('lang');
+await reset();
+</script></body></html>
