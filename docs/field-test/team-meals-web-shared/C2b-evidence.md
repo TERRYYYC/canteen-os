@@ -56,7 +56,7 @@ created: 2026-09-11
 
 ## bae6308 正常认证切换的真实 SW 补验
 
-固定代码 `bae6308799d937f675fa7a919879ed8c121b2d93`。原非作者对 28eb 的完整审查发现两项 P2：同 auth 409/bad_response 错误解除保护；custom adapter 非完整 commit ACK 错误解除保护。bae6308 两项均 RED→GREEN，Web154/154（`/private/tmp/c2b-web154.log`）。28eb 报告 `/private/tmp/c2b-reader-pwa-review-28eb30f-qG2fZ9/REVIEW.md` 已独立关闭 98d 的 verified binding/source 可变问题：修改、删除、重定义以及替换消费者返回 source 都不能改变私有已验证绑定。bae6308 最终判定待原 reviewer。
+固定代码 `bae6308799d937f675fa7a919879ed8c121b2d93`。原非作者对 28eb 的完整审查发现两项 P2：同 auth 409/bad_response 错误解除保护；custom adapter 非完整 commit ACK 错误解除保护。bae6308 两项均 RED→GREEN，Web154/154（`/private/tmp/c2b-web154.log`）。28eb 报告 `/private/tmp/c2b-reader-pwa-review-28eb30f-qG2fZ9/REVIEW.md` 已独立关闭 98d 的 verified binding/source 可变问题：修改、删除、重定义以及替换消费者返回 source 都不能改变私有已验证绑定。bae6308 最终获原 reviewer APPROVE，见下节。
 
 原生补验站 `/private/tmp/c2b-real-sw-8usW5f`、`http://127.0.0.1:61046/canteen/`、IAB tab7。a/src 与本固定 HEAD 的 packages/web/src 全目录无差异；正式 A 生产者、原 CI 配置、实际生成 SW。A `b6e65df955969ea8bf7557106f4fe9006021270e`，B `c21537087c9e9a265c48b3f1491f6f159b887469`。本节仅追加 auth/PWA 真实控制流，不重复声称全量离线矩阵。
 
@@ -70,3 +70,17 @@ created: 2026-09-11
 | boot2 下再次发送 mock save，丢失响应，再正常退出认证 | 旧 editor private 全 null，generic unknown；切 A-time 并点击更新仍只有 Continue，boot2不变，writes1/reads0 |
 
 所有保存/ACK/网络丢失均来自页面明确标注的 mock；更新、controllerchange 和整页重载为实际浏览器行为。旧 unknown 无可核实结果时保留保护，不借新身份读取或手动清除。
+
+## 共享完整批准与固定页面基础组合
+
+原非作者 `/root/c1_review` 对 `bae6308799d937f675fa7a919879ed8c121b2d93` 完整共享 C2b 范围给出 APPROVE，无剩余 P1/P2。报告 `/private/tmp/c2b-reader-pwa-review-bae6308-efuNDX/REVIEW.md`，独立 Web154/154、原 409/非法 ACK 负例、合法原操作结算探针及实际 main 构建通过（entry gzip28.26KB）。其完整批准包括 published reader/assets、C1 与 aux 全记录保护、token/coverage、main/PWA；不包括 D 实际页面组合或真实 Worker/L2。043161b 只补证据，src 零差异。
+
+调度随后正式释放 D 固定 `fa7bc8dc6bcd576065bc23b622e6118f1a17fe41` 全历史用于基础组合。先将独立已审类型 `873526e` 合入为7156664，再将D历史合入为 `d3ea4888be3f7279614d52d7ffff4441b0077cbb`。两次唯一冲突均在 types.ts 的相邻新增字段，保留共享原文件：正式publication、publicationError与已审optional setReloadCoverage。相对已审bae，共享src除D pages目录外零差异。没有消费D未提交工作树。
+
+- 固定d3ea488：Web317/317，日志 `/private/tmp/c2b-fa7-web-combination.log`。
+- 固定d3ea488：整树TypeScript通过，日志 `/private/tmp/c2b-fa7-typecheck.log`；原五处D类型错误在已批准D历史中消除。
+- 固定d3ea488：实际main构建通过，`/private/tmp/c2b-fa7-application-build`，entry gzip53.22KB，实际生成SW34 precache；日志 `/private/tmp/c2b-fa7-build.log`。
+- 代码/测试diff-check通过。全历史diff-check发现D原RED/intermediate原始日志的空白，不修改其证据文件，不声称全历史无空白。
+- 已审B终态全历史 `f1cecfee7ca8e762002864b67ceb945364c79150`（实现225a931）继续合入为 `413022734f07921397d223f7b8c6280dcc9fe0ae`，Web无差异。Worker构建和实际handler publish36/36通过，日志 `/private/tmp/c2b-b-publish-build.log` / `c2b-b-publish36.log`；全为FakeRepo，无真实写入。
+
+此时D的aux/tickets/coverage与正式published页面接线仍在D后续工作中。317绿、类型绿与构建绿仅证明已批准基础页可与共享层组合，不证明页面已登记全覆盖，也不证明菜单/备料已消费正式published handle。接下来只消费调度释放的D新固定批准点，再补实际main页面、三语/视口与真实更新链证据。
