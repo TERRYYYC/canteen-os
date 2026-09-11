@@ -1,0 +1,20 @@
+{
+  "reviewerIdentity": "/root/plan_review",
+  "reviewedHeadSha": "7920496e06996eedac6e08e862fa097453ed9462",
+  "productionEquivalentSha": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+  "acceptedSourceRef": "docs/design/team-meals-pages/APP-BUNDLE-D1-contract.md",
+  "acceptedRevision": "b5ccc0abad0bc07fd783b40e880321372c44b384",
+  "originalManifestSha256": "9c39931c5c9fcabe02198a1584e8b9574042ff425bd96a36c8b482b0cfdf3b15",
+  "originalManifestEntries": 76,
+  "originalManifestMismatches": [],
+  "emittedJsFiles": 52,
+  "emittedHashMismatches": [],
+  "toolOnlyExpectedTargetLiteralChanged": true,
+  "sourceFileCount": 56,
+  "sourceEqualsAccepted": true,
+  "targetEqualsProductionPackages": true,
+  "finalRootEvidenceSha": "feda0ad68b68a050dc35f579e04b811ec690edf8",
+  "finalRootEvidencePackagesEqualReviewedTarget": true,
+  "finalRootAcceptedSourceRevision": "b5ccc0abad0bc07fd783b40e880321372c44b384"
+}
+Both corrected reports differ from originals only at reviewedHeadSha; all 52 emitted hashes unchanged.

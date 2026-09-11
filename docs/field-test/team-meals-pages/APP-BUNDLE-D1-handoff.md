@@ -15,6 +15,8 @@ status: approved-local-bundle-slice
 
 **原非作者 `/root/plan_review` 已批准固定 7920496 的 D 页面加载实现与修复；其 packages 与生产 734e295 完全相同。D1-R1、D1-R2 均闭合，本审查范围内没有开放的 P1/P2。** [原完整批准报告](review-receipts/bundle-d1-repair-7920496/REVIEW.md) 的 SHA256 为 `7b8569c4c1eadda000c663879c2163b7e0cec663ce941bd49be85a2cf95a78ed`。
 
+**预算归属更正：** 原审阅工具复用时硬编码了旧 df992，导致初版两份预算 JSON 的 `reviewedHeadSha` 误标。原审阅者已[签署追加更正](review-receipts/bundle-d1-repair-7920496/METADATA-CORRECTION.md)，确认实际构建和测量源为792/生产734，原批准不变。当前预算请使用[默认配置正确副本](review-receipts/bundle-d1-repair-7920496/reviewer-budget-default-corrected.json)和[HTTP配置正确副本](review-receipts/bundle-d1-repair-7920496/reviewer-budget-http-corrected.json)：仅版本字段改变，其余字节、全部数值与图记录均相同。原76项及旧清单原样保留；[追加87项清单](review-receipts/bundle-d1-repair-7920496/reviewer-artifact-manifest-corrected.json)含原76、原清单及更正原件。没有重建、重跑全套或修改生产。
+
 这是页面加载切片及受影响组合的批准。原始 D0/T01–T09 愿景签收、Q/L2、真实发布及部署不由这份报告宣称完成或授权。
 
 ## What / Why
