@@ -174,4 +174,3 @@ export function slugify(s: string): string {
     .replace(/^-+|-+$/g, "")
     .replace(/^[^a-z]+/, "");
 }
-

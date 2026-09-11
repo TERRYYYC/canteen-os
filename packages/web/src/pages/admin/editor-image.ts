@@ -67,4 +67,3 @@ export async function compressImage(file: Blob, limits: { maxEdge: number; maxBy
     if (Math.max(w0, h0) * scale < MIN_EDGE) return null;
   }
 }
-
