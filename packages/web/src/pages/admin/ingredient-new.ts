@@ -331,6 +331,11 @@ async function saveIngredient(owner: IngredientOwner, form: IngredientFormHandle
     return;
   } finally { finishIngredientOperation(owner, loading, loaded); touchOwner(owner); }
   if (!ownerValid(owner)) return;
+  // A language repaint or return to this owner may resume. Departure before
+  // dispatch is a known unsent attempt, so retain raw and release its saving phase.
+  if (mountedIngredient?.owner !== owner || !mountedIngredient.el.isConnected || !isMyHash(location.hash, owner.key)) {
+    owner.attempt = null; owner.phase = "idle"; touchOwner(owner); return;
+  }
   const submitApi = Object.create(legacy) as AdminApi;
   submitApi.uploadImage = async (...args) => {
     requireOwner();

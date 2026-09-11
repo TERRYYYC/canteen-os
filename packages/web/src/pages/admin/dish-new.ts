@@ -795,7 +795,7 @@ export function createDishForm(api: TeamMealsApi) {
         if (pending && meta) {
           if (api.mode !== "real" || !auxiliary) throw new ApiError(0, "unconfigured", "");
           const legacy = typeof auxiliary === "function" ? await read(record, auxiliary) : auxiliary;
-          if (!operation.valid()) return null;
+          if (!operation.current()) return null;
           const ref = await auxiliaryApi(legacy as AdminApi, record).uploadImage("dishes", record.target, pending.blob, meta);
           if (!operation.valid()) return null;
           body.image = { ...ref };
@@ -1841,7 +1841,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
           if (alive()) paintFeedback();
           return;
         }
-        if (!operation.valid() || !alive() || c.newIngredient !== ingDraft || !d.components.includes(c)) return;
+        if (!operation.current() || c.newIngredient !== ingDraft || !d.components.includes(c)) return;
         const out = await submitIngredientForm(owner.auxiliaryApi(legacy), submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
         if (!operation.valid()) return;
         if (out.ok) {

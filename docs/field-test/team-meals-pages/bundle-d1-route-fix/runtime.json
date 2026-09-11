@@ -1,0 +1,42 @@
+{
+  "sourceParent": "df992aad3807638c2ef1a092cdb38d01b9d60f6d",
+  "node": "v20.20.2",
+  "execPath": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+  "versions": {
+    "node": "20.20.2",
+    "acorn": "8.16.0",
+    "ada": "2.9.2",
+    "ares": "1.34.6",
+    "brotli": "1.1.0",
+    "cjs_module_lexer": "2.2.0",
+    "cldr": "48.0",
+    "icu": "78.2",
+    "llhttp": "9.3.1",
+    "modules": "115",
+    "napi": "9",
+    "nghttp2": "1.61.0",
+    "openssl": "3.0.19",
+    "simdutf": "6.4.2",
+    "tz": "2025c",
+    "undici": "6.24.1",
+    "unicode": "17.0",
+    "uv": "1.46.0",
+    "uvwasi": "0.0.23",
+    "v8": "11.3.244.8-node.38",
+    "zlib": "1.3.1-e00f703"
+  },
+  "npm": "10.8.2",
+  "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+  "productionSha256": {
+    "packages/web/src/pages/admin/dish-new.ts": "dfd89858c706f5f80d238a2c614622436fbb75fd3e0bf27e5f2e44c62e49c4d9",
+    "packages/web/src/pages/admin/ingredient-new.ts": "26abc05a2a7dc24e9ace4c74bbf4c50c8091bae918083fa1dc2e1e38ae88e81f",
+    "packages/web/src/pages/admin/editor-actions.ts": "36e2d42b21f4e5f3d691a202fa5f935cf2e290f4c0cb72ab8ad2dd1db31c4255",
+    "packages/web/src/pages/admin/editor-image.ts": "4f8d413579565fa5af165fb36a95b9fbc808456006bd84eb82adf127d4db1d1a",
+    "packages/web/src/pages/admin/ingredient-draft.ts": "3902ebaa47cc8a676eb272587a6683d64eac7bc56d3dccb71b115f43beb4995f",
+    "packages/web/src/pages/admin/ingredient-form.ts": "2a356e1f7b89938b78c54b1bf2e8ccff9134a515e3cd269f57648ef742422d42"
+  },
+  "unmodifiedReviewerOriginalSha256": {
+    "/private/tmp/canteen-bundle-d1-review-df992aa/packages/web/test/reviewer-d1-owner.test.mjs": "259d993c13ba394810f597fcee2c3721d31886e5a0ca21678f6e7c829990643d",
+    "/private/tmp/canteen-bundle-d1-review-df992aa/reviewer-owner-first.log": "b84eba08ec41e7e484e64a7fdf10fcd5bbda13f31f5582233f948e8a1f4492a4"
+  }
+}

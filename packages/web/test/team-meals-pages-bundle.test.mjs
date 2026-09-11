@@ -88,3 +88,65 @@ for(const page of ['ingredient','dish'])test(`D1: ${page} image module unavailab
  if(page==='dish'){h.el.querySelector('.adm-dish-save-draft').click();await h.flush();assert.equal(h.counts.writes,1);assert.equal(h.modules.requests.includes('legacy'),false);}
  }finally{h.cleanup();}
 });
+
+// Original independent two-case reproduction; assertions preserved.
+for (const page of ['ingredient','dish']) test(`D1-R1 reproduction: ${page} deferred legacy load must not dispatch a new write after leaving`,async()=>{
+ const h=await setup(),gate=h.holdModule('legacy');const sent=[];
+ try{
+  await h.mount(page);h.legacy.uploadImage=async(...args)=>{sent.push(['upload',args[1]]);return {src:'data/local.png',license:'own'};};
+  if(page==='ingredient'){
+   const prior=h.legacy.saveIngredient.bind(h.legacy);h.legacy.saveIngredient=async(...args)=>{sent.push(['ingredient',args[0]]);return prior(...args);};
+   h.input('#adm-ing-name-zh','A raw');h.el.querySelector('form').dispatchEvent({type:'submit',preventDefault(){}});
+  }else{
+   const owner=h.m.inspectDishOwner();owner.draft.pending={blob:new Blob(['local'],{type:'image/png'}),width:1,height:1,previewUrl:'blob:review',license:'own',author:'',sourceUrl:''};owner.changed();h.el.querySelector('.adm-dish-save-draft').click();
+  }
+  await h.flush();assert.equal(h.m.inspectReloadSafety().reason,'saving');assert.deepEqual(sent,[]);
+  h.home();gate.resolve();await h.flush();
+  assert.deepEqual(sent,[],'A deferred module must not begin transport after its page leaves (INV-B5)');
+ }finally{gate.resolve();await h.flush();h.cleanup();}
+});
+const routePhoto=()=>({blob:new Blob(['local'],{type:'image/png'}),width:1,height:1,previewUrl:'blob:route-fixture',license:'own',author:'',sourceUrl:''});
+async function routeSaveSetup(h,kind){
+ const page=kind==='dish-photo'?'dish':'ingredient',key=kind.startsWith('new')?'new':page==='dish'?'soup':'salt';await h.mount(page,'en',key);
+ const owner=page==='dish'?h.m.inspectDishOwner():h.m.inspectIngredientOwner(),input=page==='dish'?'#adm-dish-name-zh':'#adm-ing-name-zh';h.input(input,'Original retained raw');
+ if(key==='new')h.input('#adm-ing-id','new-local-ingredient');
+ if(kind.endsWith('photo'))owner.draft.pending=routePhoto();
+ const sent=[];const original=h.legacy.saveIngredient.bind(h.legacy);
+ h.legacy.saveIngredient=async(...args)=>{sent.push(['save',args[0]]);return original(...args);};
+ h.legacy.uploadImage=async(...args)=>{sent.push(['upload',args[1]]);return {src:'data/local-fixture.png',license:'own'};};
+ const save=()=>page==='dish'?h.el.querySelector('.adm-dish-save-draft').click():h.el.querySelector('form').dispatchEvent({type:'submit',preventDefault(){}});
+ return{page,key,owner,input,sent,save};
+}
+for(const kind of ['ingredient','new','new-photo','dish-photo'])for(const leave of ['home','other-record'])test(`D1-R1: ${kind} ${leave} before legacy ready sends nothing; explicit return save retains raw`,async()=>{
+ const h=await setup(),gate=h.holdModule('legacy');try{const a=await routeSaveSetup(h,kind);const draft=a.owner.draft;a.save();await h.flush();assert.equal(h.m.inspectReloadSafety().reason,'saving');assert.deepEqual(a.sent,[]);
+ if(leave==='home')h.home();else{await h.mount(a.page,'uk','other-record');h.input(a.input,'Other record raw');}
+ gate.resolve();await h.flush();assert.deepEqual(a.sent,[]);assert.equal(a.owner.readAuxiliary(a.key).phase,'idle');assert.equal(draft.dirty,true);
+ if(leave==='other-record')assert.equal(h.el.querySelector(a.input).value,'Other record raw');
+ await h.mount(a.page,'en',a.key);assert.equal(a.owner.draft,draft);assert.equal(h.el.querySelector(a.input).value,'Original retained raw');
+ assert.equal(a.page==='dish'?h.el.querySelector('.adm-dish-save-draft').disabled:h.el.querySelector('.adm-ing-save').disabled,false,'known-unsent attempt releases saving');
+ a.save();await h.flush();assert.equal(a.sent.filter(x=>x[0]==='upload').length,kind.endsWith('photo')?1:0);assert.equal(a.sent.filter(x=>x[0]==='save').length,a.page==='ingredient'?1:0);assert.equal(h.counts.writes,1);
+ }finally{gate.resolve();await h.flush();h.cleanup();}
+});
+for(const kind of ['ingredient','new','new-photo','dish-photo'])for(const change of ['language','return-before-ready'])test(`D1-R1: ${kind} ${change} keeps original allowed operation`,async()=>{
+ const h=await setup(),gate=h.holdModule('legacy');try{const a=await routeSaveSetup(h,kind);a.save();await h.flush();if(change==='return-before-ready')h.home();await h.mount(a.page,'uk',a.key);gate.resolve();await h.flush();assert.equal(a.sent.filter(x=>x[0]==='upload').length,kind.endsWith('photo')?1:0);assert.equal(h.counts.writes,1);assert.equal(h.el.querySelector(a.input).value,'Original retained raw');
+ }finally{gate.resolve();await h.flush();h.cleanup();}
+});
+test('D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer',async()=>{
+ const h=await setup();try{await h.mount('dish');createInline(h,'');await h.flush();const inline=h.el.querySelector('.adm-dish-inline');const field=suffix=>inline.querySelectorAll('input').find(n=>n.id.endsWith(suffix)).id;h.input('#'+field('-name-zh'),'Inline original');h.input('#'+field('-id'),'inline-route');const gate=h.holdModule('legacy');h.click('Save this ingredient');await h.flush();await h.mount('dish','uk');gate.resolve();await h.flush();assert.equal(h.counts.writes,1);assert.equal(h.m.inspectDishOwner().draft.components.at(-1).ingredientRef,'inline-route');}finally{await h.flush();h.cleanup();}
+});
+for(const kind of ['ingredient','new-photo','dish-photo'])test(`D1-R1: already dispatched ${kind} settles its original owner after departure`,async()=>{
+ const h=await setup(),gate=kind==='ingredient'?h.holdWrite():defer();const result=()=>kind==='ingredient'?Response.json({ok:true,commit:'b'.repeat(40),blobSha:'route-saved',unchanged:false,warnings:[]}):{src:'data/dispatched-fixture.png',license:'own'};try{const a=await routeSaveSetup(h,kind);const draft=a.owner.draft;
+ if(kind.endsWith('photo'))h.legacy.uploadImage=async(...args)=>{a.sent.push(['upload',args[1]]);return gate.promise;};
+
+ a.save();await h.flush();assert.equal(h.m.inspectReloadSafety().reason,'saving');h.input(a.input,'Later original raw');h.home();
+ gate.resolve(result());await h.flush();assert.equal(a.owner.readAuxiliary(a.key).phase,'idle');assert.equal(draft.dirty,true);assert.equal(draft.pending,null);
+ assert.equal(h.counts.writes,kind==='dish-photo'?0:1);await h.mount(a.page,'en',a.key);assert.equal(h.el.querySelector(a.input).value,'Later original raw');assert.equal(a.owner.draft,draft);
+ const uploads=a.sent.filter(x=>x[0]==='upload').length;if(kind==='ingredient')h.holdWrite().resolve(result());a.save();await h.flush();assert.equal(a.sent.filter(x=>x[0]==='upload').length,uploads);assert.equal(h.counts.writes,kind==='dish-photo'?1:2);
+ }finally{gate.resolve(result());await h.flush();h.cleanup();}
+});
+for(const departure of ['home','other-record'])test(`D1-R1: inline legacy ready after ${departure} cannot send its new write`,async()=>{
+ const h=await setup();let gate;try{await h.mount('dish');createInline(h,'');await h.flush();const owner=h.m.inspectDishOwner(),row=owner.draft.components.at(-1),buffer=row.newIngredient;const inline=h.el.querySelector('.adm-dish-inline');const field=suffix=>inline.querySelectorAll('input').find(n=>n.id.endsWith(suffix)).id;h.input('#'+field('-name-zh'),'Inline retained');h.input('#'+field('-id'),'inline-later');gate=h.holdModule('legacy');h.click('Save this ingredient');await h.flush();
+ if(departure==='home')h.home();else await h.mount('dish','uk','other-record');gate.resolve();await h.flush();assert.equal(h.counts.writes,0);assert.equal(owner.readAuxiliary('soup').phase,'idle');assert.equal(row.newIngredient,buffer);
+ await h.mount('dish');await h.flush();h.click('Save this ingredient');await h.flush();assert.equal(h.counts.writes,1);assert.equal(row.ingredientRef,'inline-later');
+ }finally{gate?.resolve();await h.flush();h.cleanup();}
+});
