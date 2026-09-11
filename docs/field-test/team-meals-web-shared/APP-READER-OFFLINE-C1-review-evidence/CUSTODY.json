@@ -1,0 +1,152 @@
+[
+  {
+    "original": "/private/tmp/reader-offline-c1-review-3dd9db9-rmoz_4r6/REVIEW.md",
+    "file": "REVIEW.md",
+    "sha256": "9595f26bef2f16b75b1849b0c2497432ab565ebdd0476af67c0bbb151cddb792",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-web.log",
+    "file": "reader-offline-c1-independent-web.log",
+    "sha256": "13846eaa6c5209d08beb724d2ce442c27453a30cde3e3413246ddea4ae74038b",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-typecheck.log",
+    "file": "reader-offline-c1-independent-typecheck.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-extra.log",
+    "file": "reader-offline-c1-independent-extra.log",
+    "sha256": "268d936303de4d07c747c4aea39c17f59cf3642cea9240f5efccb47f9a94d9cd",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-independent-3dd9db9.test.mjs",
+    "file": "reader-offline-independent-3dd9db9.test.mjs",
+    "sha256": "4ed29bf975a12b4f6e114c65fa43e7d4dc201c7d77de91031a6e8c007bfd5a54",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native.mjs",
+    "file": "reader-offline-c1-independent-native.mjs",
+    "sha256": "b2fc9ed3f11c118eec0b7f864fe24d55bb1f68be706e9ff7f483d48f054430a0",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/03-inspect.json",
+    "file": "03-inspect.json",
+    "sha256": "45d1fc384722e4acd9fc596d5a3e4e22c14fc783b3832ab0e7dd30d0b2014c17",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/02-offline.json",
+    "file": "02-offline.json",
+    "sha256": "f4854a00c7cea090e990d85e9566345b3ddc0c30ac3d9ab6d35a900bcc6bacd9",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/07-update-requested.json",
+    "file": "07-update-requested.json",
+    "sha256": "c4421d8480941b6c10c56ddfcde2fa951b459587282167994161a08454d56014",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/11-inspect.json",
+    "file": "11-inspect.json",
+    "sha256": "a7d02a044b5530a156c757f476e1d3609245fb3c53280833275a2a091bc81bbb",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/source-integrity.json",
+    "file": "source-integrity.json",
+    "sha256": "c74e4fb1bd8a5b98f2bc09f77cc534cb8bf3ed2c9de361030a427ba98bc9f1e6",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/independent-summary.json",
+    "file": "independent-summary.json",
+    "sha256": "f79ce31ae378b16bc8f8f8c234a10f4cb62ae2203d178b1f2c5d23d1572687e4",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/10-offline.json",
+    "file": "10-offline.json",
+    "sha256": "1262636b5ba0494a345dd64efc798b7b79f948f9b64cb0b6a6f0b4afe357712d",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/05-inspect.json",
+    "file": "05-inspect.json",
+    "sha256": "b5875052443b445e522f0b0cc9ebcc18abcb89d91dba94f361ceab6d26aa5d73",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/04-online-a.json",
+    "file": "04-online-a.json",
+    "sha256": "08dc22a6f653261bf093ab81e53dedfaa115a37b4d6bdddf2cd2a4efca7608ff",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/snapshots.json",
+    "file": "snapshots.json",
+    "sha256": "989f42fc59d7797bf86eaf47e3cc60a75df4ef2ed66b4af6273cef404caec7d0",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/08-inspect.json",
+    "file": "08-inspect.json",
+    "sha256": "7165d3db61c773af540e86bcf6eadf0c31a4c6429bd7cfba35474985abbb177b",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/06-online-b.json",
+    "file": "06-online-b.json",
+    "sha256": "e2c1da3fb1c3b1ad8f6cd7c9dc8ea25dbc13db1378dc7556ac6ac7fa76ee78f2",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/09-inspect.json",
+    "file": "09-inspect.json",
+    "sha256": "3527539c585fc435cf999dc91cdea60a6167f9dbad62c436d96886e676493c52",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/requests.json",
+    "file": "requests.json",
+    "sha256": "9c74a00b05b6c9677d93d239ad85418a7311b2bd2f981c73c6655d78aabe8735",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/12-inspect.json",
+    "file": "12-inspect.json",
+    "sha256": "82f5aeb626bfd0ebe128a6eeffa10f0e8a313cdcb5b4d8df7a5a7b4837c1680a",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-native/01-inspect.json",
+    "file": "01-inspect.json",
+    "sha256": "dce3147261d4853210955521956704944a8c45a97e0c1fd0707d5e12b1033643",
+    "originalReviewerManifest": true
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-review-3dd9db9-rmoz_4r6/EVIDENCE-SHA256.json",
+    "file": "EVIDENCE-SHA256.json",
+    "sha256": "fa97b4b69b678eacb8a312918043707a12df6c7614e8bcbc938d76220d91bb62",
+    "originalReviewerManifest": false
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-core-build.log",
+    "file": "reader-offline-c1-independent-core-build.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "originalReviewerManifest": false
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-independent-initial-missing-core.log",
+    "file": "reader-offline-c1-independent-initial-missing-core.log",
+    "sha256": "cb7b372d4de1f1c01789e5b1865061fa028a9114587a56beb92dc29a5221cf92",
+    "originalReviewerManifest": false
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "a": {
+    "root": "/private/tmp/reader-offline-c1-independent-native/a/dist",
+    "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+  },
+  "b": {
+    "root": "/private/tmp/reader-offline-c1-independent-native/b/dist",
+    "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+  }
+}

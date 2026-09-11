@@ -1,0 +1,1561 @@
+{
+  "label": "inspect",
+  "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+  "time": "2026-09-11T05:18:28.194Z",
+  "route": "#/admin",
+  "controllerEvents": [
+    {
+      "boot": 1789103897728.1,
+      "controller": false,
+      "at": 1789103897746
+    },
+    {
+      "boot": 1789103897728.1,
+      "controller": true,
+      "at": 1789103898083
+    }
+  ],
+  "resourceUrls": [
+    "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+    "http://127.0.0.1:59880/canteen/assets/index-hhIUz8y0.js",
+    "http://127.0.0.1:59880/canteen/assets/index-_eYw8u9e.css",
+    "http://127.0.0.1:59880/canteen/data/build.json",
+    "http://127.0.0.1:59880/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "http://127.0.0.1:59880/canteen/assets/admin-ChVjJYtH.js",
+    "http://127.0.0.1:59880/canteen/data/build.json?__publication=1789103898081-1-1"
+  ],
+  "boot": 1789103897728.1,
+  "controller": true,
+  "worker": {
+    "active": "activated"
+  },
+  "appText": "Back officeLanguageUA中ENSaved for offline useOpen with the chef linkThis page only opens with the private link Terry sent you. If you lost it, ask him for a new one.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "executedJs": [
+    "http://127.0.0.1:59880/canteen/assets/index-hhIUz8y0.js",
+    "http://127.0.0.1:59880/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "http://127.0.0.1:59880/canteen/assets/admin-ChVjJYtH.js"
+  ],
+  "cache": [
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/index.html?__WB_REVISION__=83c59735f454a55281c23fe6bba768ab"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/icons/icon.svg?__WB_REVISION__=1f138c622c828ffaeb07b7770e88b1f0"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/icons/icon-maskable.svg?__WB_REVISION__=a9563b299b042eee68f0a15e3ecc0f4e"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/team-ui-hHF0cNTc.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/team-ui-DZxu7_wO.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/store-B-EvPGB7.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/servings-input-DNG9trXJ.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/qr-Cn-wR5H0.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/qr-95YfxYR1.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/purchase-list-su3WJJwp.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/purchase-list-CRLPFa5o.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/purchase-StWw7liZ.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/purchase-DoG7w5bM.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/publish-DvJfnWK2.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/publish-CWyX-73W.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/prep-CxKoX0xe.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/prep-CZU-3gXe.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/plan-DWgAw1GH.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/parse-plan-text-DBZQVSv5.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/menu-BCAHUdnn.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/menu-AiJcRmZo.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/ingredient-new-DN0edtyi.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/ingredient-new-CT2dSWut.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/index-hhIUz8y0.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/index-_eYw8u9e.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/import-DavkaiKj.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/import-CqvMvoP_.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/home-Dqdzwsjy.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/home-Bw8HMtwR.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/edit-session-CXYlOObM.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/dish-new-o_W9SASF.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/dish-new-DK3WVt9P.css"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/client-CY0qhQrV.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/assets/admin-ChVjJYtH.js"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=0bd30ba2ede825a959f992c46d0a8a61",
+      "body": {
+        "builtAt": "September 11, 2026 00:00:00 GMT",
+        "commit": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b",
+        "plans": [
+          "week-41"
+        ],
+        "target": "team-meals",
+        "projectionVersion": "1"
+      }
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=a357a23d0c986d2774fd18dfd6707c55",
+      "body": {
+        "projectionVersion": "1",
+        "sourceRevision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b",
+        "selection": [
+          {
+            "menuPlanRef": "week-41",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "week-41",
+            "date": "2026-10-07",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "week-41",
+            "date": "2026-10-09",
+            "mealType": "dinner"
+          }
+        ],
+        "menuPlans": {
+          "week-41": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "2026 年第 41 周菜单",
+              "en": "2026 Week 41 Menu",
+              "uk": "Меню на 41 тиждень 2026"
+            },
+            "dateRange": {
+              "start": "2026-10-05",
+              "end": "2026-10-11"
+            },
+            "margin": 1.1,
+            "meals": [
+              {
+                "date": "2026-10-05",
+                "mealType": "lunch",
+                "dishRef": "tomato-egg-stir-fry",
+                "plannedServings": 200,
+                "serviceWindow": "12:00-14:00"
+              },
+              {
+                "date": "2026-10-07",
+                "mealType": "lunch",
+                "dishRef": "tomato-egg-stir-fry",
+                "plannedServings": 160,
+                "serviceWindow": "12:00-14:00"
+              },
+              {
+                "date": "2026-10-09",
+                "mealType": "dinner",
+                "dishRef": "tomato-egg-stir-fry",
+                "plannedServings": 120,
+                "serviceWindow": "18:00-20:00"
+              }
+            ]
+          }
+        },
+        "dishes": {
+          "tomato-egg-stir-fry": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄炒蛋",
+              "en": "Tomato and egg stir-fry",
+              "uk": "Смажені яйця з томатами"
+            },
+            "description": {
+              "zh": "家常快手菜：番茄炒出汁，包裹嫩滑鸡蛋，酸甜下饭。",
+              "en": "Home-style quick stir-fry: juicy tomatoes folded into soft scrambled eggs, sweet and tangy over rice.",
+              "uk": "Швидка домашня страва: соковиті томати з ніжною яєчнею, кисло-солодка, чудово до рису."
+            },
+            "baseServings": 50,
+            "components": [
+              {
+                "ingredientRef": "tomato",
+                "qty": {
+                  "value": 7500,
+                  "unit": "g"
+                },
+                "prep": {
+                  "techniqueRef": "roll-cut-chunks",
+                  "size": "3–4 cm",
+                  "timing": "morning",
+                  "note": {
+                    "zh": "去皮口感更好",
+                    "en": "Peeled for better texture",
+                    "uk": "Очищені від шкірки для кращої текстури"
+                  }
+                },
+                "confidence": {
+                  "value": 0.96,
+                  "source": "video"
+                }
+              },
+              {
+                "ingredientRef": "egg",
+                "qty": {
+                  "value": 75,
+                  "unit": "pcs"
+                },
+                "confidence": {
+                  "value": 0.98,
+                  "source": "video"
+                }
+              },
+              {
+                "ingredientRef": "salt",
+                "qty": {
+                  "value": 75,
+                  "unit": "g"
+                },
+                "confidence": {
+                  "value": 0.8,
+                  "source": "video"
+                }
+              },
+              {
+                "ingredientRef": "scallion",
+                "qty": {
+                  "value": 250,
+                  "unit": "g"
+                },
+                "prep": {
+                  "techniqueRef": "minced",
+                  "timing": "morning",
+                  "note": {
+                    "zh": "切葱花，出锅前撒",
+                    "en": "Chopped as garnish, added before serving",
+                    "uk": "Подрібнити для посипання перед подачею"
+                  }
+                },
+                "confidence": {
+                  "value": 0.72,
+                  "source": "video"
+                }
+              },
+              {
+                "ingredientRef": "cooking-oil",
+                "qty": {
+                  "value": 500,
+                  "unit": "ml"
+                },
+                "confidence": {
+                  "value": 0.9,
+                  "source": "video"
+                }
+              }
+            ],
+            "steps": [
+              {
+                "text": {
+                  "zh": "番茄切滚刀块，鸡蛋加少许盐打散。",
+                  "en": "Roll-cut tomatoes into chunks; beat eggs with a pinch of salt.",
+                  "uk": "Наріжте томати рулонним способом; збийте яйця з дрібкою солі."
+                },
+                "techniqueRef": "roll-cut-chunks",
+                "clip": {
+                  "videoUrl": "https://www.bilibili.com/video/BV1example888",
+                  "start": 12,
+                  "end": 55
+                }
+              },
+              {
+                "text": {
+                  "zh": "热油下蛋液，凝固后盛出备用。",
+                  "en": "Pour eggs into hot oil; remove once just set.",
+                  "uk": "Вилийте яйця на розігріту олію; зніміть, щойно схопляться."
+                },
+                "techniqueRef": "stir-fry",
+                "clip": {
+                  "videoUrl": "https://www.bilibili.com/video/BV1example888",
+                  "start": 56,
+                  "end": 92
+                }
+              },
+              {
+                "text": {
+                  "zh": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。",
+                  "en": "Stir-fry tomatoes until juicy, return eggs to the wok, season with salt, garnish with scallions and serve.",
+                  "uk": "Обсмажте томати до появи соку, поверніть яйця, посоліть, посипте зеленою цибулею і подавайте."
+                },
+                "techniqueRef": "stir-fry",
+                "clip": {
+                  "videoUrl": "https://www.bilibili.com/video/BV1example888",
+                  "start": 93,
+                  "end": 160
+                }
+              }
+            ],
+            "provenance": {
+              "source": "video",
+              "videoUrl": "https://www.bilibili.com/video/BV1example888"
+            },
+            "status": "active"
+          }
+        },
+        "ingredients": {
+          "cooking-oil": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "食用油",
+              "en": "Cooking oil",
+              "uk": "Олія рослинна"
+            },
+            "baseUnit": "ml",
+            "role": "seasoning",
+            "purchase": {
+              "supplier": "宏达粮油调味批发",
+              "packSize": 5,
+              "packUnit": "l",
+              "minPacks": 2,
+              "lastPrice": {
+                "amount": 68,
+                "currency": "CNY"
+              }
+            },
+            "trackStock": true,
+            "onHand": 1000
+          },
+          "egg": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "鸡蛋",
+              "en": "Chicken egg",
+              "uk": "Яйця курячі"
+            },
+            "externalId": "Q15260613",
+            "baseUnit": "pcs",
+            "role": "main",
+            "pcsToGram": 55,
+            "purchase": {
+              "supplier": "绿源农产品配送",
+              "packSize": 180,
+              "packUnit": "pcs",
+              "minPacks": 1,
+              "lastPrice": {
+                "amount": 150,
+                "currency": "CNY"
+              }
+            },
+            "trackStock": false,
+            "image": {
+              "src": "../images/Unseen.png",
+              "license": "CC0"
+            }
+          },
+          "salt": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "食盐",
+              "en": "Salt",
+              "uk": "Сіль"
+            },
+            "baseUnit": "g",
+            "role": "seasoning",
+            "purchase": {
+              "supplier": "宏达粮油调味批发",
+              "packSize": 500,
+              "packUnit": "g",
+              "minPacks": 20,
+              "lastPrice": {
+                "amount": 2.5,
+                "currency": "CNY"
+              }
+            },
+            "trackStock": true,
+            "onHand": 500
+          },
+          "scallion": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "小葱",
+              "en": "Scallion",
+              "uk": "Зелена цибуля"
+            },
+            "baseUnit": "g",
+            "role": "main",
+            "yield": 0.8,
+            "purchase": {
+              "supplier": "绿源农产品配送",
+              "packSize": 1,
+              "packUnit": "kg",
+              "minPacks": 1,
+              "lastPrice": {
+                "amount": 12,
+                "currency": "CNY"
+              }
+            },
+            "trackStock": false
+          },
+          "tomato": {
+            "schemaVersion": "2",
+            "name": {
+              "zh": "番茄",
+              "en": "Tomato",
+              "uk": "Помідор"
+            },
+            "externalId": "Q23501",
+            "baseUnit": "g",
+            "role": "main",
+            "pcsToGram": 180,
+            "yield": 0.85,
+            "purchase": {
+              "supplier": "绿源农产品配送",
+              "packSize": 5,
+              "packUnit": "kg",
+              "minPacks": 2,
+              "lastPrice": {
+                "amount": 28.5,
+                "currency": "CNY"
+              }
+            },
+            "trackStock": false,
+            "image": {
+              "src": "../images/A %2F?# 雪.png",
+              "license": "CC0"
+            }
+          }
+        },
+        "techniques": [
+          {
+            "id": "roll-cut-chunks",
+            "kind": "cut",
+            "name": {
+              "zh": "滚刀块",
+              "en": "Roll-cut chunks",
+              "uk": "Шматки рулонним нарізанням"
+            },
+            "note": {
+              "zh": "边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。",
+              "en": "Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.",
+              "uk": "Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+            },
+            "image": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            }
+          },
+          {
+            "id": "minced",
+            "kind": "cut",
+            "name": {
+              "zh": "末",
+              "en": "Minced",
+              "uk": "Дрібно рублене"
+            },
+            "note": {
+              "zh": "细碎颗粒：葱花、姜末、蒜末。",
+              "en": "Finely chopped: scallion greens, ginger, garlic.",
+              "uk": "Дуже дрібне рублення: зелена цибуля, імбир, часник."
+            },
+            "image": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            }
+          },
+          {
+            "id": "stir-fry",
+            "kind": "heat",
+            "name": {
+              "zh": "炒",
+              "en": "Stir-frying",
+              "uk": "Смаження з постійним помішуванням"
+            },
+            "note": {
+              "zh": "中大火少油快速翻拌成菜的总称；分子型清炒/煸炒/滑炒/干煸/软炒。",
+              "en": "Umbrella method: quick tossing over medium-high heat; sub-types: plain / dry / moist / extreme-heat / scramble stir-fry.",
+              "uk": "Швидке смаження з помішуванням; підвиди: чао, бяньчао, хуачао тощо."
+            },
+            "image": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            }
+          }
+        ],
+        "collection": {
+          "items": [
+            {
+              "ingredientRef": "cooking-oil",
+              "sources": [
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 0,
+                  "componentIndex": 4,
+                  "plannedServings": 200,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 500,
+                    "unit": "ml"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 1,
+                  "componentIndex": 4,
+                  "plannedServings": 160,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 500,
+                    "unit": "ml"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 2,
+                  "componentIndex": 4,
+                  "plannedServings": 120,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 500,
+                    "unit": "ml"
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "egg",
+              "sources": [
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 0,
+                  "componentIndex": 1,
+                  "plannedServings": 200,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "pcs"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 1,
+                  "componentIndex": 1,
+                  "plannedServings": 160,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "pcs"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 2,
+                  "componentIndex": 1,
+                  "plannedServings": 120,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "pcs"
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "salt",
+              "sources": [
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 0,
+                  "componentIndex": 2,
+                  "plannedServings": 200,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 1,
+                  "componentIndex": 2,
+                  "plannedServings": 160,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 2,
+                  "componentIndex": 2,
+                  "plannedServings": 120,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 75,
+                    "unit": "g"
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "scallion",
+              "sources": [
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 0,
+                  "componentIndex": 3,
+                  "plannedServings": 200,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 250,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 1,
+                  "componentIndex": 3,
+                  "plannedServings": 160,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 250,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 2,
+                  "componentIndex": 3,
+                  "plannedServings": 120,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 250,
+                    "unit": "g"
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "tomato",
+              "sources": [
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-05",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 0,
+                  "componentIndex": 0,
+                  "plannedServings": 200,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 7500,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-07",
+                  "mealType": "lunch",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 1,
+                  "componentIndex": 0,
+                  "plannedServings": 160,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 7500,
+                    "unit": "g"
+                  }
+                },
+                {
+                  "menuPlanRef": "week-41",
+                  "date": "2026-10-09",
+                  "mealType": "dinner",
+                  "dishRef": "tomato-egg-stir-fry",
+                  "mealIndex": 2,
+                  "componentIndex": 0,
+                  "plannedServings": 120,
+                  "baseServings": 50,
+                  "qty": {
+                    "value": 7500,
+                    "unit": "g"
+                  }
+                }
+              ]
+            }
+          ],
+          "issues": [],
+          "coverage": {
+            "enumeration": "complete",
+            "references": "resolved",
+            "recipeCompleteness": "unverified"
+          }
+        },
+        "estimates": {
+          "items": [
+            {
+              "ingredientRef": "cooking-oil",
+              "status": "complete",
+              "reasons": [],
+              "lines": [
+                {
+                  "ingredientRef": "cooking-oil",
+                  "supplier": "宏达粮油调味批发",
+                  "line": {
+                    "ingredientRef": "cooking-oil",
+                    "qty": {
+                      "value": 10,
+                      "unit": "l"
+                    },
+                    "packs": 2,
+                    "trace": {
+                      "meals": [
+                        {
+                          "date": "2026-10-05",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 200
+                        },
+                        {
+                          "date": "2026-10-07",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 160
+                        },
+                        {
+                          "date": "2026-10-09",
+                          "mealType": "dinner",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 120
+                        }
+                      ],
+                      "netNeed": {
+                        "value": 4800,
+                        "unit": "ml"
+                      },
+                      "yieldApplied": null,
+                      "marginApplied": 1.1,
+                      "onHandDeducted": {
+                        "value": 1000,
+                        "unit": "ml"
+                      },
+                      "grossNeed": {
+                        "value": 4280,
+                        "unit": "ml"
+                      },
+                      "packSize": 5,
+                      "packUnit": "l",
+                      "packsRaw": 0.856,
+                      "minPacksApplied": true
+                    },
+                    "unitPrice": {
+                      "amount": 68,
+                      "currency": "CNY"
+                    },
+                    "amount": {
+                      "amount": 136,
+                      "currency": "CNY"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "egg",
+              "status": "complete",
+              "reasons": [],
+              "lines": [
+                {
+                  "ingredientRef": "egg",
+                  "supplier": "绿源农产品配送",
+                  "line": {
+                    "ingredientRef": "egg",
+                    "qty": {
+                      "value": 900,
+                      "unit": "pcs"
+                    },
+                    "packs": 5,
+                    "trace": {
+                      "meals": [
+                        {
+                          "date": "2026-10-05",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 200
+                        },
+                        {
+                          "date": "2026-10-07",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 160
+                        },
+                        {
+                          "date": "2026-10-09",
+                          "mealType": "dinner",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 120
+                        }
+                      ],
+                      "netNeed": {
+                        "value": 720,
+                        "unit": "pcs"
+                      },
+                      "yieldApplied": null,
+                      "marginApplied": 1.1,
+                      "onHandDeducted": null,
+                      "grossNeed": {
+                        "value": 792,
+                        "unit": "pcs"
+                      },
+                      "packSize": 180,
+                      "packUnit": "pcs",
+                      "packsRaw": 4.4,
+                      "minPacksApplied": false
+                    },
+                    "unitPrice": {
+                      "amount": 150,
+                      "currency": "CNY"
+                    },
+                    "amount": {
+                      "amount": 750,
+                      "currency": "CNY"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "salt",
+              "status": "complete",
+              "reasons": [],
+              "lines": [
+                {
+                  "ingredientRef": "salt",
+                  "supplier": "宏达粮油调味批发",
+                  "line": {
+                    "ingredientRef": "salt",
+                    "qty": {
+                      "value": 10000,
+                      "unit": "g"
+                    },
+                    "packs": 20,
+                    "trace": {
+                      "meals": [
+                        {
+                          "date": "2026-10-05",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 200
+                        },
+                        {
+                          "date": "2026-10-07",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 160
+                        },
+                        {
+                          "date": "2026-10-09",
+                          "mealType": "dinner",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 120
+                        }
+                      ],
+                      "netNeed": {
+                        "value": 720,
+                        "unit": "g"
+                      },
+                      "yieldApplied": null,
+                      "marginApplied": 1.1,
+                      "onHandDeducted": {
+                        "value": 500,
+                        "unit": "g"
+                      },
+                      "grossNeed": {
+                        "value": 292,
+                        "unit": "g"
+                      },
+                      "packSize": 500,
+                      "packUnit": "g",
+                      "packsRaw": 0.584,
+                      "minPacksApplied": true
+                    },
+                    "unitPrice": {
+                      "amount": 2.5,
+                      "currency": "CNY"
+                    },
+                    "amount": {
+                      "amount": 50,
+                      "currency": "CNY"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "scallion",
+              "status": "complete",
+              "reasons": [],
+              "lines": [
+                {
+                  "ingredientRef": "scallion",
+                  "supplier": "绿源农产品配送",
+                  "line": {
+                    "ingredientRef": "scallion",
+                    "qty": {
+                      "value": 4,
+                      "unit": "kg"
+                    },
+                    "packs": 4,
+                    "trace": {
+                      "meals": [
+                        {
+                          "date": "2026-10-05",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 200
+                        },
+                        {
+                          "date": "2026-10-07",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 160
+                        },
+                        {
+                          "date": "2026-10-09",
+                          "mealType": "dinner",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 120
+                        }
+                      ],
+                      "netNeed": {
+                        "value": 2400,
+                        "unit": "g"
+                      },
+                      "yieldApplied": 0.8,
+                      "marginApplied": 1.1,
+                      "onHandDeducted": null,
+                      "grossNeed": {
+                        "value": 3300,
+                        "unit": "g"
+                      },
+                      "packSize": 1,
+                      "packUnit": "kg",
+                      "packsRaw": 3.3,
+                      "minPacksApplied": false
+                    },
+                    "unitPrice": {
+                      "amount": 12,
+                      "currency": "CNY"
+                    },
+                    "amount": {
+                      "amount": 48,
+                      "currency": "CNY"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "ingredientRef": "tomato",
+              "status": "complete",
+              "reasons": [],
+              "lines": [
+                {
+                  "ingredientRef": "tomato",
+                  "supplier": "绿源农产品配送",
+                  "line": {
+                    "ingredientRef": "tomato",
+                    "qty": {
+                      "value": 95,
+                      "unit": "kg"
+                    },
+                    "packs": 19,
+                    "trace": {
+                      "meals": [
+                        {
+                          "date": "2026-10-05",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 200
+                        },
+                        {
+                          "date": "2026-10-07",
+                          "mealType": "lunch",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 160
+                        },
+                        {
+                          "date": "2026-10-09",
+                          "mealType": "dinner",
+                          "dishRef": "tomato-egg-stir-fry",
+                          "servings": 120
+                        }
+                      ],
+                      "netNeed": {
+                        "value": 72000,
+                        "unit": "g"
+                      },
+                      "yieldApplied": 0.85,
+                      "marginApplied": 1.1,
+                      "onHandDeducted": null,
+                      "grossNeed": {
+                        "value": 93176.4706,
+                        "unit": "g"
+                      },
+                      "packSize": 5,
+                      "packUnit": "kg",
+                      "packsRaw": 18.6353,
+                      "minPacksApplied": false
+                    },
+                    "unitPrice": {
+                      "amount": 28.5,
+                      "currency": "CNY"
+                    },
+                    "amount": {
+                      "amount": 541.5,
+                      "currency": "CNY"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "budgetStatus": "complete"
+        },
+        "assets": [
+          {
+            "ownerPath": "data/ingredients/egg.json",
+            "jsonPointer": "/image",
+            "source": {
+              "src": "../images/Unseen.png",
+              "license": "CC0"
+            },
+            "status": "available",
+            "path": "assets/bb8e9e94a3471b8ec9b8d45e072f08f05762082b/data/images/Unseen.png"
+          },
+          {
+            "ownerPath": "data/ingredients/tomato.json",
+            "jsonPointer": "/image",
+            "source": {
+              "src": "../images/A %2F?# 雪.png",
+              "license": "CC0"
+            },
+            "status": "available",
+            "path": "assets/bb8e9e94a3471b8ec9b8d45e072f08f05762082b/data/images/A %2F?# 雪.png"
+          },
+          {
+            "ownerPath": "data/techniques.json",
+            "jsonPointer": "/1/image",
+            "source": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            },
+            "status": "available",
+            "techniqueRef": "roll-cut-chunks",
+            "path": "assets/bb8e9e94a3471b8ec9b8d45e072f08f05762082b/data/images/A %2F?# 雪.png"
+          },
+          {
+            "ownerPath": "data/techniques.json",
+            "jsonPointer": "/7/image",
+            "source": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            },
+            "status": "available",
+            "techniqueRef": "minced",
+            "path": "assets/bb8e9e94a3471b8ec9b8d45e072f08f05762082b/data/images/A %2F?# 雪.png"
+          },
+          {
+            "ownerPath": "data/techniques.json",
+            "jsonPointer": "/23/image",
+            "source": {
+              "src": "data/images/A %2F?# 雪.png",
+              "license": "CC0"
+            },
+            "status": "available",
+            "techniqueRef": "stir-fry",
+            "path": "assets/bb8e9e94a3471b8ec9b8d45e072f08f05762082b/data/images/A %2F?# 雪.png"
+          }
+        ],
+        "issues": []
+      }
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:59880/canteen/",
+      "url": "http://127.0.0.1:59880/canteen/manifest.webmanifest?__WB_REVISION__=8eb6ee534724f7d023709482d85e57c5"
+    }
+  ],
+  "state": {
+    "version": "a",
+    "available": true
+  },
+  "requests": [
+    {
+      "url": "/canteen/",
+      "at": 1789103897733,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/index-hhIUz8y0.js",
+      "at": 1789103897747,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/index-_eYw8u9e.css",
+      "at": 1789103897747,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/data/build.json",
+      "at": 1789103897898,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "at": 1789103897899,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/admin-ChVjJYtH.js",
+      "at": 1789103897947,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/favicon.ico",
+      "at": 1789103897948,
+      "version": "a",
+      "available": true,
+      "status": 404
+    },
+    {
+      "url": "/canteen/sw.js",
+      "at": 1789103897964,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/workbox-4e9e9954.js",
+      "at": 1789103897967,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/index.html",
+      "at": 1789103897971,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/icons/icon.svg",
+      "at": 1789103897974,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/icons/icon-maskable.svg",
+      "at": 1789103897976,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "at": 1789103897977,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/team-ui-hHF0cNTc.css",
+      "at": 1789103897979,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/team-ui-DZxu7_wO.js",
+      "at": 1789103897980,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/store-B-EvPGB7.js",
+      "at": 1789103897982,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/servings-input-DNG9trXJ.js",
+      "at": 1789103897983,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/qr-Cn-wR5H0.js",
+      "at": 1789103897985,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/qr-95YfxYR1.css",
+      "at": 1789103897986,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/purchase-list-su3WJJwp.js",
+      "at": 1789103897988,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/purchase-list-CRLPFa5o.css",
+      "at": 1789103897989,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/purchase-StWw7liZ.css",
+      "at": 1789103897991,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/purchase-DoG7w5bM.js",
+      "at": 1789103897992,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/publish-DvJfnWK2.css",
+      "at": 1789103897993,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/publish-CWyX-73W.js",
+      "at": 1789103897994,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/prep-CxKoX0xe.js",
+      "at": 1789103897996,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/prep-CZU-3gXe.css",
+      "at": 1789103897997,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/plan-DWgAw1GH.js",
+      "at": 1789103897998,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/parse-plan-text-DBZQVSv5.js",
+      "at": 1789103898000,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/menu-BCAHUdnn.js",
+      "at": 1789103898001,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/menu-AiJcRmZo.css",
+      "at": 1789103898003,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/ingredient-new-DN0edtyi.js",
+      "at": 1789103898004,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/ingredient-new-CT2dSWut.css",
+      "at": 1789103898005,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/index-hhIUz8y0.js",
+      "at": 1789103898006,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/index-_eYw8u9e.css",
+      "at": 1789103898008,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/import-DavkaiKj.css",
+      "at": 1789103898009,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/import-CqvMvoP_.js",
+      "at": 1789103898010,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/home-Dqdzwsjy.js",
+      "at": 1789103898012,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/home-Bw8HMtwR.css",
+      "at": 1789103898013,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/edit-session-CXYlOObM.js",
+      "at": 1789103898014,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/dish-new-o_W9SASF.js",
+      "at": 1789103898015,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/dish-new-DK3WVt9P.css",
+      "at": 1789103898016,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/client-CY0qhQrV.js",
+      "at": 1789103898017,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/assets/admin-ChVjJYtH.js",
+      "at": 1789103898019,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/data/build.json",
+      "at": 1789103898020,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/data/team-meals/week-41.json",
+      "at": 1789103898021,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/manifest.webmanifest",
+      "at": 1789103898023,
+      "version": "a",
+      "available": true,
+      "status": 200
+    },
+    {
+      "url": "/canteen/data/build.json?__publication=1789103898081-1-1",
+      "at": 1789103898084,
+      "version": "a",
+      "available": true,
+      "status": 200
+    }
+  ],
+  "snapshots": {
+    "a": {
+      "root": "/private/tmp/reader-offline-c1-independent-native/a/dist",
+      "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+    },
+    "b": {
+      "root": "/private/tmp/reader-offline-c1-independent-native/b/dist",
+      "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+    }
+  }
+}
