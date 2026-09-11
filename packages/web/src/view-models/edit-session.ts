@@ -128,7 +128,7 @@ function definiteRejection(detail: EditFailure): boolean {
     detail.code !== 'session_changed' && detail.code !== 'bad_response';
 }
 function acknowledged(value: WriteResult): boolean {
-  return !!value && typeof value.commit === 'string' && !!value.commit && typeof value.blobSha === 'string' && !!value.blobSha &&
+  return !!value && typeof value.commit === 'string' && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === 'string' && !!value.blobSha &&
     typeof value.unchanged === 'boolean' && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === 'string');
 }
 
@@ -334,7 +334,7 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
         if (definiteRejection(detail)) settleReload(operation);
         if (!isLive(document, operation)) return result("stale", operation, contextId);
         if (detail.code === "session_changed") { seal(detail, true); return result("stale", operation, contextId); }
-        if (detail.status === 409) return conflicted(document, operation, contextId, detail);
+        if (detail.status === 409 && definiteRejection(detail)) return conflicted(document, operation, contextId, detail);
         state.error = detail;
         if (!definiteRejection(detail)) {
           state.phase = "outcome-unknown";

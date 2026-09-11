@@ -65,3 +65,23 @@ test('the global auth lifetime still applies when an injected adapter keeps a co
  assert.equal(e.getState().draft,null);assert.equal(m.inspectReloadSafety().reason,'unknown');assert.equal(JSON.stringify(m.inspectReloadSafety()).includes('private-constant'),false);
  gate.resolve(ack);await pending;assert.equal(m.inspectReloadSafety().reason,'clear');
 });
+test('a real malformed 409 response stays unknown before and after auth changes',async()=>{
+ const {m,change}=await setup();
+ const api=m.createTeamMealsApi('https://example.invalid',{fetch:async()=>new Response('<html>Untrusted fallback</html>',{status:409,headers:{'Content-Type':'application/json'}})});
+ const e=m.createEditSession({mode:()=>api.mode,authSession:()=>api.sessionKey(),peekAuthSession:()=>api.peekSessionKey?.(),save:(_id,body,condition)=>api.saveDish('dish',body,condition),read:async()=>source});
+ e.open({kind:'dish',id:'private-a'},{name:'private-body'},source);
+ assert.equal((await e.save()).status,'outcome-unknown');assert.equal(m.inspectReloadSafety().reason,'unknown');
+ change();e.dispose();assert.equal(m.inspectReloadSafety().reason,'unknown');
+});
+
+test('an invalid commit acknowledgement cannot retire a live or old-auth write',async()=>{
+ for(const commit of ['not-a-revision',' ','a'.repeat(39),'a'.repeat(41),'A'.repeat(40),'main']) {
+  for(const retire of [false,true]) {
+   const {m,change}=await setup(),gate=deferred(),e=editor(m,gate),pending=e.save();
+   if(retire)change();gate.resolve({...ack,commit});
+   assert.equal((await pending).status,retire?'stale':'outcome-unknown');
+   assert.equal(m.inspectReloadSafety().reason,'unknown',`${commit}/${retire}`);
+   if(retire)assert.equal(e.getState().draft,null);
+  }
+ }
+});
