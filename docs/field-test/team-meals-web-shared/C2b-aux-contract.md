@@ -1,0 +1,52 @@
+---
+feature_ids: [team-meals]
+topics: [web, reload, auxiliary-edit-state]
+doc_kind: module-contract
+created: 2026-09-11
+---
+# C2b 页面辅助状态登记接口
+
+接口目标：`src/view-models/reload-safety.ts`。与 C1 自动全记录摘要进入**同一**应用更新聚合器，页面不实现全局更新算法。依据调度确认的 D Dish review `6ca272d`：raw 图片文件、内联食材输入尚未进入 C1 JSON；辅助上传可能先于 C1 save，单看 C1 dirty/pending 不足。
+
+```ts
+interface AuxiliaryEditState {
+  generation:number; // 非负整数，每次输入/开始操作/结果到达/显式放弃均递增
+  dirty:boolean;      // 存在未序列化或尚未保存的本地缓冲
+  phase:'idle'|'busy'|'unknown'; // busy 包含上传等辅助操作；unknown 为结果未核实
+}
+interface AuxiliaryEditOptions {
+  ownerId:string; // 应用生命周期内稳定唯一，如 dish-buffer/<docId>；不是渲染实例ID
+  identity:{kind:string;id:string}; // 用户可识别的页面/文档，不含正文/凭据
+  read():AuxiliaryEditState; // 同步、只读、无副作用，读页面owner的实际状态
+}
+interface AuxiliaryEditHandle {
+  dispose():boolean; // 仅 read 成功且 !dirty && phase==='idle' 时卸载；否则 false
+}
+registerAuxiliaryEdits(options:AuxiliaryEditOptions):AuxiliaryEditHandle;
+```
+
+登记在页面状态 controller 的应用/文档生命周期建立一次，不能每次 render 建一份。重复 ownerId 拒绝；必须复用原 controller/handle，不覆盖旧 provider 或把尚未完成的状态替换为初始空状态。generation 不倒退；不合法、读取抛错或身份不完整均按未知阻断，不能按 clean 处理。
+
+示意（D 负责真实状态与事件）：
+
+```ts
+const reloadHandle = registerAuxiliaryEdits({
+  ownerId:`dish-buffer/${docId}`,
+  identity:{kind:'dish',id:docId},
+  read:()=>({generation:bufferGeneration,dirty:hasUnsavedBuffer,phase:auxPhase}),
+});
+```
+
+这里不传 File、Blob、正文、token，不往 Dish/MenuPlan JSON 塞假字段。状态为派生摘要，真实缓冲与上传结果仍只有 D owner 管理。C1 文档不要重复手动登记，其所有离页记录由共享层自动汇总；只登记 C1 不拥有的缓冲/操作。
+
+| 事件 | owner/聚合器责任 |
+|---|---|
+| 选图片、改内联输入 | D 递增 generation，并按真实缓冲设置 dirty；不能因 C1 dirty=false 而抹掉辅助 dirty |
+| 上传/辅助请求开始 | D 设 busy；更新检查延后，不允许弃稿强刷 |
+| 返回成功/失败/结果未知（包括晚到） | D 递增 generation，更新实际 phase/dirty；unknown 在明确核实前保持。旧弃稿确认因此失效 |
+| 语言切换/离页 | 保留同一 controller/provider，不在 render cleanup 中卸载；dirty/busy/unknown 时 dispose 返回 false，owner 必须继续持有 |
+| 明确保存或放弃本地缓冲 | D 先按实际结果更新摘要，确认 idle 且无 dirty 后才可 dispose；结果未知不能靠“放弃”删除保护 |
+
+聚合器优先级：unknown/登记异常 → busy（与 C1 saving 合并）→ dirty → clear。弃稿确认绑定全部 C1 与辅助记录的身份、generation、phase、dirty/pending；任何新事件都使旧确认失效。应用更新提示本身不保存、不上传、不核实、不刷新；用户选择核实后回到对应 owner 的已有恢复流程。整页更新前再次同步检查。
+
+实现与验收并入 C2b：C1 clean + raw buffer dirty、辅助 busy/unknown、切语离页、旧操作晚到、新输入使弃稿确认过期、重复登记和拒绝卸载全部有测试。此文固定接口目标，不声称代码/页面/PWA 已通过；由调度分发给 D，最终组合与独立 review 仍必需。
