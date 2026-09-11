@@ -50,3 +50,21 @@ const reloadHandle = registerAuxiliaryEdits({
 聚合器优先级：unknown/登记异常 → busy（与 C1 saving 合并）→ dirty → clear。弃稿确认绑定全部 C1 与辅助记录的身份、generation、phase、dirty/pending；任何新事件都使旧确认失效。应用更新提示本身不保存、不上传、不核实、不刷新；用户选择核实后回到对应 owner 的已有恢复流程。整页更新前再次同步检查。
 
 实现与验收并入 C2b：C1 clean + raw buffer dirty、辅助 busy/unknown、切语离页、旧操作晚到、新输入使弃稿确认过期、重复登记和拒绝卸载全部有测试。此文固定接口目标，不声称代码/页面/PWA 已通过；由调度分发给 D，最终组合与独立 review 仍必需。
+
+## 页面覆盖声明与恢复路径
+
+`PageCtx` 追加可选方法：`setReloadCoverage?(value:'tracked'|'read-only'):void`。
+D 调用 `ctx.setReloadCoverage?.('tracked')` 的前提是该屏所有可丢失的编辑输入及未决操作都已由 C1 或辅助 provider 覆盖；声明不读取/清除任何 provider。明确只读的 admin home、导航/说明/结果页可声明 `read-only`；有名称预填、File、内联输入或启动中的异步工作不能仅因 C1 尚未打开就声明只读。
+
+main 以 `page:${route}/${rest}` 为稳定页面身份；语言不参与身份，每次 render 有单调 render generation。admin render 默认 `untracked`；非 admin 阅读页默认 `read-only`。覆盖状态属于每个已访问的稳定身份，不是一个离页时清空的全局布尔值。untracked 在全局检查中阻止刷新，并显示页面身份，用户可返回该入口完成初始化/处理后重新检查。
+
+| 场景 | 声明/恢复语义 |
+|---|---|
+| 同身份重进或切语 | 新 render 先恢复 untracked；D 复用原 C1/aux owner，完成接线后再次声明。前一 render 回调不能覆盖该身份的新声明 |
+| 离页时异步初始化尚未结束 | 该身份仍 untracked。若此身份尚未有更新的 render，原 callback 在真正注册好 provider 后仍可声明 tracked，解除这一覆盖阻断；它不重画页面、不释放 provider。若已有更新 render，旧 callback 被忽略，由新 render 负责声明 |
+| 从未完成注册或初始化失败 | 保持 untracked；重进同身份重试。错误页只有确实没有保留缓冲/未决操作时才可声明 read-only，不能丢失数据后借此声称安全 |
+| 曾 untracked 的同身份现在只读 | 当前有效 render 可声明 read-only，解除该页面的覆盖阻断；同身份及其他身份仍存活的 C1/aux dirty/busy/unknown 继续阻断，不被声明覆盖 |
+| 导航到另一个只读页面 | 只设置新身份；不会清掉旧身份的 untracked，也不会注销任何编辑 owner |
+| owner 正常结束/注销 | 辅助 owner 必须先满足既有 dispose 的 clean+idle 条件；C1 按原 app 生命周期。coverage 不负责 dispose，不提供强制清空接口 |
+
+因此不需要 D 保存 route generation 或手动注销页面声明；使用本次 `ctx` 的回调即可。main 只保留每身份最新 render generation，不是所有 render 的历史。这里细化此前“晚到旧 render 忽略”为**同身份已被新 render 替代时忽略**，允许离页后完成的真实注册解除阻断，避免无从恢复的 unknown。未登记状态不提供弃稿强刷；优先级为 unknown → busy/saving → untracked → dirty → clear。完整 provider/coverage 集合变动均使旧弃稿确认过期。
