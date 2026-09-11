@@ -9,20 +9,22 @@ import "./styles.css";
 
 import { dataApi, PublishedDataError, type Publication } from "./data";
 import { getLang, onLangChange, t } from "./i18n";
-import { render as admin } from "./pages/admin";
-import { render as menu } from "./pages/menu";
-import { render as prep } from "./pages/prep";
-import { render as purchase } from "./pages/purchase";
-import { render as qr } from "./pages/qr";
 import { initPwa } from "./pwa";
 import { normalize, onRoute, type Route } from "./router";
 import { mountShell } from "./shell";
 import { applyTheme } from "./theme";
 import type { PageCtx, PageRender } from "./types";
 import { createPageReloadCoverage } from './view-models/reload-safety';
-import { consumeTokenFromRest } from './admin/token';
+import { consumeTokenFromRest, getAuthSessionVersion, peekAuthSessionVersion } from './admin/token';
 
-const PAGES: Record<Route, PageRender> = { prep, purchase, menu, admin, qr };
+// Native module caching retains each renderer's editor/auxiliary state across visits.
+const PAGES: Record<Route, () => Promise<{ render: PageRender }>> = {
+  prep: () => import('./pages/prep'),
+  purchase: () => import('./pages/purchase'),
+  menu: () => import('./pages/menu'),
+  admin: () => import('./pages/admin'),
+  qr: () => import('./pages/qr'),
+};
 /** 顶栏标题键 */
 const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", admin: "page.admin", qr: "page.qr" } as const;
 
@@ -40,36 +42,55 @@ function boot(): void {
   let planId: string | null = null;
   let ready = false; // build.json 读完（成功或失败）之前不画页面，只画「加载中…」
   let current: { route: Route; rest: string } | null = null;
+  let renderGeneration = 0;
+  let pageStarted = false;
 
   function renderPage(): void {
     if (!current) return;
+    const generation = ++renderGeneration;
+    pageStarted = false;
     const { route, rest } = current;
-    const setReloadCoverage = reloadCoverage.beginRender(route, rest);
+    const auth = getAuthSessionVersion(), lang = getLang(), source = publication, failure = publicationError;
     shell.setActive(route, rest);
     shell.setTitle(t(route === "menu" && publication?.kind === "team-meals" ? "page.teamMenu" : TITLE[route]));
-    if (!ready) {
-      // No page/editor has started; this shell-only placeholder owns no unfinished work.
-      setReloadCoverage('read-only');
-      const el = shell.newOutlet();
-      const p = document.createElement("p");
-      p.className = "muted";
-      p.textContent = t("data.loading");
-      el.append(p);
-      return;
-    }
-    const ctx: PageCtx = { lang: getLang(), planId, route, rest, data: dataApi, t, publication, publicationError,
-      setReloadCoverage,
-    };
     const el = shell.newOutlet();
-    void Promise.resolve(PAGES[route](el, ctx)).catch((err: unknown) => {
-      console.error(err);
-      if (el.isConnected) {
+    const loading = document.createElement("p");
+    loading.className = "muted";
+    loading.textContent = t("data.loading");
+    el.append(loading);
+    // No renderer has started: do not create coverage or retire an earlier unresolved page.
+    if (!ready) return;
+    function isCurrent(): boolean {
+      if (generation !== renderGeneration || !el.isConnected) return false;
+      if (peekAuthSessionVersion() !== auth || getLang() !== lang || publication !== source || publicationError !== failure) {
+        renderPage();
+        return false;
+      }
+      return true;
+    }
+    async function loadPage(): Promise<void> {
+      try {
+        const { render } = await PAGES[route]();
+        if (!isCurrent()) return;
+        loading.remove();
+        pageStarted = true;
+        const ctx: PageCtx = { lang, planId, route, rest, data: dataApi, t, publication: source, publicationError: failure,
+          setReloadCoverage: reloadCoverage.beginRender(route, rest),
+        };
+        await render(el, ctx);
+      } catch (err: unknown) {
+        console.error(err);
+        if (generation !== renderGeneration || !el.isConnected) return;
+        // Once started, the page owns coverage; a renderer failure cannot acknowledge it.
+        if (!pageStarted && !isCurrent()) return;
+        loading.remove();
         const p = document.createElement("p");
         p.className = "muted";
         p.textContent = t("data.notReady");
         el.append(p);
       }
-    });
+    }
+    void loadPage();
   }
 
   normalize();
@@ -97,7 +118,7 @@ function boot(): void {
     ready = true;
     shell.setBuild(next?.manifest ?? null, next?.kind);
     // Reader updates must not replace an active editor DOM or its pending operations.
-    if (initial || (current?.route !== 'admin' && current?.route !== 'purchase')) renderPage();
+    if (initial || !pageStarted || (current?.route !== 'admin' && current?.route !== 'purchase')) renderPage();
   }
   void refreshPublication();
 }

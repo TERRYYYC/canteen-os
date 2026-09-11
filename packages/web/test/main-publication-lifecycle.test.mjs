@@ -31,8 +31,8 @@ const flush=()=>new Promise(setImmediate);
 function boot(initialRoute){
  const g={initialRoute,renders:[],requests:[],builds:[],titles:[],active:[]},values=new Map([['canteenos.token','A'.repeat(43)]]);
  g.data={loadPublication(){const request=deferred();g.requests.push(request);return request.promise;}};
- g.shell={setActive(...args){g.active.push(args);},setTitle(title){g.titles.push(title);},refresh(){},setBuild(...args){g.builds.push(args);},newOutlet(){return {isConnected:true,append(){}};}};
- runInNewContext(bundle.outputFiles[0].text+';probe.runtime=runtime;',{probe:g,structuredClone,console,document:{getElementById:()=>({}),createElement:()=>({})},sessionStorage:{getItem:k=>values.get(k)??null,removeItem:k=>values.delete(k)}});
+ g.shell={setActive(...args){g.active.push(args);},setTitle(title){g.titles.push(title);},refresh(){},setBuild(...args){g.builds.push(args);},newOutlet(){if(g.outlet)g.outlet.isConnected=false;return g.outlet={isConnected:true,append(){}};}};
+ runInNewContext(bundle.outputFiles[0].text+';probe.runtime=runtime;',{probe:g,structuredClone,console,document:{getElementById:()=>({}),createElement:()=>({remove(){}})},sessionStorage:{getItem:k=>values.get(k)??null,removeItem:k=>values.delete(k)}});
  return g;
 }
 const publication={kind:'team-meals',manifest:{commit:'a'.repeat(40),builtAt:'2026-09-11',plans:['first']}};
@@ -58,7 +58,7 @@ test('loading coverage never retires an unrelated unresolved owner',async()=>{
 test('main passes the winning publication kind and safe route context to team navigation',async()=>{
  const g=boot('menu');g.requests[0].resolve(publication);await flush();
  assert.equal(g.builds.at(-1)[0],publication.manifest);assert.equal(g.builds.at(-1)[1],'team-meals');assert.equal(g.titles.at(-1),'page.teamMenu');
- g.route('admin','plan/first');assert.equal(g.active.at(-1)[1],'plan/first');const count=g.renders.length;
+ g.route('admin','plan/first');await flush();assert.equal(g.active.at(-1)[1],'plan/first');const count=g.renders.length;
  const fresh=g.pwa.refreshPublication();g.requests[1].reject(Error('Unavailable'));
  await fresh;assert.equal(g.builds.at(-1)[0],null);assert.equal(g.renders.length,count,'Navigation refresh must not re-render an active editor');
  g.route('menu','');assert.equal(g.titles.at(-1),'page.menu');
