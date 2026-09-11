@@ -8,8 +8,10 @@
  *   node scripts/build-data.mjs --at <ISO>             # 固定 builtAt / generatedAt（幂等、复现快照；默认 new Date()）
  *   node scripts/build-data.mjs --root <dir>           # 仓库根（测试用；默认脚本所在仓库）
  *   node scripts/build-data.mjs --out <dir>            # 输出目录（默认 <root>/packages/web/public/data）
+ *   node scripts/build-data.mjs --target team-meals --check # 校验固定 Git JSON/图片，数量缺项为 warning
+ *   node scripts/build-data.mjs --target team-meals --revision <完整SHA> # 从指定祖先 commit 构建 team 投影
  *
- * 前置：packages/core 已构建（npm --prefix packages/core run build）——本脚本 import 其 dist/，零新增依赖。
+ * 前置：packages/core 已构建（npm --prefix packages/core run build）；team 图片完整解码使用构建开发依赖。
  *
  * 管线（每个 data/menu-plans/<planId>.json）：
  *   prep     = buildPrepSheet(plan, dishes, techniques, ingredients)        → PrepSheet（sheets.ts）
@@ -28,9 +30,10 @@
  * 纯 Node ≥ 20，ESM。导出 loadData / buildPlan / runBuild / compareSnapshots / main 供 scripts/build-data.test.mjs 使用。
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createSchemaValidators } from "./validate-schemas.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CORE_DIST = new URL("../packages/core/dist/index.js", import.meta.url);
@@ -133,6 +136,9 @@ function collectIssues(planId, { prep, purchase, menu }, buildIssues) {
  */
 export function buildPlan(planId, menuPlan, data, { at }) {
   const { ingredients, dishes, techniques, excludedDishes } = data;
+  if (menuPlan.schemaVersion !== "2" || menuPlan.meals.some(m => dishes[m.dishRef]?.schemaVersion === "3")) {
+    throw new Error(`unsupported-format: ${planId} requires the team-meals target`);
+  }
 
   const buildIssues = [];
   const seen = new Set();
@@ -196,9 +202,12 @@ export function runBuild({
   at = new Date().toISOString(),
   write = true,
   commit = resolveCommit(root),
+  target = "legacy-numeric",
 } = {}) {
   if (!root) throw new Error("runBuild：缺 root");
   if (typeof at !== "string" || Number.isNaN(Date.parse(at))) throw new Error(`--at 不是合法的 ISO 时间：${at}`);
+  if (target === "team-meals") return runTeamBuild({ root, outDir, at, write, commit });
+  if (target !== "legacy-numeric") throw new Error(`Unknown build target: ${target}`);
   const data = loadData(root);
   const planIds = Object.keys(data.menuPlans).sort();
 
@@ -214,6 +223,7 @@ export function runBuild({
     Object.keys(data.dishes)
       .sort()
       .map((id) => {
+        if (data.dishes[id].schemaVersion === "3") return [id, {canTeach:false,canPlan:false,canProcure:false,missing:["unsupported-format"]}];
         const r = readiness(data.dishes[id], data.ingredients);
         return [id, { canTeach: r.canTeach, canPlan: r.canPlan, canProcure: r.canProcure, missing: r.missingKeys }];
       }),
@@ -336,11 +346,203 @@ export function compareSnapshots(root, sheets) {
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Team target: fixed Git inputs, complete references, optional numeric estimates.
+// ---------------------------------------------------------------------------
+function gitBytes(root, args) {
+  return execFileSync('git', ['-C',root,...args], {stdio:['ignore','pipe','pipe'],maxBuffer:16*1024*1024});
+}
+function loadCommittedInputs(root, revision) {
+  if (!/^[0-9a-f]{40}$/.test(revision)) throw new Error('invalid_revision: a complete saved commit is required');
+  try {
+    const top=gitBytes(root,['rev-parse','--show-toplevel']).toString().trim();
+    if (realpathSync(top)!==realpathSync(root)) throw new Error('Not the repository root');
+    if(gitBytes(root,['cat-file','-t',revision]).toString().trim()!=='commit') throw new Error('Object is not a commit');
+    gitBytes(root,['merge-base','--is-ancestor',revision,'HEAD']);
+  } catch { throw new Error('revision_unavailable: revision must be reachable from this repository HEAD'); }
+  const entries=new Map(gitBytes(root,['ls-tree','-rz','--full-tree',revision,'--','data']).toString().split('\0').filter(Boolean).map(row=>{
+    const tab=row.indexOf('\t'),[mode,type,sha]=row.slice(0,tab).split(' ');
+    return [row.slice(tab+1),{mode,type,sha}];
+  }));
+  const read=(file)=>{
+    const entry=entries.get(file);
+    if (!entry || entry.type!=='blob' || !['100644','100755'].includes(entry.mode)) throw new Error(`asset_unavailable: ${file}`);
+    return gitBytes(root,['cat-file','blob',entry.sha]);
+  };
+  const inputs={menuPlans:{},dishes:{},ingredients:{},techniques:[]};
+  const {validateEntity}=createSchemaValidators({schemaDir:path.resolve(HERE,'../schemas')});
+  let haveTechniques=false;
+  for (const file of entries.keys()) {
+    const match=/^data\/(ingredients|dishes|menu-plans)\/([^/]+)\.json$/.exec(file);
+    if (!match && file!=='data/techniques.json') continue;
+    const kind=match ? {'ingredients':'ingredient','dishes':'dish','menu-plans':'plan'}[match[1]] : 'techniques';
+    if (match && !/^[a-z][a-z0-9-]*$/.test(match[2])) throw new Error(`invalid_source: invalid entity ID in ${file}`);
+    let value;
+    try { value=JSON.parse(read(file).toString('utf8')); } catch { throw new Error(`invalid_source: unreadable JSON ${file}`); }
+    const checked=validateEntity(kind,value);
+    if (!checked.valid) throw new Error(`invalid_source: ${file}: ${checked.errors.map(e=>`${e.instancePath} ${e.keyword}`).join(', ')}`);
+    if (kind==='techniques') {inputs.techniques=value;haveTechniques=true;}
+    else inputs[{'ingredient':'ingredients','dish':'dishes','plan':'menuPlans'}[kind]][match[2]]=value;
+  }
+  if (!haveTechniques) throw new Error('invalid_source: missing techniques.json');
+  return {inputs,read,entries};
+}
+
+/** Decode in a bounded child so the existing synchronous build API stays stable. */
+function verifyRaster(content) {
+  if(!content.length||content.length>200*1024) throw new Error('Image exceeds the byte limit');
+  const result=execFileSync(process.execPath,[path.join(HERE,'verify-team-image.mjs')],{
+    input:content,stdio:['pipe','pipe','pipe'],timeout:30000,maxBuffer:64*1024,
+  });
+  const decoded=JSON.parse(result.toString('utf8'));
+  if(!decoded||!['png','jpeg','webp'].includes(decoded.format)||
+    !Number.isInteger(decoded.width)||!Number.isInteger(decoded.height)||
+    decoded.width<1||decoded.height<1||decoded.width>1280||decoded.height>1280) throw new Error('Invalid decoder result');
+}
+
+function projectAssets(projection, source, revision, planId) {
+  const assets=[], bytes=new Map(), issues=[];
+  const add=(image,ownerPath,jsonPointer,techniqueRef)=>{
+    if (!image) return;
+    const asset={ownerPath,jsonPointer,source:image,status:'missing'};
+    if(techniqueRef!==undefined) asset.techniqueRef=techniqueRef;
+    assets.push(asset);
+    const fail=(message)=>issues.push({planId,kind:'error',code:'asset-unavailable',ownerPath,jsonPointer,message});
+    if (!/^(own|CC0(?: 1\.0)?|Public domain|CC BY(?:-SA)?(?: [1-4]\.0)?)$/.test(image.license) ||
+      (/^CC BY/.test(image.license)&&(!image.author||!image.sourceUrl))) {
+      asset.status='invalid';fail('Image license or attribution is incomplete');return;
+    }
+    const src=image.src;
+    if (/^https?:\/\//.test(src)) {
+      asset.status='external-unpinned';
+      issues.push({planId,kind:'warning',code:'external-unpinned',ownerPath,jsonPointer,message:'External image bytes are not retained at this revision'});
+      return;
+    }
+    if (path.posix.isAbsolute(src)||src.includes('\\')||src.includes('\0')||/^[a-z][a-z0-9+.-]*:/i.test(src)) {asset.status='invalid';fail('Image path is not an allowed repository path');return;}
+    const file=path.posix.normalize(src.startsWith('data/')?src:path.posix.join(path.posix.dirname(ownerPath),src));
+    if (!file.startsWith('data/') || !/\.(?:png|jpe?g|webp)$/i.test(file)) {asset.status='invalid';fail('Image path escapes data or has an unsupported format');return;}
+    try {
+      const content=source.read(file);verifyRaster(content);
+      asset.status='available';asset.path=`assets/${revision}/${file}`;
+      bytes.set(asset.path,content);
+    } catch {fail(`Same-revision image is unavailable: ${file}`);}
+  };
+  for (const [id,ingredient] of Object.entries(projection.ingredients)) add(ingredient.image,`data/ingredients/${id}.json`,'/image');
+  for (const [id,dish] of Object.entries(projection.dishes)) {
+    const owner=`data/dishes/${id}.json`;
+    add(dish.image,owner,'/image');
+    (dish.components??[]).forEach((c,i)=>add(c.prep?.image,owner,`/components/${i}/prep/image`));
+    (dish.steps??[]).forEach((s,i)=>add(s.image,owner,`/steps/${i}/image`));
+  }
+  const selectedTechniques=new Set(projection.techniques.map(t=>t.id));
+  source.inputs.techniques.forEach((t,i)=>{if(selectedTechniques.has(t.id)) add(t.image,'data/techniques.json',`/${i}/image`,t.id);});
+  return {assets,bytes,issues};
+}
+
+function runTeamBuild({root,outDir,at,write,commit}) {
+  const source=loadCommittedInputs(root,commit),{inputs}=source;
+  const sheets={},issues=[],assetBytes=new Map();
+  const planIds=Object.keys(inputs.menuPlans).sort();
+  const excludedDishes=Object.keys(inputs.dishes).filter(id=>inputs.dishes[id].provenance?.source==='example').sort();
+  const blocking=new Set(['missing-plan','missing-dish','missing-ingredient','missing-technique']);
+  const seenTechniques=new Set();
+  for (const t of inputs.techniques) {
+    if(seenTechniques.has(t.id)) issues.push({kind:'error',code:'invalid-source',message:`Duplicate technique ${t.id}`});
+    seenTechniques.add(t.id);
+  }
+  for (const [id,ingredient] of Object.entries(inputs.ingredients)) if (ingredient.baseUnit==='pcs'&&ingredient.yield!==undefined) issues.push({kind:'error',code:'invalid-source',message:`Ingredient ${id}: pcs cannot declare yield`});
+  for (const planId of planIds) {
+    const plan=inputs.menuPlans[planId];
+    if (plan.dateRange && (plan.dateRange.start>plan.dateRange.end || plan.meals.some(m=>m.date<plan.dateRange.start||m.date>plan.dateRange.end))) {
+      issues.push({planId,kind:'error',code:'invalid-selection',message:'Plan dates fall outside its dateRange'});
+    }
+    const selection=core.normalizeSelection(plan.meals.map(m=>({menuPlanRef:planId,date:m.date,mealType:m.mealType})));
+    const projection=core.projectTeamMeals(inputs,{sourceRevision:commit,selection},selection.length?{}:{emptyMenuPlanRefs:[planId]});
+    const estimates=core.estimateShoppingList(inputs,selection,at);
+    for (const issue of projection.collection.issues) issues.push({planId,...issue,kind:blocking.has(issue.code)?'error':'warning'});
+    for (const item of estimates.items) {
+      if (item.status==='unavailable') for (const reason of item.reasons) issues.push({planId,kind:'warning',code:reason.code,ingredientRef:item.ingredientRef,source:reason.source});
+      const ingredient=projection.ingredients[item.ingredientRef];
+      if (ingredient?.purchase && !ingredient.purchase.lastPrice) issues.push({planId,kind:'warning',code:'missing-price',ingredientRef:item.ingredientRef,ownerPath:`data/ingredients/${item.ingredientRef}.json`,jsonPointer:'/purchase/lastPrice'});
+    }
+    for (const [dishId,dish] of Object.entries(projection.dishes)) {
+      const ownerPath=`data/dishes/${dishId}.json`;
+      if (dish.provenance?.source==='example') issues.push({planId,kind:'error',code:'example-dish-referenced',dishRef:dishId});
+      if (dish.provenance?.source==='video'&&!dish.provenance.videoUrl) issues.push({planId,kind:'error',code:'invalid-source',dishRef:dishId,ownerPath,jsonPointer:'/provenance/videoUrl',message:'Video provenance requires its source URL'});
+      for (const [stepIndex,step] of (dish.steps??[]).entries()) if (step.clip && step.clip.end<=step.clip.start) issues.push({planId,kind:'error',code:'invalid-source',dishRef:dishId,stepIndex,ownerPath,jsonPointer:`/steps/${stepIndex}/clip`,message:'Clip end must be after start'});
+    }
+    const projectedAssets=projectAssets(projection,source,commit,planId);
+    issues.push(...projectedAssets.issues);
+    for(const [key,value] of projectedAssets.bytes) assetBytes.set(key,value);
+    sheets[planId]={teamMeals:{...projection,estimates,assets:projectedAssets.assets,issues:issues.filter(i=>!i.planId||i.planId===planId)}};
+  }
+  const build={builtAt:at,commit,plans:planIds,target:'team-meals',projectionVersion:'1'};
+  const written=[];
+  if (write && !issues.some(i=>i.kind==='error')) {
+    const files=new Map(planIds.map(id=>[`team-meals/${id}.json`,stringify(sheets[id].teamMeals)]));
+    for(const [file,content] of assetBytes) files.set(file,content);
+    files.set(BUILD_FILE,stringify(build));
+    publishTeamOutputs(root,outDir,files);
+    written.push(...files.keys());
+  }
+  return {build,sheets,issues,excludedDishes,written,outDir,counts:{ingredients:Object.keys(inputs.ingredients).length,dishes:Object.keys(inputs.dishes).length,techniques:inputs.techniques.length,plans:planIds.length}};
+}
+
+/** Build into a sibling directory, then exchange complete output trees. */
+function publishTeamOutputs(root,outDir,files) {
+  const canonical=(file)=>existsSync(file)?realpathSync(file):path.join(canonical(path.dirname(file)),path.basename(file));
+  const within=(a,b)=>{const relative=path.relative(b,a);return relative===''||(!path.isAbsolute(relative)&&relative!=='..'&&!relative.startsWith('..'+path.sep));};
+  const sourceRoot=realpathSync(root),output=canonical(outDir);
+  if (output===path.parse(output).root || within(sourceRoot,output) || ['data','schemas','scripts','packages/core','.git'].some(part=>{
+    const protectedPath=path.join(sourceRoot,part);return within(output,protectedPath)||within(protectedPath,output);
+  })) throw new Error('invalid_output: output overlaps repository inputs');
+  if (existsSync(outDir) && (!lstatSync(outDir).isDirectory()||lstatSync(outDir).isSymbolicLink())) throw new Error('invalid_output: output must be a real directory');
+  if(within(output,sourceRoot)) {
+    const tracked=gitBytes(sourceRoot,['ls-files','-z','--',path.relative(sourceRoot,output)]).toString().split('\0').filter(Boolean);
+    if(tracked.some(file=>path.basename(file)!=='.gitkeep')) throw new Error('invalid_output: output contains tracked source files');
+  }
+  if(existsSync(outDir)&&readdirSync(outDir).some(file=>file!=='.gitkeep')) {
+    let previous;
+    try {
+      const manifest=path.join(outDir,BUILD_FILE);
+      if(!lstatSync(manifest).isFile()||lstatSync(manifest).isSymbolicLink()) throw new Error('Not a generated manifest');
+      previous=readJson(manifest);
+    } catch {throw new Error('invalid_output: nonempty output is not a recognized generated directory');}
+    if(typeof previous.builtAt!=='string'||typeof previous.commit!=='string'||!Array.isArray(previous.plans)||
+      !(previous.target==='team-meals'||previous.target===undefined&&previous.readiness&&typeof previous.readiness==='object')) {
+      throw new Error('invalid_output: nonempty output is not a recognized generated directory');
+    }
+  }
+  mkdirSync(path.dirname(outDir),{recursive:true});
+  const holder=mkdtempSync(path.join(path.dirname(outDir),`.${path.basename(outDir)}-build-`));
+  const stage=path.join(holder,'next'),backup=path.join(holder,'previous');
+  let moved=false,keepRecovery=false;
+  try {
+    mkdirSync(stage);
+    if (existsSync(outDir)) cpSync(outDir,stage,{recursive:true,dereference:false,verbatimSymlinks:true});
+    // These directories are generated surfaces owned by this build. Keep other
+    // files at the output root, but never carry a stale target or asset mapping.
+    for(const entry of [...SHEET_DIRS,'team-meals','assets',BUILD_FILE]) rmSync(path.join(stage,entry),{recursive:true,force:true});
+    for(const [file,content] of files) {const dest=path.join(stage,file);mkdirSync(path.dirname(dest),{recursive:true});writeFileSync(dest,content);}
+    if (existsSync(outDir)) {renameSync(outDir,backup);moved=true;}
+    try {renameSync(stage,outDir);}
+    catch(error) {
+      if(moved) {
+        try {renameSync(backup,outDir);moved=false;}
+        catch(restoreError) {keepRecovery=true;throw new AggregateError([error,restoreError],`output restore failed; complete prior output retained at ${backup}`);}
+      }
+      throw error;
+    }
+  } finally {
+    if(!keepRecovery) rmSync(holder,{recursive:true,force:true});
+  }
+}
+
 // CLI
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const args = { check: false, compare: false, at: null, root: null, out: null, help: false };
+  const args = { check: false, compare: false, at: null, root: null, out: null, help: false, target:"legacy-numeric", revision:null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--check") args.check = true;
@@ -348,10 +550,12 @@ function parseArgs(argv) {
     else if (a === "--at") args.at = argv[++i];
     else if (a === "--root") args.root = argv[++i];
     else if (a === "--out") args.out = argv[++i];
+    else if (a === "--target") args.target = argv[++i];
+    else if (a === "--revision") args.revision = argv[++i];
     else if (a === "-h" || a === "--help") args.help = true;
     else throw new Error(`未知参数：${a}`);
   }
-  for (const k of ["at", "root", "out"]) {
+  for (const k of ["at", "root", "out", "target", "revision"]) {
     if (args[k] === undefined) throw new Error(`--${k} 缺值`);
   }
   return args;
@@ -372,8 +576,18 @@ export function main(argv = process.argv.slice(2), out = console.log, err = cons
   const mode = args.check ? "check" : "write";
   const rel = (abs) => path.relative(root, abs).split(path.sep).join("/") || ".";
 
-  const result = runBuild({ root, outDir, at: args.at ?? undefined, write: !args.check });
+  if (args.target === "team-meals" && args.compare) throw new Error("--compare-snapshots requires --target legacy-numeric");
+  if (args.revision && args.target !== "team-meals") throw new Error("--revision requires --target team-meals");
+  const result = runBuild({ root, outDir, at: args.at ?? undefined, write: !args.check, target:args.target, commit:args.revision ?? undefined });
   const { build, sheets, issues, excludedDishes, written, counts } = result;
+
+  if (args.target === "team-meals") {
+    out(`build-data.mjs [${mode}] target=team-meals revision=${build.commit}`);
+    for (const planId of build.plans) out(`  ${planId}: ${sheets[planId].teamMeals.collection.items.length} recorded ingredients; budget=${sheets[planId].teamMeals.estimates.budgetStatus}`);
+    for (const issue of issues) out(`  ${issue.kind} ${issue.code}: ${issue.planId ?? ""} ${issue.message ?? ""}`);
+    out(`${issues.filter(i=>i.kind==="error").length} blocking errors; ${written.length} outputs written`);
+    return issues.some(i=>i.kind==="error") ? 1 : 0;
+  }
 
   out(
     `build-data.mjs [${mode}] data/：食材 ${counts.ingredients} · 菜品 ${counts.dishes}（排除示例菜 ${excludedDishes.length}${excludedDishes.length ? `：${excludedDishes.join(", ")}` : ""}）· 技法 ${counts.techniques} · 菜单计划 ${counts.plans}`,
@@ -420,7 +634,9 @@ export function main(argv = process.argv.slice(2), out = console.log, err = cons
   return code;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+let directExecution = false;
+try { directExecution = Boolean(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch {}
+if (directExecution) {
   try {
     process.exit(main());
   } catch (e) {
