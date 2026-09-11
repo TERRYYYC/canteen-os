@@ -92,3 +92,5 @@ created: 2026-09-11
 实际main基础兼容现场：固定d3ea488构建产物 `/private/tmp/c2b-fa7-application-build`，本地4189、IABtab8；原legacy数据的备料和菜单能显示并明确旧版限制，采购unconfigured显示不能保存，点击排菜进入未认证锁屏。仅基础兼容，不是team正式published接线完成。
 
 测试服务器新增application模式后，用固定838源码+原index.html构建正式team数据，临时目录 `/private/tmp/c2b-real-sw-KYqRnh`、本地62910/canteen、IABtab9，src全目录diff及原index.html cmp均为零差异。A revision34bb564f1d804047327fd59005915c0c64ac9f69、B revisionb9a16a774f7d36c102f667e82753f558e33f5398。真实入口备料显示数据未就绪，符合D fa7尚未接入新的published接口这一已知未完成边界。此记录用于后续D固定接线验收的基线，不作为完成证据。
+
+原非作者三份最终报告已按原文归档为 [共享完整批准](C2b-review-bae6308.md)、[基础组合批准](C2b-combination-review-618e2a2.md)、[启动增量批准](C2b-startup-review-8389736.md)；启动原报告只追加仓库要求的YAML元数据，报告正文不改。原临时档案与运行日志地址保留，尚未完成边界不扩写为批准。
