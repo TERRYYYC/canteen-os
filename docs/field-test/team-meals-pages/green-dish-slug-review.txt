@@ -1,0 +1,25 @@
+✔ new dish omits unknown servings instead of defaulting to 50 (0.618916ms)
+✔ v3 unknown qty remains omitted and all source metadata survives an edit (0.426708ms)
+✔ v2 true quantities, to-taste and servings survive explicit v3 edit (0.097708ms)
+✔ draft action submits exact draft body under source lock through C1 (0.982625ms)
+✔ late save and language refresh preserve later form edits (0.239167ms)
+✔ unknown result survives detach/return and recovery force-reads pinned source twice (0.299083ms)
+✔ legal to-taste source value survives an unrelated edit (0.070042ms)
+✔ new dish creates with if-none-match and optional fields remain absent (0.141834ms)
+✔ conflict retains edited draft and explicit adoption is required before a new write (0.357875ms)
+✔ late read cannot open a different dish after detaching (0.128041ms)
+✔ review: add-another on an existing dish must not orphan an unresolved new dish (0.313541ms)
+✔ review: pending image still requires dirty warning after language refresh (0.158333ms)
+✔ review: upload ownership survives refresh and submits its original snapshot without erasing later edits (0.392292ms)
+✔ review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution (0.211167ms)
+✔ review: detached photo completion stays with its original dish and does not upload again on return (0.231125ms)
+✔ review: raw inline ingredient and auxiliary ownership survive refresh and navigation (0.122709ms)
+✔ review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes (0.601667ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64.2045

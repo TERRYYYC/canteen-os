@@ -1965,7 +1965,14 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   });
   const unsubscribeAuxiliary = owner.subscribe(contentChanged => {
     if (!alive()) return;
-    if (contentChanged) { paintPhoto(); paintComponents(); paintSteps(); paintReadiness(); for (const sync of triViews) sync(); }
+    if (contentChanged) {
+      paintPhoto(); paintComponents(); paintSteps(); paintReadiness();
+      for (const sync of triViews) sync();
+      // Retained translation callbacks may have updated the original view's slug.
+      // Show the owned target and recompute this view's local duplicate guard too.
+      idInput.value = d.id;
+      refreshDup();
+    }
     syncStatus();
   });
   window.addEventListener("online", syncNet);
