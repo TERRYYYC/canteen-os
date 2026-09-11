@@ -1,0 +1,335 @@
+{
+  "head": "b1c84349f322601488a751961b646c97d24d55c7",
+  "base": "73693f81b77db2668adf01441456683d9d5a4c87",
+  "productionAnchor": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "productionMatches": 64,
+  "productionFiles": 64,
+  "changedPackagePaths": [
+    "packages/web/test/team-meals-pages-guard-harness.mjs",
+    "packages/web/test/team-meals-pages-shopping-raw.test.mjs"
+  ],
+  "independentSweepCopiedByteExactly": true,
+  "independentSweepSHA256": "766a013047859c26fa6a2bb9f8bd34a7c4d3d537a767f9bbac49388e1dd03343",
+  "files": [
+    {
+      "path": "packages/core/src/formats.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "a09e9eec5bc55b8f079cc0ea185166e2b842e25ba99cccaa468f096a68bfa134"
+    },
+    {
+      "path": "packages/core/src/import/parse-plan-text.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "761672c47471a3b4811480b4fd4b3b92adae123476e66321011f67c1a1822e3a"
+    },
+    {
+      "path": "packages/core/src/index.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "c3921fbb28a0bb973957bc6172ce777954e5e9d184a959844c48524289af5e7e"
+    },
+    {
+      "path": "packages/core/src/procurement/engine.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "d0be0303897a8eb2445935a48ece003a826629484924617932dbf1f7e8eabce3"
+    },
+    {
+      "path": "packages/core/src/render/menu.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "87471f41d1cf3d8fea700d4b491ac7c2398314d49f435d4ef1b994e711c71cd9"
+    },
+    {
+      "path": "packages/core/src/render/prep.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "193eef025fc872695732d14ec9d80ce10a0be2f7140b5eddb7d2e44e5471e37a"
+    },
+    {
+      "path": "packages/core/src/render/shared.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "59b913ff46f83738deac76c04ba75acbd656a811fc146fbd4112fc96cea36e49"
+    },
+    {
+      "path": "packages/core/src/sheets.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "8706aff4e99b21fa7533ab9d7a13ed3f45f964691900007e4363ee4e901ffbcd"
+    },
+    {
+      "path": "packages/core/src/team-meals.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "669b407cc5754ab533372a7b963ff0465e8b8223645ca3a8b1cc4ba629eabe40"
+    },
+    {
+      "path": "packages/core/src/types.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "4c434f090b54b263e7f408d4e70c0ef965d1915c6ab8b13a898eecb19e1eafef"
+    },
+    {
+      "path": "packages/web/index.html",
+      "unchangedFrom34dd": true,
+      "sha256": "7bf20aa3fea9bf6521ecae1b7ba6c253bf1293549ef016d1cbbf549346d03ef9"
+    },
+    {
+      "path": "packages/web/src/admin/kit.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "b3a0b378cfa1a94932552f2cb072d4b2c04b75f274535ff38aa1b04ebc233de5"
+    },
+    {
+      "path": "packages/web/src/admin/store.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "7082f80729b436b1c21db4e91f100282d22644ec19d2e8540de56eea59585b2d"
+    },
+    {
+      "path": "packages/web/src/admin/token.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "bc52456bd287fa5509caf501dc9f095f131d6ef60ac799d8585e4a9291f58f51"
+    },
+    {
+      "path": "packages/web/src/api/client.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "702da78ecb2384b16c3307b3db8aa844f989a22b5096642feacec09d5a6c2e4a"
+    },
+    {
+      "path": "packages/web/src/api/mock.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "d3fe30e67dc29daa70eb41c0d2de56cf804947d0551bedd75f4f95c62fde9c8f"
+    },
+    {
+      "path": "packages/web/src/api/team-meals.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "ee8992e5eb08ffb44e43abcc86a3995f387ebd89425707e16df3b09f4f79c256"
+    },
+    {
+      "path": "packages/web/src/api/transport.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "4db2955217cb6cdeaa49570ca07f122c327cff06f6b350959dfe86be3d103ce5"
+    },
+    {
+      "path": "packages/web/src/api/types.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "ed75628e930c0afcafd6f632fd551bbd2546d94b4b1b37a9d2ff96cc9bec5561"
+    },
+    {
+      "path": "packages/web/src/data.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "5cdfab89948ca5bb0859f0b744368083d9adc7f2d720779172c897196dd3cd00"
+    },
+    {
+      "path": "packages/web/src/dom.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "3eb6663c19dfee4093cefa63d5bd95eb041213d0e085da976488a106e4252510"
+    },
+    {
+      "path": "packages/web/src/i18n.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+    },
+    {
+      "path": "packages/web/src/main.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "348364ab639618bd12789842027e25a698b633182371e07e4099d689cd90eaf0"
+    },
+    {
+      "path": "packages/web/src/pages/admin.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "23ec854967e90441116dd90c79844044dfbc6b151f3f8df51d60f52bd334da74"
+    },
+    {
+      "path": "packages/web/src/pages/admin/admin.css",
+      "unchangedFrom34dd": true,
+      "sha256": "0aa9261d6b2be0fd04234aff551ca00334f427febf1c0182aaf9c80feea866e9"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.css",
+      "unchangedFrom34dd": true,
+      "sha256": "c761a6e4b724203554a5eb07e401242c9139c76efe8eccae8af52725cdfe30f3"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.css",
+      "unchangedFrom34dd": true,
+      "sha256": "e1fa522d3c56066a6cf730993bd7bac64191b8913ce97d1124ae29c87c863dfe"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.css",
+      "unchangedFrom34dd": true,
+      "sha256": "c0ed3104b1af3bc48a4d1a805138b552163d12013741d9f0e7e9ba3e8aeb1b83"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.css",
+      "unchangedFrom34dd": true,
+      "sha256": "a8d08e4c6983b567647678db8b42797fda0efa351b7badd3ada44c280e465fc0"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-form.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "48b1d0fc5e456684471d8a136c37838eafd99d0e1200a0b5021475c99e02b256"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.css",
+      "unchangedFrom34dd": true,
+      "sha256": "53abb92d56805e1fe3e9360c0ef3af2a305b68fdb8f36e975b2ccda8a19a4b39"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "8f7e8552bfcc7c4da7360e48474df95fc82e8921ca7bb79ea60e3273fbe0cbf4"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.css",
+      "unchangedFrom34dd": true,
+      "sha256": "51fde411397144af5353c598d0e0af9185761212023fe0c8a7bb423ddb388cb5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29"
+    },
+    {
+      "path": "packages/web/src/pages/admin/servings-input.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "a785c055a3701ce40baac0157f9d00e02699dae3305a0d1092aa14522bd8cb24"
+    },
+    {
+      "path": "packages/web/src/pages/menu.css",
+      "unchangedFrom34dd": true,
+      "sha256": "825305f00ddf3acb6df77f0a6bb5ca581369256178eac4f1ba13bce84e2b20f8"
+    },
+    {
+      "path": "packages/web/src/pages/menu.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d"
+    },
+    {
+      "path": "packages/web/src/pages/prep.css",
+      "unchangedFrom34dd": true,
+      "sha256": "68a26bea91433c8c4fc8943532cdc4940080c4210e26e53a08bbc0de14fb4572"
+    },
+    {
+      "path": "packages/web/src/pages/prep.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+    },
+    {
+      "path": "packages/web/src/pages/published-meals.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-form.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "0ba62e8ca2860a9d009f02ea2c4c1fb909dbc10b766bdfdb42d4f6f3121a4089"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-list.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "6c5efb7a3a07e209cc8df99872be70a7428bccd0ea265728c787b2808357c5fa"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.css",
+      "unchangedFrom34dd": true,
+      "sha256": "36736377724983eeba425cbd02006ba662276f994bb42511ef3c89ae9ea6fb0e"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "176b0a7af1ae0276b6a395415a1e5fbb09593d01affd4714f812513e07ac3acd"
+    },
+    {
+      "path": "packages/web/src/pages/qr.css",
+      "unchangedFrom34dd": true,
+      "sha256": "7653128483b376d6066f24a5055aeeabd83902e0d0494e57ac549afabcdcbce0"
+    },
+    {
+      "path": "packages/web/src/pages/qr.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "c1e78ada7901a28a086d5f24c05148fcf67e96b3691e07787d7a69819af2e755"
+    },
+    {
+      "path": "packages/web/src/pages/team-details.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "7e11c51482927ac11b2e75d8604e01a3de8d6fadd9b0e2db4d4fc8ccf43c2aab"
+    },
+    {
+      "path": "packages/web/src/pages/team-ui.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "60835d22ba43f44bec30505eecb0b2d817498e95a87039ad7ec14358fb117832"
+    },
+    {
+      "path": "packages/web/src/pwa.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94"
+    },
+    {
+      "path": "packages/web/src/router.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "cc73d98ce769ab37e379f554e5c93bd50ad58275a7bce8381c97a5b6d2173812"
+    },
+    {
+      "path": "packages/web/src/shell.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "29621bc8ba8d4c5bc7ea3121817b4d63216b232e18dcda0777f1454a26a63373"
+    },
+    {
+      "path": "packages/web/src/styles.css",
+      "unchangedFrom34dd": true,
+      "sha256": "9dd667db3c8ffe092ec50a9c2553998fed94126534a3397a3a46ee89c13ac6b3"
+    },
+    {
+      "path": "packages/web/src/theme.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "6befd39469c0e718b726fadbb8cf7785f2e0559f0d8e98fbab96220a7f7cfd34"
+    },
+    {
+      "path": "packages/web/src/tokens.css",
+      "unchangedFrom34dd": true,
+      "sha256": "32e2eea759ebe4e36ed43fd5766b5e9607ef61444de3428c2fe95335ac86ddcb"
+    },
+    {
+      "path": "packages/web/src/types.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "4ce433ac1c809f09d878aa51270ad2384e04df7fc0efd7005f847117c0c01094"
+    },
+    {
+      "path": "packages/web/src/view-models/edit-session.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "dcfc2409ec119999e9d9b89542218d9d4c3c10eecea156730e965f7eafb70ec1"
+    },
+    {
+      "path": "packages/web/src/view-models/published.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "2688d8816f7855fc618d46c6a5974e31e3de8248ddfc61e3fcf059ce491d8dbe"
+    },
+    {
+      "path": "packages/web/src/view-models/reload-safety.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+    },
+    {
+      "path": "packages/web/src/view-models/team-meals.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "87259084084498df170cbe49be0ede700729aa1136d91ddf1902b869e1421af7"
+    },
+    {
+      "path": "packages/web/vite.config.ts",
+      "unchangedFrom34dd": true,
+      "sha256": "5fde595ff134d66d75c03f9388dcb66478c257ef97c655bb9a123c8448e50d3b"
+    }
+  ]
+}

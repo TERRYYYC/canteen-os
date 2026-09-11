@@ -1,0 +1,58 @@
+{
+  "execPath": "/Users/terry/.nvm/versions/node/v24.18.0/bin/node",
+  "node": "v24.18.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "results": [
+    {
+      "mode": "original",
+      "normalCleanup": true,
+      "instanceDOMString": true,
+      "legacyNonemptyVeto": true,
+      "preventDefaultVeto": true,
+      "emptyDoesNotVeto": true,
+      "eventPrototypeUnchanged": true
+    },
+    {
+      "mode": "original",
+      "cleanupExceptionPropagates": true,
+      "descriptorsRestoredAfterException": true
+    },
+    {
+      "mode": "absent",
+      "normalCleanup": true,
+      "instanceDOMString": true,
+      "legacyNonemptyVeto": true,
+      "preventDefaultVeto": true,
+      "emptyDoesNotVeto": true,
+      "eventPrototypeUnchanged": true
+    },
+    {
+      "mode": "absent",
+      "cleanupExceptionPropagates": true,
+      "descriptorsRestoredAfterException": true
+    },
+    {
+      "mode": "custom-getter",
+      "normalCleanup": true,
+      "instanceDOMString": true,
+      "legacyNonemptyVeto": true,
+      "preventDefaultVeto": true,
+      "emptyDoesNotVeto": true,
+      "eventPrototypeUnchanged": true
+    },
+    {
+      "mode": "custom-getter",
+      "cleanupExceptionPropagates": true,
+      "descriptorsRestoredAfterException": true
+    }
+  ]
+}
+ℹ tests 0
+ℹ suites 0
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.485

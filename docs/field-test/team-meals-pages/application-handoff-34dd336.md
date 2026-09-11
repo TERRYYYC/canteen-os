@@ -30,6 +30,8 @@ status: awaiting-shared-pwa-repair
 
 独立 Web 419/419、目标 35/35、typecheck 通过；64/64 源码/入口/配置和 11 个实际服务变体均与固定版本一致。实际 main 的 31/31 生命周期矩阵、读失败/恢复、挂起保存、unknown、旧身份及启动失败分别有原始记录。
 
+后续 CI 环境限定：上段原报告未记录测试运行时版本，其 419/419 不构成 Node20 CI 通过证据。调度在 Node20.20.2 对相同 34dd 生产基线观察到 411 pass / 3 fail / 5 cancelled，定位为 D 测试对全局 navigator 和可写 beforeunload returnValue 的模拟缺口。测试修订 `b1c84349f322601488a751961b646c97d24d55c7` 已单独执行 RED→GREEN，并获[原非作者有界 APPROVE](review-receipts/node20-b1c8434/REVIEW.md)：Node20.20.2 全 Web 419/419、typecheck 通过，Node20/24 各 53/53（原独立 35 加 shopping 18），全局恢复及异常传播通过。原始作者证据位于 `node20-harness/`；独立报告及全部 24 项原证据和 manifest 原样归档。生产仍等于 34dd；不改写原报告或否定原生浏览器裁决。
+
 公开入口在纠正后的新 fixture 为 11/11，包括排菜空份数→本地预览→实际编码清单链接→全待确认→返回保留原输入。已受控文档的真实等待更新 boot2 后，公开连续流程为 10/10：版本 A `62a139ba49114bcbfe512fb8daa0062b09731dc2` 转到 B `0ff5732219f125ba5faea9d1c20ca26c42c591c2`，仍显示原 7500g、完整配方并解码 B 素材。这些是隔离正式 producer 与合成图片，不能推定真实发布或厨房资料完整。
 
 首次文档失败、错误 fixture 前置条件和过早点击均保留原字节；空发布累计 24/27、legacy 累计 27/30 中的三次早期失败没有删除。最终新增等待/读取/角色断言通过，不将累计文件冒称全绿。四个 ACK fixture 控制注册/传输，不算原生 SW 证据。

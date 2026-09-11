@@ -1,0 +1,14 @@
+packages/web/test/team-meals-pages-shopping-raw.test.mjs: OK
+packages/web/test/team-meals-pages-guard-harness.mjs: OK
+docs/field-test/team-meals-pages/node20-harness/README.md: OK
+docs/field-test/team-meals-pages/node20-harness/commands.json: OK
+docs/field-test/team-meals-pages/node20-harness/node20-full-green.log: OK
+docs/field-test/team-meals-pages/node20-harness/node20-full-red.log: OK
+docs/field-test/team-meals-pages/node20-harness/node20-target-green.log: OK
+docs/field-test/team-meals-pages/node20-harness/node20-target-restoration.log: OK
+docs/field-test/team-meals-pages/node20-harness/node20-typecheck.log: OK
+docs/field-test/team-meals-pages/node20-harness/node24-target-baseline.log: OK
+docs/field-test/team-meals-pages/node20-harness/node24-target-green.log: OK
+docs/field-test/team-meals-pages/node20-harness/restore-check.mjs: OK
+docs/field-test/team-meals-pages/node20-harness/runtime.json: OK
+docs/field-test/team-meals-pages/node20-harness/unchanged-assertions.json: OK
