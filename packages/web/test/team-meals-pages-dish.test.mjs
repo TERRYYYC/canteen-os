@@ -9,7 +9,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 const require=createRequire(import.meta.url);
 const vr=createRequire(require.resolve('vite/package.json'));
 const esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
-const bundle=await esbuild.build({stdin:{contents:await readFile(join(here,'../src/pages/admin/dish-new.ts'),'utf8')+'\nexport { ApiError };',resolveDir:join(here,'../src/pages/admin'),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:await readFile(join(here,'../src/pages/admin/dish-new.ts'),'utf8')+'\nexport { ApiError, createIngredientDraft };',resolveDir:join(here,'../src/pages/admin'),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-pages-dish-'));
 after(()=>rm(dir,{recursive:true,force:true}));
 await writeFile(join(dir,'dish.mjs'),bundle.outputFiles[0].text);
@@ -34,9 +34,9 @@ const page=await import(pathToFileURL(join(dir,'dish.mjs')));
 const A='a'.repeat(40), B='b'.repeat(40);
 const source=content=>({content,commit:A,blobSha:'blob-a'});
 const initial={schemaVersion:'3',name:{zh:'汤'},components:[{ingredientRef:'salt'}],status:'active'};
-function setup(save=async()=>({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]})) {
+function setup(save=async()=>({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]}),mode='mock') {
  const writes=[],reads=[];let current=source(initial);
- const api={mode:'mock',sessionKey:()=>0,getDish:async(id,opts)=>{reads.push([id,opts]);return current;},saveDish:async(...args)=>{writes.push(['active',...structuredClone(args)]);return save(...args);},saveDishDraft:async(...args)=>{writes.push(['draft',...structuredClone(args)]);return save(...args);}};
+ const api={mode,sessionKey:()=>0,getDish:async(id,opts)=>{reads.push([id,opts]);return current;},saveDish:async(...args)=>{writes.push(['active',...structuredClone(args)]);return save(...args);},saveDishDraft:async(...args)=>{writes.push(['draft',...structuredClone(args)]);return save(...args);}};
  assert.equal(typeof page.createDishForm,'function','dish page must expose the C1 form adapter actually used by render');
  return {form:page.createDishForm(api),writes,reads,setCurrent:v=>current=v};
 }
@@ -73,4 +73,66 @@ test('conflict retains edited draft and explicit adoption is required before a n
 test('late read cannot open a different dish after detaching',async()=>{
  let resolve;const api={mode:'mock',sessionKey:()=>0,getDish:()=>new Promise(r=>resolve=r)};const form=page.createDishForm(api);
  const loading=form.load('soup');form.detach();resolve(source(initial));assert.equal(await loading,null);assert.equal(form.session.getState().phase,'closed');
+});
+
+test('review: add-another on an existing dish must not orphan an unresolved new dish',async()=>{
+ let call=0;const {form}=setup(async()=>{if(++call===1)throw new TypeError('lost');return {commit:B,blobSha:'blob-b',unchanged:false,warnings:[]};});
+ await form.load('new');form.draft.id='new-soup';form.draft.name.zh='尚未核实的新汤';await form.save('draft');
+ assert.equal(form.session.getState().phase,'outcome-unknown');
+ await form.load('soup');await form.save('draft');assert.equal(form.session.getState().phase,'saved-but-unpublished');
+ const allowed=form.newDocument();await form.load('new');
+ assert.equal(form.session.getState().phase,'outcome-unknown',JSON.stringify({allowed,phase:form.session.getState().phase,id:form.draft.id}));
+});
+
+test('review: pending image still requires dirty warning after language refresh',async()=>{
+ const {form}=setup();await form.load('soup');form.draft.pending={blob:new Blob(['test'],{type:'image/png'}),width:1,height:1,previewUrl:'blob:review',license:'own',author:'',sourceUrl:''};form.changed();
+ assert.equal(form.draft.dirty,true);form.refresh();assert.equal(form.draft.dirty,true,'pending photo must keep raw form dirty across presentation refresh');
+});
+
+
+const pendingPhoto = () => ({blob:new Blob(['local photo'],{type:'image/png'}),width:1,height:1,previewUrl:'blob:local-fixture',license:'own',author:'Original author',sourceUrl:''});
+const uploadedPhoto = {src:'data/dishes/soup/images/local-fixture.png',license:'own',author:'Original author'};
+test('review: upload ownership survives refresh and submits its original snapshot without erasing later edits',async()=>{
+ const {form,writes}=setup(undefined,'real');await form.load('soup');form.draft.pending=pendingPhoto();form.changed();
+ let release;const uploads=[];const aux={uploadImage:async(...args)=>{uploads.push(args);await new Promise(r=>release=r);return uploadedPhoto;}};
+ const generation=form.readAuxiliary().generation;const saving=form.save('draft',aux);
+ assert.equal(form.busy,true);assert.equal(form.readAuxiliary().phase,'busy');assert(form.readAuxiliary().generation>generation);
+ form.refresh();form.draft.name.zh='在上传时新改的汤';form.changed();await form.save('draft',aux);assert.equal(uploads.length,1);
+ release();await saving;
+ assert.equal(form.busy,false);assert.equal(writes.length,1);assert.equal(writes[0][2].name.zh,'汤');assert.deepEqual(writes[0][2].image,uploadedPhoto);
+ assert.equal(form.draft.name.zh,'在上传时新改的汤');assert.equal(form.draft.pending,null);assert.equal(form.draft.dirty,true);assert.equal(form.session.getState().phase,'dirty');
+});
+
+test('review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution',async()=>{
+ const {form,writes}=setup(undefined,'real');await form.load('soup');const pending=pendingPhoto();form.draft.pending=pending;form.changed();
+ let release;const uploads=[];const aux={uploadImage:async(...args)=>{uploads.push(args);await new Promise(r=>release=r);return uploadedPhoto;}};
+ const saving=form.save('draft',aux);pending.author='Later author';form.changed();form.refresh();release();await saving;
+ assert.equal(uploads[0][3].author,'Original author');assert.equal(writes[0][2].image.author,'Original author');
+ assert.equal(form.draft.pending,pending);assert.equal(form.draft.pending.author,'Later author');assert.equal(form.draft.dirty,true);assert.equal(form.readAuxiliary().dirty,true);
+});
+
+test('review: detached photo completion stays with its original dish and does not upload again on return',async()=>{
+ const {form,writes}=setup(undefined,'real');await form.load('soup');form.draft.pending=pendingPhoto();form.changed();
+ let release;let uploads=0;const aux={uploadImage:async()=>{uploads++;await new Promise(r=>release=r);return uploadedPhoto;}};
+ const saving=form.save('draft',aux);form.detach();await form.load('another-soup');release();await saving;
+ assert.equal(form.draft.image,null);assert.equal(writes.length,0,'auxiliary completion cannot save C1’s different active document');
+ await form.load('soup');assert.deepEqual(form.draft.image,uploadedPhoto);assert.equal(form.draft.pending,null);assert.equal(form.draft.dirty,true);
+ await form.save('draft',aux);assert.equal(uploads,1);assert.equal(writes.length,1);assert.equal(writes[0][1],'soup');assert.deepEqual(writes[0][2].image,uploadedPhoto);
+});
+
+test('review: raw inline ingredient and auxiliary ownership survive refresh and navigation',async()=>{
+ const {form}=setup();await form.load('soup');const raw=page.createIngredientDraft({zh:'原始食材草稿'});form.draft.components[0].newIngredient=raw;form.changed();
+ form.refresh();assert.equal(form.draft.dirty,true);assert.equal(form.readAuxiliary().dirty,true);
+ const operation=form.beginAuxiliary('ingredient-1');assert(operation);form.refresh();assert.equal(form.beginAuxiliary('ingredient-1'),null);
+ form.detach();await form.load('other');assert.equal(form.busy,false);await form.load('soup');assert.equal(form.busy,true);assert.equal(form.draft.components[0].newIngredient,raw);
+ const generation=form.readAuxiliary().generation;operation.finish();assert.equal(form.readAuxiliary().phase,'idle');assert(form.readAuxiliary().generation>generation);assert.equal(form.draft.dirty,true);
+});
+
+test('review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes',async()=>{
+ const {form,writes}=setup(undefined,'real');await form.load('new',{zh:'图片草稿'});form.draft.id='photo-soup';form.draft.pending=pendingPhoto();form.changed();
+ let uploads=0;const aux={uploadImage:async()=>{uploads++;throw new TypeError('lost upload reply');}};
+ await assert.rejects(form.save('draft',aux));assert.equal(form.readAuxiliary().phase,'unknown');
+ form.refresh();await form.save('draft',aux);assert.equal(uploads,1);assert.equal(writes.length,0);assert.equal(form.newDocument(),false);
+ await form.load('soup');await form.save('draft');assert.equal(form.newDocument(),true);await form.load('new');
+ assert.equal(form.draft.id,'photo-soup');assert.equal(form.readAuxiliary().phase,'unknown');assert.equal(form.readAuxiliary().dirty,true);
 });

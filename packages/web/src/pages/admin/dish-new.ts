@@ -7,7 +7,7 @@ import { getApi, type AdminApi } from "../../api/client";
 import { ApiError, isApiError, type Source, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
-import { createEditSession } from "../../view-models/edit-session";
+import { createEditSession, type EditState } from "../../view-models/edit-session";
 import { takeHandoff } from "../../admin/store";
 import { append, h } from "../../dom";
 import { pick, type Lang } from "../../i18n";
@@ -242,6 +242,7 @@ const EDIT_COPY = {
   remote: { zh: "采用远端内容", en: "Use remote content", uk: "Прийняти віддалений вміст" },
   returnTo: { zh: "回到导入", en: "Return to import", uk: "Повернутися до імпорту" },
   auxUnavailable: { zh: "图片上传、机翻和新建食材需要连接真实保存服务", en: "Images, translation and new ingredients require a real connected save service", uk: "Фото, переклад і нові інгредієнти потребують підключення до реального сервісу" },
+  auxUnknown: { zh: "图片或食材保存结果未知，资料已保留；请先核实后台结果", en: "Image or ingredient save outcome unknown. Local information is retained; verify the backend outcome first", uk: "Результат збереження фото або інгредієнта невідомий. Локальні дані збережено; спочатку перевірте результат на сервері" },
 } as const;
 function statusText(key: keyof typeof EDIT_COPY, lang: Lang): string { return EDIT_COPY[key][lang]; }
 
@@ -566,7 +567,18 @@ function formatQty(c: ComponentDraft, lang: Lang): string {
 
 /** Page adapter owns raw form inputs; C1 owns conditional writes and their unresolved outcome. */
 export function createDishForm(api: TeamMealsApi) {
-  type Record = { draft: DishDraft; source: Source<AnyDish> | null; identity: string; target: string };
+  type Record = {
+    draft: DishDraft;
+    source: Source<AnyDish> | null;
+    identity: string;
+    target: string;
+    state: EditState<AnyDish> | null;
+    detachedChanges: boolean;
+    auxiliary: Set<string>;
+    auxiliaryError: unknown;
+    auxiliaryUnknown: boolean;
+    rawGeneration: number;
+  };
   const records = new Map<string, Record>();
   const identities = new Map<string, Record>();
   let active: Record | null = null;
@@ -575,6 +587,17 @@ export function createDishForm(api: TeamMealsApi) {
   let loadGeneration = 0;
   let context = 0;
   const auth = api.sessionKey();
+  const listeners = new Set<(contentChanged: boolean) => void>();
+  function notify(record: Record, contentChanged = false): void {
+    if (active !== record || !valid()) return;
+    for (const listener of listeners) { try { listener(contentChanged); } catch { /* Presentation cannot change a write outcome. */ } }
+  }
+  function rawPending(record: Record): boolean {
+    return !!record.draft.pending || record.draft.components.some(c => c.newIngredient !== null) || record.detachedChanges;
+  }
+  function imageMeta(pending: PendingImage): ImageMeta {
+    return { license: pending.license.trim(), ...(pending.author.trim() ? { author: pending.author.trim() } : {}), ...(pending.sourceUrl.trim() ? { sourceUrl: pending.sourceUrl.trim() } : {}) };
+  }
   const session = createEditSession<AnyDish>({
     mode: () => api.mode,
     authSession: () => api.sessionKey(),
@@ -589,20 +612,52 @@ export function createDishForm(api: TeamMealsApi) {
   session.subscribe(state => {
     const record = state.identity ? identities.get(state.identity.id) : null;
     if (!record || state.phase === "closed") return;
+    record.state = state;
     record.draft.blobSha = state.source?.blobSha ?? null;
-    record.draft.dirty = state.dirty;
+    record.draft.dirty = state.dirty || rawPending(record);
     record.source = state.source;
   });
-  function changed(): void {
-    if (!active || !valid()) return;
-    active.draft.dirty = true;
-    session.edit(draftToDish(active.draft), context);
+  function changed(form = active?.draft): void {
+    const record = [...records.values()].find(item => item.draft === form);
+    if (!record || !valid()) return;
+    record.rawGeneration++;
+    record.detachedChanges = record !== active;
+    record.draft.dirty = true;
+    if (record === active) session.edit(draftToDish(record.draft), context);
+    record.draft.dirty = !!record.state?.dirty || rawPending(record);
+    notify(record);
+  }
+  /** Auxiliary writes belong to a document, never to one rendering of its form. */
+  function beginAuxiliary(key: string) {
+    const record = active;
+    if (!record || !valid() || record.auxiliary.size || record.auxiliaryUnknown || session.getState().operationId) return null;
+    record.rawGeneration++;
+    record.auxiliary.add(key); record.auxiliaryError = null; notify(record);
+    return {
+      valid: () => valid() && identities.get(record.identity) === record,
+      current: () => valid() && active === record,
+      fail(error: unknown) {
+        record.auxiliaryError = error;
+        record.auxiliaryUnknown = !isApiError(error) || error.status >= 500 || (error.status === 0 && !["unconfigured", "session_changed"].includes(error.code));
+      },
+      finish(contentChanged = false) { record.rawGeneration++; record.auxiliary.delete(key); notify(record, contentChanged); },
+    };
   }
   return {
     session,
     get draft() { return active?.draft ?? null; },
     get key() { return currentKey; },
     get context() { return context; },
+    get busy() { return !!active?.auxiliary.size; },
+    get auxiliaryError() { return active?.auxiliaryError; },
+    get auxiliaryUnknown() { return active?.auxiliaryUnknown ?? false; },
+    /** Read-only summary of actual raw buffers; shared reload registration is wired by its owner when available. */
+    readAuxiliary(key = currentKey) {
+      const record = records.get(key);
+      return record ? { generation: record.rawGeneration, dirty: rawPending(record), phase: record.auxiliaryUnknown ? "unknown" as const : record.auxiliary.size ? "busy" as const : "idle" as const } : null;
+    },
+    subscribe(listener: (contentChanged: boolean) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    beginAuxiliary,
     async load(key: string, seed: { zh?: string } = {}): Promise<DishDraft | null> {
       const generation = ++loadGeneration;
       if (!valid()) return null;
@@ -612,11 +667,12 @@ export function createDishForm(api: TeamMealsApi) {
         if (!valid() || generation !== loadGeneration) return null;
         if (!source && key !== "new") return null;
         const form = source ? draftFromDish(source.content, key, source.blobSha) : createDishDraft(seed);
-        record = { draft: form, source, identity: key === "new" ? `$new-${++sequence}` : key, target: source ? key : "" };
+        record = { draft: form, source, identity: key === "new" ? `$new-${++sequence}` : key, target: source ? key : "", state: null, detachedChanges: false, auxiliary: new Set(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0 };
         records.set(key, record); identities.set(record.identity, record);
       }
       active = record; currentKey = key;
       context = session.open({ kind: "dish", id: record.identity }, record.source?.content ?? draftToDish(record.draft), record.source);
+      if (record.detachedChanges) changed(record.draft);
       return record.draft;
     },
     changed,
@@ -624,27 +680,54 @@ export function createDishForm(api: TeamMealsApi) {
     detach() { ++loadGeneration; session.invalidate(); active = null; currentKey = ""; },
     /** Only an explicit add-another action discards a resolved new form. */
     newDocument(): boolean {
-      if (session.getState().operationId || session.getState().dirty) return false;
+      if (!valid() || active?.draft.dirty || active?.auxiliary.size || active?.auxiliaryUnknown || session.getState().operationId) return false;
+      const previous = records.get("new");
+      if (previous && previous !== active && (previous.draft.dirty || previous.auxiliary.size || previous.auxiliaryUnknown || previous.state?.operationId || previous.state?.phase === "conflict")) return true;
+      if (previous) { previous.rawGeneration++; identities.delete(previous.identity); }
       records.delete("new"); return true;
     },
-    async save(status: "draft" | "active") {
+    async save(status: "draft" | "active", auxiliary?: Pick<AdminApi, "uploadImage">) {
       if (!active || !valid()) return null;
       const state = session.getState();
-      if (state.operationId || state.phase === "conflict") return null;
-      active.target = active.source ? active.target : active.draft.id.trim();
-      active.draft.status = status;
+      if (state.operationId || state.phase === "conflict" || active.auxiliary.size || active.auxiliaryUnknown) return null;
+      const record = active, form = record.draft;
+      record.target = record.source ? record.target : form.id.trim();
+      form.status = status;
       changed();
-      return session.save(context);
+      const body = draftToDish(form), pending = form.pending;
+      const meta = pending ? imageMeta(pending) : null;
+      const operation = beginAuxiliary("dish-save");
+      if (!operation) return null;
+      try {
+        if (pending && meta) {
+          if (api.mode !== "real" || !auxiliary) throw new ApiError(0, "unconfigured", "");
+          const ref = await auxiliary.uploadImage("dishes", record.target, pending.blob, meta);
+          if (!operation.valid()) return null;
+          body.image = { ...ref };
+          if (form.pending === pending && JSON.stringify(imageMeta(pending)) === JSON.stringify(meta)) {
+            URL.revokeObjectURL(pending.previewUrl);
+            form.pending = null; form.image = { ...ref }; changed(form);
+          }
+        }
+        // A detached document retains its uploaded image and unsaved draft; do not switch C1's active document.
+        if (!operation.current()) return null;
+        session.edit(body, context);
+        const saving = session.save(context);
+        session.edit(draftToDish(form), context); // Later edits remain a separate generation from the submitted snapshot.
+        return await saving;
+      } catch (error) { operation.fail(error); throw error; }
+      finally { operation.finish(true); }
     },
     adopt(source: Source<AnyDish>, keepLocal: boolean): boolean {
-      if (!active || !valid()) return false;
+      if (!active || !valid() || active.auxiliary.size || active.auxiliaryUnknown) return false;
       const body = keepLocal ? draftToDish(active.draft) : source.content;
       if (!session.replace(body, source, context)) return false;
       context = session.getState().contextId;
       if (!keepLocal) active.draft = draftFromDish(source.content, active.target, source.blobSha);
+      active.rawGeneration++;
       active.source = source;
       active.draft.blobSha = source.blobSha;
-      active.draft.dirty = session.getState().dirty;
+      active.draft.dirty = session.getState().dirty || rawPending(active);
       return true;
     },
   };
@@ -686,7 +769,7 @@ function watchLeave(key: string): void {
   unwatch?.();
   const onHash = (): void => { if (!isMyHash(location.hash, key)) discardDraft(); };
   const onUnload = (ev: BeforeUnloadEvent): void => {
-    if (!draft?.dirty && !formOwner?.session.getState().operationId) return;
+    if (!draft?.dirty && !formOwner?.busy && !formOwner?.auxiliaryUnknown && !formOwner?.session.getState().operationId) return;
     ev.preventDefault(); ev.returnValue = true;
   };
   window.addEventListener("hashchange", onHash);
@@ -759,7 +842,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   const title = L(editing || rest !== "new" ? "dish.title.edit" : "dish.title.new");
   let catalog: TeamCatalog | null = null;
   let catalogFailed = false;
-  let saving = false;
+  const inlineBusyViews: Array<() => void> = [];
 
   // ---- 顶部：通知条 -------------------------------------------------------------
   const notices = h("div", { class: "adm-dish-notices" }, ...flash);
@@ -1299,6 +1382,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
 
   function paintComponents(): void {
     summaries.length = 0;
+    inlineBusyViews.length = 0;
     componentsList.replaceChildren();
     componentsCount.textContent = d.components.length ? L("dish.components.count", { n: d.components.length }) : "";
     d.components.forEach((c, i) => componentsList.append(componentCard(c, i)));
@@ -1393,6 +1477,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           class: "adm-dish-result adm-dish-result-new",
           onClick: () => {
             c.newIngredient = createIngredientDraft(c.search.trim() ? { zh: c.search.trim() } : {});
+            changed();
             paintComponents();
           },
         });
@@ -1491,18 +1576,19 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
 
   /** 「食材库里没有 · 新建」：就地内联 #23 的表单件；存成功 → 本行引用新 id，catalog 重取 */
   function inlineIngredient(c: ComponentDraft): HTMLElement {
-    const ingDraft = c.newIngredient;
+    const buffer = c.newIngredient;
     if (teamApi.mode !== "real") return h("p", { role: "status" }, statusText("auxUnavailable", lang));
-    if (!ingDraft) return h("div");
+    if (!buffer) return h("div");
+    const ingDraft: IngredientDraft = buffer;
     const form = buildIngredientForm({
       lang,
       api,
       draft: ingDraft,
-      editing: false,
+      editing: !!ingDraft.blobSha,
       catalog,
       idPrefix: `${ID_PREFIX}-c${c.key}-ing`,
       onChange: () => {
-        d.dirty = true;
+        owner.changed(d);
       },
       onGoEdit: (id) => {
         // 库里已有：直接用它，不再新建
@@ -1521,38 +1607,60 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       onClick: () => {
         if (ingDraft.pending) URL.revokeObjectURL(ingDraft.pending.previewUrl);
         c.newIngredient = null;
+        changed();
         paintComponents();
       },
     });
-    let busyNow = false;
+    const operationKey = `ingredient-${c.key}`;
+    const syncInline = (): void => {
+      const blocked = owner.busy || owner.auxiliaryUnknown || !!owner.session.getState().operationId;
+      for (const control of form.el.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea")) control.disabled = blocked;
+      saveBtn.disabled = blocked; cancelBtn.disabled = blocked;
+    };
+    inlineBusyViews.push(syncInline); syncInline();
     saveBtn.addEventListener("click", () => void saveInline());
     async function saveInline(): Promise<void> {
-      if (busyNow || !alive() || teamApi.mode !== "real") return;
+      if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode !== "real") return;
+      const operation = owner.beginAuxiliary(operationKey);
+      if (!operation) return;
       form.clearErrors();
       msg.replaceChildren();
-      if (!catalog) {
-        try {
-          catalog = await teamApi.getCatalog();
-          if (!alive()) return;
-          form.setCatalog(catalog);
-        } catch {
-          /* 查不了重也让存 */
-        }
-      }
-      const local = form.localErrors();
-      if (local.length > 0) {
-        form.showErrors(local);
-        return;
-      }
-      busyNow = true;
-      const done = busy(saveBtn, adm("adm.saving", undefined, lang));
       try {
-        const out = await submitIngredientForm(api, form);
-        if (!alive()) return;
+        if (!catalog) {
+          try {
+            catalog = await teamApi.getCatalog();
+            if (!alive()) return;
+            form.setCatalog(catalog);
+          } catch {
+            /* 查不了重也让存 */
+          }
+        }
+        const local = form.localErrors();
+        if (local.length > 0) {
+          form.showErrors(local);
+          return;
+        }
+        const id = form.id(), body = structuredClone(form.toIngredient()), pending = form.pendingImage();
+        const submitted = {
+          ...form, id: () => id, toIngredient: () => structuredClone(body), pendingImage: () => pending,
+          setImage(ref: ImageRef | null) {
+            if (ref) body.image = { ...ref }; else delete body.image;
+            const current = form.pendingImage();
+            if (operation.valid() && current?.blob === pending?.blob && JSON.stringify(current?.meta) === JSON.stringify(pending?.meta)) form.setImage(ref);
+          },
+        };
+        const out = await submitIngredientForm(api, submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
+        if (!operation.valid()) return;
         if (out.ok) {
-          const id = form.id();
-          c.newIngredient = null;
-          c.ingredientRef = id;
+          if (c.newIngredient === ingDraft && d.components.includes(c)) {
+            ingDraft.blobSha = out.result.blobSha;
+            if (form.id() === id && !form.pendingImage() && JSON.stringify(form.toIngredient()) === JSON.stringify(body)) {
+              c.newIngredient = null;
+              c.ingredientRef = id;
+            }
+            owner.changed(d);
+          }
+          if (!alive()) return;
           try {
             catalog = await teamApi.getCatalog(); // 写入成功后 api 层已失效缓存（§3.5）：这里拿到的就带新食材
           } catch {
@@ -1567,6 +1675,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           return;
         }
         const err = out.error;
+        operation.fail(err);
+        if (!alive()) return;
         if (isApiError(err) && err.status === 401) {
           discardDraft();
           sessionExpired(el, lang);
@@ -1581,10 +1691,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           return;
         }
         msg.append(errorCard(apiMessage(err, lang), () => void saveInline()));
-      } finally {
-        done();
-        busyNow = false;
-      }
+      } finally { operation.finish(true); }
     }
     return h(
       "div",
@@ -1744,10 +1851,11 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const online = navigator.onLine;
     offline.hidden = online;
     const state = owner.session.getState();
-    const blocked = !online || saving || state.mode === "unconfigured" || !!state.operationId || state.phase === "conflict" || state.phase === "closed";
+    const blocked = !online || owner.busy || owner.auxiliaryUnknown || state.mode === "unconfigured" || !!state.operationId || state.phase === "conflict" || state.phase === "closed";
     draftBtn.disabled = blocked;
     activeBtn.disabled = blocked;
-    idInput.readOnly = !!state.source || !!state.operationId;
+    idInput.readOnly = !!state.source || owner.busy || !!state.operationId;
+    for (const syncInline of inlineBusyViews) syncInline();
   }
   function compareDish(value:AnyDish,label:string):HTMLElement {
     return h('section',{},h('h3',{},label),h('p',{},pick(value.name,lang)),h('p',{},`${L('dish.baseServings')}: ${value.baseServings??(lang==='zh'?'未录':lang==='en'?'Not recorded':'Не записано')}`),
@@ -1757,7 +1865,10 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   function syncStatus(): void {
     if (!alive()) return;
     const state = owner.session.getState();
-    editStatus.replaceChildren(h("p", {}, statusText(state.mode, lang)), h("p", {}, statusText(state.phase, lang)));
+    const phase = owner.busy ? "saving" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
+    editStatus.replaceChildren(h("p", {}, statusText(state.mode, lang)), h("p", {}, statusText(phase, lang)));
+    if (owner.auxiliaryUnknown) editStatus.append(h("p", {}, statusText("auxUnknown", lang)));
+    if (owner.auxiliaryError) editStatus.append(h("p", {}, apiMessage(owner.auxiliaryError, lang)));
     if (state.source) editStatus.append(h("details", { class: "muted" }, h("summary", {}, state.source.commit.slice(0,8)), h("code", {}, state.source.commit)));
     if (state.error) {
       const e = state.error;
@@ -1769,7 +1880,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       editStatus.append(verify);
     }
     if (state.phase === "conflict") editStatus.append(button({ label: statusText("compare", lang), onClick: () => void compareRemote() }));
-    if (state.lastSave && !state.dirty && !state.operationId) {
+    if (state.lastSave && !d.dirty && !owner.busy && !owner.auxiliaryUnknown && !state.operationId) {
       editStatus.append(button({ label: L("dish.addAnother"), onClick: () => {
         if (!owner.newDocument()) return;
         discardDraft();
@@ -1807,10 +1918,16 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     if (auth !== teamApi.sessionKey() && el.isConnected) { el.replaceChildren(); sessionExpired(el, lang); return; }
     syncStatus();
   });
+  const unsubscribeAuxiliary = owner.subscribe(contentChanged => {
+    if (!alive()) return;
+    if (contentChanged) { paintPhoto(); paintComponents(); paintSteps(); paintReadiness(); }
+    syncStatus();
+  });
   window.addEventListener("online", syncNet);
   window.addEventListener("offline", syncNet);
   disposePaint = () => {
     unsubscribeState();
+    unsubscribeAuxiliary();
     window.removeEventListener("online", syncNet);
     window.removeEventListener("offline", syncNet);
   };
@@ -1883,33 +2000,20 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   }
 
   async function save(mode: "draft" | "active"): Promise<void> {
-    if (saving || !alive() || teamApi.mode === "unconfigured" || owner.session.getState().operationId) return;
+    if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode === "unconfigured" || owner.session.getState().operationId) return;
     if (!navigator.onLine) { syncNet(); return; }
     clearFieldErrors(formEl); clearTransient();
     const local = localErrors();
     if (d.baseServings.trim() && (!Number.isInteger(num(d.baseServings)) || num(d.baseServings) < 1)) local.push({ path: "/baseServings", code: "minimum", message: L("dish.qty.required") });
     if (local.length) { showErrors(local); return; }
-    saving = true; syncNet();
     try {
-      if (d.pending) {
-        // Auxiliary legacy uploads are available only with a configured real endpoint.
-        if (teamApi.mode !== "real") { addTransient(notice({ kind: "warn", text: statusText("auxUnavailable", lang) })); return; }
-        const pending = d.pending;
-        const meta: ImageMeta = { license: pending.license.trim() };
-        if (pending.author.trim()) meta.author = pending.author.trim();
-        if (pending.sourceUrl.trim()) meta.sourceUrl = pending.sourceUrl.trim();
-        const ref = await api.uploadImage("dishes", d.id.trim(), pending.blob, meta);
-        if (!alive()) return;
-        if (d.pending !== pending) return;
-        dropPending(); d.image = { ...ref }; changed(); paintPhoto();
-      }
-      await owner.save(mode);
+      await owner.save(mode, api);
       if (!alive()) return;
       const state = owner.session.getState();
       if (state.error?.errors.some(error => error.path)) showErrors(state.error.errors.filter(error => error.path));
       // Retain the form, including any later edits. Publication remains a separate action.
     } catch (err) {
       if (alive()) addTransient(errorCard(apiMessage(err, lang)));
-    } finally { saving = false; if (alive()) syncNet(); }
+    } finally { if (alive()) syncNet(); }
   }
 }
