@@ -1,0 +1,27 @@
+✔ ingredient: actual Http current-auth array ACK cannot prove completion (52.47025ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (40.080291ms)
+✔ ingredient: available old-auth array ACK cannot prove completion (38.545166ms)
+✔ ingredient: available old-auth string ACK settles only its write (38.396458ms)
+✔ dish: actual Http current-auth array ACK cannot prove completion (42.953792ms)
+✔ dish: actual Http current-auth string ACK settles only its write (42.497958ms)
+✔ dish: available old-auth array ACK cannot prove completion (42.506458ms)
+✔ dish: available old-auth string ACK settles only its write (42.333167ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (41.226875ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (45.882042ms)
+✔ ingredient: valid available old ACK settles A only while B still owns its write (73.466834ms)
+✔ dish: valid available old ACK settles A only while B still owns its write (82.585ms)
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (50.348125ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (40.381916ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (37.872417ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (30.327ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (57.255084ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (63.001417ms)
+✔ publish: actual pending and unknown operation still veto manual and application reload (60.698292ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 640.394833

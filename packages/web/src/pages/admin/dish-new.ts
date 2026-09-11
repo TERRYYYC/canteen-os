@@ -673,7 +673,7 @@ export function createDishForm(api: TeamMealsApi) {
     }
     const scoped = Object.create(legacy) as AdminApi;
     scoped.uploadImage = (...args) => write(() => legacy.uploadImage(...args), value => !!value && typeof value.src === "string" && !!value.src && typeof value.license === "string" && !!value.license);
-    scoped.saveIngredient = (...args) => write(() => legacy.saveIngredient(...args), value => !!value && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === "string" && !!value.blobSha && typeof value.unchanged === "boolean" && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === "string"));
+    scoped.saveIngredient = (...args) => write(() => legacy.saveIngredient(...args), value => !!value && typeof value.commit === "string" && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === "string" && !!value.blobSha && typeof value.unchanged === "boolean" && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === "string"));
     return scoped;
   }
   function imageMeta(pending: PendingImage): ImageMeta {
@@ -863,13 +863,8 @@ function isMyHash(hash: string, key: string): boolean {
 function watchLeave(key: string): void {
   unwatch?.();
   const onHash = (): void => { if (!isMyHash(location.hash, key)) discardDraft(); };
-  const onUnload = (ev: BeforeUnloadEvent): void => {
-    if (!draft?.dirty && !formOwner?.busy && !formOwner?.auxiliaryUnknown && !formOwner?.session.getState().operationId) return;
-    ev.preventDefault(); ev.returnValue = true;
-  };
   window.addEventListener("hashchange", onHash);
-  window.addEventListener("beforeunload", onUnload);
-  unwatch = () => { window.removeEventListener("hashchange", onHash); window.removeEventListener("beforeunload", onUnload); };
+  unwatch = () => { window.removeEventListener("hashchange", onHash); };
 }
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamApi: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   const drafts = bindDraftStore(teamApi);

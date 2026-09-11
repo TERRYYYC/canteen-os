@@ -505,10 +505,6 @@ function bindListeners(): void {
   window.addEventListener("hashchange", () => {
     if (!isOnThisScreen()) pausePolling(); // 离开本屏立即停（worker 契约 §4.6 终止条件）
   });
-  window.addEventListener("beforeunload", (event: BeforeUnloadEvent) => {
-    if (!operation) return;
-    event.preventDefault(); event.returnValue = "";
-  });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) pausePolling();
     else if (live()) ensurePolling(); // 回前台立即补一次

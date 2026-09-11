@@ -264,17 +264,6 @@ function notifyInputOwner(owner: ImportInputOwner): void {
   if (ownerValid(owner)) owner.notify?.();
 }
 
-let unloadGuardInstalled = false;
-function installUnloadGuard(): void {
-  if (unloadGuardInstalled) return;
-  unloadGuardInstalled = true;
-  window.addEventListener("beforeunload", (ev) => {
-    if (![...currentInputOwners].some(owner => { const meta = owner.readAuxiliary(); return meta.dirty || meta.phase === "busy"; })) return;
-    ev.preventDefault();
-    ev.returnValue = "";
-  });
-}
-
 // ---------------------------------------------------------------------------
 // 周 / 日期小工具（换算本身在 core：D-06 只有那一份实现）
 // ---------------------------------------------------------------------------
@@ -591,7 +580,6 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   ctx.setReloadCoverage?.("tracked");
   const ticket = ++renderGeneration;
   const live = () => el.isConnected && ticket === renderGeneration && ownerValid(owner);
-  installUnloadGuard();
 
   const returnTo = adminHref("plan", planId, "import");
   const planHref = adminHref("plan", planId);

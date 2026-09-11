@@ -150,9 +150,9 @@ const T = {
 
   "ing.purchase": { uk: "Як купувати", zh: "怎么买", en: "How to buy" },
   "ing.purchase.hint": {
-    uk: "Цю групу можна поки не заповнювати — тоді інгредієнт ще не потрапить у закупівлю",
-    zh: "整组可以先不填，那这个食材就先算不了采购",
-    en: "You can leave this whole group empty for now — the ingredient just won't be purchasable yet",
+    uk: "Дані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель.",
+    zh: "包装信息影响可选的数量参考；未填写时，仍可在采购清单中人工核对这个食材。",
+    en: "Packaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.",
   },
   "ing.purchase.supplier": { uk: "Постачальник", zh: "从谁那儿买", en: "Supplier" },
   "ing.purchase.supplier.new": { uk: "Виберіть наявного або введіть нового", zh: "选已有的，或直接输入新供应商", en: "Pick an existing one or type a new supplier" },
@@ -1150,10 +1150,6 @@ window.addEventListener("hashchange", () => {
     mountedIngredient.dispose(); mountedIngredient = null; viewGeneration++;
   }
 });
-window.addEventListener("beforeunload", (ev: BeforeUnloadEvent) => {
-  if (![...ingredientOwners.values()].some(owner => owner.draft?.dirty || ownerBusy(owner) || owner.phase === "unknown")) return;
-  ev.preventDefault(); ev.returnValue = true;
-});
 }
 onAuthSessionChange(() => {
   viewGeneration++; ingredientAuthGeneration++;
@@ -1399,7 +1395,7 @@ async function saveIngredient(owner: IngredientOwner, form: IngredientFormHandle
     const operation = beginIngredientOperation(owner, "write"); attempt.operation = operation;
     try {
       const result = await owner.legacy.saveIngredient(...args);
-      if (!result || !/^[0-9a-f]{40}$/.test(result.commit) || typeof result.blobSha !== "string" || !result.blobSha || typeof result.unchanged !== "boolean" || !Array.isArray(result.warnings) || result.warnings.some(w => typeof w !== "string")) throw new ApiError(502, "bad_response", "");
+      if (!result || typeof result.commit !== "string" || !/^[0-9a-f]{40}$/.test(result.commit) || typeof result.blobSha !== "string" || !result.blobSha || typeof result.unchanged !== "boolean" || !Array.isArray(result.warnings) || result.warnings.some(w => typeof w !== "string")) throw new ApiError(502, "bad_response", "");
       finishIngredientOperation(owner, operation, "completed"); attempt.operation = undefined;
       return result;
     } catch (error) {
