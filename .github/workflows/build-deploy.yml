@@ -91,7 +91,12 @@ jobs:
         run: pnpm -C packages/core build
 
       - name: Gate — build-data --check --compare-snapshots
-        run: node scripts/build-data.mjs --check --compare-snapshots
+        # This job needs Worker artifacts before the real client–Worker contract cases.
+        run: |
+          set -e
+          npm --prefix packages/worker run build
+          node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
+          node scripts/build-data.mjs --check --compare-snapshots
 
       - name: Build data (three sheets + build.json → packages/web/public/data/)
         run: node scripts/build-data.mjs

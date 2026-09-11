@@ -70,7 +70,11 @@ jobs:
 
       # web 的 api/client.ts HTTP 客户端单测（#86，假 fetch，node:test）。
       - name: packages/web tests
-        run: pnpm -C packages/web test
+        # The preceding Worker test step builds Worker/core for the nested contract cases.
+        run: |
+          set -e
+          pnpm -C packages/web test
+          node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
 
       - name: scripts tests
         run: node --test scripts/*.test.mjs
