@@ -1,0 +1,10 @@
+{
+  "a": {
+    "root": "/private/tmp/reader-offline-c1-native/a/dist",
+    "revision": "c47f3501e13b1853836f2929fb9135bb4ee750bd"
+  },
+  "b": {
+    "root": "/private/tmp/reader-offline-c1-native/b/dist",
+    "revision": "d3b6dd2b72a1fa845634f160fa93921a919bcb20"
+  }
+}
