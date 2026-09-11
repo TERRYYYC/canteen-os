@@ -1,0 +1,14 @@
+{
+  "a": {
+    "root": "/private/tmp/c2b-real-sw-qBlvES/a/dist",
+    "revision": "5cf87b5282d632f81efd9f51df6f454ea620188c"
+  },
+  "a-time": {
+    "root": "/private/tmp/c2b-real-sw-qBlvES/a-time/dist",
+    "revision": "5cf87b5282d632f81efd9f51df6f454ea620188c"
+  },
+  "b": {
+    "root": "/private/tmp/c2b-real-sw-qBlvES/b/dist",
+    "revision": "4cb0e8514d24080eebf2cfa464855478e31a09a5"
+  }
+}
