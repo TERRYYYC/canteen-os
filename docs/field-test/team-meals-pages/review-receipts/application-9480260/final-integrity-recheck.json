@@ -1,0 +1,389 @@
+{
+  "reviewedHeadSha": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "productionEntries": 95,
+  "allCandidateMatches": true,
+  "builtVariants": 9,
+  "allBuiltSourceAndProbeMatches": true,
+  "checks": [
+    {
+      "path": "packages/core/src/formats.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/import/parse-plan-text.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/index.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/procurement/engine.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/render/menu.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/render/prep.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/render/shared.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/sheets.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/team-meals.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/core/src/types.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/index.html",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/admin/kit.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/admin/store.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/admin/token.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/api/client.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/api/mock.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/api/team-meals.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/api/transport.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/api/types.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/data.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/dom.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/i18n.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/main.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/admin.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-form.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/admin/servings-input.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/menu.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/menu.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/prep.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/prep.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/published-meals.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/purchase-form.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/purchase-list.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/purchase.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/purchase.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/qr.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/qr.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/team-details.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pages/team-ui.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/pwa.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/router.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/shell.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/styles.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/theme.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/tokens.css",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/types.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/view-models/edit-session.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/view-models/published.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/view-models/reload-safety.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/src/view-models/team-meals.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/vite.config.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/asset-path.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/auth.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/context.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/asset.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/entities.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/image.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/publish.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/read.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/rollback.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/shopping-list.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/endpoints/translate.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/github.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/gitsha.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/http.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/image-integrity.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/index.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/paths.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/plan-range.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/preconditions.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/ratelimit.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/revision.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/serialize.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/shopping-basis.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/shopping-inputs.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/shopping-validation.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/source.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/types.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/validate.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/worker/src/write.ts",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-guard-harness.mjs",
+      "candidateMatch": true
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+      "candidateMatch": true
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "head": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "boot": 1,
+  "summary": "3/3",
+  "checks": [
+    {
+      "name": "control only actual Plan is dirty",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual offscreen pending save blocks update without discard",
+      "pass": true
+    }
+  ],
+  "route": "#/admin",
+  "safety": {
+    "reason": "saving",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 12,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 12
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 1,
+        "dirty": true,
+        "phase": "saving",
+        "pending": true,
+        "recovering": false,
+        "context": 1,
+        "operation": 1
+      }
+    ],
+    "stamp": "[30,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":12,\"dirty\":false,\"phase\":\"idle\",\"operation\":12},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"saving\",\"pending\":true,\"recovering\":false,\"context\":1,\"operation\":1}]]"
+  },
+  "controller": true,
+  "controllerAtStart": false,
+  "pending": [
+    {
+      "kind": "write",
+      "path": "/plan/sw-plan"
+    }
+  ],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/sw-plan",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "waiting",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "POST",
+      "path": "/plan/sw-plan",
+      "revision": null,
+      "ifMatch": "plan-sw-plan-original",
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReloadBack office1 changes not published yetLast published Sep 10, 2026, 3:00 AMPublishPlan the menuWeek 37 · 1 meals planned this weekAdd a dishType it in by hand11 pendingTo confirm1 draft dishesIngredients1 ingredients · 20 common seasonings still missingTranslations to review0 machine-translatedReview screen comes in a later roundQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous versionCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": []
+}
