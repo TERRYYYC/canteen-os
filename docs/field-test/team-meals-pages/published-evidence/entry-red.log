@@ -1,0 +1,133 @@
+✖ menu public entry reads approved team output and exposes original recipe via existing route (7.997375ms)
+✖ menu distinguishes empty manifest, empty plan, missing file and invalid target (0.362583ms)
+✖ menu late A read cannot overwrite B in reused outlet (21.8595ms)
+✔ menu legacy remains an explicit branch (0.439709ms)
+✖ prep public entry reads approved team output and exposes original recipe via existing route (0.25325ms)
+✖ prep distinguishes empty manifest, empty plan, missing file and invalid target (0.180166ms)
+✖ prep late A read cannot overwrite B in reused outlet (22.005166ms)
+✔ prep legacy remains an explicit branch (0.31125ms)
+✖ prep published ingredient and technique images use original bytes; external and missing assets remain distinct (22.479334ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 2
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1816.717667
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-published.test.mjs:41:2
+✖ menu public entry reads approved team output and exposes original recipe via existing route (7.997375ms)
+  AssertionError [ERR_ASSERTION]: actual public entry must render raw published source
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:41:376)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:42:2
+✖ menu distinguishes empty manifest, empty plan, missing file and invalid target (0.362583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'no-plans'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:42:503)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'no-plans',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:43:2
+✖ menu late A read cannot overwrite B in reused outlet (21.8595ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Empty/. Input:
+  
+  'data.notReadydata.notReady'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:43:482)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data.notReadydata.notReady',
+    expected: /Empty/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:41:2
+✖ prep public entry reads approved team output and exposes original recipe via existing route (0.25325ms)
+  AssertionError [ERR_ASSERTION]: actual public entry must render raw published source
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:41:376)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:42:2
+✖ prep distinguishes empty manifest, empty plan, missing file and invalid target (0.180166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'no-plans'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:42:503)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'no-plans',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:43:2
+✖ prep late A read cannot overwrite B in reused outlet (22.005166ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Empty/. Input:
+  
+  'data.notReadydata.notReady'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:43:482)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data.notReadydata.notReady',
+    expected: /Empty/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:46:1
+✖ prep published ingredient and technique images use original bytes; external and missing assets remain distinct (22.479334ms)
+  AssertionError [ERR_ASSERTION]: ingredient and technique original images
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:46:402)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
