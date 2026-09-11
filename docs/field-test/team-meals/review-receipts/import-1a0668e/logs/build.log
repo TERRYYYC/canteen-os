@@ -1,0 +1,13 @@
+
+> @canteenos/worker@0.0.3 build
+> npm --prefix ../core run build && npm run gen:validators && tsc -p tsconfig.build.json
+
+
+> @canteenos/core@0.0.3 build
+> tsc -p tsconfig.build.json
+
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+generated 7 validators → packages/worker/generated/validators.js (242481 bytes, schema-digest 61cbb92f8d23)

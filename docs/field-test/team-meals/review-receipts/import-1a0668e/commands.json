@@ -1,0 +1,45 @@
+{
+  "cwd": "/private/tmp/rcq-review-import-1a0668e-wybc_s5s",
+  "node": "v20.20.2",
+  "capture": "All four Node/npm command logs were redirected from actual execution into files before this receipt was assembled. No browser was launched.",
+  "commands": [
+    {
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH npm --prefix packages/worker run build > /private/tmp/rcq-import-1a0668e-build.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/build.log",
+      "toolChunk": "491e5b"
+    },
+    {
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node --test packages/web/test/e2e/team-meals/import-native-evidence.test.mjs > /private/tmp/rcq-import-1a0668e-targeted.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/targeted.log",
+      "toolChunks": [
+        "54c276",
+        "66dd96"
+      ],
+      "sessionId": 10131
+    },
+    {
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node packages/web/test/e2e/team-meals/import-draft-capture.repro.mjs docs/field-test/team-meals/page-repair-6bb > /private/tmp/rcq-import-1a0668e-original-capture.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/original-capture.log",
+      "toolChunk": "be3212"
+    },
+    {
+      "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node /private/tmp/rcq-import-1a0668e-replay.mjs > /private/tmp/rcq-import-1a0668e-replay.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/replay.log",
+      "toolChunk": "381666"
+    }
+  ],
+  "integrityToolEvidence": [
+    {
+      "toolChunk": "9e80e9",
+      "verified": "44 new entries,150 old,33 copy,16+13 prior review manifest entries; unchanged production/input paths and complete prior receipt directories"
+    },
+    {
+      "toolChunk": "6158dc",
+      "verified": "214 accepted D artifacts against Git,size,SHA and original paths; precise c7..9084 unchanged paths,4 changed D pages and Q-only package delta"
+    }
+  ]
+}

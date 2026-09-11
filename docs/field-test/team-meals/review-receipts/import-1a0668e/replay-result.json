@@ -1,0 +1,292 @@
+{
+  "reviewedHeadSha": "1a0668ef4eb985d908f3fc44348bd9a2d9008595",
+  "layer": "independent real Worker replay plus saved-DOM/raw-row checks; no browser rerun",
+  "nativeFetch": "disabled",
+  "requests": [
+    {
+      "id": 1,
+      "method": "GET",
+      "path": "/source/plan/team-week",
+      "status": 200,
+      "responseSha256": "ba194b82227463118ccd3a526ef85adec152378e943fd0544008a0e440038865",
+      "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 2,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "368518a831c2e89eeaddf9f7d5c97f17ece3a95a2949725b3cc2795a6cc76ffa",
+      "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 3,
+      "method": "POST",
+      "path": "/plan/team-week",
+      "status": 200,
+      "responseSha256": "8f72778440fa472f2223a714973d5efc44f322e2f4692cdcc1f3a117ebd232bf",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 4,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "ee278d4992497c8325c8a877efb9f0c5c6fc658442ca55a26ca6565f4eb55e42",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 5,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "ee278d4992497c8325c8a877efb9f0c5c6fc658442ca55a26ca6565f4eb55e42",
+      "head": "9203f8c29ad0a532699907e92da931f6a20b5a61",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 6,
+      "method": "POST",
+      "path": "/plan/team-week",
+      "status": 200,
+      "responseSha256": "b26ca822c188e6cb4589bc5494c9cbd9aa47823fb062928dd97b862ba25e5ecc",
+      "head": "ce8ca4c876767ec6cece32d5d49e570a01bdb60e",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 7,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "e4c4327262a09655a36e621bbd1e2c7f68876785d9fd738571606420887c9b70",
+      "head": "ce8ca4c876767ec6cece32d5d49e570a01bdb60e",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 8,
+      "method": "POST",
+      "path": "/plan/team-week",
+      "status": 200,
+      "responseSha256": "4463ca42e4bd2a6a26df8066ebc7356f4ee263b2a40f418d255dd3ff635ad981",
+      "head": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 9,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "bfae6cc676878282e97aeaa5ce046608696d45e6728833e3a6338f6e031ad94a",
+      "head": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 10,
+      "method": "GET",
+      "path": "/source/plan/team-week",
+      "status": 200,
+      "responseSha256": "70fd66e8d2aaeb5d6c9302efc27c67b8dfde690fdf8726e080dd0ff4e2b41e9d",
+      "head": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    },
+    {
+      "id": 11,
+      "method": "GET",
+      "path": "/catalog",
+      "status": 200,
+      "responseSha256": "bfae6cc676878282e97aeaa5ce046608696d45e6728833e3a6338f6e031ad94a",
+      "head": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+      "verified": "status, headers, full response bytes and resulting head exact"
+    }
+  ],
+  "captures": {
+    "T01-import-unrelated-edit-before": [
+      "11",
+      ""
+    ],
+    "T01-import-unrelated-edit-lost": [
+      "11",
+      ""
+    ],
+    "T01-import-unrelated-all-dates": [
+      "11",
+      "",
+      "",
+      "2",
+      ""
+    ],
+    "T01-invalid-after-sort": [
+      "",
+      "13.7",
+      "",
+      "",
+      "2",
+      ""
+    ],
+    "T01-matched-omitted-keeps-invalid": [
+      "",
+      "13.7",
+      "",
+      "",
+      "2",
+      ""
+    ],
+    "T01-explicit-seven-keeps-other-edits": [
+      "",
+      "7",
+      "",
+      "2",
+      "",
+      ""
+    ],
+    "T01-explicit-blank-immediate": [
+      "",
+      "7",
+      "",
+      "2",
+      "",
+      ""
+    ],
+    "T01-explicit-blank-keyboard": [
+      "",
+      "7",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "T01-explicit-clear-applied": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "T01-final-source-reloaded": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "raw-en": "13.7 retained once",
+    "raw-uk": "13.7 retained once",
+    "lateAck": "seventh later meal visible during saving and remains dirty after original six-row ACK"
+  },
+  "conditionChain": [
+    {
+      "requestId": 3,
+      "ifMatch": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96",
+      "priorAcknowledgedBlob": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96"
+    },
+    {
+      "requestId": 6,
+      "ifMatch": "64851f851dd8b49677a18d1e016f68c3a25b2847",
+      "priorAcknowledgedBlob": "64851f851dd8b49677a18d1e016f68c3a25b2847"
+    },
+    {
+      "requestId": 8,
+      "ifMatch": "2f6fe1f9181abeacc559759202dc2cce8f99da20",
+      "priorAcknowledgedBlob": "2f6fe1f9181abeacc559759202dc2cce8f99da20"
+    }
+  ],
+  "finalRows": [
+    {
+      "date": "2026-09-13",
+      "mealType": "dinner",
+      "dishRef": "first-dish"
+    },
+    {
+      "date": "2026-09-14",
+      "mealType": "lunch",
+      "dishRef": "first-dish"
+    },
+    {
+      "date": "2026-09-15",
+      "mealType": "breakfast",
+      "dishRef": "first-dish"
+    },
+    {
+      "date": "2026-09-15",
+      "mealType": "lunch",
+      "dishRef": "first-dish"
+    },
+    {
+      "date": "2026-09-15",
+      "mealType": "dinner",
+      "dishRef": "name-only"
+    },
+    {
+      "date": "2026-09-16",
+      "mealType": "breakfast",
+      "dishRef": "first-dish"
+    },
+    {
+      "date": "2026-09-17",
+      "mealType": "lunch",
+      "dishRef": "first-dish"
+    }
+  ],
+  "finalFiles": {
+    "data/dishes/first-dish.json": "2cdc2a4559f2276b17c5f3f5c3c504f2f7060c2a5b43d7dc03f3100e5ee91251",
+    "data/dishes/name-only.json": "9cdaadb43b9d7af6d59dd78b207934a75dbdd7613bf0331ba795df023a76e2bd",
+    "data/dishes/second-dish.json": "472830beddbbdf2dd1599589734da0ee12421a4de5eab911ddeeb9bc8d20344d",
+    "data/ingredients/cooking-oil.json": "1bc0e4a30601f07cf8fc393eabc3e1dc21a4ff03adae622754c9cdbfa246f8b4",
+    "data/ingredients/pattern.png": "b1ff9c8ea3a780bad09b346c423d2d0e46815926879b18e841d928376a946640",
+    "data/ingredients/salt.json": "811411f5c4b86151b2df18759bf598f0bca097256255aa541df182db7a6e1c9a",
+    "data/ingredients/tomato-other.json": "3440300a0a980c3c52dedaf20c16ffa25eeb9b8679964658492c7f9ba77930ef",
+    "data/ingredients/tomato.json": "075caacd6c89766550eeaec1525bd64026dc2cbff08e11d4a5b2820294c63723",
+    "data/menu-plans/team-week.json": "fd4e601301ab051212b65ec328e378489097bafa0a9119bd2a72d6bc874fb759",
+    "data/purchase-orders/week-41-hongda.json": "a3e9cf2dfe300452be4e6414f9b0a250fb71fd064b6bc90acc4d16e96a941b36",
+    "data/techniques.json": "bbe322f7e66a3c1d6a250a1d948ffbbf36da95a1f6725019326d4c84054eec8e"
+  },
+  "changedFiles": [
+    "data/menu-plans/team-week.json"
+  ],
+  "finalVisibleRows": [
+    {
+      "dish": "first-dish",
+      "index": "0",
+      "value": ""
+    },
+    {
+      "dish": "first-dish",
+      "index": "1",
+      "value": ""
+    },
+    {
+      "dish": "first-dish",
+      "index": "2",
+      "value": ""
+    },
+    {
+      "dish": "name-only",
+      "index": "4",
+      "value": ""
+    },
+    {
+      "dish": "first-dish",
+      "index": "3",
+      "value": ""
+    },
+    {
+      "dish": "first-dish",
+      "index": "5",
+      "value": ""
+    },
+    {
+      "dish": "first-dish",
+      "index": "6",
+      "value": ""
+    }
+  ],
+  "finalHead": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+  "transportScope": "Hold/release flags and before/after states verified from captures; this replay validates handler outputs, not wall-clock/browser timing."
+}

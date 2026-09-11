@@ -1,0 +1,29 @@
+{
+  "provenance": "Post-operation record of the actual tool calls and returned results; not a contemporaneous redirected log and not a new execution.",
+  "boundary": "Loopback-only transport timing control. No business result or real Worker response bytes replaced.",
+  "commands": [
+    {
+      "toolChunk": "7a0158",
+      "command": "curl -sS -X POST -H 'Content-Type: application/json' --data '{\"action\":\"hold-next\",\"path\":\"/plan/team-week\"}' http://127.0.0.1:4273/__control",
+      "execution": "default sandbox",
+      "exitCode": 7,
+      "outcome": "Could not connect; no control applied"
+    },
+    {
+      "toolChunk": "7dbe34",
+      "command": "curl -sS -X POST -H 'Content-Type: application/json' --data '{\"action\":\"hold-next\",\"path\":\"/plan/team-week\"}' http://127.0.0.1:4273/__control",
+      "execution": "authorized loopback escalation",
+      "exitCode": 0,
+      "response": {"ok": true, "head": "9203f8c29ad0a532699907e92da931f6a20b5a61"}
+    },
+    {
+      "initialToolChunk": "51a174",
+      "completionToolChunk": "d6c0f3",
+      "sessionId": 10941,
+      "execution": "authorized loopback escalation; process yielded after 1000 ms so real UI actions ran during the delay",
+      "python": "import time,urllib.request\ntime.sleep(20)\nr=urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:4273/__control',data=b'{\"action\":\"release\"}',headers={'Content-Type':'application/json'},method='POST'))\nprint(r.read().decode())\n",
+      "exitCode": 0,
+      "response": {"ok": true, "head": "ce8ca4c876767ec6cece32d5d49e570a01bdb60e"}
+    }
+  ]
+}
