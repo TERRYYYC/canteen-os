@@ -7,6 +7,8 @@ created: 2026-09-11
 
 This records bounded independent review receipts, not whole-feature acceptance. Root read each complete report listed as approved. Original D0 requirements remain authoritative.
 
+Exact byte copies of the original D slice reports are retained in `review-receipts/`, with source locations and SHA256 in its manifest. Temporary paths below identify the original reviewer artifacts; the archived receipts preserve their full scope and execution provenance.
+
 | Page slice | Fixed commit | Independent verdict | Report |
 | --- | --- | --- | --- |
 | Plan auxiliary inputs/reads | 34ae813b7bf4e473fa6b5665ecd5a7220da1cbb2 | APPROVE | /private/tmp/canteen-pages-aux-review-3812d70/plan-review/REVIEW.md |
