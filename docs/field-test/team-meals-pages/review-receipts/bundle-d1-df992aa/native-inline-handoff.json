@@ -1,0 +1,420 @@
+{
+  "head": "df992aad3807638c2ef1a092cdb38d01b9d60f6d",
+  "boot": 1,
+  "summary": "9/9",
+  "checks": [
+    {
+      "name": "initial Dish Source/catalog/form ready without legacy client execution",
+      "pass": true
+    },
+    {
+      "name": "inline intent and real loading operation exist synchronously after click",
+      "pass": true
+    },
+    {
+      "name": "held optional code disables Dish save without any external write",
+      "pass": true
+    },
+    {
+      "name": "language retains exact loading raw",
+      "pass": true
+    },
+    {
+      "name": "inline module operation remains protected offscreen",
+      "pass": true
+    },
+    {
+      "name": "return restores inline raw and original operation",
+      "pass": true
+    },
+    {
+      "name": "loading handoff starts one automatic translation",
+      "pass": true
+    },
+    {
+      "name": "form installed for retained current-language buffer",
+      "pass": true
+    },
+    {
+      "name": "automatic translation retained its original seed and result",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/dish/soup",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 21,
+        "dirty": true,
+        "phase": "idle",
+        "operation": 12
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "d1-away",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 6,
+        "operation": 0
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "d1-away",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[29,1,[[\"page:admin/dish/soup\",\"tracked\"],[\"page:admin/plan/d1-away\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":21,\"dirty\":true,\"phase\":\"idle\",\"operation\":12},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"d1-away\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":6,\"operation\":0},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"d1-away\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/d1-away",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    }
+  ],
+  "viewText": "Кабінет шефаМоваUA中ENЗбережено для роботи без мережі←Змінити стравуНемає мережі: кабінет можна лише переглядати, зберегти не вийдеСервіс збереження налаштованоЄ незбережені зміниaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaВвести вручнуЗ відеоЧернетка1 інгр.Чого не вистачаєЩе немає кроківНе вказано, на скільки порцій(інгредієнт ще не вибрано): не вказано кількість(інгредієнт ще не вибрано) немає в базі інгредієнтівНазва стравиОбов'язково. Англійську та українську можна перекласти автоматичноАнглійська · українськаМашинний переклад, можна змінитиПерекластиАнглійськоюУкраїнськоюКоротка англійська назва (ім'я файлу)Після збереження ім'я файлу змінити не можнаКороткий опис стравиАнглійська · українськаМашинний переклад, можна змінитиПерекластиОпис англійськоюОпис українськоюНа скільки порцій написано рецептНеобов’язково. Залиште порожнім, якщо невідомоФото готової страви+Зробити фото…Вибрати файлІнгредієнти 1 інгр.1蘑菇▾↑↓Новий інгредієнтНазва китайськоюОбов'язково. Англійську та українську можна перекласти автоматичноАнглійська · українськаМашинний переклад, можна змінитиПерекластиНазва англійськоюНазва українськоюКоротка англійська назва (ім'я файлу)Лише малі латинські літери, цифри та дефісФото+Зробити фото…Вибрати файлWЗ Wikidata▶З відео (2-й етап)ID у WikidataНапр. Q23501; необов'язковоОдиниця облікуза вагою (г)за об'ємом (мл)поштучноГрамів на штукугТак підготовка й закупівля переводять штуки в грамиСкільки залишається зі 100 г%Що лишається після чищення; не впевнені — залиште порожнім (рахується як 100%)Приправа · «за смаком»У рецепті можна писати «за смаком»; лист підготовки не вимагатиме нарізкиЯк купуватиДані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель.ПостачальникВиберіть наявного або введіть новогоРозмір упаковкиОдиницягкгмллштуп.Мінімум упаковок−+Остання ціна за упаковкуВалютаCNYUSDUAHEURДовго зберігається · облік залишківУвімкнути для олії, солі, рису; вимкнути для свіжих продуктів — їх купують під менюЗараз у наявностіВ одиниці з «Одиниця обліку»СкасуватиЗберегти інгредієнтЗа смакомПозначайте лише коли в рецепті написано «за смаком». Невідому кількість залиште порожньоюКількістьОдиницягкгмллштуп.ст. л.ч. л.дрібкаЯк нарізати— не потрібно —Якого розміруНапр. 3 мм або 2 смКоли готувати— вранці (за замовчуванням) —НапередодніВранці того ж дняПеред подачеюПриміткаАнглійська · українськаМашинний переклад, можна змінитиПерекластиПримітка англійськоюПримітка українськоюВидалитиДодати інгредієнтКроки Додати крокЗбереження та додавання в базу не публікують зміни. Перевірте всі записані інгредієнтиЗберегти чернеткуДодати в базуЗ'явиться на 2-му етапі; поки що Terry імпортує відео з командного рядкаІнструкція для командного рядкаCanteenOSКухня · 1 закладППідготовкадля помічника кухаря · 帮厨采Закупівля · 采购单для закупівельника · 采购员МХарчуванняДля команди计Планування менюдля шефа · 师傅ТемаЯк у системіСвітлаТемнаДані оновлено 11 вер. 2026 р., 03:00Онлайн",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/index-Bc-O-R8w.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55091/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/admin-BavRcNuW.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/dish-new-Ca4F7OSi.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-draft-DfkuZ2qw.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/dish-new-DK3WVt9P.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/kit-RXdzz6Yk.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/edit-session-9rkTAC9v.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/store-Dcmu5kJ2.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-form-1JCVb91m.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/plan-BXxiUM0o.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/purchase-list-DCYUac1p.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/purchase-list-CRLPFa5o.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/team-ui-Bnwr_EJG.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/parse-plan-text-DBZQVSv5.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/servings-input-DNG9trXJ.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/client-C6VYsiFN.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/data/build.json?__publication=1789117497902-1-1",
+      "initiatorType": "fetch"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "adm-dish-name-zh",
+      "value": "原汤"
+    },
+    {
+      "id": "adm-dish-name-en",
+      "value": "Soup"
+    },
+    {
+      "id": "adm-dish-name-uk",
+      "value": "Суп"
+    },
+    {
+      "id": "adm-dish-id",
+      "value": "soup"
+    },
+    {
+      "id": "adm-dish-description-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-uk",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-baseServings",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-name-zh",
+      "value": "蘑菇"
+    },
+    {
+      "id": "adm-dish-c1-ing-name-en",
+      "value": "Translated salt"
+    },
+    {
+      "id": "adm-dish-c1-ing-name-uk",
+      "value": "Переклад"
+    },
+    {
+      "id": "adm-dish-c1-ing-id",
+      "value": "translated-salt"
+    },
+    {
+      "id": "adm-dish-c1-ing-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-externalId",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-baseUnit",
+      "value": "g"
+    },
+    {
+      "id": "",
+      "value": "ml"
+    },
+    {
+      "id": "",
+      "value": "pcs"
+    },
+    {
+      "id": "adm-dish-c1-ing-pcsToGram",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-yield",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-role",
+      "value": "on"
+    },
+    {
+      "id": "adm-dish-c1-ing-supplier",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-packSize",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-minPacks",
+      "value": "1"
+    },
+    {
+      "id": "adm-dish-c1-ing-lastPrice",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-ing-trackStock",
+      "value": "on"
+    },
+    {
+      "id": "adm-dish-c1-ing-onHand",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-toTaste",
+      "value": "on"
+    },
+    {
+      "id": "adm-dish-c1-qty",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-size",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-uk",
+      "value": ""
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}

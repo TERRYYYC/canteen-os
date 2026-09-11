@@ -1,0 +1,234 @@
+{
+  "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+  "boot": 1,
+  "summary": "2/2",
+  "checks": [
+    {
+      "name": "legacy loading owns read protection before any Ingredient write",
+      "pass": true
+    },
+    {
+      "name": "different editor is current while old module read remains protected",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/plan/reviewer-away",
+  "safety": {
+    "reason": "saving",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 9,
+        "dirty": true,
+        "phase": "busy",
+        "operation": 5
+      },
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "plan",
+        "id": "reviewer-away",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 2,
+        "operation": 0
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "reviewer-away",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[25,1,[[\"page:admin/dish/soup\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"],[\"page:admin/plan/reviewer-away\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-2\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":9,\"dirty\":true,\"phase\":\"busy\",\"operation\":5},{\"ownerId\":\"auxiliary-3\",\"kind\":\"plan\",\"id\":\"reviewer-away\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"reviewer-away\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": false,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/reviewer-away",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/index-vTzPNk6Y.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55867/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/admin-Bd2EkJ4A.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/dish-new-ByQnx3wD.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/ingredient-draft-Deh7p9eG.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/dish-new-DK3WVt9P.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/edit-session--Qq806Of.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/kit-YysL-Uc4.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/store-uAQ_EDlp.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/ingredient-new-Ckten1aL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/team-ui-B5smK-r8.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/ingredient-form-B9LgQhIA.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/purchase-list-CRLPFa5o.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/plan-DuQwqdRQ.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/purchase-list-hKKffoPl.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/parse-plan-text-DBZQVSv5.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55867/canteen/assets/servings-input-DNG9trXJ.js",
+      "initiatorType": "script"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "13"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}

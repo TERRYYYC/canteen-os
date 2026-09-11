@@ -1,0 +1,332 @@
+[
+  {
+    "file": "assets/index-Bc-O-R8w.js",
+    "imports": [],
+    "dynamicImports": [
+      "assets/prep-BwPDzLYG.js",
+      "assets/purchase-C-oacbnd.js",
+      "assets/menu-BZho3I_7.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/qr-CW_3t1lL.js"
+    ],
+    "modules": [
+      "\u0000vite/modulepreload-polyfill.js",
+      "/private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/dom.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/router.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/admin/token.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/view-models/reload-safety.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/i18n.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/test/application-d1.ts",
+      "\u0000vite/preload-helper.js",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/tokens.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/styles.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/view-models/published.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/data.ts",
+      "/@vite-plugin-pwa/virtual:pwa-register",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pwa.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/theme.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/shell.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/main.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/index.html"
+    ]
+  },
+  {
+    "file": "assets/purchase-C-oacbnd.js",
+    "imports": [
+      "assets/purchase-list-DCYUac1p.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/team-ui-Bnwr_EJG.js",
+      "assets/edit-session-9rkTAC9v.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/purchase.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/purchase-form.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/purchase.ts"
+    ]
+  },
+  {
+    "file": "assets/menu-BZho3I_7.js",
+    "imports": [
+      "assets/prep-BwPDzLYG.js",
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/menu.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/menu.ts"
+    ]
+  },
+  {
+    "file": "assets/prep-BwPDzLYG.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/prep.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/published-meals.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/prep.ts"
+    ]
+  },
+  {
+    "file": "assets/admin-BavRcNuW.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [
+      "assets/home-B-IoVyDz.js",
+      "assets/plan-BXxiUM0o.js",
+      "assets/import-CC2FkUqM.js",
+      "assets/ingredient-new-BJhNmZlu.js",
+      "assets/dish-new-Ca4F7OSi.js",
+      "assets/publish-Bb-tVF5r.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin.ts"
+    ]
+  },
+  {
+    "file": "assets/qr-CW_3t1lL.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/qr.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/qr.ts"
+    ]
+  },
+  {
+    "file": "assets/home-B-IoVyDz.js",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/client-C6VYsiFN.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/team-ui-Bnwr_EJG.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/home.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/home.ts"
+    ]
+  },
+  {
+    "file": "assets/plan-BXxiUM0o.js",
+    "imports": [
+      "assets/purchase-list-DCYUac1p.js",
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/store-Dcmu5kJ2.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/team-ui-Bnwr_EJG.js",
+      "assets/edit-session-9rkTAC9v.js",
+      "assets/servings-input-DNG9trXJ.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/packages/core/src/formats.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/plan-form.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/plan.ts"
+    ]
+  },
+  {
+    "file": "assets/purchase-list-DCYUac1p.js",
+    "imports": [
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/team-ui-Bnwr_EJG.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/plan.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/packages/core/src/procurement/engine.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/packages/core/src/team-meals.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/view-models/team-meals.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/team-details.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/purchase-list.ts"
+    ]
+  },
+  {
+    "file": "assets/import-CC2FkUqM.js",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/store-Dcmu5kJ2.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/servings-input-DNG9trXJ.js",
+      "assets/team-ui-Bnwr_EJG.js",
+      "assets/admin-BavRcNuW.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/import.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/import.ts"
+    ]
+  },
+  {
+    "file": "assets/servings-input-DNG9trXJ.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/servings-input.ts"
+    ]
+  },
+  {
+    "file": "assets/parse-plan-text-DBZQVSv5.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/packages/core/src/import/parse-plan-text.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-new-BJhNmZlu.js",
+    "imports": [
+      "assets/ingredient-draft-DfkuZ2qw.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/team-ui-Bnwr_EJG.js",
+      "assets/store-Dcmu5kJ2.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/ingredient-form-1JCVb91m.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/ingredient-new.ts"
+    ]
+  },
+  {
+    "file": "assets/dish-new-Ca4F7OSi.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js",
+      "assets/ingredient-draft-DfkuZ2qw.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/edit-session-9rkTAC9v.js",
+      "assets/store-Dcmu5kJ2.js",
+      "assets/admin-BavRcNuW.js"
+    ],
+    "dynamicImports": [
+      "assets/ingredient-form-1JCVb91m.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/dish-new.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/dish-new.ts"
+    ]
+  },
+  {
+    "file": "assets/edit-session-9rkTAC9v.js",
+    "imports": [
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/view-models/edit-session.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-draft-DfkuZ2qw.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [
+      "assets/client-C6VYsiFN.js",
+      "assets/editor-image-B408a5BL.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/editor-actions.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/ingredient-draft.ts"
+    ]
+  },
+  {
+    "file": "assets/store-Dcmu5kJ2.js",
+    "imports": [
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/admin/store.ts"
+    ]
+  },
+  {
+    "file": "assets/publish-Bb-tVF5r.js",
+    "imports": [
+      "assets/kit-RXdzz6Yk.js",
+      "assets/client-C6VYsiFN.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/admin-BavRcNuW.js",
+      "assets/team-ui-Bnwr_EJG.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/publish.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/publish.ts"
+    ]
+  },
+  {
+    "file": "assets/team-ui-Bnwr_EJG.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/team-ui.ts"
+    ]
+  },
+  {
+    "file": "assets/kit-RXdzz6Yk.js",
+    "imports": [
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/api/types.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/api/transport.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/api/team-meals.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/admin.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/admin/kit.ts"
+    ]
+  },
+  {
+    "file": "assets/client-C6VYsiFN.js",
+    "imports": [
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/api/mock.ts",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/api/client.ts"
+    ]
+  },
+  {
+    "file": "assets/editor-image-B408a5BL.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/editor-image.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-form-1JCVb91m.js",
+    "imports": [
+      "assets/ingredient-draft-DfkuZ2qw.js",
+      "assets/kit-RXdzz6Yk.js",
+      "assets/index-Bc-O-R8w.js",
+      "assets/admin-BavRcNuW.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/ingredient-new.css",
+      "/private/tmp/canteen-bundle-d1-review-df992aa/browser-web/src/pages/admin/ingredient-form.ts"
+    ]
+  }
+]

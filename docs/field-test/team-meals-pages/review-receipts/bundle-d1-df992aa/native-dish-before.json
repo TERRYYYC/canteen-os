@@ -1,0 +1,212 @@
+{
+  "head": "df992aad3807638c2ef1a092cdb38d01b9d60f6d",
+  "boot": 1,
+  "summary": "1/1",
+  "checks": [
+    {
+      "name": "legacy loading owns read protection before any Dish upload",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/dish/soup",
+  "safety": {
+    "reason": "saving",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 14,
+        "dirty": true,
+        "phase": "busy",
+        "operation": 7
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 2,
+        "operation": 0
+      }
+    ],
+    "stamp": "[12,1,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":14,\"dirty\":true,\"phase\":\"busy\",\"operation\":7},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+  },
+  "controller": false,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中EN←Edit this dishNo network: the back office is read-only until you're back onlineSave service configuredSaving · later edits are retainedaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaEnter by handFrom videoDraft1 itemsWhat's missingNo steps yetServings not setSalt: quantity not setDish nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateIn EnglishIn UkrainianShort English name (used as the file name)The file name can't change once savedShort dish descriptionEnglish · UkrainianMachine-translated, editableTranslateDescription in EnglishDescription in UkrainianHow many servings this recipe is written forOptional. Leave blank if unknown; keep known recipe servingsPhoto of the finished dishCompressed to 0 KB · 2×2; uploads when you saveRemove photoLicenseYour own photo: own; from the web: the license short name, e.g. CC BY-SA 4.0Author (optional)Source URL (optional)Ingredients 1 items1Salt▸↑↓IngredientsSaltsaltChangeTo tasteSelect only if the recipe says to taste. Leave unknown amounts blank; ingredients remain on the listQuantityUnitgkgmllpcspacktbsptsppinchHow to cut— not needed —How bige.g. 3 mm or 2 cmWhen to prep— that morning (default) —The day beforeThat morningRight before serviceNoteEnglish · UkrainianMachine-translated, editableTranslateNote in EnglishNote in UkrainianRemoveAdd an ingredientSteps Add a stepSaving or adding to the library does not publish. Check whether all recipe ingredients are recordedSave draftAdd to libraryComing in round 2; for now Terry imports videos from the command lineSee the command-line guideCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/index-Bc-O-R8w.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/admin-BavRcNuW.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/dish-new-Ca4F7OSi.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/ingredient-draft-DfkuZ2qw.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/kit-RXdzz6Yk.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/edit-session-9rkTAC9v.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/dish-new-DK3WVt9P.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/store-Dcmu5kJ2.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/data/assets/ff2ef845c678661e624d8fc5a5234d791118d991/data/images/A%20%252F%3F%23%20%E9%9B%AA.png",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55085/canteen/assets/editor-image-B408a5BL.js",
+      "initiatorType": "script"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "adm-dish-name-zh",
+      "value": "A photo save"
+    },
+    {
+      "id": "adm-dish-name-en",
+      "value": "Soup"
+    },
+    {
+      "id": "adm-dish-name-uk",
+      "value": "Суп"
+    },
+    {
+      "id": "adm-dish-id",
+      "value": "soup"
+    },
+    {
+      "id": "adm-dish-description-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-uk",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-baseServings",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-image-license",
+      "value": "own"
+    },
+    {
+      "id": "adm-dish-image-author",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-image-sourceUrl",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-toTaste",
+      "value": "on"
+    },
+    {
+      "id": "adm-dish-c1-qty",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-size",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-uk",
+      "value": ""
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}
