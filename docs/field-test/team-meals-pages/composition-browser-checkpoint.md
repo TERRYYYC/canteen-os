@@ -38,4 +38,10 @@ Initial full-page screenshot attempts had stitched repetitions that were absent 
 | pages/team-details.ts | 7e11c51482927ac11b2e75d8604e01a3de8d6fadd9b0e2db4d4fc8ccf43c2aab |
 | view-models/reload-safety.ts | 50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03 |
 
-Open: complete and independently review formal Menu/Prep entry wiring, then consume the separate actual-main/D-page/native-SW report. Original individual page review receipts retain their own scope. Real Worker roundtrips, genuine deployment, publication and isolated L2 remain untested here.
+At this Plan/Purchase checkpoint, formal Menu/Prep entry wiring and actual-main/native-SW integration were still open. The later public-entry result is recorded below. Original individual page review receipts retain their own scope. Real Worker roundtrips, genuine deployment, publication and isolated L2 remain untested here.
+
+## Later public-entry checkpoint
+
+At fixed `d31661123b23bc2a80a9c8c613b1f9947d7c5665`, root separately ran the committed public-entry browser fixture at port 4220. All 27 actual-page assertions passed; `composition-public-iab.json` preserves the complete original output and three production fingerprints. This is author execution evidence, distinct from the subsequent [independent public review](review-receipts/public-d316611/REVIEW.md), which reran the original 27, added 17 browser and 9 Node checks, and independently inspected all 12 final layouts. Its complete exact evidence was archived at `5acd82c`.
+
+Approved C navigation history `f6ac5761a31c1a2caa2d163d646dabc8b602321a` was subsequently merged intact at `c6c8e984126a646279a67379a2814b5aac63993e`. D repair candidate `34dd3364ad9397cac3ded4b8ee5460dac09fc879` contains four page-local unload listener removals, two explicit string ACK checks and the packaging hint correction. Root checked the complete author handoff, all 24 original evidence hashes, and the unchanged C shared implementation against f6. The original application reviewer is checking this fixed composition; neither the earlier failed native reload nor the new author's successful reload evidence is treated as independent closure before that receipt.
