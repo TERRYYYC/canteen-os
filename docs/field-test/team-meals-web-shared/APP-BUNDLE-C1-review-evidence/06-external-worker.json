@@ -1,0 +1,80 @@
+{
+  "kind": "external-worker",
+  "route": "#/menu",
+  "controller": true,
+  "page": "2026 Week 41 MenuPublished original recipes5fdc7caf5fdc7caff707c01a49979d8a90ceadd274493a78September 11, 2026 00:00:00 GMT2026-10-052026-10-072026-10-09Lunch · 12:00-14:00Meal planSource version: 5fdc7caf5fdc7caff707c01a49979d8a90ceadd274493a78Tomato and egg stir-fryСмажені яйця з томатами番茄炒蛋2026-10-05 · Lunch · 12:00-14:00Planned servings: 200All recorded ingredients and seasonings: Tomato · Chicken egg · Salt · Scallion · Cooking oilRead the full original recipeOnly recorded information is shown; recipe completeness still needs human review.",
+  "resources": [
+    "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+    "http://127.0.0.1:63832/canteen/assets/index-_eYw8u9e.css",
+    "http://127.0.0.1:63832/canteen/assets/index-CqcMpFug.js",
+    "http://127.0.0.1:63832/canteen/data/build.json",
+    "http://127.0.0.1:63832/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "http://127.0.0.1:63832/canteen/assets/menu-DsXJe1ME.js",
+    "http://127.0.0.1:63832/canteen/assets/prep-BlcfSxaz.js",
+    "http://127.0.0.1:63832/canteen/assets/prep-CZU-3gXe.css",
+    "http://127.0.0.1:63832/canteen/assets/menu-AiJcRmZo.css",
+    "http://127.0.0.1:63832/canteen/data/team-meals/week-41.json"
+  ],
+  "entries": [
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:63832/canteen/",
+      "url": "http://127.0.0.1:63832/canteen/data/build.json?__WB_REVISION__=3629a96808dcb61636c68738ad32b5f7",
+      "commit": "5fdc7caff707c01a49979d8a90ceadd274493a78"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:63832/canteen/",
+      "url": "http://127.0.0.1:63832/canteen/data/team-meals/week-41.json?__WB_REVISION__=6eaedd51a5b53d791d6d1656c23f3cb3",
+      "commit": "5fdc7caff707c01a49979d8a90ceadd274493a78"
+    }
+  ],
+  "implementation": "e79fe3b49b2a5d3c06c5d7298d9207adc5cc3c71",
+  "serverVersion": "b",
+  "available": false,
+  "serverRequests": [
+    {
+      "url": "/canteen/sw.js",
+      "version": "a",
+      "available": true
+    },
+    {
+      "url": "/canteen/workbox-4e9e9954.js",
+      "version": "a",
+      "available": true
+    },
+    {
+      "url": "/canteen/sw.js",
+      "version": "b",
+      "available": true
+    },
+    {
+      "url": "/canteen/workbox-4e9e9954.js",
+      "version": "b",
+      "available": true
+    },
+    {
+      "url": "/canteen/data/build.json",
+      "version": "b",
+      "available": true
+    },
+    {
+      "url": "/canteen/data/team-meals/week-41.json",
+      "version": "b",
+      "available": true
+    },
+    {
+      "url": "/canteen/data/build.json?__publication=1789102525388-1-1",
+      "version": "b",
+      "available": true
+    },
+    {
+      "url": "/canteen/data/team-meals/week-41.json?__publication=1789102525388-1-1",
+      "version": "b",
+      "available": false
+    },
+    {
+      "url": "/canteen/sw.js",
+      "version": "b",
+      "available": false
+    }
+  ]
+}

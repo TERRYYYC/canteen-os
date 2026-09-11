@@ -1,0 +1,15 @@
+{
+  "archive": {
+    "checked": 52,
+    "mismatches": []
+  },
+  "nativeA": {
+    "checked": 52,
+    "mismatches": []
+  },
+  "nativeB": {
+    "checked": 52,
+    "mismatches": []
+  },
+  "head": "e79fe3b49b2a5d3c06c5d7298d9207adc5cc3c71"
+}

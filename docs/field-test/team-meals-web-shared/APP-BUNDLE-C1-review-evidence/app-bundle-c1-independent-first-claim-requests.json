@@ -1,0 +1,198 @@
+[
+  {
+    "url": "/canteen/",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/index-CqcMpFug.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/admin-ClR1t7JZ.js",
+    "available": true
+  },
+  {
+    "url": "/favicon.ico",
+    "available": true
+  },
+  {
+    "url": "/canteen/sw.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/index.html",
+    "available": true
+  },
+  {
+    "url": "/canteen/icons/icon.svg",
+    "available": true
+  },
+  {
+    "url": "/canteen/icons/icon-maskable.svg",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/team-ui-hHF0cNTc.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/team-ui-9JWp_aO-.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/store-BWF_Zuub.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/servings-input-DNG9trXJ.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/qr-CAGZr4uS.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/qr-95YfxYR1.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/purchase-list-CRLPFa5o.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/purchase-list-BEAOmA_E.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/purchase-StWw7liZ.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/purchase-Ne4Pn5eA.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/publish-DvJfnWK2.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/publish-C7fiLDgq.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/prep-CZU-3gXe.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/prep-BlcfSxaz.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/plan-DhH3arQr.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/parse-plan-text-DBZQVSv5.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/menu-DsXJe1ME.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/menu-AiJcRmZo.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/ingredient-new-RQkCJG8U.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/ingredient-new-CT2dSWut.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/index-CqcMpFug.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/import-DavkaiKj.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/import-D2XYJ1wM.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/home-UDpVHyZQ.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/home-Bw8HMtwR.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/edit-session-CbDKY5c-.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/dish-new-XgdSPY-V.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/dish-new-DK3WVt9P.css",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/client-DBf-T-ku.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/assets/admin-ClR1t7JZ.js",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json",
+    "available": true
+  },
+  {
+    "url": "/canteen/manifest.webmanifest",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/build.json?__publication=1789102208211-1-1",
+    "available": true
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json?__publication=1789102208211-1-1",
+    "available": false
+  }
+]
