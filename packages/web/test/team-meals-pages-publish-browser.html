@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D Publish owner · explicit local fixture</title>
+<style>body>aside{padding:16px;background:#fff6de;color:#262114;display:flex;flex-wrap:wrap;gap:8px}aside p{flex-basis:100%;margin:0}aside button,aside select{min-height:40px;padding:6px;color:#262114;background:#fff}main{max-width:1120px;margin:auto;padding:16px}pre,output{white-space:pre-wrap;overflow-wrap:anywhere}#result{display:block;padding:16px}#ledger{margin:16px}</style>
+<aside><strong>D Publish owner · Explicit local fixture</strong><label>Language <select id="lang"><option value="zh">中文</option><option value="en" selected>English</option><option value="uk">Українська</option></select></label><label>Connection <select id="mode"><option value="fixture">Local mocked transport</option><option value="unconfigured">Unconfigured</option></select></label><label>Next response <select id="scenario"><option>hold</option><option>lost</option><option>no-id</option><option>timeout</option><option>failure</option><option>success</option><option>forbidden</option></select></label><button id="reset">Reset fixture</button><button id="release">Release held response</button><button id="leave">Leave page</button><button id="return">Return to publish</button><button id="auth">Replace auth session</button><button id="run">Run owner checks</button><p>Actual Publish renderer, C1 session and legacy AdminApi with intercepted local fetch. No real publication, rollback or historical version is performed or proved.</p></aside>
+<output id="result">Not run</output><main id="app"></main><details><summary>Credential-free request and assertion ledger</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';import '../src/pages/admin/admin.css';import '../src/pages/admin/publish.css';
+import {render,readPublishAuxiliary,createTeamMealsApi,HttpAdminApi,changeAuth,setLang,publishSourceHash} from './team-meals-pages-publish-browser.generated.mjs';
+const $=s=>document.querySelector(s),A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40),calls=[],checks=[];let team,legacy,held=[],identity=1,currentProgress='success';
+const report=()=>$('#ledger').textContent=JSON.stringify({sourceHash:publishSourceHash,fixture:'Synthetic local data; no historical or deployed outcome claim',auxiliary:readPublishAuxiliary(),checks,calls},null,2);
+const progress=(status='success')=>({runId:11,status,htmlUrl:'https://example.org/actions/11',steps:[],failedStep:null,failureReason:null,unmappedSteps:[]});
+const changes=()=>({onlineCommit:A,lastPublishedAt:'2026-09-10T00:00:00Z',unpublished:[{sha:B,at:'2026-09-11T00:00:00Z',role:'chef',endpoint:'POST /plan/week-38',subject:'Explicit fixture meal edit',files:['data/menu-plans/week-38.json']}],publishes:[{sha:A,at:'2026-09-10T00:00:00Z',runId:10,isOnline:true}]});
+function connect(){changeAuth();team?.dispose();legacy?.dispose();identity++;const opts={token:()=>'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{
+ const u=new URL(url);if(u.origin!=='https://publish-fixture.invalid')throw new Error('Forbidden fixture origin');const path=u.pathname;calls.push({method:init.method,path,scenario:$('#scenario').value});report();
+ if(path==='/changes')return Response.json({ok:true,...changes()});
+ if(path==='/publish/11')return Response.json({ok:true,...progress(currentProgress)});
+ if(path==='/publish/latest')throw new Error('Latest cannot identify this operation');
+ if(init.method==='POST'&&(path==='/publish'||path===`/rollback/${A}`)){
+  const scenario=$('#scenario').value;currentProgress=scenario==='timeout'||scenario==='failure'?scenario:'success';
+  if(scenario==='lost')throw new Error('Explicit fixture lost acknowledgement');
+  if(scenario==='forbidden')return Response.json({ok:false,errors:[{code:'forbidden',message:'Fixture permission rejection',path:''}]},{status:403});
+  const response=()=>Response.json({ok:true,...(path==='/publish'?{runId:scenario==='no-id'?null:11,mode:'dispatch'}:{commit:C,restoredFrom:A,changedFiles:2})});
+  if(scenario==='hold')return new Promise(resolve=>held.push(()=>resolve(response())));
+  return response();
+ }
+ throw new Error('Unexpected fixture endpoint '+path);
+ }};team=createTeamMealsApi($('#mode').value==='unconfigured'?'':'https://publish-fixture.invalid',opts);legacy=new HttpAdminApi('https://publish-fixture.invalid',opts);window.__publishBrowser={team,legacy};}
+function paint(){setLang($('#lang').value);document.documentElement.lang=$('#lang').value;location.hash='#/admin/publish';const el=document.createElement('section');$('#app').replaceChildren(el);render(el,{lang:$('#lang').value,rest:'publish',route:'admin',planId:'week-38',data:{},t:k=>k},'');report();}
+function leave(){location.hash='#/admin';$('#app').textContent='Fixture route left. Pending operation stays owned by the page session.';report();}
+function release(){currentProgress='success';held.splice(0).forEach(fn=>fn());report();}
+function reset(){connect();paint();}
+$('#lang').onchange=paint;$('#mode').onchange=reset;$('#reset').onclick=reset;$('#release').onclick=release;$('#leave').onclick=leave;$('#return').onclick=paint;$('#auth').onclick=()=>{identity++;changeAuth();report();};
+const pause=()=>new Promise(r=>setTimeout(r,25));async function until(fn,message){for(let i=0;i<100;i++){if(fn())return;await pause();}throw new Error(message);}
+const assert=(value,message)=>{checks.push({message,pass:!!value});report();if(!value)throw new Error(message);};
+const posts=path=>calls.filter(c=>c.method==='POST'&&c.path===path).length;
+async function fresh(scenario){$('#mode').value='fixture';$('#lang').value='en';$('#scenario').value=scenario;reset();await until(()=>$('.adm-pub-rollback'),'history load');}
+$('#run').onclick=async()=>{checks.length=0;calls.length=0;$('#run').disabled=true;try{
+ await fresh('hold');$('.adm-pub-rollback').click();$('.adm-pub-rollback-go').click();await until(()=>readPublishAuxiliary().phase==='busy','rollback starts');let before=posts(`/rollback/${A}`);leave();$('#lang').value='uk';paint();await until(()=>$('.adm-pub-rollback'),'return history');assert($('.adm-pub-publish').disabled&&$('.adm-pub-rollback').disabled,'rollback pending blocks both actions across language/route');assert(posts(`/rollback/${A}`)===before,'rollback is not repeated');release();await until(()=>readPublishAuxiliary().phase==='idle','rollback acknowledgement');assert($('#app').textContent.includes('Повернуто до'),'acknowledgement paints current language');
+ await fresh('lost');$('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase==='unknown','publish unknown');before=posts('/publish');leave();paint();await pause();$('.adm-pub-publish').click();assert($('.adm-pub-publish').disabled&&posts('/publish')===before,'lost acknowledgement remains blocked after return');assert(calls.every(c=>c.path!=='/publish/latest'),'no latest build is claimed');
+ await fresh('no-id');$('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase==='unknown','no ID unknown');assert($('.adm-pub-publish').disabled&&$('#app').textContent.includes('no known ID'),'accepted dispatch without ID remains unknown');
+ await fresh('timeout');$('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase==='unknown','timeout protected');assert($('.adm-pub-rollback').disabled,'timeout does not unlock another write');before=posts('/publish');currentProgress='success';[...$('#app').querySelectorAll('button')].find(x=>x.textContent==="Check this build's outcome").click();await until(()=>readPublishAuxiliary().phase==='idle','same run success');assert(posts('/publish')===before&&$('#app').textContent.includes('Live · everyone'),'same run read resolves without another POST');
+ await fresh('hold');$('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase==='busy','pending publish');identity++;changeAuth();assert(!$('#app').textContent.includes('Explicit fixture meal edit'),'auth change removes private content immediately');paint();release();await pause();await pause();assert(!$('#app').textContent.includes('Live · everyone'),'late prior-session acknowledgement cannot claim new session success');
+ $('#mode').value='unconfigured';reset();const count=calls.length;for(const lang of ['zh','en','uk']){$('#lang').value=lang;paint();await pause();assert(!$('.adm-pub-publish')&&calls.length===count,`unconfigured ${lang} has no legacy read/write entry`);}
+ $('#result').textContent=`PASS ${checks.length}/${checks.length} · Actual renderer + C1/legacy transport; only explicit local fixture actions.`;
+ }catch(e){$('#result').textContent='FAIL · '+e.message;}finally{$('#run').disabled=false;report();}};
+reset();
+</script></html>

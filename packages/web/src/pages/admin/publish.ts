@@ -9,14 +9,13 @@
  *   4. 打印贴墙 → #/qr（既有路由，不改）。
  *
  * 轮询（worker 契约 §4.6 / §4.4，D-16 / D-14）：
- *   - 前 30 秒每 2 秒一次，之后每 5 秒；status ∈ {success, failure, timeout, unmapped} 即停；
+ *   - 前 30 秒每 2 秒一次，之后每 5 秒；success 证明完成；failure / timeout / unmapped 停止自动轮询，保留未知保护并可只读核实；
  *   - 429 → 退避 15 秒，最多 3 次，仍 429 → 停 + 「查太频繁了，去 Actions 页面看」；
- *   - runId 为 null（D-17：dispatch 返回 204，run 可能还没出现）→ 改轮 api.getPublishLatest()，拿到**新的** runId 再切回 getPublish；
- *     3 分钟仍找不到 → 停 + 提示去 Actions；
+ *   - runId 为 null 或确认丢失 → 结果未知；legacy API 无关联凭据，禁止用 latest 认领本次；
  *   - 页面隐藏（visibilitychange）暂停，回前台立即补一次；hashchange 离开本屏立即停；
  *   - 每次真正发请求前都看 el.isConnected：旧 el 被壳层摘掉（切屏 / 切语言）就不再动它。
  *
- * 推论 A：正在进行的 run、进度、已读到的 changes 全部放模块级变量（poll / changes / rollbackDone …），
+ * 推论 A：正在进行的发布/回退、进度、已读到的 changes 由页内会话 owner 持有，
  * 切语言 = 壳层换新 el 重新 render —— 这里只是把同一份状态用新语言再画一遍，轮询不中断、不重复起第二条
  * （render 只在 poll 处于 paused 时才补一次 tick）。
  *
@@ -25,20 +24,28 @@
  */
 import "./publish.css";
 
-import { adm, apiMessage, busy, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
-import { getApi } from "../../api/client";
+import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
+import { getApi, type AdminApi } from "../../api/client";
+import { getTeamMealsApi, type TeamMealsApi } from "../../api/team-meals";
+import { onAuthSessionChange } from "../../admin/token";
 import type { ChangeItem, Changes, PublishProgress, PublishRecord, PublishResult, PublishStep, PublishStepKey } from "../../api/types";
-import { isApiError } from "../../api/types";
+import { ApiError, isApiError } from "../../api/types";
 import { h, replace } from "../../dom";
 import type { Lang, TParams } from "../../i18n";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
+import { text as teamText } from "../team-ui";
 
 // ---------------------------------------------------------------------------
 // 文案（§5.4 `pub.*` 最小集 + 本屏自用；zh 是权威语言，uk 初稿待帮厨校对）
 // ---------------------------------------------------------------------------
 
 const T = {
+  "pub.unknown": { zh: "操作结果未知；请先核实，当前不能再次发布或回退", en: "Operation outcome unknown; verify before publishing or rolling back again", uk: "Результат операції невідомий; перевірте перед повторною публікацією чи поверненням" },
+  "pub.noIdentity": { zh: "没有这次构建的编号，无法用最近一次构建证明结果。请联系管理员核实。", en: "This build has no known ID. The latest build cannot prove its outcome. Ask the administrator to verify.", uk: "Номер цієї збірки невідомий. Остання збірка не підтверджує її результат. Попросіть адміністратора перевірити." },
+  "pub.rollback.unknown": { zh: "回退确认未收到；刷新改动列表不能证明这次回退结果。请联系管理员核实。", en: "Rollback acknowledgement was not received. Refreshing changes cannot prove this rollback's outcome. Ask the administrator to verify.", uk: "Підтвердження повернення не отримано. Оновлення списку змін не доводить його результат. Попросіть адміністратора перевірити." },
+  "pub.verify": { zh: "只读取这次构建的结果", en: "Check this build's outcome", uk: "Перевірити результат цієї збірки" },
+  "pub.session.changed": { zh: "登录会话已变化，请重新打开发布页", en: "Session changed. Open the publish page again", uk: "Сеанс змінився. Відкрийте сторінку публікації знову" },
   "pub.title": { uk: "Публікація", zh: "发布", en: "Publish" },
   "pub.changes": { uk: "Неопубліковані зміни", zh: "还没发布的改动", en: "Unpublished changes" },
   "pub.changes.count": { uk: "Неопубліковані зміни · {n}", zh: "还没发布的改动 · {n}", en: "Unpublished changes · {n}" },
@@ -252,9 +259,8 @@ const SLOW_MS = 5000;
 const FAST_WINDOW_MS = 30_000;
 const BACKOFF_MS = 15_000;
 const MAX_BACKOFF = 3;
-const NO_RUN_MS = 3 * 60_000;
 
-type StopReason = "terminal" | "rate-limited" | "no-run" | "expired";
+type StopReason = "terminal" | "rate-limited" | "no-run" | "expired" | "unknown";
 
 interface Poll {
   seq: number;
@@ -270,8 +276,6 @@ interface Poll {
   stop: StopReason | null;
   /** 读进度时的临时错误（非 429 / 401）：显示一行，继续轮 */
   transientError: string | null;
-  /** 发布前发布记录里已有的 runId：getPublishLatest 返回其中之一 = 旧 run，还没认领到这次的 */
-  knownRunIds: ReadonlySet<number>;
 }
 
 let poll: Poll | null = null;
@@ -286,6 +290,13 @@ let publishError: string | null = null;
 let rollbackDone: { sha: string; n: number } | null = null;
 let ticker: number | null = null;
 let listenersBound = false;
+interface PublishOwner { readonly identity: number; readonly team: TeamMealsApi; readonly session: number; readonly api: AdminApi }
+interface Operation { readonly kind: "publish" | "rollback"; phase: "busy" | "unknown"; readonly target?: string }
+let owner: PublishOwner | null = null;
+let ownerSequence = 0;
+let operation: Operation | null = null;
+let operationGeneration = 0;
+let closeDialog: (() => void) | null = null;
 
 interface View {
   el: HTMLElement;
@@ -303,6 +314,31 @@ interface View {
 }
 
 let view: View | null = null;
+
+/** Real page-owned lifetime state; shared reload registration is a separate integration. */
+export function readPublishAuxiliary(): { identity: number | null; generation: number; dirty: boolean; phase: "idle" | "busy" | "unknown" } {
+  return { identity: owner?.identity ?? null, generation: operationGeneration, dirty: operation !== null, phase: operation?.phase ?? "idle" };
+}
+function changeOperation(next: Operation | null): void { operation = next; operationGeneration++; }
+function invalidateOwner(): void {
+  closeDialog?.(); clearTimer(); stopTicker(); owner = null; poll = null; pollSeq++;
+  changes = null; changesError = null; changesLoading = false; publishing = false;
+  publishOff = false; publishError = null; rollbackDone = null; changeOperation(null);
+  const old = live(); view = null;
+  if (old) replace(old.el, h("p", { role: "status" }, tt(old.lang, "pub.session.changed")));
+}
+onAuthSessionChange(invalidateOwner);
+function current(candidate: PublishOwner | null): candidate is PublishOwner {
+  return candidate !== null && owner === candidate && candidate.team.mode === "real" && candidate.team.sessionKey() === candidate.session && owner === candidate;
+}
+function writeBlocked(): boolean { return operation !== null || publishing || pollActive(); }
+function repaint(): void {
+  const v = live(); if (!v) return;
+  paintNotices(v); paintProgress(v); paintLogIfWaitingChanged(v); syncButton(v);
+}
+function markUnknown(): void {
+  if (operation) changeOperation({ ...operation, phase: "unknown" });
+}
 
 /** 当前还挂在 DOM 上的视图；旧 el 被壳层摘掉后为 null */
 function live(): View | null {
@@ -352,67 +388,43 @@ function isOnThisScreen(): boolean {
 }
 
 async function tick(): Promise<void> {
-  const p = poll;
-  if (!p || p.state === "done" || p.inflight) return;
-  const v = live();
-  if (!v || document.hidden) {
-    pausePolling();
-    return;
-  }
+  const p = poll, context = owner;
+  if (!p || p.state === "done" || p.inflight || !current(context)) return;
+  if (!live() || document.hidden) { pausePolling(); return; }
+  // No request ID survives the legacy facade. A latest run is not this operation's identity.
+  if (p.runId === null) { markUnknown(); finish("unknown"); repaint(); return; }
   p.inflight = true;
-  const seq = p.seq;
-  const api = getApi();
   try {
-    const progress = p.runId !== null ? await api.getPublish(p.runId) : await api.getPublishLatest();
-    if (poll !== p || p.seq !== seq) return; // 期间点了新一次发布：这条作废
-    p.rateLimited = 0;
-    p.transientError = null;
-    if (p.runId === null && progress.runId !== null && !p.knownRunIds.has(progress.runId)) {
-      p.runId = progress.runId; // 认领到了，之后走 getPublish(runId)
-    }
-    if (p.runId === null) {
-      // 最近一次 run 还是旧的（或 runId 仍是 null）：这次的还没出现，当 queued 继续等（D-17）
-      if (Date.now() - p.startedAt > NO_RUN_MS) finish("no-run");
-      else schedule(nextDelay());
-    } else {
-      p.progress = progress;
-      if (TERMINAL.has(progress.status)) {
-        finish("terminal");
-        if (progress.status === "success") void loadChanges(true); // 未发布计数刷成 0，发布记录顶部多一条
-      } else {
-        schedule(nextDelay());
-      }
-    }
+    const progress = await context.api.getPublish(p.runId);
+    if (!current(context) || poll !== p) return;
+    if (progress.runId !== p.runId || !["queued", "in_progress", "success", "failure", "timeout", "unmapped"].includes(progress.status) || !Array.isArray(progress.steps)) throw new ApiError(502, "bad_response", "");
+    p.rateLimited = 0; p.transientError = null; p.progress = progress;
+    if (progress.status === "success") {
+      finish("terminal"); changeOperation(null); void loadChanges(true);
+    } else if (TERMINAL.has(progress.status)) {
+      // Worker can report failedStep/unmapped before run completion, and timeout while running.
+      markUnknown(); finish("unknown");
+    } else schedule(nextDelay());
   } catch (err) {
-    if (poll !== p || p.seq !== seq) return;
+    if (!current(context) || poll !== p) return;
     if (isApiError(err) && err.status === 401) {
-      finish("expired");
-      const lv = live();
-      if (lv) sessionExpired(lv.el, lv.lang);
-      return;
+      finish("expired"); const v = live(); if (v) sessionExpired(v.el, v.lang); return;
     }
     if (isApiError(err) && err.status === 429) {
-      p.rateLimited += 1;
-      if (p.rateLimited > MAX_BACKOFF) finish("rate-limited");
+      p.rateLimited++;
+      if (p.rateLimited > MAX_BACKOFF) { markUnknown(); finish("rate-limited"); }
       else schedule(Math.max(BACKOFF_MS, (err.retryAfter ?? 0) * 1000));
-    } else if (isApiError(err) && err.status === 404 && p.runId === null) {
-      // 还没有任何 run（真实 worker 的 GET /publish/latest 会 404）：继续找，3 分钟为限
-      if (Date.now() - p.startedAt > NO_RUN_MS) finish("no-run");
-      else schedule(nextDelay());
-    } else {
-      p.transientError = apiMessage(err);
-      schedule(nextDelay());
-    }
-  } finally {
-    p.inflight = false;
-  }
-  const lv = live();
-  if (lv) {
-    paintProgress(lv);
-    paintNotices(lv);
-    paintLogIfWaitingChanged(lv);
-    syncButton(lv);
-  }
+    } else if (isApiError(err) && (err.status === 404 || err.code === "bad_response")) {
+      p.transientError = apiMessage(err); markUnknown(); finish("unknown");
+    } else { p.transientError = apiMessage(err); schedule(nextDelay()); }
+  } finally { p.inflight = false; }
+  if (current(context)) repaint();
+}
+
+function verifyPublish(): void {
+  if (!current(owner) || operation?.kind !== "publish" || operation.phase !== "unknown" || !poll || poll.runId === null || poll.inflight) return;
+  changeOperation({ ...operation, phase: "busy" }); poll.stop = null; poll.state = "paused";
+  repaint(); ensurePolling();
 }
 
 /** render 时：轮询被暂停过（切屏又回来 / 切语言时定时器恰好打空）就补一次；正在等定时器的不动（不起第二条） */
@@ -446,6 +458,10 @@ function bindListeners(): void {
   window.addEventListener("hashchange", () => {
     if (!isOnThisScreen()) pausePolling(); // 离开本屏立即停（worker 契约 §4.6 终止条件）
   });
+  window.addEventListener("beforeunload", (event: BeforeUnloadEvent) => {
+    if (!operation) return;
+    event.preventDefault(); event.returnValue = "";
+  });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) pausePolling();
     else if (live()) ensurePolling(); // 回前台立即补一次
@@ -457,90 +473,77 @@ function bindListeners(): void {
 // ---------------------------------------------------------------------------
 
 async function loadChanges(force: boolean): Promise<void> {
-  if (changesLoading) return;
+  const context = owner;
+  if (changesLoading || !current(context)) return;
   changesLoading = true;
-  const v0 = live();
-  if (v0) {
-    paintChanges(v0);
-    syncButton(v0);
-  }
+  const v0 = live(); if (v0) { paintChanges(v0); syncButton(v0); }
   try {
-    changes = await getApi().getChanges(force ? { force: true } : undefined);
-    changesError = null;
+    const result = await context.api.getChanges(force ? { force: true } : undefined);
+    if (!current(context)) return;
+    changes = result; changesError = null;
   } catch (err) {
+    if (!current(context)) return;
     if (isApiError(err) && err.status === 401) {
-      changesLoading = false;
-      const lv = live();
-      if (lv) sessionExpired(lv.el, lv.lang);
-      return;
+      const v = live(); if (v) sessionExpired(v.el, v.lang); return;
     }
     changesError = apiMessage(err);
-  } finally {
-    changesLoading = false;
-  }
-  const v = live();
-  if (v) {
-    paintChanges(v);
-    paintLog(v);
-    paintNotices(v);
-    syncButton(v);
-  }
+  } finally { if (current(context)) changesLoading = false; }
+  if (!current(context)) return;
+  const v = live(); if (v) { paintChanges(v); paintLog(v); paintNotices(v); syncButton(v); }
+}
+
+/** These Worker errors prove rejection before a ref update/dispatch. Generic 5xx/transport errors do not. */
+function definitelyRejected(err: unknown): boolean {
+  if (!isApiError(err)) return false;
+  const status: Record<string, number> = { bad_id: 400, bad_path: 400, bad_json: 400, unauthorized: 401, forbidden: 403, not_found: 404, conflict: 409, too_large: 413, rate_limited: 429, dispatch_unavailable: 503, not_configured: 503 };
+  return Object.hasOwn(status, err.code) && status[err.code] === err.status;
 }
 
 async function onPublish(): Promise<void> {
-  const v = live();
-  if (!v || publishing || pollActive() || publishOff || !changes || changes.unpublished.length === 0) return;
-  publishing = true;
-  publishError = null;
-  // 上一次的结果卡 / 绿条先撤掉：这次 publish() 若抛 503，屏上绝不能还留着「上线了」（worker 契约 §5.2）
-  if (poll) finish("terminal");
-  stopTicker();
-  poll = null;
-  rollbackDone = null;
-  paintProgress(v);
-  paintNotices(v);
-  const done = busy(v.btn, tt(v.lang, "pub.publishing"));
-  const known = new Set<number>();
-  for (const rec of changes.publishes) if (rec.runId !== null) known.add(rec.runId);
+  const context = owner;
+  if (!live() || !current(context) || writeBlocked() || publishOff || changesLoading || !changes?.unpublished.length) return;
+  changeOperation({ kind: "publish", phase: "busy" }); publishing = true;
+  publishError = null; clearTimer(); stopTicker(); poll = null; rollbackDone = null; repaint();
   try {
-    const res = await getApi().publish();
-    poll = {
-      seq: ++pollSeq,
-      runId: res.runId,
-      mode: res.mode,
-      startedAt: Date.now(),
-      progress: null,
-      state: "polling",
-      timer: null,
-      inflight: false,
-      rateLimited: 0,
-      stop: null,
-      transientError: null,
-      knownRunIds: known,
-    };
-    ensureTicker();
-    void tick(); // 立即读一次；之后按间隔
+    const result = await context.api.publish();
+    if (!current(context)) return;
+    if (!["dispatch", "push-trigger"].includes(result.mode) || (result.runId !== null && (!Number.isSafeInteger(result.runId) || result.runId <= 0))) throw new ApiError(502, "bad_response", "");
+    poll = { seq: ++pollSeq, runId: result.runId, mode: result.mode, startedAt: Date.now(), progress: null,
+      state: result.runId === null ? "done" : "polling", timer: null, inflight: false, rateLimited: 0,
+      stop: result.runId === null ? "unknown" : null, transientError: null };
+    if (result.runId === null) markUnknown();
+    else { ensureTicker(); void tick(); }
   } catch (err) {
-    if (isApiError(err) && err.status === 401) {
-      publishing = false;
-      done();
-      const lv = live();
-      if (lv) sessionExpired(lv.el, lv.lang);
-      return;
-    }
-    if (isApiError(err) && err.status === 503) publishOff = true; // 绝不能显示成「发布成功」
-    else publishError = apiMessage(err);
-  } finally {
-    publishing = false;
-    done();
-  }
-  const lv = live();
-  if (lv) {
-    paintNotices(lv);
-    paintProgress(lv);
-    paintLogIfWaitingChanged(lv);
-    syncButton(lv);
-  }
+    if (!current(context)) return;
+    if (definitelyRejected(err)) {
+      changeOperation(null);
+      if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
+      if (isApiError(err) && err.code === "dispatch_unavailable") publishOff = true;
+      else publishError = apiMessage(err);
+    } else { markUnknown(); publishError = apiMessage(err); }
+  } finally { if (current(context)) { publishing = false; repaint(); } }
+}
+
+async function onRollback(sha: string): Promise<void> {
+  const context = owner;
+  if (!live() || !current(context) || writeBlocked()) return;
+  changeOperation({ kind: "rollback", phase: "busy", target: sha });
+  rollbackDone = null; publishError = null; repaint();
+  try {
+    const result = await context.api.rollback(sha);
+    if (!current(context)) return;
+    if (!/^[0-9a-f]{40}$/.test(result.commit) || result.restoredFrom !== sha || !Number.isSafeInteger(result.changedFiles) || result.changedFiles < 0) throw new ApiError(502, "bad_response", "");
+    changeOperation(null); rollbackDone = { sha: result.restoredFrom.slice(0, 7), n: result.changedFiles };
+    if (poll?.state === "done") poll = null;
+    await loadChanges(true);
+  } catch (err) {
+    if (!current(context)) return;
+    if (definitelyRejected(err)) {
+      changeOperation(null);
+      if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
+    } else markUnknown();
+    publishError = apiMessage(err);
+  } finally { if (current(context)) repaint(); }
 }
 
 // ---------------------------------------------------------------------------
@@ -599,9 +602,9 @@ function sectionLabel(text: string): HTMLElement {
 
 function syncButton(v: View): void {
   const n = changes?.unpublished.length ?? 0;
-  const disabled = publishing || pollActive() || publishOff || changesLoading || n === 0;
+  const disabled = !current(owner) || writeBlocked() || publishOff || changesLoading || n === 0;
   v.btn.disabled = disabled;
-  if (!publishing) v.btn.textContent = pollActive() ? tt(v.lang, "pub.publishing") : tt(v.lang, "pub.publish");
+  v.btn.textContent = operation?.kind === "publish" && operation.phase === "busy" ? tt(v.lang, "pub.publishing") : tt(v.lang, "pub.publish");
 }
 
 function paintChanges(v: View): void {
@@ -640,6 +643,16 @@ function paintNotices(v: View): void {
   const n = changes?.unpublished.length ?? 0;
   const actions = (href: string | undefined): { label: string; href: string } | undefined => (href ? { label: tt(lang, "pub.openActions"), href } : undefined);
 
+  if (operation?.phase === "unknown") {
+    sig.push(`unknown:${operation.kind}:${poll?.runId ?? ""}`);
+    items.push(notice({ kind: "warn", role: "status", text: tt(lang, "pub.unknown"),
+      ...(operation.kind === "publish" && poll?.runId != null ? { action: { label: tt(lang, "pub.verify"), onClick: verifyPublish } } : {}) }));
+    if (operation.kind === "rollback" || poll?.runId == null) items.push(h("p", { class: "muted" }, tt(lang, operation.kind === "rollback" ? "pub.rollback.unknown" : "pub.noIdentity")));
+  } else if (operation?.kind === "rollback") {
+    sig.push("rollback-busy");
+    items.push(notice({ kind: "info", role: "status", text: tt(lang, "pub.rollback.busy") }));
+  }
+
   if (publishOff) {
     sig.push(`off:${n}`);
     // 「重试」只是解开置灰再让师傅点一次发布；权限没开的话 worker 还会 503，回到这条
@@ -665,7 +678,7 @@ function paintNotices(v: View): void {
   }
   if (publishError) {
     sig.push(`perr:${publishError}`);
-    items.push(errorCard(publishError, () => void onPublish()));
+    items.push(errorCard(publishError));
   }
   if (poll) {
     const p = poll.progress;
@@ -820,13 +833,13 @@ function paintTimes(v: View): void {
 }
 
 function paintLogIfWaitingChanged(v: View): void {
-  if (v.logWaiting !== pollActive()) paintLog(v);
+  if (v.logWaiting !== writeBlocked()) paintLog(v);
 }
 
 function paintLog(v: View): void {
   const lang = v.lang;
   const box = v.log;
-  v.logWaiting = pollActive();
+  v.logWaiting = writeBlocked();
   replace(box, sectionLabel(tt(lang, "pub.log")));
   if (!changes) return;
   const list = changes.publishes.slice(0, 10);
@@ -844,7 +857,7 @@ function paintLog(v: View): void {
     if (rec.isOnline) right.append(h("span", { class: "chip ok adm-pub-online" }, tt(lang, "pub.log.online")));
     // 线上那版只有在还有未发布改动时才值得回退（否则 changedFiles 必为 0）
     if (!rec.isOnline || unpublished > 0) {
-      const waiting = pollActive();
+      const waiting = writeBlocked();
       const rb = button({
         label: tt(lang, "pub.rollback"),
         kind: "ghost",
@@ -889,7 +902,9 @@ const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1
 
 function openRollbackDialog(rec: PublishRecord): void {
   const v = live();
-  if (!v || pollActive()) return;
+  if (!v || !current(owner) || writeBlocked()) return;
+  closeDialog?.();
+  const context = owner;
   const lang = v.lang;
   const short = rec.sha.slice(0, 7);
   const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -918,6 +933,7 @@ function openRollbackDialog(rec: PublishRecord): void {
   const close = (): void => {
     if (disposed) return;
     disposed = true;
+    if (closeDialog === close) closeDialog = null;
     window.removeEventListener("hashchange", close);
     v.root.removeAttribute("inert");
     document.body.style.overflow = prevOverflow;
@@ -925,6 +941,7 @@ function openRollbackDialog(rec: PublishRecord): void {
     dlg.remove();
     if (opener && opener.isConnected) opener.focus();
   };
+  closeDialog = close;
   window.addEventListener("hashchange", close);
   scrim.addEventListener("click", close);
   dlg.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -949,38 +966,8 @@ function openRollbackDialog(rec: PublishRecord): void {
   });
 
   confirm.addEventListener("click", () => {
-    void (async () => {
-      replace(errSlot);
-      const done = busy(confirm, tt(lang, "pub.rollback.busy"));
-      cancel.disabled = true;
-      try {
-        const res = await getApi().rollback(rec.sha);
-        done();
-        close();
-        rollbackDone = { sha: res.restoredFrom.slice(0, 7), n: res.changedFiles };
-        if (poll && poll.state === "done") poll = null; // 上一次的发布结果卡不再有意义
-        publishError = null;
-        const lv = live();
-        if (lv) {
-          paintProgress(lv);
-          paintNotices(lv);
-          lv.notices.querySelector<HTMLElement>(".adm-notice")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
-        await loadChanges(true); // 未发布计数会变成非零
-      } catch (err) {
-        done();
-        cancel.disabled = false;
-        if (isApiError(err) && err.status === 401) {
-          close();
-          const lv = live();
-          if (lv) sessionExpired(lv.el, lv.lang);
-          return;
-        }
-        // 403「你这条链接不能做这件事」等：worker 的 message 原样（§4.0）
-        replace(errSlot, errorCard(apiMessage(err)));
-        confirm.focus();
-      }
-    })();
+    if (disposed || !current(context) || writeBlocked()) return;
+    close(); void onRollback(rec.sha);
   });
 
   confirm.focus();
@@ -993,6 +980,17 @@ function openRollbackDialog(rec: PublishRecord): void {
 export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   void rest; // 本屏没有子状态
   const lang = ctx.lang;
+  closeDialog?.();
+  const team = getTeamMealsApi(), session = team.sessionKey();
+  if (team.mode !== "real") {
+    invalidateOwner();
+    replace(el, h("div", { class: "adm adm-pub", "data-mode": team.mode }, topBar({ back: adminHref(), title: tt(lang, "pub.title") }), h("p", { role: "status" }, teamText(lang, team.mode === "mock" ? "mock" : "unconfigured"))));
+    return;
+  }
+  if (!owner || owner.team !== team || owner.session !== session) {
+    invalidateOwner();
+    owner = { identity: ++ownerSequence, team, session, api: getApi() };
+  }
   bindListeners();
 
   const btn = button({ label: tt(lang, "pub.publish"), kind: "primary", class: "adm-pub-publish", onClick: () => void onPublish() });
@@ -1001,7 +999,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const progressBox = h("div", { class: "adm-pub-section adm-pub-progress-box" });
   const logBox = h("div", { class: "adm-pub-section adm-pub-log" });
   const root = h("div", { class: "adm adm-pub" }, topBar({ back: adminHref(), title: tt(lang, "pub.title"), actions: [btn] }), notices, changesBox, progressBox, logBox);
-  el.append(root);
+  replace(el, root);
 
   const v: View = { el, root, lang, btn, notices, changes: changesBox, progress: progressBox, log: logBox, noticeSig: "", statusLine: null, logWaiting: null };
   view = v;
