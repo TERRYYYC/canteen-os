@@ -1,0 +1,203 @@
+{
+  "sourceCommit": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "entries": [
+    {
+      "path": "README.md",
+      "original": "/private/tmp/canteen-q-t08-browser-author/README.md",
+      "bytes": 5461,
+      "sha256": "53bac28ef58345b4875ce15274bdd73be1b1e3b3c64f87a7cbde37874317f974"
+    },
+    {
+      "path": "SETUP.md",
+      "original": "/private/tmp/canteen-q-t08-browser-author/SETUP.md",
+      "bytes": 2676,
+      "sha256": "8e1ba64ca7f44efee9dec95bfc64226464bd6aa3734443e79f84dd44da86d9f0"
+    },
+    {
+      "path": "bound-a-latest-b-native-uk.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/bound-a-latest-b-native-uk.txt",
+      "bytes": 9171,
+      "sha256": "ff7fc9fdab1de6e6af86d97c35a712e91f62d08b4914d7d7d2bbc83c2619557d"
+    },
+    {
+      "path": "bound-a-latest-b-visible-uk.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/bound-a-latest-b-visible-uk.txt",
+      "bytes": 3199,
+      "sha256": "c0e37f809044b88165a42dafb24f5a36882c923482683ff6164ebb0b19c78475"
+    },
+    {
+      "path": "browser-results.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/browser-results.json",
+      "bytes": 3660,
+      "sha256": "1850b2a8e07d8b17d94c9c86d08538bc3ef6510ebcc36eb4e5fe89c06a1a75aa"
+    },
+    {
+      "path": "capture-check-01.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/capture-check-01.log",
+      "bytes": 3660,
+      "sha256": "1850b2a8e07d8b17d94c9c86d08538bc3ef6510ebcc36eb4e5fe89c06a1a75aa"
+    },
+    {
+      "path": "copy-controls.js",
+      "original": "/private/tmp/canteen-q-t08-browser-author/copy-controls.js",
+      "bytes": 2320,
+      "sha256": "8ed49a89d355bb0bbfc3323fdc9ff4ec88e6fa2f9ead4ab7d1d849685b3ab6cb"
+    },
+    {
+      "path": "fallback-en.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fallback-en.txt",
+      "bytes": 5465,
+      "sha256": "612970ed45561f3d815b241620fa1773367b0231e4560862ecc2a050b437499a"
+    },
+    {
+      "path": "fallback-uk.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fallback-uk.txt",
+      "bytes": 9171,
+      "sha256": "ff7fc9fdab1de6e6af86d97c35a712e91f62d08b4914d7d7d2bbc83c2619557d"
+    },
+    {
+      "path": "fallback-zh.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fallback-zh.txt",
+      "bytes": 5011,
+      "sha256": "bccb1e13d0283477a88b768662765c78d51b359b91dfa13d9e3ea337b6b49043"
+    },
+    {
+      "path": "fixed-5049-prepare.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-5049-prepare.log",
+      "bytes": 652,
+      "sha256": "9f428289b49565f820128b01604f52e9e3cc70921950c4941ca7eb3bc1aa2db1"
+    },
+    {
+      "path": "fixed-5049-server.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-5049-server.log",
+      "bytes": 12835,
+      "sha256": "06d01a50546d37d52592c8c907b4564c39db63fb02f56b688e7a0c8dd42c302e"
+    },
+    {
+      "path": "fixed-ledger.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-ledger.json",
+      "bytes": 53161,
+      "sha256": "3945a7dda59a588bdf91909ed7baddc7f1ddc463908155cebc805232cdccd719"
+    },
+    {
+      "path": "fixed-server-info.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-server-info.json",
+      "bytes": 9659,
+      "sha256": "2a37a57b8e5dd7736199dc2c49015a196a2de0bdcb1f0cbb1dc8e8b3b5737d59"
+    },
+    {
+      "path": "fixed-server.mjs",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-server.mjs",
+      "bytes": 9389,
+      "sha256": "0a0d5149a9194484d7e476c4aa79a405aab29fd785d30d773ddfb2e08affee12"
+    },
+    {
+      "path": "fixed-source-integrity.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/fixed-source-integrity.json",
+      "bytes": 9516,
+      "sha256": "af5b9f912b210b92f64d8d516813eece9e280e7b3deea6a9a345727011d4b956"
+    },
+    {
+      "path": "held-language.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/held-language.json",
+      "bytes": 7417,
+      "sha256": "2be19ce858b3993b4e9d5994e3d7431b12a8ec1dfa685bd5cb76f69a97984641"
+    },
+    {
+      "path": "held-route.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/held-route.json",
+      "bytes": 1000,
+      "sha256": "77aad23a6f5ea3292990c544f58d64c75d37ee387739fe622d9d436bb07b4e2d"
+    },
+    {
+      "path": "native-en.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/native-en.txt",
+      "bytes": 5465,
+      "sha256": "612970ed45561f3d815b241620fa1773367b0231e4560862ecc2a050b437499a"
+    },
+    {
+      "path": "native-uk.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/native-uk.txt",
+      "bytes": 9171,
+      "sha256": "ff7fc9fdab1de6e6af86d97c35a712e91f62d08b4914d7d7d2bbc83c2619557d"
+    },
+    {
+      "path": "native-zh.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/native-zh.txt",
+      "bytes": 5011,
+      "sha256": "bccb1e13d0283477a88b768662765c78d51b359b91dfa13d9e3ea337b6b49043"
+    },
+    {
+      "path": "prepare-setup-01.mjs",
+      "original": "/private/tmp/canteen-q-t08-browser-author/prepare-setup-01.mjs",
+      "bytes": 2754,
+      "sha256": "f0880cdb9696a9034bab66cfc7c1b08322a61b11522532b2f15d3d62d9fb637d"
+    },
+    {
+      "path": "prepare.mjs",
+      "original": "/private/tmp/canteen-q-t08-browser-author/prepare.mjs",
+      "bytes": 2843,
+      "sha256": "3935b0db3eaee25ea8bc43023540f441f63e2b4cc534ef29eea9471024329cd2"
+    },
+    {
+      "path": "setup-01.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-01.log",
+      "bytes": 1519,
+      "sha256": "801d5b82b8aea65c36eed6dfab74a760ea9a8335ae2c818aa4765fcfb249ce9e"
+    },
+    {
+      "path": "setup-02.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-02.log",
+      "bytes": 986,
+      "sha256": "be91ca1f0d58fbefd03576dcf5d2d5d7bbb98c12abdb675c2bc7c97f8fba3c8d"
+    },
+    {
+      "path": "setup-03.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-03.log",
+      "bytes": 648,
+      "sha256": "aa80fb687c6aa97855c6c972843a50a7413165abd3843f41d63484e731b552eb"
+    },
+    {
+      "path": "setup-04-server.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-04-server.log",
+      "bytes": 3784,
+      "sha256": "f01de06cd3a1c1b78bf14e7ab7b9b49f6714e97996b090ca70a930237634dd73"
+    },
+    {
+      "path": "setup-05-server.log",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-05-server.log",
+      "bytes": 12682,
+      "sha256": "7d2aaf1ac7baed9a4ed082bffaef7f8e378269083066dcb98ede3ce2a6635359"
+    },
+    {
+      "path": "setup-server-info.json",
+      "original": "/private/tmp/canteen-q-t08-browser-author/setup-server-info.json",
+      "bytes": 9506,
+      "sha256": "6995dc674432d656ba8caa97568e94a24f41d84bed76a828be32fb257dc905fa"
+    },
+    {
+      "path": "verify-capture.py",
+      "original": "/private/tmp/canteen-q-t08-browser-author/verify-capture.py",
+      "bytes": 5479,
+      "sha256": "5986de01eba1ab49380ea3efc0c2ec8ba82209aca6cbbed2c4fbc86e6559cdc6"
+    },
+    {
+      "path": "visible-en.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/visible-en.txt",
+      "bytes": 1665,
+      "sha256": "c1782d868d859cea901a56091ac798c7bb4d99a47e8d160b18d4be4a62553f22"
+    },
+    {
+      "path": "visible-uk.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/visible-uk.txt",
+      "bytes": 3102,
+      "sha256": "268a06d09b4548f41837be5d9f0a2e9261bbcc31f33b221c3892b3d85131a88b"
+    },
+    {
+      "path": "visible-zh.txt",
+      "original": "/private/tmp/canteen-q-t08-browser-author/visible-zh.txt",
+      "bytes": 1519,
+      "sha256": "4a71f52b5cf6685979af1e3d215bc2a93de54bbf2c3bb93340d9cd250261d9da"
+    }
+  ]
+}
