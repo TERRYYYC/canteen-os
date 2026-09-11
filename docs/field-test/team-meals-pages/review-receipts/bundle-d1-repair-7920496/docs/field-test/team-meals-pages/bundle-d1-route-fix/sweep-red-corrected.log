@@ -1,0 +1,470 @@
+TAP version 13
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 1 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.48475
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 2 - D1: dish initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.035042
+  ...
+# Subtest: D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+ok 3 - D1: no-image Dish save uses sole C1 without loading legacy or optional form/image # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.0275
+  ...
+# Subtest: D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+ok 4 - D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.063292
+  ...
+# Subtest: D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+ok 5 - D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.049709
+  ...
+# Subtest: D1: inline late module completion cannot install into auth
+ok 6 - D1: inline late module completion cannot install into auth # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.023
+  ...
+# Subtest: D1: inline late module completion cannot install into remove
+ok 7 - D1: inline late module completion cannot install into remove # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.021791
+  ...
+# Subtest: D1: inline late module completion cannot install into replace
+ok 8 - D1: inline late module completion cannot install into replace # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.026167
+  ...
+# Subtest: D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+ok 9 - D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.065541
+  ...
+# Subtest: D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+ok 10 - D1: dish legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.072666
+  ...
+# Subtest: D1: ingredient old auth cannot use a late legacy module
+ok 11 - D1: ingredient old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.030792
+  ...
+# Subtest: D1: dish old auth cannot use a late legacy module
+ok 12 - D1: dish old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.024167
+  ...
+# Subtest: D1: ingredient image module admission is protected and late auth prevents decoding
+ok 13 - D1: ingredient image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.021459
+  ...
+# Subtest: D1: dish image module admission is protected and late auth prevents decoding
+ok 14 - D1: dish image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.051125
+  ...
+# Subtest: D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+ok 15 - D1: loaded translation transport rejection can really retry without repeating inline automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.024667
+  ...
+# Subtest: D1: ingredient image module unavailable survives language; no-image save remains usable
+ok 16 - D1: ingredient image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.08925
+  ...
+# Subtest: D1: dish image module unavailable survives language; no-image save remains usable
+ok 17 - D1: dish image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.028917
+  ...
+# Subtest: D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+not ok 18 - D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 63.284542
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:93:43'
+  failureType: 'testCodeFailure'
+  error: |-
+    A deferred module must not begin transport after its page leaves (INV-B5)
+    + actual - expected
+    
+    + [
+    +   [
+    +     'ingredient',
+    +     'salt'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'ingredient'
+      1: 'salt'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:105:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+not ok 19 - D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 49.879042
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:93:43'
+  failureType: 'testCodeFailure'
+  error: |-
+    A deferred module must not begin transport after its page leaves (INV-B5)
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'soup'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'soup'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:105:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+not ok 20 - D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 46.60225
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'save',
+    +     'salt'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'save'
+      1: 'salt'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+not ok 21 - D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 58.318667
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'save',
+    +     'salt'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'save'
+      1: 'salt'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+not ok 22 - D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 51.014917
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'save',
+    +     'new-local-ingredient'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'save'
+      1: 'new-local-ingredient'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+not ok 23 - D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 60.502625
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'save',
+    +     'new-local-ingredient'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'save'
+      1: 'new-local-ingredient'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+not ok 24 - D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 48.701792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'new-local-ingredient'
+    +   ],
+    +   [
+    +     'save',
+    +     'new-local-ingredient'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'new-local-ingredient'
+    1:
+      0: 'save'
+      1: 'new-local-ingredient'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+not ok 25 - D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 57.788
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'new-local-ingredient'
+    +   ],
+    +   [
+    +     'save',
+    +     'new-local-ingredient'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'new-local-ingredient'
+    1:
+      0: 'save'
+      1: 'new-local-ingredient'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+not ok 26 - D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 52.265792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'soup'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'soup'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+not ok 27 - D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 62.00975
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:120:108'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'soup'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'soup'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:123:40)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1: ingredient language keeps original allowed operation
+ok 28 - D1-R1: ingredient language keeps original allowed operation
+  ---
+  duration_ms: 59.488583
+  ...
+# Subtest: D1-R1: ingredient return-before-ready keeps original allowed operation
+ok 29 - D1-R1: ingredient return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.875875
+  ...
+# Subtest: D1-R1: new language keeps original allowed operation
+ok 30 - D1-R1: new language keeps original allowed operation
+  ---
+  duration_ms: 60.954917
+  ...
+# Subtest: D1-R1: new return-before-ready keeps original allowed operation
+ok 31 - D1-R1: new return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.16325
+  ...
+# Subtest: D1-R1: new-photo language keeps original allowed operation
+ok 32 - D1-R1: new-photo language keeps original allowed operation
+  ---
+  duration_ms: 61.397167
+  ...
+# Subtest: D1-R1: new-photo return-before-ready keeps original allowed operation
+ok 33 - D1-R1: new-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.996542
+  ...
+# Subtest: D1-R1: dish-photo language keeps original allowed operation
+ok 34 - D1-R1: dish-photo language keeps original allowed operation
+  ---
+  duration_ms: 63.23
+  ...
+# Subtest: D1-R1: dish-photo return-before-ready keeps original allowed operation
+ok 35 - D1-R1: dish-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 60.559917
+  ...
+# Subtest: D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+not ok 36 - D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+  ---
+  duration_ms: 75.591
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:134:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:135:461)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 8
+# fail 11
+# cancelled 0
+# skipped 17
+# todo 0
+# duration_ms 1177.454292

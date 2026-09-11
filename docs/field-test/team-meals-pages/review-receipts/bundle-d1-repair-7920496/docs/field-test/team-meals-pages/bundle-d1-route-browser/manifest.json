@@ -1,0 +1,122 @@
+[
+  {
+    "path": "application-d1.ts",
+    "original": "/private/tmp/canteen-d1-route-fix-author/application-d1.ts",
+    "bytes": 22586,
+    "sha256": "adde7d5ff0a37543b8069a085ac3f7e21d6eb91c9d080f0c857847cf4c5e885a"
+  },
+  {
+    "path": "author-module-graph.json",
+    "original": "/private/tmp/canteen-d1-route-author-734e295/packages/web/dist/author-module-graph.json",
+    "bytes": 11655,
+    "sha256": "1c6c6245486eee7eacddd05328767a635d11deb5ac0bd6cca2d33b505e0d3f41"
+  },
+  {
+    "path": "build-734e295.log",
+    "original": "/private/tmp/canteen-d1-route-fix-author/build-734e295.log",
+    "bytes": 3702,
+    "sha256": "4a19a63ca05eace30d7a9d34a4a4b5d1c51bec49eb91777842a9fe50c9b0cb37"
+  },
+  {
+    "path": "build-fixed.mjs",
+    "original": "/private/tmp/canteen-d1-route-fix-author/build-fixed.mjs",
+    "bytes": 3554,
+    "sha256": "9994b592de275c68e188b318164bb23343d238a03ca70f9a0a54081cecc3c590"
+  },
+  {
+    "path": "dish-away.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/dish-away.json",
+    "bytes": 6946,
+    "sha256": "160a7a8d892ddfc8a344845825c108fc90c42e55c26bce0289631931a3fb8f7e"
+  },
+  {
+    "path": "dish-before.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/dish-before.json",
+    "bytes": 7139,
+    "sha256": "46c531276bec747772a80eb579280fc1552b8a5fc23e7cedad598b9ca7b91dee"
+  },
+  {
+    "path": "dish-late.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/dish-late.json",
+    "bytes": 8361,
+    "sha256": "0cd97cb0464d25ef7a44f61ce0c4e1f32f3efeaf82d72d069f1a4df0d9da5eec"
+  },
+  {
+    "path": "ingredient-away.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/ingredient-away.json",
+    "bytes": 7552,
+    "sha256": "b06d61fa5130059e1b7db23f1d082c7d02bb7ef0d5535e0d7af37ab1eaf1acc6"
+  },
+  {
+    "path": "ingredient-before.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/ingredient-before.json",
+    "bytes": 7289,
+    "sha256": "de63a1ebc379a8fef64141a149f5aa6abb3f79cc1c1081665799229b5b61ebbe"
+  },
+  {
+    "path": "ingredient-late.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/ingredient-late.json",
+    "bytes": 8969,
+    "sha256": "38e24940ef2236c97fcdbbc6b13ed29659a2a23e9f34f82c62dc612cc1f092cb"
+  },
+  {
+    "path": "inline-language-completed.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/inline-language-completed.json",
+    "bytes": 10329,
+    "sha256": "a69bc83b1f59bc2a131714a65f6fe33281319ef8dd451caa877afd1f274297fa"
+  },
+  {
+    "path": "inline-language-held.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/inline-language-held.json",
+    "bytes": 12064,
+    "sha256": "b39fd4dc1de54ca1b7c3897036359a3e3569f6840db58c90413dc187735cfc29"
+  },
+  {
+    "path": "serve-gated-dist.mjs",
+    "original": "/private/tmp/canteen-d1-native-module-probe/serve-gated-dist.mjs",
+    "bytes": 2941,
+    "sha256": "92c315ff999bf1232dda5137d4c957a7712d1da54ce4dd17c9a3af5b77db3741"
+  },
+  {
+    "path": "source-integrity.json",
+    "original": "/private/tmp/canteen-d1-route-author-734e295/source-integrity.json",
+    "bytes": 9876,
+    "sha256": "9c0bf809c861fea9776e3dde0162f13857b85933b64b3b0c75e824eae828b00a"
+  },
+  {
+    "path": "transport/dish/transport-requests.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/dish/transport-requests.json",
+    "bytes": 14725,
+    "sha256": "c434a27b454aa3d20c5f85414c09f15c1bdd7851bfa0f47cfbd31d0becf4569d"
+  },
+  {
+    "path": "transport/dish/transport-state.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/dish/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  },
+  {
+    "path": "transport/ingredient/transport-requests.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/ingredient/transport-requests.json",
+    "bytes": 14900,
+    "sha256": "0c377a228a1a4873c7dc382abc7495b291188c513e541d44e501ac113a3eacaa"
+  },
+  {
+    "path": "transport/ingredient/transport-state.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/ingredient/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  },
+  {
+    "path": "transport/inline-language/transport-requests.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/inline-language/transport-requests.json",
+    "bytes": 13312,
+    "sha256": "c566effd3e620d7e8bf75935259c21b79c6c8fec0e9b7c7e395b47f7838ae82b"
+  },
+  {
+    "path": "transport/inline-language/transport-state.json",
+    "original": "/private/tmp/canteen-d1-route-fix-author/inline-language/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  }
+]

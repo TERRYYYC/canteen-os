@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: repair boundary: physically detached Ingredient cannot send while its matching hash is unchanged
+ok 1 - repair boundary: physically detached Ingredient cannot send while its matching hash is unchanged
+  ---
+  duration_ms: 80.445
+  ...
+# Subtest: repair boundary: already-sent actual Ingredient HTTP save ACK settles A while B and later A raw remain
+ok 2 - repair boundary: already-sent actual Ingredient HTTP save ACK settles A while B and later A raw remain
+  ---
+  duration_ms: 67.680542
+  ...
+# Subtest: repair boundary: already-sent Dish upload ACK settles hidden A without duplicate upload or overwriting B
+ok 3 - repair boundary: already-sent Dish upload ACK settles hidden A without duplicate upload or overwriting B
+  ---
+  duration_ms: 81.272667
+  ...
+# Subtest: repair boundary: inline language continuation saves old snapshot once and retains later buffer edits
+ok 4 - repair boundary: inline language continuation saves old snapshot once and retains later buffer edits
+  ---
+  duration_ms: 81.414583
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 370.28525

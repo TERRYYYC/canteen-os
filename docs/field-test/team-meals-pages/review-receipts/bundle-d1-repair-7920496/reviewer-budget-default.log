@@ -1,0 +1,62 @@
+{
+  "routes": {
+    "prep": {
+      "sw": 32197,
+      "noSW": 29854,
+      "ok": true
+    },
+    "menu": {
+      "sw": 38326,
+      "noSW": 35983,
+      "ok": true
+    },
+    "purchase": {
+      "sw": 53264,
+      "noSW": 50921,
+      "ok": true
+    },
+    "qr": {
+      "sw": 20796,
+      "noSW": 18453,
+      "ok": true
+    },
+    "locked-admin": {
+      "sw": 20330,
+      "noSW": 17987,
+      "ok": true
+    },
+    "home": {
+      "sw": 55242,
+      "noSW": 52899,
+      "ok": true
+    },
+    "plan": {
+      "sw": 59667,
+      "noSW": 57324,
+      "ok": true
+    },
+    "import": {
+      "sw": 50848,
+      "noSW": 48505,
+      "ok": true
+    },
+    "ingredient-new": {
+      "sw": 50152,
+      "noSW": 47809,
+      "ok": true
+    },
+    "dish-new": {
+      "sw": 57970,
+      "noSW": 55627,
+      "ok": true
+    },
+    "publish": {
+      "sw": 56309,
+      "noSW": 53966,
+      "ok": true
+    }
+  },
+  "chunks": 24,
+  "preloadGroups": 12,
+  "missing": []
+}
