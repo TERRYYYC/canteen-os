@@ -17,7 +17,7 @@
  *   - 页面私有样式：pages/<x>.css，在 pages/<x>.ts 顶部 import；共用样式（.card .chip …）在 styles.css。
  *   - 子状态（如 B 版详情）用 hash 的第二段：#/prep/<rest>，见 src/router.ts；页面从 ctx.rest 读。
  */
-import type { DataApi } from "./data";
+import type { DataApi, Publication, PublishedDataError } from "./data";
 import type { Lang, TParams, UiKey } from "./i18n";
 import type { Route } from "./router";
 
@@ -34,6 +34,11 @@ export interface PageCtx {
   rest: string;
   /** 数据层（src/data.ts 的 dataApi） */
   data: DataApi;
+  /** Validated publication handle, distinct from saved API sources and local drafts. */
+  publication: Publication | null;
+  publicationError: PublishedDataError | null;
+  /** Call after this surface's C1 and auxiliary state owners are registered. */
+  setReloadCoverage?(value: 'tracked' | 'read-only'): void;
   /** UI 文案（当前语言） */
   t: (key: UiKey, params?: TParams) => string;
 }

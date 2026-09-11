@@ -7,8 +7,7 @@
 import "./tokens.css";
 import "./styles.css";
 
-import type { BuildManifest } from "@canteenos/core";
-import { dataApi } from "./data";
+import { dataApi, PublishedDataError, type Publication } from "./data";
 import { getLang, onLangChange, t } from "./i18n";
 import { render as admin } from "./pages/admin";
 import { render as menu } from "./pages/menu";
@@ -20,6 +19,8 @@ import { normalize, onRoute, type Route } from "./router";
 import { mountShell } from "./shell";
 import { applyTheme } from "./theme";
 import type { PageCtx, PageRender } from "./types";
+import { createPageReloadCoverage } from './view-models/reload-safety';
+import { consumeTokenFromRest } from './admin/token';
 
 const PAGES: Record<Route, PageRender> = { prep, purchase, menu, admin, qr };
 /** 顶栏标题键 */
@@ -30,9 +31,12 @@ function boot(): void {
   const root = document.getElementById("app");
   if (!root) throw new Error("#app not found");
   const shell = mountShell(root);
-  initPwa(shell);
+  initPwa(shell, { refreshPublication: () => refreshPublication(true) });
 
-  let build: BuildManifest | null = null;
+  let publication: Publication | null = null;
+  let publicationError: PublishedDataError | null = null;
+  let publicationRequest = 0;
+  const reloadCoverage = createPageReloadCoverage();
   let planId: string | null = null;
   let ready = false; // build.json 读完（成功或失败）之前不画页面，只画「加载中…」
   let current: { route: Route; rest: string } | null = null;
@@ -40,6 +44,7 @@ function boot(): void {
   function renderPage(): void {
     if (!current) return;
     const { route, rest } = current;
+    const setReloadCoverage = reloadCoverage.beginRender(route, rest);
     shell.setActive(route);
     shell.setTitle(t(TITLE[route]));
     if (!ready) {
@@ -50,7 +55,9 @@ function boot(): void {
       el.append(p);
       return;
     }
-    const ctx: PageCtx = { lang: getLang(), planId, route, rest, data: dataApi, t };
+    const ctx: PageCtx = { lang: getLang(), planId, route, rest, data: dataApi, t, publication, publicationError,
+      setReloadCoverage,
+    };
     const el = shell.newOutlet();
     void Promise.resolve(PAGES[route](el, ctx)).catch((err: unknown) => {
       console.error(err);
@@ -65,7 +72,8 @@ function boot(): void {
 
   normalize();
   onRoute((route, rest) => {
-    current = { route, rest };
+    // Never retain a credential-bearing route in page identity, PageCtx, or language redraw state.
+    current = { route, rest: route === 'admin' ? consumeTokenFromRest(rest) : rest };
     renderPage();
   });
   onLangChange(() => {
@@ -73,22 +81,23 @@ function boot(): void {
     renderPage();
   });
 
-  void dataApi
-    .loadBuild()
-    .then((b) => {
-      build = b;
-      planId = b.plans[0] ?? null;
-    })
-    .catch((err: unknown) => {
-      console.error(err);
-      build = null;
-      planId = null;
-    })
-    .finally(() => {
-      ready = true;
-      shell.setBuild(build);
-      renderPage(); // build.json 到了（或失败了）再画：planId 现在才知道
-    });
+  async function refreshPublication(fresh = false): Promise<void> {
+    const request = ++publicationRequest;
+    let next: Publication | null = null;
+    let failure: PublishedDataError | null = null;
+    try { next = await dataApi.loadPublication({ fresh }); }
+    catch (error) { failure = error instanceof PublishedDataError ? error : new PublishedDataError('unavailable', 'manifest', '', null); }
+    if (request !== publicationRequest) return;
+    const initial = !ready;
+    publication = next;
+    publicationError = failure;
+    planId = next?.manifest.plans[0] ?? null;
+    ready = true;
+    shell.setBuild(next?.manifest ?? null);
+    // Reader updates must not replace an active editor DOM or its pending operations.
+    if (initial || (current?.route !== 'admin' && current?.route !== 'purchase')) renderPage();
+  }
+  void refreshPublication();
 }
 
 boot();

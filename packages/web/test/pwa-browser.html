@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C2b · real generated service worker</title></head>
+<body><div id="app"></div><script type="module">
+import '../src/tokens.css';
+import '../src/styles.css';
+import {dataApi} from '../src/data';
+import {setLang} from '../src/i18n';
+import {mountShell} from '../src/shell';
+import {initPwa} from '../src/pwa';
+import {h} from '../src/dom';
+import {createEditSession} from '../src/view-models/edit-session';
+import {registerAuxiliaryEdits,inspectReloadSafety,setReloadCoverage} from '../src/view-models/reload-safety';
+setLang('en');
+const boots=Number(sessionStorage.getItem('c2b-test-boots')??0)+1;sessionStorage.setItem('c2b-test-boots',String(boots));
+const shell=mountShell(document.querySelector('#app')),outlet=shell.newOutlet();
+shell.setTitle('C2b · generated SW / explicit mock editor');
+let publication=null,view=null,controllerRefreshes=0,last='Starting',assetURL=null;
+let pendingResolve,pendingReject,writes=0,reads=0;
+const saved={content:{name:'Saved fixture'},commit:'a'.repeat(40),blobSha:'a'.repeat(40)};
+const editor=createEditSession({mode:()=> 'mock',save:()=>{writes++;return new Promise((resolve,reject)=>{pendingResolve=resolve;pendingReject=reject;});},read:async()=>{reads++;return saved;}});
+editor.open({kind:'dish',id:'mock-dish'},saved.content,saved);
+let aux={generation:0,dirty:false,phase:'idle'};
+let editOnController=false;
+navigator.serviceWorker.addEventListener('controllerchange',()=>{if(editOnController){editOnController=false;aux={generation:aux.generation+1,dirty:true,phase:'idle'};}});
+const auxiliary=registerAuxiliaryEdits({ownerId:'mock-raw-buffer',identity:{kind:'dish',id:'mock-raw-buffer'},operationTracking:'tickets',read:()=>aux});
+const auxiliaryTickets=[];
+setReloadCoverage('tracked');
+const status=h('pre',{'aria-label':'Verification status',style:'white-space:pre-wrap;overflow-wrap:anywhere'});
+const image=h('img',{alt:'Same-revision fixture',width:80,height:80,hidden:true});
+const controls=h('div');
+outlet.append(h('h2',{},'Local verification only'),h('p',{},'Formal static producer output, real generated service worker, explicit mock editor. No external writes.'),controls,image,status);
+function paint(){status.textContent=JSON.stringify({boots,controller:!!navigator.serviceWorker.controller,controllerRefreshes,publication:publication?.manifest,last,writes,reads,safety:inspectReloadSafety().reason,records:inspectReloadSafety().records,editor:editor.getState(),aux},null,2);}
+function button(label,action){const b=h('button',{type:'button'},label);b.addEventListener('click',()=>{try{const result=action();paint();Promise.resolve(result).then(()=>paint(),error=>{last=`${error.name}: ${error.code??error.message}`;paint();});}catch(error){last=`${error.name}: ${error.code??error.message}`;paint();}});controls.append(b);}
+async function load(fresh=false){publication=await dataApi.loadPublication({fresh});view=publication.kind==='team-meals'?await dataApi.loadPublishedTeamPlan(publication,'week-41'):null;shell.setBuild(publication.manifest);last='Publication loaded';paint();}
+const pwa=initPwa(shell,{async refreshPublication(){controllerRefreshes++;await load(true);}});
+async function showAsset(pointer){const result=await dataApi.loadPublishedAsset(view,pointer);last=result.kind;if(result.kind==='available'){
+ const bytes=await result.bytes.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',bytes);
+ last=`available ${result.sourceRevision} ${Array.from(new Uint8Array(digest)).map(n=>n.toString(16).padStart(2,'0')).join('')}`;
+ if(assetURL)URL.revokeObjectURL(assetURL);assetURL=URL.createObjectURL(result.bytes);image.src=assetURL;image.hidden=false;
+}}
+button('Load publication',()=>load());
+button('Read tomato image',()=>showAsset('/ingredients/tomato/image'));
+button('Read never-opened egg image',()=>showAsset('/ingredients/egg/image'));
+button('Refresh published data only',()=>load(true));
+button('Check new version',()=>pwa.checkVersion());
+button('Inspect live state',()=>{last='State inspected';});
+button('Edit first document',()=>{editor.open({kind:'dish',id:'mock-dish'},saved.content,saved);editor.edit({name:'Unsaved fixture'});last='Edited';});
+button('Detach to another document',()=>{editor.open({kind:'plan',id:'mock-plan'},saved.content,saved);last='First document is offscreen';});
+button('Start held save',()=>{editor.open({kind:'dish',id:'mock-dish'},saved.content,saved);void editor.save().then(r=>{last=r.status;paint();});last='Save held';});
+button('Lose save response',()=>{pendingReject?.(new Error('Synthetic lost response'));});
+button('Resolve save',()=>{pendingResolve?.({commit:'b'.repeat(40),blobSha:'b'.repeat(40),unchanged:false,warnings:[]});});
+button('Reconcile known miss',()=>editor.reconcileUnknown().then(r=>{last=r.status;}));
+button('Discard resolved fixture edits',()=>{editor.open({kind:'dish',id:'mock-dish'},saved.content,saved);last=editor.replace(saved.content,saved)?'Local fixture edits discarded':'Pending save cannot be discarded';});
+button('Raw buffer dirty',()=>{aux={...aux,generation:aux.generation+1,dirty:true};});
+button('Auxiliary operation busy',()=>{auxiliaryTickets.push(auxiliary.beginOperation('write'));aux={...aux,generation:aux.generation+1,phase:'busy'};});
+button('Auxiliary outcome unknown',()=>{if(!auxiliaryTickets.length)auxiliaryTickets.push(auxiliary.beginOperation('write'));for(const ticket of auxiliaryTickets)auxiliary.markUnknown(ticket);aux={...aux,generation:aux.generation+1,phase:'unknown'};});
+button('Resolve auxiliary operation',()=>{aux={generation:aux.generation+1,dirty:false,phase:'idle'};for(const ticket of auxiliaryTickets.splice(0))auxiliary.settleOperation(ticket,'completed');});
+button('Edit during next controller change',()=>{editOnController=true;last='New input armed for the next actual controller change';});
+button('Activate waiting worker externally',async()=>{const reg=await navigator.serviceWorker.getRegistration();if(!reg?.waiting)throw new Error('No waiting worker');reg.waiting.postMessage({type:'SKIP_WAITING'});last='External activation requested without update consent';});
+button('Evict tomato from local asset cache',async()=>{const cache=await caches.open('published-assets');let deleted=0;for(const request of await cache.keys())if(new URL(request.url).pathname.includes('A%20%252F')){await cache.delete(request);deleted++;}last=`Evicted ${deleted} cached tomato images`;});
+button('Request SW check',async()=>{const reg=await navigator.serviceWorker.getRegistration();await reg?.update();last='Service worker checked';});
+button('Inspect cache entries',async()=>{const keys=await caches.keys();const records=[];for(const key of keys){const cache=await caches.open(key);records.push([key,(await cache.keys()).map(r=>new URL(r.url).pathname)]);}last=JSON.stringify(records);});
+void load().catch(error=>{last=`${error.name}: ${error.code??error.message}`;paint();});
+</script></body></html>
