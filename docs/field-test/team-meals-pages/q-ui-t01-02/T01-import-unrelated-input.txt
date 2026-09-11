@@ -1,0 +1,43 @@
+- banner:
+  - button "打开目录"
+  - heading "师傅后台" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - button "返回":
+    - generic: ←
+  - heading "粘贴导入" [level=2]
+  - paragraph: 本周从 2026-09-07 起
+  - generic: 把微信里那段话粘进来
+  - textbox "把微信里那段话粘进来":
+    - /placeholder: "周一午 番茄炒蛋 200\n周二晚 土豆烧牛肉 180"
+    - text: 2026-09-15 午 第一道样本菜
+  - paragraph: 格式随便：星期或日期 · 早/午/晚 · 菜名 · 份数。认不出的会标出来，不会整批拒绝。
+  - button "解析" [active]
+  - button "清空"
+  - status
+  - paragraph: 或者上传表格
+  - generic: CSV，四列
+  - generic: 四列：日期 · 餐次 · 菜名 · 份数——列名随便，会自动认
+  - generic: 选文件
+  - button "选文件"
+  - paragraph: Excel 请先「另存为 CSV」再上传
+  - paragraph: 识别结果 · 1 行
+  - paragraph: 文本没写份数时，保留匹配行已有的份数；要移除请点「清空份数」。
+  - list:
+    - generic: ✓
+    - generic: 周二 09.15 午 · 第一道样本菜
+    - paragraph: 这天在下周
+    - status: 份数未录
+    - button "清空份数"
+    - combobox "换一个":
+      - option "换一个"
+      - option "第一道样本菜" [selected]
+      - option "第二道样本菜 （草稿）"
+      - option "未录成分样本 （草稿）"
+    - spinbutton "份"
+    - generic: 份
+  - button "导入 1 行，跳过 0 行"
