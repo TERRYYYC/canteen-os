@@ -1,0 +1,90 @@
+✖ saving optional servings explicitly upgrades to v3 without invented counts (0.650291ms)
+✖ day filter cannot truncate the whole saved plan or true top-level values (0.585792ms)
+✖ deleting the last meal produces a legal empty v3 document (0.144625ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 350.509042
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-plan.test.mjs:22:1
+✖ saving optional servings explicitly upgrades to v3 without invented counts (0.650291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '2' !== '3'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:24:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.start (node:internal/test_runner/test:1191:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '2',
+    expected: '3',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-plan.test.mjs:28:1
+✖ day filter cannot truncate the whole saved plan or true top-level values (0.585792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      dateRange: {
+        end: '2026-10-11',
+        start: '2026-10-05'
+      },
+  ...
+      },
+  +   schemaVersion: '2'
+  -   schemaVersion: '3'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:31:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { schemaVersion: '2', meals: [ [Object], [Object] ], name: { zh: '这一周' }, dateRange: { start: '2026-10-05', end: '2026-10-11' }, margin: 1.17 },
+    expected: { schemaVersion: '3', name: { zh: '这一周' }, margin: 1.17, dateRange: { start: '2026-10-05', end: '2026-10-11' }, meals: [ [Object], [Object] ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-plan.test.mjs:33:1
+✖ deleting the last meal produces a legal empty v3 document (0.144625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      meals: [],
+  +   schemaVersion: '2'
+  -   schemaVersion: '3'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan.test.mjs:34:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { schemaVersion: '2', meals: [] },
+    expected: { schemaVersion: '3', meals: [] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
