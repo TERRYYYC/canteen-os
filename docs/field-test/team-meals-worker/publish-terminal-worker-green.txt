@@ -1,0 +1,1423 @@
+
+> @canteenos/worker@0.0.3 test
+> npm run build && node --test test/*.test.mjs
+
+
+> @canteenos/worker@0.0.3 build
+> npm --prefix ../core run build && npm run gen:validators && tsc -p tsconfig.build.json
+
+
+> @canteenos/core@0.0.3 build
+> tsc -p tsconfig.build.json
+
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+generated 7 validators → packages/worker/generated/validators.js (242481 bytes, schema-digest 61cbb92f8d23)
+TAP version 13
+# Subtest: T-01 不带 Authorization → 401 unauthorized，且无 commit
+ok 1 - T-01 不带 Authorization → 401 unauthorized，且无 commit
+  ---
+  duration_ms: 12.981417
+  ...
+# Subtest: T-02 长度不是 43 的令牌 → 401（先判长度，不算哈希）
+ok 2 - T-02 长度不是 43 的令牌 → 401（先判长度，不算哈希）
+  ---
+  duration_ms: 0.535917
+  ...
+# Subtest: T-03 合法长度但哈希不匹配 → 401，响应体与 T-01 逐字节相同
+ok 3 - T-03 合法长度但哈希不匹配 → 401，响应体与 T-01 逐字节相同
+  ---
+  duration_ms: 4.336083
+  ...
+# Subtest: T-04 buyer 调 POST /plan → 403 forbidden（不是 401），无 commit
+ok 4 - T-04 buyer 调 POST /plan → 403 forbidden（不是 401），无 commit
+  ---
+  duration_ms: 0.876208
+  ...
+# Subtest: T-05 chef 调 POST /rollback/<sha> → 403（回退只有 admin）
+ok 5 - T-05 chef 调 POST /rollback/<sha> → 403（回退只有 admin）
+  ---
+  duration_ms: 1.072166
+  ...
+# Subtest: T-06 buyer 调 GET /publish/:runId → 200（buyer 有读进度权限）
+ok 6 - T-06 buyer 调 GET /publish/:runId → 200（buyer 有读进度权限）
+  ---
+  duration_ms: 2.1915
+  ...
+# Subtest: T-07 轮换 TOKEN_HASH_CHEF 之后，旧 chef 令牌立刻 401
+ok 7 - T-07 轮换 TOKEN_HASH_CHEF 之后，旧 chef 令牌立刻 401
+  ---
+  duration_ms: 5.488417
+  ...
+# Subtest: T-08 任一请求都带逐字的 CORS 头，且不含 Allow-Credentials
+ok 8 - T-08 任一请求都带逐字的 CORS 头，且不含 Allow-Credentials
+  ---
+  duration_ms: 1.450125
+  ...
+# Subtest: T-09 OPTIONS 预检 → 200，Max-Age 600，允许 Authorization 头
+ok 9 - T-09 OPTIONS 预检 → 200，Max-Age 600，允许 Authorization 头
+  ---
+  duration_ms: 0.303458
+  ...
+# Subtest: B1 malformed upstream JSON remains upstream_error
+ok 10 - B1 malformed upstream JSON remains upstream_error
+  ---
+  duration_ms: 13.783166
+  ...
+# Subtest: B1 asset rejects symlink mode despite image owner/pointer being valid
+ok 11 - B1 asset rejects symlink mode despite image owner/pointer being valid
+  ---
+  duration_ms: 3.480667
+  ...
+# Subtest: B1 omitted revision captures one H even if branch advances while reading
+ok 12 - B1 omitted revision captures one H even if branch advances while reading
+  ---
+  duration_ms: 1.968
+  ...
+# Subtest: B1 review: invalid image bytes
+ok 13 - B1 review: invalid image bytes
+  ---
+  duration_ms: 2.569584
+  ...
+# Subtest: B1 review: invalid image bytes <html>broken image</html>
+ok 14 - B1 review: invalid image bytes <html>broken image</html>
+  ---
+  duration_ms: 1.8385
+  ...
+# Subtest: B1 review: invalid image bytes not an image
+ok 15 - B1 review: invalid image bytes not an image
+  ---
+  duration_ms: 1.8805
+  ...
+# Subtest: B1 review: PNG bytes cannot be served under JPEG reference
+ok 16 - B1 review: PNG bytes cannot be served under JPEG reference
+  ---
+  duration_ms: 2.299167
+  ...
+# Subtest: B1 review: truncated PNG, JPEG and WebP containers are rejected
+ok 17 - B1 review: truncated PNG, JPEG and WebP containers are rejected
+  ---
+  duration_ms: 6.567083
+  ...
+# Subtest: B1 review: complete supported image containers preserve exact bytes
+ok 18 - B1 review: complete supported image containers preserve exact bytes
+  ---
+  duration_ms: 6.227291
+  ...
+# Subtest: 上传 png → 200，落到 data/dishes/<id>/images/<name>.png，返回 ImageRef
+ok 19 - 上传 png → 200，落到 data/dishes/<id>/images/<name>.png，返回 ImageRef
+  ---
+  duration_ms: 16.181041
+  ...
+# Subtest: jpg 与 webp 的尺寸头也能解析
+ok 20 - jpg 与 webp 的尺寸头也能解析
+  ---
+  duration_ms: 5.652584
+  ...
+# Subtest: T-47 上传 210 KB → 413 too_large（不压缩，直接挡）
+ok 21 - T-47 上传 210 KB → 413 too_large（不压缩，直接挡）
+  ---
+  duration_ms: 1.163375
+  ...
+# Subtest: T-48 magic bytes 不是图片 → 400，不落盘
+ok 22 - T-48 magic bytes 不是图片 → 400，不落盘
+  ---
+  duration_ms: 0.877375
+  ...
+# Subtest: 缺 X-Image-License → 400 required（ImageRef.license 是 schema 必填）
+ok 23 - 缺 X-Image-License → 400 required（ImageRef.license 是 schema 必填）
+  ---
+  duration_ms: 1.191542
+  ...
+# Subtest: buyer 不能传图（与其他写入端点同一条权限）
+ok 24 - buyer 不能传图（与其他写入端点同一条权限）
+  ---
+  duration_ms: 1.165083
+  ...
+# Subtest: T-45 日志只有 {time, role, endpoint, status}：grep 不到令牌、请求体、原始路径
+ok 25 - T-45 日志只有 {time, role, endpoint, status}：grep 不到令牌、请求体、原始路径
+  ---
+  duration_ms: 16.103125
+  ...
+# Subtest: D-18 路径白名单：实体 / 图片 / 单文件三条，越界的一律不放行
+ok 26 - D-18 路径白名单：实体 / 图片 / 单文件三条，越界的一律不放行
+  ---
+  duration_ms: 0.211375
+  ...
+# Subtest: 常数时间比较：长度不同也走完，结果正确
+ok 27 - 常数时间比较：长度不同也走完，结果正确
+  ---
+  duration_ms: 0.050875
+  ...
+# Subtest: sha256Hex 与 openssl 口径一致（ops-checklist §2 的算法）
+ok 28 - sha256Hex 与 openssl 口径一致（ops-checklist §2 的算法）
+  ---
+  duration_ms: 0.815
+  ...
+# Subtest: POST /translate：没配 DEEPL_API_KEY 时不报错，返回空译文 + warning
+ok 29 - POST /translate：没配 DEEPL_API_KEY 时不报错，返回空译文 + warning
+  ---
+  duration_ms: 0.962167
+  ...
+# Subtest: POST /translate：配了 key 就调 DeepL，回三语里请求的那两种
+ok 30 - POST /translate：配了 key 就调 DeepL，回三语里请求的那两种
+  ---
+  duration_ms: 1.383417
+  ...
+# Subtest: POST /translate：buyer 不能调；缺 text → 400 required
+ok 31 - POST /translate：buyer 不能调；缺 text → 400 required
+  ---
+  duration_ms: 1.88025
+  ...
+# Subtest: 没配 GITHUB_PAT 时不假装成功：503 not_configured
+ok 32 - 没配 GITHUB_PAT 时不假装成功：503 not_configured
+  ---
+  duration_ms: 1.619917
+  ...
+# Subtest: 没有这个接口 → 404，不泄露路由表
+ok 33 - 没有这个接口 → 404，不泄露路由表
+  ---
+  duration_ms: 0.38
+  ...
+# Subtest: ajv standalone 产物：--check 在一致时绿，在漂移时红
+ok 34 - ajv standalone 产物：--check 在一致时绿，在漂移时红
+  ---
+  duration_ms: 265.166209
+  ...
+# Subtest: ajv standalone 产物里没有 eval / new Function / require（Workers 三条禁令）
+ok 35 - ajv standalone 产物里没有 eval / new Function / require（Workers 三条禁令）
+  ---
+  duration_ms: 0.600541
+  ...
+# Subtest: a failed step does not prove an in-progress run completed
+ok 36 - a failed step does not prove an in-progress run completed
+  ---
+  duration_ms: 14.934209
+  ...
+# Subtest: completed run preserves "success" independently of job progress
+ok 37 - completed run preserves "success" independently of job progress
+  ---
+  duration_ms: 1.511417
+  ...
+# Subtest: completed run preserves "failure" independently of job progress
+ok 38 - completed run preserves "failure" independently of job progress
+  ---
+  duration_ms: 1.0885
+  ...
+# Subtest: completed run preserves "cancelled" independently of job progress
+ok 39 - completed run preserves "cancelled" independently of job progress
+  ---
+  duration_ms: 1.588375
+  ...
+# Subtest: completed run preserves "timed_out" independently of job progress
+ok 40 - completed run preserves "timed_out" independently of job progress
+  ---
+  duration_ms: 1.483708
+  ...
+# Subtest: completed run preserves null independently of job progress
+ok 41 - completed run preserves null independently of job progress
+  ---
+  duration_ms: 1.543916
+  ...
+# Subtest: completed run preserves "future-conclusion" independently of job progress
+ok 42 - completed run preserves "future-conclusion" independently of job progress
+  ---
+  duration_ms: 1.976041
+  ...
+# Subtest: missing upstream conclusion stays null when a run has completed
+ok 43 - missing upstream conclusion stays null when a run has completed
+  ---
+  duration_ms: 1.323542
+  ...
+# Subtest: upstream status queued is not completion even with a conclusion
+ok 44 - upstream status queued is not completion even with a conclusion
+  ---
+  duration_ms: 2.33925
+  ...
+# Subtest: upstream status waiting is not completion even with a conclusion
+ok 45 - upstream status waiting is not completion even with a conclusion
+  ---
+  duration_ms: 1.433667
+  ...
+# Subtest: upstream status null is not completion even with a conclusion
+ok 46 - upstream status null is not completion even with a conclusion
+  ---
+  duration_ms: 1.003792
+  ...
+# Subtest: upstream status undefined is not completion even with a conclusion
+ok 47 - upstream status undefined is not completion even with a conclusion
+  ---
+  duration_ms: 1.1615
+  ...
+# Subtest: wall-clock timeout is independent of overall run completion
+ok 48 - wall-clock timeout is independent of overall run completion
+  ---
+  duration_ms: 0.99025
+  ...
+# Subtest: slow progress does not manufacture completion or a conclusion
+ok 49 - slow progress does not manufacture completion or a conclusion
+  ---
+  duration_ms: 1.197709
+  ...
+# Subtest: unmapped progress remains independent from in_progress terminal evidence
+ok 50 - unmapped progress remains independent from in_progress terminal evidence
+  ---
+  duration_ms: 1.592166
+  ...
+# Subtest: unmapped progress remains independent from completed terminal evidence
+ok 51 - unmapped progress remains independent from completed terminal evidence
+  ---
+  duration_ms: 1.652458
+  ...
+# Subtest: known run ID is read directly for chef even when a newer run exists
+ok 52 - known run ID is read directly for chef even when a newer run exists
+  ---
+  duration_ms: 1.131083
+  ...
+# Subtest: known run ID is read directly for buyer even when a newer run exists
+ok 53 - known run ID is read directly for buyer even when a newer run exists
+  ---
+  duration_ms: 1.322
+  ...
+# Subtest: known run ID is read directly for admin even when a newer run exists
+ok 54 - known run ID is read directly for admin even when a newer run exists
+  ---
+  duration_ms: 1.082333
+  ...
+# Subtest: latest uses the shared evidence fields without changing POST claim behavior
+ok 55 - latest uses the shared evidence fields without changing POST claim behavior
+  ---
+  duration_ms: 1.794625
+  ...
+# Subtest: T-25 PUBLISH_MODE=off → 503 dispatch_unavailable，无 commit
+ok 56 - T-25 PUBLISH_MODE=off → 503 dispatch_unavailable，无 commit
+  ---
+  duration_ms: 15.447333
+  ...
+# Subtest: T-26 PUBLISH_MODE=push-trigger → 200 mode push-trigger，空 commit 不带 [skip ci]
+ok 57 - T-26 PUBLISH_MODE=push-trigger → 200 mode push-trigger，空 commit 不带 [skip ci]
+  ---
+  duration_ms: 2.498333
+  ...
+# Subtest: T-27 dispatch API 打桩 500 → 502 upstream_error（不是 200）
+ok 58 - T-27 dispatch API 打桩 500 → 502 upstream_error（不是 200）
+  ---
+  duration_ms: 1.623417
+  ...
+# Subtest: T-28 dispatch 204 但 runs 列表 90 秒内始终为空 → 200 runId:null（前端进 queued 态）
+ok 59 - T-28 dispatch 204 但 runs 列表 90 秒内始终为空 → 200 runId:null（前端进 queued 态）
+  ---
+  duration_ms: 6.952
+  ...
+# Subtest: POST /publish 按 run-name 精准匹配认领 runId（决议追加第 5 条：不按时间戳取最新）
+ok 60 - POST /publish 按 run-name 精准匹配认领 runId（决议追加第 5 条：不按时间戳取最新）
+  ---
+  duration_ms: 1.253292
+  ...
+# Subtest: T-29 四步映射正确，自动生成的步骤被忽略，unmappedSteps 为空
+ok 61 - T-29 四步映射正确，自动生成的步骤被忽略，unmappedSteps 为空
+  ---
+  duration_ms: 1.801833
+  ...
+# Subtest: T-30 多一个显式 name 的步骤 → status unmapped，unmappedSteps 列出它
+ok 62 - T-30 多一个显式 name 的步骤 → status unmapped，unmappedSteps 列出它
+  ---
+  duration_ms: 1.114208
+  ...
+# Subtest: T-31 Gate 步骤 failure → status failure，failedStep 是 validate
+ok 63 - T-31 Gate 步骤 failure → status failure，failedStep 是 validate
+  ---
+  duration_ms: 1.057417
+  ...
+# Subtest: T-32 run 已经进行了 25 分钟 → status timeout，带 htmlUrl
+ok 64 - T-32 run 已经进行了 25 分钟 → status timeout，带 htmlUrl
+  ---
+  duration_ms: 1.475125
+  ...
+# Subtest: run 进行中 12 分钟 → 仍是 in_progress，但带 slow: true（D-14）
+ok 65 - run 进行中 12 分钟 → 仍是 in_progress，但带 slow: true（D-14）
+  ---
+  duration_ms: 1.773958
+  ...
+# Subtest: GET /publish/:runId 目标不存在 → 404 not_found；runId 不是正整数 → 400
+ok 66 - GET /publish/:runId 目标不存在 → 404 not_found；runId 不是正整数 → 400
+  ---
+  duration_ms: 3.148167
+  ...
+# Subtest: D-13 的真实兆底：build-deploy.yml 里每个带显式 name 的步骤都必须被认识
+ok 67 - D-13 的真实兆底：build-deploy.yml 里每个带显式 name 的步骤都必须被认识
+  ---
+  duration_ms: 1.473625
+  ...
+# Subtest: T-34 写入桶 60 次/小时：第 61 次 429
+ok 68 - T-34 写入桶 60 次/小时：第 61 次 429
+  ---
+  duration_ms: 37.904208
+  ...
+# Subtest: T-35 发布桶 10 次/小时：第 11 次 429
+ok 69 - T-35 发布桶 10 次/小时：第 11 次 429
+  ---
+  duration_ms: 2.333542
+  ...
+# Subtest: T-36 回退单独一个桶 5 次/小时（D-11）：第 6 次 429
+ok 70 - T-36 回退单独一个桶 5 次/小时（D-11）：第 6 次 429
+  ---
+  duration_ms: 3.007667
+  ...
+# Subtest: 读端点走独立的读桶，不吃写入配额（D-16）
+ok 71 - 读端点走独立的读桶，不吃写入配额（D-16）
+  ---
+  duration_ms: 20.001667
+  ...
+# Subtest: GET /source/:kind/:id 返回 content + blobSha + commit，且不产生 commit
+ok 72 - GET /source/:kind/:id 返回 content + blobSha + commit，且不产生 commit
+  ---
+  duration_ms: 15.276292
+  ...
+# Subtest: GET /source 目标不存在 → 404 not_found；kind 不认识 → 400
+ok 73 - GET /source 目标不存在 → 404 not_found；kind 不认识 → 400
+  ---
+  duration_ms: 4.030666
+  ...
+# Subtest: GET /catalog：全库索引 + 供应商去重 + 翻译计数
+ok 74 - GET /catalog：全库索引 + 供应商去重 + 翻译计数
+  ---
+  duration_ms: 3.07925
+  ...
+# Subtest: GET /changes：未发布 = 动过 data/ 的 commit，排除机翻回写与不动 data/ 的 commit（D-12）
+ok 75 - GET /changes：未发布 = 动过 data/ 的 commit，排除机翻回写与不动 data/ 的 commit（D-12）
+  ---
+  duration_ms: 1.9075
+  ...
+# Subtest: GET /changes：线上 build.json 读不到时不炸，带 online-unknown
+ok 76 - GET /changes：线上 build.json 读不到时不炸，带 online-unknown
+  ---
+  duration_ms: 1.39075
+  ...
+# Subtest: 三个角色都能读 catalog / changes / source（决议追加第 3 条）
+ok 77 - 三个角色都能读 catalog / changes / source（决议追加第 3 条）
+  ---
+  duration_ms: 11.461417
+  ...
+# Subtest: T-41 POST /rollback/zzzz → 400 invalid_revision
+ok 78 - T-41 POST /rollback/zzzz → 400 invalid_revision
+  ---
+  duration_ms: 13.972792
+  ...
+# Subtest: T-42 POST /rollback/<合法但不存在的 sha> → 422 revision_unavailable
+ok 79 - T-42 POST /rollback/<合法但不存在的 sha> → 422 revision_unavailable
+  ---
+  duration_ms: 3.849833
+  ...
+# Subtest: T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外原样、历史都还在、带 [skip ci] 与 role trailer
+ok 80 - T-37/38/40（L1 版）回退是新 commit：data/ 回到 A、data/ 之外原样、历史都还在、带 [skip ci] 与 role trailer
+  ---
+  duration_ms: 6.324833
+  ...
+# Subtest: 回退到当前就是的那个版本 → 不造空 commit
+ok 81 - 回退到当前就是的那个版本 → 不造空 commit
+  ---
+  duration_ms: 1.751625
+  ...
+# Subtest: 回退只有 admin：buyer 也是 403
+ok 82 - 回退只有 admin：buyer 也是 403
+  ---
+  duration_ms: 0.961083
+  ...
+# Subtest: B2 shopping inputs come entirely from their saved source revision
+ok 83 - B2 shopping inputs come entirely from their saved source revision
+  ---
+  duration_ms: 26.215666
+  ...
+# Subtest: B2 shopping inputs reject missing selected plan as unavailable basis
+ok 84 - B2 shopping inputs reject missing selected plan as unavailable basis
+  ---
+  duration_ms: 1.0645
+  ...
+# Subtest: B2 shopping inputs reject malformed source data/menu-plans/team.json
+ok 85 - B2 shopping inputs reject malformed source data/menu-plans/team.json
+  ---
+  duration_ms: 0.92825
+  ...
+# Subtest: B2 shopping inputs reject malformed source data/dishes/soup.json
+ok 86 - B2 shopping inputs reject malformed source data/dishes/soup.json
+  ---
+  duration_ms: 0.429125
+  ...
+# Subtest: B2 shopping inputs reject malformed source data/ingredients/salt.json
+ok 87 - B2 shopping inputs reject malformed source data/ingredients/salt.json
+  ---
+  duration_ms: 1.516208
+  ...
+# Subtest: B2 shopping inputs reject malformed source data/techniques.json
+ok 88 - B2 shopping inputs reject malformed source data/techniques.json
+  ---
+  duration_ms: 0.964542
+  ...
+# Subtest: B2 shopping inputs preserve unresolved refs as absent records
+ok 89 - B2 shopping inputs preserve unresolved refs as absent records
+  ---
+  duration_ms: 0.656959
+  ...
+# Subtest: B2 empty v3 plan remains a real selected plan
+ok 90 - B2 empty v3 plan remains a real selected plan
+  ---
+  duration_ms: 0.487209
+  ...
+# Subtest: B2 shopping source read failures remain upstream errors
+ok 91 - B2 shopping source read failures remain upstream errors
+  ---
+  duration_ms: 0.356208
+  ...
+# Subtest: B2 fixed-input cache never retains a failed tree read
+ok 92 - B2 fixed-input cache never retains a failed tree read
+  ---
+  duration_ms: 0.851541
+  ...
+# Subtest: B2 fixed-input cache never retains a failed blob read
+ok 93 - B2 fixed-input cache never retains a failed blob read
+  ---
+  duration_ms: 0.692042
+  ...
+# Subtest: B2 source supports strict ShoppingList with pinned commit
+ok 94 - B2 source supports strict ShoppingList with pinned commit
+  ---
+  duration_ms: 17.825
+  ...
+# Subtest: B2 source checks stored basis ancestry
+ok 95 - B2 source checks stored basis ancestry
+  ---
+  duration_ms: 3.304042
+  ...
+# Subtest: B2 source checks stored previous ancestry
+ok 96 - B2 source checks stored previous ancestry
+  ---
+  duration_ms: 2.109416
+  ...
+# Subtest: B2 stored ShoppingList ID must match its source path
+ok 97 - B2 stored ShoppingList ID must match its source path
+  ---
+  duration_ms: 1.436292
+  ...
+# Subtest: B2 source rejects missing selected basis plan
+ok 98 - B2 source rejects missing selected basis plan
+  ---
+  duration_ms: 1.963416
+  ...
+# Subtest: B2 source rejects json selected basis plan
+ok 99 - B2 source rejects json selected basis plan
+  ---
+  duration_ms: 1.358291
+  ...
+# Subtest: B2 source rejects format selected basis plan
+ok 100 - B2 source rejects format selected basis plan
+  ---
+  duration_ms: 4.194708
+  ...
+# Subtest: B2 source rejects duplicate stored ingredient IDs
+ok 101 - B2 source rejects duplicate stored ingredient IDs
+  ---
+  duration_ms: 1.442625
+  ...
+# Subtest: shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources
+ok 102 - shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources
+  ---
+  duration_ms: 29.554209
+  ...
+# Subtest: shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"}
+ok 103 - shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"}
+  ---
+  duration_ms: 4.15925
+  ...
+# Subtest: shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true}
+ok 104 - shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true}
+  ---
+  duration_ms: 2.323708
+  ...
+# Subtest: shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"}
+ok 105 - shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"}
+  ---
+  duration_ms: 2.342583
+  ...
+# Subtest: shopping create rejects missing candidate with a field path
+ok 106 - shopping create rejects missing candidate with a field path
+  ---
+  duration_ms: 2.203083
+  ...
+# Subtest: shopping create rejects extra candidate with a field path
+ok 107 - shopping create rejects extra candidate with a field path
+  ---
+  duration_ms: 2.613
+  ...
+# Subtest: shopping create rejects duplicate candidate with a field path
+ok 108 - shopping create rejects duplicate candidate with a field path
+  ---
+  duration_ms: 1.834208
+  ...
+# Subtest: shopping create cannot invent schema-valid previous judgment
+ok 109 - shopping create cannot invent schema-valid previous judgment
+  ---
+  duration_ms: 1.890792
+  ...
+# Subtest: shopping same-basis explicit manual check clears previous and leaves knowledge unchanged
+ok 110 - shopping same-basis explicit manual check clears previous and leaves knowledge unchanged
+  ---
+  duration_ms: 3.998125
+  ...
+# Subtest: shopping same-basis update cannot rewrite an existing previous judgment
+ok 111 - shopping same-basis update cannot rewrite an existing previous judgment
+  ---
+  duration_ms: 2.700709
+  ...
+# Subtest: shopping same-basis candidate equality is checked before accepting manual decisions
+ok 112 - shopping same-basis candidate equality is checked before accepting manual decisions
+  ---
+  duration_ms: 1.291125
+  ...
+# Subtest: shopping changed basis requires saved check+previous before a separately locked bought decision
+ok 113 - shopping changed basis requires saved check+previous before a separately locked bought decision
+  ---
+  duration_ms: 8.540083
+  ...
+# Subtest: shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision
+ok 114 - shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision
+  ---
+  duration_ms: 1.582292
+  ...
+# Subtest: shopping unavailable stored previous cannot be bypassed by clear previous
+ok 115 - shopping unavailable stored previous cannot be bypassed by clear previous
+  ---
+  duration_ms: 1.073459
+  ...
+# Subtest: shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan
+ok 116 - shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan
+  ---
+  duration_ms: 0.970375
+  ...
+# Subtest: shopping unresolved ingredient stays check while other ingredients can be decided
+ok 117 - shopping unresolved ingredient stays check while other ingredients can be decided
+  ---
+  duration_ms: 6.164667
+  ...
+# Subtest: shopping repeated demand changes keep only the last manual judgment as previous
+ok 118 - shopping repeated demand changes keep only the last manual judgment as previous
+  ---
+  duration_ms: 6.048416
+  ...
+# Subtest: shopping saved empty plan removes bought items and a later saved re-add starts fresh check
+ok 119 - shopping saved empty plan removes bought items and a later saved re-add starts fresh check
+  ---
+  duration_ms: 7.556459
+  ...
+# Subtest: shopping select an additional empty dinner requires review although its ingredient IDs are unchanged
+ok 120 - shopping select an additional empty dinner requires review although its ingredient IDs are unchanged
+  ---
+  duration_ms: 2.552375
+  ...
+# Subtest: shopping replace dish with the same ingredients requires review although its ingredient IDs are unchanged
+ok 121 - shopping replace dish with the same ingredients requires review although its ingredient IDs are unchanged
+  ---
+  duration_ms: 3.931792
+  ...
+# Subtest: B2 shopping create permission chef and only list bytes change
+ok 122 - B2 shopping create permission chef and only list bytes change
+  ---
+  duration_ms: 23.268584
+  ...
+# Subtest: B2 shopping create permission buyer and only list bytes change
+ok 123 - B2 shopping create permission buyer and only list bytes change
+  ---
+  duration_ms: 3.852667
+  ...
+# Subtest: B2 shopping create permission admin and only list bytes change
+ok 124 - B2 shopping create permission admin and only list bytes change
+  ---
+  duration_ms: 4.735208
+  ...
+# Subtest: B2 shopping lock precondition_required {}
+ok 125 - B2 shopping lock precondition_required {}
+  ---
+  duration_ms: 1.911583
+  ...
+# Subtest: B2 shopping lock invalid_precondition {"If-Match":"*"}
+ok 126 - B2 shopping lock invalid_precondition {"If-Match":"*"}
+  ---
+  duration_ms: 1.721667
+  ...
+# Subtest: B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"}
+ok 127 - B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"}
+  ---
+  duration_ms: 1.639417
+  ...
+# Subtest: B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"}
+ok 128 - B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"}
+  ---
+  duration_ms: 1.46825
+  ...
+# Subtest: B2 shopping auth precedes bad body and all source reads
+ok 129 - B2 shopping auth precedes bad body and all source reads
+  ---
+  duration_ms: 0.614333
+  ...
+# Subtest: B2 shopping ID mismatch occurs after lock and points at ID
+ok 130 - B2 shopping ID mismatch occurs after lock and points at ID
+  ---
+  duration_ms: 1.747916
+  ...
+# Subtest: B2 shopping duplicate create and stale idempotent retry cannot overwrite
+ok 131 - B2 shopping duplicate create and stale idempotent retry cannot overwrite
+  ---
+  duration_ms: 8.041125
+  ...
+# Subtest: B2 shopping concurrent creators produce one winner
+ok 132 - B2 shopping concurrent creators produce one winner
+  ---
+  duration_ms: 1.934041
+  ...
+# Subtest: B2 retry repeats basis ancestry against the new captured head
+ok 133 - B2 retry repeats basis ancestry against the new captured head
+  ---
+  duration_ms: 3.110792
+  ...
+# Subtest: B2 shopping upstream error is not a missing basis
+ok 134 - B2 shopping upstream error is not a missing basis
+  ---
+  duration_ms: 1.290625
+  ...
+# Subtest: B2 equivalent selection ordering normalizes once without resetting decisions
+ok 135 - B2 equivalent selection ordering normalizes once without resetting decisions
+  ---
+  duration_ms: 8.800792
+  ...
+# Subtest: B2 schema errors retain Ajv keywords and never carry reviewRequired
+ok 136 - B2 schema errors retain Ajv keywords and never carry reviewRequired
+  ---
+  duration_ms: 0.637042
+  ...
+# Subtest: B2 each shopping save fits the Free 50-subrequest limit for nine ingredients
+ok 137 - B2 each shopping save fits the Free 50-subrequest limit for nine ingredients
+  ---
+  duration_ms: 9.756208
+  ...
+# fetch counts create/buy/reconcile/confirm-with-retry: 21/23/25/38
+# Subtest: B2 immutable reads are shared on ref retry but head and ancestry are checked again
+ok 138 - B2 immutable reads are shared on ref retry but head and ancestry are checked again
+  ---
+  duration_ms: 2.311292
+  ...
+# Subtest: B2 v3 plan saves and rereads with 1 meals without invented servings
+ok 139 - B2 v3 plan saves and rereads with 1 meals without invented servings
+  ---
+  duration_ms: 19.804959
+  ...
+# Subtest: B2 v3 plan saves and rereads with 0 meals without invented servings
+ok 140 - B2 v3 plan saves and rereads with 0 meals without invented servings
+  ---
+  duration_ms: 3.792625
+  ...
+# Subtest: B2 v3 dish unknown qty saves unchanged; v2 still requires qty
+ok 141 - B2 v3 dish unknown qty saves unchanged; v2 still requires qty
+  ---
+  duration_ms: 5.700416
+  ...
+# Subtest: B2 newest lock cannot downgrade plan to 2
+ok 142 - B2 newest lock cannot downgrade plan to 2
+  ---
+  duration_ms: 3.099208
+  ...
+# Subtest: B2 newest lock cannot downgrade dish to undefined
+ok 143 - B2 newest lock cannot downgrade dish to undefined
+  ---
+  duration_ms: 3.473792
+  ...
+# Subtest: B2 newest lock cannot downgrade dish to 2
+ok 144 - B2 newest lock cannot downgrade dish to 2
+  ---
+  duration_ms: 2.41175
+  ...
+# Subtest: B2 version guard does not hide stale lock conflict
+ok 145 - B2 version guard does not hide stale lock conflict
+  ---
+  duration_ms: 1.135208
+  ...
+# Subtest: B2 v3 range relation {"start":"2026-10-25","end":"2026-10-19"}
+ok 146 - B2 v3 range relation {"start":"2026-10-25","end":"2026-10-19"}
+  ---
+  duration_ms: 1.104458
+  ...
+# Subtest: B2 v3 range relation {"start":"2026-10-20","end":"2026-10-25"}
+ok 147 - B2 v3 range relation {"start":"2026-10-20","end":"2026-10-25"}
+  ---
+  duration_ms: 1.589417
+  ...
+# Subtest: B2 explicit version selection and standalone ShoppingList validator
+ok 148 - B2 explicit version selection and standalone ShoppingList validator
+  ---
+  duration_ms: 0.606792
+  ...
+# Subtest: B1 /source/ingredient/tomato pins explicit revision
+ok 149 - B1 /source/ingredient/tomato pins explicit revision
+  ---
+  duration_ms: 18.999875
+  ...
+# Subtest: B1 /source/ingredient/tomato invalid revision main
+ok 150 - B1 /source/ingredient/tomato invalid revision main
+  ---
+  duration_ms: 1.915542
+  ...
+# Subtest: B1 /source/ingredient/tomato invalid revision abcd
+ok 151 - B1 /source/ingredient/tomato invalid revision abcd
+  ---
+  duration_ms: 1.448042
+  ...
+# Subtest: B1 /source/ingredient/tomato invalid revision AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ok 152 - B1 /source/ingredient/tomato invalid revision AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  ---
+  duration_ms: 1.282667
+  ...
+# Subtest: B1 /source/ingredient/tomato invalid revision
+ok 153 - B1 /source/ingredient/tomato invalid revision
+  ---
+  duration_ms: 1.53575
+  ...
+# Subtest: B1 /source/ingredient/tomato rejects nonancestor and missing revision
+ok 154 - B1 /source/ingredient/tomato rejects nonancestor and missing revision
+  ---
+  duration_ms: 4.392375
+  ...
+# Subtest: B1 /source/ingredient/tomato stored invalid source is explicit
+ok 155 - B1 /source/ingredient/tomato stored invalid source is explicit
+  ---
+  duration_ms: 1.787958
+  ...
+# Subtest: B1 /source/ingredient/tomato stored invalid source is explicit
+ok 156 - B1 /source/ingredient/tomato stored invalid source is explicit
+  ---
+  duration_ms: 3.23375
+  ...
+# Subtest: B1 /catalog pins explicit revision
+ok 157 - B1 /catalog pins explicit revision
+  ---
+  duration_ms: 2.182666
+  ...
+# Subtest: B1 /catalog invalid revision main
+ok 158 - B1 /catalog invalid revision main
+  ---
+  duration_ms: 0.654334
+  ...
+# Subtest: B1 /catalog invalid revision abcd
+ok 159 - B1 /catalog invalid revision abcd
+  ---
+  duration_ms: 1.054791
+  ...
+# Subtest: B1 /catalog invalid revision AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ok 160 - B1 /catalog invalid revision AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  ---
+  duration_ms: 0.494458
+  ...
+# Subtest: B1 /catalog invalid revision
+ok 161 - B1 /catalog invalid revision
+  ---
+  duration_ms: 0.923416
+  ...
+# Subtest: B1 /catalog rejects nonancestor and missing revision
+ok 162 - B1 /catalog rejects nonancestor and missing revision
+  ---
+  duration_ms: 1.810084
+  ...
+# Subtest: B1 /catalog stored invalid source is explicit
+ok 163 - B1 /catalog stored invalid source is explicit
+  ---
+  duration_ms: 0.908333
+  ...
+# Subtest: B1 /catalog stored invalid source is explicit
+ok 164 - B1 /catalog stored invalid source is explicit
+  ---
+  duration_ms: 1.168917
+  ...
+# Subtest: B1 network and authorization upstream failures do not become absent revision
+ok 165 - B1 network and authorization upstream failures do not become absent revision
+  ---
+  duration_ms: 1.261083
+  ...
+# Subtest: B1 catalog tree truncation fails closed
+ok 166 - B1 catalog tree truncation fails closed
+  ---
+  duration_ms: 0.778459
+  ...
+# Subtest: B1 asset returns historical bytes and version header
+ok 167 - B1 asset returns historical bytes and version header
+  ---
+  duration_ms: 1.894333
+  ...
+# Subtest: B1 asset missing historical bytes has no current fallback
+ok 168 - B1 asset missing historical bytes has no current fallback
+  ---
+  duration_ms: 1.079708
+  ...
+# Subtest: B1 asset path restriction https://example.com/a.jpg
+ok 169 - B1 asset path restriction https://example.com/a.jpg
+  ---
+  duration_ms: 0.782375
+  ...
+# Subtest: B1 asset path restriction ../../secrets.jpg
+ok 170 - B1 asset path restriction ../../secrets.jpg
+  ---
+  duration_ms: 0.426833
+  ...
+# Subtest: B1 asset path restriction /data/ingredients/tomato.png
+ok 171 - B1 asset path restriction /data/ingredients/tomato.png
+  ---
+  duration_ms: 0.410542
+  ...
+# Subtest: B1 asset validates owner and schema pointer; auth runs first
+ok 172 - B1 asset validates owner and schema pointer; auth runs first
+  ---
+  duration_ms: 1.046417
+  ...
+# Subtest: B2 rollback rejects bad JSON in candidate plan
+ok 173 - B2 rollback rejects bad JSON in candidate plan
+  ---
+  duration_ms: 21.157042
+  ...
+# Subtest: B2 rollback rejects bad JSON in candidate dish
+ok 174 - B2 rollback rejects bad JSON in candidate dish
+  ---
+  duration_ms: 3.897417
+  ...
+# Subtest: B2 rollback rejects bad JSON in candidate ingredient
+ok 175 - B2 rollback rejects bad JSON in candidate ingredient
+  ---
+  duration_ms: 2.953916
+  ...
+# Subtest: B2 rollback rejects bad JSON in candidate techniques
+ok 176 - B2 rollback rejects bad JSON in candidate techniques
+  ---
+  duration_ms: 2.419291
+  ...
+# Subtest: B2 rollback rejects bad JSON in candidate translations
+ok 177 - B2 rollback rejects bad JSON in candidate translations
+  ---
+  duration_ms: 3.195084
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: v2 empty plan
+ok 178 - B2 rollback rejects candidate schema failure: v2 empty plan
+  ---
+  duration_ms: 2.359666
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: v3 impossible date
+ok 179 - B2 rollback rejects candidate schema failure: v3 impossible date
+  ---
+  duration_ms: 2.053416
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: v3 range relation
+ok 180 - B2 rollback rejects candidate schema failure: v3 range relation
+  ---
+  duration_ms: 1.267209
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: unknown dish version
+ok 181 - B2 rollback rejects candidate schema failure: unknown dish version
+  ---
+  duration_ms: 1.915458
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: v2 dish missing qty
+ok 182 - B2 rollback rejects candidate schema failure: v2 dish missing qty
+  ---
+  duration_ms: 2.178875
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: ingredient required fields
+ok 183 - B2 rollback rejects candidate schema failure: ingredient required fields
+  ---
+  duration_ms: 1.223791
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: technique item
+ok 184 - B2 rollback rejects candidate schema failure: technique item
+  ---
+  duration_ms: 0.808917
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: translation status
+ok 185 - B2 rollback rejects candidate schema failure: translation status
+  ---
+  duration_ms: 0.750292
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: translation stale
+ok 186 - B2 rollback rejects candidate schema failure: translation stale
+  ---
+  duration_ms: 0.735458
+  ...
+# Subtest: B2 rollback rejects candidate schema failure: additional property
+ok 187 - B2 rollback rejects candidate schema failure: additional property
+  ---
+  duration_ms: 0.637125
+  ...
+# Subtest: B2 rollback validates unchanged invalid candidate files, including a no-op rollback
+ok 188 - B2 rollback validates unchanged invalid candidate files, including a no-op rollback
+  ---
+  duration_ms: 0.637875
+  ...
+# Subtest: B2 rollback requires the techniques file even when no dish references it
+ok 189 - B2 rollback requires the techniques file even when no dish references it
+  ---
+  duration_ms: 0.980291
+  ...
+# Subtest: B2 rollback rejects dangling plan dish using the candidate, not current HEAD
+ok 190 - B2 rollback rejects dangling plan dish using the candidate, not current HEAD
+  ---
+  duration_ms: 1.40825
+  ...
+# Subtest: B2 rollback rejects dangling component ingredient using the candidate, not current HEAD
+ok 191 - B2 rollback rejects dangling component ingredient using the candidate, not current HEAD
+  ---
+  duration_ms: 1.351792
+  ...
+# Subtest: B2 rollback rejects dangling prep technique references
+ok 192 - B2 rollback rejects dangling prep technique references
+  ---
+  duration_ms: 1.194709
+  ...
+# Subtest: B2 rollback rejects dangling steps technique references
+ok 193 - B2 rollback rejects dangling steps technique references
+  ---
+  duration_ms: 0.732875
+  ...
+# Subtest: B2 rollback keeps v3 downgrade rejection ahead of candidate schema and reference errors
+ok 194 - B2 rollback keeps v3 downgrade rejection ahead of candidate schema and reference errors
+  ---
+  duration_ms: 0.522959
+  ...
+# Subtest: B2 rollback rejects non-regular knowledge entry commit at data/dishes/submodule
+ok 195 - B2 rollback rejects non-regular knowledge entry commit at data/dishes/submodule
+  ---
+  duration_ms: 1.426041
+  ...
+# Subtest: B2 rollback rejects non-regular knowledge entry commit at data/ingredients
+ok 196 - B2 rollback rejects non-regular knowledge entry commit at data/ingredients
+  ---
+  duration_ms: 0.956667
+  ...
+# Subtest: B2 rollback rejects non-regular knowledge entry tree at data/menu-plans/folder.json
+ok 197 - B2 rollback rejects non-regular knowledge entry tree at data/menu-plans/folder.json
+  ---
+  duration_ms: 0.668958
+  ...
+# Subtest: B2 rollback rejects non-regular knowledge entry blob at data/ingredients/salt.jpg
+ok 198 - B2 rollback rejects non-regular knowledge entry blob at data/ingredients/salt.jpg
+  ---
+  duration_ms: 0.516583
+  ...
+# Subtest: B2 rollback accepts empty v3 plan and unknown v3 qty while preserving non-knowledge bytes
+ok 199 - B2 rollback accepts empty v3 plan and unknown v3 qty while preserving non-knowledge bytes
+  ---
+  duration_ms: 1.405583
+  ...
+# Subtest: B2 rollback revalidates all candidate sources after a competing list write
+ok 200 - B2 rollback revalidates all candidate sources after a competing list write
+  ---
+  duration_ms: 2.636125
+  ...
+# Subtest: B2 rollback rejects missing historical image at data/dishes/soup.json\#/image
+ok 201 - B2 rollback rejects missing historical image at data/dishes/soup.json\#/image
+  ---
+  duration_ms: 1.333583
+  ...
+# Subtest: B2 rollback rejects missing historical image at data/ingredients/salt.json\#/image
+ok 202 - B2 rollback rejects missing historical image at data/ingredients/salt.json\#/image
+  ---
+  duration_ms: 0.814208
+  ...
+# Subtest: B2 rollback rejects missing historical image at data/dishes/soup.json\#/components/0/prep/image
+ok 203 - B2 rollback rejects missing historical image at data/dishes/soup.json\#/components/0/prep/image
+  ---
+  duration_ms: 0.662875
+  ...
+# Subtest: B2 rollback rejects missing historical image at data/dishes/soup.json\#/steps/0/image
+ok 204 - B2 rollback rejects missing historical image at data/dishes/soup.json\#/steps/0/image
+  ---
+  duration_ms: 0.955959
+  ...
+# Subtest: B2 rollback rejects missing historical image at data/techniques.json\#/0/image
+ok 205 - B2 rollback rejects missing historical image at data/techniques.json\#/0/image
+  ---
+  duration_ms: 0.833084
+  ...
+# Subtest: B2 rollback rejects illegal historical image src /data/ingredients/salt.png
+ok 206 - B2 rollback rejects illegal historical image src /data/ingredients/salt.png
+  ---
+  duration_ms: 0.80575
+  ...
+# Subtest: B2 rollback rejects illegal historical image src ../../../secret.png
+ok 207 - B2 rollback rejects illegal historical image src ../../../secret.png
+  ---
+  duration_ms: 1.492875
+  ...
+# Subtest: B2 rollback rejects illegal historical image src data:text/plain,test
+ok 208 - B2 rollback rejects illegal historical image src data:text/plain,test
+  ---
+  duration_ms: 0.677792
+  ...
+# Subtest: B2 rollback rejects illegal historical image src salt%2epng
+ok 209 - B2 rollback rejects illegal historical image src salt%2epng
+  ---
+  duration_ms: 0.626041
+  ...
+# Subtest: B2 rollback rejects illegal historical image src data/menu-plans/secret.png
+ok 210 - B2 rollback rejects illegal historical image src data/menu-plans/secret.png
+  ---
+  duration_ms: 0.649375
+  ...
+# Subtest: B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.png
+ok 211 - B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.png
+  ---
+  duration_ms: 0.772709
+  ...
+# Subtest: B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.jpg
+ok 212 - B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.jpg
+  ---
+  duration_ms: 0.661459
+  ...
+# Subtest: B2 rollback restores valid historical local image bytes instead of current bytes
+ok 213 - B2 rollback restores valid historical local image bytes instead of current bytes
+  ---
+  duration_ms: 1.102125
+  ...
+# Subtest: B2 rollback preserves remote ImageRef without fetching or claiming pinned bytes
+ok 214 - B2 rollback preserves remote ImageRef without fetching or claiming pinned bytes
+  ---
+  duration_ms: 3.102292
+  ...
+# Subtest: B2 review rejects duplicate technique ID even when different
+ok 215 - B2 review rejects duplicate technique ID even when different
+  ---
+  duration_ms: 2.311125
+  ...
+# Subtest: B2 review rejects duplicate technique ID even when identical
+ok 216 - B2 review rejects duplicate technique ID even when identical
+  ---
+  duration_ms: 1.128833
+  ...
+# Subtest: B2 review a later explicit v3 downgrade wins over candidate dish null
+ok 217 - B2 review a later explicit v3 downgrade wins over candidate dish null
+  ---
+  duration_ms: 0.697834
+  ...
+# Subtest: B2 review a later explicit v3 downgrade wins over candidate dish { broken
+ok 218 - B2 review a later explicit v3 downgrade wins over candidate dish { broken
+  ---
+  duration_ms: 0.494625
+  ...
+# Subtest: B2 review a later explicit v3 downgrade wins over candidate dish []
+ok 219 - B2 review a later explicit v3 downgrade wins over candidate dish []
+  ---
+  duration_ms: 0.625208
+  ...
+# Subtest: B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"4","name":{"zh":"汤"}}\\n
+ok 220 - B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"4","name":{"zh":"汤"}}\\n
+  ---
+  duration_ms: 0.542708
+  ...
+# Subtest: B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"3","name":null}\\n
+ok 221 - B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"3","name":null}\\n
+  ---
+  duration_ms: 0.541417
+  ...
+# Subtest: B2 review does not swallow 401 while collecting candidate version errors
+ok 222 - B2 review does not swallow 401 while collecting candidate version errors
+  ---
+  duration_ms: 0.510709
+  ...
+# Subtest: B2 review does not swallow 403 while collecting candidate version errors
+ok 223 - B2 review does not swallow 403 while collecting candidate version errors
+  ---
+  duration_ms: 0.429416
+  ...
+# Subtest: B2 review does not swallow network while collecting candidate version errors
+ok 224 - B2 review does not swallow network while collecting candidate version errors
+  ---
+  duration_ms: 0.420959
+  ...
+# Subtest: B2 review detailed source errors are opt-in for rollback
+ok 225 - B2 review detailed source errors are opt-in for rollback
+  ---
+  duration_ms: 0.332875
+  ...
+# Subtest: B2 review preserves the existing pcs with yield warning-only contract
+ok 226 - B2 review preserves the existing pcs with yield warning-only contract
+  ---
+  duration_ms: 1.736667
+  ...
+# Subtest: B2 review retains the actual row index for a second meal reference error
+ok 227 - B2 review retains the actual row index for a second meal reference error
+  ---
+  duration_ms: 0.74675
+  ...
+# Subtest: B2 review retains the actual row index for a second ingredient reference error
+ok 228 - B2 review retains the actual row index for a second ingredient reference error
+  ---
+  duration_ms: 0.630709
+  ...
+# Subtest: B2 review retains the actual row index for a second prep reference error
+ok 229 - B2 review retains the actual row index for a second prep reference error
+  ---
+  duration_ms: 0.61125
+  ...
+# Subtest: B2 review retains the actual row index for a second step reference error
+ok 230 - B2 review retains the actual row index for a second step reference error
+  ---
+  duration_ms: 0.583542
+  ...
+# Subtest: team rollback restores only allowed knowledge paths, keeping current lists and unknown paths byte-for-byte
+ok 231 - team rollback restores only allowed knowledge paths, keeping current lists and unknown paths byte-for-byte
+  ---
+  duration_ms: 26.779334
+  ...
+# Subtest: team rollback ignores protected-only differences without making a commit
+ok 232 - team rollback ignores protected-only differences without making a commit
+  ---
+  duration_ms: 2.043334
+  ...
+# Subtest: team rollback rejects current v3 menu-plans to 2, with zero Git writes
+ok 233 - team rollback rejects current v3 menu-plans to 2, with zero Git writes
+  ---
+  duration_ms: 2.190833
+  ...
+# Subtest: team rollback rejects current v3 menu-plans to missing, with zero Git writes
+ok 234 - team rollback rejects current v3 menu-plans to missing, with zero Git writes
+  ---
+  duration_ms: 3.092583
+  ...
+# Subtest: team rollback rejects current v3 dishes to 2, with zero Git writes
+ok 235 - team rollback rejects current v3 dishes to 2, with zero Git writes
+  ---
+  duration_ms: 1.784709
+  ...
+# Subtest: team rollback rejects current v3 dishes to missing, with zero Git writes
+ok 236 - team rollback rejects current v3 dishes to missing, with zero Git writes
+  ---
+  duration_ms: 1.127625
+  ...
+# Subtest: team rollback rejects current v3 dishes to implicit-v2, with zero Git writes
+ok 237 - team rollback rejects current v3 dishes to implicit-v2, with zero Git writes
+  ---
+  duration_ms: 1.708833
+  ...
+# Subtest: team rollback permits current v3 to historical v3 without changing list bytes
+ok 238 - team rollback permits current v3 to historical v3 without changing list bytes
+  ---
+  duration_ms: 3.303667
+  ...
+# Subtest: team rollback re-reads current head after ref conflict and preserves the latest shopping bytes
+ok 239 - team rollback re-reads current head after ref conflict and preserves the latest shopping bytes
+  ---
+  duration_ms: 2.577917
+  ...
+# Subtest: team rollback rechecks v3 protection after a competing upgrade
+ok 240 - team rollback rechecks v3 protection after a competing upgrade
+  ---
+  duration_ms: 1.451292
+  ...
+# Subtest: team rollback fails closed when current protected JSON cannot reveal its version
+ok 241 - team rollback fails closed when current protected JSON cannot reveal its version
+  ---
+  duration_ms: 0.726416
+  ...
+# Subtest: team rollback cannot reuse a cached version to replace v3 JSON with a symlink
+ok 242 - team rollback cannot reuse a cached version to replace v3 JSON with a symlink
+  ---
+  duration_ms: 1.44825
+  ...
+# Subtest: B1 required precondition existing=false
+ok 243 - B1 required precondition existing=false
+  ---
+  duration_ms: 15.700958
+  ...
+# Subtest: B1 required precondition existing=true
+ok 244 - B1 required precondition existing=true
+  ---
+  duration_ms: 1.834334
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":"*"}
+ok 245 - B1 reject malformed precondition {"If-Match":"*"}
+  ---
+  duration_ms: 1.131334
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":"W/\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\""}
+ok 246 - B1 reject malformed precondition {"If-Match":"W/\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\""}
+  ---
+  duration_ms: 0.902417
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":"\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\", \\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\\""}
+ok 247 - B1 reject malformed precondition {"If-Match":"\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\", \\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\\""}
+  ---
+  duration_ms: 1.314708
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":""}
+ok 248 - B1 reject malformed precondition {"If-Match":""}
+  ---
+  duration_ms: 1.241167
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":"\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+ok 249 - B1 reject malformed precondition {"If-Match":"\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+  ---
+  duration_ms: 0.963292
+  ...
+# Subtest: B1 reject malformed precondition {"If-None-Match":"abc"}
+ok 250 - B1 reject malformed precondition {"If-None-Match":"abc"}
+  ---
+  duration_ms: 1.41725
+  ...
+# Subtest: B1 reject malformed precondition {"If-Match":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","If-None-Match":"*"}
+ok 251 - B1 reject malformed precondition {"If-Match":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","If-None-Match":"*"}
+  ---
+  duration_ms: 1.360375
+  ...
+# Subtest: B1 quoted current lock accepted, stale lock checked before idempotence
+ok 252 - B1 quoted current lock accepted, stale lock checked before idempotence
+  ---
+  duration_ms: 9.371291
+  ...
+# Subtest: B1 simultaneous create has one winner and does not overwrite it
+ok 253 - B1 simultaneous create has one winner and does not overwrite it
+  ---
+  duration_ms: 2.043959
+  ...
+# Subtest: B1 mandatory lock on /dish/test
+ok 254 - B1 mandatory lock on /dish/test
+  ---
+  duration_ms: 1.509125
+  ...
+# Subtest: B1 mandatory lock on /dish/test/draft
+ok 255 - B1 mandatory lock on /dish/test/draft
+  ---
+  duration_ms: 0.623708
+  ...
+# Subtest: B1 write semantic reads use the attempt head, never mutable branch
+ok 256 - B1 write semantic reads use the attempt head, never mutable branch
+  ---
+  duration_ms: 2.241541
+  ...
+# Subtest: T-10 plannedServings 是字符串 → 400 type，路径是 /meals/0/plannedServings，无 commit
+ok 257 - T-10 plannedServings 是字符串 → 400 type，路径是 /meals/0/plannedServings，无 commit
+  ---
+  duration_ms: 12.150167
+  ...
+# Subtest: T-11 缺 schemaVersion → 400 required，path 是根（""）
+ok 258 - T-11 缺 schemaVersion → 400 required，path 是根（""）
+  ---
+  duration_ms: 1.255292
+  ...
+# Subtest: T-12 mealType = brunch → 400 enum
+ok 259 - T-12 mealType = brunch → 400 enum
+  ---
+  duration_ms: 0.967542
+  ...
+# Subtest: T-13 多一个 meals[0].notes 键 → 400 additionalProperties
+ok 260 - T-13 多一个 meals[0].notes 键 → 400 additionalProperties
+  ---
+  duration_ms: 0.621667
+  ...
+# Subtest: T-14 POST /plan/WEEK-43（大写）→ 400 bad_id
+ok 261 - T-14 POST /plan/WEEK-43（大写）→ 400 bad_id
+  ---
+  duration_ms: 0.653667
+  ...
+# Subtest: T-15 POST /ingredient/:id 请求体 name 三语全空 → 400 anyOf，path /name
+ok 262 - T-15 POST /ingredient/:id 请求体 name 三语全空 → 400 anyOf，path /name
+  ---
+  duration_ms: 0.9125
+  ...
+# Subtest: T-16 POST /dish/:id/draft 带 status active → 200，落盘是 draft，warnings 含 status-forced
+ok 263 - T-16 POST /dish/:id/draft 带 status active → 200，落盘是 draft，warnings 含 status-forced
+  ---
+  duration_ms: 2.641875
+  ...
+# Subtest: POST /dish/:id（决议追加第 2 条）status 由请求体决定，可直接 active
+ok 264 - POST /dish/:id（决议追加第 2 条）status 由请求体决定，可直接 active
+  ---
+  duration_ms: 1.012292
+  ...
+# Subtest: T-17 dishRef 指向不存在的菜 → 200（不拒绝），warnings 含 dangling-ref
+ok 265 - T-17 dishRef 指向不存在的菜 → 200（不拒绝），warnings 含 dangling-ref
+  ---
+  duration_ms: 2.286167
+  ...
+# Subtest: T-18 路径穿越 → 400 bad_path，且日志里不含请求体
+ok 266 - T-18 路径穿越 → 400 bad_path，且日志里不含请求体
+  ---
+  duration_ms: 0.772
+  ...
+# Subtest: T-19 300 KB JSON → 413 too_large
+ok 267 - T-19 300 KB JSON → 413 too_large
+  ---
+  duration_ms: 1.043
+  ...
+# Subtest: T-20 截断的 JSON → 400 bad_json（不是 502）
+ok 268 - T-20 截断的 JSON → 400 bad_json（不是 502）
+  ---
+  duration_ms: 0.408458
+  ...
+# Subtest: T-21 内容逐字相同再写一次 → unchanged: true，commit 是当前 HEAD，写 API 一次都没调
+ok 269 - T-21 内容逐字相同再写一次 → unchanged: true，commit 是当前 HEAD，写 API 一次都没调
+  ---
+  duration_ms: 13.603208
+  ...
+# Subtest: T-22 键顺序打乱、缩进不同 → 稳定序列化后仍然 unchanged: true
+ok 270 - T-22 键顺序打乱、缩进不同 → 稳定序列化后仍然 unchanged: true
+  ---
+  duration_ms: 2.046583
+  ...
+# Subtest: T-23（L1 版）If-Match 与当前 blob sha 不符 → 409 conflict，且不重试
+ok 271 - T-23（L1 版）If-Match 与当前 blob sha 不符 → 409 conflict，且不重试
+  ---
+  duration_ms: 1.145875
+  ...
+# Subtest: If-Match 与当前 blob sha 相符 → 正常写入，响应回新的 blobSha
+ok 272 - If-Match 与当前 blob sha 相符 → 正常写入，响应回新的 blobSha
+  ---
+  duration_ms: 1.83875
+  ...
+# Subtest: T-24（L1 版）ref 级冲突 → 重读一次并重试一次，第二次成功
+ok 273 - T-24（L1 版）ref 级冲突 → 重读一次并重试一次，第二次成功
+  ---
+  duration_ms: 2.800458
+  ...
+# Subtest: ref 级冲突连续两次 → 409 conflict（不无限重试）
+ok 274 - ref 级冲突连续两次 → 409 conflict（不无限重试）
+  ---
+  duration_ms: 2.04175
+  ...
+# Subtest: commit 形状：ADR-0007 §2 的首行 + [skip ci] + 两条 trailer，作者 canteenos-bot
+ok 275 - commit 形状：ADR-0007 §2 的首行 + [skip ci] + 两条 trailer，作者 canteenos-bot
+  ---
+  duration_ms: 1.136125
+  ...
+# Subtest: Ingredient retains legacy no-if-match warning (outside team-meals change)
+ok 276 - Ingredient retains legacy no-if-match warning (outside team-meals change)
+  ---
+  duration_ms: 1.917375
+  ...
+# Subtest: D-08：planId 不是 week-NN 形状只警告不拒绝
+ok 277 - D-08：planId 不是 week-NN 形状只警告不拒绝
+  ---
+  duration_ms: 1.338791
+  ...
+# Subtest: D-10：pcs 食材设了 yield → 只警告不拒绝
+ok 278 - D-10：pcs 食材设了 yield → 只警告不拒绝
+  ---
+  duration_ms: 1.285375
+  ...
+# Subtest: 写入落盘的是稳定序列化后的字节（键排序 + 2 空格 + 末尾换行）
+ok 279 - 写入落盘的是稳定序列化后的字节（键排序 + 2 空格 + 末尾换行）
+  ---
+  duration_ms: 1.166375
+  ...
+1..279
+# tests 279
+# suites 0
+# pass 279
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 341.949958
