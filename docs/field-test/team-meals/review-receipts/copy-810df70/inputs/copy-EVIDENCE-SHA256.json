@@ -1,0 +1,171 @@
+{
+  "sourceHead": "862ab0980d09493b92c5554768f05599ce925444",
+  "approvedProduction": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 5437,
+      "sha256": "090d23820a32b0eb4107b816364046de5489775cb40e81cbb1872e0c4f5de94a"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-native-en.txt",
+      "bytes": 4889,
+      "sha256": "e7ac690ab7d2829c30f49dcefb442a2d48552cec49db057cd6d89e9c7f9c5c71"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-native-uk.txt",
+      "bytes": 8252,
+      "sha256": "29bea45212aeac971f4a418505f5419aa4fb12506ebc0cdaff938f23f4addadd"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-native-zh.txt",
+      "bytes": 4519,
+      "sha256": "a3f9a86744eea0c8f69ce07611e6e90a296016e14d4314bb767cd5a01f5c5b7a"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-visible-en.txt",
+      "bytes": 16653,
+      "sha256": "aaf9687c7a42c77b50a30c8565a0cbb5687b2645df05cb6b75deaf6cf1bdcf7e"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-visible-uk.txt",
+      "bytes": 21453,
+      "sha256": "77ad94838b875494865672cc4ea41920ebd4ac8899171f483d60d06c9448bfa9"
+    },
+    {
+      "file": "T08-bound-A-unapplied-B-visible-zh.txt",
+      "bytes": 11739,
+      "sha256": "f6f3bf4bac9f897af92b23a734bddca4797eefb21a4411aba62a467f8276d24b"
+    },
+    {
+      "file": "T08-copy-fallback-uk-mobile.png",
+      "bytes": 695086,
+      "sha256": "f064b14badff0331bc110bdfb4e2ca555a8fd85d685fd4f624eb908516f13907"
+    },
+    {
+      "file": "T08-copy-fallback-uk-mobile.txt",
+      "bytes": 29758,
+      "sha256": "8d9ad10813a2267ddb26fd1e53f82f7ab7b3a91727dd0c6ffd610b2b7975dd08"
+    },
+    {
+      "file": "T08-copy-fallback-uk-viewport.png",
+      "bytes": 57821,
+      "sha256": "c4167b68b7d97abfac470312d27b5a4ca65c1ac49ace5b8b986d88e234dce886"
+    },
+    {
+      "file": "T08-original-lunch-fallback-en.txt",
+      "bytes": 4889,
+      "sha256": "e7ac690ab7d2829c30f49dcefb442a2d48552cec49db057cd6d89e9c7f9c5c71"
+    },
+    {
+      "file": "T08-original-lunch-fallback-uk.txt",
+      "bytes": 8252,
+      "sha256": "29bea45212aeac971f4a418505f5419aa4fb12506ebc0cdaff938f23f4addadd"
+    },
+    {
+      "file": "T08-original-lunch-fallback-visible-en.txt",
+      "bytes": 13074,
+      "sha256": "f08520a7abca3a2acfb27cc0f528377c8d83edc6b4be58be9632b13a72cd69cc"
+    },
+    {
+      "file": "T08-original-lunch-fallback-visible-uk.txt",
+      "bytes": 21212,
+      "sha256": "576bb114e68eb3aebf535e43f5a0518407f66ff8d3ec8bce6a4e782fce822eda"
+    },
+    {
+      "file": "T08-original-lunch-fallback-visible-zh.txt",
+      "bytes": 12221,
+      "sha256": "0774f24c294e4a7f86365b9def0dc61e642dd2e5e9f8f52b9f7b63af68be94bf"
+    },
+    {
+      "file": "T08-original-lunch-fallback-zh.txt",
+      "bytes": 4519,
+      "sha256": "a3f9a86744eea0c8f69ce07611e6e90a296016e14d4314bb767cd5a01f5c5b7a"
+    },
+    {
+      "file": "T08-original-lunch-native-en.txt",
+      "bytes": 4889,
+      "sha256": "e7ac690ab7d2829c30f49dcefb442a2d48552cec49db057cd6d89e9c7f9c5c71"
+    },
+    {
+      "file": "T08-original-lunch-native-uk.txt",
+      "bytes": 8252,
+      "sha256": "29bea45212aeac971f4a418505f5419aa4fb12506ebc0cdaff938f23f4addadd"
+    },
+    {
+      "file": "T08-original-lunch-native-zh.txt",
+      "bytes": 4519,
+      "sha256": "a3f9a86744eea0c8f69ce07611e6e90a296016e14d4314bb767cd5a01f5c5b7a"
+    },
+    {
+      "file": "T08-original-lunch-visible-en.txt",
+      "bytes": 7791,
+      "sha256": "15329b7ade1d05ece83c11ecfc2a37cecf48ab16d76136039444c1f9bc16f14f"
+    },
+    {
+      "file": "T08-original-lunch-visible-uk.txt",
+      "bytes": 9529,
+      "sha256": "a9c97a5a7f64e80d6e23315790208ff6223c17a284c0f4f3c6a3ba10c4548e26"
+    },
+    {
+      "file": "T08-original-lunch-visible-zh.txt",
+      "bytes": 3194,
+      "sha256": "cc2730bdc957f8042bd4e160b324ee73b8dd479559a13f495e4c436eb84edea6"
+    },
+    {
+      "file": "build-core-worker.log",
+      "bytes": 371,
+      "sha256": "87c2f80820a6dfafac73e94299443152891e4c2562b11b6dac3ec800abfa0517"
+    },
+    {
+      "file": "copy-repair-green.log",
+      "bytes": 367,
+      "sha256": "290952a4b8be9e1e95e7accdbf1af9e25aaa6aac7536dfd5972c5e490a228047"
+    },
+    {
+      "file": "ledger.json",
+      "bytes": 58222,
+      "sha256": "04d3cd49684828743e93ef2c9c2c7450ead3ff704e4ae4500ea55585f6f6259d"
+    },
+    {
+      "file": "mobile-metrics-detailed.json",
+      "bytes": 304,
+      "sha256": "fe3d8b419794093fad4893546a42dd2b58e419891a1d9b3c84b22d1bda37b59f"
+    },
+    {
+      "file": "mobile-metrics.json",
+      "bytes": 85,
+      "sha256": "74bf91be20d555acd2b33cc4442029478037201d0306d475ba0af5d92e4beae8"
+    },
+    {
+      "file": "native-checks.json",
+      "bytes": 639,
+      "sha256": "31d52e97566ef7f49cf293103f90557f7787dc40ade862aa46d29664022c7f38"
+    },
+    {
+      "file": "native-evidence-checks.log",
+      "bytes": 840,
+      "sha256": "e0643ef85397180d0e0c1bfb7dc56a58934b898c06199e3a2a4aa779ca2e348d"
+    },
+    {
+      "file": "native-server.log",
+      "bytes": 12945,
+      "sha256": "c02573a1d408965ed3ac000df0c0c6a5781793e3d000d502bd2b108487fa39ad"
+    },
+    {
+      "file": "original-plan-replayed.txt",
+      "bytes": 2387,
+      "sha256": "beeb8363d3a2bfb5bb029e0aed33f58ce21458cd60ecc9f811c0140de0c3595e"
+    },
+    {
+      "file": "setup-label-check-failure.log",
+      "bytes": 1531,
+      "sha256": "fac2ec0cfd4979b3fc529dc01b03afce5442b76133a39394c02380c7d995f274"
+    },
+    {
+      "file": "source-integrity.json",
+      "bytes": 9627,
+      "sha256": "e45e76c8f671e901536aad3aa27743224fb67d9f6432abf2628f06e94df8eae6"
+    }
+  ]
+}

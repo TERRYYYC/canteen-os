@@ -1,0 +1,128 @@
+{
+  "receiptVersion": 1,
+  "createdAtUtc": "2026-09-11T10:52:01.140251+00:00",
+  "localReviewVerdict": "APPROVE",
+  "reviewedHeadSha": "810df706519c92622d4706b03c69484ba2fb9911",
+  "qEvidenceBaseSha": "4813ebb2cb57330554f793a60d9d7d7ea09fa405",
+  "reviewSubjectRef": "task:01a08d74-9915-7191-ba9f-3177c587e52a/RC-Q-copy-repair-5049-evidence",
+  "acceptedSourceRef": "docs/specs/team-meals-contract.md",
+  "acceptedRevision": "ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2",
+  "acceptedDesignSha256": "6aaff3f33b65aad6f6952297abae9dd2dafef379bcc0fa64066c07f5300f0352",
+  "clientMessageId": "rcq-copy-repair-evidence-810df70-20260911",
+  "acceptedProductionSha": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "acceptedFullDeliverySha": "f33dd42f1033073329d12579783d470e89dec00d",
+  "capturedSourceSha": "862ab0980d09493b92c5554768f05599ce925444",
+  "reviewer": "Codex non-author /root/v2_review",
+  "route": "local_cat to author /root only",
+  "engagement": "iterative; no open review items",
+  "fiveTuple": {
+    "What": "Review Q copy-repair native evidence, new Q assertions/controls integration, and the week-filter append at exact 810df706519c92622d4706b03c69484ba2fb9911.",
+    "Why": "Verify the original lunch-only omission is closed with real captured clipboard/fallback outputs and precise source-bound requests, without widening the prior 4813 approval.",
+    "Tradeoff": "Consume independently approved D production 5049f0a and authorized full delivery f33dd42. Review Q-owned evidence and facilities only; real Worker uses existing FakeRepo. Independent reviewer runs isolated tests/request replay/formatter comparison, not a browser.",
+    "Open Questions": "No new actionable P-level review findings. Q-UI-T08-01 closure is supported by this evidence. Q-UI-T01-02 remains OPEN; whole-product T01-T09 remains executing. Full-document overflow from visible test controls is disclosed.",
+    "Next Action": "Archive this scoped APPROVE independently from the frozen 4813 receipt; record Q-UI-T08-01 as closed in the author follow-up. Continue the remaining import-draft issue and other acceptance work under separate review subjects."
+  },
+  "findings": [],
+  "productStatus": {
+    "Q-UI-T08-01": "closure supported by APPROVE of new evidence",
+    "Q-UI-T01-02": "OPEN",
+    "T01-T09": "not overall approved"
+  },
+  "evidence": {
+    "archive": "/private/tmp/rcq-review-copy-810df70-1q6ohxtf",
+    "archiveHeadVerified": true,
+    "archiveClean": true,
+    "node": "v20.20.2",
+    "coreWorkerBuild": "exit 0",
+    "targetedTests": {
+      "actualSupplementalFormatter": 1,
+      "capturedNativeEvidence": 3,
+      "pass": 4,
+      "fail": 0
+    },
+    "sourceIntegrity": {
+      "webFiles": 57,
+      "equalToCaptureAndApproved5049": true,
+      "clipboardControlsMatchApprovedDBytes": true
+    },
+    "copyManifest": {
+      "entries": 33,
+      "allHashAndSizeMatch": true,
+      "sha256": "1a06f4f3261f990a2b257b9854dedeadda2397d90ea89ea4227d5de98c41cc78"
+    },
+    "preservation": {
+      "original4813PageBrowser": true,
+      "originalREDReportsAndRunRecord": true,
+      "frozenDataAndFixtures": true
+    },
+    "copyWorkerReplay": {
+      "requests": 9,
+      "actualStatusHeadersResponseBytesAndFinalHeads": "all exact",
+      "finalFiles": 12,
+      "allFinalFileHashes": "all exact",
+      "onlyPOSTIds": [
+        3,
+        7,
+        8
+      ],
+      "originalPOSTsEqual842": true,
+      "lastRequest": "GET current B before copies still bound to A"
+    },
+    "actualFormatter": [
+      {
+        "lang": "zh",
+        "utf8Bytes": 4519,
+        "sha256": "a3f9a86744eea0c8f69ce07611e6e90a296016e14d4314bb767cd5a01f5c5b7a",
+        "nativeFallbackAndAAfterB": "exact actual-formatter match"
+      },
+      {
+        "lang": "en",
+        "utf8Bytes": 4889,
+        "sha256": "e7ac690ab7d2829c30f49dcefb442a2d48552cec49db057cd6d89e9c7f9c5c71",
+        "nativeFallbackAndAAfterB": "exact actual-formatter match"
+      },
+      {
+        "lang": "uk",
+        "utf8Bytes": 8252,
+        "sha256": "29bea45212aeac971f4a418505f5419aa4fb12506ebc0cdaff938f23f4addadd",
+        "nativeFallbackAndAAfterB": "exact actual-formatter match"
+      }
+    ],
+    "weekWorkerReplay": {
+      "originalPrefix": 52,
+      "addedRequests": 4,
+      "actualStatusHeadersResponseBytesAndHeads": "all exact",
+      "onlyChangedFile": "data/menu-plans/empty-check.json",
+      "savedAndReadBackMeals": 3,
+      "plannedServingsDefaulted": false,
+      "priorLedgerSha256": "35ce8d57a1ff6e24708d510fb22148fc5b9a0d6d911331042b4b39ed656efc5b"
+    },
+    "nativeFetchDuringReplay": "disabled",
+    "viewport": {
+      "width": 393,
+      "height": 852,
+      "mainWidth": 393,
+      "manualCopyWidth": 361,
+      "documentScrollWidth": 2434,
+      "wholeDocumentNoOverflowClaim": false
+    },
+    "claimBoundaryPeer": "/root/v2_review/native_claim_boundaries: no actionable P findings"
+  },
+  "limits": [
+    "No reviewer native browser action occurred. Existing captures were inspected; request replay and actual formatter comparison are not browser reruns.",
+    "D production implementation approval is an accepted dependency, not reissued as Q authorship.",
+    "33 evidence files and four tests are not E2E run counts.",
+    "The native original-lunch fixture excludes name-only; the supplemental actual-function case includes it separately.",
+    "Prior 4813 approval and its artifacts are unchanged.",
+    "No server on 4271/4272 or IAB tab was touched; no external writes, production edits, deploy/publish/rollback or L2."
+  ],
+  "setupObservations": [
+    "The first standalone manifest probe expected path keys; the new manifest uses file keys. After reading its schema, verification confirmed all 33 hashes and sizes. This was a review probe setup issue, not a product failure."
+  ],
+  "artifacts": {
+    "commands": "commands.json",
+    "replayScript": "replay.original.mjs",
+    "replayResult": "replay-result.json",
+    "manifest": "MANIFEST-SHA256.json"
+  }
+}
