@@ -1,0 +1,35 @@
+{
+  "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+  "intakeCopiesUnchanged": true,
+  "scope": "Original lunch clipboard lacked concrete missing information. Separate all-three-meals function RED stops at its first components-unrecorded assertion; later missing-purchase assertion did not execute.",
+  "entries": [
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "docs/field-test/team-meals/Q-UI-T08-01.md",
+      "copy": "q-fixed-Q-UI-T08-01.md",
+      "bytes": 4299,
+      "sha256": "a43a33f5903630cf2c8a96a64958c85ac19003ff6ff570e30c3ed2363c9352a4"
+    },
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T08-copy-red.log",
+      "copy": "q-fixed-T08-copy-red.log",
+      "bytes": 1286,
+      "sha256": "c20b6f6a7353eaa52219edf9c508da826a4ecbb3eff7e9066e5762e6497cf158"
+    },
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "packages/web/test/e2e/team-meals/page-fixture.mjs",
+      "copy": "q-fixed-page-fixture.mjs",
+      "bytes": 5371,
+      "sha256": "2a7764b8fda241e84711acaaf3681ae1d511bff6dd810c199ea68b583e6166b5"
+    },
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "packages/web/test/e2e/team-meals/page-server.mjs",
+      "copy": "q-fixed-page-server.mjs",
+      "bytes": 8894,
+      "sha256": "9262ee588df873611bf08ea09e783416a1d859aede7c9594d54554bd75ba3cd7"
+    }
+  ]
+}
