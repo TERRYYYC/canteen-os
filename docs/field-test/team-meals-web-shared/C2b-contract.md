@@ -82,4 +82,6 @@ published-data.test 使用正式 A 构建器从 Q golden 输入在临时真实 G
 
 pwa-browser-server 使用正式生产者和原 vite.config 生成 A、相同 commit 不同 builtAt、B 三套真实 SW，并只在回环地址供浏览器验证；pwa-browser.html 使用明确 mock editor 和真实 data/pwa。实测结果另见 C2b-evidence.md，需区分所测固定代码与后续改动。
 
-当前旧 D 页面仍有五处 AnyMenuPlan 类型错误；共享测试与构建通过不等于整树 typecheck、D 页面组合或真实 Worker/L2 通过。最终须消费调度释放的 D 固定历史，完成主入口/编辑页/三语言/视口组合，再作固定代码的非作者 review。无远程 push、PR、部署或生产写入授权。
+共享完整bae6308、已批准D fa7/B f1历史基础组合618e2a2及启动壳层coverage小修8389736已分别获得原非作者批准。当前组合Web320、整树typecheck、实际构建通过；历史五处D类型错误已由获批D历史消除。D后续实际aux/coverage与正式published页面接线尚未组合，仍需调度释放新的固定D历史，完成主入口/编辑页/三语言/视口组合，再作相应固定代码的非作者review；以上基础检查不等于完整页面链或真实Worker/L2通过。无远程push、PR、部署或生产写入授权。
+
+pwa-browser-server另支持 `C2B_ENTRY=application`：直接构建原index.html/main及实际页面，仍使用同一正式A生产者和实际SW。默认harness保留明确mock editor。两种模式的证据分开；application模式不注入模拟页面或替换应用入口。

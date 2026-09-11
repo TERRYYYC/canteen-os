@@ -52,11 +52,11 @@ created: 2026-09-11
 - 实际 pwa.ts 的受控插件/DOM/时钟测试证明两秒后取消同意、晚 plugin callback 不强刷、重复 controllerchange 幂等、旧会话无私有 ID 提示。这个测试不是实际浏览器时钟或真实 SW 证据。
 - c7785 实际 main 入口 Vite 构建成功，输出 `/private/tmp/c2b-web-application-build`，36 precache；当时 144 Web tests 通过。当前整树 typecheck 仍有旧 D import/plan 共五处 AnyMenuPlan 错误；不作通过声明。
 
-完整固定代码的非作者复审仍进行中；D 完整已审页面历史尚未组合，三语言/视口/main 实际流程与真实 Worker/L2 仍待验收。
+以上为当时的检查状态；后续完整共享批准及基础组合记录于下节。最终D接线、三语言/视口/main实际流程与真实Worker/L2仍待验收。
 
 ## bae6308 正常认证切换的真实 SW 补验
 
-固定代码 `bae6308799d937f675fa7a919879ed8c121b2d93`。原非作者对 28eb 的完整审查发现两项 P2：同 auth 409/bad_response 错误解除保护；custom adapter 非完整 commit ACK 错误解除保护。bae6308 两项均 RED→GREEN，Web154/154（`/private/tmp/c2b-web154.log`）。28eb 报告 `/private/tmp/c2b-reader-pwa-review-28eb30f-qG2fZ9/REVIEW.md` 已独立关闭 98d 的 verified binding/source 可变问题：修改、删除、重定义以及替换消费者返回 source 都不能改变私有已验证绑定。bae6308 最终判定待原 reviewer。
+固定代码 `bae6308799d937f675fa7a919879ed8c121b2d93`。原非作者对 28eb 的完整审查发现两项 P2：同 auth 409/bad_response 错误解除保护；custom adapter 非完整 commit ACK 错误解除保护。bae6308 两项均 RED→GREEN，Web154/154（`/private/tmp/c2b-web154.log`）。28eb 报告 `/private/tmp/c2b-reader-pwa-review-28eb30f-qG2fZ9/REVIEW.md` 已独立关闭 98d 的 verified binding/source 可变问题：修改、删除、重定义以及替换消费者返回 source 都不能改变私有已验证绑定。bae6308 最终获原 reviewer APPROVE，见下节。
 
 原生补验站 `/private/tmp/c2b-real-sw-8usW5f`、`http://127.0.0.1:61046/canteen/`、IAB tab7。a/src 与本固定 HEAD 的 packages/web/src 全目录无差异；正式 A 生产者、原 CI 配置、实际生成 SW。A `b6e65df955969ea8bf7557106f4fe9006021270e`，B `c21537087c9e9a265c48b3f1491f6f159b887469`。本节仅追加 auth/PWA 真实控制流，不重复声称全量离线矩阵。
 
@@ -70,3 +70,27 @@ created: 2026-09-11
 | boot2 下再次发送 mock save，丢失响应，再正常退出认证 | 旧 editor private 全 null，generic unknown；切 A-time 并点击更新仍只有 Continue，boot2不变，writes1/reads0 |
 
 所有保存/ACK/网络丢失均来自页面明确标注的 mock；更新、controllerchange 和整页重载为实际浏览器行为。旧 unknown 无可核实结果时保留保护，不借新身份读取或手动清除。
+
+## 共享完整批准与固定页面基础组合
+
+原非作者 `/root/c1_review` 对 `bae6308799d937f675fa7a919879ed8c121b2d93` 完整共享 C2b 范围给出 APPROVE，无剩余 P1/P2。报告 `/private/tmp/c2b-reader-pwa-review-bae6308-efuNDX/REVIEW.md`，独立 Web154/154、原 409/非法 ACK 负例、合法原操作结算探针及实际 main 构建通过（entry gzip28.26KB）。其完整批准包括 published reader/assets、C1 与 aux 全记录保护、token/coverage、main/PWA；不包括 D 实际页面组合或真实 Worker/L2。043161b 只补证据，src 零差异。
+
+调度随后正式释放 D 固定 `fa7bc8dc6bcd576065bc23b622e6118f1a17fe41` 全历史用于基础组合。先将独立已审类型 `873526e` 合入为7156664，再将D历史合入为 `d3ea4888be3f7279614d52d7ffff4441b0077cbb`。两次唯一冲突均在 types.ts 的相邻新增字段，保留共享原文件：正式publication、publicationError与已审optional setReloadCoverage。相对已审bae，共享src除D pages目录外零差异。没有消费D未提交工作树。
+
+- 固定d3ea488：Web317/317，日志 `/private/tmp/c2b-fa7-web-combination.log`。
+- 固定d3ea488：整树TypeScript通过，日志 `/private/tmp/c2b-fa7-typecheck.log`；原五处D类型错误在已批准D历史中消除。
+- 固定d3ea488：实际main构建通过，`/private/tmp/c2b-fa7-application-build`，entry gzip53.22KB，实际生成SW34 precache；日志 `/private/tmp/c2b-fa7-build.log`。
+- 代码/测试diff-check通过。全历史diff-check发现D原RED/intermediate原始日志的空白，不修改其证据文件，不声称全历史无空白。
+- 已审B终态全历史 `f1cecfee7ca8e762002864b67ceb945364c79150`（实现225a931）继续合入为 `413022734f07921397d223f7b8c6280dcc9fe0ae`，Web无差异。Worker构建和实际handler publish36/36通过，日志 `/private/tmp/c2b-b-publish-build.log` / `c2b-b-publish36.log`；全为FakeRepo，无真实写入。
+
+此时D的aux/tickets/coverage与正式published页面接线仍在D后续工作中。317绿、类型绿与构建绿仅证明已批准基础页可与共享层组合，不证明页面已登记全覆盖，也不证明菜单/备料已消费正式published handle。接下来只消费调度释放的D新固定批准点，再补实际main页面、三语/视口与真实更新链证据。
+
+## 启动壳层修订与实际应用入口模式
+
+838973689f67c6189d10353e4bc9e9681c5603cc 的启动壳层 coverage 两行增量已获原非作者有界 APPROVE，报告 `/private/tmp/c2b-startup-review-8389736-Av5bMH/REVIEW.md`。独立旧代码 RED2/3、新3/3+8/8补充probe+5个额外页面/owner保护检查、Web320/320、typecheck0和actualbuild通过。此前618e2a2基础组合亦获有界APPROVE，报告 `/private/tmp/c2b-combination-review-618e2a2-Wl9LxT/REVIEW.md`；独立确认C共享/D fa7/B f1内容忠实，Web317、typecheck、actualbuild和Workerpublish36通过。作者已直接阅读两完整报告。
+
+实际main基础兼容现场：固定d3ea488构建产物 `/private/tmp/c2b-fa7-application-build`，本地4189、IABtab8；原legacy数据的备料和菜单能显示并明确旧版限制，采购unconfigured显示不能保存，点击排菜进入未认证锁屏。仅基础兼容，不是team正式published接线完成。
+
+测试服务器新增application模式后，用固定838源码+原index.html构建正式team数据，临时目录 `/private/tmp/c2b-real-sw-KYqRnh`、本地62910/canteen、IABtab9，src全目录diff及原index.html cmp均为零差异。A revision34bb564f1d804047327fd59005915c0c64ac9f69、B revisionb9a16a774f7d36c102f667e82753f558e33f5398。真实入口备料显示数据未就绪，符合D fa7尚未接入新的published接口这一已知未完成边界。此记录用于后续D固定接线验收的基线，不作为完成证据。
+
+原非作者三份最终报告已按原文归档为 [共享完整批准](C2b-review-bae6308.md)、[基础组合批准](C2b-combination-review-618e2a2.md)、[启动增量批准](C2b-startup-review-8389736.md)；启动原报告只追加仓库要求的YAML元数据，报告正文不改。原临时档案与运行日志地址保留，尚未完成边界不扩写为批准。

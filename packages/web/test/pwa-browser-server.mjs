@@ -7,8 +7,10 @@ import {fileURLToPath} from 'node:url';
 import {build} from 'vite';
 import {publishedFixture} from './published-fixture.mjs';
 const web=dirname(fileURLToPath(new URL('../package.json',import.meta.url)));
+const entry=process.env.C2B_ENTRY??'harness';
+if(!['harness','application'].includes(entry))throw new Error('Unknown test entry');
 const directory=await mkdtemp(join(tmpdir(),'c2b-real-sw-'));
-const html=(await readFile(join(web,'test/pwa-browser.html'),'utf8')).replaceAll('../src/','./src/');
+const html=(await readFile(join(web,entry==='application'?'index.html':'test/pwa-browser.html'),'utf8')).replaceAll('../src/','./src/');
 const snapshots={};
 for(const version of ['a','b']) {
  const root=join(directory,version);await mkdir(root);
@@ -48,4 +50,4 @@ const server=createServer(async(req,res)=>{
 });
 const port=Number(process.env.C2B_PORT??0);
 if([3003,3004].includes(port))throw new Error('Reserved runtime port');
-server.listen(port,'127.0.0.1',()=>console.log(JSON.stringify({url:`http://127.0.0.1:${server.address().port}/canteen/`,stateFile,snapshots})));
+server.listen(port,'127.0.0.1',()=>console.log(JSON.stringify({url:`http://127.0.0.1:${server.address().port}/canteen/`,entry,stateFile,snapshots})));
