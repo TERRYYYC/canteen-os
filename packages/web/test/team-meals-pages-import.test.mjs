@@ -7,9 +7,9 @@ import {tmpdir} from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages/admin/import.ts'),source=await readFile(entry,'utf8');
-const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList }; export {bindDraftStore} from "../../admin/store"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
-const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,bindDraftStore,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
+const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
 const week='2026-09-14',catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
 const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
 const row={date:week,mealType:'lunch',dishRef:'soup'};
@@ -59,9 +59,9 @@ const descendants=n=>n.children.flatMap(c=>[c,...descendants(c)]),documentDouble
 globalThis.document=documentDouble;globalThis.window={addEventListener(){},confirm:()=>true,setTimeout,clearTimeout};globalThis.location={hash:'#/admin/plan/week-38/import'};
 const mount=()=>{const el=new Element('main');documentDouble.body.replaceChildren(el);return el;},tick=()=>new Promise(r=>setImmediate(r));
 const ctx=lang=>({lang,rest:'week-38',route:'admin',planId:'week-38',t:key=>key,data:{}});
-function setup(){
+function setup({catalogRead}={}){
  const calls=[],base={schemaVersion:'3',margin:1.17,name:{zh:'完整原计划'},meals:[{...row,plannedServings:8,serviceWindow:'12:00-13:00'},{date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19}]};let gate=null,principal=1;
- const api=createTeamMealsApi('https://import-fixture.invalid',{mode:'mock',token:()=>`explicit-fixture-${principal}`,identity:()=>principal,fetch:async(url,init)=>{const u=new URL(url);calls.push({path:u.pathname,method:init.method});assert.equal(init.method,'GET','import must not write remotely');if(u.pathname==='/catalog')return new Response(JSON.stringify(catalog));if(u.pathname==='/source/plan/week-38'){if(gate)await gate;return new Response(JSON.stringify({content:base,blobSha:'fixture-plan',commit:catalog.commit}));}throw new Error('unexpected fixture path');}});
+ const api=createTeamMealsApi('https://import-fixture.invalid',{mode:'mock',token:()=>`explicit-fixture-${principal}`,identity:()=>principal,fetch:async(url,init)=>{const u=new URL(url);calls.push({path:u.pathname,method:init.method});assert.equal(init.method,'GET','import must not write remotely');if(u.pathname==='/catalog')return new Response(JSON.stringify(await(catalogRead?.()??catalog)));if(u.pathname==='/source/plan/week-38'){if(gate)await gate;return new Response(JSON.stringify({content:base,blobSha:'fixture-plan',commit:catalog.commit}));}throw new Error('unexpected fixture path');}});
  after(()=>api.dispose());return {api,drafts:bindDraftStore(api),base,calls,hold:()=>{let release;gate=new Promise(r=>release=r);return release;},changeAuth:()=>principal++};
 }
 async function preview(f,text='周一午 原汤'){const el=mount();await render(el,ctx('zh'),'week-38',f.api);const ta=el.querySelector('#adm-import-text');ta.value=text;ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');return el;}
@@ -183,4 +183,21 @@ test('different API instances with equal session keys never reuse another instan
 test('old Import undo and handoff button callbacks cannot rebind into the newer identity',async()=>{
  const f=setup();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();el=mount();await render(el,ctx('en'),'week-38',f.api);const undo=el.querySelector('.adm-notice-action');assert.ok(undo);const ta=el.querySelector('#adm-import-text');ta.value='周一午 完全不存在的特殊菜名';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');const handoff=el.querySelector('.adm-import-act');assert.ok(handoff);
  f.changeAuth();const bEl=mount();await render(bEl,ctx('uk'),'week-38',f.api);const b=bindDraftStore(f.api),expected={schemaVersion:'3',name:{zh:'B exact draft'},meals:[]};b.setDraftPlan('week-38',expected,'edit');b.setHandoff({newIngredientName:'B exact handoff'});undo.dispatch('click');handoff.dispatch('click');assert.deepEqual(b.getDraftPlan('week-38'),expected);assert.deepEqual(b.takeHandoff(),{newIngredientName:'B exact handoff'});
+});
+
+test('Import auxiliary tracks raw and actual file read across repaint and explicit clear',async()=>{
+ changeAuth();const f=setup();let el=await preview(f,'unparsed private raw');assert.equal(inspectReloadSafety().reason,'dirty');const file=deferredFile('held.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(inspectReloadSafety().reason,'saving');el.querySelector('.adm-import-clear').dispatch('click');assert.equal(inspectReloadSafety().reason,'saving');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear');
+});
+test('two old Import read tickets survive auth and settle independently without exposing prior identity',async()=>{
+ changeAuth();const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const file=deferredFile('private-a.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');f.changeAuth();changeAuth();el=mount();await render(el,ctx('uk'),'week-38',f.api);let snapshot=inspectReloadSafety();assert.equal(snapshot.reason,'unknown');assert.ok(snapshot.records.some(r=>r.id==='previous-session-operation'));assert.equal(JSON.stringify(snapshot).includes('private-a.csv'),false);release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'unknown','the second old read still exists');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear','all old reads ended; B blank owner is clear');assert.equal(el.querySelector('#adm-import-text').value,'');
+});
+
+
+test('Import initialization completes original coverage after auth cancellation and snapshot never reads A raw',async()=>{
+ changeAuth();let release,old=true;const gate=new Promise(r=>release=r),f=setup({catalogRead:()=>old?gate:catalog}),coverage=createPageReloadCoverage();
+ const a=mount(),aCtx={...ctx('en'),setReloadCoverage:coverage.beginRender('admin','plan/week-38/import')};const loading=render(a,aCtx,'week-38',f.api);assert.equal(inspectReloadSafety().reason,'saving');
+ const oldOwner=getImportInputOwner(f.api,'week-38');let reads=0;const pure=oldOwner.readAuxiliary.bind(oldOwner);oldOwner.readAuxiliary=()=>{reads++;return pure();};
+ old=false;f.changeAuth();changeAuth();const b=mount();await render(b,{...ctx('uk'),setReloadCoverage:coverage.beginRender('admin','plan/week-38/import')},'week-38',f.api);reads=0;
+ for(let n=0;n<3;n++)assert.equal(inspectReloadSafety().reason,'unknown');assert.equal(reads,0,'changed identity snapshots never call old raw metadata');
+ const ta=b.querySelector('#adm-import-text');ta.value='B unparsed input';ta.dispatch('input');release(catalog);await loading;await tick();assert.equal(inspectReloadSafety().reason,'dirty');assert.equal(inspectReloadSafety().records.some(r=>r.id==='previous-session-page'),false);assert.equal(ta.value,'B unparsed input');
 });

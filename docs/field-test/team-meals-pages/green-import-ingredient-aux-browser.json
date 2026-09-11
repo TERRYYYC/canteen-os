@@ -1,0 +1,72 @@
+{
+  "summary": "9/9",
+  "results": [
+    {
+      "name": "Import CSV read survives language and clear until actual completion",
+      "passed": true
+    },
+    {
+      "name": "two old Import reads settle separately and keep B raw private",
+      "passed": true
+    },
+    {
+      "name": "Import canceled catalog initialization finishes original coverage",
+      "passed": true
+    },
+    {
+      "name": "Ingredient canceled Source initialization finishes original coverage",
+      "passed": true
+    },
+    {
+      "name": "Ingredient translation survives navigation; later raw remains through save",
+      "passed": true
+    },
+    {
+      "name": "Ingredient actual photo decode and recognized upload 409 remain retryable",
+      "passed": true
+    },
+    {
+      "name": "two Ingredient writes from A settle one by one while B stays dirty",
+      "passed": true
+    },
+    {
+      "name": "unknown document save resolves only after matching Source read",
+      "passed": true
+    },
+    {
+      "name": "real HttpAdminApi hidden old upload ACK remains unknown after auth",
+      "passed": true
+    }
+  ],
+  "snapshot": {
+    "reason": "unknown",
+    "records": [
+      {
+        "ownerId": "auxiliary-14",
+        "kind": "unknown",
+        "id": "previous-session-operation",
+        "generation": 8,
+        "dirty": false,
+        "phase": "unknown"
+      },
+      {
+        "ownerId": "auxiliary-15",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 37,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[138,14,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-14\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":8,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"auxiliary-15\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":37,\"dirty\":false,\"phase\":\"idle\"}]]"
+  }
+}

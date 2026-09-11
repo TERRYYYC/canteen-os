@@ -24,6 +24,7 @@ import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPla
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { bindDraftStore } from "../../admin/store";
 import { onAuthSessionChange } from "../../admin/token";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle } from "../../view-models/reload-safety";
 import { parseServingsInput } from "./servings-input";
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
 import { text as teamText } from "../team-ui";
@@ -192,6 +193,7 @@ interface State {
 }
 
 interface ImportInputOwner {
+  readonly reload: AuxiliaryEditHandle;
   readonly planId: string;
   readonly api: TeamMealsApi;
   readonly session: number;
@@ -213,6 +215,7 @@ const currentInputOwners = new Set<ImportInputOwner>();
 onAuthSessionChange(() => {
   ownerAuthGeneration++;
   renderGeneration++;
+  for (const owner of currentInputOwners) owner.reload.dispose();
   currentInputOwners.clear();
 });
 function freshState(planId: string): State {
@@ -228,19 +231,23 @@ function getImportInputOwner(api: TeamMealsApi, planId: string): ImportInputOwne
   const session = api.sessionKey();
   let lifetime = importInputs.get(api);
   if (!lifetime || lifetime.session !== session || lifetime.generation !== ownerAuthGeneration) {
-    if (lifetime) for (const old of lifetime.plans.values()) currentInputOwners.delete(old);
+    if (lifetime) for (const old of lifetime.plans.values()) { old.reload.dispose(); currentInputOwners.delete(old); }
     lifetime = { session, generation: ownerAuthGeneration, plans: new Map() };
     importInputs.set(api, lifetime);
   }
   let owner = lifetime.plans.get(planId);
   if (!owner) {
-    owner = {
+    const record: Omit<ImportInputOwner, "reload"> = {
       planId, api, session, authGeneration: ownerAuthGeneration, state: freshState(planId),
       generation: 0, inputGeneration: 0, fileTasks: new Set(), upload: null,
       importing: false, catalogReads: 0, notify: null,
       // Pure metadata: no store/API reads, state transitions, credentials or content.
       readAuxiliary() { return { generation: this.generation, dirty: isDirty(this.state) || !!this.upload, phase: this.importing || this.fileTasks.size > 0 || this.catalogReads > 0 ? "busy" : "idle" }; },
     };
+    owner = Object.assign(record, { reload: registerAuxiliaryEdits({
+      ownerId: `import-input/${planId}`, identity: { kind: "import", id: planId },
+      boundary: api, operationTracking: "tickets", read: () => record.readAuxiliary(),
+    }) });
     lifetime.plans.set(planId, owner);
     currentInputOwners.add(owner);
   }
@@ -580,6 +587,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   const lang = ctx.lang;
   const { planId, weekStart } = resolveWeek(rest, ctx);
   const owner = getImportInputOwner(api, planId), state = owner.state;
+  // Every input owner is registered before this render can begin async work.
+  ctx.setReloadCoverage?.("tracked");
   const ticket = ++renderGeneration;
   const live = () => el.isConnected && ticket === renderGeneration && ownerValid(owner);
   installUnloadGuard();
@@ -754,6 +763,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       paintUpload();
       return;
     }
+    const operation = owner.reload.beginOperation("read");
+    let outcome: "completed" | "failed" = "completed";
     const task = Symbol("local-file-read");
     owner.fileTasks.add(task);
     notifyInputOwner(owner);
@@ -776,10 +787,12 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       state.parsed = null;
       owner.upload = null;
     } catch {
+      outcome = "failed";
       if (currentFile()) owner.upload = { name: file.name, phase: "error", error: "import.upload.failed" };
     } finally {
       owner.fileTasks.delete(task);
       owner.generation++;
+      owner.reload.settleOperation(operation, outcome);
       notifyInputOwner(owner);
     }
   });
@@ -1019,6 +1032,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       meals.push({ date: line.date, mealType: line.mealType, dishRef: eff.dishRef, ...(eff.servings === undefined ? {} : { plannedServings: eff.servings }) });
     });
     if (meals.length === 0) return;
+    const operation = owner.reload.beginOperation("read");
+    let outcome: "completed" | "failed" = "completed";
     owner.importing = true;
     owner.generation++;
     paintReadStatus();
@@ -1036,6 +1051,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       owner.generation++;
       location.hash = planHref;
     } catch (err) {
+      outcome = "failed";
       if (!live()) return;
       if (isApiError(err) && err.status === 401) {
         sessionExpired(el, lang);
@@ -1046,6 +1062,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     } finally {
       owner.importing = false;
       owner.generation++;
+      owner.reload.settleOperation(operation, outcome);
       done();
       notifyInputOwner(owner);
     }
@@ -1098,6 +1115,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   // —— 读菜品名单（模糊匹配的字典）；失败 → errorCard + 重试；401 → 锁屏 ——
   async function loadCatalog(): Promise<void> {
     if (!live()) return;
+    const operation = owner.reload.beginOperation("read");
+    let outcome: "completed" | "failed" = "completed";
     owner.catalogReads++; owner.generation++;
     replace(catalogHint, tt(lang, "import.catalog.loading"));
     try {
@@ -1111,6 +1130,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       if (currentText(state).trim()) runParse(state, catalog, weekStart);
       paintResults();
     } catch (err) {
+      outcome = "failed";
       if (!live()) return;
       if (isApiError(err) && err.status === 401) {
         sessionExpired(el, lang);
@@ -1120,6 +1140,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       replace(noticeHost, errorCard(apiMessage(err, lang), () => void loadCatalog()));
     } finally {
       owner.catalogReads--; owner.generation++;
+      owner.reload.settleOperation(operation, outcome);
+      ctx.setReloadCoverage?.("tracked");
     }
   }
   const readStatus = h("p", { class: "muted", role: "status" });

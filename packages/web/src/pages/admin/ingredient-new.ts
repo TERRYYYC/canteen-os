@@ -34,6 +34,7 @@ import type { Currency, PurchaseSpec, Unit } from "@canteenos/core";
 import { getApi, type AdminApi } from "../../api/client";
 import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
 import { onAuthSessionChange } from "../../admin/token";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle, type AuxiliaryOperation } from "../../view-models/reload-safety";
 import { text as teamText } from "../team-ui";
 import { ApiError, FIELD_ERROR_CODES, isApiError, type Catalog, type FieldError, type ImageMeta, type ImageRef, type Ingredient, type WriteResult } from "../../api/types";
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, stepper, topBar } from "../../admin/kit";
@@ -1078,8 +1079,9 @@ export async function submitIngredientForm(api: AdminApi, form: IngredientFormHa
 // ---------------------------------------------------------------------------
 
 type IngredientPhase = "idle" | "saving" | "saved" | "unknown" | "conflict" | "error";
-type IngredientAttempt = { snapshot: IngredientDraft; body: Ingredient; id: string; raw: string; stage: "upload" | "save" };
+type IngredientAttempt = { operation?: AuxiliaryOperation; snapshot: IngredientDraft; body: Ingredient; id: string; raw: string; stage: "upload" | "save" };
 type IngredientOwner = {
+  reload: AuxiliaryEditHandle; operations: Set<AuxiliaryOperation>; authGeneration: number;
   key: string; api: TeamMealsApi; session: number; legacy: AdminApi;
   /** Only a real route departure permits a clean completed new record to retire. */
   leftRoute: boolean;
@@ -1096,6 +1098,7 @@ const ingredientOwners = new Map<string, IngredientOwner>();
 const ingredientApiIds = new WeakMap<TeamMealsApi, number>();
 let ingredientApiSequence = 0;
 let viewGeneration = 0;
+let ingredientAuthGeneration = 0;
 let mountedIngredient: { owner: IngredientOwner; el: HTMLElement; lang: Lang; paint(): void; sync(): void; dispose(): void } | null = null;
 
 const SCREEN_TEXT = {
@@ -1106,7 +1109,7 @@ const SCREEN_TEXT = {
   unmatched: { zh: "远端尚不能确认这次保存，仍保留结果未知状态", en: "The remote content does not confirm this save; its outcome remains unknown", uk: "Віддалені дані не підтверджують це збереження; результат досі невідомий" },
 } as const satisfies Record<string, Record<Lang, string>>;
 function screenText(lang: Lang, key: keyof typeof SCREEN_TEXT): string { return SCREEN_TEXT[key][lang]; }
-function ownerValid(owner: IngredientOwner): boolean { return owner.api.sessionKey() === owner.session; }
+function ownerValid(owner: IngredientOwner): boolean { return owner.authGeneration === ingredientAuthGeneration && owner.api.sessionKey() === owner.session; }
 function ownerBusy(owner: IngredientOwner): boolean { return owner.phase === "saving" || owner.checking || owner.tasks.size > 0; }
 function rawIngredient(d: IngredientDraft): string {
   return JSON.stringify({ ...d, dirty: false, blobSha: null, pending: d.pending ? { ...d.pending, blob: undefined } : null });
@@ -1123,6 +1126,16 @@ function notifyOwner(owner: IngredientOwner, contentChanged = false): void {
   }
 }
 function touchOwner(owner: IngredientOwner, contentChanged = false): void { owner.generation++; owner.notify(contentChanged); }
+function beginIngredientOperation(owner: IngredientOwner, kind: "read" | "write"): AuxiliaryOperation {
+  const operation = owner.reload.beginOperation(kind);
+  owner.operations.add(operation); owner.generation++;
+  return operation;
+}
+function finishIngredientOperation(owner: IngredientOwner, operation: AuxiliaryOperation, outcome: "completed" | "failed"): void {
+  // Settle the captured owner even after auth changes; never consult or rebind B.
+  owner.operations.delete(operation); owner.generation++;
+  owner.reload.settleOperation(operation, outcome);
+}
 function isMyHash(hash: string, key: string): boolean {
   const match = /^#\/?admin\/ingredient\/([^/?#]+)\/?$/.exec(hash);
   try { return !!match?.[1] && decodeURIComponent(match[1]) === key; } catch { return false; }
@@ -1143,7 +1156,8 @@ window.addEventListener("beforeunload", (ev: BeforeUnloadEvent) => {
 });
 }
 onAuthSessionChange(() => {
-  viewGeneration++;
+  viewGeneration++; ingredientAuthGeneration++;
+  for (const owner of ingredientOwners.values()) owner.reload.dispose();
   const current = mountedIngredient;
   mountedIngredient = null;
   current?.dispose();
@@ -1154,41 +1168,50 @@ onAuthSessionChange(() => {
 
 function createOwner(key: string, api: TeamMealsApi, drafts: BoundDraftStore): IngredientOwner {
   const hand = drafts.takeHandoff();
-  const owner: IngredientOwner = {
+  const record: Omit<IngredientOwner, "reload"> = {
+    operations: new Set(), authGeneration: ingredientAuthGeneration,
     key, api, session: api.sessionKey(), legacy: getApi(), leftRoute: false,
     draft: key === "new" ? createIngredientDraft(hand.newIngredientName ? { zh: hand.newIngredientName } : {}) : null,
     returnTo: hand.returnTo ?? null, generation: 0, phase: "idle", tasks: new Set(), checking: false,
     attempt: null, error: null, errors: [], catalog: null, catalogError: null, catalogLoading: null,
     sourceLoading: null, sourceError: null, notFound: false, remote: null,
     notify: changed => notifyOwner(owner, changed),
-    readAuxiliary: () => ({ generation: owner.generation, dirty: Boolean(owner.draft?.dirty), phase: owner.phase === "unknown" ? "unknown" : ownerBusy(owner) ? "busy" : "idle" }),
+    readAuxiliary: () => ({ generation: owner.generation, dirty: Boolean(owner.draft?.dirty), phase: owner.operations.size ? owner.phase === "unknown" ? "unknown" : "busy" : "idle" }),
   };
+  const owner: IngredientOwner = Object.assign(record, { reload: registerAuxiliaryEdits({
+    ownerId: `ingredient-input/${key}`, identity: { kind: "ingredient", id: key },
+    boundary: api, operationTracking: "tickets", read: () => record.readAuxiliary(),
+  }) });
   if (owner.draft?.zh) owner.draft.dirty = true;
   return owner;
 }
 async function loadIngredient(owner: IngredientOwner): Promise<void> {
+  if (!ownerValid(owner)) return;
   if (owner.sourceLoading) return owner.sourceLoading;
-  owner.generation++;
+  const operation = beginIngredientOperation(owner, "read");
+  let outcome: "completed" | "failed" = "completed";
   owner.sourceLoading = (async () => {
     try {
       const source = await owner.api.getIngredient(owner.key);
       if (!ownerValid(owner)) return;
       owner.sourceError = null; owner.notFound = source === null;
       if (source) owner.draft = draftFromIngredient(source.content, owner.key, source.blobSha);
-    } catch (error) { if (ownerValid(owner)) owner.sourceError = error; }
-    finally { owner.sourceLoading = null; touchOwner(owner); }
+    } catch (error) { outcome = "failed"; if (ownerValid(owner)) owner.sourceError = error; }
+    finally { owner.sourceLoading = null; finishIngredientOperation(owner, operation, outcome); touchOwner(owner); }
   })();
   return owner.sourceLoading;
 }
 async function loadIngredientCatalog(owner: IngredientOwner): Promise<void> {
+  if (!ownerValid(owner)) return;
   if (owner.catalogLoading) return owner.catalogLoading;
-  owner.generation++;
+  const operation = beginIngredientOperation(owner, "read");
+  let outcome: "completed" | "failed" = "completed";
   owner.catalogLoading = (async () => {
     try {
       const catalog = await owner.api.getCatalog({ force: !!owner.catalogError });
       if (ownerValid(owner)) { owner.catalog = catalog; owner.catalogError = null; }
-    } catch (error) { if (ownerValid(owner)) owner.catalogError = error; }
-    finally { owner.catalogLoading = null; touchOwner(owner); }
+    } catch (error) { outcome = "failed"; if (ownerValid(owner)) owner.catalogError = error; }
+    finally { owner.catalogLoading = null; finishIngredientOperation(owner, operation, outcome); touchOwner(owner); }
   })();
   return owner.catalogLoading;
 }
@@ -1216,13 +1239,14 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   const alive = (): boolean => generation === viewGeneration && el.isConnected && api.sessionKey() === session;
   el.replaceChildren();
   if (api.mode === "unconfigured") {
+    ctx.setReloadCoverage?.("read-only");
     el.append(h("div", { class: "adm adm-ing" }, topBar({ back: adminHref(), title: tt(ctx.lang, rest === "new" ? "ing.title.new" : "ing.title.edit") }), notice({ kind: "warn", text: teamText(ctx.lang, "unconfigured") })));
     return;
   }
   if (!ingredientApiIds.has(api)) ingredientApiIds.set(api, ++ingredientApiSequence);
-  const ownerKey = `${ingredientApiIds.get(api)}:${session}:${rest}`;
+  const ownerKey = `${ingredientApiIds.get(api)}:${session}:${ingredientAuthGeneration}:${rest}`;
   let owner = ingredientOwners.get(ownerKey);
-  if (owner?.key === "new" && owner.leftRoute && owner.phase === "saved" && owner.draft?.blobSha && !owner.draft.dirty && !ownerBusy(owner) && !owner.attempt) {
+  if (owner?.key === "new" && owner.leftRoute && owner.phase === "saved" && owner.draft?.blobSha && !owner.draft.dirty && !ownerBusy(owner) && !owner.attempt && owner.reload.dispose()) {
     // The previous creation was acknowledged and has no later raw work. Starting
     // another creation may consume a new handoff, while language paints stay put.
     owner.generation++;
@@ -1231,18 +1255,21 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   }
   if (!owner) { owner = createOwner(rest, api, drafts); ingredientOwners.set(ownerKey, owner); }
   owner.leftRoute = false;
-  if (!owner.draft) {
-    el.append(h("p", { class: "muted" }, adm("adm.loading", undefined, ctx.lang)));
-    await loadIngredient(owner);
-    if (!alive()) return;
+  ctx.setReloadCoverage?.("tracked");
+  try {
     if (!owner.draft) {
-      el.replaceChildren(topBar({ back: adminHref(), title: tt(ctx.lang, "ing.title.edit") }));
-      if (isApiError(owner.sourceError) && owner.sourceError.status === 401) { sessionExpired(el, ctx.lang); return; }
-      el.append(owner.notFound ? notice({ kind: "warn", text: tt(ctx.lang, "ing.notFound") }) : errorCard(apiMessage(owner.sourceError, ctx.lang), () => void render(el, ctx, rest, api)));
-      return;
+      el.append(h("p", { class: "muted" }, adm("adm.loading", undefined, ctx.lang)));
+      await loadIngredient(owner);
+      if (!alive()) return;
+      if (!owner.draft) {
+        el.replaceChildren(topBar({ back: adminHref(), title: tt(ctx.lang, "ing.title.edit") }));
+        if (isApiError(owner.sourceError) && owner.sourceError.status === 401) { sessionExpired(el, ctx.lang); return; }
+        el.append(owner.notFound ? notice({ kind: "warn", text: tt(ctx.lang, "ing.notFound") }) : errorCard(apiMessage(owner.sourceError, ctx.lang), () => void render(el, ctx, rest, api)));
+        return;
+      }
     }
-  }
-  if (alive()) paintScreen(el, ctx, owner, generation);
+    if (alive()) paintScreen(el, ctx, owner, generation);
+  } finally { ctx.setReloadCoverage?.("tracked"); }
 }
 
 function paintScreen(el: HTMLElement, ctx: PageCtx, owner: IngredientOwner, generation: number): void {
@@ -1255,11 +1282,12 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, owner: IngredientOwner, gene
   let form: IngredientFormHandle;
   const onTaskStart: NonNullable<IngredientFormOpts["onTaskStart"]> = kind => {
     if (!ownerValid(owner) || owner.api.mode !== "real" || owner.tasks.has(kind) || owner.phase === "unknown" || owner.phase === "saving") return null;
+    const operation = beginIngredientOperation(owner, "read");
     owner.tasks.add(kind); d.dirty = true; touchOwner(owner);
     const names = JSON.stringify([d.zh, d.en, d.uk, d.enTouched, d.ukTouched]);
     return {
       valid: () => ownerValid(owner) && owner.tasks.has(kind) && (kind !== "translation" || names === JSON.stringify([d.zh, d.en, d.uk, d.enTouched, d.ukTouched])),
-      finish: () => { owner.tasks.delete(kind); touchOwner(owner); },
+      finish: () => { owner.tasks.delete(kind); finishIngredientOperation(owner, operation, "completed"); touchOwner(owner); },
     };
   };
   form = buildIngredientForm({ lang, api: owner.legacy, draft: d, editing, catalog: owner.catalog,
@@ -1354,15 +1382,33 @@ async function saveIngredient(owner: IngredientOwner, form: IngredientFormHandle
   const submitApi = Object.create(owner.legacy) as AdminApi;
   submitApi.uploadImage = async (...args) => {
     requireOwner();
-    const image = await owner.legacy.uploadImage(...args);
-    if (!image || typeof image.src !== "string" || !image.src || typeof image.license !== "string" || !image.license) throw new ApiError(502, "bad_response", "");
-    return image;
+    const operation = beginIngredientOperation(owner, "write"); attempt.operation = operation;
+    try {
+      const image = await owner.legacy.uploadImage(...args);
+      if (!image || typeof image.src !== "string" || !image.src || typeof image.license !== "string" || !image.license) throw new ApiError(502, "bad_response", "");
+      finishIngredientOperation(owner, operation, "completed"); attempt.operation = undefined;
+      return image;
+    } catch (error) {
+      if (ingredientWriteRejected(error)) { finishIngredientOperation(owner, operation, "failed"); attempt.operation = undefined; }
+      else owner.reload.markUnknown(operation);
+      throw error;
+    }
   };
   submitApi.saveIngredient = async (...args) => {
     requireOwner(); attempt.stage = "save"; touchOwner(owner);
-    const result = await owner.legacy.saveIngredient(...args);
-    if (!result || !/^[0-9a-f]{40}$/.test(result.commit) || typeof result.blobSha !== "string" || !result.blobSha || typeof result.unchanged !== "boolean" || !Array.isArray(result.warnings) || result.warnings.some(w => typeof w !== "string")) throw new ApiError(502, "bad_response", "");
-    return result;
+    const operation = beginIngredientOperation(owner, "write"); attempt.operation = operation;
+    try {
+      const result = await owner.legacy.saveIngredient(...args);
+      if (!result || !/^[0-9a-f]{40}$/.test(result.commit) || typeof result.blobSha !== "string" || !result.blobSha || typeof result.unchanged !== "boolean" || !Array.isArray(result.warnings) || result.warnings.some(w => typeof w !== "string")) throw new ApiError(502, "bad_response", "");
+      finishIngredientOperation(owner, operation, "completed"); attempt.operation = undefined;
+      return result;
+    } catch (error) {
+      // session_changed may hide an actual Worker ACK in HttpAdminApi. It cannot
+      // prove rejection, so its original write ticket must remain unknown.
+      if (ingredientWriteRejected(error)) { finishIngredientOperation(owner, operation, "failed"); attempt.operation = undefined; }
+      else owner.reload.markUnknown(operation);
+      throw error;
+    }
   };
   const submittedForm: IngredientFormHandle = {
     ...form, id: () => attempt.id, toIngredient: () => { attempt.body = draftToIngredient(snapshot); return attempt.body; },
@@ -1399,12 +1445,17 @@ function ingredientWriteRejected(error: unknown): boolean {
 }
 async function verifyIngredient(owner: IngredientOwner): Promise<void> {
   if (!ownerValid(owner) || ownerBusy(owner) || !navigator.onLine || !owner.attempt || owner.attempt.stage === "upload" || !["unknown", "conflict"].includes(owner.phase)) return;
+  const operation = beginIngredientOperation(owner, "read");
+  let outcome: "completed" | "failed" = "completed";
   owner.checking = true; touchOwner(owner);
   try {
     const source = await owner.api.getIngredient(owner.attempt.id, { force: true });
     if (!ownerValid(owner)) return;
     owner.remote = source;
-    if (source && owner.phase === "unknown" && sameIngredient(source.content, owner.attempt.body)) acknowledgeIngredient(owner, source.blobSha);
-  } catch (error) { if (ownerValid(owner)) owner.error = error; }
-  finally { owner.checking = false; touchOwner(owner, true); }
+    if (source && owner.phase === "unknown" && sameIngredient(source.content, owner.attempt.body)) {
+      if (owner.attempt.operation) finishIngredientOperation(owner, owner.attempt.operation, "completed");
+      acknowledgeIngredient(owner, source.blobSha);
+    }
+  } catch (error) { outcome = "failed"; if (ownerValid(owner)) owner.error = error; }
+  finally { owner.checking = false; finishIngredientOperation(owner, operation, outcome); touchOwner(owner, true); }
 }
