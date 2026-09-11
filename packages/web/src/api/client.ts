@@ -78,7 +78,7 @@ export interface AdminApi {
   publish(): Promise<PublishResult>;
   /** GET /publish/:runId；轮询协议见 worker 契约 §4.6 */
   getPublish(runId: number): Promise<PublishProgress>;
-  /** GET /publish/latest：最近一次构建的进度（publish() 返回 runId: null 时用；没有任何 run → 404 not_found） */
+  /** GET /publish/latest：最近一次构建的进度；不能证明它属于未知/丢失响应的 POST，没有任何 run → 404。 */
   getPublishLatest(): Promise<PublishProgress>;
   /** POST /rollback/:sha（只有 admin 令牌）；回退不自动发布 */
   rollback(sha: string): Promise<RollbackResult>;
@@ -242,7 +242,11 @@ export class HttpAdminApi implements AdminApi {
 
   private async progress(path: string): Promise<PublishProgress> {
     const body = await this.request<PublishProgress & { ok: true }>({ method: "GET", path });
-    return stripOk(body);
+    const progress = stripOk(body);
+    // Additive evidence from newer Workers: malformed/missing fields remain unavailable.
+    if (typeof progress.runCompleted !== 'boolean') delete progress.runCompleted;
+    if (progress.runConclusion !== null && typeof progress.runConclusion !== 'string') delete progress.runConclusion;
+    return progress;
   }
 
   /** POST /rollback/:sha（worker rollback.ts）：响应多一个 unchanged，RollbackResult 里没有，不透出 */

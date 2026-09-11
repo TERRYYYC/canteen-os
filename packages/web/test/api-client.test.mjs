@@ -84,6 +84,20 @@ const mod = await bundle("");
 const { createHttpApi, HttpAdminApi } = mod;
 storage.set("canteenos.token", TOKEN);
 
+test('publish run completion evidence is optional, strictly typed, and never inferred from legacy status',async()=>{
+ const base={ok:true,runId:42,status:'failure',htmlUrl:'https://example.invalid/run/42',steps:[],failedStep:null,failureReason:null,unmappedSteps:[]};
+ for(const extra of [{},{runCompleted:false,runConclusion:'failure'},{runCompleted:true,runConclusion:null},{runCompleted:true,runConclusion:'new-outcome'},{runCompleted:'true',runConclusion:1}]) {
+  const {api:a,calls}=api(()=>json(200,{...base,...extra}));
+  const specific=await a.getPublish(42),latest=await a.getPublishLatest();
+  for(const value of [specific,latest]) {
+   assert.equal(value.status,'failure');assert.equal(value.runId,42);
+   if(typeof extra.runCompleted==='boolean')assert.equal(value.runCompleted,extra.runCompleted);else assert.equal(Object.hasOwn(value,'runCompleted'),false);
+   if(extra.runConclusion===null||typeof extra.runConclusion==='string')assert.equal(value.runConclusion,extra.runConclusion);else assert.equal(Object.hasOwn(value,'runConclusion'),false);
+  }
+  assert.ok(calls.every(call=>call.method==='GET'));
+ }
+});
+
 function api(responder) {
   const calls = fakeFetch(responder);
   return { api: createHttpApi(BASE), calls };
