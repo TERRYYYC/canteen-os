@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/check-builds.py", line 40, in <module>
+    assert not any(name.endswith('/pages/admin/import.ts') or '/core/src/import/' in name for name in plan_modules)
+AssertionError
