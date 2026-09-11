@@ -1,7 +1,7 @@
 /**
  * Prompt-only PWA updates. A controller change refreshes publication data without
  * replacing editor views; application reloads require a fresh all-owner safety check.
- * The installed plugin's onNeedReload hook owns the final synchronous check.
+ * Both activation signals share the same worker-bound final synchronous check.
  * A two-second timeout cancels update consent and offers a retry, never a forced reload.
  */
 /// <reference types="vite-plugin-pwa/client" />
@@ -164,24 +164,42 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
   const hasSW = typeof navigator !== "undefined" && Boolean(navigator.serviceWorker); // file:// / 旧浏览器 / 非安全上下文没有
   let updateTimer: ReturnType<typeof setTimeout> | undefined;
   let approvedReload = false;
+  let activationTarget: ServiceWorker | null = null;
   let dialog: HTMLDialogElement | null = null;
   let lastController = hasSW ? navigator.serviceWorker.controller : null;
   const coordinator = createReloadCoordinator({
     reload() { approvedReload = true; location.reload(); },
     hasWaiting: () => !!registration?.waiting,
     async activate() {
-      if (!updateSW || !registration?.waiting) throw new Error('No waiting worker');
-      // This plugin ignores updateSW(false); onNeedReload is the final reload gate.
-      await updateSW();
+      const target = registration?.waiting;
+      if (!updateSW || !target) throw new Error('No waiting worker');
+      activationTarget = target;
+      // Keep the actual worker identity: the same script URL can identify a later worker.
+      try { await updateSW(); }
+      catch (error) { activationTarget = null; throw error; }
     },
   });
 
+  function finishActivation(): boolean {
+    if (!activationTarget || navigator.serviceWorker.controller !== activationTarget) return false;
+    activationTarget = null;
+    clearTimeout(updateTimer);
+    // The coordinator consumes this intent and rechecks every owner's current safety stamp.
+    return coordinator.onNeedReload();
+  }
+  function cancelUpdate(): void {
+    activationTarget = null;
+    clearTimeout(updateTimer);
+    coordinator.cancel();
+  }
   function closeDecision(): void { dialog?.remove(); dialog = null; }
   function showDecision(result: ReloadDecision, timedOut = false): void {
     closeDecision();
     if (result.status === 'started') {
+      if (approvedReload) return;
       clearTimeout(updateTimer);
       updateTimer = setTimeout(() => {
+        activationTarget = null;
         coordinator.timeout();
         showDecision({ status: 'blocked', snapshot: inspectReloadSafety() }, true);
       }, 2000);
@@ -196,8 +214,8 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
     const identities = new Set(result.snapshot.records.filter(r => r.dirty || r.pending || r.recovering || ['unknown', 'outcome-unknown', 'busy', 'untracked'].includes(r.phase)).map(r => `${r.kind}: ${r.id}`));
     for (const identity of identities) list.append(h('li', {}, identity));
     const currentDialog = h('dialog', { 'aria-label': t('update.checkTitle') }, h('h2', {}, t('update.checkTitle')), h('p', {}, t(key)), list, keep);
-    keep.addEventListener('click', () => { coordinator.cancel(); closeDecision(); });
-    currentDialog.addEventListener('cancel', () => { coordinator.cancel(); closeDecision(); });
+    keep.addEventListener('click', () => { cancelUpdate(); closeDecision(); });
+    currentDialog.addEventListener('cancel', () => { cancelUpdate(); closeDecision(); });
     if (result.status === 'confirm-discard') {
       const discard = h('button', { type: 'button' }, t('update.discard'));
       discard.addEventListener('click', () => { discard.disabled = true; void coordinator.confirmDiscard(result.snapshot).then(showDecision); });
@@ -208,10 +226,11 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
     currentDialog.showModal();
   }
   function requestUpdate(): void {
+    activationTarget = null;
     clearTimeout(updateTimer);
     void coordinator.requestUpdate().then(showDecision);
   }
-  onLangChange(() => { coordinator.cancel(); closeDecision(); });
+  onLangChange(() => { cancelUpdate(); closeDecision(); });
 
   const updateSW = hasSW
     ? registerSW({
@@ -220,8 +239,7 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
           bar.showUpdate(requestUpdate);
         },
         onNeedReload() {
-          clearTimeout(updateTimer);
-          if (!coordinator.onNeedReload()) bar.showUpdate(requestUpdate);
+          if (!finishActivation()) bar.showUpdate(requestUpdate);
         },
         onOfflineReady() {
           bar.showOfflineReady();
@@ -242,6 +260,9 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
       const controller = navigator.serviceWorker.controller;
       if (controller === lastController) return;
       lastController = controller;
+      // Workbox captures initial control during register; a first document may never
+      // receive the plugin reload callback even when its approved update takes over.
+      finishActivation();
       void hooks.refreshPublication();
     });
   }
