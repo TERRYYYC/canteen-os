@@ -21,7 +21,7 @@ import { h, replace } from "../dom";
 import { LANGS, LANG_TAG, pick, type Lang } from "../i18n";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
-import { renderFrozenPrep, renderFrozenIssues, selectFrozenMealRows } from "./prep";
+import { renderFrozenPrep, renderFrozenIssues, selectFrozenMealRows, selectFrozenIssues, hasFrozenSourceGap } from "./prep";
 import type { FrozenMealSource, FrozenMealRenderOptions } from "./prep";
 
 // ---------------------------------------------------------------------------
@@ -550,9 +550,10 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
   const root = h("div", { class: "menu-page", "data-frozen-menu": "", "data-source-revision": source.projection.sourceRevision });
   root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, `${t("source")}: ${source.projection.sourceRevision.slice(0, 8)}`), h("code", {}, source.projection.sourceRevision)));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
-  const issuePanel = renderFrozenIssues(source.projection.collection.issues, lang, options.selection);
+  const selectedIssues = selectFrozenIssues(source.projection.collection.issues, options.selection);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang);
   if (issuePanel) root.append(issuePanel);
-  if (!rows.length) root.append(h("p", { class: "card", role: "status" }, t(source.projection.collection.coverage.enumeration === "incomplete" ? "missingSource" : "empty")));
+  if (!rows.length) root.append(h("p", { class: "card", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingSource" : "empty")));
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const card = h("section", { class: "mlist", "data-menu-plan": menuPlanRef, "data-meal-index": mealIndex });

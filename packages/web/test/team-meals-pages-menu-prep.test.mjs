@@ -152,3 +152,52 @@ test('recipe details show localized issue reasons only for the selected original
   const issues=attr(el,'data-source-issue');assert.equal(issues.length,1);assert.match(issues[0].textContent,/食材资料未找到/);
   dispose();el.remove();
 });
+
+// MP-R1: a whole projection can be incomplete while the selected slot is empty.
+for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.renderFrozenMenu]]) {
+  for (const [key, unrelated] of [['menuPlanRef', 'other-week'], ['date', '2026-09-15'], ['mealType', 'dinner'], ['mealIndex', 0]]) {
+    test(`${page}: empty selection excludes unrelated missing records by ${key}`, () => {
+      const selection = { menuPlanRef: 'week', date: '2026-09-16', mealType: 'lunch', mealIndex: 1 };
+      const data = JSON.parse(JSON.stringify(fixture()));
+      data.projection.selection.push({ menuPlanRef: 'week', date: selection.date, mealType: 'lunch' });
+      data.projection.collection.issues = [
+        { code: 'empty-selection', menuPlanRef: 'week', date: selection.date, mealType: 'lunch' },
+        { code: 'missing-dish', ...selection, [key]: unrelated, dishRef: 'missing-elsewhere' },
+      ];
+      data.projection.collection.coverage.enumeration = 'incomplete';
+      const source = freeze(data), before = JSON.stringify(source), el = mount();
+      const dispose = render(el, source, { lang: 'en', selection });
+      assert.deepEqual(attr(el, 'data-source-issue').map(x => x.getAttribute('data-source-issue')), ['empty-selection']);
+      assert.match(el.textContent, /No recorded meals in this selection/);
+      assert.doesNotMatch(el.textContent, /Record unavailable|Some source records are unavailable|missing-elsewhere/);
+      assert.equal(JSON.stringify(source), before); dispose(); el.remove();
+    });
+  }
+  test(`${page}: selected missing plan remains unavailable in all languages, including broad selection`, () => {
+    const data = JSON.parse(JSON.stringify(fixture()));
+    data.projection.menuPlans = {};
+    data.projection.collection.issues = [{ code: 'missing-plan', menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch' }];
+    data.projection.collection.coverage.enumeration = 'incomplete';
+    for (const lang of ['zh', 'en', 'uk']) for (const selection of [{}, { menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch', mealIndex: 0 }]) {
+      const el = mount(), dispose = render(el, freeze(data), { lang, selection });
+      assert.equal(attr(el, 'data-source-issue', 'missing-plan').length, 1);
+      assert.match(el.textContent, /missing-week/);
+      assert.doesNotMatch(el.textContent, /所选范围没有已录餐食|No recorded meals in this selection|У цьому виборі немає записаних страв/);
+      dispose(); el.remove();
+    }
+  });
+  test(`${page}: missing recipe and unrecorded components stay visible on their original row`, () => {
+    for (const code of ['missing-dish', 'components-unrecorded']) {
+      const data = JSON.parse(JSON.stringify(fixture()));
+      if (code === 'missing-dish') delete data.projection.dishes['dish-a'];
+      else delete data.projection.dishes['dish-a'].components;
+      data.projection.collection.issues = [{ code, ...options().selection, dishRef: 'dish-a' }];
+      data.projection.collection.coverage.enumeration = 'incomplete';
+      const el = mount(), dispose = render(el, freeze(data), { ...options(), lang: 'en' });
+      assert.equal(attr(el, 'data-source-issue', code).length, 1);
+      assert.match(el.textContent, /dish-a/);
+      assert.doesNotMatch(el.textContent, /No recorded meals in this selection/);
+      dispose(); el.remove();
+    }
+  });
+}

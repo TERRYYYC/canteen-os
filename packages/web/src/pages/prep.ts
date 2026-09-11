@@ -435,8 +435,15 @@ function rawSafeLink(value: string | undefined): string | null {
   try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) ? url.href : null; } catch { return null; }
 }
 const frozenPrepDisposers = new WeakMap<HTMLElement, () => void>();
+export function selectFrozenIssues(issues: readonly ReferenceIssue[], selection: FrozenMealSelection = {}): readonly ReferenceIssue[] {
+  return issues.filter(issue => (Object.keys(selection) as Array<keyof FrozenMealSelection>).every(key => selection[key] === undefined || issue[key] === undefined || issue[key] === selection[key]));
+}
+/** Empty-view copy only; the core's whole-projection coverage stays unchanged. */
+export function hasFrozenSourceGap(issues: readonly ReferenceIssue[]): boolean {
+  return issues.some(issue => issue.code === "missing-plan" || issue.code === "missing-dish" || issue.code === "components-unrecorded");
+}
 export function renderFrozenIssues(issues: readonly ReferenceIssue[], lang: Lang, selection: FrozenMealSelection = {}): HTMLElement | null {
-  const selected = issues.filter(issue => (Object.keys(selection) as Array<keyof FrozenMealSelection>).every(key => selection[key] === undefined || issue[key] === undefined || issue[key] === selection[key]));
+  const selected = selectFrozenIssues(issues, selection);
   if (!selected.length) return null;
   return h("details", { class: "raw-issues" }, h("summary", {}, `${rawText(lang, "issues")} · ${selected.length}`), ...selected.map(issue => h("p", { "data-source-issue": issue.code },
     Object.hasOwn(RAW_COPY, issue.code) ? rawText(lang, issue.code) : issue.code, " · ",
@@ -502,9 +509,10 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   }
   root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, `${t("source")}: ${projection.sourceRevision.slice(0, 8)}`), h("code", {}, projection.sourceRevision)));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
-  const issuePanel = renderFrozenIssues(projection.collection.issues, lang, options.selection);
+  const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang);
   if (issuePanel) root.append(issuePanel);
-  if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(projection.collection.coverage.enumeration === "incomplete" ? "missingRecord" : "empty")));
+  if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
