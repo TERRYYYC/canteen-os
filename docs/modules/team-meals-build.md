@@ -18,7 +18,9 @@ node scripts/build-data.mjs --target team-meals --revision <同一完整提交SH
 node scripts/build-data.mjs --target legacy-numeric --check --compare-snapshots --root test/fixtures/contracts/valid/golden --at 2026-10-03T00:00:00.000Z
 ```
 
-以上在真实仓库根运行。`--check` 只检查，不输出文件；生产构建省略它才写 `packages/web/public/data`（也是默认输出目录）。CI owner 应将同一个完整提交 SHA 传给生产检查和实际构建；没有 `--revision` 时取各次调用的 HEAD。固定黄金命令明确使用 Q 的 fixture root，不对正常生产菜单做旧快照对比。需要固定产物时间时两次均加 `--at <同一ISO时间>`；该参数不改变 sourceRevision。
+以上在真实仓库根运行。`--check` 只检查，不输出文件；生产构建省略它才写 `packages/web/public/data`（也是默认输出目录）。CI owner 应将同一个完整提交 SHA 传给生产检查和实际构建；没有 `--revision` 时取各次调用的 HEAD。固定黄金命令明确使用 Q 的 fixture root，不对正常生产菜单做旧快照对比。需要固定产物时间时两次均加 `--at <同一时间字符串>`，建议使用带时区的 ISO 格式；该参数不改变 sourceRevision。
+
+`builtAt` 默认由 `new Date().toISOString()` 产生 UTC ISO 字符串；显式 `--at` 的实际准入沿用旧实现：必须是字符串且 `Date.parse(value)` 非 NaN，通过后原样写入，不重新规范化。因此 `2026-09-11`、`September 11, 2026 00:00:00 GMT` 也可通过，不能让 reader 用 ISO-only 规则拒绝本构建的成功输出；推荐调用方统一传 `2026-09-11T00:00:00.000Z` 这类无歧义格式。空字符串、不可解析值和缺参数失败。legacy-numeric 的 manifest 沿用 `{builtAt,commit,plans,readiness}`，不写 target/projectionVersion，并保留无 Git root 时 commit="local" 的旧行为。reader 仅在 target 缺失且符合旧形状时识别 legacy，不能把未知 target 当作旧格式。
 
 team 直接读取真实仓库 Git commit 中的 JSON 和图片，不读取同路径工作副本。显式 revision 必须是 commit 对象且为当前 HEAD 的祖先；短 SHA、分支名、tag 对象、无 Git root 和无法解析的历史均失败。省略 revision 读取 HEAD。本 CLI 不将工作草稿伪装成已保存输入。
 
@@ -42,7 +44,7 @@ import type {
 } from '@canteenos/core';
 
 interface TeamBuildManifest {
-  builtAt: string;              // ISO timestamp
+  builtAt: string;              // Date.parse-valid; explicit --at is preserved verbatim
   commit: string;               // full 40-character lowercase commit SHA
   plans: Id[];                 // sorted plan IDs, possibly []
   target: 'team-meals';
@@ -81,7 +83,20 @@ type PublishedTeamPlan = TeamMealsProjection & {
 
 成功发布的 issues 只会包含 warning，assets 只会包含 available/external-unpinned；missing/invalid 仅可能出现在阻止发布的内存检查结果。available.path 是相对于上述输出根的 `assets/<完整commit>/<规范化data路径>`；静态读取者应以原始 ownerPath + jsonPointer 对齐 ImageRef，核对 source 与原对象以及 path 内 revision，不从 ImageRef.src 猜当前 URL，不用名字匹配图片。`data/techniques.json` 的资产必有 `techniqueRef`，值为原版 technique.id，供筛选后的 projection.techniques 稳定关联；其它 owner 不写该字段。技法 pointer 下标仍为原版完整词表下标，仅作原始定位，不能拿过滤后的数组下标替代。即使两技法的 source/src 全部相同，各自仍保留 techniqueRef 和原 pointer，不合并关联记录；相同路径的图片 bytes 可共用。
 
+每份 projection.assets 内 `(ownerPath,jsonPointer)` 唯一；不同计划文件可分别含同一绑定。repoPath 规则为：src 若以 `data/` 开头，从仓库根取；否则相对 owner 文件目录拼接，再做 POSIX 路径规范化（折叠重复 `/`、`.` 与可消解的 `..`），结果必须仍以 `data/` 开头且为允许图片后缀；绝对路径、反斜线、NUL、scheme 和逃逸失败。此过程不做 URL 解码或 Unicode/大小写重写，源文件名中的空格、`%`、`?`、`#` 等保留为字面文件名字符。available.path 本身也是未 URL 编码的相对文件路径，不含数据根前缀。reader 在已有受控、以 `/` 结尾的数据根 URL 下，仅对 path 的每个 `/` 分隔段调用 encodeURIComponent 再拼接；不能先 decode source/path，不能把原 `?`/`#` 解释成查询/片段，也不能双重解码 `%2F` 等字面字符。path 不附 byte hash/长度/Content-Type 字段，不能据路径声称密码学认证；新部署可清理旧版本资产，缺失时不回退到当前图。
+
 空计划照常列入 manifest.plans，写出自己的 PublishedTeamPlan：menuPlans 仍含该空计划，selection、collection.items、estimates.items、assets 均为 []，budgetStatus 为 not-applicable；ingredients/dishes 为空对象，techniques 为 []，issues 为 []，coverage 仍保留原 core 的 recipeCompleteness=unverified。整个资料库没有计划时 manifest.plans=[]，只发布 manifest；不能把这些状态推成加载失败，也不能补一条餐次或份数。
+
+以下四类输出可用已审构建从现有 Q 样本复现，不新增共享 fixture。固定输入来源为 `06f52b409696311465a85c2229deed09bb47127a` 中的 `test/fixtures/contracts/valid/golden/data/`；其 Q 祖先为 `afc328992a151a2ecc390a083b195dc060f86736`。每例只在新的隔离临时目录复制该 data，再作表中覆盖，初始化临时 Git、提交 data 得到该例真实 sourceRevision；不能对原仓库 data 或共享 fixture 作这些覆盖。
+
+| 例 | 临时覆盖 | 可核对输出 |
+|---|---|---|
+| normal | 无 | week-41、5 个已录材料、budget complete、无 warning |
+| empty-plan | 用同一固定来源的 `test/fixtures/contracts/pending-a1/valid/empty-menu-plan-v3.json` 替换 `data/menu-plans/week-41.json` | 原计划保留、空集合、budget not-applicable |
+| quantity-warning | week-41 设 schemaVersion="3"，删除每个 meal 的 plannedServings，其余保留 | 已录材料保留、missing-planned-servings warning、budget incomplete |
+| external-image | tomato.image 设 `{src:"https://example.org/tomato.png",license:"CC0"}` | external-unpinned warning，asset 保留该 source、无 path/网络读取 |
+
+然后从已审构建 checkout 执行 `node scripts/build-data.mjs --target team-meals --root <临时例目录> --revision <该例完整提交SHA> --at 2026-09-11T00:00:00.000Z --out <临时例目录>/out`。各例固定位置为 `out/build.json`、`out/team-meals/week-41.json`。external-image 是不会访问的合成测试来源，不是实际素材权利认证。构建者代码 revision 与上述每例 data 的 sourceRevision 各自记录，不把测试提交当生产提交。
 
 所有输入先走正式 schema。坏引用、示例菜引用、视频来源缺 URL、clip 时间倒置、非法本地图片等阻止发布。缺真实份数/qty/基准/包装/价格、非 active 或成分未录仍可展示，issues 随投影传递。外链保留原始来源并标 external-unpinned，不能作为已固定字节的图片显示。
 
