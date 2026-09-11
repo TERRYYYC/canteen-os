@@ -6,6 +6,8 @@ created: 2026-09-11
 ---
 # C2a local implementation handoff
 
+Accepted checkpoint: non-author `/root/c1_review` **APPROVE** on exact implementation `531aa266ab0368257c7522867a5cdcb6b477fc5d`; no open P1/P2. Final handoff edits after that checkpoint contain only documents and a prepared local PR body.
+
 What: `src/view-models/team-meals.ts` implements the exports in `C2a-contract.md`. It composes accepted C1 transport/editor contracts with approved A2 formal core; Q fixtures and expected numbers remain unchanged. Only shared Web implementation, Web-owned tests and this evidence directory are authored in C2a.
 
 Why: D can load selected plans/catalog at one SHA, render all recorded ingredient references and original metadata, and obtain core estimates/manual-list reviews without copying domain calculations. Stored list commit and ingredient basis revision remain separate.
@@ -27,7 +29,7 @@ Final author checks:
 | Web TypeScript | pass |
 | Existing generated-data script | pass, week-41 2 orders / 5 lines, 0 issues |
 | Existing Web build | pass |
-| Diff whitespace check | initial working-tree check missed an untracked log; fixed-range review found trailing spaces, corrected in revision |
+| Diff whitespace check | fixed interval `2b8d98e..531aa26` passes; independently rechecked after correcting initial untracked-log oversight |
 
 The three Q numerical scenarios verify every ingredient's packs/quantity/amount and their independently recorded totalCNY through the Web module's real core import. There is no mock collector, reconciler or estimator. Formal A1 schema validation is run on injected fixture entities. Q SHA values in tests are scenario tokens, not assertions that injected fixtures are authentic trees at those revisions.
 
@@ -50,4 +52,4 @@ This loads the actual core/API/view-model/editor browser modules and performs tw
 
 Open questions/limits: B2 `32e674c` / docs `a75250c` is newly approved for local integration but is not merged or exercised by this candidate; C2a uses C1's injected network seam. Source schema validation and revision ancestry remain the Worker's responsibility. Public estimates do not claim recipe completeness or real asset decoding. New build is not consumed. Pages/CSS, production data, package metadata, main and remote refs remain untouched.
 
-Next action: independent non-author review of the fixed implementation commit, especially auth/disposal, captured asynchronous inputs, invalid/foreign handles, previous/next revision independence and page-facing error behavior. After approval dispatch may forward the concrete implementation to D and schedule C2b against fixed B2. All push/PR operations remain paused; remote C1 is still the old `5975ba4` candidate.
+Next action: dispatch may forward the approved concrete implementation to D and schedule C2b against fixed B2. Shared router/dictionary/data requests remain RC-C-owned. All push/PR operations remain paused; remote C1 is still the old `5975ba4` candidate. C2a does not change that remote ref or create a PR.
