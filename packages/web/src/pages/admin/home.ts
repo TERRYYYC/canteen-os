@@ -40,6 +40,7 @@ import { formatBuiltAt, netState } from "../../shell";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
 import { text as teamText } from "../team-ui";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle } from "../../view-models/reload-safety";
 
 // ---------------------------------------------------------------------------
 // 文案（§5.4 `home.` 最小集 + 本屏自用；zh 权威，en 直译，uk 初稿待帮厨校对）
@@ -108,7 +109,8 @@ interface Snapshot {
 }
 
 let snapshot: Snapshot = {};
-let snapshotOwner: { api: TeamMealsApi; session: number } | null = null;
+interface HomeOwner { api: TeamMealsApi; session: number; registration: AuxiliaryEditHandle; generation: number; reads: number }
+let snapshotOwner: HomeOwner | null = null;
 
 /** 取数的代数：新一轮 load() / 401 之后，上一轮晚到的结果一律丢弃 */
 let generation = 0;
@@ -118,6 +120,7 @@ let mounted: { el: HTMLElement; paint(): void; expire(): void; invalidate(): voi
 
 /** Logout/auth replacement removes private numbers immediately, without clearing a newer token. */
 onAuthSessionChange(() => {
+  snapshotOwner?.registration.dispose();
   snapshot = {};
   snapshotOwner = null;
   generation++;
@@ -197,6 +200,8 @@ async function settle<V>(p: Promise<V>): Promise<Loaded<V>> {
 function load(ctx: PageCtx, api: TeamMealsApi): void {
   if (api.mode === "unconfigured") return;
   const session = api.sessionKey();
+  const owner = snapshotOwner;
+  if (!owner || owner.api !== api || owner.session !== session) return;
   const planId = currentPlanId(ctx);
   const gen = ++generation;
 
@@ -208,12 +213,18 @@ function load(ctx: PageCtx, api: TeamMealsApi): void {
     else mounted.paint();
   }
 
-  if (api.mode === "real") void settle(getApi().getChanges()).then((r) => arrived("changes", r));
-  void settle(api.getCatalog()).then((r) => arrived("catalog", r));
-  const meals: Promise<PlanCount> = planId
-    ? api.getPlan(planId).then((s) => ({ planId, meals: s?.content.meals.length ?? 0 })) // 不存在 → null → 0
-    : Promise.resolve({ planId, meals: 0 });
-  void settle(meals).then((r) => arrived("plan", r));
+  async function read<V>(request: () => Promise<V>): Promise<Loaded<V>> {
+    const ticket = owner!.registration.beginOperation("read");
+    owner!.reads++; owner!.generation++;
+    try { return await settle(request()); }
+    catch (error) { return { ok: false, error }; }
+    finally { owner!.reads--; owner!.generation++; owner!.registration.settleOperation(ticket, "completed"); }
+  }
+  const requests: Promise<void>[] = [];
+  if (api.mode === "real") requests.push(read(() => getApi().getChanges()).then((r) => arrived("changes", r)));
+  requests.push(read(() => api.getCatalog()).then((r) => arrived("catalog", r)));
+  requests.push(read(() => planId ? api.getPlan(planId).then((s) => ({ planId, meals: s?.content.meals.length ?? 0 })) : Promise.resolve({ planId, meals: 0 })).then((r) => arrived("plan", r)));
+  void Promise.allSettled(requests).finally(() => ctx.setReloadCoverage?.("tracked"));
 }
 
 // ---------------------------------------------------------------------------
@@ -334,9 +345,16 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const session = api.sessionKey();
   const sameSession = snapshotOwner?.api === api && snapshotOwner.session === session;
   if (!sameSession) {
+    snapshotOwner?.registration.dispose();
     snapshot = {};
     generation++;
-    snapshotOwner = { api, session };
+    if (api.mode === "unconfigured") snapshotOwner = null;
+    else {
+      const owner: HomeOwner = { api, session, generation: 0, reads: 0,
+        registration: registerAuxiliaryEdits({ ownerId: "home-reads", identity: { kind: "home", id: "home" }, boundary: api, operationTracking: "tickets",
+          read: () => ({ generation: owner.generation, dirty: false, phase: owner.reads ? "busy" : "idle" }) }) };
+      snapshotOwner = owner;
+    }
   }
 
   const offlineSlot = h("div", { class: "adm-home-offline-slot" });
@@ -377,7 +395,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
 
   function paint(): void {
     if (expired) return;
-    if (api.sessionKey() !== session || snapshotOwner?.api !== api || snapshotOwner.session !== session) {
+    if (api.sessionKey() !== session || (api.mode !== "unconfigured" && (snapshotOwner?.api !== api || snapshotOwner.session !== session))) {
       invalidate();
       return;
     }
@@ -459,6 +477,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
     if (expired) return;
     expired = true;
     snapshot = {};
+    snapshotOwner?.registration.dispose();
     snapshotOwner = null;
     generation++;
     mounted = null;
@@ -471,6 +490,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   // 推论 A：语言切换触发的 render 只重画（上面已画），不再请求；还没到的那几路会在到达时画到这份 DOM 上
   const isLangSwitch = langSwitch;
   langSwitch = false;
-  if (isLangSwitch && sameSession) return;
+  if (api.mode === "unconfigured") { ctx.setReloadCoverage?.("read-only"); return; }
+  if (isLangSwitch && sameSession) { ctx.setReloadCoverage?.("tracked"); return; }
   load(ctx, api);
 }

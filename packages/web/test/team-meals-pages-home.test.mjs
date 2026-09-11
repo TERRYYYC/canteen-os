@@ -20,7 +20,7 @@ const injected = {
   '../admin': 'export const adminHref = (...parts) => "#/admin" + (parts.length ? "/" + parts.map(encodeURIComponent).join("/") : "");',
 };
 const bundle = await esbuild.build({
-  stdin: { contents: await readFile(entry, 'utf8') + `\nexport { createTeamMealsApi } from ${JSON.stringify(join(here, '../src/api/team-meals.ts'))};\nexport { HttpAdminApi } from ${JSON.stringify(join(here, '../src/api/client.ts'))};\nexport { setLang as switchLanguage } from ${JSON.stringify(join(here, '../src/i18n.ts'))};\nexport { clearToken as changeAuth } from ${JSON.stringify(join(here, '../src/admin/token.ts'))};`, resolveDir: dirname(entry), loader: 'ts' },
+  stdin: { contents: await readFile(entry, 'utf8') + `\nexport { createTeamMealsApi } from ${JSON.stringify(join(here, '../src/api/team-meals.ts'))};\nexport { HttpAdminApi } from ${JSON.stringify(join(here, '../src/api/client.ts'))};\nexport { setLang as switchLanguage } from ${JSON.stringify(join(here, '../src/i18n.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here, '../src/view-models/reload-safety.ts'))};\nexport { clearToken as changeAuth } from ${JSON.stringify(join(here, '../src/admin/token.ts'))};`, resolveDir: dirname(entry), loader: 'ts' },
   plugins: [{ name: 'home-dependencies', setup(build) {
     build.onResolve({ filter: /^\.\.\// }, args => injected[args.path] && (args.importer === '' || args.importer === '<stdin>' || args.importer.endsWith('home.ts')) ? { path: args.path, namespace: 'home-test' } : undefined);
     build.onLoad({ filter: /.*/, namespace: 'home-test' }, args => ({ contents: injected[args.path], loader: 'js' }));
@@ -84,7 +84,8 @@ async function setup({ mode = 'real', input = fixture(), response } = {}) {
   for (const method of ['getCatalog', 'getPlan', 'getChanges']) { const original = legacy[method].bind(legacy); legacy[method] = (...args) => { legacyReads.push(method); return original(...args); }; }
   const harness = { team, online: true, getLegacy() { legacyReads.push('getApi'); return legacy; } };
   globalThis.__homeHarness = harness;
-  const mount = (lang = 'zh') => { page.switchLanguage(lang); const el = new NodeDouble('section'); document.body.append(el); page.render(el, { lang, planId: 'week-38', rest: '' }, ''); return el; };
+  const coverage = page.createPageReloadCoverage();
+  const mount = (lang = 'zh') => { page.switchLanguage(lang); const el = new NodeDouble('section'); document.body.append(el); page.render(el, { lang, planId: 'week-38', rest: '', setReloadCoverage: coverage.beginRender('admin', '') }, ''); return el; };
   return { page, team, legacy, calls, legacyReads, harness, mount, input, events, bumpIdentity() { identity++; }, async flush() { for (let i = 0; i < 6; i++) await tick(); }, cleanup() { team.dispose(); legacy.dispose(); document.body.replaceChildren(); } };
 }
 
@@ -206,4 +207,15 @@ test('offline repaint retains known figures, explicitly marks offline and disabl
     s.harness.online = true; s.events.online.forEach(fn => fn());
     assert.equal(byClass(el, 'adm-home-tile-plan')[0].getAttribute('href'), '#/admin/plan');
   } finally { s.cleanup(); }
+});
+
+
+test('home owns each initial read until it finishes and language reuses pending coverage',async()=>{
+ const holds=new Map(),s=await setup({response:path=>new Promise(resolve=>holds.set(path,resolve))});try{const el=s.mount('en');await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'saving');assert.equal(holds.size,3);el.remove();s.mount('uk');await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'saving');assert.equal(holds.size,3);for(const release of [...holds.values()].slice(0,2))release();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'saving');[...holds.values()].at(-1)();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'clear');}finally{s.cleanup();}
+});
+test('old home initialization finishes only original scope after auth while new reads stay protected',async()=>{
+ const releases=[],s=await setup({response:()=>new Promise(resolve=>releases.push(resolve))});try{s.mount();await s.flush();s.bumpIdentity();s.page.changeAuth();s.mount('uk');await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'unknown');for(const release of releases.slice(0,3))release();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'saving');for(const release of releases.slice(3))release();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'clear');}finally{s.cleanup();}
+});
+test('unconfigured and completed failed home reads release coverage without inventing numbers',async()=>{
+ for(const mode of ['unconfigured','real']){const s=await setup({mode,response:()=>Response.json({ok:false,errors:[]},{status:503})});try{const el=s.mount();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'clear');assert.match(byClass(el,'adm-home-tile-plan')[0].textContent,/—/);}finally{s.cleanup();}}
 });
