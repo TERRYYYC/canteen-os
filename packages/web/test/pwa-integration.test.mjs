@@ -10,7 +10,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 const root=dirname(fileURLToPath(new URL('../package.json',import.meta.url))),require=createRequire(import.meta.url);
 const esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')).href);
 const dir=await mkdtemp(join(tmpdir(),'c2b-pwa-integration-'));after(()=>rm(dir,{recursive:true,force:true}));
-const bundle=await esbuild.build({stdin:{contents:"export * from './src/pwa';export * from './src/view-models/edit-session';export * from './src/view-models/reload-safety';export {dataApi} from './src/data';",resolveDir:root},bundle:true,write:false,format:'esm',platform:'browser',define:{'import.meta.env.BASE_URL':JSON.stringify('/canteen/')},logLevel:'silent',plugins:[{name:'controlled-plugin-boundary',setup(build){
+const bundle=await esbuild.build({stdin:{contents:"export * from './src/pwa';export * from './src/view-models/edit-session';export * from './src/view-models/reload-safety';export {clearToken} from './src/admin/token';export {dataApi} from './src/data';",resolveDir:root},bundle:true,write:false,format:'esm',platform:'browser',define:{'import.meta.env.BASE_URL':JSON.stringify('/canteen/')},logLevel:'silent',plugins:[{name:'controlled-plugin-boundary',setup(build){
  build.onResolve({filter:/^virtual:pwa-register$/},()=>({path:'register',namespace:'test-plugin'}));
  build.onLoad({filter:/.*/,namespace:'test-plugin'},()=>({contents:'export function registerSW(options){return globalThis.testRegisterSW(options)}',loader:'js'}));
 }}]});
@@ -80,4 +80,16 @@ test('actual PWA prompt and external controller events preserve an offscreen pen
   assert.match(env.root.textContent,/outcome is still unknown/i);assert.equal(env.root.textContent.includes('Discard listed'),false);
   env.callbacks.onNeedReload();await env.advance(3000);assert.equal(env.counts.reloads,0);assert.equal(writes,1);
  } finally {readable=true;editor.open({kind:'dish',id:'dish'},body,source);await editor.reconcileUnknown();editor.dispose();env.close();}
+});
+test('actual PWA keeps old-auth write protection without offering an inaccessible private editor',async()=>{
+ const env=await setup();let resolve;
+ const e=m.createEditSession({mode:()=> 'mock',save:()=>new Promise(r=>{resolve=r;}),read:async()=>source});
+ try {
+  e.open({kind:'dish',id:'private-previous-dish'},{name:'Private previous body'},source);const save=e.save();m.clearToken();
+  env.callbacks.onNeedRefresh();await env.click('New version availableReload');
+  assert.match(env.root.textContent,/previous session/i);assert.equal(env.root.textContent.includes('private-previous-dish'),false);
+  assert.equal(env.root.textContent.includes('Discard listed'),false);assert.deepEqual(env.counts,{reloads:0,activations:0,refreshes:0});
+  resolve({commit:'b'.repeat(40),blobSha:'b'.repeat(40),unchanged:false,warnings:[]});await save;
+  assert.equal(e.getState().draft,null);assert.equal(m.inspectReloadSafety().reason,'clear');
+ } finally {e.dispose();env.close();}
 });

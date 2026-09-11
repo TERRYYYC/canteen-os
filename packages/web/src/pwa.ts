@@ -188,8 +188,9 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
       return;
     }
     const reason = result.snapshot.reason;
+    const previousSession = result.snapshot.records.some(r => r.phase === 'unknown' && r.id.startsWith('previous-session-'));
     const key = timedOut ? 'update.timeout' : result.status === 'confirm-discard' ? 'update.dirty' :
-      reason === 'saving' ? 'update.saving' : reason === 'unknown' ? 'update.unknown' : reason === 'untracked' ? 'update.untracked' : 'update.changed';
+      reason === 'saving' ? 'update.saving' : reason === 'unknown' ? previousSession ? 'update.previousSession' : 'update.unknown' : reason === 'untracked' ? 'update.untracked' : 'update.changed';
     const keep = h('button', { type: 'button', autofocus: true }, t('update.continue'));
     const list = h('ul');
     const identities = new Set(result.snapshot.records.filter(r => r.dirty || r.pending || r.recovering || ['unknown', 'outcome-unknown', 'busy', 'untracked'].includes(r.phase)).map(r => `${r.kind}: ${r.id}`));

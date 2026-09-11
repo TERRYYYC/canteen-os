@@ -84,6 +84,7 @@ const DICT = {
   "update.discard": { uk: "Відкинути локальні зміни й оновити", zh: "丢弃列出的本地更改并更新", en: "Discard listed local changes and update" },
   "update.saving": { uk: "Триває збереження або завантаження. Дочекайтеся завершення й перевірте знову.", zh: "有资料正在保存或上传。请等操作结束后重新检查。", en: "A save or upload is in progress. Wait for it to finish, then check again." },
   "update.unknown": { uk: "Результат операції ще не підтверджено. Спочатку перевірте його у відповідному редакторі.", zh: "操作结果尚未核实。请先回到对应编辑页核实结果。", en: "An operation's outcome is still unknown. Return to its editor to verify the result first." },
+  "update.previousSession": { uk: "Незавершену роботу з попереднього сеансу ще не перевірено. Залиште цю сторінку відкритою.", zh: "先前会话留下的工作尚未核实。请保留当前页面，等待确切结果。", en: "Unfinished work from a previous session is still unverified. Keep this page open." },
   "update.untracked": { uk: "Стан цієї сторінки ще не перевірено. Поверніться до неї, щоб завершити ініціалізацію.", zh: "尚未确认这些页面的编辑状态。请返回对应页面完成初始化后再检查。", en: "These pages' editing state is not yet covered. Return to them to finish initialization before checking again." },
   "update.changed": { uk: "Стан змінився. Перевірте ще раз перед оновленням.", zh: "编辑状态已变化，请重新检查后再更新。", en: "Editing state changed. Check again before updating." },
   "update.timeout": { uk: "Оновлення не завершено. Вашу сторінку збережено; спробуйте ще раз.", zh: "更新尚未完成，当前页面已保留。请重新尝试。", en: "The update has not completed. Your page is still open; please try again." },
