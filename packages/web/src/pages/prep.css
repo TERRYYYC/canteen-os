@@ -139,3 +139,24 @@ a.src:hover { text-decoration: underline; }
 
 /* 标题用 UI 字体（styles.css 给 h2 的是 --font-display；稿里 .dish-head .n / .pc .cap .name 都是 UI 字体） */
 .dish-head .n, .pc .cap .name { font-family: var(--font-ui); }
+
+/* Full original records share source and issue controls with the menu view. */
+[data-frozen-menu], [data-frozen-prep] { overflow-wrap: anywhere; min-width: 0; }
+.raw-source { color: var(--muted); font-size: 14px; }
+.raw-source summary, .raw-issues summary { cursor: pointer; min-height: 44px; padding: 10px 0; }
+.raw-source code { display: block; padding: 8px 0; overflow-wrap: anywhere; }
+.raw-issues { border: 1px solid var(--line); border-radius: 12px; padding: 0 14px; background: var(--warn-bg); }
+.raw-issues p { margin: 0 0 12px; font-size: 14px; }
+[data-frozen-prep] > .card { padding: 16px; }
+[data-frozen-prep] .dish-head { padding: 0; }
+[data-frozen-prep] p { margin: 8px 0; }
+[data-frozen-prep] figure { margin: 16px 0; }
+[data-frozen-prep] [data-component-index] { margin: 12px 0; padding: 14px; background: var(--surface-2); }
+[data-frozen-prep] [data-component-index] h4 { margin: 0 0 8px; font-size: 18px; }
+[data-frozen-prep] [data-original-quantity] { font-size: 22px; }
+[data-frozen-menu] > .mlist { margin-top: 12px; }
+[data-frozen-menu] .mr .b p { margin: 4px 0; }
+[data-frozen-menu] > .mlist > details { padding: 0 14px 14px; }
+[data-frozen-menu] > .mlist > details > summary { min-height: 44px; cursor: pointer; width: fit-content; }
+[data-frozen-menu] [data-frozen-prep] { margin-top: 18px; }
+[data-frozen-menu] [data-frozen-prep] h1 { font-size: 22px; }
