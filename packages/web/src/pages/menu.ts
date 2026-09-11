@@ -21,6 +21,8 @@ import { h, replace } from "../dom";
 import { LANGS, LANG_TAG, pick, type Lang } from "../i18n";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
+import { renderFrozenPrep, renderFrozenIssues, selectFrozenMealRows, selectFrozenIssues, hasFrozenSourceGap } from "./prep";
+import type { FrozenMealSource, FrozenMealRenderOptions } from "./prep";
 
 // ---------------------------------------------------------------------------
 // 页面私有文案（types.ts：页面专属文案自己建小字典）
@@ -430,6 +432,7 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
 
   const page = h("div", { class: "menu-page" });
   el.append(page);
+  page.append(h("p", { class: "muted", role: "status" }, FROZEN_MENU_COPY.legacy[lang]));
 
   if (sheet.issues.length > 0) {
     page.append(h("div", { class: "card issues" }, ...sheet.issues.map((i) => h("p", {}, `⚠ ${i.message}`))));
@@ -512,4 +515,68 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     const ae = document.activeElement;
     if (row && (!ae || ae === document.body || !ae.isConnected)) row.focus();
   }
+}
+
+const FROZEN_MENU_COPY = {
+  title: { zh: "餐食安排", en: "Meal plan", uk: "План харчування" },
+  legacy: { zh: "此页为旧版菜单摘要，成分列表可能未含调料。完整原配方视图暂不可用。", en: "This is the legacy menu summary; its ingredient list may omit seasonings. The full original-recipe view is not available here yet.", uk: "Це попередній стислий перегляд меню; перелік може не містити приправ. Повні оригінальні рецепти тут ще недоступні." },
+  source: { zh: "资料版本", en: "Source version", uk: "Версія даних" },
+  mock: { zh: "模拟资料，未证明真实保存或发布", en: "Simulation; no real save or publication verified", uk: "Симуляція; реальне збереження й публікацію не підтверджено" },
+  ingredients: { zh: "全部已录食材与调料", en: "All recorded ingredients and seasonings", uk: "Усі записані інгредієнти й приправи" },
+  original: { zh: "查看完整原配方", en: "Read the full original recipe", uk: "Прочитати повний оригінальний рецепт" },
+  servings: { zh: "计划份数", en: "Planned servings", uk: "Заплановані порції" },
+  missing: { zh: "未录", en: "Not recorded", uk: "Не записано" },
+  missingDish: { zh: "菜谱未找到，原引用保留", en: "Recipe unavailable; original reference retained", uk: "Рецепт недоступний; вихідне посилання збережено" },
+  missingSource: { zh: "部分资料未找到，原引用保留", en: "Some source records are unavailable; original references retained", uk: "Частина вихідних даних недоступна; посилання збережено" },
+  empty: { zh: "所选范围没有已录餐食", en: "No recorded meals in this selection", uk: "У цьому виборі немає записаних страв" },
+  coverage: { zh: "这里只展示已录资料；配方完整性仍需人工核对。", en: "Only recorded information is shown; recipe completeness still needs human review.", uk: "Показано лише записані дані; повноту рецепта має перевірити людина." },
+} as const;
+const frozenMenuDisposers = new WeakMap<HTMLElement, () => void>();
+/** Frozen raw source only. The caller owns verified loading and any publication status. */
+export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions): () => void {
+  const rows = selectFrozenMealRows(source, options.selection), { lang } = options;
+  frozenMenuDisposers.get(el)?.();
+  const t = (key: keyof typeof FROZEN_MENU_COPY): string => FROZEN_MENU_COPY[key][lang];
+  const children: Array<() => void> = [];
+  let live = true;
+  const dispose = (): void => {
+    if (!live) return;
+    live = false; observer.disconnect(); children.forEach(stop => stop());
+    if (frozenMenuDisposers.get(el) === dispose) frozenMenuDisposers.delete(el);
+  };
+  const observer = new MutationObserver(() => { if (!el.isConnected) dispose(); });
+  observer.observe(document.body, { childList: true, subtree: true });
+  frozenMenuDisposers.set(el, dispose);
+  const root = h("div", { class: "menu-page", "data-frozen-menu": "", "data-source-revision": source.projection.sourceRevision });
+  root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, `${t("source")}: ${source.projection.sourceRevision.slice(0, 8)}`), h("code", {}, source.projection.sourceRevision)));
+  if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
+  const selectedIssues = selectFrozenIssues(source.projection.collection.issues, options.selection);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang);
+  if (issuePanel) root.append(issuePanel);
+  if (!rows.length) root.append(h("p", { class: "card", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingSource" : "empty")));
+  for (const row of rows) {
+    const { meal, dish, menuPlanRef, mealIndex } = row;
+    const card = h("section", { class: "mlist", "data-menu-plan": menuPlanRef, "data-meal-index": mealIndex });
+    const body = h("div", { class: "b" }, h("h2", { class: "n1" }, dish ? pick(dish.name, lang) : meal.dishRef), dish ? namesLine(dish.name, lang) : null,
+      h("p", { class: "muted" }, `${meal.date} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`),
+      h("p", { class: "muted" }, `${t("servings")}: ${meal.plannedServings === undefined ? t("missing") : meal.plannedServings}`));
+    card.append(h("div", { class: "mr" }, body)); root.append(card);
+    if (!dish) { body.append(h("p", { class: "issue", role: "status" }, t("missingDish"))); continue; }
+    const ingredients = (dish.components ?? []).map(component => {
+      const record = Object.hasOwn(source.projection.ingredients, component.ingredientRef) ? source.projection.ingredients[component.ingredientRef] : undefined;
+      return record ? pick(record.name, lang) : component.ingredientRef;
+    });
+    body.append(h("p", { class: "muted" }, `${t("ingredients")}: ${ingredients.length ? ingredients.join(" · ") : t("missing")}`));
+    const detail = h("details", {}, h("summary", { class: "chip" }, t("original")));
+    const host = h("div", {}); detail.append(host); card.append(detail);
+    let rendered = false;
+    detail.addEventListener("toggle", () => {
+      if (!live || !detail.open || rendered) return;
+      rendered = true;
+      children.push(renderFrozenPrep(host, source, { ...options, selection: { menuPlanRef, mealIndex, date: meal.date, mealType: meal.mealType } }));
+    });
+  }
+  root.append(h("p", { class: "muted" }, t("coverage")));
+  el.replaceChildren(root);
+  return dispose;
 }

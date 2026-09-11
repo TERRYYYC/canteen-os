@@ -1,0 +1,109 @@
+Browser tab: 1, Title: "Team meal pages — explicit mock verification", URL: "http://127.0.0.1:4183/test/team-meals-pages-browser.html".
+1 AXWebArea Team meal pages — explicit mock verification, URL: 127.0.0.1:4183/test/team-meals-pages-browser.html
+	2 container
+		3 text 页面交互验证 · MOCK ONLY · afc3289 fixtures 语言
+		4 pop up button (collapsed, settable) 语言 , Value: uk, ID: lang, Secondary Actions: Expand
+			5 menu
+				6 zh
+				7 en
+				8 (selected) uk
+		9 text 保存响应
+		10 pop up button (collapsed, settable) 保存响应 , Value: lost response, ID: scenario, Secondary Actions: Expand
+			11 menu
+				12 success
+				13 delayed
+				14 (selected) lost response
+				15 conflict
+		16 button 完成待处理响应, ID: finish
+		17 button 离开/返回, ID: away
+		18 button 运行计划页主流程, ID: run
+	107 container
+		108 link Description: Назад, Value: 127.0.0.1:4183/test/team-meals-pages-browser.html#/admin
+		109 heading Планувати страви, Value: 2
+			110 text Планувати страви
+		111 link Description: Імпорт тексту, Value: 127.0.0.1:4183/test/team-meals-pages-browser.html#/admin/plan/team-week/import
+		112 text Збережено; стан публікації на сторінці публікації
+		113 text Симуляція; без запису в справжнє сховище
+		114 text Версія даних: 000000000000000000000000000000000000000c Кількість можна не вказувати. Зберігається весь план у новому форматі. Діапазон перегляду
+		115 pop up button (collapsed, settable) Діапазон перегляду, Value: Усі дати, Secondary Actions: Expand
+			116 menu
+				117 (selected) Усі дати
+				118 День
+				119 Тиждень
+		120 text Дата
+		121 date field (settable) Дата, Value: 2026-09-14
+			122 container
+				123 stepper
+				124 stepper
+				125 stepper
+			126 pop up button 显示日期选择器
+		127 heading 2026-09-14 · Обід, Value: 3
+			128 text 2026-09-14 · Обід
+		129 container
+			130 text Страва
+			131 pop up button (collapsed, settable) Страва, Value: Перша тестова страва, Secondary Actions: Expand
+				132 menu
+					133 Виберіть страву
+					134 (selected) Перша тестова страва
+					135 Інгредієнти не записані · draft
+					136 Друга тестова страва · draft
+		137 container
+			138 text Порції (необов’язково)
+			139 stepper (settable, integer) Порції (необов’язково), Value: 6
+		140 button Прибрати
+		141 container
+			142 text Страва
+			143 pop up button (collapsed, settable) Страва, Value: Друга тестова страва · draft, Secondary Actions: Expand
+				144 menu
+					145 Виберіть страву
+					146 Перша тестова страва
+					147 Інгредієнти не записані · draft
+					148 (selected) Друга тестова страва · draft
+		149 container
+			150 text Порції (необов’язково)
+			151 stepper (settable) Порції (необов’язково)
+		152 button Прибрати
+		153 heading 2026-09-15 · Вечеря, Value: 3
+			154 text 2026-09-15 · Вечеря
+		155 container
+			156 text Страва
+			157 pop up button (collapsed, settable) Страва, Value: Інгредієнти не записані · draft, Secondary Actions: Expand
+				158 menu
+					159 Виберіть страву
+					160 Перша тестова страва
+					161 (selected) Інгредієнти не записані · draft
+					162 Друга тестова страва · draft
+		163 container
+			164 text Порції (необов’язково)
+			165 stepper (settable, integer) Порції (необов’язково), Value: 2
+		166 button Прибрати
+		167 container
+			168 text Дата
+			169 date field (settable) Дата, Value: 2026-09-14
+				170 container
+					171 stepper
+					172 stepper
+					173 stepper
+				174 pop up button 显示日期选择器
+		175 container
+			176 text Прийом їжі
+			177 pop up button (collapsed, settable) Прийом їжі, Value: Обід, Secondary Actions: Expand
+				178 menu
+					179 Сніданок
+					180 (selected) Обід
+					181 Вечеря
+		182 container
+			183 text Страва
+			184 pop up button (collapsed, settable) Страва, Value: Виберіть страву, Secondary Actions: Expand
+				185 menu
+					186 (selected) Виберіть страву
+					187 Перша тестова страва
+					188 Інгредієнти не записані · draft
+					189 Друга тестова страва · draft
+		190 button Додати страву
+		191 button (disabled) Зберегти план
+		192 link Description: До публікації, Value: 127.0.0.1:4183/test/team-meals-pages-browser.html#/admin/publish
+	105 button (collapsed) Mock request ledger (no credentials), Secondary Actions: Expand
+		106 text Mock request ledger (no credentials)
+
+The focused UI element is 18 button 运行计划页主流程, ID: run

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "main photo decode blocks save immediately",
+    "passed": true
+  },
+  {
+    "name": "main photo decode remains busy after language redraw",
+    "passed": true
+  },
+  {
+    "name": "decoded main photo reaches its current view",
+    "passed": true,
+    "writes": 0
+  },
+  {
+    "name": "inline photo decode blocks save immediately",
+    "passed": true
+  },
+  {
+    "name": "decoded inline photo reaches its current form",
+    "passed": true,
+    "writes": 0
+  },
+  {
+    "name": "main translation blocks save during its pending result",
+    "passed": true
+  },
+  {
+    "name": "manual translation cannot replace later raw English",
+    "passed": true,
+    "value": "User later English",
+    "calls": 1
+  },
+  {
+    "name": "unchanged translation completes in the current language form",
+    "passed": true,
+    "value": "Result after language switch"
+  },
+  {
+    "name": "inline translation remains owned through language redraw",
+    "passed": true,
+    "calls": 1
+  },
+  {
+    "name": "inline translated result reaches current form",
+    "passed": true,
+    "value": "Owned ingredient"
+  },
+  {
+    "name": "detached decode stays with its original dish",
+    "passed": true,
+    "otherHasPhoto": false,
+    "writes": 0
+  },
+  {
+    "name": "old-auth decode cannot enter the replacement form",
+    "passed": true,
+    "writes": 0
+  },
+  {
+    "name": "decode failure keeps the previous photo and releases busy",
+    "passed": true,
+    "status": "Save service configuredUnsaved changesCan't open this image — try another oneaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+]

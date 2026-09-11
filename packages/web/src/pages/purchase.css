@@ -112,3 +112,5 @@
   border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); color: var(--ink);
 }
 .purchase .copy-dialog .row { display: flex; justify-content: flex-end; margin-top: 10px; }
+/* Team shopping uses core records, independent human decisions and optional counts. */
+.tm-decisions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}.tm-decisions>[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.tm-decisions>p{flex-basis:100%}.tm-slot{display:flex;align-items:center;gap:10px;min-height:44px;margin:8px 0}.tm-page .tm-slot input{width:22px;min-height:22px;accent-color:var(--accent)}.tm-material summary{padding:10px 0;cursor:pointer}.tm-material li{padding:8px 0}.tm-source{overflow-wrap:anywhere;margin:14px 0}.tm-source summary{cursor:pointer}.tm-removed{background:var(--warn-bg);color:var(--warn)}.tm-page textarea{width:100%}

@@ -1,0 +1,88 @@
+{
+  "summary": "12/12",
+  "checks": [
+    {
+      "name": "all repeated meal occurrences stay separate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "second meal expansion uses its original row only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "all original components and complete steps",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "optional counts stay unrecorded without default scaling",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "same image source uses explicit technique IDs and exact JSON pointers",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "real browser renders only Blob images and safe external links",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "same host language repaint revokes old and rejects wrong version",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "late previous recipe images cannot fill later selection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "detached host has no late object URL creation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "empty selected slot is not mislabeled missing from another date",
+      "pass": true,
+      "detail": "Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review."
+    },
+    {
+      "name": "menu empty slot is independent of unrelated missing recipe",
+      "pass": true,
+      "detail": "Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review."
+    },
+    {
+      "name": "source bytes remain unchanged",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "calls": [
+    {
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owner": "data/dishes/soup.json",
+      "pointer": "/image"
+    },
+    {
+      "techniqueRef": "mix"
+    },
+    {
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owner": "data/dishes/soup.json",
+      "pointer": "/components/0/prep/image"
+    },
+    {
+      "techniqueRef": "mix"
+    },
+    {
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "owner": "data/dishes/soup.json",
+      "pointer": "/steps/0/image"
+    }
+  ]
+}

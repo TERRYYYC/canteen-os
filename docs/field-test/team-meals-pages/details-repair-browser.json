@@ -1,0 +1,103 @@
+{
+  "summary": "18/18",
+  "checks": [
+    {
+      "name": "all three ingredient names",
+      "pass": true
+    },
+    {
+      "name": "onHand is explicitly separate from list decision",
+      "pass": true
+    },
+    {
+      "name": "role and purchase metadata",
+      "pass": true
+    },
+    {
+      "name": "unsafe original image/source URLs are not assigned to DOM href/src",
+      "pass": true
+    },
+    {
+      "name": "same-version asset owner/pointer",
+      "pass": true
+    },
+    {
+      "name": "all recorded ingredient occurrences have source links",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "explicit dispose revokes image URLs",
+      "pass": true
+    },
+    {
+      "name": "unresolved ingredient keeps its known recipe navigation",
+      "pass": true,
+      "detail": "Source version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaInformation missing; original reference retained · missingRecipes that use this ingredient2026-09-14 · Lunch · Original Soup · week / 0 / 1"
+    },
+    {
+      "name": "late asset after detach creates no URL",
+      "pass": true
+    },
+    {
+      "name": "wrong revision rejects image without current fallback",
+      "pass": true
+    },
+    {
+      "name": "every component and step is rendered",
+      "pass": true
+    },
+    {
+      "name": "raw quantity + base servings are shown without scaling",
+      "pass": true
+    },
+    {
+      "name": "unknown and to-taste remain distinct",
+      "pass": true
+    },
+    {
+      "name": "prep and step image provenance visible",
+      "pass": true
+    },
+    {
+      "name": "clip and technique three names",
+      "pass": true
+    },
+    {
+      "name": "technique image uses explicit reference resolver, not filtered array pointer",
+      "pass": true
+    },
+    {
+      "name": "all candidates including unresolved and seasoning retained",
+      "pass": true
+    },
+    {
+      "name": "copy retains decisions and basis",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "owner": "data/ingredients/salt.json",
+      "pointer": "/image"
+    },
+    {
+      "owner": "data/dishes/soup.json",
+      "pointer": "/image"
+    },
+    {
+      "techniqueRef": "mix"
+    },
+    {
+      "owner": "data/dishes/soup.json",
+      "pointer": "/components/0/prep/image"
+    },
+    {
+      "techniqueRef": "mix"
+    },
+    {
+      "owner": "data/dishes/soup.json",
+      "pointer": "/steps/0/image"
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+✔ unknown quantity stays unknown; raw quantity units are never scaled or normalized (0.407208ms)
+✔ row selection respects projection scope and retains multiple dishes and repeated dish occurrences (0.496792ms)
+✔ invalid revision and mutable source cannot be labelled fixed-source content (0.212875ms)
+✔ prep exposes all original components, steps, three names, truth labels and safe source links (1.872167ms)
+✔ same-version image bytes use exact source pointers and object URLs are revoked on disposal (1.454708ms)
+✔ wrong-version or late assets never substitute current URLs into an old or repainted view (0.80075ms)
+✔ menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe (0.785417ms)
+✔ an unresolved plan is shown as missing source, not silently represented as an empty menu (0.215041ms)
+✔ technique images resolve by explicit ID, independently of filtered projection positions (0.598334ms)
+✔ recipe details show localized issue reasons only for the selected original row (0.2385ms)
+✖ prep: empty selection excludes unrelated missing records by menuPlanRef (0.352792ms)
+✖ prep: empty selection excludes unrelated missing records by date (0.133708ms)
+✖ prep: empty selection excludes unrelated missing records by mealType (0.109416ms)
+✖ prep: empty selection excludes unrelated missing records by mealIndex (0.088208ms)
+✔ prep: selected missing plan remains unavailable in all languages, including broad selection (0.297125ms)
+✖ menu: empty selection excludes unrelated missing records by menuPlanRef (0.12725ms)
+✖ menu: empty selection excludes unrelated missing records by date (0.109542ms)
+✖ menu: empty selection excludes unrelated missing records by mealType (0.095167ms)
+✖ menu: empty selection excludes unrelated missing records by mealIndex (0.094125ms)
+✔ menu: selected missing plan remains unavailable in all languages, including broad selection (0.208709ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 12
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56.260292
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ prep: empty selection excludes unrelated missing records by menuPlanRef (0.352792ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ prep: empty selection excludes unrelated missing records by date (0.133708ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ prep: empty selection excludes unrelated missing records by mealType (0.109416ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ prep: empty selection excludes unrelated missing records by mealIndex (0.088208ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchRecord unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ menu: empty selection excludes unrelated missing records by menuPlanRef (0.12725ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ menu: empty selection excludes unrelated missing records by date (0.109542ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ menu: empty selection excludes unrelated missing records by mealType (0.095167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-menu-prep.test.mjs:159:5
+✖ menu: empty selection excludes unrelated missing records by mealIndex (0.094125ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /No recorded meals in this selection/. Input:
+  
+  'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-menu-prep.test.mjs:171:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchSome source records are unavailable; original references retainedOnly recorded information is shown; recipe completeness still needs human review.',
+    expected: /No recorded meals in this selection/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -1,0 +1,58 @@
+[
+  {
+    "name": "C1 mixed v2/v3 catalog populates supplier and duplicate checks",
+    "passed": true,
+    "legacyReads": [],
+    "writes": 0
+  },
+  {
+    "name": "unconfigured and explicit simulation cannot submit",
+    "passed": true,
+    "unconfiguredReads": 0,
+    "simulationWrites": 0
+  },
+  {
+    "name": "raw invalid numeric buffer survives route and language",
+    "passed": true,
+    "raw": "12,",
+    "warning": true
+  },
+  {
+    "name": "photo and upload ownership survives language and leaving; only snapshot is saved",
+    "passed": true,
+    "photoBusy": true,
+    "uploads": 1,
+    "writes": 2,
+    "savedSnapshot": "盐",
+    "laterSaved": "等待时的新名字",
+    "condition": {
+      "ifMatch": "salt-b"
+    }
+  },
+  {
+    "name": "save unknown survives route; read-only verification keeps later raw input",
+    "passed": true,
+    "writes": 1,
+    "sourceReads": 2,
+    "raw": "核实期间的新名字"
+  },
+  {
+    "name": "upload unknown remains blocked across view rebind",
+    "passed": true,
+    "uploads": 1,
+    "preservedPhoto": true,
+    "phase": "unknown"
+  },
+  {
+    "name": "late translation after language switch cannot replace newer user names",
+    "passed": true,
+    "calls": 1,
+    "raw": "User English"
+  },
+  {
+    "name": "auth replacement prevents an old upload from saving under the new session",
+    "passed": true,
+    "writes": 0,
+    "visible": "另一个账户"
+  }
+]

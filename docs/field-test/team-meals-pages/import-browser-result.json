@@ -1,0 +1,67 @@
+{
+  "flow393": "PASS observed after actual Run click",
+  "flow1440": "PASS observed after actual Run click",
+  "invalid": {
+    "disabled": true,
+    "invalid": "true",
+    "message": "Recognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.✓Mon 09.14 lunch · Original soupRecognisedLeave blank or enter a positive integerClear servingsservings",
+    "scrollWidth": 1440,
+    "value": "1.5",
+    "width": 1440
+  },
+  "leaveReturn": {
+    "disabled": true,
+    "invalid": "true",
+    "value": "1.5"
+  },
+  "matrix": [
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "zh",
+      "scrollWidth": 393,
+      "value": "",
+      "width": 393
+    },
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "en",
+      "scrollWidth": 393,
+      "value": "",
+      "width": 393
+    },
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "uk",
+      "scrollWidth": 393,
+      "value": "",
+      "width": 393
+    },
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "zh",
+      "scrollWidth": 1440,
+      "value": "",
+      "width": 1440
+    },
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "en",
+      "scrollWidth": 1440,
+      "value": "",
+      "width": 1440
+    },
+    {
+      "buttonEnabled": true,
+      "invalid": "false",
+      "lang": "uk",
+      "scrollWidth": 1440,
+      "value": "",
+      "width": 1440
+    }
+  ]
+}

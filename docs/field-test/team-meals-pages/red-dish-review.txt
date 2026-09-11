@@ -1,0 +1,58 @@
+✔ new dish omits unknown servings instead of defaulting to 50 (0.550541ms)
+✔ v3 unknown qty remains omitted and all source metadata survives an edit (0.410834ms)
+✔ v2 true quantities, to-taste and servings survive explicit v3 edit (0.073292ms)
+✔ draft action submits exact draft body under source lock through C1 (0.5655ms)
+✔ late save and language refresh preserve later form edits (0.450416ms)
+✔ unknown result survives detach/return and recovery force-reads pinned source twice (0.308ms)
+✔ legal to-taste source value survives an unrelated edit (0.06375ms)
+✔ new dish creates with if-none-match and optional fields remain absent (0.140208ms)
+✔ conflict retains edited draft and explicit adoption is required before a new write (0.307125ms)
+✔ late read cannot open a different dish after detaching (0.121959ms)
+✖ review: add-another on an existing dish must not orphan an unresolved new dish (0.572958ms)
+✖ review: pending image still requires dirty warning after language refresh (0.168834ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 10
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.780959
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:78:1
+✖ review: add-another on an existing dish must not orphan an unresolved new dish (0.572958ms)
+  AssertionError [ERR_ASSERTION]: {"allowed":true,"phase":"dirty","id":""}
+  + actual - expected
+  
+  + 'dirty'
+  - 'outcome-unknown'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:84:9)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'dirty',
+    expected: 'outcome-unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:87:1
+✖ review: pending image still requires dirty warning after language refresh (0.168834ms)
+  AssertionError [ERR_ASSERTION]: pending photo must keep raw form dirty across presentation refresh
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:89:60)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

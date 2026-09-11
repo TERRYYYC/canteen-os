@@ -1,0 +1,107 @@
+✖ unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock (19.209583ms)
+✖ mixed v2/v3 catalog and unknown servings render through C1; only publication uses legacy API (10.277875ms)
+✖ explicit simulation is labelled and cannot claim actual publication (10.687541ms)
+✔ C1 read failures leave unknown numbers; a confirmed missing plan alone may display zero (17.089833ms)
+✖ late prior-account replies cannot populate a new-account language render (12.627ms)
+✖ auth changes immediately remove cached private numbers and late results do not return them (10.696083ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 1
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.542375
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-home.test.mjs:91:1
+✖ unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock (19.209583ms)
+  AssertionError [ERR_ASSERTION]: unconfigured home must never invoke default legacy getApi
+  
+  4 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:96:14)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:107:1
+✖ mixed v2/v3 catalog and unknown servings render through C1; only publication uses legacy API (10.277875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'getApi',
+      'getChanges',
+  +   'getCatalog',
+  +   'getPlan'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:111:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'getApi', 'getChanges', 'getCatalog', 'getPlan' ],
+    expected: [ 'getApi', 'getChanges' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:124:1
+✖ explicit simulation is labelled and cannot claim actual publication (10.687541ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Simulation; no real repository write/. Input:
+  
+  'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:128:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version',
+    expected: /Simulation; no real repository write/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:146:1
+✖ late prior-account replies cannot populate a new-account language render (12.627ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /3 meals planned this week/. Input:
+  
+  'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:156:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version',
+    expected: /3 meals planned this week/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:163:1
+✖ auth changes immediately remove cached private numbers and late results do not return them (10.696083ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /2 meals planned this week/. Input:
+  
+  'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:167:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Back office1 changes not published yetLast published 2026-09-10T10:00:00ZPublishPlan the menuWeek 37 · — meals planned this weekNumbers unavailable right nowAdd a dishType it in by handTo confirm— draft dishesNumbers unavailable right nowIngredients— ingredientsNumbers unavailable right nowTranslations to review— machine-translatedNumbers unavailable right nowQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous version',
+    expected: /2 meals planned this week/,
+    operator: 'match',
+    diff: 'simple'
+  }

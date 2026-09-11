@@ -1,0 +1,68 @@
+✖ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (16.13275ms)
+✖ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (2.753375ms)
+✖ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (2.857958ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 72.186916
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:36:1
+✖ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (16.13275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '12'
+  - '2.0000000000000001'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:37:153)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '12',
+    expected: '2.0000000000000001',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:39:1
+✖ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (2.753375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:40:58)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:42:1
+✖ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (2.857958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '' !== 'dinner'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:43:254)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: 'dinner',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

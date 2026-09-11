@@ -1,0 +1,26 @@
+✔ unconfigured and explicit simulation never enter the default legacy mock publish flow (7.34525ms)
+✔ rollback remains one pending operation across language, close and route return, blocking publish too (18.074458ms)
+✔ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (4.030125ms)
+✔ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.712667ms)
+✔ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (6.674959ms)
+✔ unknown rollback never becomes success merely after changes refresh or repaint (4.054625ms)
+✔ auth replacement immediately removes private state and late publish response cannot bind new session (3.658959ms)
+✔ same run ID can be verified read-only after timeout and only confirmed success releases both actions (4.726208ms)
+✔ a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused (8.198459ms)
+✔ known pre-write rejection releases protection; upstream ambiguity keeps it (14.731042ms)
+✔ publish pending blocks rollback immediately, survives language and protects unload until confirmed completion (4.324208ms)
+✔ unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target (6.651208ms)
+✔ late prior-session rollback response cannot fill new session, and dialog rebind restores body (4.106042ms)
+✔ late prior-session changes cannot replace the new-session list (3.185208ms)
+✔ late known-run progress from a prior session cannot claim success or clear new-operation protection (3.53175ms)
+✔ legacy success and false or malformed completion never release a known run or claim it is live (13.27375ms)
+✔ matching completed runs release operation regardless of legacy status while conclusion alone determines result (130.837208ms)
+✔ completed evidence for another run is not ownership, and a failed step before completion stays unknown (6.158208ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 296.483375

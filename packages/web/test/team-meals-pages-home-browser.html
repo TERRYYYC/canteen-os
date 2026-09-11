@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>首页 · 本地只读验证</title>
+<style>body>aside{display:flex;flex-wrap:wrap;gap:10px;padding:16px;background:#fff8e8;color:#292519;border-bottom:2px solid #98794d}body>aside p{flex-basis:100%;margin:0}body>aside button,body>aside select{min-height:40px;background:white;color:#292519;border:1px solid #98794d;padding:6px}main{max-width:1120px;margin:auto;padding:16px}#result,#ledger{display:block;margin:16px;white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body>
+<aside><strong>D 首页只读验证 · 显式本地样本</strong><label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label><label>连接 <select id="mode"><option value="unconfigured">未配置 / unconfigured</option><option value="mock">模拟 / explicit mock</option></select></label><label>计划格式 <select id="format"><option value="3">v3 · 含未知份数</option><option value="2">v2 · 原真份数</option></select></label><button id="run">运行首页只读验证</button><p>实际 home renderer 与 C1；专用模块仅注入 API getter。菜品字典同时含 v2/v3。此入口没有真实服务调用，禁止旧 API 和所有写入。</p></aside>
+<output id="result">尚未运行</output><main id="app"></main><details><summary>读取与断言记录，无凭据</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';import '../src/pages/admin/admin.css';import '../src/pages/admin/home.css';
+import {render,createTeamMealsApi,setLang,homeSourceHash} from './team-meals-pages-home-browser.generated.mjs';
+const $=s=>document.querySelector(s),ledger=[];let team;
+const base={dishes:{'a-v2':{schemaVersion:'2',name:{zh:'旧菜',en:'Legacy dish',uk:'Попередня страва'},baseServings:7,status:'draft',components:[{ingredientRef:'salt',qty:{unit:'to-taste'}}]},'b-v3':{schemaVersion:'3',name:{zh:'未录用量新菜',en:'New dish with unknown quantity',uk:'Нова страва без кількості'},components:[{ingredientRef:'salt'}]}},ingredients:{salt:{schemaVersion:'2',name:{zh:'盐',en:'Salt',uk:'Сіль'},role:'seasoning',baseUnit:'g',trackStock:false}},techniques:[],suppliers:[],translations:{machine:3,human:0,stale:0}};
+function log(entry){ledger.push(entry);$('#ledger').textContent=JSON.stringify(ledger,null,2);}
+function connect(){team?.dispose();const schema=$('#format').value,revision=(schema==='3'?'a':'b').repeat(40),mode=$('#mode').value;
+ team=createTeamMealsApi(mode==='unconfigured'?'':'https://explicit-home-mock.invalid',{mode:'mock',token:()=>'local-fixture-only',fetch:async(url,init)=>{
+  const parsed=new URL(url);log({method:init.method,path:parsed.pathname,fixturePlanSchema:schema});if(parsed.origin!=='https://explicit-home-mock.invalid'||init.method!=='GET')throw new Error('D home fixture forbids this request');
+  if(parsed.pathname==='/catalog')return Response.json({commit:revision,...base});
+  if(parsed.pathname.startsWith('/source/plan/'))return Response.json({commit:revision,blobSha:`mock-home-${schema}`,content:{schemaVersion:schema,meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'b-v3',...(schema==='2'?{plannedServings:2}:{})},{date:'2026-09-15',mealType:'dinner',dishRef:'a-v2',plannedServings:7}]}});
+  throw new Error('D home fixture forbids unknown read');
+ }});window.__homeBrowser={team};}
+function paint(){setLang($('#lang').value);document.documentElement.lang=$('#lang').value;const outlet=document.createElement('section');$('#app').replaceChildren(outlet);render(outlet,{lang:$('#lang').value,rest:'',route:'admin',planId:'week-38',data:{},t:k=>k},'');}
+$('#lang').onchange=paint;for(const id of ['mode','format'])$('#'+id).onchange=()=>{connect();paint();};
+const pause=()=>new Promise(resolve=>setTimeout(resolve,25));async function until(fn,message){for(let i=0;i<100;i++){if(fn())return;await pause();}throw new Error(message);}
+function assert(ok,message){if(!ok)throw new Error(message);log({assertion:message,result:'PASS'});}
+$('#run').onclick=async()=>{const output=$('#result');$('#run').disabled=true;ledger.length=0;try{
+ for(const mode of ['unconfigured','mock'])for(const schema of mode==='mock'?['3','2']:['3']){
+  $('#mode').value=mode;$('#format').value=schema;connect();let readsBefore=ledger.filter(x=>x.method).length;
+  for(const [language,marker] of [['zh','未连接'],['en','Not connected'],['uk','Немає з’єднання']]){
+   $('#lang').value=language;paint();if(mode==='mock')await until(()=>$('.adm-home-tile-plan').textContent.includes('2'),'mock plan counts');
+   assert(document.querySelectorAll('.adm-home-tile').length===7,`${mode}/${schema}/${language}: seven actual entry tiles`);
+   const status=$('.adm-home-stat-slot').textContent;
+   if(mode==='unconfigured'){assert(status.includes(marker),`${language}: explicit unconfigured notice`);assert($('.adm-home-tile-plan').textContent.includes('—'),'unconfigured count remains unknown');assert(ledger.filter(x=>x.method).length===readsBefore,'unconfigured makes no fixture request');}
+   else {assert(/模拟|Simulation|Симуляція/.test(status),`${schema}/${language}: explicit mock notice`);assert($('.adm-home-tile-plan').textContent.includes('2'),`${schema}/${language}: exact recorded meal count`);assert($('.adm-home-tile-draft').textContent.includes('2'),`${schema}/${language}: mixed v2/v3 draft count`);assert($('.adm-home-tile-draft').getAttribute('href')==='#/admin/dish/a-v2','draft link uses actual first ID');}
+   assert(!/都发布了|Everything is published|Усе опубліковано|Last published|上次发布/.test(status),'no fabricated publication state');
+  }
+  if(mode==='mock')assert(ledger.filter(x=>x.method).length-readsBefore===2,'same-session language change reuses one catalog and one plan read');
+ }
+ assert(ledger.filter(x=>x.method).every(x=>x.method==='GET'&&x.path!=='/changes'),'only C1 catalog and plan reads');output.textContent='PASS · 实际首页 + C1；unconfigured 与 mock(v2/v3) × zh/en/uk。仅本地只读样本，无真实连接或发布证据。';
+ }catch(error){output.textContent=`FAIL · ${error.message}`;log({failure:error.message});}finally{$('#run').disabled=false;}};
+log({fixture:'D home author browser check',sourceHash:homeSourceHash,scope:'Synthetic local revision tokens only. No real service or historical source claim.'});connect();paint();
+</script></body></html>

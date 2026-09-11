@@ -1,0 +1,99 @@
+✖ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (3.27875ms)
+✖ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (1.945084ms)
+✖ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (1.709417ms)
+✖ removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row (1.631375ms)
+✖ unrelated later row removal never consumes an earlier invalid raw value (1.550542ms)
+✖ stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans (1.561542ms)
+✖ saving existing JSON does not consume unapplied Add choices, including unknown result and route return (1.8485ms)
+✖ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (2.107ms)
+✖ Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag (1.738875ms)
+✖ clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document (1.62325ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 0
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.983
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:36:1
+✖ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (3.27875ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:37:51)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:39:1
+✖ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (1.945084ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:40:187)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:42:1
+✖ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (1.709417ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:43:51)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:46:1
+✖ removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row (1.631375ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:47:53)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:49:1
+✖ unrelated later row removal never consumes an earlier invalid raw value (1.550542ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:50:53)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:52:1
+✖ stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans (1.561542ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:53:51)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:55:1
+✖ saving existing JSON does not consume unapplied Add choices, including unknown result and route return (1.8485ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:56:102)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:58:1
+✖ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (2.107ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:59:99)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:61:1
+✖ Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag (1.738875ms)
+  TypeError: Cannot read properties of undefined (reading 'value')
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:62:119)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:65:1
+✖ clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document (1.62325ms)
+  TypeError: Cannot set properties of undefined (setting 'value')
+      at input (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:23:78)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:66:53)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)

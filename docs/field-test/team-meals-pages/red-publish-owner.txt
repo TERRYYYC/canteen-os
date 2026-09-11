@@ -1,0 +1,136 @@
+✖ unconfigured and explicit simulation never enter the default legacy mock publish flow (18.500084ms)
+✖ rollback remains one pending operation across language, close and route return, blocking publish too (4.465167ms)
+✖ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (3.758583ms)
+✖ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.864208ms)
+✖ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (3.638958ms)
+✖ unknown rollback never becomes success merely after changes refresh or repaint (4.029042ms)
+✖ auth replacement immediately removes private state and late publish response cannot bind new session (3.792625ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.599208
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:50:1
+✖ unconfigured and explicit simulation never enter the default legacy mock publish flow (18.500084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:51:159)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:53:1
+✖ rollback remains one pending operation across language, close and route return, blocking publish too (4.465167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:55:192)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:57:1
+✖ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (3.758583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /outcome unknown/i. Input:
+  
+  "←PublishPublishCan't reach the back officeRetryUnpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet"
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:59:121)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "←PublishPublishCan't reach the back officeRetryUnpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet",
+    expected: /outcome unknown/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:61:1
+✖ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.864208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:63:84)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:65:1
+✖ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (3.638958ms)
+  AssertionError [ERR_ASSERTION]: timeout
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:66:250)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:68:1
+✖ unknown rollback never becomes success merely after changes refresh or repaint (4.029042ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /outcome unknown/i. Input:
+  
+  "←PublishPublishUnpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet"
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:69:247)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "←PublishPublishUnpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet",
+    expected: /outcome unknown/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:71:1
+✖ auth replacement immediately removes private state and late publish response cannot bind new session (3.792625ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /Changed meal/. Input:
+  
+  "←PublishPublishing…Unpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet"
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:72:183)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "←PublishPublishing…Unpublished changes · 1Week 38 menuChanged meal · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet",
+    expected: /Changed meal/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }

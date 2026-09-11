@@ -1,0 +1,8 @@
+2026-09-11 · local author check · explicitly mocked fixed projection
+Command: node --test packages/web/test/team-meals-pages-menu-prep.test.mjs
+Before root extension: 8 pass, 2 fail.
+1. technique images resolve by explicit ID: actual [] vs expected ['cut','cut'].
+2. selected original recipe issue scope: actual 2 issues vs expected 1.
+Both mechanisms were observed before edits to prep.ts/menu.ts. The first lacked a technique image reader; the second rendered every projection issue inside a single selected recipe.
+After implementation: 10 pass, 0 fail. npm --prefix packages/web run typecheck passed.
+These are presenter tests with a minimal DOM transport, not published-loader, browser pixel-decode, Worker or L2 evidence.

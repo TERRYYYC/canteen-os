@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Original recipe views — explicit mock</title>
+<div id="tools"><b>MOCK · 固定原资料展示验证，未验证发布</b><select id="lang"><option>zh</option><option>en</option><option>uk</option></select><select id="page"><option>menu</option><option>prep</option></select></div><main id="main" class="outlet"></main>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {renderFrozenMenu} from '../src/pages/menu.ts';import {renderFrozenPrep} from '../src/pages/prep.ts';import {createTeamMealsViewModel} from '../src/view-models/team-meals.ts';
+const A='a'.repeat(40),sources=import.meta.glob('../../../test/fixtures/contracts/valid/boundaries/data/**/*.json',{eager:true,import:'default'});
+const maps={dishes:{},ingredients:{},menuPlans:{},techniques:[]};for(const [path,value] of Object.entries(sources)){const name=path.split('/').at(-1).replace('.json','');if(path.includes('/dishes/'))maps.dishes[name]=value;else if(path.includes('/ingredients/'))maps.ingredients[name]=value;else if(path.includes('/menu-plans/'))maps.menuPlans[name]=value;else if(name==='techniques')maps.techniques=value;}
+const plan=structuredClone(maps.menuPlans['team-week']);plan.schemaVersion='3';for(const meal of plan.meals)delete meal.plannedServings;
+const vm=createTeamMealsViewModel({mode:'mock',sessionKey:()=>0,getCatalog:async()=>({commit:A,...maps,suppliers:[],translations:{}}),getPlan:async()=>({content:plan,commit:A,blobSha:'mock-only'})});
+const selection=plan.meals.map(({date,mealType})=>({menuPlanRef:'team-week',date,mealType}));const view=await vm.loadSaved({revision:A,selection,at:'2026-09-11T00:00:00Z'});
+let dispose=()=>{};function paint(){dispose();const root=document.querySelector('#main');const options={lang:document.querySelector('#lang').value,asset:async()=>{throw new Error('explicitly unavailable mock image');}};dispose=(document.querySelector('#page').value==='menu'?renderFrozenMenu:renderFrozenPrep)(root,view,options);}
+const params=new URLSearchParams(location.search);document.querySelector('#lang').value=params.get('lang')||'zh';document.querySelector('#page').value=params.get('page')||'menu';if(params.get('capture'))document.querySelector('#tools').hidden=true;for(const id of ['lang','page'])document.querySelector('#'+id).onchange=paint;paint();
+</script>

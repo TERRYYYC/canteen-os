@@ -1,0 +1,144 @@
+✖ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (22.251917ms)
+✖ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (12.325958ms)
+✔ late source cannot paint an old language into a reused connected mount (12.837417ms)
+✔ late previous-session source cannot overwrite the current session (13.115333ms)
+✖ raw buffer and unload protection survive leaving the ingredient route (3.994ms)
+✖ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (14.050416ms)
+✖ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (13.982666ms)
+✖ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (13.03625ms)
+✖ unknown upload remains protected because a source read cannot prove the upload result (22.698458ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 2
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.401042
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:70:1
+✖ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (22.251917ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(el.querySelectorAll('option').some(n=>n.value==='Supplier from v3 catalog'))
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:70:217)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:71:1
+✖ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (12.325958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'getApi',
+  +   'getIngredient',
+  +   'getCatalog'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:71:222)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'getApi', 'getIngredient', 'getCatalog' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:74:1
+✖ raw buffer and unload protection survive leaving the ingredient route (3.994ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:74:225)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:75:1
+✖ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (14.050416ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:75:596)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:76:1
+✖ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (13.982666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:76:469)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:77:1
+✖ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (13.03625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /outcome unknown/. Input:
+  
+  "←Edit ingredientNo network: the back office is read-only until you're back onlineChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyYou can leave this whole group empty for now — the ingredient just won't be purchasable yetSupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:77:481)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "←Edit ingredientNo network: the back office is read-only until you're back onlineChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyYou can leave this whole group empty for now — the ingredient just won't be purchasable yetSupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save",
+    expected: /outcome unknown/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:78:1
+✖ unknown upload remains protected because a source read cannot prove the upload result (22.698458ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /outcome unknown/. Input:
+  
+  "←Edit ingredientSaved · not published yetBack to dashboardNo network: the back office is read-only until you're back onlineChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyYou can leave this whole group empty for now — the ingredient just won't be purchasable yetSupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:78:588)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "←Edit ingredientSaved · not published yetBack to dashboardNo network: the back office is read-only until you're back onlineChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyYou can leave this whole group empty for now — the ingredient just won't be purchasable yetSupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save",
+    expected: /outcome unknown/,
+    operator: 'match',
+    diff: 'simple'
+  }

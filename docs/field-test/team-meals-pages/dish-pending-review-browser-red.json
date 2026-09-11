@@ -1,0 +1,49 @@
+[
+  {
+    "name": "main photo decode blocks save immediately",
+    "passed": false
+  },
+  {
+    "name": "main photo decode remains busy after language redraw",
+    "passed": false
+  },
+  {
+    "name": "decoded main photo reaches its current view",
+    "passed": false,
+    "writes": 0
+  },
+  {
+    "name": "inline photo decode blocks save immediately",
+    "passed": false
+  },
+  {
+    "name": "decoded inline photo reaches its current form",
+    "passed": false,
+    "writes": 0
+  },
+  {
+    "name": "main translation blocks save during its pending result",
+    "passed": false
+  },
+  {
+    "name": "manual translation cannot replace later raw English",
+    "passed": false,
+    "value": "Old translated English",
+    "calls": 1
+  },
+  {
+    "name": "unchanged translation completes in the current language form",
+    "passed": false,
+    "value": "Original soup"
+  },
+  {
+    "name": "inline translation remains owned through language redraw",
+    "passed": false,
+    "calls": 3
+  },
+  {
+    "name": "inline translated result reaches current form",
+    "passed": true,
+    "value": "Owned ingredient"
+  }
+]
