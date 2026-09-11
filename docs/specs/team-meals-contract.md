@@ -164,10 +164,12 @@ RC-B 的 rollback target 也采用 §5 统一 resolver，要求完整 SHA 且为
 构建增加显式 `--target legacy-numeric|team-meals`，默认 legacy-numeric 保留现有行为；不根据某条资料缺失自动切模式。
 
 - legacy-numeric：旧三张单和 issues/pending 严格检查继续；v3 输入或所引用的 v3 Dish 返回 unsupported-format，不崩溃/NaN。`--compare-snapshots` 仅用于该目标和固定黄金 root。
-- team-meals：每份计划输出 `team-meals/<planId>.json` 同版投影、全引用问题、独立 estimates；不把旧 PrepSheet/MenuSheet 当主投影，也不把新清单塞 purchase JSON。build.json 增 `target:"team-meals"` 和 projectionVersion，保留 builtAt/commit/plans。
+- team-meals：每份计划输出 `team-meals/<planId>.json` 同版投影、全引用问题、独立 estimates、assets 和完整 issues；不把旧 PrepSheet/MenuSheet 当主投影，也不把新清单塞 purchase JSON。build.json 增 `target:"team-meals"` 和 `projectionVersion:"1"`（字符串），保留 builtAt/commit/plans；投影版本也为字符串 `"1"`。精确产物类型、ImageRef 映射规则、空计划与 CI/黄金命令见 [构建模块合同](../modules/team-meals-build.md)。
 - 缺份数、qty、基准、包装、价格、draft/archived、成分未录、空选中范围是可展示 warning，不能阻止已录引用发布；坏 plan/dish/ingredient/technique 引用、非法 schema、示例菜引用、缺失/非法本地图片为 blocking error。warning 必须跟随投影，不能显示“配方完整”。
-- 只读工作预览可显示 blocking 缺项；正式 team `--check` 返回非零，发布不输出成功。固定 commit 要对应实际输入字节：无 Git/脏 data 只可显式 preview 且不得给 saved sourceRevision；正式构建不能用 HEAD 标签伪装修改工作副本。
-- team 资产采用版本路径 `assets/<sourceRevision>/<repoRelativePath>`，写入同版文件字节；映射保留原 ImageRef 与 owner/pointer。外链标 external-unpinned，无本地字节时不嵌当前外链图片。
+- 只读工作预览可显示 blocking 缺项；正式 team 有 blocking error 时 `--check` 返回非零，发布不输出成功。team 构建直接读取 Git object 字节，`--revision` 为完整 commit 对象 SHA（不接受 tag 对象），省略使用 HEAD；指定版本必须是读取时 HEAD 的祖先。工作副本变化不进入正式构建。无 Git 或仅存在工作副本的资料只能走另外的只读预览，不能给 saved sourceRevision；本 CLI 不提供假 revision 的 preview 模式。
+- team 资产采用版本路径 `assets/<sourceRevision>/<repoRelativePath>`，写入同版文件字节；映射保留原 ImageRef 与 owner/pointer。技法资产另带原 technique.id 为 `techniqueRef`，不能用筛选后的数组下标或相同图片 src 猜原词表位置。外链标 external-unpinned，无本地字节时不嵌当前外链图片。
+- team 发布先在输出目录同父文件系统暂存全部文件，全部写完后交换完整目录；写入失败保留上一份完整产物，交换失败尝试恢复。若恢复本身失败，报出保留旧完整目录的恢复路径，不混入旧 manifest 或报告成功。输出不能覆盖知识资料、schema、脚本、core 或 Git 目录；成功发布清除生成目录中的旧目标和旧资产，保留输出根的其它文件。该过程用于离线构建后部署，不承诺直接供线上文件服务器原地热更新。
+- 首次输出目录须不存在或为空（可有 .gitkeep）；已有非空目录须为带合法 manifest 的旧生成目录。任何 output 下已跟踪的源文件（.gitkeep 除外）均阻止替换，不依赖有限源码目录白名单；文件系统根和仓库根禁止作为输出。
 - ShoppingList 的 basis 可能早于构建 commit：不能用这次 head Catalog 给历史清单补资料。静态 team 投影只对应本次计划 revision；可变清单通过 Worker 的 source/basis/catalog/asset 读同版。清单永久封存不是本期依赖。
 - CI owner 分别接生产 team-meals 检查与固定黄金 legacy 检查；A 不修改 workflow/依赖清单。共享黄金样本唯一 owner 为 RC-Q；A 仅将 engine/sheets/build/translate 测试切到固定输入，不能改 expected 来适配正常生产菜单变化。
 
