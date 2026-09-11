@@ -1,0 +1,191 @@
+{
+  "head": "80948be59b068da11855e3bf0c018f3fa13a8117",
+  "boot": 1,
+  "summary": "0/0",
+  "checks": [],
+  "route": "#/admin/ingredient/salt",
+  "safety": {
+    "reason": "saving",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 8,
+        "dirty": true,
+        "phase": "busy",
+        "operation": 5
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[9,1,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":8,\"dirty\":true,\"phase\":\"busy\",\"operation\":5},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": false,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中EN←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslating…English nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/index-BVrSK6KL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:54210/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/admin-BY1xuKar.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/ingredient-new-DN-P-66t.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/ingredient-draft-CaYBXKkL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/kit-fBQ2L38_.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/team-ui-BUNozO_y.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/store-C0BzgMAP.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54210/canteen/assets/ingredient-form-DKpbjSQ1.js",
+      "initiatorType": "script"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "adm-ing-name-zh",
+      "value": "盐"
+    },
+    {
+      "id": "adm-ing-name-en",
+      "value": "Salt"
+    },
+    {
+      "id": "adm-ing-name-uk",
+      "value": "Сіль"
+    },
+    {
+      "id": "adm-ing-id",
+      "value": "salt"
+    },
+    {
+      "id": "adm-ing-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-externalId",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-baseUnit",
+      "value": "g"
+    },
+    {
+      "id": "",
+      "value": "ml"
+    },
+    {
+      "id": "",
+      "value": "pcs"
+    },
+    {
+      "id": "adm-ing-pcsToGram",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-yield",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-role",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-supplier",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-packSize",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-minPacks",
+      "value": "1"
+    },
+    {
+      "id": "adm-ing-lastPrice",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-trackStock",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-onHand",
+      "value": ""
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}
