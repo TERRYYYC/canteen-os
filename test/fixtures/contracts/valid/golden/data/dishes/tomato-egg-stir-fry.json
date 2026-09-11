@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄炒蛋",
+    "en": "Tomato and egg stir-fry",
+    "uk": "Смажені яйця з томатами"
+  },
+  "description": {
+    "zh": "家常快手菜：番茄炒出汁，包裹嫩滑鸡蛋，酸甜下饭。",
+    "en": "Home-style quick stir-fry: juicy tomatoes folded into soft scrambled eggs, sweet and tangy over rice.",
+    "uk": "Швидка домашня страва: соковиті томати з ніжною яєчнею, кисло-солодка, чудово до рису."
+  },
+  "baseServings": 50,
+  "components": [
+    {
+      "ingredientRef": "tomato",
+      "qty": { "value": 7500, "unit": "g" },
+      "prep": {
+        "techniqueRef": "roll-cut-chunks",
+        "size": "3–4 cm",
+        "timing": "morning",
+        "note": {
+          "zh": "去皮口感更好",
+          "en": "Peeled for better texture",
+          "uk": "Очищені від шкірки для кращої текстури"
+        }
+      },
+      "confidence": { "value": 0.96, "source": "video" }
+    },
+    {
+      "ingredientRef": "egg",
+      "qty": { "value": 75, "unit": "pcs" },
+      "confidence": { "value": 0.98, "source": "video" }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": { "value": 75, "unit": "g" },
+      "confidence": { "value": 0.8, "source": "video" }
+    },
+    {
+      "ingredientRef": "scallion",
+      "qty": { "value": 250, "unit": "g" },
+      "prep": {
+        "techniqueRef": "minced",
+        "timing": "morning",
+        "note": {
+          "zh": "切葱花，出锅前撒",
+          "en": "Chopped as garnish, added before serving",
+          "uk": "Подрібнити для посипання перед подачею"
+        }
+      },
+      "confidence": { "value": 0.72, "source": "video" }
+    },
+    {
+      "ingredientRef": "cooking-oil",
+      "qty": { "value": 500, "unit": "ml" },
+      "confidence": { "value": 0.9, "source": "video" }
+    }
+  ],
+  "steps": [
+    {
+      "text": {
+        "zh": "番茄切滚刀块，鸡蛋加少许盐打散。",
+        "en": "Roll-cut tomatoes into chunks; beat eggs with a pinch of salt.",
+        "uk": "Наріжте томати рулонним способом; збийте яйця з дрібкою солі."
+      },
+      "techniqueRef": "roll-cut-chunks",
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV1example888",
+        "start": 12,
+        "end": 55
+      }
+    },
+    {
+      "text": {
+        "zh": "热油下蛋液，凝固后盛出备用。",
+        "en": "Pour eggs into hot oil; remove once just set.",
+        "uk": "Вилийте яйця на розігріту олію; зніміть, щойно схопляться."
+      },
+      "techniqueRef": "stir-fry",
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV1example888",
+        "start": 56,
+        "end": 92
+      }
+    },
+    {
+      "text": {
+        "zh": "下番茄炒出汁，回锅鸡蛋翻炒均匀，加盐调味，撒葱花出锅。",
+        "en": "Stir-fry tomatoes until juicy, return eggs to the wok, season with salt, garnish with scallions and serve.",
+        "uk": "Обсмажте томати до появи соку, поверніть яйця, посоліть, посипте зеленою цибулею і подавайте."
+      },
+      "techniqueRef": "stir-fry",
+      "clip": {
+        "videoUrl": "https://www.bilibili.com/video/BV1example888",
+        "start": 93,
+        "end": 160
+      }
+    }
+  ],
+  "provenance": {
+    "source": "video",
+    "videoUrl": "https://www.bilibili.com/video/BV1example888"
+  },
+  "status": "active"
+}

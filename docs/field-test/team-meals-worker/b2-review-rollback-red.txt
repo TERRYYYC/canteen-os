@@ -1,0 +1,484 @@
+✔ B2 rollback rejects bad JSON in candidate plan (14.121208ms)
+✔ B2 rollback rejects bad JSON in candidate dish (0.831459ms)
+✔ B2 rollback rejects bad JSON in candidate ingredient (0.696791ms)
+✔ B2 rollback rejects bad JSON in candidate techniques (0.958084ms)
+✔ B2 rollback rejects bad JSON in candidate translations (1.591958ms)
+✖ B2 rollback rejects candidate schema failure: v2 empty plan (1.09025ms)
+✖ B2 rollback rejects candidate schema failure: v3 impossible date (0.986625ms)
+✖ B2 rollback rejects candidate schema failure: v3 range relation (0.65525ms)
+✖ B2 rollback rejects candidate schema failure: unknown dish version (0.6055ms)
+✖ B2 rollback rejects candidate schema failure: v2 dish missing qty (0.628458ms)
+✖ B2 rollback rejects candidate schema failure: ingredient required fields (0.582125ms)
+✖ B2 rollback rejects candidate schema failure: technique item (1.069625ms)
+✖ B2 rollback rejects candidate schema failure: translation status (0.570791ms)
+✖ B2 rollback rejects candidate schema failure: translation stale (0.569584ms)
+✖ B2 rollback rejects candidate schema failure: additional property (0.500667ms)
+✖ B2 rollback validates unchanged invalid candidate files, including a no-op rollback (0.4985ms)
+✔ B2 rollback requires the techniques file even when no dish references it (0.455542ms)
+✖ B2 rollback rejects dangling plan dish using the candidate, not current HEAD (0.758916ms)
+✖ B2 rollback rejects dangling component ingredient using the candidate, not current HEAD (1.19875ms)
+✖ B2 rollback rejects dangling prep technique references (0.759667ms)
+✖ B2 rollback rejects dangling steps technique references (0.57625ms)
+✔ B2 rollback keeps v3 downgrade rejection ahead of candidate schema and reference errors (0.406292ms)
+✔ B2 rollback rejects non-regular knowledge entry commit at data/dishes/submodule (0.430833ms)
+✔ B2 rollback rejects non-regular knowledge entry commit at data/ingredients (0.387541ms)
+✔ B2 rollback rejects non-regular knowledge entry tree at data/menu-plans/folder.json (0.33025ms)
+✔ B2 rollback rejects non-regular knowledge entry blob at data/ingredients/salt.jpg (0.318709ms)
+✔ B2 rollback accepts empty v3 plan and unknown v3 qty while preserving non-knowledge bytes (1.668625ms)
+✔ B2 rollback revalidates all candidate sources after a competing list write (1.481375ms)
+✔ B2 rollback rejects missing historical image at data/dishes/soup.json#/image (0.895708ms)
+✔ B2 rollback rejects missing historical image at data/ingredients/salt.json#/image (0.592584ms)
+✔ B2 rollback rejects missing historical image at data/dishes/soup.json#/components/0/prep/image (0.571416ms)
+✔ B2 rollback rejects missing historical image at data/dishes/soup.json#/steps/0/image (0.633542ms)
+✔ B2 rollback rejects missing historical image at data/techniques.json#/0/image (1.111916ms)
+✔ B2 rollback rejects illegal historical image src /data/ingredients/salt.png (0.556708ms)
+✔ B2 rollback rejects illegal historical image src ../../../secret.png (0.514292ms)
+✔ B2 rollback rejects illegal historical image src data:text/plain,test (0.457209ms)
+✔ B2 rollback rejects illegal historical image src salt%2epng (0.614625ms)
+✔ B2 rollback rejects illegal historical image src data/menu-plans/secret.png (0.583416ms)
+✔ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.png (0.683041ms)
+✔ B2 rollback rejects invalid image bytes or extension at data/ingredients/salt.jpg (1.085584ms)
+✔ B2 rollback restores valid historical local image bytes instead of current bytes (0.565875ms)
+✔ B2 rollback preserves remote ImageRef without fetching or claiming pinned bytes (0.433917ms)
+✖ B2 review rejects duplicate technique ID even when different (0.458917ms)
+✖ B2 review rejects duplicate technique ID even when identical (0.489042ms)
+✖ B2 review a later explicit v3 downgrade wins over candidate dish null (0.365208ms)
+✖ B2 review a later explicit v3 downgrade wins over candidate dish { broken (0.307583ms)
+✖ B2 review a later explicit v3 downgrade wins over candidate dish [] (0.851958ms)
+✖ B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"4","name":{"zh":"汤"}}
+ (0.420375ms)
+✔ B2 review does not swallow 401 while collecting candidate version errors (0.412708ms)
+✔ B2 review does not swallow 403 while collecting candidate version errors (0.271833ms)
+✔ B2 review does not swallow network while collecting candidate version errors (0.273042ms)
+✔ B2 review detailed source errors are opt-in for rollback (0.287292ms)
+✔ B2 review preserves the existing pcs with yield warning-only contract (0.791542ms)
+ℹ tests 53
+ℹ suites 0
+ℹ pass 32
+ℹ fail 21
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92.281708
+
+✖ failing tests:
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: v2 empty plan (1.09025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/menu-plans/team.json'
+  - 'data/menu-plans/team.json#/meals'
+                              ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/menu-plans/team.json',
+    expected: 'data/menu-plans/team.json#/meals',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: v3 impossible date (0.986625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/menu-plans/team.json'
+  - 'data/menu-plans/team.json#/meals/0/date'
+                              ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/menu-plans/team.json',
+    expected: 'data/menu-plans/team.json#/meals/0/date',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: v3 range relation (0.65525ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/menu-plans/team.json'
+  - 'data/menu-plans/team.json#/meals/0/date'
+                              ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/menu-plans/team.json',
+    expected: 'data/menu-plans/team.json#/meals/0/date',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: unknown dish version (0.6055ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/schemaVersion'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/schemaVersion',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: v2 dish missing qty (0.628458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/components/0/qty'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/components/0/qty',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: ingredient required fields (0.582125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/ingredients/salt.json'
+  - 'data/ingredients/salt.json#/baseUnit'
+                               ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/ingredients/salt.json',
+    expected: 'data/ingredients/salt.json#/baseUnit',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: technique item (1.069625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/techniques.json'
+  - 'data/techniques.json#/0/kind'
+                         ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/techniques.json',
+    expected: 'data/techniques.json#/0/kind',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: translation status (0.570791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/translations.lock.json'
+  - 'data/translations.lock.json#/entry/status'
+                                ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/translations.lock.json',
+    expected: 'data/translations.lock.json#/entry/status',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: translation stale (0.569584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/translations.lock.json'
+  - 'data/translations.lock.json#/a~1b~0c/stale'
+                                ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/translations.lock.json',
+    expected: 'data/translations.lock.json#/a~1b~0c/stale',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:61:3
+✖ B2 rollback rejects candidate schema failure: additional property (0.500667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/a~1b~0c'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:62:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/a~1b~0c',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:66:1
+✖ B2 rollback validates unchanged invalid candidate files, including a no-op rollback (0.4985ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/ingredients/salt.json'
+  - 'data/ingredients/salt.json#'
+                               ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:67:3)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/ingredients/salt.json',
+    expected: 'data/ingredients/salt.json#',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:81:3
+✖ B2 rollback rejects dangling plan dish using the candidate, not current HEAD (0.758916ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/menu-plans/team.json'
+  - 'data/menu-plans/team.json#/meals/0/dishRef'
+                              ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/menu-plans/team.json',
+    expected: 'data/menu-plans/team.json#/meals/0/dishRef',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:81:3
+✖ B2 rollback rejects dangling component ingredient using the candidate, not current HEAD (1.19875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/components/0/ingredientRef'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/components/0/ingredientRef',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:89:3
+✖ B2 rollback rejects dangling prep technique references (0.759667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/components/0/prep/techniqueRef'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:93:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/components/0/prep/techniqueRef',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:89:3
+✖ B2 rollback rejects dangling steps technique references (0.57625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'data/dishes/soup.json'
+  - 'data/dishes/soup.json#/steps/0/techniqueRef'
+                          ^
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:37:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:93:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'data/dishes/soup.json',
+    expected: 'data/dishes/soup.json#/steps/0/techniqueRef',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:235:3
+✖ B2 review rejects duplicate technique ID even when different (0.458917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:238:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:235:3
+✖ B2 review rejects duplicate technique ID even when identical (0.489042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 422
+
+      at rejectsCandidate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:35:10)
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:238:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:253:3
+✖ B2 review a later explicit v3 downgrade wins over candidate dish null (0.365208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  422 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:257:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 422,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:253:3
+✖ B2 review a later explicit v3 downgrade wins over candidate dish { broken (0.307583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  422 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:257:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 422,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:253:3
+✖ B2 review a later explicit v3 downgrade wins over candidate dish [] (0.851958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  422 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:257:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 422,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-rollback-validation.test.mjs:253:3
+✖ B2 review a later explicit v3 downgrade wins over candidate dish {"schemaVersion":"4","name":{"zh":"汤"}}
+ (0.420375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  422 !== 409
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-rollback-validation.test.mjs:257:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 422,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

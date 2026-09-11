@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "油",
+    "en": "Oil",
+    "uk": "Олія"
+  },
+  "baseUnit": "ml",
+  "role": "seasoning",
+  "trackStock": false
+}

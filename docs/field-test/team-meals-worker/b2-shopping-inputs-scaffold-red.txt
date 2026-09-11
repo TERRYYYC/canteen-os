@@ -1,0 +1,232 @@
+✖ B2 shopping inputs come entirely from their saved source revision (1.841916ms)
+✖ B2 shopping inputs reject missing selected plan as unavailable basis (1.049792ms)
+✖ B2 shopping inputs reject malformed source data/menu-plans/team.json (0.256666ms)
+✖ B2 shopping inputs reject malformed source data/dishes/soup.json (0.148625ms)
+✖ B2 shopping inputs reject malformed source data/ingredients/salt.json (0.143708ms)
+✖ B2 shopping inputs reject malformed source data/techniques.json (0.154542ms)
+✖ B2 shopping inputs preserve unresolved refs as absent records (0.126375ms)
+✖ B2 empty v3 plan remains a real selected plan (0.162ms)
+✖ B2 shopping source read failures remain upstream errors (0.259166ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 0
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.556541
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-inputs.test.mjs:14:1
+✖ B2 shopping inputs come entirely from their saved source revision (1.841916ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+      at moduleResolve (node:internal/modules/esm/resolve:865:10)
+      at defaultResolve (node:internal/modules/esm/resolve:992:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+      at #resolve (node:internal/modules/esm/loader:683:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+      at node:internal/modules/esm/loader:632:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:362:14) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:20:1
+✖ B2 shopping inputs reject missing selected plan as unavailable basis (1.049792ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:22:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:24:108
+✖ B2 shopping inputs reject malformed source data/menu-plans/team.json (0.256666ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:26:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:24:108
+✖ B2 shopping inputs reject malformed source data/dishes/soup.json (0.148625ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:26:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:24:108
+✖ B2 shopping inputs reject malformed source data/ingredients/salt.json (0.143708ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:26:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:24:108
+✖ B2 shopping inputs reject malformed source data/techniques.json (0.154542ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:26:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:28:1
+✖ B2 shopping inputs preserve unresolved refs as absent records (0.126375ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+      at moduleResolve (node:internal/modules/esm/resolve:865:10)
+      at defaultResolve (node:internal/modules/esm/resolve:992:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+      at #resolve (node:internal/modules/esm/loader:683:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+      at node:internal/modules/esm/loader:632:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:362:14) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:32:1
+✖ B2 empty v3 plan remains a real selected plan (0.162ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+      at moduleResolve (node:internal/modules/esm/resolve:865:10)
+      at defaultResolve (node:internal/modules/esm/resolve:992:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+      at #resolve (node:internal/modules/esm/loader:683:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+      at node:internal/modules/esm/loader:632:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:362:14) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js'
+  }
+
+test at packages/worker/test/shopping-inputs.test.mjs:36:1
+✖ B2 shopping source read failures remain upstream errors (0.259166ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+  Caught error:
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+      at async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs:38:2)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/dist/shopping-inputs.js' imported from /Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-inputs.test.mjs
+        at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+        at moduleResolve (node:internal/modules/esm/resolve:865:10)
+        at defaultResolve (node:internal/modules/esm/resolve:992:11)
+        at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+        at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+        at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+        at #resolve (node:internal/modules/esm/loader:683:17)
+        at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+        at node:internal/modules/esm/loader:632:32
+        at TracingChannel.tracePromise (node:diagnostics_channel:362:14),
+    operator: 'rejects',
+    diff: 'simple'
+  }

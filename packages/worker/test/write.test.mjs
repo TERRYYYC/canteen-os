@@ -44,7 +44,7 @@ test("T-21 内容逐字相同再写一次 → unchanged: true，commit 是当前
   const { env } = makeEnv(repo);
 
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: plan,
   });
 
@@ -81,7 +81,7 @@ test("T-22 键顺序打乱、缩进不同 → 稳定序列化后仍然 unchanged
   };
 
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: shuffled,
   });
   assert.equal(status, 200);
@@ -108,7 +108,7 @@ test("If-Match 与当前 blob sha 相符 → 正常写入，响应回新的 blob
   const plan = planFixture();
   const repo = seeded({ "data/menu-plans/week-43.json": stable(plan) });
   const { env } = makeEnv(repo);
-  const source = await call(worker, env, "GET", "/source/plan/week-43", { headers: bearer("chef") });
+  const source = await call(worker, env, "GET", "/source/plan/week-43", { headers: { ...bearer("chef"), ...planCondition(repo) } });
   assert.equal(source.status, 200);
 
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
@@ -127,7 +127,7 @@ test("T-24（L1 版）ref 级冲突 → 重读一次并重试一次，第二次�
   const { env } = makeEnv(repo);
 
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: planFixture(),
   });
   assert.equal(status, 200);
@@ -140,7 +140,7 @@ test("ref 级冲突连续两次 → 409 conflict（不无限重试）", async ()
   repo.refUpdateFailures = 5;
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/plan/week-43", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: planFixture(),
   });
   assert.equal(status, 409);
@@ -151,7 +151,7 @@ test("ref 级冲突连续两次 → 409 conflict（不无限重试）", async ()
 test("commit 形状：ADR-0007 §2 的首行 + [skip ci] + 两条 trailer，作者 canteenos-bot", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
-  await call(worker, env, "POST", "/plan/week-43", { headers: bearer("chef"), body: planFixture() });
+  await call(worker, env, "POST", "/plan/week-43", { headers: { ...bearer("chef"), ...planCondition(repo) }, body: planFixture() });
 
   const commit = repo.commits.get(repo.head);
   assert.equal(
@@ -161,12 +161,12 @@ test("commit 形状：ADR-0007 §2 的首行 + [skip ci] + 两条 trailer，作�
   assert.equal(commit.author.name, "canteenos-bot");
 });
 
-test("不带 If-Match → warnings 含 no-if-match（契约 §3.2）", async () => {
+test("Ingredient retains legacy no-if-match warning (outside team-meals change)", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
-  const { body } = await call(worker, env, "POST", "/plan/week-43", {
+  const { body } = await call(worker, env, "POST", "/ingredient/egg", {
     headers: bearer("chef"),
-    body: planFixture(),
+    body: { schemaVersion: "2", name: { zh: "鸡蛋" }, baseUnit: "pcs", trackStock: false },
   });
   assert.ok(body.warnings.includes("no-if-match"));
 });
@@ -175,7 +175,7 @@ test("D-08：planId 不是 week-NN 形状只警告不拒绝", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/plan/spring-festival", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: planFixture(),
   });
   assert.equal(status, 200);
@@ -186,7 +186,7 @@ test("D-10：pcs 食材设了 yield → 只警告不拒绝", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
   const { status, body } = await call(worker, env, "POST", "/ingredient/egg", {
-    headers: bearer("chef"),
+    headers: { ...bearer("chef"), ...planCondition(repo) },
     body: { schemaVersion: "2", name: { zh: "鸡蛋" }, baseUnit: "pcs", trackStock: false, yield: 0.9 },
   });
   assert.equal(status, 200);
@@ -197,6 +197,11 @@ test("写入落盘的是稳定序列化后的字节（键排序 + 2 空格 + 末
   const repo = seeded();
   const { env } = makeEnv(repo);
   const plan = planFixture();
-  await call(worker, env, "POST", "/plan/week-43", { headers: bearer("chef"), body: plan });
+  await call(worker, env, "POST", "/plan/week-43", { headers: { ...bearer("chef"), ...planCondition(repo) }, body: plan });
   assert.equal(repo.fileText("data/menu-plans/week-43.json"), stable(plan));
 });
+
+function planCondition(repo) {
+  const sha = repo.trees.get(repo.commits.get(repo.head).tree).get("data/menu-plans/week-43.json");
+  return sha ? { "If-Match": sha } : { "If-None-Match": "*" };
+}

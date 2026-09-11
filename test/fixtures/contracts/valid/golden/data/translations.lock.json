@@ -1,0 +1,402 @@
+{
+  "data/dishes/tomato-egg-stir-fry.json#/components/0/prep/note": {
+    "source_hash": "e0cb74daf3754648c23d86891da53ff2b969b7e6",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/dishes/tomato-egg-stir-fry.json#/components/3/prep/note": {
+    "source_hash": "948c88bf16c1628ffe0ec736b74f2e10cf4390b1",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/dishes/tomato-egg-stir-fry.json#/name": {
+    "source_hash": "69c3e1d0aea40ee589c473e9e3acebec72f873ea",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/dishes/tomato-egg-stir-fry.json#/steps/0/text": {
+    "source_hash": "26d5905091c8a2272d1e70b05127aa04f2e098ce",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/dishes/tomato-egg-stir-fry.json#/steps/1/text": {
+    "source_hash": "0e8d0fcde12df044e95c8e6c4ff06c108f3d17a0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/dishes/tomato-egg-stir-fry.json#/steps/2/text": {
+    "source_hash": "7326c75e7dcc4bcd7726b855bc2f7973082ded37",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/cooking-oil.json#/name": {
+    "source_hash": "68c489b15f95ad9260cd1310476881dee6b05f1c",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/egg.json#/name": {
+    "source_hash": "5216482077f532e769994436134288cfe0d90739",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/ketchup.json#/name": {
+    "source_hash": "227fd6bbcfbae6935ca5b57f5697798a81ee71cb",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/salt.json#/name": {
+    "source_hash": "0034f55cc129796d3a4a86a297b468a3f4025f4f",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/scallion.json#/name": {
+    "source_hash": "923240f088cc13d30c8725bb6e28bf7a066cd844",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/starch.json#/name": {
+    "source_hash": "e54cf75a93c14820b9a4e801ed8519deb26bd351",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/sugar.json#/name": {
+    "source_hash": "f2584a85f443c7369e755ce98b4549c5cc34b664",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/tomato.json#/name": {
+    "source_hash": "f1b760f1d6aebec5aa647f331341aba522f3ac9b",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/ingredients/white-vinegar.json#/name": {
+    "source_hash": "d53af559a8bda911f6baeaa45e488ea890843ab8",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/menu-plans/week-41.json#/name": {
+    "source_hash": "8e2cc0239e0ee96612ac997589bef0a2a6b246e2",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/0/name": {
+    "source_hash": "5af44d51a8c5292ceccc11038fff41d5b696a01f",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/0/note": {
+    "source_hash": "ddde7bbac091670d2089c0cfc57611ea8598006e",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/1/name": {
+    "source_hash": "e02d882882330bae854ba55f513bc22859cf1de0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/1/note": {
+    "source_hash": "52e26e0b43bb09d574fbb3f70db5f3860b6fe855",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/10/name": {
+    "source_hash": "5a0427f6fd3426102b29a047431e4faefbb9665a",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/10/note": {
+    "source_hash": "0d93115de7d1992490f2f992537951f40e141f7c",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/11/name": {
+    "source_hash": "36f228ece81492482f16f0f39123b5ba4f182a37",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/11/note": {
+    "source_hash": "c43a2138579de4de2a8c2621bad93f44683acec6",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/12/name": {
+    "source_hash": "d3b5c80b8e4d6a89928d817483a262102793fe10",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/12/note": {
+    "source_hash": "ab6403e66f857526a82f06ba428ea554017639d2",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/13/name": {
+    "source_hash": "e1b463fac28a5def01a71c068586bb66dd5f7bb2",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/13/note": {
+    "source_hash": "e1d596302d3cf47cd41c16cca3c670c579c22dfe",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/14/name": {
+    "source_hash": "a0050fda0be8dbb84f2f3bf1029763b7d7debe04",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/14/note": {
+    "source_hash": "537d22f764580e5dd0dbe1460fcd6f8e381f9a2c",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/15/name": {
+    "source_hash": "b53211b6964846b079963cbbc30e9cc05229477e",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/15/note": {
+    "source_hash": "4e308fa4e576630d79c1607f0c9cd1b2070ca784",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/16/name": {
+    "source_hash": "449153343ef85aa76de682c936eef23aa24b65e8",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/16/note": {
+    "source_hash": "5e93ec96f1943fd47d1628780bb9ce9b7d361087",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/17/name": {
+    "source_hash": "2d21f2e887624c635b058fb47cd77467708e4f05",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/17/note": {
+    "source_hash": "39f97d43a8309ec8aac07298af841c7b985996d0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/18/name": {
+    "source_hash": "1103bcb1432a95976e36fdbd29a1e91587d280e3",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/18/note": {
+    "source_hash": "9e72a45fc46a9921207f4698afe250d336741277",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/19/name": {
+    "source_hash": "58e3ce17c30197db087bd0e207e625dbdee01562",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/19/note": {
+    "source_hash": "7a2b758f887a89a0c6bcef35cfe2e10a541e34ea",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/2/name": {
+    "source_hash": "f6f230b34fa65146f1d30e731c830fb0baa47908",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/2/note": {
+    "source_hash": "88603c3927ae5ded622f8de25561be6a32886470",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/20/name": {
+    "source_hash": "03771180d51ad38871ab4098ae87ed3227517a59",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/20/note": {
+    "source_hash": "e1b6615ee0ac28db092a30532d80a61b77260a12",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/21/name": {
+    "source_hash": "4558bdd2530bcacf369f7a9df46909e52971239a",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/21/note": {
+    "source_hash": "f0ad1efeb69f43a9d44a7e0891c12795dafdc27e",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/22/name": {
+    "source_hash": "2c52d2c76a956cd4495146ed35a2852a3eda407d",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/22/note": {
+    "source_hash": "6c69f6dac1645133ff8f797cc0e82fd2bf0dd634",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/23/name": {
+    "source_hash": "9b2c5b926c520abc3c7e67060609c76667ee75d0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/23/note": {
+    "source_hash": "a3572260ef61f5c03095c25835b268fec7aa4263",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/24/name": {
+    "source_hash": "dcdf17d7caf405e95f1f4d989009636b2e12e446",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/24/note": {
+    "source_hash": "6e19b9f46efaeccded6642963dee4feaa0a16c82",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/25/name": {
+    "source_hash": "4a1ca38519867e45071376e1682a41c2e6109d6a",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/25/note": {
+    "source_hash": "07db159036cbe3f8908c7922a85fa5c16ff413b8",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/26/name": {
+    "source_hash": "8f3544e91f710848b3e7c900e1d86d0f5ca1825b",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/26/note": {
+    "source_hash": "7d09f1385bf151f47eda0576981a962cebe36837",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/27/name": {
+    "source_hash": "bf2a7cd55a90312295d7fc10dd5d4ddacaaa740a",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/27/note": {
+    "source_hash": "4dd82c0ea375289f2cee4236e669a62a28833004",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/28/name": {
+    "source_hash": "391841be99dcc0f4122e3d42e879b1efac0f210d",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/28/note": {
+    "source_hash": "81e740d80476f3f96923b274da984307eff14d98",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/29/name": {
+    "source_hash": "791b59529014481a9657c6f270cf4a2934aba896",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/29/note": {
+    "source_hash": "cdb6bea39360add10e8e0f55245d59e937113f8e",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/3/name": {
+    "source_hash": "06281de44b9a382553127e6694a2011f6b4a2e2d",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/3/note": {
+    "source_hash": "422f864c8d486926327ee78fae0d10902ed8571b",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/30/name": {
+    "source_hash": "a8cd56b997f21d8740529b99989e1d9ff96bf12d",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/30/note": {
+    "source_hash": "4185c1caf35745cac190f15abb29d565fb9e948b",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/31/name": {
+    "source_hash": "6c1706af306431c5fb511ca3f6cde53f8fbb800f",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/31/note": {
+    "source_hash": "40ad41230c2526ed65ba08eae8bccfa35deb4a83",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/4/name": {
+    "source_hash": "8ce5995a803cbe9d9161d8b8d9ee5fbd1c3c9b47",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/4/note": {
+    "source_hash": "a4c658b6c11934a51a945709f4f6067bb72d185d",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/5/name": {
+    "source_hash": "06add9f93571a43a7a2118fbe1a03536bfc59e59",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/5/note": {
+    "source_hash": "4faf2522f40b64461cc56eaf9f8d8ca402446c28",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/6/name": {
+    "source_hash": "dfa83bd538f474b445a52886a1479c14d9b8ad32",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/6/note": {
+    "source_hash": "665db31db3552bf4d1e1b1bd3b77e51ca1ba1ba9",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/7/name": {
+    "source_hash": "bce2ef61514a87a9049532a48d328f5b5d7fa3a0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/7/note": {
+    "source_hash": "6f97f996b564747564d0f96d2ed63ed6e3210fe0",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/8/name": {
+    "source_hash": "c865b5b0bc0060f070640f79ae7f96b45ab31808",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/8/note": {
+    "source_hash": "c3e8e4868490a32ab0c0f0a653287db68e027ed4",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/9/name": {
+    "source_hash": "e44b48e08914a262ca35c360ddc035d112e7e3a4",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  },
+  "data/techniques.json#/9/note": {
+    "source_hash": "943a31e1103224fccbddb109d1322546a09bacc7",
+    "status": "human",
+    "updatedAt": "2026-09-06T23:17:38.890Z"
+  }
+}

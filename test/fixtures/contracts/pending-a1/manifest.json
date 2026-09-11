@@ -1,0 +1,394 @@
+{
+  "manifestVersion": 1,
+  "status": "formal-A1-format-executed-semantics-pending",
+  "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+  "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+  "sourceRevisionCaveat": "ShoppingList sourceRevision is an existing full Git SHA used only to test format. This repo stores sample data under test/fixtures/contracts, not production data paths. No synthetic ShoppingList here has a verified real Worker basis, ancestry or authorized previous history; do not send it to any live endpoint.",
+  "cases": [
+    {
+      "file": "valid/menu-plan-v3.json",
+      "kind": "plan",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-run",
+      "purpose": "Omit servings on two rows; preserve explicit 2 on third.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "menu-plan-v3.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "valid/dish-v3.json",
+      "kind": "dish",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-run",
+      "purpose": "Unknown qty remains absent; genuine to-taste remains distinct.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "dish-v3.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "valid/empty-menu-plan-v3.json",
+      "kind": "plan",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-run",
+      "purpose": "Removing last meal is persistable, not an invalid v2 plan.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "menu-plan-v3.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "valid/shopping-list-v1.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "unverified-basis",
+      "purpose": "Full check candidates; sourceRevision is a format token, real basis unverified.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "valid/shopping-decisions-v1.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "unverified-basis",
+      "purpose": "buy+bought, available, check+previous legal shapes; no claim API accepts fabricated history.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "valid/empty-shopping-list-v1.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "unverified-basis",
+      "purpose": "Empty items legal shape; real candidates must be empty at actual basis.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    },
+    {
+      "file": "invalid/zero-servings.json",
+      "kind": "plan",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Optional means absent; zero remains invalid.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "menu-plan-v3.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/meals/0/plannedServings",
+        "keyword": "minimum",
+        "params": {
+          "limit": 1
+        }
+      }
+    },
+    {
+      "file": "invalid/null-servings.json",
+      "kind": "plan",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Null does not stand for unknown.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "menu-plan-v3.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/meals/0/plannedServings",
+        "keyword": "type",
+        "params": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "file": "invalid/null-qty.json",
+      "kind": "dish",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Unknown qty must be absent.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "dish-v3.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/components/0/qty",
+        "keyword": "type",
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    {
+      "file": "invalid/missing-quantity-value.json",
+      "kind": "dish",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "A present non-to-taste qty requires value.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "dish-v3.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/components/0/qty",
+        "keyword": "required",
+        "params": {
+          "missingProperty": "value"
+        }
+      }
+    },
+    {
+      "file": "invalid/dish-steps-n.json",
+      "kind": "dish",
+      "formatVersion": "3",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Dish steps cannot contain projection-only n.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "dish-v3.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/steps/0",
+        "keyword": "additionalProperties",
+        "params": {
+          "additionalProperty": "n"
+        }
+      }
+    },
+    {
+      "file": "invalid/check-bought.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "bought is allowed only with decision buy.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/items/0/decision",
+        "keyword": "const",
+        "params": {
+          "allowedValue": "buy"
+        }
+      }
+    },
+    {
+      "file": "invalid/available-bought-false.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Even bought false must be absent when not buy.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/items/0/decision",
+        "keyword": "const",
+        "params": {
+          "allowedValue": "buy"
+        }
+      }
+    },
+    {
+      "file": "invalid/branch-as-revision.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Full commit SHA required, never main/local/short SHA.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/basis/sourceRevision",
+        "keyword": "pattern",
+        "params": {}
+      }
+    },
+    {
+      "file": "invalid/duplicate-selection.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Exact selection duplicates rejected by schema.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/basis/selection",
+        "keyword": "uniqueItems",
+        "params": {}
+      }
+    },
+    {
+      "file": "invalid/previous-on-confirmed.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "previous allowed only on current check.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/items/0/decision",
+        "keyword": "const",
+        "params": {
+          "allowedValue": "check"
+        }
+      }
+    },
+    {
+      "file": "invalid/previous-check-bought.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "previous bought also only for buy.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/items/0/previous/decision",
+        "keyword": "const",
+        "params": {
+          "allowedValue": "buy"
+        }
+      }
+    },
+    {
+      "file": "invalid/persisted-name.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": false,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "not-reached",
+      "purpose": "Do not duplicate name/projection/coverage into persisted list.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": false,
+      "actualFailureLayer": "schema",
+      "expectedDiagnostic": {
+        "instancePath": "/items/0",
+        "keyword": "additionalProperties",
+        "params": {
+          "additionalProperty": "name"
+        }
+      }
+    },
+    {
+      "file": "semantic/duplicate-ingredient.json",
+      "kind": "shopping-list",
+      "formatVersion": "1",
+      "sourceCommit": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "contractCommit": "8448d49525da02c2e3fceb65167c8cedb3d6df11",
+      "fixedAt": "2026-09-10T00:00:00.000Z",
+      "expectedFormatValid": true,
+      "formatValidation": "matched-formal-A1",
+      "semanticValidation": "expected-invalid-selection",
+      "purpose": "Schema shape alone cannot certify unique ingredientRef; semantic admission rejects.",
+      "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c",
+      "expectedSchema": "shopping-list.schema.json",
+      "actualFormatValid": true,
+      "actualFailureLayer": "none"
+    }
+  ],
+  "schemaCommit": "c9131559b8c703a3a8f3b823bc93c2acb3dd879c"
+}

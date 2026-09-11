@@ -121,7 +121,7 @@ test("base 尾斜杠被去掉", async () => {
   assert.equal(calls[0].url, `${BASE}/changes`);
 });
 
-test("savePlan：POST /plan/:planId，JSON 体，If-Match 透传；不带 ifMatch 就没有这个头", async () => {
+test("savePlan：POST /plan/:planId，JSON 体，If-Match 透传；新建带 If-None-Match:*", async () => {
   const plan = { id: "week-43", meals: [] };
   const { api: a, calls } = api(() => json(200, { ok: true, commit: "c2", blobSha: "b2", unchanged: false, warnings: ["no-if-match"] }));
   const r1 = await a.savePlan("week-43", plan, { ifMatch: "b1" });
@@ -134,6 +134,7 @@ test("savePlan：POST /plan/:planId，JSON 体，If-Match 透传；不带 ifMatc
 
   await a.savePlan("week-43", plan);
   assert.equal(calls[1].headers.get("If-Match"), null);
+  assert.equal(calls[1].headers.get("If-None-Match"), "*");
 });
 
 test("saveIngredient / saveDishDraft / saveDish / rollback / getPublish 的路径与方法（§6.4 对照 worker 路由表）", async () => {

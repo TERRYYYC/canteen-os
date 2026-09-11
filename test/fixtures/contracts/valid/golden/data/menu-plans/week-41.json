@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "2026 年第 41 周菜单",
+    "en": "2026 Week 41 Menu",
+    "uk": "Меню на 41 тиждень 2026"
+  },
+  "dateRange": {
+    "start": "2026-10-05",
+    "end": "2026-10-11"
+  },
+  "margin": 1.1,
+  "meals": [
+    {
+      "date": "2026-10-05",
+      "mealType": "lunch",
+      "dishRef": "tomato-egg-stir-fry",
+      "plannedServings": 200,
+      "serviceWindow": "12:00-14:00"
+    },
+    {
+      "date": "2026-10-07",
+      "mealType": "lunch",
+      "dishRef": "tomato-egg-stir-fry",
+      "plannedServings": 160,
+      "serviceWindow": "12:00-14:00"
+    },
+    {
+      "date": "2026-10-09",
+      "mealType": "dinner",
+      "dishRef": "tomato-egg-stir-fry",
+      "plannedServings": 120,
+      "serviceWindow": "18:00-20:00"
+    }
+  ]
+}

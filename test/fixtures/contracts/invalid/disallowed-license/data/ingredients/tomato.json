@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄",
+    "en": "Tomato",
+    "uk": "Помідор"
+  },
+  "baseUnit": "g",
+  "role": "main",
+  "trackStock": false,
+  "purchase": {
+    "supplier": "Fixture supplier",
+    "packSize": 1,
+    "packUnit": "kg",
+    "lastPrice": {
+      "amount": 10,
+      "currency": "CNY"
+    }
+  },
+  "image": {
+    "src": "data/ingredients/not-present.png",
+    "license": "GPL-3.0"
+  }
+}

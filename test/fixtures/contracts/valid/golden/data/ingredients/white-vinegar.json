@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "白醋",
+    "en": "White vinegar",
+    "uk": "Білий оцет"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "trackStock": false
+}
