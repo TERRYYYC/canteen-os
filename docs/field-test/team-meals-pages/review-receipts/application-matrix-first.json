@@ -1,0 +1,160 @@
+{
+  "head": "3eb2f351755b73122b26f2a2cee5a523dee49aaa",
+  "boot": 1,
+  "summary": "6/7",
+  "checks": [
+    {
+      "name": "actual main Home ready with no untracked residue",
+      "pass": true
+    },
+    {
+      "name": "actual Home registers all three reads before await",
+      "pass": true
+    },
+    {
+      "name": "language redraw reuses Home reads",
+      "pass": true
+    },
+    {
+      "name": "old Home and Plan reads survive auth without old identity disclosure",
+      "pass": true
+    },
+    {
+      "name": "one old read cannot release its siblings",
+      "pass": true
+    },
+    {
+      "name": "late old initializations preserve new Home DOM and clear own coverage",
+      "pass": true
+    },
+    {
+      "name": "1 Run actual application matrix",
+      "pass": false,
+      "error": "Error: Timed out: Plan read failure\n    at ee (http://127.0.0.1:4186/canteen/assets/index-CBx2eYGL.js:2:18856)\n    at async http://127.0.0.1:4186/canteen/assets/index-CBx2eYGL.js:2:21707\n    at async n.onclick (http://127.0.0.1:4186/canteen/assets/index-CBx2eYGL.js:2:20324)"
+    }
+  ],
+  "route": "#/admin/plan/read-fails",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-4",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-5",
+        "kind": "plan",
+        "id": "read-fails",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 2
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[54,5,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/plan/read-fails\",\"tracked\"]],[{\"ownerId\":\"auxiliary-4\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-5\",\"kind\":\"plan\",\"id\":\"read-fails\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/private-old",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/read-fails",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ]
+}
