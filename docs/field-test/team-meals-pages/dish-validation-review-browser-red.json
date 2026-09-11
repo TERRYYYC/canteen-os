@@ -1,0 +1,79 @@
+[
+  {
+    "name": "inline local ID error survives auxiliary completion",
+    "passed": false,
+    "writes": 0,
+    "errors": [],
+    "idInvalid": null,
+    "inlinePresent": true
+  },
+  {
+    "name": "inline server field error survives auxiliary completion",
+    "passed": false,
+    "errors": [],
+    "nameInvalid": null,
+    "status": "Save service configuredUnsaved changesInvalid ingredientaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "late raw edits survive photo upload and save acknowledgement",
+    "passed": true,
+    "uploads": 1,
+    "writes": [
+      {
+        "id": "soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "原来的汤",
+            "en": "Original soup"
+          },
+          "status": "draft",
+          "image": {
+            "src": "data/dishes/soup/images/review.png",
+            "license": "own"
+          }
+        },
+        "condition": {
+          "ifMatch": "blob-a"
+        }
+      }
+    ],
+    "rawName": "编辑期间新增名字",
+    "dirty": true
+  },
+  {
+    "name": "detached photo completion retained and reused without duplicate upload",
+    "passed": true,
+    "uploads": 1,
+    "writesBeforeReturnSave": 0,
+    "writes": [
+      {
+        "id": "soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "原来的汤",
+            "en": "Original soup"
+          },
+          "image": {
+            "src": "data/dishes/soup/images/review.png",
+            "license": "own"
+          },
+          "status": "draft"
+        },
+        "condition": {
+          "ifMatch": "blob-a"
+        }
+      }
+    ]
+  },
+  {
+    "name": "unknown auxiliary upload preserves photo and stays protected",
+    "passed": true,
+    "uploads": 1,
+    "blocked": true,
+    "dirty": true,
+    "photoPresent": true,
+    "status": "Сервіс збереження налаштованоЄ незбережені зміниРезультат збереження фото або інгредієнта невідомий. Локальні дані збережено; спочатку перевірте результат на серверіНемає зв'язку з кабінетомaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+]

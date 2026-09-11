@@ -314,6 +314,10 @@ export interface PendingImage {
   sourceUrl: string;
 }
 
+type InlineIngredientFeedback = { kind: "local" } | { kind: "failure"; stage: "upload" | "save"; error: unknown };
+// Feedback follows the real inline buffer across paints; it never enters saved JSON.
+const inlineIngredientFeedback = new WeakMap<IngredientDraft, InlineIngredientFeedback>();
+
 export interface ComponentDraft {
   /** DOM key（新增时递增），与数组下标无关 */
   key: number;
@@ -1619,10 +1623,26 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     };
     inlineBusyViews.push(syncInline); syncInline();
     saveBtn.addEventListener("click", () => void saveInline());
+    function paintFeedback(): void {
+      const feedback = inlineIngredientFeedback.get(ingDraft);
+      form.clearErrors(); msg.replaceChildren();
+      if (!feedback) return;
+      if (feedback.kind === "local") { form.showErrors(form.localErrors()); return; }
+      const err = feedback.error;
+      if (feedback.stage === "upload") {
+        form.showErrors(isApiError(err) && err.hasFieldErrors ? err.errors : [{ path: "/image", code: isApiError(err) ? err.code : "network", message: L("dish.photo.uploadFailed", { msg: apiMessage(err, lang) }) }]);
+      } else if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
+        form.showErrors(err.errors);
+      } else {
+        msg.append(errorCard(apiMessage(err, lang), owner.auxiliaryUnknown ? undefined : () => void saveInline()));
+      }
+    }
+    paintFeedback();
     async function saveInline(): Promise<void> {
       if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode !== "real") return;
       const operation = owner.beginAuxiliary(operationKey);
       if (!operation) return;
+      inlineIngredientFeedback.delete(ingDraft);
       form.clearErrors();
       msg.replaceChildren();
       try {
@@ -1637,6 +1657,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         }
         const local = form.localErrors();
         if (local.length > 0) {
+          inlineIngredientFeedback.set(ingDraft, { kind: "local" });
           form.showErrors(local);
           return;
         }
@@ -1676,22 +1697,19 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         }
         const err = out.error;
         operation.fail(err);
+        inlineIngredientFeedback.set(ingDraft, { kind: "failure", stage: out.stage, error: err });
         if (!alive()) return;
         if (isApiError(err) && err.status === 401) {
           discardDraft();
           sessionExpired(el, lang);
           return;
         }
-        if (out.stage === "upload") {
-          form.showErrors(isApiError(err) && err.hasFieldErrors ? err.errors : [{ path: "/image", code: isApiError(err) ? err.code : "network", message: L("dish.photo.uploadFailed", { msg: apiMessage(err, lang) }) }]);
-          return;
-        }
-        if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
-          form.showErrors(err.errors);
-          return;
-        }
-        msg.append(errorCard(apiMessage(err, lang), () => void saveInline()));
-      } finally { operation.finish(true); }
+        paintFeedback();
+      } finally {
+        // Keep the live form and its focused validation error. A new paint uses
+        // the same buffer's feedback when an operation outlives its old form.
+        operation.finish(!alive() || !form.el.isConnected);
+      }
     }
     return h(
       "div",

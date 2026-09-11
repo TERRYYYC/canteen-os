@@ -1,0 +1,28 @@
+node:internal/test_runner/harness:122
+      throw err;
+      ^
+
+ReferenceError: window is not defined
+    at src/pages/admin/ingredient-new.ts (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-pages-dish-G4hNH8/dish.mjs:3249:5)
+    at __init (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-pages-dish-G4hNH8/dish.mjs:3:56)
+    at file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-pages-dish-G4hNH8/dish.mjs:3281:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:16:51
+
+Node.js v24.18.0
+✖ test/team-meals-pages-dish.test.mjs (54.643459ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.625958
+
+✖ failing tests:
+
+test at test/team-meals-pages-dish.test.mjs:1:1
+✖ test/team-meals-pages-dish.test.mjs (54.643459ms)
+  'test failed'
