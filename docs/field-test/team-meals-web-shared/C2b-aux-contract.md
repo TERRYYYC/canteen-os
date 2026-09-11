@@ -68,3 +68,5 @@ main 以 `page:${route}/${rest}` 为稳定页面身份；语言不参与身份�
 | owner 正常结束/注销 | 辅助 owner 必须先满足既有 dispose 的 clean+idle 条件；C1 按原 app 生命周期。coverage 不负责 dispose，不提供强制清空接口 |
 
 因此不需要 D 保存 route generation 或手动注销页面声明；使用本次 `ctx` 的回调即可。main 只保留每身份最新 render generation，不是所有 render 的历史。这里细化此前“晚到旧 render 忽略”为**同身份已被新 render 替代时忽略**，允许离页后完成的真实注册解除阻断，避免无从恢复的 unknown。未登记状态不提供弃稿强刷；优先级为 unknown → busy/saving → untracked → dirty → clear。完整 provider/coverage 集合变动均使旧弃稿确认过期。
+
+页面身份中的 rest 必须是**去凭据后**的规范化页面路径。main 在保存路由状态、创建 PageCtx 或调用 beginRender 前，先按既有 consumeTokenFromRest 语义处理 admin 登录链接；已有 token 不被链接替换，无效 token 同样剥离。登记入口也纯粹剥离 t/<candidate> 前缀，防止 replaceState 后仍陈旧的 ctx.rest 进入 key/record/stamp/DOM；不只在显示时遮盖。空路径段规范化，带登录前缀和不带前缀的相同实际路径归于一个身份。测试只用合成的43字符/无效42字符值，覆盖首次、已有凭据、无效链接、旧 ctx 与切语，不读取真实令牌。
