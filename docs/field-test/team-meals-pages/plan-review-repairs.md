@@ -25,3 +25,9 @@ The original main-flow assertion counted every GET. Revision rebinding correctly
 Conflict presentation now lists date/meal/dish/count with action consequences; full JSON is collapsed. Source labels show short revision with full value expandable. Prior mislabeled screenshot is preserved under accurate `plan-initial-zh-mobile-harness.png`; separate verified UK flow/unknown evidence replaces that claim.
 
 No remote writes, deployment, production state change or D1/T01–T09 completion claim. Reviewer recheck required for exact repaired commit.
+
+## Second review: initial catalog crossing save acknowledgement
+
+Reviewer a5b4fb42 verified R1/R2/R4/R5 and original R3 scenario but found a second R3 path: Source A opens while catalog A waits; user saves before catalog resolves; acknowledged Source B then catalog A was assigned B's current key. Root independently reproduced `Soup A` + Source B in `plan-review-early-save-red.json`. Both initial and retry assignments now bind returned `catalog.commit`, and mismatched data is hidden while the actual B catalog is requested. The six-case actual browser run produces `Soup B` and catalog GET B in `plan-review-early-save-green.json`.
+
+Second-round same-mode audit checked every `catalog`, `boundKey` and `requestedKey` assignment: initial success/failure, explicit retry from another identity, source-only catalog retry, known/language cache, save ack, conflict keep/adopt, unknown recovery. Only actual returned revision can bind saved-source data. No automatic data fallback was added. Existing target12/12 and typecheck remain passing. The shared-script task tools are unavailable; R1–R5/R3-follow-up are tracked here rather than claiming external task records.

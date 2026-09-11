@@ -40,6 +40,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
     const view=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:''};views.set(id,view);
     const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
     const sourceKey=()=>owner.session.getState().source?.commit??'current-unsaved';
+    // Bind what actually arrived, never whichever source happens to be current after an await.
+    const catalogKey=(value:TeamCatalog|null)=>sourceKey()==='current-unsaved'?'current-unsaved':value?.commit;
     function paint() {
       if(!isLive())return;
       const s=owner.session.getState();contextId=s.contextId;
@@ -144,7 +146,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
           ? await owner.loadCatalog(force)
           : await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
         if(isLive()&&owner.session.getState().identity?.id===id&&(state.identity?.id!==id||sourceKey()===key)){
-          catalog=result;boundKey=sourceKey();requestedKey=boundKey;loadError=null;
+          catalog=result;boundKey=catalogKey(result);requestedKey=boundKey;loadError=null;
         }
       }catch(error){if(isLive())loadError=error;}paint();
     }
@@ -155,11 +157,11 @@ export function createPlanRenderer(api:TeamMealsApi) {
     try{
       catalog=await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
       if(!isLive())return;
-      boundKey=sourceKey();
+      boundKey=catalogKey(catalog);
       const s=owner.session.getState();
       const date=s.draft?.meals[0]?.date;if(date&&view.date===defaultDate){view.date=date;view.addDate=date;}
     }catch(error){if(isLive())loadError=error;}
-    initialized=true;requestedKey=sourceKey();
+    initialized=true;requestedKey=loadError?sourceKey():boundKey;
     paint();
   };
 }

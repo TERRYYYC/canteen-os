@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Plan review regression probes — explicit mock</title></head><body><button id="run">Run independent review probes</button><pre id="result"></pre><main id="app"></main>
+<!doctype html><html><head><meta charset="utf-8"><title>Independent repaired plan review — early save</title></head><body><button id="run">Run independent review probes</button><pre id="result"></pre><main id="app"></main>
 <script type="module">
 import '../src/tokens.css';import '../src/styles.css';
 import {createPlanRenderer} from '../src/pages/admin/plan.ts';
@@ -35,6 +35,17 @@ document.querySelector('#run').onclick=async()=>{
   const langcase=setup(async u=>u.pathname==='/catalog'?(await heldLang,ok(catalog())):ok(source(plan())));
   const beforeLang=draw(langcase.render,'week-language');await tick();const afterLang=draw(langcase.render,'week-language','uk');releaseLang();await Promise.all([beforeLang,afterLang]);await tick();
   report('language change during initial catalog load',{dishDisabled:document.querySelector('[data-focus="dish-0"]').disabled,addFormPresent:!!document.querySelector('.tm-add-form'),readAgainPresent:[...document.querySelectorAll('#app button')].some(b=>b.textContent==='Прочитати знову'),log:langcase.log});
+  let releaseEarly;const earlyHeld=new Promise(r=>releaseEarly=r);
+  const early=setup(async(u,init)=>{
+   if(init.method==='POST')return ok({commit:B,blobSha:'blob-b',unchanged:false,warnings:[]});
+   if(u.pathname==='/catalog'){
+    const r=u.searchParams.get('revision')||A;if(r===A)await earlyHeld;
+    return ok({...catalog(r),dishes:{soup:{name:{en:r===A?'Soup A':'Soup B'},components:[]}}});
+   }
+   return ok(source(plan()));
+  });
+  const earlyRender=draw(early.render,'week-early-save');await tick();set('13');button('Save plan').click();await tick();releaseEarly();await earlyRender;await tick();
+  report('catalog after save before initial catalog completes',{dish:document.querySelector('[data-focus="dish-0"]').selectedOptions[0].textContent,source:document.querySelector('[data-phase]').textContent,log:early.log});
   const four=setup(u=>u.pathname==='/catalog'?ok(catalog()):ok(source(plan())));await draw(four.render,'week-invalid');set('13');set('0');set('13');
   report('correct invalid count back to prior valid draft',{count:document.querySelector('[data-focus="servings-0"]').value,saveDisabled:button('Save plan').disabled,errorPresent:document.querySelector('#app').textContent.includes('Enter a positive whole number'),phase:document.querySelector('[data-phase]').dataset.phase});
  }catch(e){report('probe error',{error:e.stack});}
