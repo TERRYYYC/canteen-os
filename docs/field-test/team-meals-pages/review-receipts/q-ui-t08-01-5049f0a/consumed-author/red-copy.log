@@ -1,0 +1,323 @@
+TAP version 13
+# Subtest: copy explicitly includes all current decisions without promoting old bought references
+ok 1 - copy explicitly includes all current decisions without promoting old bought references
+  ---
+  duration_ms: 0.580083
+  ...
+# Subtest: copy preserves raw unresolved reference and meal scope in each language
+ok 2 - copy preserves raw unresolved reference and meal scope in each language
+  ---
+  duration_ms: 0.088958
+  ...
+# Subtest: zh: real core export groups four current decisions and distinguishes same-name IDs
+not ok 3 - zh: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 5.626417
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:2'
+  failureType: 'testCodeFailure'
+  error: 'check'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:253)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.start (node:internal/test_runner/test:702:17)
+    startSubtest (node:internal/test_runner/harness:259:17)
+    run (node:internal/test_runner/harness:267:14)
+    test (node:internal/test_runner/harness:278:12)
+    file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:2
+  ...
+# Subtest: zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 4 - zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.361125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: '计划行: 1 · 配料项: 3'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:398)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async startSubtest (node:internal/test_runner/harness:259:3)
+  ...
+# Subtest: zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+not ok 5 - zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.415833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:2'
+  failureType: 'testCodeFailure'
+  error: '采购规格未录'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:294)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+not ok 6 - zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 5.609166
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(out.includes(l.plan))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:587)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: en: real core export groups four current decisions and distinguishes same-name IDs
+not ok 7 - en: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.412042
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:2'
+  failureType: 'testCodeFailure'
+  error: 'check'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:253)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 8 - en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.589792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: 'Plan row: 1 · Recipe item: 3'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:398)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+not ok 9 - en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.253625
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:2'
+  failureType: 'testCodeFailure'
+  error: 'Purchase specification missing'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:294)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: en: empty candidate collections still export localized missing-plan and empty-selection addresses
+not ok 10 - en: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.074792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(out.includes(l.plan))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:587)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: uk: real core export groups four current decisions and distinguishes same-name IDs
+not ok 11 - uk: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.221416
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:2'
+  failureType: 'testCodeFailure'
+  error: 'check'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:30:253)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 12 - uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.224708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: 'Рядок плану: 1 · Складник рецепта: 3'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:398)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+not ok 13 - uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.23275
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:2'
+  failureType: 'testCodeFailure'
+  error: 'Закупівельні параметри не записано'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:32:294)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+not ok 14 - uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.158792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(out.includes(l.plan))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:33:587)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+not ok 15 - complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+  ---
+  duration_ms: 0.725625
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /Tomato \[tomato\] — Check/. Input:
+    
+    'Current page list (check save status)\n' +
+      'export-shop\n' +
+      'Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' +
+      '2026-09-14 · Lunch · team-week\n' +
+      '\n' +
+      'Tomato — Check\n' +
+      'Recorded ingredient candidates; recipe completeness needs human review.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Current page list (check save status)
+    export-shop
+    Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    2026-09-14 · Lunch · team-week
+    
+    Tomato — Check
+    Recorded ingredient candidates; recipe completeness needs human review.
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:35:679)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 2
+# fail 13
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 67.911625

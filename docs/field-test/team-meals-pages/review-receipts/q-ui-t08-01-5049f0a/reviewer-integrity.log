@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/private/tmp/canteen-q-t08-review-5049f0a/reviewer-integrity.py", line 40, in <module>
+    assert entries is not None
+AssertionError

@@ -1,0 +1,31 @@
+TAP version 13
+# file:///private/tmp/canteen-q-t08-review-5049f0a/packages/web/test/reviewer-q-t08.test.mjs:3
+# const result=await esbuild.build({stdin:{contents:`export {shoppingCopy} from './src/pages/shopping-copy';export {projectTeamMeals,estimateShoppingList,createShoppingList,applyShoppingDecision,reconcileShoppingList} from '../core/src/index';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,format:'esm',platform:'browser',write:false,loader:{'.css':'empty'},logLevel:'silent'});await writeFile(join(dir,'probe.mjs'),result.outputFiles[0].text);const m=await import(pathToFileURL(join(dir,'probe.mjs'));
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+# SyntaxError: Unexpected token ';'
+#     at compileSourceTextModule (node:internal/modules/esm/utils:346:16)
+#     at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:146:18)
+#     at \#translate (node:internal/modules/esm/loader:497:12)
+#     at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:544:27)
+#     at async ModuleJob._link (node:internal/modules/esm/module_job:148:19)
+# Node.js v20.20.2
+# Subtest: /private/tmp/canteen-q-t08-review-5049f0a/packages/web/test/reviewer-q-t08.test.mjs
+not ok 1 - /private/tmp/canteen-q-t08-review-5049f0a/packages/web/test/reviewer-q-t08.test.mjs
+  ---
+  duration_ms: 20.316208
+  location: '/private/tmp/canteen-q-t08-review-5049f0a/packages/web/test/reviewer-q-t08.test.mjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 22.002666

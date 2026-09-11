@@ -1,0 +1,52 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 71 modules transformed.
+rendering chunks...
+computing gzip size...
+../../build-http/manifest.webmanifest                         0.75 kB
+../../build-http/index.html                                   1.94 kB │ gzip:  1.13 kB
+../../build-http/bundle-attribution.json                     17.35 kB │ gzip:  1.73 kB
+../../build-http/assets/qr-95YfxYR1.css                       2.25 kB │ gzip:  0.87 kB
+../../build-http/assets/home-Bw8HMtwR.css                     2.28 kB │ gzip:  0.71 kB
+../../build-http/assets/purchase-list-CRLPFa5o.css            3.06 kB │ gzip:  1.02 kB
+../../build-http/assets/kit-hHF0cNTc.css                      3.73 kB │ gzip:  1.04 kB
+../../build-http/assets/ingredient-form-CT2dSWut.css          4.50 kB │ gzip:  1.30 kB
+../../build-http/assets/publish-DvJfnWK2.css                  5.17 kB │ gzip:  1.40 kB
+../../build-http/assets/import-DavkaiKj.css                   5.33 kB │ gzip:  1.30 kB
+../../build-http/assets/menu-AiJcRmZo.css                     5.74 kB │ gzip:  1.62 kB
+../../build-http/assets/purchase-StWw7liZ.css                 6.00 kB │ gzip:  1.71 kB
+../../build-http/assets/prep-CZU-3gXe.css                     6.80 kB │ gzip:  1.96 kB
+../../build-http/assets/dish-new-DK3WVt9P.css                 7.08 kB │ gzip:  1.74 kB
+../../build-http/assets/index-_eYw8u9e.css                    8.78 kB │ gzip:  2.56 kB
+../../build-http/assets/servings-input-DNG9trXJ.js            0.49 kB │ gzip:  0.32 kB
+../../build-http/assets/editor-image-B408a5BL.js              1.10 kB │ gzip:  0.62 kB
+../../build-http/assets/store-BSQ08Ltx.js                     2.01 kB │ gzip:  0.92 kB
+../../build-http/assets/ingredient-draft-y5DoCQ25.js          3.31 kB │ gzip:  1.68 kB
+../../build-http/assets/qr-DwINhynS.js                        3.50 kB │ gzip:  2.13 kB
+../../build-http/assets/admin-CxVRg-1k.js                     3.51 kB │ gzip:  1.66 kB
+../../build-http/assets/team-ui-hTD7IWmz.js                   4.08 kB │ gzip:  2.90 kB
+../../build-http/assets/workbox-window.prod.es5-BqEJf4Xk.js   5.71 kB │ gzip:  2.34 kB
+../../build-http/assets/edit-session-dr7J51dI.js              6.51 kB │ gzip:  2.51 kB
+../../build-http/assets/home-DwzMXo6P.js                     10.01 kB │ gzip:  4.68 kB
+../../build-http/assets/parse-plan-text-DBZQVSv5.js          12.32 kB │ gzip:  5.77 kB
+../../build-http/assets/plan-DSpEcXF1.js                     12.71 kB │ gzip:  5.71 kB
+../../build-http/assets/menu-DSccYjST.js                     12.94 kB │ gzip:  6.13 kB
+../../build-http/assets/ingredient-new-D3_iXZ-p.js           14.04 kB │ gzip:  5.96 kB
+../../build-http/assets/purchase-B1JnVGeJ.js                 19.19 kB │ gzip:  7.60 kB
+../../build-http/assets/kit-CpR99_cf.js                      19.85 kB │ gzip:  8.86 kB
+../../build-http/assets/ingredient-form-Df3pYwkr.js          20.57 kB │ gzip:  9.53 kB
+../../build-http/assets/import-DxnKFKD_.js                   26.75 kB │ gzip: 11.78 kB
+../../build-http/assets/publish-CTs6z8Ho.js                  26.76 kB │ gzip: 11.51 kB
+../../build-http/assets/purchase-list-DGYf97SK.js            28.74 kB │ gzip: 12.27 kB
+../../build-http/assets/client-DtTXjhi4.js                   29.91 kB │ gzip: 12.76 kB
+../../build-http/assets/prep-CjHQA7qL.js                     33.95 kB │ gzip: 13.53 kB
+../../build-http/assets/index-Cu1Sl5kb.js                    40.20 kB │ gzip: 16.32 kB
+../../build-http/assets/dish-new-DaV423Qu.js                 62.50 kB │ gzip: 23.70 kB
+✓ built in 369ms
+
+PWA v1.3.0
+mode      generateSW
+precache  52 entries (547.80 KiB)
+files generated
+  ../../build-http/sw.js
+  ../../build-http/workbox-4e9e9954.js
