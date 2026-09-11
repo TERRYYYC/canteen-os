@@ -48,8 +48,25 @@ created: 2026-09-11
 ## c7785 之后的变化与检查
 
 - `98d99652a08492fa8334030596733d75c87b0d0b`：非作者发现私有 asset.source 可变；正式 external/image fixture 红→绿，冻结 binding/source。published tests 13。日志 `/private/tmp/c2b-asset-source-red.log` / `c2b-asset-source-green.log`。上表不声称包含该后续修订。
-- `28eb30f8c572a466215f82935bbfc54f8d9cb33b`：C1 正常 auth seal 旧未决保护修订，见 C2b-c1-auth-pending.md。全 Web 152 通过 `/private/tmp/c2b-web152.log`；原生 SW 正常 auth 场景追加进行中，不能将 c7785 的无登出矩阵冒充该修订已验。
+- `28eb30f8c572a466215f82935bbfc54f8d9cb33b`：C1 正常 auth seal 旧未决保护修订，见 C2b-c1-auth-pending.md。全 Web 152 通过 `/private/tmp/c2b-web152.log`；后续固定 bae6308 的真实 auth 场景另列如下，不能将 c7785 的无登出矩阵冒充该修订已验。
 - 实际 pwa.ts 的受控插件/DOM/时钟测试证明两秒后取消同意、晚 plugin callback 不强刷、重复 controllerchange 幂等、旧会话无私有 ID 提示。这个测试不是实际浏览器时钟或真实 SW 证据。
 - c7785 实际 main 入口 Vite 构建成功，输出 `/private/tmp/c2b-web-application-build`，36 precache；当时 144 Web tests 通过。当前整树 typecheck 仍有旧 D import/plan 共五处 AnyMenuPlan 错误；不作通过声明。
 
-完整固定代码的非作者审查仍进行中（原 reviewer 曾因服务 at-capacity 中断，保持同一身份/模型有限重试）；D 完整已审页面历史尚未组合，三语言/视口/main 实際流程与真实 Worker/L2 仍待验收。
+完整固定代码的非作者复审仍进行中；D 完整已审页面历史尚未组合，三语言/视口/main 实际流程与真实 Worker/L2 仍待验收。
+
+## bae6308 正常认证切换的真实 SW 补验
+
+固定代码 `bae6308799d937f675fa7a919879ed8c121b2d93`。原非作者对 28eb 的完整审查发现两项 P2：同 auth 409/bad_response 错误解除保护；custom adapter 非完整 commit ACK 错误解除保护。bae6308 两项均 RED→GREEN，Web154/154（`/private/tmp/c2b-web154.log`）。28eb 报告 `/private/tmp/c2b-reader-pwa-review-28eb30f-qG2fZ9/REVIEW.md` 已独立关闭 98d 的 verified binding/source 可变问题：修改、删除、重定义以及替换消费者返回 source 都不能改变私有已验证绑定。bae6308 最终判定待原 reviewer。
+
+原生补验站 `/private/tmp/c2b-real-sw-8usW5f`、`http://127.0.0.1:61046/canteen/`、IAB tab7。a/src 与本固定 HEAD 的 packages/web/src 全目录无差异；正式 A 生产者、原 CI 配置、实际生成 SW。A `b6e65df955969ea8bf7557106f4fe9006021270e`，B `c21537087c9e9a265c48b3f1491f6f159b887469`。本节仅追加 auth/PWA 真实控制流，不重复声称全量离线矩阵。
+
+| 实际浏览器操作 | 观察结果 |
+|---|---|
+| boot1、A、编辑并发送 held mock save；End local test session 调用正常 clearToken | writes1/reads0；旧 identity/draft/source 全 null，generic previous-session-save unknown，pending1 |
+| 切 B 部署、检查版本并点更新 | 默认 Continue；明确说明 previous session 仍未核实；无弃稿按钮，无重载，无旧私有身份 |
+| Start next-session draft，再外部激活真实 waiting worker | boot1 不变、controllerRefreshes1→2、reader采用 B；旧 marker 仍 unknown，新 editor 的 New session input 仍 dirty |
+| 原 held mock ACK 返回 | 只移除 editor-1 的旧 marker；新 editor-2 状态 JSON 深相等，safety dirty，writes1/reads0，boot1不变 |
+| 再点更新 | 仅列当前新会话草稿，默认 Continue；新一次明确弃稿后 boot1→2，一次重载，B/clear/writes0/reads0 |
+| boot2 下再次发送 mock save，丢失响应，再正常退出认证 | 旧 editor private 全 null，generic unknown；切 A-time 并点击更新仍只有 Continue，boot2不变，writes1/reads0 |
+
+所有保存/ACK/网络丢失均来自页面明确标注的 mock；更新、controllerchange 和整页重载为实际浏览器行为。旧 unknown 无可核实结果时保留保护，不借新身份读取或手动清除。
