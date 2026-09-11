@@ -4,10 +4,11 @@ import type { TeamMealsApi, TeamCatalog } from '../../api/team-meals';
 import type { Source } from '../../api/types';
 import { createEditSession } from '../../view-models/edit-session';
 import { parseServingsInput } from './servings-input';
+import { connectPlanImport } from './plan-import';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
-export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void } } = {}) {
+export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void }; remapRows?(id:string,order:number[]):()=>void } = {}) {
   async function read<T>(id: string, request: () => Promise<T>): Promise<T> {
     const operation = options.beginRead?.(id);
     try { const value = await request(); operation?.finish(false); return value; }
@@ -20,6 +21,17 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
     read: (identity, options) => api.getPlan(identity.id, options),
   });
   const known = new Set<string>();
+  connectPlanImport(api,(id,merge,live)=>{
+    if(!known.has(id))return 'absent';
+    // open resumes the real record, including detached pending/unknown/conflict state.
+    session.open({kind:'plan',id},{schemaVersion:'3',meals:[]},null);
+    const state=session.getState();
+    if(!live()||state.phase==='closed'||state.identity?.id!==id||!state.draft)return 'rejected';
+    const {plan,order}=merge(state.draft),restore=options.remapRows?.(id,order);
+    let accepted=false;
+    try{accepted=live()&&session.edit(plan,state.contextId);return accepted?'applied':'rejected';}
+    finally{if(!accepted)restore?.();}
+  });
   // Catalogs are versioned data, never metadata owned by a plan id.
   const catalogs = new Map<string, TeamCatalog>();
   const pending = new Map<string, Promise<TeamCatalog>>();

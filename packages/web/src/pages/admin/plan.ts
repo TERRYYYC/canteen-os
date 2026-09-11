@@ -30,7 +30,12 @@ export function createPlanRenderer(api:TeamMealsApi) {
   const auxiliary=new WeakMap<View,AuxiliaryEditHandle>();
   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
   const touch=(view:View)=>{view.generation=++rawGeneration;};
-  const createForm=()=>createPlanForm(api,{beginRead(id){
+  const createForm=()=>createPlanForm(api,{remapRows(id,order){
+    const view=views.get(id);if(!view)return ()=>{};
+    const previous=view.invalid;
+    view.invalid=new Map(order.flatMap<[number,string]>((old,index)=>previous.has(old)?[[index,previous.get(old)!]]:[]));touch(view);
+    return ()=>{view.invalid=previous;touch(view);};
+  },beginRead(id){
     const view=views.get(id),handle=view&&auxiliary.get(view);
     if(!view||!handle)throw new Error('Plan read owner is not registered');
     const ticket=handle.beginOperation('read');view.reads++;touch(view);
