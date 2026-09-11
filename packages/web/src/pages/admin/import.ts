@@ -23,6 +23,7 @@ import type { AnyMenuPlan, MealType, MenuPlanV3, MenuPlanMealV3, ParsedLine } fr
 import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPlanId } from "@canteenos/core";
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getDraftPlan, getDraftSource, setDraftPlan, setHandoff, undoDraftPlan } from "../../admin/store";
+import { parseServingsInput } from "./servings-input";
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
 import { text as teamText } from "../team-ui";
 import { isApiError } from "../../api/types";
@@ -172,6 +173,7 @@ interface LineEdit {
   /** Own undefined is an explicit clear; absent property preserves the parsed value. */
   servings?: number;
   servingsInvalid?: boolean;
+  servingsRaw?: string;
 }
 
 interface State {
@@ -649,6 +651,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
 
   // —— 数据：菜品名单 ——
   let catalog: TeamCatalog | null = null;
+  let importing = false;
 
   function paintUpload(): void {
     replace(uploadMsg);
@@ -760,7 +763,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       label: okCount > 0 ? tt(lang, "import.submit", { n: okCount, m: skip }) : tt(lang, "import.submit.none"),
       kind: "primary",
       class: "adm-import-submit",
-      disabled: okCount === 0,
+      disabled: importing || okCount === 0,
       onClick: () => void doImport(submit),
     });
     bottom.append(submit);
@@ -829,16 +832,17 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
         inputmode: "numeric",
         min: "1",
         step: "1",
-        value: eff.servings === undefined ? "" : String(eff.servings),
+        value: originalEdit?.servingsRaw ?? (eff.servings === undefined ? "" : String(eff.servings)),
         "aria-invalid": String(!eff.servingsValid),
         "data-line-index": String(idx),
         "aria-label": tt(lang, "import.servings"),
       });
       const changeServings = (): void => {
         if (!live()) return;
-        const raw = inp.value.trim(), edit = state.edits.get(idx) ?? {};
-        edit.servings = raw === "" ? undefined : Number(raw);
-        edit.servingsInvalid = inp.validity.badInput;
+        const raw = inp.value, edit = state.edits.get(idx) ?? {}, parsed = parseServingsInput(raw);
+        edit.servingsRaw = raw;
+        edit.servings = parsed.valid ? parsed.value : undefined;
+        edit.servingsInvalid = inp.validity.badInput || !parsed.valid;
         state.edits.set(idx, edit); inputGeneration++;
         const next = effective(line, edit, cat, weekStart);
         inp.setAttribute("aria-invalid", String(!next.servingsValid));
@@ -935,13 +939,13 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     const btn = bottom.querySelector<HTMLButtonElement>(".adm-import-submit");
     if (btn) {
       btn.textContent = okCount > 0 ? tt(lang, "import.submit", { n: okCount, m: effs.length - okCount }) : tt(lang, "import.submit.none");
-      btn.disabled = okCount === 0;
+      btn.disabled = importing || okCount === 0;
     }
   }
 
   // —— 导入：合并成 MenuPlan → store（不调写入端点）→ 跳周视图 ——
   async function doImport(btn: HTMLButtonElement): Promise<void> {
-    if (!catalog || !state.parsed || !live()) return;
+    if (!catalog || !state.parsed || !live() || importing) return;
     const cat = catalog;
     const meals: MenuPlanMealV3[] = [];
     const clearServings = new Set<number>();
@@ -954,6 +958,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       meals.push({ date: line.date, mealType: line.mealType, dishRef: eff.dishRef, ...(eff.servings === undefined ? {} : { plannedServings: eff.servings }) });
     });
     if (meals.length === 0) return;
+    importing = true;
     const done = busyButton(btn);
     try {
       let base: AnyMenuPlan | null = getDraftPlan(planId);
@@ -975,20 +980,19 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
       replace(noticeHost, errorCard(apiMessage(err, lang), () => void doImport(btn)));
       noticeHost.scrollIntoView({ block: "start", behavior: "smooth" });
     } finally {
+      importing = false;
       done();
+      if (live()) paintBottomOnly();
     }
   }
 
   function busyButton(btn: HTMLButtonElement): () => void {
-    const text = btn.textContent;
     btn.disabled = true;
     btn.setAttribute("aria-busy", "true");
     btn.classList.add("adm-busy");
     return () => {
-      btn.disabled = false;
       btn.removeAttribute("aria-busy");
       btn.classList.remove("adm-busy");
-      btn.textContent = text;
     };
   }
 

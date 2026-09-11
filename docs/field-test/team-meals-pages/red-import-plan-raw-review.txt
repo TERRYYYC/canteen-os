@@ -1,0 +1,82 @@
+✔ real core parsed missing servings stay blank rather than receiving a page default (2.4675ms)
+✔ explicit preview clear overrides parsed original, while untouched preview keeps it (0.705166ms)
+✔ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.400875ms)
+✔ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.441958ms)
+✔ only an explicit clear removes matched known count; duplicate rows and service window survive (0.094209ms)
+✔ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.096875ms)
+✔ actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST (10.87025ms)
+✔ actual preview explicit clear survives language repaint and invalid entry can be corrected (0.969083ms)
+✔ late saved-plan read cannot import over a newer preview or an auth lifetime (0.919417ms)
+✔ unconfigured import shows honest unavailable state without fallback mock reads (0.214875ms)
+✔ an initially blank preview has an explicit clear action to remove a matched saved count (0.746375ms)
+✖ I-R1 canceled source read derives action validity from the current preview (1.009792ms)
+✖ raw preview refuses loss of numeric precision and retains the original input after repaint (0.662625ms)
+✔ exact integer decimal and exponent representations remain supported in the preview (2.308166ms)
+✔ page adapter saves complete plan, preserving true values and omitting cleared counts (1.233041ms)
+✔ page adapter retains edits through saving, language refresh and late acknowledgement (0.229208ms)
+✔ unknown result survives leaving/returning; recovery reads twice and does not duplicate write (0.289875ms)
+✔ empty new plan only follows not_found and uses creation lock (0.14775ms)
+✔ invalid optional count is not silently converted to unknown or zero (0.150917ms)
+✔ R1 requested identity retry rereads B after its source failure (0.176083ms)
+✔ R2 import is applied before awaiting catalog, so subsequent edits survive (1.336292ms)
+✔ R3 catalog cache follows adopted source and acknowledged save revision (0.214541ms)
+✔ R5 language rebind joins pending exact revision catalog (1.549333ms)
+✖ raw plan count must be an exact safe integer before conversion (0.3825ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 21
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 75.649833
+
+✖ failing tests:
+
+test at test/team-meals-pages-import.test.mjs:87:1
+✖ I-R1 canceled source read derives action validity from the current preview (1.009792ms)
+  AssertionError [ERR_ASSERTION]: 1.5
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:94:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/team-meals-pages-import.test.mjs:98:1
+✖ raw preview refuses loss of numeric precision and retains the original input after repaint (0.662625ms)
+  AssertionError [ERR_ASSERTION]: 2.0000000000000001
+  
+  'false' !== 'true'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:102:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'false',
+    expected: 'true',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/team-meals-pages-plan-session.test.mjs:67:1
+✖ raw plan count must be an exact safe integer before conversion (0.3825ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception: 2.0000000000000001
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-session.test.mjs:70:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /invalid_servings/,
+    operator: 'throws',
+    diff: 'simple'
+  }

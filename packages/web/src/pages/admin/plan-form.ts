@@ -3,6 +3,7 @@ import { upgradeMenuPlan, type AnyMenuPlan, type MealType, type MenuPlanV3 } fro
 import type { TeamMealsApi, TeamCatalog } from '../../api/team-meals';
 import type { Source } from '../../api/types';
 import { createEditSession } from '../../view-models/edit-session';
+import { parseServingsInput } from './servings-input';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
@@ -61,8 +62,9 @@ export function createPlanForm(api: TeamMealsApi) {
     },
     loadCatalog,
     servings(index: number, raw: string, contextId?: number) {
-      const value = raw.trim() === '' ? undefined : Number(raw);
-      if (value !== undefined && (!Number.isInteger(value) || value < 1)) throw new Error('invalid_servings');
+      const parsed = parseServingsInput(raw);
+      if (!parsed.valid) throw new Error('invalid_servings');
+      const {value} = parsed;
       return mutate(plan => {const meal=plan.meals[index]; if(!meal)return; if(value===undefined) delete meal.plannedServings; else meal.plannedServings=value;},contextId);
     },
     add(date: string, mealType: MealType, dishRef: string, contextId?: number) {

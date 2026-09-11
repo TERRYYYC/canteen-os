@@ -63,3 +63,15 @@ test('R5 language rebind joins pending exact revision catalog',async()=>{
  const first=form.load('week-a');await new Promise(r=>setTimeout(r,0));const second=form.load('week-a');
  release({commit:A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}});const [,catalog]=await Promise.all([first,second]);assert.equal(catalog?.commit,A);assert.equal(calls,1);
 });
+
+test('raw plan count must be an exact safe integer before conversion',async()=>{
+ const {form,writes}=setup();await form.load('week-41');
+ for(const raw of ['2.0000000000000001','9007199254740993','9007199254740992','2.0000000000000001e1']){
+  assert.throws(()=>form.servings(0,raw),/invalid_servings/,raw);
+  assert.equal(form.session.getState().draft.meals[0].plannedServings,200);assert.equal(writes.length,0);
+ }
+ for(const [raw,value] of [['2',2],['2.0',2],['2e2',200],['20e-1',2],['9007199254740991',9007199254740991]]){
+  form.servings(0,raw);assert.equal(form.session.getState().draft.meals[0].plannedServings,value,raw);
+ }
+ form.servings(0,'');assert.equal(Object.hasOwn(form.session.getState().draft.meals[0],'plannedServings'),false);
+});

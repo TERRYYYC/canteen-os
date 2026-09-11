@@ -83,3 +83,38 @@ test('unconfigured import shows honest unavailable state without fallback mock r
 test('an initially blank preview has an explicit clear action to remove a matched saved count',async()=>{
  const f=setup(),el=await preview(f),clear=el.querySelector('.adm-import-clear-servings');assert.ok(clear,'already blank rows still need an explicit clear action');clear.dispatch('click');assert.equal(el.querySelector('.adm-import-servings').value,'');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.equal(Object.hasOwn(getDraftPlan('week-38').meals[0],'plannedServings'),false);
 });
+
+test('I-R1 canceled source read derives action validity from the current preview',async()=>{
+ for(const raw of ['1.5','','6']){
+  const f=setup(),release=f.hold(),el=await preview(f,'周一午 原汤 8');
+  el.querySelector('.adm-import-submit').dispatch('click');await tick();
+  const field=el.querySelector('.adm-import-servings');field.value=raw;field.dispatch('input');
+  release();await tick();await tick();
+  assert.equal(getDraftPlan('week-38'),null);
+  assert.equal(el.querySelector('.adm-import-submit').disabled,raw==='1.5',raw);
+  assert.equal(el.querySelector('.adm-import-submit').getAttribute('aria-busy'),null);
+ }
+});
+test('raw preview refuses loss of numeric precision and retains the original input after repaint',async()=>{
+ for(const raw of ['2.0000000000000001','9007199254740993','9007199254740992','2.0000000000000001e1']){
+  const f=setup();let el=await preview(f,'周一午 原汤 8');let field=el.querySelector('.adm-import-servings');
+  field.value=raw;field.dispatch('input');
+  assert.equal(field.getAttribute('aria-invalid'),'true',raw);assert.equal(el.querySelector('.adm-import-submit').disabled,true,raw);
+  el=mount();await render(el,ctx('uk'),'week-38',f.api);field=el.querySelector('.adm-import-servings');
+  assert.equal(field.value,raw,'invalid raw survives language repaint');assert.equal(field.getAttribute('aria-invalid'),'true');
+  assert.equal(getDraftPlan('week-38'),null);
+ }
+});
+test('exact integer decimal and exponent representations remain supported in the preview',async()=>{
+ for(const [raw,value] of [['2',2],['2.0',2],['2e2',200],['20e-1',2],['9007199254740991',9007199254740991]]){
+  const f=setup(),el=await preview(f,'周一午 原汤 8'),field=el.querySelector('.adm-import-servings');field.value=raw;field.dispatch('input');
+  assert.equal(field.getAttribute('aria-invalid'),'false',raw);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();
+  assert.equal(getDraftPlan('week-38').meals[0].plannedServings,value,raw);
+ }
+});
+
+test('approved core invalid servings are shown as unparsed original text with no import fallback',async()=>{
+ for(const raw of ['周一午 原汤 2.5份','周一午 原汤 2.0000000000000001份','周一午 原汤 9007199254740993份']){
+  const f=setup(),el=await preview(f,raw);assert.ok(el.querySelector('.adm-import-line-unparsed'));assert.ok(el.textContent.includes(raw));assert.match(el.textContent,/份数/);assert.equal(el.querySelector('.adm-import-submit').disabled,true);assert.equal(getDraftPlan('week-38'),null);assert.equal(f.calls.length,1);
+ }
+});
