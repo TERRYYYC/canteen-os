@@ -1,0 +1,37 @@
+✔ menu public entry reads approved team output and exposes original recipe via existing route (10.093ms)
+✔ menu distinguishes empty manifest, empty plan, missing file and invalid target (0.847917ms)
+✔ menu late A read cannot overwrite B in reused outlet (22.164458ms)
+✔ menu legacy remains an explicit branch (0.3535ms)
+✔ prep public entry reads approved team output and exposes original recipe via existing route (0.960375ms)
+✔ prep distinguishes empty manifest, empty plan, missing file and invalid target (0.423584ms)
+✔ prep late A read cannot overwrite B in reused outlet (21.805708ms)
+✔ prep legacy remains an explicit branch (0.217416ms)
+✔ prep published ingredient and technique images use original bytes; external and missing assets remain distinct (66.255958ms)
+✖ absent optional image is visibly not recorded, distinct from a failed original image read (3.936459ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1883.372667
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-published.test.mjs:47:1
+✖ absent optional image is visibly not recorded, distinct from a failed original image read (3.936459ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(absent.every(node=>/not recorded/i.test(node.textContent)))
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:47:259)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
