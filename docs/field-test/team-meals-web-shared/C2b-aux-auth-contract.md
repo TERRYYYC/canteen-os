@@ -21,9 +21,10 @@ interface AuxiliaryEditOptions {
 }
 interface AuxiliaryEditHandle {
   dispose(): boolean;
-  beginOperation(): AuxiliaryOperation; // 不含 ID/正文的 opaque 对象
+  beginOperation(kind:'read'|'write'): AuxiliaryOperation; // 不含 ID/正文的 opaque 对象
   markUnknown(ticket: AuxiliaryOperation): boolean;
   settleOperation(ticket: AuxiliaryOperation, outcome:'completed'|'failed'): boolean;
+  cancelRead(ticket: AuxiliaryOperation): boolean;
 }
 ```
 
@@ -33,7 +34,8 @@ interface AuxiliaryEditHandle {
 
 | 事件 | 共享层和页面的责任 |
 |---|---|
-| beginOperation | 只允许注册时身份仍有效；票据属于唯一 handle，进入 busy；页面必须在启动操作前持有它 |
+| beginOperation | 只允许注册时身份仍有效；票据属于唯一 handle，进入 busy；页面必须在启动操作前持有它。read 包含本地解码/文件读取/只读 GET；write 包含可能生效的上传/发布等外部写入 |
+| 本地读取结束或取消 | read 票据可 settle 或 cancelRead；取消立即结束其本地责任，不制造永久 unknown。cancelRead 拒绝 write 票据；外部写入不能凭 AbortSignal/取消 UI 推断未生效 |
 | 响应丢失、超时、关联不明 | markUnknown 保留原票据。普通 catch 不能自动当作明确失败；本地读失败、服务端明确拒绝等具有确定证据时才 settle failed |
 | 确认成功或明确失败 | 原闭包凭原票据 settle；每票据一次，伪造、重复、其它 handle 的票据拒绝。结束一个不能解除另一个未决票据 |
 | auth 变化 | 摘要不调用旧 read，不读旧身份。仍有票据只显示无私有标识的通用 unknown；auth handler、清空局部 operation、切语/离页、timeout/dispose 均不能结束票据 |
