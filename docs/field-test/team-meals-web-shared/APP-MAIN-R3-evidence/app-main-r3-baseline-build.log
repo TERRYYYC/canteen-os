@@ -1,0 +1,48 @@
+vite v5.4.21 building for production...
+
+(!) outDir /private/tmp/app-main-r3-baseline-original-build is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+transforming...
+✓ 66 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../app-main-r3-baseline-original-build/manifest.webmanifest                          0.75 kB
+../../../app-main-r3-baseline-original-build/index.html                                    1.94 kB │ gzip:  1.13 kB
+../../../app-main-r3-baseline-original-build/assets/home-Bw8HMtwR.css                      2.28 kB │ gzip:  0.71 kB
+../../../app-main-r3-baseline-original-build/assets/ingredient-new-CT2dSWut.css            4.50 kB │ gzip:  1.30 kB
+../../../app-main-r3-baseline-original-build/assets/publish-DvJfnWK2.css                   5.17 kB │ gzip:  1.40 kB
+../../../app-main-r3-baseline-original-build/assets/import-DavkaiKj.css                    5.33 kB │ gzip:  1.30 kB
+../../../app-main-r3-baseline-original-build/assets/dish-new-DK3WVt9P.css                  7.08 kB │ gzip:  1.74 kB
+../../../app-main-r3-baseline-original-build/assets/index-Buwvlede.css                    36.35 kB │ gzip:  7.79 kB
+../../../app-main-r3-baseline-original-build/assets/servings-input-DNG9trXJ.js             0.49 kB │ gzip:  0.32 kB
+../../../app-main-r3-baseline-original-build/assets/store-BUqXlAl5.js                      1.98 kB │ gzip:  0.90 kB
+../../../app-main-r3-baseline-original-build/assets/workbox-window.prod.es5-BqEJf4Xk.js    5.71 kB │ gzip:  2.34 kB
+../../../app-main-r3-baseline-original-build/assets/home-DlMHanVS.js                       9.90 kB │ gzip:  4.63 kB
+../../../app-main-r3-baseline-original-build/assets/parse-plan-text-DBZQVSv5.js           12.32 kB │ gzip:  5.77 kB
+../../../app-main-r3-baseline-original-build/assets/plan-DTke0LI5.js                      12.52 kB │ gzip:  5.62 kB
+../../../app-main-r3-baseline-original-build/assets/client-CBMi3ysP.js                    25.10 kB │ gzip: 11.16 kB
+../../../app-main-r3-baseline-original-build/assets/import-BnXJJB_5.js                    26.64 kB │ gzip: 11.74 kB
+../../../app-main-r3-baseline-original-build/assets/publish-69quzjAm.js                   26.65 kB │ gzip: 11.46 kB
+../../../app-main-r3-baseline-original-build/assets/ingredient-new-BfsVuYR9.js            36.41 kB │ gzip: 15.44 kB
+../../../app-main-r3-baseline-original-build/assets/dish-new-BOqOFfhC.js                  59.84 kB │ gzip: 22.71 kB
+../../../app-main-r3-baseline-original-build/assets/index-CFuNDrIH.js                    167.45 kB │ gzip: 63.62 kB
+✓ built in 435ms
+
+PWA v1.3.0
+mode      generateSW
+precache  22 entries (472.39 KiB)
+files generated
+  ../../../app-main-r3-baseline-original-build/sw.js
+  ../../../app-main-r3-baseline-original-build/workbox-4e9e9954.js
+warnings
+  One of the glob patterns doesn't match any files. Please remove or fix the following: {
+  "globDirectory": "/private/tmp/app-main-r3-baseline-original-build",
+  "globPattern": "data/**/*.json",
+  "globIgnores": [
+    "data/**/*.{png,svg,jpg,jpeg,webp,avif,gif}",
+    "sw.js",
+    "workbox-*.js"
+  ]
+}
+

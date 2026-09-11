@@ -1,0 +1,200 @@
+TAP version 13
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 1 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 14.574042
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 2 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 55.431125
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 3 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 17.62025
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 4 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 10.05475
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 5 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 14.3635
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 6 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 12.556167
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 7 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 14.276583
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 8 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 21.345542
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 9 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 3.232666
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 10 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 17.651625
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 11 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 16.051
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 12 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 6.658875
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 13 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 13.186917
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 14 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 5.380666
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 15 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 4.795083
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+not ok 16 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 4.064792
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-shopping-raw.test.mjs:104:1'
+  failureType: 'testCodeFailure'
+  error: 'navigator is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-shopping-raw.test.mjs:105:83)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 17 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 17.723667
+  ...
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 18 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 15.885083
+  ...
+# Subtest: ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+not ok 19 - ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 79.434
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:3:2'
+  failureType: 'uncaughtException'
+  error: 'Cannot set property returnValue of #<Event> which has only a getter'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    EventTarget.<anonymous> (file:///private/tmp/d-unload-X7pmJx/pages.mjs?case=1:8355:25)
+    [nodejs.internal.kHybridDispatch] (node:internal/event_target:831:20)
+    EventTarget.dispatchEvent (node:internal/event_target:766:26)
+    Object.unload (file:///private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-guard-harness.mjs:15:83)
+    TestContext.<anonymous> (file:///private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:3:259)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+not ok 20 - dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 33.322791
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:3:2'
+  failureType: 'uncaughtException'
+  error: 'Cannot set property returnValue of #<Event> which has only a getter'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    EventTarget.<anonymous> (file:///private/tmp/d-unload-X7pmJx/pages.mjs?case=2:8355:25)
+    [nodejs.internal.kHybridDispatch] (node:internal/event_target:831:20)
+    EventTarget.dispatchEvent (node:internal/event_target:766:26)
+    Object.unload (file:///private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-guard-harness.mjs:15:83)
+    TestContext.<anonymous> (file:///private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:3:259)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+not ok 21 - paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 17.540834
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:3:2'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:524:28)
+  ...
+# Subtest: Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+not ok 22 - Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+  ---
+  duration_ms: 0
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:5:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:524:28)
+  ...
+# Subtest: ingredient: actual pending and unknown operation still veto manual and application reload
+not ok 23 - ingredient: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 0
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:6:51'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:524:28)
+  ...
+# Subtest: dish: actual pending and unknown operation still veto manual and application reload
+not ok 24 - dish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 0
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:6:51'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:524:28)
+  ...
+# Subtest: publish: actual pending and unknown operation still veto manual and application reload
+not ok 25 - publish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 0
+  location: '/private/tmp/canteen-app-r2-review-34dd336/packages/web/test/team-meals-pages-unload.test.mjs:6:51'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:524:28)
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 17
+# fail 3
+# cancelled 5
+# skipped 0
+# todo 0
+# duration_ms 394.913167
