@@ -34,6 +34,8 @@ export interface PageCtx {
   rest: string;
   /** 数据层（src/data.ts 的 dataApi） */
   data: DataApi;
+  /** Call after this surface's C1 and auxiliary state owners are registered. */
+  setReloadCoverage?(value: 'tracked' | 'read-only'): void;
   /** UI 文案（当前语言） */
   t: (key: UiKey, params?: TParams) => string;
 }
