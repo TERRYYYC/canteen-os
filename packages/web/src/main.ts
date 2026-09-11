@@ -48,6 +48,8 @@ function boot(): void {
     shell.setActive(route);
     shell.setTitle(t(TITLE[route]));
     if (!ready) {
+      // No page/editor has started; this shell-only placeholder owns no unfinished work.
+      setReloadCoverage('read-only');
       const el = shell.newOutlet();
       const p = document.createElement("p");
       p.className = "muted";
