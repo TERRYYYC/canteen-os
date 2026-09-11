@@ -1,5 +1,5 @@
 /**
- * scripts/build-data.mjs 单元测试（node:test，零依赖；需先 npm --prefix packages/core run build）。
+ * scripts/build-data.mjs 单元测试（node:test；需先安装构建依赖并构建 core）。
  *   node --test scripts/build-data.test.mjs
  *
  * 覆盖：三张单 JSON 结构符合执行简报 §5 契约 / build.json 字段齐（含 readiness）/
@@ -10,7 +10,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,6 +22,16 @@ const SCRIPT = path.join(HERE, "build-data.mjs");
 const AT = "2026-10-03T00:00:00.000Z"; // = data/purchase-orders/week-41-*.json 的 generatedAt
 const PLAN = "week-41";
 const DISH = "tomato-egg-stir-fry";
+// Private 2x2 test rasters generated from a solid RGB colour; no shared fixture edits.
+const RASTERS={
+ png:'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEklEQVR4nGO0qdjCwMDAxAAGABCSAWwmSJZFAAAAAElFTkSuQmCC',
+ jpeg:'/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAACAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDx2iiiu04z/9k=',
+ webp:'UklGRjgAAABXRUJQVlA4ICwAAADwAQCdASoCAAIAAUAmJaACdLoB+AAETAAA/upl//yz5/DZ1Of/FnIxHZeAAA==',
+};
+// Original private JPEG test material was malformed: second DQT at byte 89,
+// length 67, expected next marker at 158, but 0x32 bytes precede SOF at 161.
+// Keep that exact material as a negative, not an alleged implementation regression.
+const INVALID_JPEG_DQT='/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAACAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDMooor6Q8A/9k=';
 
 const readJson = (abs) => JSON.parse(readFileSync(abs, "utf8"));
 const writeJson = (abs, data) => writeFileSync(abs, JSON.stringify(data, null, 2) + "\n");
@@ -282,4 +292,302 @@ test("--at 固定后两次构建字节一致；过期 plan 的产物被清理", 
   assert.equal(existsSync(path.join(out, "prep", "week-40.json")), false);
   assert.equal(existsSync(path.join(out, "prep", "notes.txt")), true);
   rmSync(root, { recursive: true, force: true });
+});
+
+// New target tests use isolated Git repositories: committed JSON and image bytes are
+// real fixed revisions, not mock persistence or production write tests.
+function git(root,...args) { return execFileSync('git',['-C',root,...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim(); }
+function committedTeamRoot() {
+  const root=tempRepo();
+  const plan=readJson(path.join(root,'data/menu-plans/week-41.json'));
+  plan.schemaVersion='3';for(const meal of plan.meals) delete meal.plannedServings;
+  writeJson(path.join(root,'data/menu-plans/week-41.json'),plan);
+  git(root,'init','-b','main');git(root,'add','data');
+  git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','Fixed team fixture');
+  return {root,revision:git(root,'rev-parse','HEAD')};
+}
+function commitData(root) {git(root,'add','data');git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','Next fixed inputs');return git(root,'rev-parse','HEAD');}
+
+test('team target reads only fixed revision JSON while legacy target rejects v3 without NaN',()=>{
+  const {root,revision}=committedTeamRoot();
+  try {
+    const file=path.join(root,'data/ingredients/tomato.json');const changed=readJson(file);changed.name.zh='Uncommitted replacement';writeJson(file,changed);
+    const r=runBuild({root,target:'team-meals',commit:revision,at:AT,write:false});
+    assert.deepEqual(r.build,{target:'team-meals',projectionVersion:'1',builtAt:AT,commit:revision,plans:[PLAN]});
+    assert.equal(r.sheets[PLAN].teamMeals.projectionVersion,'1');
+    assert.equal(r.sheets[PLAN].teamMeals.ingredients.tomato.name.zh,'番茄');
+    assert.ok(r.sheets[PLAN].teamMeals.collection.items.some(i=>i.ingredientRef==='salt'));
+    assert.equal(r.sheets[PLAN].teamMeals.estimates.budgetStatus,'incomplete');
+    assert.equal(r.issues.filter(i=>i.kind==='error').length,0);
+    assert.throws(()=>runBuild({root,target:'legacy-numeric',write:false}),/unsupported-format/);
+    assert.throws(()=>runBuild({root,target:'invalid',write:false}),/target/);
+  } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('team publication separates quantity warnings from broken reference errors',()=>{
+ const {root}=committedTeamRoot();
+ try {
+   const f=path.join(root,'data/ingredients/tomato.json');const ing=readJson(f);delete ing.purchase;writeJson(f,ing);let revision=commitData(root);
+   let r=runBuild({root,target:'team-meals',commit:revision,write:false,at:AT});assert.equal(r.issues.filter(i=>i.kind==='error').length,0);
+   let cli=runCli(['--target','team-meals','--check','--revision',revision,'--at',AT],root);assert.equal(cli.status,0,cli.stdout+cli.stderr);
+   const d=path.join(root,`data/dishes/${DISH}.json`);const dish=readJson(d);dish.components.push({ingredientRef:'missing',qty:{unit:'to-taste'}});writeJson(d,dish);revision=commitData(root);
+   r=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:path.join(root,'out'),at:AT});
+   assert.ok(r.issues.some(i=>i.code==='missing-ingredient'&&i.kind==='error'));assert.deepEqual(r.written,[]);assert.equal(existsSync(path.join(root,'out/build.json')),false);
+   cli=runCli(['--target','team-meals','--check','--revision',revision],root);assert.equal(cli.status,1,cli.stdout+cli.stderr);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team empty plan publishes an empty projection without inventing scope or servings',()=>{
+ const {root}=committedTeamRoot();
+ try{
+  writeJson(path.join(root,'data/menu-plans/week-41.json'),{schemaVersion:'3',meals:[]});const revision=commitData(root);
+  const r=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:path.join(root,'out'),at:AT});
+  const p=r.sheets[PLAN].teamMeals;assert.deepEqual(p.menuPlans[PLAN],{schemaVersion:'3',meals:[]});assert.deepEqual(p.selection,[]);
+  assert.equal(p.estimates.budgetStatus,'not-applicable');assert.ok(r.written.includes('team-meals/week-41.json'));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team publishes an empty manifest when the saved revision contains no plans',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  rmSync(path.join(root,'data/menu-plans'),{recursive:true});const revision=commitData(root),out=path.join(root,'out');
+  const r=runBuild({root,target:'team-meals',commit:revision,outDir:out,at:AT});
+  assert.deepEqual(r.build,{builtAt:AT,commit:revision,plans:[],target:'team-meals',projectionVersion:'1'});
+  assert.deepEqual(r.sheets,{});assert.deepEqual(r.issues,[]);assert.deepEqual(r.written,['build.json']);
+  assert.deepEqual(readdirSync(out),['build.json']);
+ } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('team images use matching commit bytes and missing/escaping/local symlink assets block',()=>{
+ const {root}=committedTeamRoot();
+ try{
+  const f=path.join(root,'data/ingredients/tomato.json'),ing=readJson(f);ing.image={src:'tomato.png',license:'own'};writeJson(f,ing);
+  const original=readFileSync(path.join(ROOT,'test/fixtures/contracts/valid/local-image/data/ingredients/pattern.png'));
+  writeFileSync(path.join(root,'data/ingredients/tomato.png'),original);const revision=commitData(root);
+  writeFileSync(path.join(root,'data/ingredients/tomato.png'),'bad newer bytes');
+  let r=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:path.join(root,'out'),at:AT});
+  const asset=r.sheets[PLAN].teamMeals.assets.find(a=>a.ownerPath==='data/ingredients/tomato.json');
+  assert.equal(asset.status,'available');assert.deepEqual(readFileSync(path.join(root,'out',asset.path)),original);
+  ing.image.src='../../../outside.png';writeJson(f,ing);const bad=commitData(root);
+  r=runBuild({root,target:'team-meals',commit:bad,write:false,at:AT});assert.ok(r.issues.some(i=>i.code==='asset-unavailable'&&i.kind==='error'));
+  ing.image.src='absent.png';writeJson(f,ing);let invalid=commitData(root);
+  assert.ok(runBuild({root,target:'team-meals',commit:invalid,write:false}).issues.some(i=>i.code==='asset-unavailable'));
+  ing.image.src='link.png';writeJson(f,ing);symlinkSync('tomato.png',path.join(root,'data/ingredients/link.png'));invalid=commitData(root);
+  assert.ok(runBuild({root,target:'team-meals',commit:invalid,write:false}).issues.some(i=>i.code==='asset-unavailable'));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team technique assets retain stable IDs and original pointers after filtering, even with identical image fields',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const termsFile=path.join(root,'data/techniques.json'),template=readJson(termsFile)[0],image={src:'shared.png',license:'own'};
+  const unused={...template,id:'unused-first'};delete unused.image;
+  writeJson(termsFile,[unused,{...template,id:'selected-a',image},{...template,id:'selected-b',image}]);
+  const dishFile=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(dishFile);
+  for(const c of dish.components??[])delete c.prep;
+  for(const s of dish.steps??[])delete s.techniqueRef;
+  dish.components[0].prep={techniqueRef:'selected-a'};dish.steps[0].techniqueRef='selected-b';writeJson(dishFile,dish);
+  writeFileSync(path.join(root,'data/shared.png'),Buffer.from(RASTERS.png,'base64'));const revision=commitData(root);
+  const r=runBuild({root,target:'team-meals',commit:revision,outDir:path.join(root,'out'),at:AT}),projection=r.sheets[PLAN].teamMeals;
+  assert.deepEqual(projection.techniques.map(t=>t.id),['selected-a','selected-b']);
+  const assets=projection.assets.filter(a=>a.ownerPath==='data/techniques.json');
+  assert.deepEqual(assets.map(a=>[a.techniqueRef,a.jsonPointer]),[['selected-a','/1/image'],['selected-b','/2/image']]);
+  assert.deepEqual(assets.map(a=>a.source),[image,image]);assert.equal(assets[0].path,assets[1].path);
+  assert.ok(assets.every(a=>a.status==='available'));assert.ok(r.written.includes(assets[0].path));
+ } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('team publishes original animated WebP bytes with legal metadata order and preserves old output when later frame decoding fails',()=>{
+ const {root}=committedTeamRoot(),out=path.join(root,'out');
+ try {
+  const file=path.join(root,'data/ingredients/tomato.json'),ingredient=readJson(file);ingredient.image={src:'tomato.webp',license:'own'};writeJson(file,ingredient);
+  const animation=Buffer.from('UklGRvgAAABXRUJQVlA4WAoAAAACAAAAMQAAMQAAQU5JTQYAAAD/////AABBTk1GYgAAAAAAAAAAADEAADEAAGQAAABWUDggSgAAAHAEAJ0BKjIAMgA+kUigTCWkIyIiCACwEglpANRCgH4AfgAAEXGAXU1AFdQAAP7e1j//RguA4Hvpf/9jMftGf5xTjtX6fAeQgAAAQU5NRmIAAAAAAAAAAAAxAAAxAABkAAAAVlA4IEoAAABwBACdASoyADIAPpFIoEwlpCMiIggAsBIJaQDUQoB+AH4AABFxgF1NQBXUAAD+3tY//0YLgOB76X//YzH7Rn+cU47V+nwHkIAAAA==','base64');
+  const metadata=Buffer.from([69,88,73,70,1,0,0,0,97,0]);
+  const original=Buffer.concat([animation.subarray(0,12),metadata,animation.subarray(12)]);original.writeUInt32LE(original.length-8,4);
+  const image=path.join(root,'data/ingredients/tomato.webp');writeFileSync(image,original);const revision=commitData(root);
+  const result=runBuild({root,target:'team-meals',commit:revision,outDir:out,at:AT});
+  const asset=result.sheets[PLAN].teamMeals.assets.find(a=>a.ownerPath==='data/ingredients/tomato.json');
+  assert.equal(asset.status,'available');assert.deepEqual(readFileSync(path.join(out,asset.path)),original);
+  const oldManifest=readFileSync(path.join(out,'build.json')),oldProjection=readFileSync(path.join(out,'team-meals/week-41.json'));
+  const second=original.indexOf('ANMF',original.indexOf('ANMF')+4),bad=Buffer.from(original.subarray(0,second+32+20));
+  bad.writeUInt32LE(44,second+4);bad.writeUInt32LE(20,second+28);bad.writeUInt32LE(bad.length-8,4);
+  writeFileSync(image,bad);const next=commitData(root),blocked=runBuild({root,target:'team-meals',commit:next,outDir:out,at:AT});
+  assert.ok(blocked.issues.some(i=>i.code==='asset-unavailable'&&i.kind==='error'));assert.deepEqual(blocked.written,[]);
+  assert.deepEqual(readFileSync(path.join(out,'build.json')),oldManifest);assert.deepEqual(readFileSync(path.join(out,'team-meals/week-41.json')),oldProjection);
+  assert.deepEqual(readFileSync(path.join(out,asset.path)),original);
+ } finally {rmSync(root,{recursive:true,force:true});}
+});
+
+test('team requires actual commit objects, including when a tag object is reachable',()=>{
+ const {root,revision}=committedTeamRoot();
+ try {
+  git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','tag','-a','fixture','-m','Tag is not a commit');
+  const tag=git(root,'rev-parse','fixture');assert.notEqual(tag,revision);
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:tag,write:false}),/revision/);
+  git(root,'checkout','-b','side');writeJson(path.join(root,'data/menu-plans/side.json'),{schemaVersion:'3',meals:[]});
+  const side=commitData(root);git(root,'checkout','main');
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:side,write:false}),/revision/);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team projection includes actionable missing-price warnings without inventing amounts',()=>{
+ const root=tempRepo();
+ try {
+  const file=path.join(root,'data/ingredients/tomato.json'),ingredient=readJson(file);delete ingredient.purchase.lastPrice;writeJson(file,ingredient);
+  git(root,'init','-b','main');const revision=commitData(root);
+  const r=runBuild({root,target:'team-meals',commit:revision,write:false});
+  const warning=r.issues.find(i=>i.code==='missing-price'&&i.ingredientRef==='tomato');
+  assert.equal(warning?.kind,'warning');assert.equal(warning?.ownerPath,'data/ingredients/tomato.json');
+  const projected=r.sheets[PLAN].teamMeals;
+  assert.ok(projected.issues.some(i=>i.code==='missing-price'&&i.ingredientRef==='tomato'));
+  assert.equal(projected.estimates.budgetStatus,'incomplete');
+  assert.ok(projected.estimates.items.find(i=>i.ingredientRef==='tomato').lines.every(l=>l.line.amount===undefined));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team rejects truncated image bytes even when their header has valid dimensions',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,'data/ingredients/tomato.json'),ingredient=readJson(file);
+  ingredient.image={src:'truncated.png',license:'own'};writeJson(file,ingredient);
+  const bytes=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(bytes);bytes.write('IHDR',12);bytes.writeUInt32BE(1,16);bytes.writeUInt32BE(1,20);
+  writeFileSync(path.join(root,'data/ingredients/truncated.png'),bytes);const revision=commitData(root);
+  const r=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:path.join(root,'out')});
+  assert.ok(r.issues.some(i=>i.code==='asset-unavailable'&&i.kind==='error'));assert.deepEqual(r.written,[]);assert.equal(existsSync(path.join(root,'out')),false);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team publication replaces generated directories together and refuses source/output overlap',()=>{
+ const {root,revision}=committedTeamRoot();const out=path.join(root,'out');
+ try {
+  runBuild({root,target:'team-meals',commit:revision,write:true,outDir:out});
+  mkdirSync(path.join(out,'prep'));writeFileSync(path.join(out,'prep/old.json'),'{}');writeFileSync(path.join(out,'notes.txt'),'keep');
+  const file=path.join(root,'data/ingredients/tomato.json'),ingredient=readJson(file);ingredient.image={src:'tomato.png',license:'own'};writeJson(file,ingredient);
+  cpSync(path.join(ROOT,'test/fixtures/contracts/valid/local-image/data/ingredients/pattern.png'),path.join(root,'data/ingredients/tomato.png'));
+  const next=commitData(root);
+  mkdirSync(path.join(out,`assets/${next}/data/ingredients/tomato.png`),{recursive:true});
+  runBuild({root,target:'team-meals',commit:next,write:true,outDir:out});
+  assert.equal(readJson(path.join(out,'build.json')).commit,next);
+  assert.equal(readJson(path.join(out,'team-meals/week-41.json')).sourceRevision,next);
+  assert.equal(existsSync(path.join(out,'prep')),false);assert.equal(readFileSync(path.join(out,'notes.txt'),'utf8'),'keep');
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:next,write:true,outDir:path.join(root,'data')}),/output/);
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:next,write:true,outDir:root}),/output/);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team source errors block publication and carry the exact owner and field',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(file);dish.provenance={source:'video'};writeJson(file,dish);
+  const revision=commitData(root),r=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:path.join(root,'out')});
+  const issue=r.issues.find(i=>i.code==='invalid-source'&&i.jsonPointer==='/provenance/videoUrl');
+  assert.equal(issue?.ownerPath,`data/dishes/${DISH}.json`);assert.equal(issue?.kind,'error');assert.deepEqual(r.written,[]);
+  assert.ok(r.sheets[PLAN].teamMeals.issues.some(i=>i.jsonPointer==='/provenance/videoUrl'));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team publication keeps the complete old output on staged-write or directory-swap failure',()=>{
+ const {root,revision}=committedTeamRoot(),out=path.join(root,'out');
+ try {
+  runBuild({root,target:'team-meals',commit:revision,write:true,outDir:out});
+  const oldManifest=readFileSync(path.join(out,'build.json')),oldProjection=readFileSync(path.join(out,'team-meals/week-41.json'));
+  const file=path.join(root,'data/menu-plans/week-41.json'),plan=readJson(file);plan.margin=1.2;writeJson(file,plan);const next=commitData(root);
+  for(const fault of ['write','rename']) {
+   const script=`import fs from 'node:fs';import {syncBuiltinESMExports} from 'node:module';
+    const {runBuild}=await import(${JSON.stringify(SCRIPT)});
+    const origWrite=fs.writeFileSync,origRename=fs.renameSync;let failed=false;
+    fs.writeFileSync=function(file,...args){if(${JSON.stringify(fault)}==='write'&&String(file).endsWith('week-41.json'))throw new Error('injected ENOSPC');return origWrite.call(this,file,...args)};
+    fs.renameSync=function(from,to){if(${JSON.stringify(fault)}==='rename'&&to===${JSON.stringify(out)}&&!failed){failed=true;throw new Error('injected rename failure')}return origRename.call(this,from,to)};
+    syncBuiltinESMExports();
+    try{runBuild({root:${JSON.stringify(root)},target:'team-meals',commit:${JSON.stringify(next)},outDir:${JSON.stringify(out)},write:true});process.exitCode=2;}catch(e){if(!String(e).includes('injected'))throw e;}`;
+   const child=spawnSync(process.execPath,['--input-type=module','-e',script],{encoding:'utf8'});
+   assert.equal(child.status,0,child.stderr);
+   assert.deepEqual(readFileSync(path.join(out,'build.json')),oldManifest);
+   assert.deepEqual(readFileSync(path.join(out,'team-meals/week-41.json')),oldProjection);
+  }
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team refuses tracked or unrecognized source directories as output without removing files',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const tracked=path.join(root,'packages/web/src'),untracked=path.join(root,'scratch-source');
+  mkdirSync(path.join(tracked,'assets'),{recursive:true});writeFileSync(path.join(tracked,'assets/logo.svg'),'<svg/>');
+  git(root,'add','packages');git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','Tracked web source');
+  const revision=git(root,'rev-parse','HEAD');
+  mkdirSync(path.join(untracked,'assets'),{recursive:true});writeFileSync(path.join(untracked,'assets/logo.svg'),'<svg/>');
+  for(const outDir of [tracked,untracked]) {
+   assert.throws(()=>runBuild({root,target:'team-meals',commit:revision,write:true,outDir}),/output/);
+   assert.equal(readFileSync(path.join(outDir,'assets/logo.svg'),'utf8'),'<svg/>');
+  }
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team source schema/date/technique errors stop without overwriting a successful generation',()=>{
+ const {root,revision}=committedTeamRoot(),out=path.join(root,'out');
+ try {
+  runBuild({root,target:'team-meals',commit:revision,outDir:out});
+  const before=readFileSync(path.join(out,'build.json'));
+  const planFile=path.join(root,'data/menu-plans/week-41.json'),original=readJson(planFile);
+  const invalid={...original,dateRange:{start:'2026-10-12',end:'2026-10-01'}};writeJson(planFile,invalid);
+  let bad=commitData(root),r=runBuild({root,target:'team-meals',commit:bad,outDir:out});
+  assert.ok(r.issues.some(i=>i.code==='invalid-selection'&&i.kind==='error'));assert.deepEqual(r.written,[]);
+  writeJson(planFile,original);
+  const dishFile=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(dishFile);dish.components[0].prep={techniqueRef:'missing-technique'};writeJson(dishFile,dish);
+  bad=commitData(root);r=runBuild({root,target:'team-meals',commit:bad,outDir:out});
+  assert.ok(r.issues.some(i=>i.code==='missing-technique'&&i.kind==='error'));assert.deepEqual(r.written,[]);
+  original.meals[0].plannedServings=0;writeJson(planFile,original);bad=commitData(root);
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:bad,outDir:out}),/invalid_source.*week-41\.json/);
+  assert.deepEqual(readFileSync(path.join(out,'build.json')),before);
+  assert.equal(runCli(['--target','team-meals','--revision',bad,'--out',out],root).status,1);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team decoder reads complete PNG/JPEG/WebP pixels and rejects truncated data after valid headers',()=>{
+ const helper=path.join(HERE,'verify-team-image.mjs');
+ for(const [format,encoded] of Object.entries(RASTERS)) {
+  const bytes=Buffer.from(encoded,'base64');
+  const valid=spawnSync(process.execPath,[helper],{input:bytes,encoding:'utf8'});
+  assert.equal(valid.status,0,`${format}: ${valid.stderr}`);
+  assert.deepEqual(JSON.parse(valid.stdout),{format,width:2,height:2});
+  const bad=spawnSync(process.execPath,[helper],{input:bytes.subarray(0,-8),encoding:'utf8'});
+  assert.equal(bad.status,1,`${format}: truncated compressed bytes must fail`);
+ }
+});
+
+test('the original malformed JPEG test material remains a rejected DQT counterexample',()=>{
+ const bytes=Buffer.from(INVALID_JPEG_DQT,'base64');
+ assert.equal(bytes.readUInt16BE(91),67);assert.deepEqual(bytes.subarray(158,163),Buffer.from([0x32,0x32,0x32,0xff,0xc0]));
+ const result=spawnSync(process.execPath,[path.join(HERE,'verify-team-image.mjs')],{input:bytes,encoding:'utf8'});
+ assert.equal(result.status,1);assert.match(result.stderr,/JPEG container: expected marker/);
+});
+
+test('team never publishes when its decoder times out or returns a missing or malformed result',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,'data/ingredients/tomato.json'),ingredient=readJson(file);ingredient.image={src:'tomato.png',license:'own'};writeJson(file,ingredient);
+  writeFileSync(path.join(root,'data/ingredients/tomato.png'),Buffer.from(RASTERS.png,'base64'));const revision=commitData(root);
+  for(const response of ['', 'not-json', '{}', '{"format":"png","width":0,"height":2}', 'timeout']) {
+   const code=`import childProcess from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';
+    const {runBuild}=await import(${JSON.stringify(SCRIPT)});const original=childProcess.execFileSync;
+    childProcess.execFileSync=function(command,args,options){if(args[0]?.endsWith('verify-team-image.mjs')){if(${JSON.stringify(response)}==='timeout')throw new Error('ETIMEDOUT');return Buffer.from(${JSON.stringify(response)});}return original.call(this,command,args,options)};
+    syncBuiltinESMExports();const r=runBuild({root:${JSON.stringify(root)},target:'team-meals',commit:${JSON.stringify(revision)},outDir:${JSON.stringify(path.join(root,'out'))}});
+    if(!r.issues.some(i=>i.code==='asset-unavailable'&&i.kind==='error')||r.written.length)process.exitCode=2;`;
+   const child=spawnSync(process.execPath,['--input-type=module','-e',code],{encoding:'utf8'});
+   assert.equal(child.status,0,child.stderr||`Decoder response incorrectly accepted: ${response}`);
+  }
+  assert.equal(existsSync(path.join(root,'out')),false);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('team remote images remain unpinned and unsupported revisions never fall back',()=>{
+ const {root}=committedTeamRoot();
+ try{
+  const f=path.join(root,'data/ingredients/tomato.json'),ing=readJson(f);ing.image={src:'https://example.org/tomato.jpg',license:'CC BY 4.0',author:'Fixture',sourceUrl:'https://example.org/source'};writeJson(f,ing);
+  const revision=commitData(root);const r=runBuild({root,target:'team-meals',commit:revision,write:false,at:AT});
+  assert.equal(r.sheets[PLAN].teamMeals.assets[0].status,'external-unpinned');assert.equal(r.sheets[PLAN].teamMeals.assets[0].path,undefined);
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:'a'.repeat(40),write:false}),/revision/);
+  assert.throws(()=>runBuild({root,target:'team-meals',commit:'main',write:false}),/revision/);
+  const cli=runCli(['--target','team-meals','--compare-snapshots','--out',path.join(root,'forbidden')],root);assert.equal(cli.status,1);assert.equal(existsSync(path.join(root,'forbidden')),false);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });
