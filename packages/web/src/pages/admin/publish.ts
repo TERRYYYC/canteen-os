@@ -86,6 +86,10 @@ const T = {
   "pub.openActions": { uk: "Відкрити сторінку Actions", zh: "打开 Actions 页面", en: "Open the Actions page" },
   "pub.failedAt": { uk: "Зупинилося на «{step}»", zh: "卡在「{step}」", en: "Stuck at “{step}”" },
   "pub.done": { uk: "Онлайн · усі побачать за дві хвилини", zh: "上线了 · 大家两分钟内能看到", en: "Live · everyone will see it within two minutes" },
+  "pub.ended.unknown": { uk: "Збірку завершено · результат публікації невідомий", zh: "构建已结束 · 发布结果未知", en: "Build ended · publication outcome unknown" },
+  "pub.ended.failure": { uk: "Збірка завершилася помилкою", zh: "构建已结束，发布失败", en: "Build ended with a failure" },
+  "pub.ended.cancelled": { uk: "Збірку скасовано", zh: "构建已取消", en: "Build was cancelled" },
+  "pub.ended.timeout": { uk: "Збірку завершено через ліміт часу", zh: "构建已因超时结束", en: "Build ended after its time limit" },
   "pub.mode.pushTrigger": {
     uk: "Публікація йде тимчасовим каналом — прогрес може з'явитися на кілька секунд пізніше",
     zh: "发布走的是临时通道，进度可能晚几秒出现",
@@ -245,7 +249,7 @@ function totalElapsed(p: PublishProgress, now: number): number | null {
     if (s.state === "in_progress") running = true;
   }
   if (first === null) return null;
-  const terminal = p.status === "success" || p.status === "failure" || p.status === "timeout" || p.status === "unmapped";
+  const terminal = p.runCompleted === true;
   return (running || !terminal ? now : (last ?? now)) - first;
 }
 
@@ -254,6 +258,17 @@ function totalElapsed(p: PublishProgress, now: number): number | null {
 // ---------------------------------------------------------------------------
 
 const TERMINAL: ReadonlySet<PublishProgress["status"]> = new Set(["success", "failure", "timeout", "unmapped"]);
+/** A confirmed end and a recognized result are separate facts. Legacy status proves neither. */
+function completedOutcome(p: PublishProgress): Key | null {
+  if (p.runCompleted !== true) return null;
+  switch (p.runConclusion) {
+    case "success": return "pub.done";
+    case "failure": return "pub.ended.failure";
+    case "cancelled": return "pub.ended.cancelled";
+    case "timed_out": return "pub.ended.timeout";
+    default: return "pub.ended.unknown";
+  }
+}
 const FAST_MS = 2000;
 const SLOW_MS = 5000;
 const FAST_WINDOW_MS = 30_000;
@@ -399,8 +414,9 @@ async function tick(): Promise<void> {
     if (!current(context) || poll !== p) return;
     if (progress.runId !== p.runId || !["queued", "in_progress", "success", "failure", "timeout", "unmapped"].includes(progress.status) || !Array.isArray(progress.steps)) throw new ApiError(502, "bad_response", "");
     p.rateLimited = 0; p.transientError = null; p.progress = progress;
-    if (progress.status === "success") {
-      finish("terminal"); changeOperation(null); void loadChanges(true);
+    if (progress.runCompleted === true) {
+      finish("terminal"); changeOperation(null);
+      if (progress.runConclusion === "success") void loadChanges(true);
     } else if (TERMINAL.has(progress.status)) {
       // Worker can report failedStep/unmapped before run completion, and timeout while running.
       markUnknown(); finish("unknown");
@@ -693,11 +709,14 @@ function paintNotices(v: View): void {
     } else if (poll.stop === "no-run") {
       sig.push("norun");
       items.push(notice({ kind: "warn", text: tt(lang, "pub.noRun"), action: actions(url) }));
+    } else if (p && completedOutcome(p)) {
+      const outcome = completedOutcome(p)!;
+      sig.push(`completed:${outcome}`);
+      items.push(notice({ kind: outcome === "pub.done" ? "ok" : "warn", text: tt(lang, outcome), ...(outcome === "pub.done" ? {} : { action: actions(url) }) }));
     } else if (p) {
       switch (p.status) {
         case "success":
-          sig.push("ok");
-          items.push(notice({ kind: "ok", text: tt(lang, "pub.done") }));
+          // Old Workers may report success without overall run completion evidence.
           break;
         case "failure": {
           const failed = p.steps.find((s) => s.key === p.failedStep) ?? (p.failedStep ? { key: p.failedStep as PublishStepKey, label: p.failedStep } : null);
@@ -751,10 +770,11 @@ function statusText(lang: Lang): string {
   const p = poll.progress;
   if (poll.stop === "rate-limited") return tt(lang, "pub.rateLimited");
   if (poll.stop === "no-run") return tt(lang, "pub.noRun");
+  if (p && completedOutcome(p)) return tt(lang, completedOutcome(p)!);
   if (!p || p.status === "queued") return tt(lang, "pub.queued");
   switch (p.status) {
     case "success":
-      return tt(lang, "pub.done");
+      return tt(lang, "pub.unknown");
     case "failure": {
       const failed = p.steps.find((s) => s.key === p.failedStep);
       return failed ? tt(lang, "pub.failedAt", { step: stepName(lang, failed) }) : tt(lang, "pub.state.failure");

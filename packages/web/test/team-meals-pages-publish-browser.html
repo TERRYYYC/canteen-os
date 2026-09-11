@@ -1,13 +1,13 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D Publish owner · explicit local fixture</title>
 <style>body>aside{padding:16px;background:#fff6de;color:#262114;display:flex;flex-wrap:wrap;gap:8px}aside p{flex-basis:100%;margin:0}aside button,aside select{min-height:40px;padding:6px;color:#262114;background:#fff}main{max-width:1120px;margin:auto;padding:16px}pre,output{white-space:pre-wrap;overflow-wrap:anywhere}#result{display:block;padding:16px}#ledger{margin:16px}</style>
-<aside><strong>D Publish owner · Explicit local fixture</strong><label>Language <select id="lang"><option value="zh">中文</option><option value="en" selected>English</option><option value="uk">Українська</option></select></label><label>Connection <select id="mode"><option value="fixture">Local mocked transport</option><option value="unconfigured">Unconfigured</option></select></label><label>Next response <select id="scenario"><option>hold</option><option>lost</option><option>no-id</option><option>timeout</option><option>failure</option><option>success</option><option>forbidden</option></select></label><button id="reset">Reset fixture</button><button id="release">Release held response</button><button id="leave">Leave page</button><button id="return">Return to publish</button><button id="auth">Replace auth session</button><button id="run">Run owner checks</button><p>Actual Publish renderer, C1 session and legacy AdminApi with intercepted local fetch. No real publication, rollback or historical version is performed or proved.</p></aside>
+<aside><strong>D Publish owner · Explicit local fixture</strong><label>Language <select id="lang"><option value="zh">中文</option><option value="en" selected>English</option><option value="uk">Українська</option></select></label><label>Connection <select id="mode"><option value="fixture">Local mocked transport</option><option value="unconfigured">Unconfigured</option></select></label><label>Next response <select id="scenario"><option>hold</option><option>lost</option><option>no-id</option><option>timeout</option><option>failure</option><option>success</option><option>forbidden</option></select></label><button id="reset">Reset fixture</button><button id="release">Release held response</button><button id="leave">Leave page</button><button id="return">Return to publish</button><button id="auth">Replace auth session</button><button id="run">Run owner checks</button><button id="run-terminal">Run completion evidence checks</button><p>Actual Publish renderer, C1 session and legacy AdminApi with intercepted local fetch. No real publication, rollback or historical version is performed or proved.</p></aside>
 <output id="result">Not run</output><main id="app"></main><details><summary>Credential-free request and assertion ledger</summary><pre id="ledger"></pre></details>
 <script type="module">
 import '../src/tokens.css';import '../src/styles.css';import '../src/pages/admin/admin.css';import '../src/pages/admin/publish.css';
 import {render,readPublishAuxiliary,createTeamMealsApi,HttpAdminApi,changeAuth,setLang,publishSourceHash} from './team-meals-pages-publish-browser.generated.mjs';
-const $=s=>document.querySelector(s),A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40),calls=[],checks=[];let team,legacy,held=[],identity=1,currentProgress='success';
+const $=s=>document.querySelector(s),A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40),calls=[],checks=[];let team,legacy,held=[],identity=1,currentProgress='success',suppliedProgress=null;
 const report=()=>$('#ledger').textContent=JSON.stringify({sourceHash:publishSourceHash,fixture:'Synthetic local data; no historical or deployed outcome claim',auxiliary:readPublishAuxiliary(),checks,calls},null,2);
-const progress=(status='success')=>({runId:11,status,htmlUrl:'https://example.org/actions/11',steps:[],failedStep:null,failureReason:null,unmappedSteps:[]});
+const progress=(status='success')=>suppliedProgress??({runId:11,status,...(status==='success'?{runCompleted:true,runConclusion:'success'}:{}),htmlUrl:'https://example.org/actions/11',steps:[],failedStep:null,failureReason:null,unmappedSteps:[]});
 const changes=()=>({onlineCommit:A,lastPublishedAt:'2026-09-10T00:00:00Z',unpublished:[{sha:B,at:'2026-09-11T00:00:00Z',role:'chef',endpoint:'POST /plan/week-38',subject:'Explicit fixture meal edit',files:['data/menu-plans/week-38.json']}],publishes:[{sha:A,at:'2026-09-10T00:00:00Z',runId:10,isOnline:true}]});
 function connect(){changeAuth();team?.dispose();legacy?.dispose();identity++;const opts={token:()=>'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{
  const u=new URL(url);if(u.origin!=='https://publish-fixture.invalid')throw new Error('Forbidden fixture origin');const path=u.pathname;calls.push({method:init.method,path,scenario:$('#scenario').value});report();
@@ -32,7 +32,7 @@ $('#lang').onchange=paint;$('#mode').onchange=reset;$('#reset').onclick=reset;$(
 const pause=()=>new Promise(r=>setTimeout(r,25));async function until(fn,message){for(let i=0;i<100;i++){if(fn())return;await pause();}throw new Error(message);}
 const assert=(value,message)=>{checks.push({message,pass:!!value});report();if(!value)throw new Error(message);};
 const posts=path=>calls.filter(c=>c.method==='POST'&&c.path===path).length;
-async function fresh(scenario){$('#mode').value='fixture';$('#lang').value='en';$('#scenario').value=scenario;reset();await until(()=>$('.adm-pub-rollback'),'history load');}
+async function fresh(scenario){suppliedProgress=null;$('#mode').value='fixture';$('#lang').value='en';$('#scenario').value=scenario;reset();await until(()=>$('.adm-pub-rollback'),'history load');}
 $('#run').onclick=async()=>{checks.length=0;calls.length=0;$('#run').disabled=true;try{
  await fresh('hold');$('.adm-pub-rollback').click();$('.adm-pub-rollback-go').click();await until(()=>readPublishAuxiliary().phase==='busy','rollback starts');let before=posts(`/rollback/${A}`);leave();$('#lang').value='uk';paint();await until(()=>$('.adm-pub-rollback'),'return history');assert($('.adm-pub-publish').disabled&&$('.adm-pub-rollback').disabled,'rollback pending blocks both actions across language/route');assert(posts(`/rollback/${A}`)===before,'rollback is not repeated');release();await until(()=>readPublishAuxiliary().phase==='idle','rollback acknowledgement');assert($('#app').textContent.includes('Повернуто до'),'acknowledgement paints current language');
  await fresh('lost');$('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase==='unknown','publish unknown');before=posts('/publish');leave();paint();await pause();$('.adm-pub-publish').click();assert($('.adm-pub-publish').disabled&&posts('/publish')===before,'lost acknowledgement remains blocked after return');assert(calls.every(c=>c.path!=='/publish/latest'),'no latest build is claimed');
@@ -42,5 +42,34 @@ $('#run').onclick=async()=>{checks.length=0;calls.length=0;$('#run').disabled=tr
  $('#mode').value='unconfigured';reset();const count=calls.length;for(const lang of ['zh','en','uk']){$('#lang').value=lang;paint();await pause();assert(!$('.adm-pub-publish')&&calls.length===count,`unconfigured ${lang} has no legacy read/write entry`);}
  $('#result').textContent=`PASS ${checks.length}/${checks.length} · Actual renderer + C1/legacy transport; only explicit local fixture actions.`;
  }catch(e){$('#result').textContent='FAIL · '+e.message;}finally{$('#run').disabled=false;report();}};
+
+$('#run-terminal').onclick=async()=>{checks.length=0;calls.length=0;$('#run-terminal').disabled=true;try{
+ const variants=[
+  ['legacy success',{status:'success'},true],
+  ['running with success conclusion',{status:'success',runCompleted:false,runConclusion:'success'},true],
+  ['malformed completion',{status:'success',runCompleted:'true',runConclusion:'success'},true],
+  ['failed step before completion',{status:'failure',runCompleted:false,runConclusion:'failure'},true],
+  ['elapsed timeout',{status:'timeout',runCompleted:false},true],
+  ['unmapped progress',{status:'unmapped',runCompleted:false},true],
+  ['completed null conclusion',{status:'success',runCompleted:true,runConclusion:null},false],
+  ['completed unfamiliar conclusion',{status:'success',runCompleted:true,runConclusion:'future-result'},false],
+  ['completed success with old queued status',{status:'queued',runCompleted:true,runConclusion:'success'},false],
+  ['completed failure with old running status',{status:'in_progress',runCompleted:true,runConclusion:'failure'},false],
+  ['completed cancelled with old success status',{status:'success',runCompleted:true,runConclusion:'cancelled'},false],
+  ['completed timed out with old failure status',{status:'failure',runCompleted:true,runConclusion:'timed_out'},false],
+  ['different run completion',{status:'success',runId:12,runCompleted:true,runConclusion:'success'},true],
+ ];
+ for(const [label,fields,blocked] of variants){
+  await fresh('success');suppliedProgress={runId:11,htmlUrl:'https://example.org/actions/11',steps:[],failedStep:null,failureReason:null,unmappedSteps:[],...fields};
+  $('.adm-pub-publish').click();await until(()=>readPublishAuxiliary().phase!=='busy',label);
+  const success=!blocked&&fields.runConclusion==='success';
+  assert($('.adm-pub-publish').disabled===blocked&&$('.adm-pub-rollback').disabled===blocked&&$('#app').textContent.includes('Live · everyone')===success,label+' has exact completion and truthful outcome');
+  if(!blocked&&(fields.runConclusion===null||fields.runConclusion==='future-result'))assert($('#app').textContent.includes('Build ended · publication outcome unknown'),label+' remains visibly unknown');
+ }
+ const before=posts('/publish');suppliedProgress={...suppliedProgress,runId:11,status:'unmapped',runCompleted:true,runConclusion:null};[...$('#app').querySelectorAll('button')].find(x=>x.textContent==="Check this build's outcome").click();await until(()=>readPublishAuxiliary().phase==='idle','known run ended');assert(posts('/publish')===before&&!$('.adm-pub-publish').disabled&&$('#app').textContent.includes('Build ended · publication outcome unknown'),'readonly same-run completion ends protection without another POST or false success');
+ const reads=calls.filter(c=>c.path==='/publish/11').length;leave();$('#lang').value='uk';paint();await pause();assert(calls.filter(c=>c.path==='/publish/11').length===reads&&$('#app').textContent.includes('результат публікації невідомий'),'ended unknown conclusion survives language and route without polling');
+ assert(calls.every(c=>c.path!=='/publish/latest'),'completion probes never claim latest');
+ $('#result').textContent=`PASS ${checks.length}/${checks.length} · Overall completion is separate from publication success; all operations are local fixtures.`;
+ }catch(error){$('#result').textContent='FAIL · '+error.message;}finally{$('#run-terminal').disabled=false;report();}};
 reset();
 </script></html>

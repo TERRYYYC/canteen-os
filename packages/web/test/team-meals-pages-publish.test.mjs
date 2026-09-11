@@ -29,6 +29,7 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((r,j)=>{resolve
 const A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40);
 const changes=()=>({onlineCommit:A,lastPublishedAt:'2026-09-10T00:00:00Z',unpublished:[{sha:B,at:'2026-09-11T00:00:00Z',role:'chef',endpoint:'POST /plan/week-38',subject:'Changed meal',files:['data/menu-plans/week-38.json']}],publishes:[{sha:A,at:'2026-09-10T00:00:00Z',runId:10,isOnline:true}]});
 const progress=(status='in_progress',runId=11)=>({runId,status,htmlUrl:'https://example.org/actions/11',steps:[],failedStep:null,failureReason:null,unmappedSteps:[]});
+const completedProgress=(conclusion='success',status='success',runId=11)=>({...progress(status,runId),runCompleted:true,runConclusion:conclusion});
 let serial=0;
 async function setup({mode='real',respond}={}){
  const events={},timers=new Map();let timer=0;
@@ -73,7 +74,7 @@ test('auth replacement immediately removes private state and late publish respon
 });
 
 test('same run ID can be verified read-only after timeout and only confirmed success releases both actions',async()=>{
- let outcome='timeout';const f=await setup({respond:p=>p==='/publish/11'?new Response(JSON.stringify({ok:true,...progress(outcome)})):undefined});
+ let outcome='timeout';const f=await setup({respond:p=>p==='/publish/11'?new Response(JSON.stringify({ok:true,...(outcome==='success'?completedProgress():progress(outcome))})):undefined});
  try{let el=f.mount();await f.flush();publish(el).click();await f.flush();const unknown=f.page.readPublishAuxiliary();assert.equal(unknown.phase,'unknown');assert.equal(unknown.dirty,true);f.leave();el=f.mount();await f.flush();outcome='success';walk(el).find(n=>n.tagName==='BUTTON'&&n.textContent==="Check this build's outcome").click();await f.flush();assert.equal(postCount(f,'/publish'),1);assert.equal(f.calls.filter(c=>c.path==='/publish/11').length,2);assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(publish(el).disabled,false);assert.equal(rollback(el).disabled,false);assert.match(el.textContent,/Live · everyone/);}finally{f.cleanup();}
 });
 test('a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused',async()=>{
@@ -83,7 +84,7 @@ test('known pre-write rejection releases protection; upstream ambiguity keeps it
  for(const [status,code,blocked] of [[403,'forbidden',false],[409,'conflict',false],[503,'not_configured',false],[502,'upstream_error',true],[503,'upstream_error',true]]){const f=await setup({respond:p=>p==='/publish'?new Response(JSON.stringify({ok:false,errors:[{code,path:'',message:'Fixture rejection'}]}),{status}):undefined});try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(publish(el).disabled,blocked,`${status}/${code}`);assert.equal(f.page.readPublishAuxiliary().dirty,blocked);assert.equal(f.calls.some(c=>c.path.startsWith('/publish/')),false);}finally{f.cleanup();}}
 });
 test('publish pending blocks rollback immediately, survives language and protects unload until confirmed completion',async()=>{
- const held=deferred(),f=await setup({respond:p=>p==='/publish'?held.promise:p==='/publish/11'?new Response(JSON.stringify({ok:true,...progress('success')})):undefined});
+ const held=deferred(),f=await setup({respond:p=>p==='/publish'?held.promise:p==='/publish/11'?new Response(JSON.stringify({ok:true,...completedProgress()})):undefined});
  try{let el=f.mount();await f.flush();publish(el).click();await f.flush();const started=f.page.readPublishAuxiliary();assert.equal(started.phase,'busy');assert.equal(rollback(el).disabled,true);el=f.mount('zh');await f.flush();assert.equal(publish(el).disabled,true);let prevented=false;for(const fn of f.events.beforeunload??[])fn({preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(f.page.readPublishAuxiliary().identity,started.identity);held.resolve(new Response(JSON.stringify({ok:true,runId:11,mode:'dispatch'})));await f.flush();assert.equal(postCount(f,'/publish'),1);assert.equal(f.page.readPublishAuxiliary().dirty,false);assert.equal(f.page.readPublishAuxiliary().generation>started.generation,true);}finally{f.cleanup();}
 });
 test('unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target',async()=>{
@@ -98,4 +99,23 @@ test('late prior-session changes cannot replace the new-session list',async()=>{
 });
 test('late known-run progress from a prior session cannot claim success or clear new-operation protection',async()=>{
  const held=deferred();const f=await setup({respond:p=>p==='/publish/11'?held.promise:undefined});try{let el=f.mount();await f.flush();publish(el).click();await f.flush();f.auth();el=f.mount();await f.flush();held.resolve(new Response(JSON.stringify({ok:true,...progress('success')})));await f.flush();assert.doesNotMatch(el.textContent,/Live · everyone/);assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(publish(el).disabled,false);}finally{f.cleanup();}
+});
+
+test('legacy success and false or malformed completion never release a known run or claim it is live',async()=>{
+ for(const runCompleted of [undefined,false,'true',1]){
+  const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...progress('success'),runCompleted,runConclusion:'success'}):undefined});
+  try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(publish(el).disabled,true);assert.doesNotMatch(el.textContent,/Live · everyone/);assert.equal(f.calls.some(c=>c.path==='/publish/latest'),false);}finally{f.cleanup();}
+ }
+});
+test('matching completed runs release operation regardless of legacy status while conclusion alone determines result',async()=>{
+ for(const status of ['queued','in_progress','success','failure','timeout','unmapped'])for(const conclusion of ['success','failure','cancelled','timed_out',null,'future-result']){
+  const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...completedProgress(conclusion,status)}):undefined});
+  try{let el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'idle',`${status}/${conclusion}`);assert.equal(publish(el).disabled,false);assert.equal(rollback(el).disabled,false);assert.equal(/Live · everyone/.test(el.textContent),conclusion==='success',`${status}/${conclusion}`);if(conclusion===null||conclusion==='future-result')assert.match(el.textContent,/Build ended · publication outcome unknown/);f.leave();el=f.mount('uk');await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(postCount(f,'/publish'),1);assert.equal(f.calls.filter(c=>c.path==='/publish/11').length,1);}finally{f.cleanup();}
+ }
+});
+test('completed evidence for another run is not ownership, and a failed step before completion stays unknown',async()=>{
+ for(const body of [completedProgress('success','success',12),{...completedProgress('failure','failure'),runCompleted:false}]){
+  const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...body}):undefined});
+  try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(publish(el).disabled,true);assert.doesNotMatch(el.textContent,/Live · everyone/);}finally{f.cleanup();}
+ }
 });

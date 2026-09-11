@@ -1,0 +1,296 @@
+{
+  "sourceHash": "9a9f307f74978e8200f2768e2695946d596772cfe29dfaa709c4ef5c122798f4",
+  "fixture": "Synthetic local data; no historical or deployed outcome claim",
+  "auxiliary": {
+    "identity": 14,
+    "generation": 56,
+    "dirty": false,
+    "phase": "idle"
+  },
+  "checks": [
+    {
+      "message": "legacy success has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "running with success conclusion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "malformed completion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "failed step before completion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "elapsed timeout has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "unmapped progress has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed null conclusion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed null conclusion remains visibly unknown",
+      "pass": true
+    },
+    {
+      "message": "completed unfamiliar conclusion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed unfamiliar conclusion remains visibly unknown",
+      "pass": true
+    },
+    {
+      "message": "completed success with old queued status has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed failure with old running status has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed cancelled with old success status has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "completed timed out with old failure status has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "different run completion has exact completion and truthful outcome",
+      "pass": true
+    },
+    {
+      "message": "readonly same-run completion ends protection without another POST or false success",
+      "pass": true
+    },
+    {
+      "message": "ended unknown conclusion survives language and route without polling",
+      "pass": true
+    },
+    {
+      "message": "completion probes never claim latest",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "success"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "success"
+    }
+  ]
+}

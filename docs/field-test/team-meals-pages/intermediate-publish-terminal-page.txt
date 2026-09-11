@@ -1,0 +1,62 @@
+✔ unconfigured and explicit simulation never enter the default legacy mock publish flow (7.279667ms)
+✔ rollback remains one pending operation across language, close and route return, blocking publish too (18.017833ms)
+✔ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (4.325791ms)
+✔ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.416208ms)
+✔ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (7.248583ms)
+✔ unknown rollback never becomes success merely after changes refresh or repaint (3.798ms)
+✔ auth replacement immediately removes private state and late publish response cannot bind new session (3.625916ms)
+✖ same run ID can be verified read-only after timeout and only confirmed success releases both actions (5.874208ms)
+✔ a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused (6.729041ms)
+✔ known pre-write rejection releases protection; upstream ambiguity keeps it (14.770583ms)
+✖ publish pending blocks rollback immediately, survives language and protects unload until confirmed completion (4.109209ms)
+✔ unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target (6.753417ms)
+✔ late prior-session rollback response cannot fill new session, and dialog rebind restores body (4.045584ms)
+✔ late prior-session changes cannot replace the new-session list (3.053ms)
+✔ late known-run progress from a prior session cannot claim success or clear new-operation protection (3.987083ms)
+✔ legacy success and false or malformed completion never release a known run or claim it is live (13.4795ms)
+✔ matching completed runs release operation regardless of legacy status while conclusion alone determines result (129.663834ms)
+✔ completed evidence for another run is not ownership, and a failed step before completion stays unknown (6.296833ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 16
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 296.082167
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:76:1
+✖ same run ID can be verified read-only after timeout and only confirmed success releases both actions (5.874208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'unknown' !== 'idle'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:78:468)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'idle',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-publish.test.mjs:86:1
+✖ publish pending blocks rollback immediately, survives language and protects unload until confirmed completion (4.109209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-publish.test.mjs:88:611)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
