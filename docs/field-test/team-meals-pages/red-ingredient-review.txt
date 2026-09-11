@@ -1,0 +1,86 @@
+✔ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (34.74125ms)
+✔ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (36.388917ms)
+✔ late source cannot paint an old language into a reused connected mount (15.337333ms)
+✔ late previous-session source cannot overwrite the current session (15.2ms)
+✔ raw buffer and unload protection survive leaving the ingredient route (5.688208ms)
+✔ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (51.810708ms)
+✔ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (49.279541ms)
+✔ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (25.678459ms)
+✔ unknown upload remains protected because a source read cannot prove the upload result (25.836208ms)
+✔ shared form keeps default translation behavior and an explicit declined task sends nothing (22.908959ms)
+✔ translation owner survives language and ignores a result after newer raw name edits (25.35675ms)
+✔ photo decode is busy before a preview exists and its result survives language/navigation (16.520291ms)
+✔ photo decode failure releases busy while keeping prior photo and raw edits (16.298625ms)
+✔ successful translation from an old language view updates the current view without repeating (15.672542ms)
+✔ malformed successful save responses stay unknown and cannot discard the pending attempt (16.009375ms)
+✔ unrecognized write rejection cannot be assumed safe to retry (14.676334ms)
+✔ field validation survives language and does not steal focus on every later keystroke (16.018291ms)
+✖ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (36.338ms)
+✖ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (37.247167ms)
+✔ ING-R1 pending and later edits keep the first new identity across return and acknowledgement (49.642958ms)
+✔ ING-R1 unknown new creation never retires its target or permits another write on return (38.763791ms)
+✖ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (16.342459ms)
+✔ ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison (62.998541ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 20
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 697.550208
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:90:1
+✖ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (36.338ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  'ingredient-a' !== ''
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:92:266)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'ingredient-a',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:95:1
+✖ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (37.247167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  '第一种食材' !== '下一种食材'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:96:369)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '第一种食材',
+    expected: '下一种食材',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:107:1
+✖ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (16.342459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'conflict'
+  - 'error'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:108:470)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'conflict',
+    expected: 'error',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

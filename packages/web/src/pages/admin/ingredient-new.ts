@@ -1081,6 +1081,8 @@ type IngredientPhase = "idle" | "saving" | "saved" | "unknown" | "conflict" | "e
 type IngredientAttempt = { snapshot: IngredientDraft; body: Ingredient; id: string; raw: string; stage: "upload" | "save" };
 type IngredientOwner = {
   key: string; api: TeamMealsApi; session: number; legacy: AdminApi;
+  /** Only a real route departure permits a clean completed new record to retire. */
+  leftRoute: boolean;
   draft: IngredientDraft | null; returnTo: string | null; generation: number;
   phase: IngredientPhase; tasks: Set<"photo" | "translation">; checking: boolean;
   attempt: IngredientAttempt | null; error: unknown; errors: readonly FieldError[];
@@ -1131,6 +1133,7 @@ function watchIngredientBuffers(): void {
   watchingIngredientBuffers = true;
 window.addEventListener("hashchange", () => {
   if (mountedIngredient && !isMyHash(location.hash, mountedIngredient.owner.key)) {
+    mountedIngredient.owner.leftRoute = true;
     mountedIngredient.dispose(); mountedIngredient = null; viewGeneration++;
   }
 });
@@ -1152,7 +1155,7 @@ onAuthSessionChange(() => {
 function createOwner(key: string, api: TeamMealsApi): IngredientOwner {
   const hand = takeHandoff();
   const owner: IngredientOwner = {
-    key, api, session: api.sessionKey(), legacy: getApi(),
+    key, api, session: api.sessionKey(), legacy: getApi(), leftRoute: false,
     draft: key === "new" ? createIngredientDraft(hand.newIngredientName ? { zh: hand.newIngredientName } : {}) : null,
     returnTo: hand.returnTo ?? null, generation: 0, phase: "idle", tasks: new Set(), checking: false,
     attempt: null, error: null, errors: [], catalog: null, catalogError: null, catalogLoading: null,
@@ -1206,6 +1209,7 @@ function enterToNext(ev: KeyboardEvent): void {
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   watchIngredientBuffers();
   const generation = ++viewGeneration;
+  if (mountedIngredient && (mountedIngredient.owner.key !== rest || mountedIngredient.owner.api !== api)) mountedIngredient.owner.leftRoute = true;
   mountedIngredient?.dispose(); mountedIngredient = null;
   const session = api.sessionKey();
   const alive = (): boolean => generation === viewGeneration && el.isConnected && api.sessionKey() === session;
@@ -1217,7 +1221,15 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   if (!ingredientApiIds.has(api)) ingredientApiIds.set(api, ++ingredientApiSequence);
   const ownerKey = `${ingredientApiIds.get(api)}:${session}:${rest}`;
   let owner = ingredientOwners.get(ownerKey);
+  if (owner?.key === "new" && owner.leftRoute && owner.phase === "saved" && owner.draft?.blobSha && !owner.draft.dirty && !ownerBusy(owner) && !owner.attempt) {
+    // The previous creation was acknowledged and has no later raw work. Starting
+    // another creation may consume a new handoff, while language paints stay put.
+    owner.generation++;
+    ingredientOwners.delete(ownerKey);
+    owner = undefined;
+  }
   if (!owner) { owner = createOwner(rest, api); ingredientOwners.set(ownerKey, owner); }
+  owner.leftRoute = false;
   if (!owner.draft) {
     el.append(h("p", { class: "muted" }, adm("adm.loading", undefined, ctx.lang)));
     await loadIngredient(owner);
@@ -1370,7 +1382,9 @@ async function saveIngredient(owner: IngredientOwner, form: IngredientFormHandle
   } else {
     owner.error = outcome.error; attempt.stage = outcome.stage;
     const unknown = !ingredientWriteRejected(outcome.error);
-    owner.phase = unknown ? "unknown" : isApiError(outcome.error) && outcome.error.status === 409 ? "conflict" : "error";
+    // Upload ref contention is a known rejected upload, so the retained photo may
+    // be explicitly retried. Only a document-save conflict has a Source to compare.
+    owner.phase = unknown ? "unknown" : outcome.stage === "save" && isApiError(outcome.error) && outcome.error.status === 409 ? "conflict" : "error";
     if (isApiError(outcome.error) && outcome.error.hasFieldErrors) owner.errors = outcome.error.errors;
     touchOwner(owner, true);
     if (isApiError(outcome.error) && outcome.error.status === 401 && mountedIngredient?.owner === owner) sessionExpired(mountedIngredient.el, mountedIngredient.lang);
