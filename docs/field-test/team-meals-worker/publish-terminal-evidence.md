@@ -3,7 +3,7 @@ feature_ids: []
 topics: [worker, publish, terminal-evidence, verification]
 doc_kind: implementation-evidence
 created: 2026-09-11
-status: awaiting-independent-review
+status: approved-local-implementation
 ---
 
 # Publish run completion: bounded Worker follow-up
@@ -30,3 +30,12 @@ The matrix includes an in-progress run with a failed step; completed success/fai
 Risk: behavior medium and contract medium (two additive read fields), data/security/irreversible low (no write/auth change). Architecture cell: existing Worker publish reader; Map delta none. No Web/UI, packages, lockfiles, workflows or new publication platform. Non-author review is requested from the existing b1_review identity for this separate subject. Original B2 implementation, evidence and PR draft are not rewritten.
 
 Dogfood is L1 only: the actual GET /publish/555 handler retrieves the concrete run and jobs, returns honest overall completion evidence alongside legacy progress, and preserves a known-run identity when a newer unrelated run exists. No real publish, rollback, upload, deployment, production write, push, PR creation or merge occurred. Consumers must match their known runId; missing fields do not prove completion and latest does not recover ownership after a lost acknowledgment. Web consumer changes remain with C/D.
+
+
+## Independent approval
+
+Reviewer /root/b1_review approved exact implementation 225a931ad8fb55a54959a9da1cf340de8efff88a, with no open findings/P1/P2. Review subject is task:01a08d80-6619-70e1-b8b1-87c1804b8d17:publish-terminal; accepted source is docs/field-test/team-meals-worker/publish-terminal-contract.md at 5100ffa0d5acdd15c80d0606ac696f7272bb3434, independently confirmed unchanged. The durable return recorded clientMessageId publish-terminal-review-225a931-approved and localReviewVerdict approved for that exact head.
+
+The non-author independently rebuilt with actual Node 20.20.2 and reran new plus existing publish tests (36/36), typecheck, standalone-validator and baseline-to-HEAD whitespace checks. The reviewer confirmed the six additive runtime lines, shared-run provenance of both fields, adapter normalization of absent fields, concrete run identity, and unchanged status/steps/slow/claim behavior. The author's full Worker 279/279 result is recorded above; it is not presented as an additional independent full-suite run.
+
+The pre-existing latest alias comment was noted as non-blocking documentation cleanup; no association behavior or extra scope was added. This approval is separate from and does not revoke B2's approval. It does not authorize external publication, deployment or merge. Any subsequent archival commit changes only this task's documentation and preserves the exact reviewed runtime/test tree.
