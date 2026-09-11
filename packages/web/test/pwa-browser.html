@@ -32,7 +32,7 @@ const controls=h('div');
 outlet.append(h('h2',{},'Local verification only'),h('p',{},'Formal static producer output, real generated service worker, explicit mock editor. No external writes.'),controls,image,status);
 function paint(){status.textContent=JSON.stringify({boots,controller:!!navigator.serviceWorker.controller,controllerRefreshes,publication:publication?.manifest,last,writes,reads,safety:inspectReloadSafety().reason,records:inspectReloadSafety().records,editor:editor.getState(),aux},null,2);}
 function button(label,action){const b=h('button',{type:'button'},label);b.addEventListener('click',()=>{try{const result=action();paint();Promise.resolve(result).then(()=>paint(),error=>{last=`${error.name}: ${error.code??error.message}`;paint();});}catch(error){last=`${error.name}: ${error.code??error.message}`;paint();}});controls.append(b);}
-async function load(fresh=false){publication=await dataApi.loadPublication({fresh});view=publication.kind==='team-meals'?await dataApi.loadPublishedTeamPlan(publication,'week-41'):null;shell.setBuild(publication.manifest);last='Publication loaded';paint();}
+async function load(fresh=false){publication=await dataApi.loadPublication({fresh});view=publication.kind==='team-meals'?await dataApi.loadPublishedTeamPlan(publication,'week-41'):null;shell.setBuild(publication.manifest,publication.kind);last='Publication loaded';paint();}
 const pwa=initPwa(shell,{async refreshPublication(){controllerRefreshes++;await load(true);}});
 async function showAsset(pointer){const result=await dataApi.loadPublishedAsset(view,pointer);last=result.kind;if(result.kind==='available'){
  const bytes=await result.bytes.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',bytes);

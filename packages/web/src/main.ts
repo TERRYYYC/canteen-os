@@ -45,8 +45,8 @@ function boot(): void {
     if (!current) return;
     const { route, rest } = current;
     const setReloadCoverage = reloadCoverage.beginRender(route, rest);
-    shell.setActive(route);
-    shell.setTitle(t(TITLE[route]));
+    shell.setActive(route, rest);
+    shell.setTitle(t(route === "menu" && publication?.kind === "team-meals" ? "page.teamMenu" : TITLE[route]));
     if (!ready) {
       // No page/editor has started; this shell-only placeholder owns no unfinished work.
       setReloadCoverage('read-only');
@@ -95,7 +95,7 @@ function boot(): void {
     publicationError = failure;
     planId = next?.manifest.plans[0] ?? null;
     ready = true;
-    shell.setBuild(next?.manifest ?? null);
+    shell.setBuild(next?.manifest ?? null, next?.kind);
     // Reader updates must not replace an active editor DOM or its pending operations.
     if (initial || (current?.route !== 'admin' && current?.route !== 'purchase')) renderPage();
   }
