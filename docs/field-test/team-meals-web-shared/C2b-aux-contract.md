@@ -56,7 +56,7 @@ const reloadHandle = registerAuxiliaryEdits({
 `PageCtx` 追加可选方法：`setReloadCoverage?(value:'tracked'|'read-only'):void`。
 D 调用 `ctx.setReloadCoverage?.('tracked')` 的前提是该屏所有可丢失的编辑输入及未决操作都已由 C1 或辅助 provider 覆盖；声明不读取/清除任何 provider。明确只读的 admin home、导航/说明/结果页可声明 `read-only`；有名称预填、File、内联输入或启动中的异步工作不能仅因 C1 尚未打开就声明只读。
 
-main 以 `page:${route}/${rest}` 为稳定页面身份；语言不参与身份，每次 render 有单调 render generation。admin render 默认 `untracked`；非 admin 阅读页默认 `read-only`。覆盖状态属于每个已访问的稳定身份，不是一个离页时清空的全局布尔值。untracked 在全局检查中阻止刷新，并显示页面身份，用户可返回该入口完成初始化/处理后重新检查。
+main 以 `page:${route}/${rest}` 为稳定页面身份；语言不参与身份，每次 render 有单调 render generation。admin 和 purchase render 默认 `untracked`；只有明确只读的 menu/prep/qr 默认 `read-only`，未知路由也保守 untracked。purchase 的 listId/planIds/selected 等输入在 create/rebase 前尚未进入 C1，D 需先登记这些辅助状态才能声明 tracked；不能按“非 admin”推断只读。coverage 状态属于每个已访问的稳定身份，不是一个离页时清空的全局布尔值。untracked 在全局检查中阻止刷新，并显示页面身份，用户可返回该入口完成初始化/处理后重新检查。reader-only 更新同样不会重画 admin 或 purchase 的编辑 DOM。
 
 | 场景 | 声明/恢复语义 |
 |---|---|
