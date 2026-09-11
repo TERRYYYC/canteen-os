@@ -1,0 +1,84 @@
+- banner:
+  - button "Open sections menu"
+  - heading "Purchasing" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - link "Back":
+    - /url: "#/purchase"
+  - heading "This shopping list" [level=2]
+  - link "Plan meals":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: List saved
+    - 'generic "Source version: 7a65de84"'
+  - 'generic "Ingredient and menu version: 9d2e9348"'
+  - heading "Dates and meals for this list" [level=3]
+  - paragraph: 2026-09-14 · Lunch · team-week
+  - button "Save list" [disabled]
+  - paragraph: Recorded ingredient candidates; recipe completeness needs human review.
+  - status:
+    - paragraph: Recipe is not active · team-week / 2026-09-14 / Lunch / second-dish
+  - heading "Oil" [level=3]:
+    - link "Oil":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+  - paragraph: Seasoning
+  - button "Check" [pressed]
+  - button "Buy"
+  - button "Available"
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · Planned servings missing"
+  - heading "Salt" [level=3]:
+    - link "Salt":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+  - paragraph: Seasoning
+  - button "Check"
+  - button "Buy"
+  - button "Available" [pressed]
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · Planned servings missing · To taste · Recipe servings missing · Recipe is not active"
+  - heading "Tomato" [level=3]:
+    - link "Tomato":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+  - paragraph: Main ingredient
+  - button "Check"
+  - button "Buy" [pressed]
+  - button "Available"
+  - checkbox "Bought" [checked]
+  - text: Bought
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Planned servings missing · Recipe servings missing · Recipe is not active · Recipe quantity missing"
+  - heading "Tomato" [level=3]:
+    - link "Tomato":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato-other"
+  - paragraph: Main ingredient
+  - button "Check" [pressed]
+  - button "Buy"
+  - button "Available"
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · Planned servings missing · Recipe servings missing · Recipe is not active"
+  - paragraph: Calculable amounts are references, not a complete budget.
+  - heading "Apply scope and review again" [level=3]
+  - generic: Plan IDs, separated by commas
+  - textbox "Plan IDs, separated by commas": team-week
+  - button "Read latest saved plans"
+  - 'generic "Ingredient and menu version: 9d2e9348"'
+  - checkbox "2026-09-14 · Lunch · team-week" [checked]
+  - generic: 2026-09-14 · Lunch · team-week
+  - button "Apply scope and review again"
+  - button "Copy list" [active]
+  - status: Copied
+- complementary:
+  - strong: D Q-UI-T08-01 local verification
+  - paragraph: Real main/C/Worker, local Q FakeRepo. Native clipboard unless the explicit failure/hold control is selected.
+  - button "Use native clipboard"
+  - button "Fail clipboard"
+  - button "Hold clipboard result"
+  - button "Reject held clipboard"
+  - button "Read native clipboard"
+  - button "Change latest metadata to B"
+  - generic: native clipboard
+  - generic: "当前页面清单（请核对保存状态） page-shop 材料和菜单资料版本: 9d2e93483b9d16ab6f2e66161b1bcb337c20cedc 2026-09-14 · 午餐 · team-week 待核对 油 [cooking-oil] — 待核对 · 调料 使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3 · 原配方用量: 20 ml · 计划份数: 计划份数未录 · 配方基准份数: 2 油 [cooking-oil] · 无法完整计算: 采购规格未录 油 [cooking-oil] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3 番茄 [tomato-other] — 待核对 · 主料 使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 · 原配方用量: 200 g · 计划份数: 计划份数未录 · 配方基准份数: 配方基准份数未录 番茄 [tomato-other] · 无法完整计算: 采购规格未录 番茄 [tomato-other] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 番茄 [tomato-other] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 番茄 [tomato-other] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 已有 盐 [salt] — 已有 · 调料 使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 2 使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 配方基准份数未录 盐 [salt] · 无法完整计算: 采购规格未录 盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2 盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2 盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 盐 [salt] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 盐 [salt] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 已买 番茄 [tomato] — 已买 · 主料 使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1 · 原配方用量: 300 g · 计划份数: 计划份数未录 · 配方基准份数: 2 使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 · 原配方用量: 用量未录 · 计划份数: 计划份数未录 · 配方基准份数: 配方基准份数未录 番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1 番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 番茄 [tomato] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 番茄 [tomato] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 番茄 [tomato] · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 缺项与资料提示 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 已录材料候选；配方完整性仍需人工核对。 金额只按可计算项参考，不代表完整预算。"

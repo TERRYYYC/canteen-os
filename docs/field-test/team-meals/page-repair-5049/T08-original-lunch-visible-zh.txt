@@ -1,0 +1,83 @@
+- banner:
+  - button "打开目录"
+  - heading "采购单" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - link "返回":
+    - /url: "#/purchase"
+  - heading "本次采购" [level=2]
+  - link "排每天的菜":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: 清单已保存
+    - 'generic "资料版本: 7a65de84"'
+  - 'generic "材料和菜单资料版本: 9d2e9348"'
+  - heading "本次日期和餐次" [level=3]
+  - paragraph: 2026-09-14 · 午餐 · team-week
+  - button "保存清单" [disabled]
+  - paragraph: 已录材料候选；配方完整性仍需人工核对。
+  - status:
+    - paragraph: 菜谱待完善 · team-week / 2026-09-14 / 午餐 / second-dish
+  - heading "油" [level=3]:
+    - link "油":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+  - paragraph: 调料
+  - button "待核对" [pressed]
+  - button "待买"
+  - button "已有"
+  - generic "使用来源 · 1"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录"
+  - heading "盐" [level=3]:
+    - link "盐":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+  - paragraph: 调料
+  - button "待核对"
+  - button "待买"
+  - button "已有" [pressed]
+  - generic "使用来源 · 2"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录 · 适量 · 配方基准份数未录 · 菜谱待完善"
+  - heading "番茄" [level=3]:
+    - link "番茄":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+  - paragraph: 主料
+  - button "待核对"
+  - button "待买" [pressed]
+  - button "已有"
+  - checkbox "已买" [checked]
+  - text: 已买
+  - generic "使用来源 · 2"
+  - paragraph: "无法完整计算: 计划份数未录 · 配方基准份数未录 · 菜谱待完善 · 原用量未录"
+  - heading "番茄" [level=3]:
+    - link "番茄":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato-other"
+  - paragraph: 主料
+  - button "待核对" [pressed]
+  - button "待买"
+  - button "已有"
+  - generic "使用来源 · 1"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录 · 配方基准份数未录 · 菜谱待完善"
+  - paragraph: 金额只按可计算项参考，不代表完整预算。
+  - heading "应用新范围并重新核对" [level=3]
+  - generic: 计划名称，多个用逗号分隔
+  - textbox "计划名称，多个用逗号分隔": team-week
+  - button "读取最新已保存计划"
+  - 'generic "材料和菜单资料版本: 9d2e9348"'
+  - checkbox "2026-09-14 · 午餐 · team-week" [checked]
+  - generic: 2026-09-14 · 午餐 · team-week
+  - button "应用新范围并重新核对"
+  - button "复制清单" [active]
+  - status: 已复制
+- complementary:
+  - strong: D Q-UI-T08-01 local verification
+  - paragraph: Real main/C/Worker, local Q FakeRepo. Native clipboard unless the explicit failure/hold control is selected.
+  - button "Use native clipboard"
+  - button "Fail clipboard"
+  - button "Hold clipboard result"
+  - button "Reject held clipboard"
+  - button "Read native clipboard"
+  - button "Change latest metadata to B"
+  - generic: native clipboard

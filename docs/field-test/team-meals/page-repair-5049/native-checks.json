@@ -1,0 +1,34 @@
+[
+  {
+    "scenario": "original lunch success/fallback",
+    "lang": "zh",
+    "equal": true,
+    "chars": 2682
+  },
+  {
+    "scenario": "original lunch success/fallback",
+    "lang": "en",
+    "equal": true,
+    "chars": 4714
+  },
+  {
+    "scenario": "original lunch success/fallback",
+    "lang": "uk",
+    "equal": true,
+    "chars": 5110
+  },
+  {
+    "scenario": "A bound copy after reading unapplied B",
+    "equal": true
+  },
+  {
+    "scenario": "A bound copy after reading unapplied B",
+    "lang": "en",
+    "equal": true
+  },
+  {
+    "scenario": "A bound copy after reading unapplied B",
+    "lang": "uk",
+    "equal": true
+  }
+]
