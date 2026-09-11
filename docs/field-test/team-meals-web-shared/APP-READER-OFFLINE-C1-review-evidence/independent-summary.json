@@ -1,0 +1,399 @@
+{
+  "01-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103897728.1,
+    "route": "#/admin",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "a",
+      "available": true
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json",
+      "http://127.0.0.1:59880/canteen/data/build.json?__publication=1789103898081-1-1"
+    ],
+    "serverTransportFailures": [],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=0bd30ba2ede825a959f992c46d0a8a61",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=a357a23d0c986d2774fd18dfd6707c55",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "Back officeLanguageUA中ENSaved for offline useOpen with the chef linkThis page only opens with the private link Terry sent you. If you lost it, ask him for a new one.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "03-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103897728.1,
+    "route": "#/menu",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "a",
+      "available": false
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json",
+      "http://127.0.0.1:59880/canteen/data/build.json?__publication=1789103898081-1-1",
+      "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+      "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=0bd30ba2ede825a959f992c46d0a8a61",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=a357a23d0c986d2774fd18dfd6707c55",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "MealsLanguageUA中ENSaved for offline use2026 Week 41 MenuPublished original recipesbb8e9e94bb8e9e94a3471b8ec9b8d45e072f08f05762082bSeptember 11, 2026 00:00:00 GMT2026-10-052026-10-072026-10-09Lunch · 12:00-14:00Meal planSource version: bb8e9e94bb8e9e94a3471b8ec9b8d45e072f08f05762082bTomato and egg stir-fryСмажені яйця з томатами番茄炒蛋2026-10-05 · Lunch · 12:00-14:00Planned servings: 200All recorded ingredients and seasonings: Tomato · Chicken egg · Salt · Scallion · Cooking oilRead the full original recipeOnly recorded information is shown; recipe completeness still needs human review.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "05-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103932751.6,
+    "route": "#/admin",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "a",
+      "available": true
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      },
+      {
+        "boot": 1789103932751.6,
+        "controller": true,
+        "at": 1789103932761
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=0bd30ba2ede825a959f992c46d0a8a61",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=a357a23d0c986d2774fd18dfd6707c55",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "Back officeLanguageUA中ENOpen with the chef linkThis page only opens with the private link Terry sent you. If you lost it, ask him for a new one.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "08-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103932751.6,
+    "route": "#/admin",
+    "worker": {
+      "active": "activated",
+      "waiting": "installed"
+    },
+    "state": {
+      "version": "b",
+      "available": true
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      },
+      {
+        "boot": 1789103932751.6,
+        "controller": true,
+        "at": 1789103932761
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=0bd30ba2ede825a959f992c46d0a8a61",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=a357a23d0c986d2774fd18dfd6707c55",
+        "revision": "bb8e9e94a3471b8ec9b8d45e072f08f05762082b"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=2abe0c6196c077a4693d9c3084951d23",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=14d8d5ba00b2e4e99d1da225c4a9ef26",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "Back officeLanguageUA中ENNew version availableReloadOpen with the chef linkThis page only opens with the private link Terry sent you. If you lost it, ask him for a new one.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "09-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103932751.6,
+    "route": "#/admin",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "b",
+      "available": true
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      },
+      {
+        "boot": 1789103932751.6,
+        "controller": true,
+        "at": 1789103932761
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json",
+      "http://127.0.0.1:59880/canteen/data/build.json?__publication=1789103955987-1-1"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=2abe0c6196c077a4693d9c3084951d23",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=14d8d5ba00b2e4e99d1da225c4a9ef26",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "Back officeLanguageUA中ENNew version availableReloadOpen with the chef linkThis page only opens with the private link Terry sent you. If you lost it, ask him for a new one.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "11-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789103932751.6,
+    "route": "#/menu",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "b",
+      "available": false
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      },
+      {
+        "boot": 1789103932751.6,
+        "controller": true,
+        "at": 1789103932761
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json",
+      "http://127.0.0.1:59880/canteen/data/build.json?__publication=1789103955987-1-1",
+      "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__publication=1789103955987-1-1",
+      "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      },
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103955987-1-1",
+        "at": 1789103988725,
+        "version": "b",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=2abe0c6196c077a4693d9c3084951d23",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=14d8d5ba00b2e4e99d1da225c4a9ef26",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "MealsLanguageUA中ENNew version availableReload2026 Week 41 MenuPublished original recipesef9a6f65ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986September 11, 2026 00:00:00 GMT2026-10-052026-10-072026-10-09Lunch · 12:00-14:00Meal planSource version: ef9a6f65ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986Tomato and egg stir-fryСмажені яйця з томатами番茄炒蛋2026-10-05 · Lunch · 12:00-14:00Planned servings: 200All recorded ingredients and seasonings: Tomato · Chicken egg · Salt · Scallion · Cooking oilRead the full original recipeOnly recorded information is shown; recipe completeness still needs human review.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  },
+  "12-inspect.json": {
+    "head": "3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338",
+    "boot": 1789104017518.7,
+    "route": "#/menu",
+    "worker": {
+      "active": "activated"
+    },
+    "state": {
+      "version": "b",
+      "available": false
+    },
+    "controllerEvents": [
+      {
+        "boot": 1789103897728.1,
+        "controller": false,
+        "at": 1789103897746
+      },
+      {
+        "boot": 1789103897728.1,
+        "controller": true,
+        "at": 1789103898083
+      },
+      {
+        "boot": 1789103932751.6,
+        "controller": true,
+        "at": 1789103932761
+      },
+      {
+        "boot": 1789104017518.7,
+        "controller": true,
+        "at": 1789104017528
+      }
+    ],
+    "jsonRequests": [
+      "http://127.0.0.1:59880/canteen/data/build.json",
+      "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json"
+    ],
+    "serverTransportFailures": [
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103898081-1-1",
+        "at": 1789103912845,
+        "version": "a",
+        "available": false,
+        "outcome": "network-disabled"
+      },
+      {
+        "url": "/canteen/data/team-meals/week-41.json?__publication=1789103955987-1-1",
+        "at": 1789103988725,
+        "version": "b",
+        "available": false,
+        "outcome": "network-disabled"
+      },
+      {
+        "url": "/canteen/sw.js",
+        "at": 1789104019095,
+        "version": "b",
+        "available": false,
+        "outcome": "network-disabled"
+      }
+    ],
+    "jsonCache": [
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/build.json?__WB_REVISION__=2abe0c6196c077a4693d9c3084951d23",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      },
+      {
+        "url": "http://127.0.0.1:59880/canteen/data/team-meals/week-41.json?__WB_REVISION__=14d8d5ba00b2e4e99d1da225c4a9ef26",
+        "revision": "ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986"
+      }
+    ],
+    "cachedJS": 20,
+    "appText": "MealsLanguageUA中EN2026 Week 41 MenuPublished original recipesef9a6f65ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986September 11, 2026 00:00:00 GMT2026-10-052026-10-072026-10-09Lunch · 12:00-14:00Meal planSource version: ef9a6f65ef9a6f65fc5a27d8ec38cf67e51b1b0e9e42f986Tomato and egg stir-fryСмажені яйця з томатами番茄炒蛋2026-10-05 · Lunch · 12:00-14:00Planned servings: 200All recorded ingredients and seasonings: Tomato · Chicken egg · Salt · Scallion · Cooking oilRead the full original recipeOnly recorded information is shown; recipe completeness still needs human review.CanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline"
+  }
+}

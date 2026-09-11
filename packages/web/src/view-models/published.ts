@@ -100,8 +100,9 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
   }
   async function json(path:string,stage:PublishedStage,tag=refreshTag):Promise<unknown> {
     return response(path,stage,async res=>{
-      if(!/^application\/json(?:;|$)/i.test(res.headers.get('Content-Type')??''))error('invalid_data',stage,path,res.status);
-      try{return await res.json();}catch(e){error('invalid_data',stage,path,res.status,undefined,e);}
+      const invalid=(cause?:unknown):never=>{throw new PublishedDataError('invalid_data',stage,url(path,tag),res.status,undefined,cause);};
+      if(!/^application\/json(?:;|$)/i.test(res.headers.get('Content-Type')??''))invalid();
+      try{return await res.json();}catch(e){invalid(e);}
     },tag);
   }
   async function cached<T>(path:string,stage:PublishedStage,run:()=>Promise<T>):Promise<T> {
@@ -130,8 +131,8 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
   }
   async function probePublication():Promise<Publication> {return manifest(await json('build.json','manifest',`probe-${Date.now()}-${reader}-${++probeSequence}`));}
   function requirePublication(p:Publication){if(!p||publications.get(p)!==generation)error('publication_changed','manifest','build.json');}
-  function validateProjection(raw:unknown,publication:TeamPublication,planId:string):{view:PublishedTeamPlan;bindings:Map<string,AssetBinding>} {
-    const path=`team-meals/${planId}.json`,fail=(code='invalid_data'):never=>error(code,'projection',path,null,publication.manifest.commit);
+  function validateProjection(raw:unknown,publication:TeamPublication,planId:string,tag:string):{view:PublishedTeamPlan;bindings:Map<string,AssetBinding>} {
+    const path=`team-meals/${planId}.json`,fail=(code='invalid_data'):never=>{throw new PublishedDataError(code,'projection',url(path,tag),null,publication.manifest.commit);};
     if(!record(raw))return fail();if(raw.sourceRevision!==publication.manifest.commit)return fail('revision_mismatch');
     if(raw.projectionVersion!=='1')return fail('unsupported_version');
     if(!record(raw.menuPlans)||Object.keys(raw.menuPlans).length!==1||!own(raw.menuPlans,planId)||!record(raw.menuPlans[planId])||!Array.isArray(raw.menuPlans[planId].meals)||
@@ -174,8 +175,20 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
   async function loadPublishedTeamPlan(publication:TeamPublication,planId:string):Promise<PublishedTeamPlan> {
     requirePublication(publication);if(publication.kind!=='team-meals')error('unsupported_target','projection','build.json');
     if(!id(planId)||!publication.manifest.plans.includes(planId))error('plan_not_published','projection','build.json');
-    const g=generation,path=`team-meals/${planId}.json`;
-    return withRevision(cached(path,'projection',async()=>{const {view,bindings}=validateProjection(await json(path,'projection'),publication,planId);guard(g,'projection',path);plans.set(view,{generation:g,bindings});return view;}),publication.manifest.commit);
+    const g=generation,path=`team-meals/${planId}.json`,tag=refreshTag;
+    return withRevision(cached(path,'projection',async()=>{
+      let raw:unknown,requestTag=tag;
+      try {raw=await json(path,'projection',requestTag);}
+      catch(e) {
+        guard(g,'projection',path);
+        if(!tag||!(e instanceof PublishedDataError)||e.code!=='unavailable'||e.status!==null)throw e;
+        // A fresh manifest already fixed the revision. The installed ordinary URL
+        // may supply it offline, but must pass the same complete validation below.
+        requestTag='';raw=await json(path,'projection',requestTag);
+      }
+      const {view,bindings}=validateProjection(raw,publication,planId,requestTag);
+      guard(g,'projection',path);plans.set(view,{generation:g,bindings});return view;
+    }),publication.manifest.commit);
   }
   async function loadPublishedAsset(view:PublishedTeamPlan,pointer:string):Promise<PublishedAsset> {
     const entry=plans.get(view);if(!entry||entry.generation!==generation)error('publication_changed','asset','');
