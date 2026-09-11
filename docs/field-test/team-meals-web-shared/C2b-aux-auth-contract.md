@@ -54,4 +54,6 @@ interface AuxiliaryEditHandle {
 
 页面 coverage 也绑定 render 当时的全局认证。旧认证的 untracked 页仅以通用 unknown 留在摘要，原 route ID 不进入 record/stamp；旧 tracked/read-only 身份不再输出。检查不清 Map。旧 render 的完成回调只能完成它捕获的旧认证/旧 generation，不能解除新认证同页的 untracked；同认证被新 render 替代的旧回调仍忽略。这样既保留旧未完成页的阻断，也允许它实际完成登记后结束该阻断。
 
+初始化的提前返回/取消也必须结算本次 coverage：若仍有编辑缓冲或未决外部写入，先登记其 C1/aux owner，再用本次 ctx 回调声明 tracked；若仅本地/只读初始化已经结束或明确取消、没有遗留编辑状态/外部操作，声明 read-only。用该旧 ctx 的回调可完成旧认证记录，即使新认证已经打开同页。不能在 auth handler 中无条件声明 read-only，也不能先因 stale 检查 return 后永远不结算；D 在初始化 finally/取消路径复用本次回调，实际组合需覆盖 A 初始化中→B→A 取消→B 同页。共享层不会仅凭 auth/超时推断初始化已结束。
+
 验证边界：合成身份 A→B；busy/unknown 在 auth handler 把旧 read 改成 clean 后仍阻断；摘要不读旧 read、不含旧身份、不发 auth 事件；两个旧票据只结束一个仍阻断；旧票据不能动 B；确切结束全部旧票据才退休旧标记；无票据的合法纯本地 owner 可正常换身份。页面是否确切取得终态由 D 及其非作者 review 验证，C 不把共享票据测试写成真实发布通过。
