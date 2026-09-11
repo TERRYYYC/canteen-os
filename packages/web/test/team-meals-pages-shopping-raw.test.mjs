@@ -31,6 +31,10 @@ const selection=[{menuPlanRef:'team-week',date:'2026-09-14',mealType:'lunch'}];
 const list=()=>({shoppingListVersion:'1',id:'team-shop',basis:{sourceRevision:A,selection},items:[{ingredientRef:'tomato',decision:'check'},{ingredientRef:'salt',decision:'check'},{ingredientRef:'cooking-oil',decision:'check'},{ingredientRef:'tomato-other',decision:'check'}]});
 let serial=0;
 async function setup({existing=false,mode='mock'}={}){
+ const priorGlobals=new Map(['HTMLElement','MutationObserver','window','location','document','localStorage','sessionStorage','navigator'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
+ const restoreGlobals=()=>{for(const [key,descriptor] of priorGlobals){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}};
+ // Node 20 has no navigator; use a private browser surface instead of changing Node 24's native object.
+ Object.defineProperty(globalThis,'navigator',{configurable:true,writable:true,value:{onLine:true}});
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};globalThis.window={addEventListener(){}};globalThis.location={hash:'#/purchase/new/team-week'};globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const page=await import(`${pathToFileURL(file)}?case=${++serial}`),calls=[],writes=[],snap=seed(),sources=new Map(),history=new Map(),gates=[];let identity=1,revision=A,seq=0,post='success';
@@ -50,7 +54,7 @@ async function setup({existing=false,mode='mock'}={}){
  }});
  const render=page.createPurchaseRenderer(api),coverage=page.createPageReloadCoverage();
  const start=(rest='new/team-week',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{rest,lang,planId:'team-week',route:'purchase',setReloadCoverage:coverage.beginRender('purchase',rest)});return{el,promise};};
- return{page,api,render,calls,writes,sources,start,async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},post(v){post=v;},cleanup(){for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}};
+ return{page,api,render,calls,writes,sources,start,async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
 }
 async function scope(f){const el=await f.mount();btn(el,'Read latest saved plans').click();await f.flush();assert.ok(boxes(el).length>1);return el;}
 
