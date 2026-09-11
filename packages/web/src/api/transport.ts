@@ -1,9 +1,10 @@
-import { getToken, getAuthSessionVersion, onAuthSessionChange } from '../admin/token';
+import { getToken, peekToken, getAuthSessionVersion, peekAuthSessionVersion, onAuthSessionChange } from '../admin/token';
 import { ApiError } from './types';
 import type { FieldError, WriteCondition } from './types';
 
 export interface HttpApiOptions {
   fetch?: typeof fetch;
+  /** Read-only getters: transport observes changes; getters must not emit lifecycle events. */
   token?: () => string | null;
   /** Optional application identity boundary; kept in memory only. */
   identity?: () => unknown;
@@ -53,6 +54,15 @@ export class HttpTransport implements SessionBoundary {
       this.credential = token; this.authVersion = version; this.identity = identity; this.invalidate();
     }
     return this.generation;
+  }
+  /** Read-only verification of the last observed lifetime. Never advances or emits events. */
+  peekSessionKey(): number | null {
+    try {
+      const token = this.token === getToken ? peekToken() : this.token();
+      const auth = peekAuthSessionVersion();
+      if (this.disposed || auth === null || auth !== this.authVersion || token !== this.credential || this.opts.identity?.() !== this.identity) return null;
+      return this.generation;
+    } catch { return null; }
   }
   onSessionChange(listener: () => void): () => void {
     this.listeners.add(listener); return () => { this.listeners.delete(listener); };

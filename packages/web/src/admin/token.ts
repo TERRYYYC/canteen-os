@@ -16,7 +16,7 @@
  */
 import { h } from "../dom";
 import type { Lang } from "../i18n";
-import { hrefOf } from "../router";
+import { hrefOf, parseHash } from "../router";
 
 const STORAGE_KEY = "canteenos.token";
 /** worker 签发的令牌是 32 字节的 base64url（无填充）= 43 个字符（worker 契约 §2.1） */
@@ -40,7 +40,7 @@ function observe(value: string | null): string | null {
 /** Opaque lifetime marker; never exposes or hashes credentials. */
 export function getAuthSessionVersion(): number { getToken(); return sessionVersion; }
 /** Metadata inspection cannot trigger auth listeners or erase an editor as a side effect. */
-export function peekAuthSessionVersion(): number { return sessionVersion; }
+export function peekAuthSessionVersion(): number | null { return peekToken() === observed ? sessionVersion : null; }
 export function onAuthSessionChange(listener: () => void): () => void {
   sessionListeners.add(listener);
   return () => { sessionListeners.delete(listener); };
@@ -60,15 +60,16 @@ function tt(lang: Lang, key: keyof typeof T): string {
 }
 
 /** 当前会话的令牌；没有 / 形状不对 → null */
-export function getToken(): string | null {
+export function peekToken(): string | null {
   try {
     const v = sessionStorage.getItem(STORAGE_KEY);
-    if (v !== null) return observe(TOKEN_RE.test(v) ? v : null);
+    if (v !== null) return TOKEN_RE.test(v) ? v : null;
   } catch {
     /* 隐私模式：退回内存 */
   }
-  return observe(memory);
+  return memory;
 }
+export function getToken(): string | null { return observe(peekToken()); }
 
 /** 401 时调用：清掉令牌，随后由屏自己回锁屏（kit.sessionExpired 已把这两步包在一起） */
 export function clearToken(): void {
@@ -107,19 +108,22 @@ function adminUrl(rest: string): string {
  * 幂等：已有令牌时忽略 rest 里的那份；令牌串为空或长度不是 43 → 当作无令牌（仍然把它从地址栏抹掉）。
  */
 export function stripTokenFromRest(rest: string): string {
-  let safe = rest;
+  let safe = rest.split('/').filter(Boolean).join('/');
   while (safe === 't' || safe.startsWith('t/')) safe = safe.split('/').slice(2).join('/');
   return safe;
 }
 
 export function consumeTokenFromRest(rest: string): string {
-  if (rest !== "t" && !rest.startsWith("t/")) return rest;
-  const segs = rest.split("/");
+  const normalized = rest.split('/').filter(Boolean).join('/');
+  if (normalized !== "t" && !normalized.startsWith("t/")) return normalized;
+  const segs = normalized.split("/");
   const candidate = segs[1] ?? "";
   const remainder = stripTokenFromRest(rest);
   if (getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
   // 无论存没存成功，令牌都不能留在地址栏（红线）。replaceState 不触发 hashchange。
-  if (/^#\/?admin\/t(\/|$)/.test(location.hash)) {
+  const address = parseHash(location.hash);
+  const addressRest = address?.rest.split('/').filter(Boolean).join('/');
+  if (address?.page === 'admin' && (addressRest === 't' || addressRest?.startsWith('t/'))) {
     try {
       history.replaceState(null, "", adminUrl(remainder));
     } catch {

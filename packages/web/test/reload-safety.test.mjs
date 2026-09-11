@@ -57,7 +57,7 @@ test('new edits after SW activation block eventual plugin reload; timeout never 
  const safe=coordinator(true);await safe.c.requestUpdate();safe.c.timeout();assert.equal(safe.c.onNeedReload(),false);assert.equal(safe.counts().reloads,0);
 });
 test('legacy draft store preserves v3/clone/undo and participates in global reload checks',async()=>{
- const store=m.bindDraftStore({mode:'mock',sessionKey:()=>1});
+ const store=m.bindDraftStore({mode:'mock',sessionKey:()=>1,peekSessionKey:()=>1});
  const p={schemaVersion:'3',meals:[]};store.setDraftPlan('p',p,'import');p.meals.push({bad:true});assert.deepEqual(store.getDraftPlan('p').meals,[]);
  const next={schemaVersion:'3',meals:[{date:'2026-09-11',mealType:'lunch',dishRef:'soup'}]};store.setDraftPlan('p',next,'edit');store.undoDraftPlan('p');assert.deepEqual(store.getDraftPlan('p').meals,[]);
  const {c}=coordinator();assert.equal((await c.requestUpdate()).status,'confirm-discard');store.clearDraftPlan('p');assert.equal(m.inspectReloadSafety().reason,'clear');
@@ -102,9 +102,9 @@ test('synthetic login links and stale contexts never enter page identity, snapsh
  globalThis.location={hash:''};globalThis.history={replaceState:(_a,_b,url)=>{location.hash=url;}};
  const pages=m.createPageReloadCoverage();
  try {
-  for(const [candidate,existing] of [['A'.repeat(43),null],['B'.repeat(43),'A'.repeat(43)],['I'.repeat(42),null]]) {
+  for(const [candidate,existing,prefix='t/'] of [['A'.repeat(43),null],['B'.repeat(43),'A'.repeat(43)],['I'.repeat(42),null],['C'.repeat(43),null,'/t/'],['D'.repeat(43),null,'t//'],['E'.repeat(43),null,'//t//']]) {
    m.clearToken();if(existing)sessionStorage.setItem('canteenos.token',existing);
-   const raw=`t/${candidate}/dish/new`;location.hash=`#/admin/${raw}`;
+   const raw=`${prefix}${candidate}/dish/new`;location.hash=`#/admin/${encodeURIComponent(raw)}`;
    const sanitized=m.consumeTokenFromRest(raw);assert.equal(sanitized,'dish/new');assert.equal(location.hash,'#/admin/dish/new');
    // Even an old caller passing its pre-replaceState context cannot retain the credential.
    const old=pages.beginRender('admin',raw);const snapshot=JSON.stringify(m.inspectReloadSafety());

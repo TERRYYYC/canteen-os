@@ -93,6 +93,11 @@ export function registerAuxiliaryEdits(options: AuxiliaryEditOptions): Auxiliary
 
 /** Pure with respect to owner state: no save, reconciliation, disposal, or view rebinding. */
 export function inspectReloadSafety(): ReloadSnapshot {
+  const auth = peekAuthSessionVersion();
+  if (auth === null) {
+    const unknown = Object.freeze({ ownerId: 'auth', kind: 'unknown', id: 'auth-session', generation: -1, dirty: false, phase: 'unknown' });
+    return Object.freeze({ reason: 'unknown', records: Object.freeze([unknown]), stamp: JSON.stringify([registryGeneration, null, unknown]) });
+  }
   const records: ReloadRecord[] = [];
   for (const [ownerId, read] of providers) {
     try {
@@ -109,7 +114,7 @@ export function inspectReloadSafety(): ReloadSnapshot {
   const reason = unknown ? 'unknown' : records.some(r => r.pending || r.phase === 'saving' || r.phase === 'busy') ? 'saving' :
     [...coverage.values()].some(v => v === 'untracked') ? 'untracked' : records.some(r => r.dirty) ? 'dirty' : 'clear';
   return Object.freeze({ reason, records: Object.freeze(records.map(r => Object.freeze(r))),
-    stamp: JSON.stringify([registryGeneration, peekAuthSessionVersion(), [...coverage], records]) });
+    stamp: JSON.stringify([registryGeneration, auth, [...coverage], records]) });
 }
 
 export type ReloadDecision = { status: 'blocked' | 'confirm-discard' | 'started'; snapshot: ReloadSnapshot };

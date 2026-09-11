@@ -26,6 +26,8 @@ export interface EditAdapters<T> {
   mode(): ApiMode;
   /** Opaque identity generation, never a credential. Custom transports pass their sessionKey. */
   authSession?(): unknown;
+  /** Pure verification of the captured identity. Required for custom-adapter reload coverage. */
+  peekAuthSession?(): unknown;
   save(identity: EditIdentity, body: T, condition: WriteCondition, operation: { operationId: string }): Promise<WriteResult>;
   /** force bypasses current caches; revision must pin an exact source version. */
   read(identity: EditIdentity, options: { revision?: string; force: true }): Promise<Source<T> | null>;
@@ -134,7 +136,8 @@ export function createEditSession<T extends object>(adapters: EditAdapters<T>) {
   const reloadOwner = `editor-${sessionId}`;
   const unregisterReload = registerReloadRecords(reloadOwner, () => {
     // Read every document, including detached views. Never invoke scopeMatches here.
-    if ((adapters.authSession ? authSession() : peekAuthSessionVersion()) !== authIdentity || adapters.mode() !== mode) throw new Error('Editor scope changed');
+    const verified = adapters.authSession ? adapters.peekAuthSession?.() : peekAuthSessionVersion();
+    if (verified == null || verified !== authIdentity || adapters.mode() !== mode) throw new Error('Editor scope unknown or changed');
     return [...documents.values()].map(({ state, pending }) => ({
       ownerId: reloadOwner, kind: state.identity!.kind, id: state.identity!.id,
       generation: state.generation, dirty: state.dirty, phase: state.phase,

@@ -6,7 +6,12 @@ import { registerReloadRecords, type ReloadRecord } from '../view-models/reload-
 
 export type DraftSource = 'import' | 'copy-last-week' | 'edit';
 export interface Handoff { newDishName?: string; newIngredientName?: string; returnTo?: string }
-export interface DraftStoreBoundary { readonly mode: ApiMode; sessionKey(): number }
+export interface DraftStoreBoundary {
+  readonly mode: ApiMode;
+  sessionKey(): number;
+  /** Must not advance auth state or emit events. Absent/null means unknown to reload inspection. */
+  peekSessionKey?(): number | null;
+}
 export interface BoundDraftStore {
   getDraftPlan(planId: string): AnyMenuPlan | null;
   getDraftSource(planId: string): DraftSource | null;
@@ -64,6 +69,7 @@ export function bindDraftStore(boundary: DraftStoreBoundary): BoundDraftStore {
   let key: number;
   try { key = readKey(boundary); } catch { retire(); return changed(); }
   const auth = peekAuthSessionVersion();
+  if (auth === null) { retire(); return changed(); }
   if (current && current.boundary === boundary && current.key === key && current.mode === boundary.mode && current.auth === auth) return current.handle!;
   retire();
   const binding: Binding = { boundary, key, mode: boundary.mode, auth, drafts: new Map(), handoff: {} };
@@ -99,7 +105,10 @@ registerReloadRecords('draft-store', () => {
   const marker: ReloadRecord = { ownerId: 'draft-store', kind: 'store', id: 'draft-store', generation, dirty: false, phase: 'idle' };
   const binding = current;
   if (!binding) return [marker];
-  try { if (!matches(binding)) return [{ ...marker, phase: 'unknown' }]; }
+  try {
+    const key = binding.boundary.peekSessionKey?.();
+    if (key == null || key !== binding.key || binding.boundary.mode !== binding.mode || peekAuthSessionVersion() !== binding.auth) return [{ ...marker, phase: 'unknown' }];
+  }
   catch { return [{ ...marker, phase: 'unknown' }]; }
   // Never expose stale IDs, handoff text, paths, source bodies, or an API/session key.
   const records: ReloadRecord[] = [...binding.drafts.keys()].map(id => ({

@@ -14,6 +14,7 @@ created: 2026-09-11
 interface DraftStoreBoundary {
   readonly mode: ApiMode;
   sessionKey(): number; // 非凭据的单调认证代次；同 TeamMealsApi
+  peekSessionKey?(): number|null; // 纯验证；缺失/null 时更新检查保持 unknown
 }
 interface BoundDraftStore {
   getDraftPlan(planId:string):AnyMenuPlan|null;
@@ -36,5 +37,7 @@ D 在有效 render 的同步入口使用 `const drafts=bindDraftStore(api)`，�
 **裸模块函数不能安全识别异步调用者**。保留原导出/签名以避免隐式编译漂移，但默认 fail closed：调用抛 `ApiError(0,'store_scope_required','')`，不读取或改写任何状态。不能让它们自动取“当前身份”再继续，否则晚到 A 回调仍可写进 B。D 必须迁移实际 store 使用点；这项行为加强随固定接口明确交接，不伪称旧页面已通过。无新增持久层，无 token/哈希进入 key、body 或摘要。
 
 reload 摘要与当前绑定同源，只暴露仍属于当前认证的文档身份、代次和 dirty。handoff 有待消费内容时也计为 dirty，摘要不展示名称/返回路径。身份无法核实时只返回通用 unknown，不能展示旧身份的文档标识或内容。检查不通过 dispose 或复制完整正文探测。
+
+非作者 bb68658 review R1 收紧：摘要不能调用 sessionKey/getToken，因为它们会观察身份变化、触发监听并清除编辑状态。TeamMealsApi 的实现提供 `peekSessionKey()`：只验证已观察的身份，变化/未观察/已释放返回 null，不更新代次或发事件。默认 token 使用无 observe 的纯读取；注入 token/identity getter 也必须无副作用。缺少 pure peek 的注入 boundary 在摘要中只能 unknown，不能偷用 sessionKey。普通显式 store/API 操作仍执行正常认证校验。C1 自定义 adapter 追加 `peekAuthSession:()=>api.peekSessionKey?.()`，与原 `authSession:()=>api.sessionKey()` 并列；缺失/null 则只提供 generic unknown 摘要。D 的所有 C1 controller 需要增加这一行，页面 store handle 方法不变。合成全局凭据及注入 credential/identity 变动有负例：仅 inspect 不能触发 auth listener，未知 C1、draft/prev/handoff 保持，反复 inspect 不会由 unknown 变 clear。
 
 验证：A 草稿/undo/handoff 在 B 下均不可见；API 实例不同但数字 key 相同也隔离；旧 A 延迟 set/clear/undo/take 不能触及 B；同身份切语/返回保持完整 v2/v3 metadata 和一层 undo；默认函数不可绕过；全局 logout 与注入 sessionKey 变化都覆盖。原 non-author c1_review 和 D Import→Plan 实际组合继续验收，此文尚不是实现批准。
