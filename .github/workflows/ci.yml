@@ -52,7 +52,11 @@ jobs:
 
       # 根目录有 pnpm-workspace.yaml（packages/*），一次 install 装齐 core / web。
       - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
+        # Preparation is explicit here; validation itself never downloads tools.
+        run: |
+          set -e
+          pnpm install --frozen-lockfile
+          node scripts/prepare-team-image-tools.mjs
 
       # core 的 test 脚本自己先跑 tsc -p tsconfig.build.json，所以这一步同时是 core 的 typecheck，
       # 并且顺带产出 packages/core 的构建产物，供后面的 build-data / vite 用。
