@@ -1,0 +1,285 @@
+TAP version 13
+# Subtest: details distinguish unknown quantity from recorded to-taste and preserve original units
+ok 1 - details distinguish unknown quantity from recorded to-taste and preserve original units
+  ---
+  duration_ms: 0.600042
+  ...
+# Subtest: reference links reject executable and protocol-relative URLs
+ok 2 - reference links reject executable and protocol-relative URLs
+  ---
+  duration_ms: 0.108416
+  ...
+# Subtest: copy explicitly includes all current decisions without promoting old bought references
+ok 3 - copy explicitly includes all current decisions without promoting old bought references
+  ---
+  duration_ms: 0.685709
+  ...
+# Subtest: copy preserves raw unresolved reference and meal scope in each language
+ok 4 - copy preserves raw unresolved reference and meal scope in each language
+  ---
+  duration_ms: 0.116625
+  ...
+# Subtest: zh: real core export groups four current decisions and distinguishes same-name IDs
+ok 5 - zh: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 6.131792
+  ...
+# Subtest: zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 6 - zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.631875
+  ...
+# Subtest: zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 7 - zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.49225
+  ...
+# Subtest: zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 8 - zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.145083
+  ...
+# Subtest: en: real core export groups four current decisions and distinguishes same-name IDs
+ok 9 - en: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.373833
+  ...
+# Subtest: en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 10 - en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.771417
+  ...
+# Subtest: en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 11 - en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.350667
+  ...
+# Subtest: en: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 12 - en: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.103583
+  ...
+# Subtest: uk: real core export groups four current decisions and distinguishes same-name IDs
+ok 13 - uk: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.2445
+  ...
+# Subtest: uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 14 - uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.524333
+  ...
+# Subtest: uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 15 - uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.329125
+  ...
+# Subtest: uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 16 - uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.105708
+  ...
+# Subtest: complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+ok 17 - complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+  ---
+  duration_ms: 0.351334
+  ...
+# Subtest: complete references come directly from the supplied core estimate, with no sum or mutation
+ok 18 - complete references come directly from the supplied core estimate, with no sum or mutation
+  ---
+  duration_ms: 0.275583
+  ...
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 19 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 11.0345
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 20 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 12.025375
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 21 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 4.428416
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 22 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 6.807583
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 23 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 7.929833
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 24 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 5.927917
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 25 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 6.056167
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 26 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 10.18275
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 27 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 2.627833
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 28 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 14.4815
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 29 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 11.96
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 30 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 4.759583
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 31 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 5.707125
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 32 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 2.942834
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 33 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 2.560292
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+ok 34 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 8.870166
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 35 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 10.442541
+  ...
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 36 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 10.291708
+  ...
+# Subtest: zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 37 - zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 10.480125
+  ...
+# Subtest: en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 38 - en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 10.002833
+  ...
+# Subtest: uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 39 - uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 10.332417
+  ...
+# Subtest: copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+ok 40 - copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+  ---
+  duration_ms: 6.56825
+  ...
+# Subtest: creation must acknowledge exact all-check body before a separate conditional manual save
+ok 41 - creation must acknowledge exact all-check body before a separate conditional manual save
+  ---
+  duration_ms: 16.491125
+  ...
+# Subtest: creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+ok 42 - creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+  ---
+  duration_ms: 2.231958
+  ...
+# Subtest: rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+ok 43 - rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+  ---
+  duration_ms: 4.080041
+  ...
+# Subtest: removed bought materials stay in review notice outside current empty list and survive return
+ok 44 - removed bought materials stay in review notice outside current empty list and survive return
+  ---
+  duration_ms: 2.641542
+  ...
+# Subtest: save in flight survives language refresh while later same-basis decisions remain dirty
+ok 45 - save in flight survives language refresh while later same-basis decisions remain dirty
+  ---
+  duration_ms: 1.679375
+  ...
+# Subtest: unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+ok 46 - unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+  ---
+  duration_ms: 2.267708
+  ...
+# Subtest: same-basis conflict preserves local draft and adopts only the compared remote source lock
+ok 47 - same-basis conflict preserves local draft and adopts only the compared remote source lock
+  ---
+  duration_ms: 2.251334
+  ...
+# Subtest: fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+ok 48 - fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+  ---
+  duration_ms: 1.701417
+  ...
+# Subtest: different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+ok 49 - different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+  ---
+  duration_ms: 3.303542
+  ...
+# Subtest: unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+ok 50 - unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+  ---
+  duration_ms: 1.988416
+  ...
+# Subtest: comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+ok 51 - comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+  ---
+  duration_ms: 1.956166
+  ...
+# Subtest: unresolved offscreen write prevents disposal and retains its recovery handle
+ok 52 - unresolved offscreen write prevents disposal and retains its recovery handle
+  ---
+  duration_ms: 0.964542
+  ...
+# Subtest: a fresh controller loads acknowledged list storage and original basis separately
+ok 53 - a fresh controller loads acknowledged list storage and original basis separately
+  ---
+  duration_ms: 1.328333
+  ...
+# Subtest: later decisions invalidate a pending rebase and retain the original matching basis
+ok 54 - later decisions invalidate a pending rebase and retain the original matching basis
+  ---
+  duration_ms: 1.026958
+  ...
+# Subtest: a detached pending load cannot reopen a list after the user leaves
+ok 55 - a detached pending load cannot reopen a list after the user leaves
+  ---
+  duration_ms: 0.964667
+  ...
+1..55
+# tests 55
+# suites 0
+# pass 55
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 236.757292

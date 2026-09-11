@@ -1,0 +1,8 @@
+{
+  "packages/web/src/pages/purchase-list.ts": "40ffbee4eab329de0fc02b139517ce8cbd02e2dc003379e59be3c083e20e92b0",
+  "packages/web/src/pages/purchase.ts": "c814eeda5bfb5cec86a280675e36545a613b498971acdfde46779876ce31c382",
+  "packages/web/src/pages/shopping-copy.ts": "d09f9ff311a54089452693fc769c309f6b51ecfe44cae40083e4c8381d1377d1",
+  "packages/web/test/team-meals-pages-shopping-copy.test.mjs": "4aae3501804f09a15941b634b4b30bba51d535a351b910f950802ea5179a3cb0",
+  "packages/web/test/team-meals-pages-shopping-raw.test.mjs": "32147748b0a57eb5b476f6cc5883f7c294bb5a62af6f007c92fa2c72f84a0c5f",
+  "packages/web/test/team-meals-pages-details-probe.ts": "1d2e5b968d1c4bd0584bf9bbc615fac4a4090c1cf38cb3a47eee500806e7f1cb"
+}

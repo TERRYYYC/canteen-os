@@ -1,0 +1,40 @@
+fatal: not a tree object: 1bf856493aeab081d9786adbfefefe73847b7ea3
+node:internal/errors:984
+  const err = new Error(message);
+              ^
+
+Error: Command failed: git archive 1bf856493aeab081d9786adbfefefe73847b7ea3
+fatal: not a tree object: 1bf856493aeab081d9786adbfefefe73847b7ea3
+
+    at genericNodeError (node:internal/errors:984:15)
+    at wrappedFn (node:internal/errors:538:14)
+    at checkExecSyncError (node:child_process:891:11)
+    at execFileSync (node:child_process:927:15)
+    at file:///private/tmp/canteen-q-t08-browser-author/prepare.mjs:5:80 {
+  status: 128,
+  signal: null,
+  output: [
+    null,
+    Buffer(0) [Uint8Array] [],
+    Buffer(67) [Uint8Array] [
+      102,  97, 116,  97, 108,  58,  32, 110, 111, 116, 32,  97,
+       32, 116, 114, 101, 101,  32, 111,  98, 106, 101, 99, 116,
+       58,  32,  49,  98, 102,  56,  53,  54,  52,  57, 51,  97,
+      101,  97,  98,  48,  56,  49, 100,  57,  55,  56, 54,  97,
+      100,  98, 102, 101, 102, 101, 102, 101,  55,  51, 56,  52,
+       55,  98,  55, 101,  97,  51,  10
+    ]
+  ],
+  pid: 52722,
+  stdout: Buffer(0) [Uint8Array] [],
+  stderr: Buffer(67) [Uint8Array] [
+    102,  97, 116,  97, 108,  58,  32, 110, 111, 116, 32,  97,
+     32, 116, 114, 101, 101,  32, 111,  98, 106, 101, 99, 116,
+     58,  32,  49,  98, 102,  56,  53,  54,  52,  57, 51,  97,
+    101,  97,  98,  48,  56,  49, 100,  57,  55,  56, 54,  97,
+    100,  98, 102, 101, 102, 101, 102, 101,  55,  51, 56,  52,
+     55,  98,  55, 101,  97,  51,  10
+  ]
+}
+
+Node.js v20.20.2

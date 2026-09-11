@@ -1,0 +1,10 @@
+{
+  "default": {
+    "preloadClosures": 12,
+    "shoppingCopyChunk": "assets/purchase-DRJn3C-Z.js"
+  },
+  "http": {
+    "preloadClosures": 12,
+    "shoppingCopyChunk": "assets/purchase-B1JnVGeJ.js"
+  }
+}

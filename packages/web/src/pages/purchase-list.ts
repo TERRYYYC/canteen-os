@@ -1,5 +1,5 @@
 /** Presentation only: collection and numerical estimates are supplied by core/C2. */
-import type {IngredientCollection,ShoppingEstimate,ShoppingList,TeamMealsProjection,AnyDish,Ingredient} from '@canteenos/core';
+import type {IngredientCollection,ShoppingEstimate,AnyDish,Ingredient} from '@canteenos/core';
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
 import {text} from './team-ui';
@@ -33,10 +33,6 @@ const reasons:Record<string,readonly[string,string,string]>={
  'multiple-plans':['多个计划不能完整合算','Multiple plans cannot be estimated together','Кілька планів неможливо повністю розрахувати разом'],'engine-issue':['计算资料有问题','Calculation data issue','Проблема даних розрахунку'],
 };
 export function reasonText(code:string,lang:Lang):string{return reasons[code]?.[lang==='zh'?0:lang==='en'?1:2]??code;}
-export function shoppingCopy(list:ShoppingList,projection:Pick<TeamMealsProjection,'ingredients'>,lang:Lang):string {
- const t=(key:ShoppingWord)=>shoppingText(lang,key);
- return [t('copyTitle'),list.id,`${t('revision')}: ${list.basis.sourceRevision}`,...list.basis.selection.map(s=>`${s.date} · ${text(lang,s.mealType)} · ${s.menuPlanRef}`),'',...list.items.map(item=>`${pick(lookup(projection.ingredients,item.ingredientRef)?.name,lang)||item.ingredientRef} — ${item.decision==='buy'&&item.bought?t('bought'):t(item.decision)}`),t('coverage')].join('\n');
-}
 export interface CandidatesOptions {
  lang:Lang;collection:IngredientCollection;estimate:ShoppingEstimate;ingredients:Record<string,Ingredient>;dishes:Record<string,AnyDish>;
  href?:(kind:'ingredient'|'dish',id:string)=>string;

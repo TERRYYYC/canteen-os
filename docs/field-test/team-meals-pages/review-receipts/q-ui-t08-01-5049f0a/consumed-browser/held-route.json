@@ -1,0 +1,9 @@
+{
+  "control": "held clipboard rejected",
+  "main": "Back\nPlan meals\nPaste import\nLoaded; unchanged\nSource version: 1928d305\n\nCounts may stay blank. Saving keeps the whole plan in the new format.\n\nView range\nAll dates\nDay\nWeek\nDate\n2026-09-14 · Lunch\nDish\nChoose a dish\nFirst test dish\nNo components recorded · draft\nSecond test dish · draft\nServings (optional)\nRemove\nDish\nChoose a dish\nFirst test dish\nNo components recorded · draft\nSecond test dish · draft\nServings (optional)\nRemove\n2026-09-15 · Dinner\nDish\nChoose a dish\nFirst test dish\nNo components recorded · draft\nSecond test dish · draft\nServings (optional)\nRemove\nDate\nMeal\nBreakfast\nLunch\nDinner\nDish\nChoose a dish\nFirst test dish\nNo components recorded · draft\nSecond test dish · draft\nAdd a dish\nPreview ingredientsCreate shopping list from saved plan\nSave plan\nGo to publish",
+  "dom": {
+    "copyFailure": false,
+    "hash": "#/admin/plan/team-week",
+    "textareas": 0
+  }
+}

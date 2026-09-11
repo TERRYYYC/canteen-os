@@ -54,7 +54,7 @@ async function setup({existing=false,mode='mock'}={}){
  }});
  const render=page.createPurchaseRenderer(api),coverage=page.createPageReloadCoverage();
  const start=(rest='new/team-week',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{rest,lang,planId:'team-week',route:'purchase',setReloadCoverage:coverage.beginRender('purchase',rest)});return{el,promise};};
- return{page,api,render,calls,writes,sources,start,async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
+ return{page,api,render,calls,writes,sources,start,async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},renameIngredient(id,name){snap.ingredients[id].name=name;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
 }
 async function scope(f){const el=await f.mount();btn(el,'Read latest saved plans').click();await f.flush();assert.ok(boxes(el).length>1);return el;}
 
@@ -119,4 +119,14 @@ test('adopting a different remote basis refreshes untouched scope inputs and the
 });
 test('remote adoption does not consume a later raw edit after its C1 replacement notification',async()=>{
  const f=await setup({existing:true});try{const el=await f.mount('team-shop');await conflict(f,el);btn(el,'Use remote content').click();input(el,'plan-ids','next-week');await f.flush();assert.equal(focus(el,'plan-ids').value,'next-week');assert.equal(f.render.readAuxiliary('team-shop').dirty,true);}finally{f.cleanup();}
+});
+
+for(const [lang,copyLabel] of [['zh','复制清单'],['en','Copy list'],['uk','Копіювати список']])test(`${lang}: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths`,async()=>{
+ const f=await setup({existing:true});try{
+  let el=await f.mount('team-shop',lang),captured;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{captured=value;}}});btn(el,copyLabel).click();await f.flush();assert.equal(f.snapshot().reason,'clear');const expected=walk(el).find(n=>n.tagName==='TEXTAREA').value;assert.equal(captured,expected);for(const ref of ['tomato','tomato-other','first-dish','second-dish','salt',A])assert.ok(expected.includes(ref),ref);
+  for(const behavior of ['reject','throw','absent']){el=await f.mount('team-shop',lang);if(behavior==='absent')delete navigator.clipboard;else Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:value=>{assert.equal(value,expected);if(behavior==='throw')throw new Error('explicit synchronous clipboard failure');return Promise.reject(new Error('explicit denied clipboard'));}}});btn(el,copyLabel).click();await f.flush();const area=walk(el).find(n=>n.tagName==='TEXTAREA');assert.equal(area.hidden,false);assert.equal(area.value,expected);assert.equal(f.snapshot().reason,'clear');}
+ }finally{f.cleanup();}
+});
+test('copy remains bound to saved A while newer B scope and raw plan choices have not been applied',async()=>{
+ const f=await setup({existing:true});try{let el=await f.mount('team-shop');const before=walk(el).find(n=>n.tagName==='TEXTAREA').value;f.revision(B);f.renameIngredient('tomato',{zh:'当前资料改名',en:'Current renamed tomato',uk:'Поточна нова назва'});btn(el,'Read latest saved plans').click();await f.flush();input(el,'plan-ids','team-week, later-week');const after=walk(el).find(n=>n.tagName==='TEXTAREA').value;assert.equal(after,before);assert.ok(after.includes(A));assert.ok(!after.includes(B));assert.ok(!after.includes('Current renamed'));assert.ok(!after.includes('later-week'));assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });

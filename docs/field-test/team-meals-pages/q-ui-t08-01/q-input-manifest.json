@@ -1,0 +1,23 @@
+{
+  "scope": "Read-only Q inputs captured before D repair; Q provisional repro is not an approved final Q test. No source modification.",
+  "entries": [
+    {
+      "source": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/docs/field-test/team-meals/page-browser/T08-zh-clipboard.txt",
+      "copy": "docs/field-test/team-meals-pages/q-ui-t08-01/q-original-T08-zh-clipboard.txt",
+      "bytes": 290,
+      "sha256": "3af4c2e79f4140eca8c30258702c843623f7857034102428d4e32bc3285af9c3"
+    },
+    {
+      "source": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/docs/field-test/team-meals/page-browser/T08-zh-copy-visible-dom.txt",
+      "copy": "docs/field-test/team-meals-pages/q-ui-t08-01/q-original-T08-zh-copy-visible-dom.txt",
+      "bytes": 3140,
+      "sha256": "aa54d4f307f6cdc78545f39c0b9fdf79bbb35427c1d4e0552f85f5c334d3b8f0"
+    },
+    {
+      "source": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/copy-missing-info.repro.mjs",
+      "copy": "docs/field-test/team-meals-pages/q-ui-t08-01/q-original-copy-missing-info.repro.mjs",
+      "bytes": 1868,
+      "sha256": "74e62b342fbb958546d0a8b6c6ef34389680a9d6c0dac4e0d43f92dee33a9b08"
+    }
+  ]
+}

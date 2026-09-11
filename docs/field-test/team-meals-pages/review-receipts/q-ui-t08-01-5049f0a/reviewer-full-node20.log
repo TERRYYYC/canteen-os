@@ -1,0 +1,2555 @@
+TAP version 13
+# Subtest: publish run completion evidence is optional, strictly typed, and never inferred from legacy status
+ok 1 - publish run completion evidence is optional, strictly typed, and never inferred from legacy status
+  ---
+  duration_ms: 12.750833
+  ...
+# Subtest: getCatalog：GET /catalog + Bearer 令牌，令牌不进 URL，响应去掉 ok
+ok 2 - getCatalog：GET /catalog + Bearer 令牌，令牌不进 URL，响应去掉 ok
+  ---
+  duration_ms: 0.834292
+  ...
+# Subtest: base 尾斜杠被去掉
+ok 3 - base 尾斜杠被去掉
+  ---
+  duration_ms: 0.4175
+  ...
+# Subtest: savePlan：POST /plan/:planId，JSON 体，If-Match 透传；新建带 If-None-Match:*
+ok 4 - savePlan：POST /plan/:planId，JSON 体，If-Match 透传；新建带 If-None-Match:*
+  ---
+  duration_ms: 0.789833
+  ...
+# Subtest: saveIngredient / saveDishDraft / saveDish / rollback / getPublish 的路径与方法（§6.4 对照 worker 路由表）
+ok 5 - saveIngredient / saveDishDraft / saveDish / rollback / getPublish 的路径与方法（§6.4 对照 worker 路由表）
+  ---
+  duration_ms: 20.511167
+  ...
+# Subtest: 路径参数按 URL 段编码
+ok 6 - 路径参数按 URL 段编码
+  ---
+  duration_ms: 0.402667
+  ...
+# Subtest: 400 字段错误 → ApiError.errors 逐条保留，code / message 取第一条，hasFieldErrors 为真
+ok 7 - 400 字段错误 → ApiError.errors 逐条保留，code / message 取第一条，hasFieldErrors 为真
+  ---
+  duration_ms: 0.394667
+  ...
+# Subtest: 401 unauthorized → ApiError(status, code, message 原样)
+ok 8 - 401 unauthorized → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.330208
+  ...
+# Subtest: 403 forbidden → ApiError(status, code, message 原样)
+ok 9 - 403 forbidden → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.27825
+  ...
+# Subtest: 409 conflict → ApiError(status, code, message 原样)
+ok 10 - 409 conflict → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.228375
+  ...
+# Subtest: 413 too_large → ApiError(status, code, message 原样)
+ok 11 - 413 too_large → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.159125
+  ...
+# Subtest: 500 internal_error → ApiError(status, code, message 原样)
+ok 12 - 500 internal_error → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.15675
+  ...
+# Subtest: 502 upstream_error → ApiError(status, code, message 原样)
+ok 13 - 502 upstream_error → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.216208
+  ...
+# Subtest: 503 dispatch_unavailable → ApiError(status, code, message 原样)
+ok 14 - 503 dispatch_unavailable → ApiError(status, code, message 原样)
+  ---
+  duration_ms: 0.264542
+  ...
+# Subtest: 429 rate_limited：retryAfter 取 Retry-After 头（秒）
+ok 15 - 429 rate_limited：retryAfter 取 Retry-After 头（秒）
+  ---
+  duration_ms: 0.227375
+  ...
+# Subtest: 429 没有 Retry-After 头（CORS 没 expose 时浏览器读不到）→ retryAfter undefined
+ok 16 - 429 没有 Retry-After 头（CORS 没 expose 时浏览器读不到）→ retryAfter undefined
+  ---
+  duration_ms: 0.26075
+  ...
+# Subtest: 404 not_found：getPlan / getIngredient / getDish → null；其它端点照抛
+ok 17 - 404 not_found：getPlan / getIngredient / getDish → null；其它端点照抛
+  ---
+  duration_ms: 0.604625
+  ...
+# Subtest: getPlan 命中：返回 { content, blobSha, commit }
+ok 18 - getPlan 命中：返回 { content, blobSha, commit }
+  ---
+  duration_ms: 0.302333
+  ...
+# Subtest: 网络错误 / 超时（fetch 抛）→ ApiError status 0 code network
+ok 19 - 网络错误 / 超时（fetch 抛）→ ApiError status 0 code network
+  ---
+  duration_ms: 0.228458
+  ...
+# Subtest: 非 worker 的错误体（Cloudflare 52x 页）→ ApiError(status, bad_response, '')
+ok 20 - 非 worker 的错误体（Cloudflare 52x 页）→ ApiError(status, bad_response, '')
+  ---
+  duration_ms: 0.285583
+  ...
+# Subtest: 无令牌：不发请求，直接 401 unauthorized
+ok 21 - 无令牌：不发请求，直接 401 unauthorized
+  ---
+  duration_ms: 0.1135
+  ...
+# Subtest: getCatalog / getChanges 有缓存；force 重取；返回的是副本
+ok 22 - getCatalog / getChanges 有缓存；force 重取；返回的是副本
+  ---
+  duration_ms: 0.540833
+  ...
+# Subtest: 任何写入成功后 getCatalog / getChanges 重新请求（写入失败不失效）
+ok 23 - 任何写入成功后 getCatalog / getChanges 重新请求（写入失败不失效）
+  ---
+  duration_ms: 32.844542
+  ...
+# Subtest: getPublish 报 success → changes 失效、catalog 不动；非终态不失效
+ok 24 - getPublish 报 success → changes 失效、catalog 不动；非终态不失效
+  ---
+  duration_ms: 0.48475
+  ...
+# Subtest: publish：POST /publish，返回 runId + mode（requestId 不透出）；push-trigger 带 commit
+ok 25 - publish：POST /publish，返回 runId + mode（requestId 不透出）；push-trigger 带 commit
+  ---
+  duration_ms: 0.257542
+  ...
+# Subtest: getPublish：响应去掉 ok，其余原样（含 slow）
+ok 26 - getPublish：响应去掉 ok，其余原样（含 slow）
+  ---
+  duration_ms: 0.171458
+  ...
+# Subtest: translate：请求 { text, targets }，返回 worker 的 translations；没配翻译服务 → {}
+ok 27 - translate：请求 { text, targets }，返回 worker 的 translations；没配翻译服务 → {}
+  ---
+  duration_ms: 0.389542
+  ...
+# Subtest: uploadImage：POST /image/:kind/:id，请求体是原始 Blob，元数据走 X-Image-* 头，返回 image
+ok 28 - uploadImage：POST /image/:kind/:id，请求体是原始 Blob，元数据走 X-Image-* 头，返回 image
+  ---
+  duration_ms: 0.3715
+  ...
+# Subtest: uploadImage：没有 author / sourceUrl 就不发那两个头；无 type 的 Blob → application/octet-stream
+ok 29 - uploadImage：没有 author / sourceUrl 就不发那两个头；无 type 的 Blob → application/octet-stream
+  ---
+  duration_ms: 0.207375
+  ...
+# Subtest: uploadImage：非 Latin-1 的作者名（fetch 头不接受）按百分号编码送出，不抛
+ok 30 - uploadImage：非 Latin-1 的作者名（fetch 头不接受）按百分号编码送出，不抛
+  ---
+  duration_ms: 0.155041
+  ...
+# Subtest: uploadImage 413 too_large → ApiError 413
+ok 31 - uploadImage 413 too_large → ApiError 413
+  ---
+  duration_ms: 0.184708
+  ...
+# Subtest: getApi()：VITE_WORKER_URL 为空 → mock（不发任何请求）
+ok 32 - getApi()：VITE_WORKER_URL 为空 → mock（不发任何请求）
+  ---
+  duration_ms: 0.483541
+  ...
+# Subtest: getApi()：VITE_WORKER_URL 设了 → 走 HTTP（带尾斜杠也行）
+ok 33 - getApi()：VITE_WORKER_URL 设了 → 走 HTTP（带尾斜杠也行）
+  ---
+  duration_ms: 54.981834
+  ...
+# Subtest: HttpAdminApi 可注入 fetch / token（不依赖全局）
+ok 34 - HttpAdminApi 可注入 fetch / token（不依赖全局）
+  ---
+  duration_ms: 0.227417
+  ...
+# Subtest: auth cleanup cannot erase two old pending tickets or reveal private owner identity
+ok 35 - auth cleanup cannot erase two old pending tickets or reveal private owner identity
+  ---
+  duration_ms: 8.525625
+  ...
+# Subtest: read cancellation ends only that local task; unknown writes require definite settlement
+ok 36 - read cancellation ends only that local task; unknown writes require definite settlement
+  ---
+  duration_ms: 3.46175
+  ...
+# Subtest: pure scope inspection never invokes an observing boundary or old read callback
+ok 37 - pure scope inspection never invokes an observing boundary or old read callback
+  ---
+  duration_ms: 4.461583
+  ...
+# Subtest: declared local buffers can leave a previous auth; legacy or incomplete tracking stays unknown
+ok 38 - declared local buffers can leave a previous auth; legacy or incomplete tracking stays unknown
+  ---
+  duration_ms: 3.560916
+  ...
+# Subtest: missing pure seam and a declared ticket owner with an unregistered operation fail closed
+ok 39 - missing pure seam and a declared ticket owner with an unregistered operation fail closed
+  ---
+  duration_ms: 5.560041
+  ...
+# Subtest: auth change conceals old coverage IDs including stamps without clearing the old registration
+ok 40 - auth change conceals old coverage IDs including stamps without clearing the old registration
+  ---
+  duration_ms: 4.574209
+  ...
+# Subtest: a held old-auth C1 save retains only generic protection; its own acknowledgement cannot settle B
+ok 41 - a held old-auth C1 save retains only generic protection; its own acknowledgement cannot settle B
+  ---
+  duration_ms: 4.043958
+  ...
+# Subtest: already unknown writes stay unknown after normal logout, dispose and later identity changes
+ok 42 - already unknown writes stay unknown after normal logout, dispose and later identity changes
+  ---
+  duration_ms: 2.368334
+  ...
+# Subtest: definite old HTTP rejection can end only its save; session_changed and ambiguous responses cannot
+ok 43 - definite old HTTP rejection can end only its save; session_changed and ambiguous responses cannot
+  ---
+  duration_ms: 27.11875
+  ...
+# Subtest: an auth change during the saving notification does not invent an external request
+ok 44 - an auth change during the saving notification does not invent an external request
+  ---
+  duration_ms: 2.083292
+  ...
+# Subtest: real Team API session invalidation is not proof that the dispatched write did not happen
+ok 45 - real Team API session invalidation is not proof that the dispatched write did not happen
+  ---
+  duration_ms: 12.473541
+  ...
+# Subtest: the global auth lifetime still applies when an injected adapter keeps a constant identity
+ok 46 - the global auth lifetime still applies when an injected adapter keeps a constant identity
+  ---
+  duration_ms: 2.926416
+  ...
+# Subtest: a real malformed 409 response stays unknown before and after auth changes
+ok 47 - a real malformed 409 response stays unknown before and after auth changes
+  ---
+  duration_ms: 5.229208
+  ...
+# Subtest: an invalid commit acknowledgement cannot retire a live or old-auth write
+ok 48 - an invalid commit acknowledgement cannot retire a live or old-auth write
+  ---
+  duration_ms: 21.827541
+  ...
+# Subtest: same API lifetime preserves clones, whole v2/v3 documents and one-level undo across page handles
+ok 49 - same API lifetime preserves clones, whole v2/v3 documents and one-level undo across page handles
+  ---
+  duration_ms: 1.053166
+  ...
+# Subtest: auth changes hide drafts, undo and handoff; stale operations cannot rebind or clear the new identity
+ok 50 - auth changes hide drafts, undo and handoff; stale operations cannot rebind or clear the new identity
+  ---
+  duration_ms: 0.446125
+  ...
+# Subtest: different API instances with identical numeric session keys and changed modes do not share data
+ok 51 - different API instances with identical numeric session keys and changed modes do not share data
+  ---
+  duration_ms: 0.09475
+  ...
+# Subtest: logout invalidates existing handles immediately, while explicit rebind can start empty
+ok 52 - logout invalidates existing handles immediately, while explicit rebind can start empty
+  ---
+  duration_ms: 0.159292
+  ...
+# Subtest: unscoped exports cannot read, overwrite or delete scoped state
+ok 53 - unscoped exports cannot read, overwrite or delete scoped state
+  ---
+  duration_ms: 0.296708
+  ...
+# Subtest: a handoff alone is protected without exposing its text or return address
+ok 54 - a handoff alone is protected without exposing its text or return address
+  ---
+  duration_ms: 5.308542
+  ...
+# Subtest: inspection after a credential change does not observe auth, erase unknown C1, or clear drafts and handoff
+ok 55 - inspection after a credential change does not observe auth, erase unknown C1, or clear drafts and handoff
+  ---
+  duration_ms: 1.091333
+  ...
+# Subtest: real API pure observation detects injected credential and identity changes without advancing its key
+ok 56 - real API pure observation detects injected credential and identity changes without advancing its key
+  ---
+  duration_ms: 0.12025
+  ...
+# Subtest: save snapshots generation and strong lock, retaining later edits until their own save
+ok 57 - save snapshots generation and strong lock, retaining later edits until their own save
+  ---
+  duration_ms: 3.521417
+  ...
+# Subtest: new document uses If-None-Match star; clean documents never write
+ok 58 - new document uses If-None-Match star; clean documents never write
+  ---
+  duration_ms: 0.221333
+  ...
+# Subtest: pending save is not duplicated and external input/snapshot mutation cannot alter draft
+ok 59 - pending save is not duplicated and external input/snapshot mutation cannot alter draft
+  ---
+  duration_ms: 0.242666
+  ...
+# Subtest: late save response cannot mutate new context: different-document
+ok 60 - late save response cannot mutate new context: different-document
+  ---
+  duration_ms: 0.283625
+  ...
+# Subtest: late save response cannot mutate new context: leave-page
+ok 61 - late save response cannot mutate new context: leave-page
+  ---
+  duration_ms: 0.175709
+  ...
+# Subtest: 409 conflict preserves editable draft and blocks blind retries
+ok 62 - 409 conflict preserves editable draft and blocks blind retries
+  ---
+  duration_ms: 0.2775
+  ...
+# Subtest: 409 format_downgrade preserves editable draft and blocks blind retries
+ok 63 - 409 format_downgrade preserves editable draft and blocks blind retries
+  ---
+  duration_ms: 0.202833
+  ...
+# Subtest: 409 review_required preserves editable draft and blocks blind retries
+ok 64 - 409 review_required preserves editable draft and blocks blind retries
+  ---
+  duration_ms: 0.174042
+  ...
+# Subtest: 428 is an error with retained draft and condition, never an unconditional retry
+ok 65 - 428 is an error with retained draft and condition, never an unconditional retry
+  ---
+  duration_ms: 0.363167
+  ...
+# Subtest: uncertain 0/network requires current then fixed-revision comparison
+ok 66 - uncertain 0/network requires current then fixed-revision comparison
+  ---
+  duration_ms: 0.494666
+  ...
+# Subtest: uncertain 502/upstream_error requires current then fixed-revision comparison
+ok 67 - uncertain 502/upstream_error requires current then fixed-revision comparison
+  ---
+  duration_ms: 0.344792
+  ...
+# Subtest: uncertain 200/bad_response requires current then fixed-revision comparison
+ok 68 - uncertain 200/bad_response requires current then fixed-revision comparison
+  ---
+  duration_ms: 0.226709
+  ...
+# Subtest: confirmed original blob permits only an explicit retry using the original strong lock
+ok 69 - confirmed original blob permits only an explicit retry using the original strong lock
+  ---
+  duration_ms: 0.288583
+  ...
+# Subtest: explicit not-found after uncertain creation permits only another conditional create
+ok 70 - explicit not-found after uncertain creation permits only another conditional create
+  ---
+  duration_ms: 0.22675
+  ...
+# Subtest: unrelated current content or changed original blob yields conflict without adopting its lock
+ok 71 - unrelated current content or changed original blob yields conflict without adopting its lock
+  ---
+  duration_ms: 0.329417
+  ...
+# Subtest: reread errors, invalid fixed response, and source deletion do not masquerade as saved
+ok 72 - reread errors, invalid fixed response, and source deletion do not masquerade as saved
+  ---
+  duration_ms: 0.47825
+  ...
+# Subtest: late recovery cannot change a different opened document
+ok 73 - late recovery cannot change a different opened document
+  ---
+  duration_ms: 0.226584
+  ...
+# Subtest: reopening the same unknown document cannot unlock a second write
+ok 74 - reopening the same unknown document cannot unlock a second write
+  ---
+  duration_ms: 1.328917
+  ...
+# Subtest: saving then editing then language rebind preserves generation and acknowledges only submitted body
+ok 75 - saving then editing then language rebind preserves generation and acknowledges only submitted body
+  ---
+  duration_ms: 0.344584
+  ...
+# Subtest: unknown language rebind and explicit replacement stay blocked until recovery
+ok 76 - unknown language rebind and explicit replacement stay blocked until recovery
+  ---
+  duration_ms: 0.231084
+  ...
+# Subtest: unknown document remains recoverable after switch-away-and-back
+ok 77 - unknown document remains recoverable after switch-away-and-back
+  ---
+  duration_ms: 0.230667
+  ...
+# Subtest: unknown document remains recoverable after invalidate-and-reopen
+ok 78 - unknown document remains recoverable after invalidate-and-reopen
+  ---
+  duration_ms: 0.156375
+  ...
+# Subtest: offscreen acknowledgement settles only its document and preserves later draft on return
+ok 79 - offscreen acknowledgement settles only its document and preserves later draft on return
+  ---
+  duration_ms: 0.167542
+  ...
+# Subtest: returning to a still-saving document keeps its lock and draft until acknowledgement
+ok 80 - returning to a still-saving document keeps its lock and draft until acknowledgement
+  ---
+  duration_ms: 0.281625
+  ...
+# Subtest: dispose refuses unresolved documents even offscreen instead of losing recovery
+ok 81 - dispose refuses unresolved documents even offscreen instead of losing recovery
+  ---
+  duration_ms: 0.53725
+  ...
+# Subtest: new auth principal cannot expose or reconcile previous principal's unknown operation
+ok 82 - new auth principal cannot expose or reconcile previous principal's unknown operation
+  ---
+  duration_ms: 0.222417
+  ...
+# Subtest: late acknowledgement after auth changes cannot restore private data
+ok 83 - late acknowledgement after auth changes cannot restore private data
+  ---
+  duration_ms: 0.165166
+  ...
+# Subtest: default auth event immediately erases unknown drafts before another getState call
+ok 84 - default auth event immediately erases unknown drafts before another getState call
+  ---
+  duration_ms: 0.534209
+  ...
+# Subtest: unconfigured save cannot invoke mock persistence; explicit mock results remain labelled
+ok 85 - unconfigured save cannot invoke mock persistence; explicit mock results remain labelled
+  ---
+  duration_ms: 0.239
+  ...
+# Subtest: mode changes seal an in-flight editor and require a fresh editor before writes
+ok 86 - mode changes seal an in-flight editor and require a fresh editor before writes
+  ---
+  duration_ms: 0.204625
+  ...
+# Subtest: shopping basis and items are one snapshot; saving review does not perform manual confirmation
+ok 87 - shopping basis and items are one snapshot; saving review does not perform manual confirmation
+  ---
+  duration_ms: 0.292334
+  ...
+# Subtest: subscriptions observe snapshots and cannot interfere with save; disposal stops old events
+ok 88 - subscriptions observe snapshots and cannot interfere with save; disposal stops old events
+  ---
+  duration_ms: 0.355333
+  ...
+# Subtest: shell-only loading is read-only across auth changes before the first page starts
+ok 89 - shell-only loading is read-only across auth changes before the first page starts
+  ---
+  duration_ms: 4.02325
+  ...
+# Subtest: leaving or redrawing a shell-only loading route does not orphan page coverage
+ok 90 - leaving or redrawing a shell-only loading route does not orphan page coverage
+  ---
+  duration_ms: 0.986917
+  ...
+# Subtest: loading coverage never retires an unrelated unresolved owner
+ok 91 - loading coverage never retires an unrelated unresolved owner
+  ---
+  duration_ms: 1.132084
+  ...
+# Subtest: main passes the winning publication kind and safe route context to team navigation
+ok 92 - main passes the winning publication kind and safe route context to team navigation
+  ---
+  duration_ms: 1.273666
+  ...
+# Subtest: startup evaluates no unselected page and waits for selected renderer
+ok 93 - startup evaluates no unselected page and waits for selected renderer
+  ---
+  duration_ms: 3.709042
+  ...
+# Subtest: route ABA and language changes cannot start late renderers or settle new coverage
+ok 94 - route ABA and language changes cannot start late renderers or settle new coverage
+  ---
+  duration_ms: 1.248459
+  ...
+# Subtest: auth changed during module load starts only a fresh session context
+ok 95 - auth changed during module load starts only a fresh session context
+  ---
+  duration_ms: 2.046833
+  ...
+# Subtest: winning publication replaces pending editor load but preserves an already started editor
+ok 96 - winning publication replaces pending editor load but preserves an already started editor
+  ---
+  duration_ms: 2.380833
+  ...
+# Subtest: loader rejection and abandoned failure never create orphan coverage or paint new outlet
+ok 97 - loader rejection and abandoned failure never create orphan coverage or paint new outlet
+  ---
+  duration_ms: 2.208334
+  ...
+# Subtest: loading does not acknowledge an earlier untracked render of the same route
+ok 98 - loading does not acknowledge an earlier untracked render of the same route
+  ---
+  duration_ms: 1.85925
+  ...
+# Subtest: unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+ok 99 - unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+  ---
+  duration_ms: 6.260083
+  ...
+# Subtest: renderer rejection cannot declare a started but unresolved page read-only
+ok 100 - renderer rejection cannot declare a started but unresolved page read-only
+  ---
+  duration_ms: 1.950834
+  ...
+# Subtest: four approved producer cases preserve projection, original time and diagnostics
+ok 101 - four approved producer cases preserve projection, original time and diagnostics
+  ---
+  duration_ms: 9.845042
+  ...
+# Subtest: no-plan manifest is valid and unknown plan fails before fetching any projection
+ok 102 - no-plan manifest is valid and unknown plan fails before fetching any projection
+  ---
+  duration_ms: 0.488667
+  ...
+# Subtest: unknown targets/versions, bad JSON and unsupported legacy calls never silently switch target
+ok 103 - unknown targets/versions, bad JSON and unsupported legacy calls never silently switch target
+  ---
+  duration_ms: 1.402083
+  ...
+# Subtest: A manifest with B projection, wrong plan and nonpublishable diagnostics fail closed
+ok 104 - A manifest with B projection, wrong plan and nonpublishable diagnostics fail closed
+  ---
+  duration_ms: 1.371375
+  ...
+# Subtest: external and absent ImageRefs do not request any bytes; forged published views are rejected
+ok 105 - external and absent ImageRefs do not request any bytes; forged published views are rejected
+  ---
+  duration_ms: 0.680792
+  ...
+# Subtest: public asset sources cannot mutate the private validated binding or later readers
+ok 106 - public asset sources cannot mutate the private validated binding or later readers
+  ---
+  duration_ms: 405.946
+  ...
+# Subtest: asset mapping preserves literal percent/query/hash/Unicode and joins techniques by ID, not filtered index
+ok 107 - asset mapping preserves literal percent/query/hash/Unicode and joins techniques by ID, not filtered index
+  ---
+  duration_ms: 1.078875
+  ...
+# Subtest: asset source mismatch, duplicate/missing/foreign bindings and wrong revision path reject before bytes
+ok 108 - asset source mismatch, duplicate/missing/foreign bindings and wrong revision path reject before bytes
+  ---
+  duration_ms: 2.308
+  ...
+# Subtest: removed old assets and non-image responses do not read current image URLs
+ok 109 - removed old assets and non-image responses do not read current image URLs
+  ---
+  duration_ms: 1.896083
+  ...
+# Subtest: timeout covers response body consumption, not only HTTP headers
+ok 110 - timeout covers response body consumption, not only HTTP headers
+  ---
+  duration_ms: 12.524333
+  ...
+# Subtest: late G1 success and failure cannot affect G2 after clear/fresh
+ok 111 - late G1 success and failure cannot affect G2 after clear/fresh
+  ---
+  duration_ms: 0.713125
+  ...
+# Subtest: refresh invalidates handles and snapshot probes never adopt or overwrite active generation
+ok 112 - refresh invalidates handles and snapshot probes never adopt or overwrite active generation
+  ---
+  duration_ms: 0.21225
+  ...
+# Subtest: approved producer emits real original PNG bytes and stable technique bindings despite filtered indices
+ok 113 - approved producer emits real original PNG bytes and stable technique bindings despite filtered indices
+  ---
+  duration_ms: 747.763166
+  ...
+# Subtest: first SW claim: verified fresh A recovers an unopened projection from installed A offline
+ok 114 - first SW claim: verified fresh A recovers an unopened projection from installed A offline
+  ---
+  duration_ms: 12.993209
+  ...
+# Subtest: external B takeover: old A handles expire and unopened projection is installed B only
+ok 115 - external B takeover: old A handles expire and unopened projection is installed B only
+  ---
+  duration_ms: 1.458667
+  ...
+# Subtest: already controlled offline new document still reads ordinary installed manifest and projection
+ok 116 - already controlled offline new document still reads ordinary installed manifest and projection
+  ---
+  duration_ms: 0.689375
+  ...
+# Subtest: missing and wrong-revision copies fail instead of returning current or an empty plan
+ok 117 - missing and wrong-revision copies fail instead of returning current or an empty plan
+  ---
+  duration_ms: 1.813
+  ...
+# Subtest: ordinary same-revision response still passes all version, shape and asset-binding validation
+ok 118 - ordinary same-revision response still passes all version, shape and asset-binding validation
+  ---
+  duration_ms: 1.55975
+  ...
+# Subtest: tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+ok 119 - tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+  ---
+  duration_ms: 1.691167
+  ...
+# Subtest: failed fresh manifest and offline probes cannot adopt the installed older publication
+ok 120 - failed fresh manifest and offline probes cannot adopt the installed older publication
+  ---
+  duration_ms: 0.244583
+  ...
+# Subtest: probe, clone and foreign-reader handles never authorize ordinary-path recovery
+ok 121 - probe, clone and foreign-reader handles never authorize ordinary-path recovery
+  ---
+  duration_ms: 0.699375
+  ...
+# Subtest: clear during tagged failure prevents any obsolete ordinary-path request
+ok 122 - clear during tagged failure prevents any obsolete ordinary-path request
+  ---
+  duration_ms: 0.273542
+  ...
+# Subtest: late ordinary A success or failure cannot change B or remove its request cache
+ok 123 - late ordinary A success or failure cannot change B or remove its request cache
+  ---
+  duration_ms: 1.220041
+  ...
+# Subtest: concurrent readers share the recovered validated plan and still reject unseen image bytes
+ok 124 - concurrent readers share the recovered validated plan and still reject unseen image bytes
+  ---
+  duration_ms: 0.44075
+  ...
+# Subtest: tagged projection body timeout can recover while generation remains current
+ok 125 - tagged projection body timeout can recover while generation remains current
+  ---
+  duration_ms: 18.6245
+  ...
+# Subtest: legacy sheets lack a revision identity and do not gain an unverified recovery path
+ok 126 - legacy sheets lack a revision identity and do not gain an unverified recovery path
+  ---
+  duration_ms: 0.282125
+  ...
+# Subtest: actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+ok 127 - actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+  ---
+  duration_ms: 6.357292
+  ...
+# Subtest: actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+ok 128 - actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+  ---
+  duration_ms: 1.1335
+  ...
+# Subtest: actual PWA keeps old-auth write protection without offering an inaccessible private editor
+ok 129 - actual PWA keeps old-auth write protection without offering an inaccessible private editor
+  ---
+  duration_ms: 0.333542
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+ok 130 - actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+  ---
+  duration_ms: 0.759792
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+ok 131 - actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+  ---
+  duration_ms: 0.514417
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+ok 132 - actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+  ---
+  duration_ms: 0.281458
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+ok 133 - actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+  ---
+  duration_ms: 0.920583
+  ...
+# Subtest: actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+ok 134 - actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+  ---
+  duration_ms: 0.3005
+  ...
+# Subtest: actual PWA rejects target activation after generation invalidates consent
+ok 135 - actual PWA rejects target activation after generation invalidates consent
+  ---
+  duration_ms: 2.231125
+  ...
+# Subtest: actual PWA rejects target activation after pending invalidates consent
+ok 136 - actual PWA rejects target activation after pending invalidates consent
+  ---
+  duration_ms: 0.47575
+  ...
+# Subtest: actual PWA rejects target activation after unknown invalidates consent
+ok 137 - actual PWA rejects target activation after unknown invalidates consent
+  ---
+  duration_ms: 0.64475
+  ...
+# Subtest: actual PWA rejects target activation after timeout invalidates consent
+ok 138 - actual PWA rejects target activation after timeout invalidates consent
+  ---
+  duration_ms: 0.258416
+  ...
+# Subtest: actual PWA rejects target activation after cancel invalidates consent
+ok 139 - actual PWA rejects target activation after cancel invalidates consent
+  ---
+  duration_ms: 0.187708
+  ...
+# Subtest: offscreen dirty documents block updates, with no disposal or hidden saves
+ok 140 - offscreen dirty documents block updates, with no disposal or hidden saves
+  ---
+  duration_ms: 6.764625
+  ...
+# Subtest: malformed URI fallback cannot retain an encoded credential in URL or page coverage
+ok 141 - malformed URI fallback cannot retain an encoded credential in URL or page coverage
+  ---
+  duration_ms: 1.263958
+  ...
+# Subtest: pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+ok 142 - pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+  ---
+  duration_ms: 0.6875
+  ...
+# Subtest: reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+ok 143 - reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+  ---
+  duration_ms: 0.437125
+  ...
+# Subtest: discard consent expires with new input or newly started writes
+ok 144 - discard consent expires with new input or newly started writes
+  ---
+  duration_ms: 0.425791
+  ...
+# Subtest: clean or exact explicit discard reload once; externally reported control changes never authorize reload
+ok 145 - clean or exact explicit discard reload once; externally reported control changes never authorize reload
+  ---
+  duration_ms: 0.292875
+  ...
+# Subtest: new edits after SW activation block eventual plugin reload; timeout never forces a reload
+ok 146 - new edits after SW activation block eventual plugin reload; timeout never forces a reload
+  ---
+  duration_ms: 0.2295
+  ...
+# Subtest: legacy draft store preserves v3/clone/undo and participates in global reload checks
+ok 147 - legacy draft store preserves v3/clone/undo and participates in global reload checks
+  ---
+  duration_ms: 0.242375
+  ...
+# Subtest: untracked editing surface fails closed and safety inspection is read-only
+ok 148 - untracked editing surface fails closed and safety inspection is read-only
+  ---
+  duration_ms: 0.231166
+  ...
+# Subtest: auxiliary raw input and pre-save work survive navigation and stay metadata-only
+ok 149 - auxiliary raw input and pre-save work survive navigation and stay metadata-only
+  ---
+  duration_ms: 0.490958
+  ...
+# Subtest: provider read failures block and cannot be silently disposed
+ok 150 - provider read failures block and cannot be silently disposed
+  ---
+  duration_ms: 0.170791
+  ...
+# Subtest: purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+ok 151 - purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+  ---
+  duration_ms: 0.256208
+  ...
+# Subtest: synthetic login links and stale contexts never enter page identity, snapshots or stamps
+ok 152 - synthetic login links and stale contexts never enter page identity, snapshots or stamps
+  ---
+  duration_ms: 0.469625
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (zh)
+ok 153 - formal team publication has team navigation and its real protected plan link (zh)
+  ---
+  duration_ms: 14.737583
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (zh)
+ok 154 - empty and failed publication do not invent or retain an editable target (zh)
+  ---
+  duration_ms: 2.5985
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (zh)
+ok 155 - legacy keeps reader meaning and opens only the listed plan (zh)
+  ---
+  duration_ms: 2.089791
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (en)
+ok 156 - formal team publication has team navigation and its real protected plan link (en)
+  ---
+  duration_ms: 2.892542
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (en)
+ok 157 - empty and failed publication do not invent or retain an editable target (en)
+  ---
+  duration_ms: 3.185333
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (en)
+ok 158 - legacy keeps reader meaning and opens only the listed plan (en)
+  ---
+  duration_ms: 2.624
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (uk)
+ok 159 - formal team publication has team navigation and its real protected plan link (uk)
+  ---
+  duration_ms: 2.529458
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (uk)
+ok 160 - empty and failed publication do not invent or retain an editable target (uk)
+  ---
+  duration_ms: 4.055541
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (uk)
+ok 161 - legacy keeps reader meaning and opens only the listed plan (uk)
+  ---
+  duration_ms: 2.672125
+  ...
+# Subtest: open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+ok 162 - open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+  ---
+  duration_ms: 3.757291
+  ...
+# Subtest: navigation publication refresh leaves the existing editor outlet and pending save untouched
+ok 163 - navigation publication refresh leaves the existing editor outlet and pending save untouched
+  ---
+  duration_ms: 4.351417
+  ...
+# Subtest: legacy creates use If-None-Match and Ingredient retains its original semantics
+ok 164 - legacy creates use If-None-Match and Ingredient retains its original semantics
+  ---
+  duration_ms: 12.398708
+  ...
+# Subtest: legacy typed readers reject v3 instead of casting optional fields to v2
+ok 165 - legacy typed readers reject v3 instead of casting optional fields to v2
+  ---
+  duration_ms: 0.621084
+  ...
+# Subtest: only explicit 404 not_found is absent, including the legacy reader
+ok 166 - only explicit 404 not_found is absent, including the legacy reader
+  ---
+  duration_ms: 0.569584
+  ...
+# Subtest: new writes preserve unknown values, require strong conditions and never retry 409/428
+ok 167 - new writes preserve unknown values, require strong conditions and never retry 409/428
+  ---
+  duration_ms: 3.236416
+  ...
+# Subtest: revision source/catalog cache is separate from current and deep cloned; mismatches never fallback
+ok 168 - revision source/catalog cache is separate from current and deep cloned; mismatches never fallback
+  ---
+  duration_ms: 32.999709
+  ...
+# Subtest: revision errors are kept and shopping-list source uses own kind
+ok 169 - revision errors are kept and shopping-list source uses own kind
+  ---
+  duration_ms: 2.039667
+  ...
+# Subtest: asset fetch authenticates bytes and checks exact revision; full owner/pointer cache keys
+ok 170 - asset fetch authenticates bytes and checks exact revision; full owner/pointer cache keys
+  ---
+  duration_ms: 1.912792
+  ...
+# Subtest: token and identity change discard cache and reject late replies
+ok 171 - token and identity change discard cache and reject late replies
+  ---
+  duration_ms: 0.527333
+  ...
+# Subtest: logout/relogin with same token invalidates pending and cached reads
+ok 172 - logout/relogin with same token invalidates pending and cached reads
+  ---
+  duration_ms: 0.552
+  ...
+# Subtest: response body network failure is an unknown network error
+ok 173 - response body network failure is an unknown network error
+  ---
+  duration_ms: 0.555375
+  ...
+# Subtest: new unconfigured flow cannot save and explicit mock HTTP has a mock capability
+ok 174 - new unconfigured flow cannot save and explicit mock HTTP has a mock capability
+  ---
+  duration_ms: 0.276083
+  ...
+# Subtest: new contract error labels are distinct and available in all three languages
+ok 175 - new contract error labels are distinct and available in all three languages
+  ---
+  duration_ms: 0.423792
+  ...
+# Subtest: reviewRequired is accepted only from a valid top-level array
+ok 176 - reviewRequired is accepted only from a valid top-level array
+  ---
+  duration_ms: 0.574
+  ...
+# Subtest: legacy catalog cache cannot survive changing identity or logout
+ok 177 - legacy catalog cache cannot survive changing identity or logout
+  ---
+  duration_ms: 0.371667
+  ...
+# Subtest: writes invalidate current cached data while an older request cannot evict a newer forced read
+ok 178 - writes invalidate current cached data while an older request cannot evict a newer forced read
+  ---
+  duration_ms: 31.97825
+  ...
+# Subtest: logout notifications see cleared credentials and observer failures cannot interrupt logout
+ok 179 - logout notifications see cleared credentials and observer failures cannot interrupt logout
+  ---
+  duration_ms: 0.262375
+  ...
+# Subtest: legacy and team facades invalidate one another after writes, including in-flight cached reads
+ok 180 - legacy and team facades invalidate one another after writes, including in-flight cached reads
+  ---
+  duration_ms: 1.411292
+  ...
+# Subtest: ingredient: actual Http current-auth array ACK cannot prove completion
+ok 181 - ingredient: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 117.745375
+  ...
+# Subtest: ingredient: actual Http current-auth string ACK settles only its write
+ok 182 - ingredient: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 69.832125
+  ...
+# Subtest: ingredient: available old-auth array ACK cannot prove completion
+ok 183 - ingredient: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 55.720833
+  ...
+# Subtest: ingredient: available old-auth string ACK settles only its write
+ok 184 - ingredient: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 46.276458
+  ...
+# Subtest: dish: actual Http current-auth array ACK cannot prove completion
+ok 185 - dish: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 65.49225
+  ...
+# Subtest: dish: actual Http current-auth string ACK settles only its write
+ok 186 - dish: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 57.696542
+  ...
+# Subtest: dish: available old-auth array ACK cannot prove completion
+ok 187 - dish: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 57.84525
+  ...
+# Subtest: dish: available old-auth string ACK settles only its write
+ok 188 - dish: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 59.736083
+  ...
+# Subtest: ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 189 - ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 40.078166
+  ...
+# Subtest: dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 190 - dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 55.798666
+  ...
+# Subtest: ingredient: valid available old ACK settles A only while B still owns its write
+ok 191 - ingredient: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 77.34125
+  ...
+# Subtest: dish: valid available old ACK settles A only while B still owns its write
+ok 192 - dish: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 105.745667
+  ...
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 193 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 53.406292
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 194 - D1: dish initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 32.205042
+  ...
+# Subtest: D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+ok 195 - D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+  ---
+  duration_ms: 61.835792
+  ...
+# Subtest: D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+ok 196 - D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+  ---
+  duration_ms: 134.490167
+  ...
+# Subtest: D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+ok 197 - D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+  ---
+  duration_ms: 54.517
+  ...
+# Subtest: D1: inline late module completion cannot install into auth
+ok 198 - D1: inline late module completion cannot install into auth
+  ---
+  duration_ms: 55.973208
+  ...
+# Subtest: D1: inline late module completion cannot install into remove
+ok 199 - D1: inline late module completion cannot install into remove
+  ---
+  duration_ms: 45.036291
+  ...
+# Subtest: D1: inline late module completion cannot install into replace
+ok 200 - D1: inline late module completion cannot install into replace
+  ---
+  duration_ms: 50.764917
+  ...
+# Subtest: D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+ok 201 - D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+  ---
+  duration_ms: 53.853042
+  ...
+# Subtest: D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+ok 202 - D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+  ---
+  duration_ms: 51.628458
+  ...
+# Subtest: D1: ingredient old auth cannot use a late legacy module
+ok 203 - D1: ingredient old auth cannot use a late legacy module
+  ---
+  duration_ms: 52.705958
+  ...
+# Subtest: D1: dish old auth cannot use a late legacy module
+ok 204 - D1: dish old auth cannot use a late legacy module
+  ---
+  duration_ms: 54.931708
+  ...
+# Subtest: D1: ingredient image module admission is protected and late auth prevents decoding
+ok 205 - D1: ingredient image module admission is protected and late auth prevents decoding
+  ---
+  duration_ms: 54.343458
+  ...
+# Subtest: D1: dish image module admission is protected and late auth prevents decoding
+ok 206 - D1: dish image module admission is protected and late auth prevents decoding
+  ---
+  duration_ms: 54.502875
+  ...
+# Subtest: D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+ok 207 - D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+  ---
+  duration_ms: 40.755875
+  ...
+# Subtest: D1: ingredient image module unavailable survives language; no-image save remains usable
+ok 208 - D1: ingredient image module unavailable survives language; no-image save remains usable
+  ---
+  duration_ms: 42.745042
+  ...
+# Subtest: D1: dish image module unavailable survives language; no-image save remains usable
+ok 209 - D1: dish image module unavailable survives language; no-image save remains usable
+  ---
+  duration_ms: 56.66475
+  ...
+# Subtest: D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+ok 210 - D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 49.504167
+  ...
+# Subtest: D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+ok 211 - D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 51.030375
+  ...
+# Subtest: D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+ok 212 - D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 72.765375
+  ...
+# Subtest: D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+ok 213 - D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 80.723792
+  ...
+# Subtest: D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+ok 214 - D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 70.495334
+  ...
+# Subtest: D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+ok 215 - D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 81.733958
+  ...
+# Subtest: D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 216 - D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 70.555542
+  ...
+# Subtest: D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 217 - D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 82.261958
+  ...
+# Subtest: D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 218 - D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 72.172917
+  ...
+# Subtest: D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 219 - D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 84.008375
+  ...
+# Subtest: D1-R1: ingredient language keeps original allowed operation
+ok 220 - D1-R1: ingredient language keeps original allowed operation
+  ---
+  duration_ms: 58.740292
+  ...
+# Subtest: D1-R1: ingredient return-before-ready keeps original allowed operation
+ok 221 - D1-R1: ingredient return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.437708
+  ...
+# Subtest: D1-R1: new language keeps original allowed operation
+ok 222 - D1-R1: new language keeps original allowed operation
+  ---
+  duration_ms: 60.12
+  ...
+# Subtest: D1-R1: new return-before-ready keeps original allowed operation
+ok 223 - D1-R1: new return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.748125
+  ...
+# Subtest: D1-R1: new-photo language keeps original allowed operation
+ok 224 - D1-R1: new-photo language keeps original allowed operation
+  ---
+  duration_ms: 57.748541
+  ...
+# Subtest: D1-R1: new-photo return-before-ready keeps original allowed operation
+ok 225 - D1-R1: new-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.023708
+  ...
+# Subtest: D1-R1: dish-photo language keeps original allowed operation
+ok 226 - D1-R1: dish-photo language keeps original allowed operation
+  ---
+  duration_ms: 62.678167
+  ...
+# Subtest: D1-R1: dish-photo return-before-ready keeps original allowed operation
+ok 227 - D1-R1: dish-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.095292
+  ...
+# Subtest: D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+ok 228 - D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+  ---
+  duration_ms: 75.321791
+  ...
+# Subtest: D1-R1: already dispatched ingredient settles its original owner after departure
+ok 229 - D1-R1: already dispatched ingredient settles its original owner after departure
+  ---
+  duration_ms: 68.0595
+  ...
+# Subtest: D1-R1: already dispatched new-photo settles its original owner after departure
+ok 230 - D1-R1: already dispatched new-photo settles its original owner after departure
+  ---
+  duration_ms: 71.732125
+  ...
+# Subtest: D1-R1: already dispatched dish-photo settles its original owner after departure
+ok 231 - D1-R1: already dispatched dish-photo settles its original owner after departure
+  ---
+  duration_ms: 75.201833
+  ...
+# Subtest: D1-R1: inline legacy ready after home cannot send its new write
+ok 232 - D1-R1: inline legacy ready after home cannot send its new write
+  ---
+  duration_ms: 97.182166
+  ...
+# Subtest: D1-R1: inline legacy ready after other-record cannot send its new write
+ok 233 - D1-R1: inline legacy ready after other-record cannot send its new write
+  ---
+  duration_ms: 109.512417
+  ...
+# Subtest: details distinguish unknown quantity from recorded to-taste and preserve original units
+ok 234 - details distinguish unknown quantity from recorded to-taste and preserve original units
+  ---
+  duration_ms: 0.755959
+  ...
+# Subtest: reference links reject executable and protocol-relative URLs
+ok 235 - reference links reject executable and protocol-relative URLs
+  ---
+  duration_ms: 0.14975
+  ...
+# Subtest: new dish omits unknown servings instead of defaulting to 50
+ok 236 - new dish omits unknown servings instead of defaulting to 50
+  ---
+  duration_ms: 0.715542
+  ...
+# Subtest: v3 unknown qty remains omitted and all source metadata survives an edit
+ok 237 - v3 unknown qty remains omitted and all source metadata survives an edit
+  ---
+  duration_ms: 1.806083
+  ...
+# Subtest: v2 true quantities, to-taste and servings survive explicit v3 edit
+ok 238 - v2 true quantities, to-taste and servings survive explicit v3 edit
+  ---
+  duration_ms: 0.254291
+  ...
+# Subtest: draft action submits exact draft body under source lock through C1
+ok 239 - draft action submits exact draft body under source lock through C1
+  ---
+  duration_ms: 1.781
+  ...
+# Subtest: late save and language refresh preserve later form edits
+ok 240 - late save and language refresh preserve later form edits
+  ---
+  duration_ms: 0.657875
+  ...
+# Subtest: unknown result survives detach/return and recovery force-reads pinned source twice
+ok 241 - unknown result survives detach/return and recovery force-reads pinned source twice
+  ---
+  duration_ms: 0.715041
+  ...
+# Subtest: legal to-taste source value survives an unrelated edit
+ok 242 - legal to-taste source value survives an unrelated edit
+  ---
+  duration_ms: 0.126625
+  ...
+# Subtest: new dish creates with if-none-match and optional fields remain absent
+ok 243 - new dish creates with if-none-match and optional fields remain absent
+  ---
+  duration_ms: 1.713959
+  ...
+# Subtest: conflict retains edited draft and explicit adoption is required before a new write
+ok 244 - conflict retains edited draft and explicit adoption is required before a new write
+  ---
+  duration_ms: 0.80125
+  ...
+# Subtest: late read cannot open a different dish after detaching
+ok 245 - late read cannot open a different dish after detaching
+  ---
+  duration_ms: 0.279833
+  ...
+# Subtest: review: add-another on an existing dish must not orphan an unresolved new dish
+ok 246 - review: add-another on an existing dish must not orphan an unresolved new dish
+  ---
+  duration_ms: 0.626916
+  ...
+# Subtest: review: pending image still requires dirty warning after language refresh
+ok 247 - review: pending image still requires dirty warning after language refresh
+  ---
+  duration_ms: 0.452792
+  ...
+# Subtest: review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+ok 248 - review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+  ---
+  duration_ms: 0.805209
+  ...
+# Subtest: review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+ok 249 - review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+  ---
+  duration_ms: 12.619375
+  ...
+# Subtest: review: detached photo completion stays with its original dish and does not upload again on return
+ok 250 - review: detached photo completion stays with its original dish and does not upload again on return
+  ---
+  duration_ms: 0.63825
+  ...
+# Subtest: review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+ok 251 - review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+  ---
+  duration_ms: 0.366083
+  ...
+# Subtest: review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+ok 252 - review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+  ---
+  duration_ms: 0.614833
+  ...
+# Subtest: Dish source loading is registered before its first await and canceled read ends only its own ticket
+ok 253 - Dish source loading is registered before its first await and canceled read ends only its own ticket
+  ---
+  duration_ms: 46.942833
+  ...
+# Subtest: Dish raw and processing owners remain registered across detach and return
+ok 254 - Dish raw and processing owners remain registered across detach and return
+  ---
+  duration_ms: 19.123208
+  ...
+# Subtest: Dish C1 save is protected once and does not create an auxiliary write ticket
+ok 255 - Dish C1 save is protected once and does not create an auxiliary write ticket
+  ---
+  duration_ms: 11.833375
+  ...
+# Subtest: Dish unknown upload remains an original anonymous operation after auth and cannot save B
+ok 256 - Dish unknown upload remains an original anonymous operation after auth and cannot save B
+  ---
+  duration_ms: 8.161334
+  ...
+# Subtest: Dish parallel old read tasks remain anonymous until both actual results finish
+ok 257 - Dish parallel old read tasks remain anonymous until both actual results finish
+  ---
+  duration_ms: 12.634834
+  ...
+# Subtest: Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+ok 258 - Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+  ---
+  duration_ms: 6.608917
+  ...
+# Subtest: Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+ok 259 - Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+  ---
+  duration_ms: 20.003083
+  ...
+# Subtest: inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+ok 260 - inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+  ---
+  duration_ms: 4.782625
+  ...
+# Subtest: inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+ok 261 - inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+  ---
+  duration_ms: 5.401208
+  ...
+# Subtest: captured inline API cannot dispatch a save after an old visible upload ACK under B
+ok 262 - captured inline API cannot dispatch a save after an old visible upload ACK under B
+  ---
+  duration_ms: 4.709584
+  ...
+# Subtest: old and new raw registration snapshots never observe credentials or return private old IDs
+ok 263 - old and new raw registration snapshots never observe credentials or return private old IDs
+  ---
+  duration_ms: 6.295083
+  ...
+# Subtest: unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock
+ok 264 - unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock
+  ---
+  duration_ms: 70.921
+  ...
+# Subtest: mixed v2/v3 catalog and unknown servings render through C1; only publication uses legacy API
+ok 265 - mixed v2/v3 catalog and unknown servings render through C1; only publication uses legacy API
+  ---
+  duration_ms: 69.285458
+  ...
+# Subtest: explicit simulation is labelled and cannot claim actual publication
+ok 266 - explicit simulation is labelled and cannot claim actual publication
+  ---
+  duration_ms: 24.303958
+  ...
+# Subtest: C1 read failures leave unknown numbers; a confirmed missing plan alone may display zero
+ok 267 - C1 read failures leave unknown numbers; a confirmed missing plan alone may display zero
+  ---
+  duration_ms: 28.606708
+  ...
+# Subtest: late prior-account replies cannot populate a new-account language render
+ok 268 - late prior-account replies cannot populate a new-account language render
+  ---
+  duration_ms: 24.421
+  ...
+# Subtest: auth changes immediately remove cached private numbers and late results do not return them
+ok 269 - auth changes immediately remove cached private numbers and late results do not return them
+  ---
+  duration_ms: 26.288041
+  ...
+# Subtest: a completed snapshot from an earlier auth identity is not reused on language change
+ok 270 - a completed snapshot from an earlier auth identity is not reused on language change
+  ---
+  duration_ms: 21.109334
+  ...
+# Subtest: offline repaint retains known figures, explicitly marks offline and disables write entry links
+ok 271 - offline repaint retains known figures, explicitly marks offline and disables write entry links
+  ---
+  duration_ms: 14.931833
+  ...
+# Subtest: home owns each initial read until it finishes and language reuses pending coverage
+ok 272 - home owns each initial read until it finishes and language reuses pending coverage
+  ---
+  duration_ms: 41.389833
+  ...
+# Subtest: old home initialization finishes only original scope after auth while new reads stay protected
+ok 273 - old home initialization finishes only original scope after auth while new reads stay protected
+  ---
+  duration_ms: 35.664958
+  ...
+# Subtest: unconfigured and completed failed home reads release coverage without inventing numbers
+ok 274 - unconfigured and completed failed home reads release coverage without inventing numbers
+  ---
+  duration_ms: 26.113125
+  ...
+# Subtest: real core parsed missing servings stay blank rather than receiving a page default
+ok 275 - real core parsed missing servings stay blank rather than receiving a page default
+  ---
+  duration_ms: 3.438166
+  ...
+# Subtest: explicit preview clear overrides parsed original, while untouched preview keeps it
+ok 276 - explicit preview clear overrides parsed original, while untouched preview keeps it
+  ---
+  duration_ms: 0.732291
+  ...
+# Subtest: preview rejects fractional, nonpositive and nonfinite values without rounding or fallback
+ok 277 - preview rejects fractional, nonpositive and nonfinite values without rounding or fallback
+  ---
+  duration_ms: 0.48275
+  ...
+# Subtest: import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count
+ok 278 - import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count
+  ---
+  duration_ms: 0.424958
+  ...
+# Subtest: only an explicit clear removes matched known count; duplicate rows and service window survive
+ok 279 - only an explicit clear removes matched known count; duplicate rows and service window survive
+  ---
+  duration_ms: 0.167667
+  ...
+# Subtest: new unknown plan is v3 and known incoming count updates first matching occurrence only
+ok 280 - new unknown plan is v3 and known incoming count updates first matching occurrence only
+  ---
+  duration_ms: 0.095917
+  ...
+# Subtest: actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST
+ok 281 - actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST
+  ---
+  duration_ms: 23.310625
+  ...
+# Subtest: actual preview explicit clear survives language repaint and invalid entry can be corrected
+ok 282 - actual preview explicit clear survives language repaint and invalid entry can be corrected
+  ---
+  duration_ms: 4.111416
+  ...
+# Subtest: late saved-plan read cannot import over a newer preview or an auth lifetime
+ok 283 - late saved-plan read cannot import over a newer preview or an auth lifetime
+  ---
+  duration_ms: 10.100625
+  ...
+# Subtest: unconfigured import shows honest unavailable state without fallback mock reads
+ok 284 - unconfigured import shows honest unavailable state without fallback mock reads
+  ---
+  duration_ms: 0.537042
+  ...
+# Subtest: an initially blank preview has an explicit clear action to remove a matched saved count
+ok 285 - an initially blank preview has an explicit clear action to remove a matched saved count
+  ---
+  duration_ms: 11.375792
+  ...
+# Subtest: I-R1 canceled source read derives action validity from the current preview
+ok 286 - I-R1 canceled source read derives action validity from the current preview
+  ---
+  duration_ms: 36.49375
+  ...
+# Subtest: raw preview refuses loss of numeric precision and retains the original input after repaint
+ok 287 - raw preview refuses loss of numeric precision and retains the original input after repaint
+  ---
+  duration_ms: 4.594333
+  ...
+# Subtest: exact integer decimal and exponent representations remain supported in the preview
+ok 288 - exact integer decimal and exponent representations remain supported in the preview
+  ---
+  duration_ms: 17.662917
+  ...
+# Subtest: approved core invalid servings are shown as unparsed original text with no import fallback
+ok 289 - approved core invalid servings are shown as unparsed original text with no import fallback
+  ---
+  duration_ms: 1.506542
+  ...
+# Subtest: raw paste and invalid line edit belong to the original plan across another plan and language
+ok 290 - raw paste and invalid line edit belong to the original plan across another plan and language
+  ---
+  duration_ms: 1.417125
+  ...
+# Subtest: selected CSV completes into the original owner after a language repaint or navigating away
+ok 291 - selected CSV completes into the original owner after a language repaint or navigating away
+  ---
+  duration_ms: 10.013042
+  ...
+# Subtest: a newer CSV or paste wins over an older selected file without changing the wrong owner
+ok 292 - a newer CSV or paste wins over an older selected file without changing the wrong owner
+  ---
+  duration_ms: 5.22975
+  ...
+# Subtest: Source-read busy state survives language repaint and cancellation preserves raw validity
+ok 293 - Source-read busy state survives language repaint and cancellation preserves raw validity
+  ---
+  duration_ms: 2.575625
+  ...
+# Subtest: late file failure is retained for its owner across repaint and cannot leak into a new auth session
+ok 294 - late file failure is retained for its owner across repaint and cannot leak into a new auth session
+  ---
+  duration_ms: 2.939666
+  ...
+# Subtest: raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle
+ok 295 - raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle
+  ---
+  duration_ms: 1.553375
+  ...
+# Subtest: a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft
+ok 296 - a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft
+  ---
+  duration_ms: 12.561166
+  ...
+# Subtest: I-R2 changed auth removes old notice, base, undo and handoff while same-auth navigation keeps them
+ok 297 - I-R2 changed auth removes old notice, base, undo and handoff while same-auth navigation keeps them
+  ---
+  duration_ms: 12.935458
+  ...
+# Subtest: I-R2 old Source completion and captured handles cannot write or clear a newer bound draft
+ok 298 - I-R2 old Source completion and captured handles cannot write or clear a newer bound draft
+  ---
+  duration_ms: 6.234
+  ...
+# Subtest: different API instances with equal session keys never reuse another instance draft or handoff
+ok 299 - different API instances with equal session keys never reuse another instance draft or handoff
+  ---
+  duration_ms: 4.036541
+  ...
+# Subtest: old Import undo and handoff button callbacks cannot rebind into the newer identity
+ok 300 - old Import undo and handoff button callbacks cannot rebind into the newer identity
+  ---
+  duration_ms: 3.908916
+  ...
+# Subtest: Import auxiliary tracks raw and actual file read across repaint and explicit clear
+ok 301 - Import auxiliary tracks raw and actual file read across repaint and explicit clear
+  ---
+  duration_ms: 1.93025
+  ...
+# Subtest: two old Import read tickets survive auth and settle independently without exposing prior identity
+ok 302 - two old Import read tickets survive auth and settle independently without exposing prior identity
+  ---
+  duration_ms: 2.370375
+  ...
+# Subtest: Import initialization completes original coverage after auth cancellation and snapshot never reads A raw
+ok 303 - Import initialization completes original coverage after auth cancellation and snapshot never reads A raw
+  ---
+  duration_ms: 1.531292
+  ...
+# Subtest: standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+ok 304 - standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+  ---
+  duration_ms: 45.723958
+  ...
+# Subtest: unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+ok 305 - unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+  ---
+  duration_ms: 55.310292
+  ...
+# Subtest: late source cannot paint an old language into a reused connected mount
+ok 306 - late source cannot paint an old language into a reused connected mount
+  ---
+  duration_ms: 18.854333
+  ...
+# Subtest: late previous-session source cannot overwrite the current session
+ok 307 - late previous-session source cannot overwrite the current session
+  ---
+  duration_ms: 27.724333
+  ...
+# Subtest: raw buffer and registry protection survive leaving the ingredient route
+ok 308 - raw buffer and registry protection survive leaving the ingredient route
+  ---
+  duration_ms: 17.928125
+  ...
+# Subtest: upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+ok 309 - upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+  ---
+  duration_ms: 57.18275
+  ...
+# Subtest: save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+ok 310 - save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+  ---
+  duration_ms: 50.981416
+  ...
+# Subtest: unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+ok 311 - unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+  ---
+  duration_ms: 27.843375
+  ...
+# Subtest: unknown upload remains protected because a source read cannot prove the upload result
+ok 312 - unknown upload remains protected because a source read cannot prove the upload result
+  ---
+  duration_ms: 28.557833
+  ...
+# Subtest: shared form keeps default translation behavior and an explicit declined task sends nothing
+ok 313 - shared form keeps default translation behavior and an explicit declined task sends nothing
+  ---
+  duration_ms: 25.784666
+  ...
+# Subtest: translation owner survives language and ignores a result after newer raw name edits
+ok 314 - translation owner survives language and ignores a result after newer raw name edits
+  ---
+  duration_ms: 30.615541
+  ...
+# Subtest: photo decode is busy before a preview exists and its result survives language/navigation
+ok 315 - photo decode is busy before a preview exists and its result survives language/navigation
+  ---
+  duration_ms: 29.682875
+  ...
+# Subtest: photo decode failure releases busy while keeping prior photo and raw edits
+ok 316 - photo decode failure releases busy while keeping prior photo and raw edits
+  ---
+  duration_ms: 26.897709
+  ...
+# Subtest: successful translation from an old language view updates the current view without repeating
+ok 317 - successful translation from an old language view updates the current view without repeating
+  ---
+  duration_ms: 17.969125
+  ...
+# Subtest: malformed successful save responses stay unknown and cannot discard the pending attempt
+ok 318 - malformed successful save responses stay unknown and cannot discard the pending attempt
+  ---
+  duration_ms: 18.135375
+  ...
+# Subtest: unrecognized write rejection cannot be assumed safe to retry
+ok 319 - unrecognized write rejection cannot be assumed safe to retry
+  ---
+  duration_ms: 16.97675
+  ...
+# Subtest: field validation survives language and does not steal focus on every later keystroke
+ok 320 - field validation survives language and does not steal focus on every later keystroke
+  ---
+  duration_ms: 20.399875
+  ...
+# Subtest: ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+ok 321 - ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+  ---
+  duration_ms: 52.013709
+  ...
+# Subtest: ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+ok 322 - ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+  ---
+  duration_ms: 42.568333
+  ...
+# Subtest: ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+ok 323 - ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+  ---
+  duration_ms: 50.777041
+  ...
+# Subtest: ING-R1 unknown new creation never retires its target or permits another write on return
+ok 324 - ING-R1 unknown new creation never retires its target or permits another write on return
+  ---
+  duration_ms: 37.764667
+  ...
+# Subtest: ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+ok 325 - ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+  ---
+  duration_ms: 29.5455
+  ...
+# Subtest: ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+ok 326 - ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+  ---
+  duration_ms: 65.986417
+  ...
+# Subtest: bound Ingredient handoff is taken from the same API once and cannot cross authentication
+ok 327 - bound Ingredient handoff is taken from the same API once and cannot cross authentication
+  ---
+  duration_ms: 26.495917
+  ...
+# Subtest: Ingredient auxiliary protects raw, translation and save with the real owner through language
+ok 328 - Ingredient auxiliary protects raw, translation and save with the real owner through language
+  ---
+  duration_ms: 39.688625
+  ...
+# Subtest: Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+ok 329 - Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+  ---
+  duration_ms: 27.006166
+  ...
+# Subtest: real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+ok 330 - real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+  ---
+  duration_ms: 49.772
+  ...
+# Subtest: Ingredient canceled A initialization settles its original coverage and preserves B raw
+ok 331 - Ingredient canceled A initialization settles its original coverage and preserves B raw
+  ---
+  duration_ms: 27.740625
+  ...
+# Subtest: two old Ingredient writes settle independently while B same-page raw remains protected
+ok 332 - two old Ingredient writes settle independently while B same-page raw remains protected
+  ---
+  duration_ms: 80.98975
+  ...
+# Subtest: Ingredient unknown save remains registered until a matching source verifies that exact write
+ok 333 - Ingredient unknown save remains registered until a matching source verifies that exact write
+  ---
+  duration_ms: 38.092125
+  ...
+# Subtest: Ingredient photo decode ticket ends after old auth failure without clearing B changes
+ok 334 - Ingredient photo decode ticket ends after old auth failure without clearing B changes
+  ---
+  duration_ms: 49.016
+  ...
+# Subtest: unknown quantity stays unknown; raw quantity units are never scaled or normalized
+ok 335 - unknown quantity stays unknown; raw quantity units are never scaled or normalized
+  ---
+  duration_ms: 0.681041
+  ...
+# Subtest: row selection respects projection scope and retains multiple dishes and repeated dish occurrences
+ok 336 - row selection respects projection scope and retains multiple dishes and repeated dish occurrences
+  ---
+  duration_ms: 0.689
+  ...
+# Subtest: invalid revision and mutable source cannot be labelled fixed-source content
+ok 337 - invalid revision and mutable source cannot be labelled fixed-source content
+  ---
+  duration_ms: 0.287583
+  ...
+# Subtest: prep exposes all original components, steps, three names, truth labels and safe source links
+ok 338 - prep exposes all original components, steps, three names, truth labels and safe source links
+  ---
+  duration_ms: 3.7045
+  ...
+# Subtest: same-version image bytes use exact source pointers and object URLs are revoked on disposal
+ok 339 - same-version image bytes use exact source pointers and object URLs are revoked on disposal
+  ---
+  duration_ms: 3.848833
+  ...
+# Subtest: wrong-version or late assets never substitute current URLs into an old or repainted view
+ok 340 - wrong-version or late assets never substitute current URLs into an old or repainted view
+  ---
+  duration_ms: 1.253791
+  ...
+# Subtest: menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe
+ok 341 - menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe
+  ---
+  duration_ms: 1.280041
+  ...
+# Subtest: an unresolved plan is shown as missing source, not silently represented as an empty menu
+ok 342 - an unresolved plan is shown as missing source, not silently represented as an empty menu
+  ---
+  duration_ms: 0.362375
+  ...
+# Subtest: technique images resolve by explicit ID, independently of filtered projection positions
+ok 343 - technique images resolve by explicit ID, independently of filtered projection positions
+  ---
+  duration_ms: 1.498792
+  ...
+# Subtest: recipe details show localized issue reasons only for the selected original row
+ok 344 - recipe details show localized issue reasons only for the selected original row
+  ---
+  duration_ms: 0.917583
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by menuPlanRef
+ok 345 - prep: empty selection excludes unrelated missing records by menuPlanRef
+  ---
+  duration_ms: 0.38575
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by date
+ok 346 - prep: empty selection excludes unrelated missing records by date
+  ---
+  duration_ms: 0.214375
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by mealType
+ok 347 - prep: empty selection excludes unrelated missing records by mealType
+  ---
+  duration_ms: 0.14275
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by mealIndex
+ok 348 - prep: empty selection excludes unrelated missing records by mealIndex
+  ---
+  duration_ms: 0.184667
+  ...
+# Subtest: prep: selected missing plan remains unavailable in all languages, including broad selection
+ok 349 - prep: selected missing plan remains unavailable in all languages, including broad selection
+  ---
+  duration_ms: 0.492666
+  ...
+# Subtest: prep: missing recipe and unrecorded components stay visible on their original row
+ok 350 - prep: missing recipe and unrecorded components stay visible on their original row
+  ---
+  duration_ms: 1.559833
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by menuPlanRef
+ok 351 - menu: empty selection excludes unrelated missing records by menuPlanRef
+  ---
+  duration_ms: 2.33575
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by date
+ok 352 - menu: empty selection excludes unrelated missing records by date
+  ---
+  duration_ms: 0.390709
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by mealType
+ok 353 - menu: empty selection excludes unrelated missing records by mealType
+  ---
+  duration_ms: 0.23525
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by mealIndex
+ok 354 - menu: empty selection excludes unrelated missing records by mealIndex
+  ---
+  duration_ms: 0.299958
+  ...
+# Subtest: menu: selected missing plan remains unavailable in all languages, including broad selection
+ok 355 - menu: selected missing plan remains unavailable in all languages, including broad selection
+  ---
+  duration_ms: 0.469166
+  ...
+# Subtest: menu: missing recipe and unrecorded components stay visible on their original row
+ok 356 - menu: missing recipe and unrecorded components stay visible on their original row
+  ---
+  duration_ms: 0.293792
+  ...
+# Subtest: dish reload inspection uses pure peek and hides changed-scope identity
+ok 357 - dish reload inspection uses pure peek and hides changed-scope identity
+  ---
+  duration_ms: 6.547
+  ...
+# Subtest: dish without pure peek stays unknown without polling sessionKey
+ok 358 - dish without pure peek stays unknown without polling sessionKey
+  ---
+  duration_ms: 0.147667
+  ...
+# Subtest: plan reload inspection uses pure peek and hides changed-scope identity
+ok 359 - plan reload inspection uses pure peek and hides changed-scope identity
+  ---
+  duration_ms: 0.197
+  ...
+# Subtest: plan without pure peek stays unknown without polling sessionKey
+ok 360 - plan without pure peek stays unknown without polling sessionKey
+  ---
+  duration_ms: 0.078833
+  ...
+# Subtest: shopping-list reload inspection uses pure peek and hides changed-scope identity
+ok 361 - shopping-list reload inspection uses pure peek and hides changed-scope identity
+  ---
+  duration_ms: 0.27675
+  ...
+# Subtest: shopping-list without pure peek stays unknown without polling sessionKey
+ok 362 - shopping-list without pure peek stays unknown without polling sessionKey
+  ---
+  duration_ms: 0.077417
+  ...
+# Subtest: deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+ok 363 - deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+  ---
+  duration_ms: 39.93425
+  ...
+# Subtest: raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+ok 364 - raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+  ---
+  duration_ms: 15.113958
+  ...
+# Subtest: unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+ok 365 - unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+  ---
+  duration_ms: 15.840542
+  ...
+# Subtest: removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+ok 366 - removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+  ---
+  duration_ms: 17.632375
+  ...
+# Subtest: unrelated later row removal never consumes an earlier invalid raw value
+ok 367 - unrelated later row removal never consumes an earlier invalid raw value
+  ---
+  duration_ms: 6.579667
+  ...
+# Subtest: stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+ok 368 - stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+  ---
+  duration_ms: 9.6685
+  ...
+# Subtest: saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+ok 369 - saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+  ---
+  duration_ms: 10.763833
+  ...
+# Subtest: acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+ok 370 - acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+  ---
+  duration_ms: 18.351291
+  ...
+# Subtest: Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+ok 371 - Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+  ---
+  duration_ms: 7.225125
+  ...
+# Subtest: clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+ok 372 - clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+  ---
+  duration_ms: 7.945834
+  ...
+# Subtest: registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+ok 373 - registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+  ---
+  duration_ms: 21.468
+  ...
+# Subtest: initial Source and catalog reads each register before awaiting and finish their original coverage
+ok 374 - initial Source and catalog reads each register before awaiting and finish their original coverage
+  ---
+  duration_ms: 9.757375
+  ...
+# Subtest: old initialization result closes only old scope while B same-page read remains protected
+ok 375 - old initialization result closes only old scope while B same-page read remains protected
+  ---
+  duration_ms: 9.63875
+  ...
+# Subtest: a known Source error releases its read and page coverage without clearing existing raw input
+ok 376 - a known Source error releases its read and page coverage without clearing existing raw input
+  ---
+  duration_ms: 7.807209
+  ...
+# Subtest: page adapter saves complete plan, preserving true values and omitting cleared counts
+ok 377 - page adapter saves complete plan, preserving true values and omitting cleared counts
+  ---
+  duration_ms: 1.935209
+  ...
+# Subtest: page adapter retains edits through saving, language refresh and late acknowledgement
+ok 378 - page adapter retains edits through saving, language refresh and late acknowledgement
+  ---
+  duration_ms: 0.975166
+  ...
+# Subtest: unknown result survives leaving/returning; recovery reads twice and does not duplicate write
+ok 379 - unknown result survives leaving/returning; recovery reads twice and does not duplicate write
+  ---
+  duration_ms: 0.688875
+  ...
+# Subtest: empty new plan only follows not_found and uses creation lock
+ok 380 - empty new plan only follows not_found and uses creation lock
+  ---
+  duration_ms: 0.263666
+  ...
+# Subtest: invalid optional count is not silently converted to unknown or zero
+ok 381 - invalid optional count is not silently converted to unknown or zero
+  ---
+  duration_ms: 0.23275
+  ...
+# Subtest: R1 requested identity retry rereads B after its source failure
+ok 382 - R1 requested identity retry rereads B after its source failure
+  ---
+  duration_ms: 0.260958
+  ...
+# Subtest: R2 import is applied before awaiting catalog, so subsequent edits survive
+ok 383 - R2 import is applied before awaiting catalog, so subsequent edits survive
+  ---
+  duration_ms: 2.324666
+  ...
+# Subtest: R3 catalog cache follows adopted source and acknowledged save revision
+ok 384 - R3 catalog cache follows adopted source and acknowledged save revision
+  ---
+  duration_ms: 0.312667
+  ...
+# Subtest: R5 language rebind joins pending exact revision catalog
+ok 385 - R5 language rebind joins pending exact revision catalog
+  ---
+  duration_ms: 1.747917
+  ...
+# Subtest: raw plan count must be an exact safe integer before conversion
+ok 386 - raw plan count must be an exact safe integer before conversion
+  ---
+  duration_ms: 0.852625
+  ...
+# Subtest: saving optional servings explicitly upgrades to v3 without invented counts
+ok 387 - saving optional servings explicitly upgrades to v3 without invented counts
+  ---
+  duration_ms: 0.968292
+  ...
+# Subtest: day filter cannot truncate the whole saved plan or true top-level values
+ok 388 - day filter cannot truncate the whole saved plan or true top-level values
+  ---
+  duration_ms: 0.130084
+  ...
+# Subtest: deleting the last meal produces a legal empty v3 document
+ok 389 - deleting the last meal produces a legal empty v3 document
+  ---
+  duration_ms: 0.074458
+  ...
+# Subtest: unconfigured and explicit simulation never enter the default legacy mock publish flow
+ok 390 - unconfigured and explicit simulation never enter the default legacy mock publish flow
+  ---
+  duration_ms: 19.929625
+  ...
+# Subtest: rollback remains one pending operation across language, close and route return, blocking publish too
+ok 391 - rollback remains one pending operation across language, close and route return, blocking publish too
+  ---
+  duration_ms: 34.144625
+  ...
+# Subtest: lost publish acknowledgement stays unknown across navigation and cannot be retried as a write
+ok 392 - lost publish acknowledgement stays unknown across navigation and cannot be retried as a write
+  ---
+  duration_ms: 9.254542
+  ...
+# Subtest: accepted publish without run ID cannot claim an unrelated latest run or permit another write
+ok 393 - accepted publish without run ID cannot claim an unrelated latest run or permit another write
+  ---
+  duration_ms: 12.759042
+  ...
+# Subtest: known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID
+ok 394 - known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID
+  ---
+  duration_ms: 24.35825
+  ...
+# Subtest: unknown rollback never becomes success merely after changes refresh or repaint
+ok 395 - unknown rollback never becomes success merely after changes refresh or repaint
+  ---
+  duration_ms: 11.144375
+  ...
+# Subtest: auth replacement immediately removes private state and late publish response cannot bind new session
+ok 396 - auth replacement immediately removes private state and late publish response cannot bind new session
+  ---
+  duration_ms: 8.6565
+  ...
+# Subtest: same run ID can be verified read-only after timeout and only confirmed success releases both actions
+ok 397 - same run ID can be verified read-only after timeout and only confirmed success releases both actions
+  ---
+  duration_ms: 9.46375
+  ...
+# Subtest: a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused
+ok 398 - a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused
+  ---
+  duration_ms: 14.043375
+  ...
+# Subtest: known pre-write rejection releases protection; upstream ambiguity keeps it
+ok 399 - known pre-write rejection releases protection; upstream ambiguity keeps it
+  ---
+  duration_ms: 35.451666
+  ...
+# Subtest: publish pending blocks rollback immediately, survives language and protects unload until confirmed completion
+ok 400 - publish pending blocks rollback immediately, survives language and protects unload until confirmed completion
+  ---
+  duration_ms: 8.664625
+  ...
+# Subtest: unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target
+ok 401 - unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target
+  ---
+  duration_ms: 12.97225
+  ...
+# Subtest: late prior-session rollback response cannot fill new session, and dialog rebind restores body
+ok 402 - late prior-session rollback response cannot fill new session, and dialog rebind restores body
+  ---
+  duration_ms: 8.207
+  ...
+# Subtest: late prior-session changes cannot replace the new-session list
+ok 403 - late prior-session changes cannot replace the new-session list
+  ---
+  duration_ms: 6.03675
+  ...
+# Subtest: late known-run progress from a prior session cannot claim success or clear new-operation protection
+ok 404 - late known-run progress from a prior session cannot claim success or clear new-operation protection
+  ---
+  duration_ms: 7.243458
+  ...
+# Subtest: legacy success and false or malformed completion never release a known run or claim it is live
+ok 405 - legacy success and false or malformed completion never release a known run or claim it is live
+  ---
+  duration_ms: 26.019958
+  ...
+# Subtest: matching completed runs release operation regardless of legacy status while conclusion alone determines result
+ok 406 - matching completed runs release operation regardless of legacy status while conclusion alone determines result
+  ---
+  duration_ms: 262.380875
+  ...
+# Subtest: completed evidence for another run is not ownership, and a failed step before completion stays unknown
+ok 407 - completed evidence for another run is not ownership, and a failed step before completion stays unknown
+  ---
+  duration_ms: 11.937667
+  ...
+# Subtest: Publish initial read registers before awaiting and finishes original coverage after an auth replacement
+ok 408 - Publish initial read registers before awaiting and finishes original coverage after an auth replacement
+  ---
+  duration_ms: 6.299542
+  ...
+# Subtest: real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish
+ok 409 - real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish
+  ---
+  duration_ms: 6.83975
+  ...
+# Subtest: each original run read can end only its matching old write; another old run remains unknown
+ok 410 - each original run read can end only its matching old write; another old run remains unknown
+  ---
+  duration_ms: 8.132917
+  ...
+# Subtest: known terminal proof clears registry while legacy failure and ambiguous dispatch protect it
+ok 411 - known terminal proof clears registry while legacy failure and ambiguous dispatch protect it
+  ---
+  duration_ms: 12.657667
+  ...
+# Subtest: an array masquerading as a rollback commit never proves current write completion
+ok 412 - an array masquerading as a rollback commit never proves current write completion
+  ---
+  duration_ms: 6.39575
+  ...
+# Subtest: an array masquerading as a rollback commit never proves old write completion
+ok 413 - an array masquerading as a rollback commit never proves old write completion
+  ---
+  duration_ms: 6.60375
+  ...
+# Subtest: menu public entry reads approved team output and exposes original recipe via existing route
+ok 414 - menu public entry reads approved team output and exposes original recipe via existing route
+  ---
+  duration_ms: 9.845917
+  ...
+# Subtest: menu distinguishes empty manifest, empty plan, missing file and invalid target
+ok 415 - menu distinguishes empty manifest, empty plan, missing file and invalid target
+  ---
+  duration_ms: 0.897542
+  ...
+# Subtest: menu late A read cannot overwrite B in reused outlet
+ok 416 - menu late A read cannot overwrite B in reused outlet
+  ---
+  duration_ms: 24.137916
+  ...
+# Subtest: menu legacy remains an explicit branch
+ok 417 - menu legacy remains an explicit branch
+  ---
+  duration_ms: 0.426416
+  ...
+# Subtest: prep public entry reads approved team output and exposes original recipe via existing route
+ok 418 - prep public entry reads approved team output and exposes original recipe via existing route
+  ---
+  duration_ms: 1.467667
+  ...
+# Subtest: prep distinguishes empty manifest, empty plan, missing file and invalid target
+ok 419 - prep distinguishes empty manifest, empty plan, missing file and invalid target
+  ---
+  duration_ms: 0.748167
+  ...
+# Subtest: prep late A read cannot overwrite B in reused outlet
+ok 420 - prep late A read cannot overwrite B in reused outlet
+  ---
+  duration_ms: 23.215084
+  ...
+# Subtest: prep legacy remains an explicit branch
+ok 421 - prep legacy remains an explicit branch
+  ---
+  duration_ms: 0.409333
+  ...
+# Subtest: prep published ingredient and technique images use original bytes; external and missing assets remain distinct
+ok 422 - prep published ingredient and technique images use original bytes; external and missing assets remain distinct
+  ---
+  duration_ms: 71.696459
+  ...
+# Subtest: absent optional image is visibly not recorded, distinct from a failed original image read
+ok 423 - absent optional image is visibly not recorded, distinct from a failed original image read
+  ---
+  duration_ms: 1.497125
+  ...
+# Subtest: menu clicking a repeated dish retains the exact original row across its existing deep link and language
+ok 424 - menu clicking a repeated dish retains the exact original row across its existing deep link and language
+  ---
+  duration_ms: 1.6085
+  ...
+# Subtest: prep dish selection survives language, ingredient deep link and date return without losing duplicate rows
+ok 425 - prep dish selection survives language, ingredient deep link and date return without losing duplicate rows
+  ---
+  duration_ms: 4.447458
+  ...
+# Subtest: fresh prep ingredient deep link resolves a unique ingredient in the second dish
+ok 426 - fresh prep ingredient deep link resolves a unique ingredient in the second dish
+  ---
+  duration_ms: 0.934667
+  ...
+# Subtest: menu second-dish ingredient link carries its actual source row into prep for a shared ingredient
+ok 427 - menu second-dish ingredient link carries its actual source row into prep for a shared ingredient
+  ---
+  duration_ms: 1.316708
+  ...
+# Subtest: fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources
+ok 428 - fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources
+  ---
+  duration_ms: 0.827583
+  ...
+# Subtest: late original image bytes cannot attach after a new publication replaces the public outlet
+ok 429 - late original image bytes cannot attach after a new publication replaces the public outlet
+  ---
+  duration_ms: 46.007417
+  ...
+# Subtest: copy explicitly includes all current decisions without promoting old bought references
+ok 430 - copy explicitly includes all current decisions without promoting old bought references
+  ---
+  duration_ms: 0.970458
+  ...
+# Subtest: copy preserves raw unresolved reference and meal scope in each language
+ok 431 - copy preserves raw unresolved reference and meal scope in each language
+  ---
+  duration_ms: 0.2075
+  ...
+# Subtest: zh: real core export groups four current decisions and distinguishes same-name IDs
+ok 432 - zh: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 7.412125
+  ...
+# Subtest: zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 433 - zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.86425
+  ...
+# Subtest: zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 434 - zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.7135
+  ...
+# Subtest: zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 435 - zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.199459
+  ...
+# Subtest: en: real core export groups four current decisions and distinguishes same-name IDs
+ok 436 - en: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.508667
+  ...
+# Subtest: en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 437 - en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 9.5185
+  ...
+# Subtest: en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 438 - en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.592416
+  ...
+# Subtest: en: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 439 - en: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.158625
+  ...
+# Subtest: uk: real core export groups four current decisions and distinguishes same-name IDs
+ok 440 - uk: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.371291
+  ...
+# Subtest: uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 441 - uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.638667
+  ...
+# Subtest: uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 442 - uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.439375
+  ...
+# Subtest: uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 443 - uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.145
+  ...
+# Subtest: complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+ok 444 - complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+  ---
+  duration_ms: 0.520625
+  ...
+# Subtest: complete references come directly from the supplied core estimate, with no sum or mutation
+ok 445 - complete references come directly from the supplied core estimate, with no sum or mutation
+  ---
+  duration_ms: 0.386958
+  ...
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 446 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 22.394041
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 447 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 20.677625
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 448 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 7.454084
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 449 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 18.375584
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 450 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 11.63775
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 451 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 12.3925
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 452 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 13.876209
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 453 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 19.56975
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 454 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 3.31775
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 455 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 24.328916
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 456 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 17.499625
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 457 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 7.906
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 458 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 8.298084
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 459 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 4.162583
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 460 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 3.730458
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+ok 461 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 13.647125
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 462 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 15.33325
+  ...
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 463 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 15.356792
+  ...
+# Subtest: zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 464 - zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 16.319084
+  ...
+# Subtest: en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 465 - en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 14.498209
+  ...
+# Subtest: uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 466 - uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 14.741333
+  ...
+# Subtest: copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+ok 467 - copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+  ---
+  duration_ms: 10.158916
+  ...
+# Subtest: creation must acknowledge exact all-check body before a separate conditional manual save
+ok 468 - creation must acknowledge exact all-check body before a separate conditional manual save
+  ---
+  duration_ms: 21.554208
+  ...
+# Subtest: creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+ok 469 - creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+  ---
+  duration_ms: 11.761167
+  ...
+# Subtest: rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+ok 470 - rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+  ---
+  duration_ms: 7.59475
+  ...
+# Subtest: removed bought materials stay in review notice outside current empty list and survive return
+ok 471 - removed bought materials stay in review notice outside current empty list and survive return
+  ---
+  duration_ms: 6.510709
+  ...
+# Subtest: save in flight survives language refresh while later same-basis decisions remain dirty
+ok 472 - save in flight survives language refresh while later same-basis decisions remain dirty
+  ---
+  duration_ms: 2.611458
+  ...
+# Subtest: unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+ok 473 - unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+  ---
+  duration_ms: 3.447334
+  ...
+# Subtest: same-basis conflict preserves local draft and adopts only the compared remote source lock
+ok 474 - same-basis conflict preserves local draft and adopts only the compared remote source lock
+  ---
+  duration_ms: 3.348792
+  ...
+# Subtest: fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+ok 475 - fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+  ---
+  duration_ms: 4.708375
+  ...
+# Subtest: different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+ok 476 - different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+  ---
+  duration_ms: 4.66475
+  ...
+# Subtest: unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+ok 477 - unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+  ---
+  duration_ms: 2.226292
+  ...
+# Subtest: comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+ok 478 - comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+  ---
+  duration_ms: 3.172083
+  ...
+# Subtest: unresolved offscreen write prevents disposal and retains its recovery handle
+ok 479 - unresolved offscreen write prevents disposal and retains its recovery handle
+  ---
+  duration_ms: 1.976916
+  ...
+# Subtest: a fresh controller loads acknowledged list storage and original basis separately
+ok 480 - a fresh controller loads acknowledged list storage and original basis separately
+  ---
+  duration_ms: 2.470292
+  ...
+# Subtest: later decisions invalidate a pending rebase and retain the original matching basis
+ok 481 - later decisions invalidate a pending rebase and retain the original matching basis
+  ---
+  duration_ms: 1.897042
+  ...
+# Subtest: a detached pending load cannot reopen a list after the user leaves
+ok 482 - a detached pending load cannot reopen a list after the user leaves
+  ---
+  duration_ms: 1.814875
+  ...
+# Subtest: ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 483 - ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 61.604541
+  ...
+# Subtest: dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 484 - dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 44.116375
+  ...
+# Subtest: paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 485 - paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 48.393667
+  ...
+# Subtest: Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+ok 486 - Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+  ---
+  duration_ms: 33.274042
+  ...
+# Subtest: ingredient: actual pending and unknown operation still veto manual and application reload
+ok 487 - ingredient: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 65.863667
+  ...
+# Subtest: dish: actual pending and unknown operation still veto manual and application reload
+ok 488 - dish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 65.976708
+  ...
+# Subtest: publish: actual pending and unknown operation still veto manual and application reload
+ok 489 - publish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 62.713708
+  ...
+# Subtest: fixed Q boundary input uses one catalog and one unique plan, preserves every source and original JSON
+ok 490 - fixed Q boundary input uses one catalog and one unique plan, preserves every source and original JSON
+  ---
+  duration_ms: 43.614542
+  ...
+# Subtest: v3 unknown values stay omitted, seasoning/missing package/base are still candidates and never partial estimates
+ok 491 - v3 unknown values stay omitted, seasoning/missing package/base are still candidates and never partial estimates
+  ---
+  duration_ms: 14.76875
+  ...
+# Subtest: saved handles reject nested edits, copies, forged values and another reader
+ok 492 - saved handles reject nested edits, copies, forged values and another reader
+  ---
+  duration_ms: 6.975333
+  ...
+# Subtest: missing material and opaque recipes remain visible; unresolved material cannot be confirmed
+ok 493 - missing material and opaque recipes remain visible; unresolved material cannot be confirmed
+  ---
+  duration_ms: 2.701667
+  ...
+# Subtest: empty saved plan is visible without a persistent basis; cancelled nonempty scope can yield an empty list
+ok 494 - empty saved plan is visible without a persistent basis; cancelled nonempty scope can yield an empty list
+  ---
+  duration_ms: 3.412875
+  ...
+# Subtest: invalid and unreadable revisions, missing plan and denied catalog never fall back
+ok 495 - invalid and unreadable revisions, missing plan and denied catalog never fall back
+  ---
+  duration_ms: 4.2565
+  ...
+# Subtest: list source commit and basis revision remain distinct; missing lists alone return null
+ok 496 - list source commit and basis revision remain distinct; missing lists alone return null
+  ---
+  duration_ms: 4.587375
+  ...
+# Subtest: manual decisions match their exact basis/candidates and never modify the saved inputs or original body
+ok 497 - manual decisions match their exact basis/candidates and never modify the saved inputs or original body
+  ---
+  duration_ms: 3.167875
+  ...
+# Subtest: review reads old and next independently, uses Q expected decisions and preserves removed purchases
+ok 498 - review reads old and next independently, uses Q expected decisions and preserves removed purchases
+  ---
+  duration_ms: 3.82725
+  ...
+# Subtest: review presentation-only edits retain decisions and scope changes reset them
+ok 499 - review presentation-only edits retain decisions and scope changes reset them
+  ---
+  duration_ms: 2.668083
+  ...
+# Subtest: whole previous body and requests are captured before asynchronous reads
+ok 500 - whole previous body and requests are captured before asynchronous reads
+  ---
+  duration_ms: 5.263083
+  ...
+# Subtest: formal core estimates satisfy every independent Q numerical oracle
+ok 501 - formal core estimates satisfy every independent Q numerical oracle
+  ---
+  duration_ms: 10.030625
+  ...
+# Subtest: assets stay at the handle revision and authentication changes invalidate all handles
+ok 502 - assets stay at the handle revision and authentication changes invalidate all handles
+  ---
+  duration_ms: 2.368875
+  ...
+# Subtest: late reads after auth change or disposal are rejected, and disposal does not dispose the C1 API
+ok 503 - late reads after auth change or disposal are rejected, and disposal does not dispose the C1 API
+  ---
+  duration_ms: 1.233583
+  ...
+# Subtest: unconfigured API cannot create saved handles, but explicit draft previews need no network
+ok 504 - unconfigured API cannot create saved handles, but explicit draft previews need no network
+  ---
+  duration_ms: 0.49875
+  ...
+# Subtest: stored list duplicate, omitted and extra candidates fail before a page can use them
+ok 505 - stored list duplicate, omitted and extra candidates fail before a page can use them
+  ---
+  duration_ms: 3.96275
+  ...
+# Subtest: multi-plan selection reads each plan once and retains repeated source counts without fake totals
+ok 506 - multi-plan selection reads each plan once and retains repeated source counts without fake totals
+  ---
+  duration_ms: 0.864708
+  ...
+# Subtest: one unknown occurrence suppresses its whole ingredient estimate while preserving known source quantities
+ok 507 - one unknown occurrence suppresses its whole ingredient estimate while preserving known source quantities
+  ---
+  duration_ms: 1.537916
+  ...
+# Subtest: old revision failures do not get replaced by the next revision during review
+ok 508 - old revision failures do not get replaced by the next revision during review
+  ---
+  duration_ms: 1.109792
+  ...
+# Subtest: golden dish and material metadata are preserved at the requested version without current detail reads
+ok 509 - golden dish and material metadata are preserved at the requested version without current detail reads
+  ---
+  duration_ms: 1.483834
+  ...
+1..509
+# tests 509
+# suites 0
+# pass 509
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3472.362125
