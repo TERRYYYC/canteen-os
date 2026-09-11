@@ -181,6 +181,122 @@ test("没写份数：status 仍按菜名判定，plannedServings 缺省；「0�
   assert.equal(b.plannedServings, undefined);
 });
 
+for (const text of [
+  "周一午 番茄炒蛋 2.5份",
+  "周一午 番茄炒蛋 x2.5",
+  "周一午 番茄炒蛋 2.5",
+  "周一午 番茄炒蛋 25.5份",
+  "周一午 番茄炒蛋 .5份",
+  "周一午 番茄炒蛋 x.5",
+  "周一午 番茄炒蛋 .5",
+  "2026-10-05 午 番茄炒蛋 2.5份",
+  "10.05 午 番茄炒蛋 2.5",
+  "周一午\n番茄炒蛋 2.5份",
+  "周一午\n番茄炒蛋 2.5",
+]) {
+  test(`小数份数明确拒绝，保留原文与日期餐次：${text}`, () => {
+    const l = one(text);
+    assert.equal(l.status, "unparsed");
+    assert.match(l.reason, /份数.*整数/);
+    assert.equal(l.plannedServings, undefined);
+    assert.equal(l.date, WEEK_START);
+    assert.equal(l.mealType, "lunch");
+    assert.equal(l.dishNameRaw, "番茄炒蛋");
+    assert.equal(l.raw, text.split("\n").at(-1));
+  });
+}
+
+test("共享的小数份数随实际补值路径报错，原文保留共享数字", () => {
+  for (const text of [
+    "周一午：番茄炒蛋、土豆烧牛肉 各2.5",
+    "周一午：番茄炒蛋、土豆烧牛肉，各2.5份",
+    "周一午：番茄炒蛋、土豆烧牛肉，2.5",
+    "周一午：2.5份、番茄炒蛋",
+    "周一午：各2.5、番茄炒蛋",
+    "周一午：2.5、番茄炒蛋",
+    "周一午：番茄炒蛋、土豆烧牛肉，2.5 晚",
+    "周一午：番茄炒蛋、土豆烧牛肉，2.5，晚",
+    "周一午：番茄炒蛋、土豆烧牛肉，2.5 20份",
+    "周一午：番茄炒蛋，2.5 20",
+    "周一午：番茄炒蛋、土豆烧牛肉，20份 2.5",
+    "周一午：番茄炒蛋、土豆烧牛肉，晚 2.5",
+    "周一午：番茄炒蛋、土豆烧牛肉，晚 2.5 20份",
+  ]) {
+    const lines = parse(text);
+    assert.equal(lines.length, text.includes("土豆") ? 2 : 1, text);
+    for (const l of lines) {
+      assert.equal(l.status, "unparsed", text);
+      assert.match(l.reason, /份数.*整数/, text);
+      assert.equal(l.plannedServings, undefined, text);
+      assert.equal(l.date, WEEK_START, text);
+      assert.equal(l.raw, text.normalize("NFKC"), text);
+    }
+  }
+});
+
+test("错误份数不会被合法相邻值覆盖，也不污染已明确份数或下一行", () => {
+  for (const text of [
+    "周一午：番茄炒蛋 2.5份、土豆烧牛肉 20",
+    "周一午：番茄炒蛋、土豆烧牛肉 20，各2.5份",
+  ]) {
+    const lines = parse(`${text}\n番茄炒蛋 30`);
+    assert.deepEqual(lines.map((l) => [l.status, l.plannedServings]), [["unparsed", undefined], ["ok", 20], ["ok", 30]], text);
+    assert.match(lines[0].reason, /份数.*整数/);
+  }
+  const orphan = parse("周一午：番茄炒蛋 20，各2.5份");
+  assert.equal(orphan.length, 2);
+  assert.equal(orphan[0].plannedServings, 20);
+  assert.equal(orphan[1].status, "unparsed");
+  assert.match(orphan[1].reason, /份数.*整数/);
+  assert.deepEqual(parse("周一午\n番茄炒蛋 10.6\n土豆烧牛肉").map((l) => [l.status, l.date]), [["unparsed", WEEK_START], ["ok", WEEK_START]]);
+  for (const separator of [" ", "，"]) {
+    const text = `周一午：番茄炒蛋、土豆烧牛肉，2.5 20份${separator}晚 米饭 10`;
+    const lines = parse(text);
+    assert.deepEqual(lines.map((l) => [l.status, l.plannedServings, l.date]), [["unparsed", undefined, WEEK_START], ["unparsed", undefined, WEEK_START], ["ok", 10, WEEK_START]], text);
+    assert.equal(lines[0].raw, text.normalize("NFKC"));
+  }
+  const dated = parse("周一午：番茄炒蛋 20；10.06 晚 2.5 土豆烧牛肉");
+  assert.deepEqual(dated.map((l) => [l.status, l.plannedServings, l.date]), [["ok", 20, WEEK_START], ["unparsed", undefined, "2026-10-06"]]);
+  assert.match(dated[1].reason, /份数.*整数/);
+});
+
+test("同段剩余小数不能被已有整数或菜名模糊匹配掩盖", () => {
+  for (const amount of ["20份 2.5", "2.5 20", "20份 2.5份", "20份 9007199254740993", "20份 .5"]) {
+    const text = `周一午 番茄炒蛋 ${amount}`;
+    const l = one(text);
+    assert.equal(l.status, "unparsed", amount);
+    assert.match(l.reason, /份数/, amount);
+    assert.equal(l.plannedServings, undefined, amount);
+    assert.equal(l.raw, text, amount);
+  }
+});
+
+test("不能经 Number 精度损失接受小数或大整数；阿拉伯和中文一致", () => {
+  for (const amount of ["2.0000000000000001", "0.0000000000000001", "9007199254740993", "9".repeat(310), "九零零七一九九二五四七四零九九三"]) {
+    const text = `周一午 番茄炒蛋 ${amount}份`;
+    const l = one(text);
+    assert.equal(l.status, "unparsed", amount);
+    assert.match(l.reason, /份数/, amount);
+    assert.equal(l.plannedServings, undefined, amount);
+    assert.equal(l.raw, text, amount);
+  }
+});
+
+test("精确的2.0仍是整数2；0和未填维持旧补值语义，日期标题仍可切换", () => {
+  for (const amount of ["2.0份", "x2.000", "2.0", "9007199254740991份", "九零零七一九九二五四七四零九九一份"]) {
+    const l = one(`周一午 番茄炒蛋 ${amount}`);
+    assert.equal(l.status, "ok", amount);
+    assert.equal(l.plannedServings, amount.startsWith("2") || amount.startsWith("x") ? 2 : Number.MAX_SAFE_INTEGER, amount);
+  }
+  assert.deepEqual(parse("周一午：番茄炒蛋 0份、土豆烧牛肉 20").map((l) => l.plannedServings), [20, 20]);
+  assert.equal(one("周一午 番茄炒蛋 零份").plannedServings, undefined);
+  assert.deepEqual(parse("10.05 午\n番茄炒蛋 2\n10.06\n土豆烧牛肉 3").map((l) => l.date), ["2026-10-05", "2026-10-06"]);
+  assert.deepEqual(parse("周一午：番茄炒蛋 2；10.06 晚 土豆烧牛肉 3").map((l) => [l.date, l.plannedServings]), [[WEEK_START, 2], ["2026-10-06", 3]]);
+  for (const tail of ["晚：土豆烧牛肉 30", "晚 30份 土豆烧牛肉", "晚 x30 土豆烧牛肉", "晚 三十份 土豆烧牛肉"]) {
+    assert.deepEqual(parse(`周一午：番茄炒蛋 20；10.06 ${tail}`).map((l) => [l.status, l.date, l.plannedServings]), [["ok", WEEK_START, 20], ["ok", "2026-10-06", 30]], tail);
+  }
+});
+
 // ---------------------------------------------------------------------------
 // 菜名模糊匹配
 // ---------------------------------------------------------------------------
