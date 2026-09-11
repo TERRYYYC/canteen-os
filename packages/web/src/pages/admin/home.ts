@@ -6,8 +6,9 @@
  *
  * 数据（§4.1 表；没有一个数字写死）：
  *   getChanges()              → unpublished.length / lastPublishedAt
- *   getPlan(currentPlanId())  → meals.length；不存在（null）→ 0。currentPlanId = core 的 planIdOfDate(今天)，算不出退回 ctx.planId（D-06）
- *   getCatalog()              → 草稿菜数（status 缺省视为 draft，core/types.ts）/ 食材数 / 调料缺口（< 20）/ translations.machine
+ *   C1 getPlan(currentPlanId()) → v2/v3 meals.length；确认不存在（null）→ 0。currentPlanId = core 的 planIdOfDate(今天)，算不出退回 ctx.planId（D-06）
+ *   C1 getCatalog()           → 草稿菜数（status 缺省视为 draft，core/types.ts）/ 食材数 / 调料缺口（< 20）/ translations.machine
+ *   未配置：数字保持未知，不调用旧 API 的默认 mock。显式模拟不读取真实发布状态。
  *
  * 四种态：加载态先画齐入口块、数字位「—」（导航不依赖数字，不做骨架闪烁）；N = 0 → 「都发布了」+ 发布 chip 置灰（条仍可点）；
  * getChanges 失败 → 状态条换 errorCard + 重试，入口块照常；getCatalog / getPlan 失败 → 该块数字「—」+ 小字「数字暂时取不到」，块仍可点；
@@ -27,8 +28,10 @@ import "./home.css";
 import { planIdOfDate } from "@canteenos/core";
 
 import { adm, apiMessage, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
+import { onAuthSessionChange } from "../../admin/token";
 import { getApi } from "../../api/client";
-import type { Catalog, Changes } from "../../api/types";
+import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
+import type { Changes } from "../../api/types";
 import { isApiError } from "../../api/types";
 import { h, replace } from "../../dom";
 import { type Lang, onLangChange, type TParams } from "../../i18n";
@@ -36,6 +39,7 @@ import { hrefOf, onRoute } from "../../router";
 import { formatBuiltAt, netState } from "../../shell";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
+import { text as teamText } from "../team-ui";
 
 // ---------------------------------------------------------------------------
 // 文案（§5.4 `home.` 最小集 + 本屏自用；zh 权威，en 直译，uk 初稿待帮厨校对）
@@ -68,6 +72,7 @@ const T = {
   "home.block.log": { uk: "Історія публікацій", zh: "发布记录", en: "Publish history" },
   "home.block.log.sub": { uk: "Можна повернутися до попередньої версії", zh: "可以回到上一版", en: "You can go back to the previous version" },
   "home.number.unknown": { uk: "Цифри поки недоступні", zh: "数字暂时取不到", en: "Numbers unavailable right now" },
+  "home.session.changed": { uk: "Сеанс змінився. Відкрийте кабінет знову", zh: "登录会话已变化，请重新打开工作台", en: "Session changed. Open the dashboard again" },
   "home.badge.sr": { uk: "Очікують: {n}", zh: "{n} 项待处理", en: "{n} pending" },
 } as const satisfies Record<string, Record<Lang, string>>;
 
@@ -98,17 +103,27 @@ interface PlanCount {
 interface Snapshot {
   /** 缺 = 还在读 */
   changes?: Loaded<Changes>;
-  catalog?: Loaded<Catalog>;
+  catalog?: Loaded<TeamCatalog>;
   plan?: Loaded<PlanCount>;
 }
 
 let snapshot: Snapshot = {};
+let snapshotOwner: { api: TeamMealsApi; session: number } | null = null;
 
 /** 取数的代数：新一轮 load() / 401 之后，上一轮晚到的结果一律丢弃 */
 let generation = 0;
 
 /** 当前挂着的那份 DOM：晚到的请求结果画到它上面（旧 el 已被壳层摘掉，画不画都无害） */
-let mounted: { el: HTMLElement; paint(): void; expire(): void } | null = null;
+let mounted: { el: HTMLElement; paint(): void; expire(): void; invalidate(): void } | null = null;
+
+/** Logout/auth replacement removes private numbers immediately, without clearing a newer token. */
+onAuthSessionChange(() => {
+  snapshot = {};
+  snapshotOwner = null;
+  generation++;
+  if (mounted?.el.isConnected) mounted.invalidate();
+  mounted = null;
+});
 
 /**
  * 下一次 render 是不是语言切换触发的。main.ts 的 onLangChange 监听先注册、先执行（它同步走到 pages/admin.ts 的
@@ -155,7 +170,7 @@ function weekOf(planId: string | null): number | null {
 // ---------------------------------------------------------------------------
 
 /** 草稿菜 id，升序（D-10 的「第一条」= 排序后的第一个） */
-function draftIds(catalog: Catalog): string[] {
+function draftIds(catalog: TeamCatalog): string[] {
   // core/types.ts：status 缺省视为 draft
   return Object.entries(catalog.dishes)
     .filter(([, d]) => (d.status ?? "draft") === "draft")
@@ -163,7 +178,7 @@ function draftIds(catalog: Catalog): string[] {
     .sort();
 }
 
-function seasoningCount(catalog: Catalog): number {
+function seasoningCount(catalog: TeamCatalog): number {
   return Object.values(catalog.ingredients).filter((i) => i.role === "seasoning").length;
 }
 
@@ -179,20 +194,21 @@ async function settle<V>(p: Promise<V>): Promise<Loaded<V>> {
   }
 }
 
-function load(ctx: PageCtx): void {
-  const api = getApi();
+function load(ctx: PageCtx, api: TeamMealsApi): void {
+  if (api.mode === "unconfigured") return;
+  const session = api.sessionKey();
   const planId = currentPlanId(ctx);
   const gen = ++generation;
 
   function arrived<K extends keyof Snapshot>(key: K, r: NonNullable<Snapshot[K]>): void {
-    if (gen !== generation) return; // 已经有新一轮 / 已 401：丢弃
+    if (gen !== generation || snapshotOwner?.api !== api || snapshotOwner.session !== session || api.sessionKey() !== session) return;
     snapshot[key] = r;
     if (!mounted || !mounted.el.isConnected) return;
     if (!r.ok && isApiError(r.error) && r.error.status === 401) mounted.expire();
     else mounted.paint();
   }
 
-  void settle(api.getChanges()).then((r) => arrived("changes", r));
+  if (api.mode === "real") void settle(getApi().getChanges()).then((r) => arrived("changes", r));
   void settle(api.getCatalog()).then((r) => arrived("catalog", r));
   const meals: Promise<PlanCount> = planId
     ? api.getPlan(planId).then((s) => ({ planId, meals: s?.content.meals.length ?? 0 })) // 不存在 → null → 0
@@ -314,6 +330,14 @@ function paintStat(bar: StatBar, lang: Lang, changes: Changes | null, offline: b
 export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   void rest; // 工作台没有子状态
   const lang = ctx.lang;
+  const api = getTeamMealsApi();
+  const session = api.sessionKey();
+  const sameSession = snapshotOwner?.api === api && snapshotOwner.session === session;
+  if (!sameSession) {
+    snapshot = {};
+    generation++;
+    snapshotOwner = { api, session };
+  }
 
   const offlineSlot = h("div", { class: "adm-home-offline-slot" });
   const statSlot = h("div", { class: "adm-home-stat-slot" });
@@ -353,21 +377,29 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
 
   function paint(): void {
     if (expired) return;
+    if (api.sessionKey() !== session || snapshotOwner?.api !== api || snapshotOwner.session !== session) {
+      invalidate();
+      return;
+    }
     const offline = netState() !== "online";
+    const unconfigured = api.mode === "unconfigured";
 
     // 离线：顶部灰条；写入入口在最后一段统一置灰
     replace(offlineSlot, offline ? notice({ kind: "info", text: adm("adm.offline", undefined, lang) }) : null);
 
     // 状态条：读失败 → errorCard（worker 的 message 原样；网络错 = 「连不上后台」）+ 重试；否则只更新文字
     const ch = snapshot.changes;
-    if (ch && !ch.ok) {
+    if (api.mode !== "real") {
+      bar = null;
+      replace(statSlot, notice({ kind: "info", text: teamText(lang, unconfigured ? "unconfigured" : "mock") }));
+    } else if (ch && !ch.ok) {
       bar = null;
       replace(
         statSlot,
         errorCard(apiMessage(ch.error, lang), () => {
           delete snapshot.changes;
           paint();
-          load(ctx);
+          load(ctx, api);
         }),
       );
     } else {
@@ -383,12 +415,12 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
     const week = weekOf(pl && pl.ok ? pl.value.planId : currentPlanId(ctx));
     const mealsText = tt(lang, "home.block.plan.sub", { n: pl && pl.ok ? pl.value.meals : DASH });
     plan.sub.textContent = week === null ? mealsText : `${tt(lang, "home.block.plan.week", { n: week })} · ${mealsText}`;
-    setNote(plan, pl && !pl.ok ? tt(lang, "home.number.unknown") : null);
+    setNote(plan, unconfigured || (pl && !pl.ok) ? tt(lang, "home.number.unknown") : null);
 
     // 目录：草稿 / 食材 / 翻译
     const cat = snapshot.catalog;
     const catalog = cat && cat.ok ? cat.value : null;
-    const catNote = cat && !cat.ok ? tt(lang, "home.number.unknown") : null;
+    const catNote = unconfigured || (cat && !cat.ok) ? tt(lang, "home.number.unknown") : null;
 
     const drafts = catalog ? draftIds(catalog) : null;
     const draftN = drafts ? drafts.length : null;
@@ -416,22 +448,29 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
     for (const t of tiles) setEnabled(t, !!t.href && !(offline && t.writes));
   }
 
+  function invalidate(): void {
+    if (expired) return;
+    expired = true;
+    replace(el, notice({ kind: "info", text: tt(lang, "home.session.changed") }));
+  }
+
   /** 401：清令牌 + 锁屏；snapshot 清空，在途结果作废 */
   function expire(): void {
     if (expired) return;
     expired = true;
     snapshot = {};
+    snapshotOwner = null;
     generation++;
     mounted = null;
     sessionExpired(el, lang);
   }
 
-  mounted = { el, paint, expire };
+  mounted = { el, paint, expire, invalidate };
   paint();
 
   // 推论 A：语言切换触发的 render 只重画（上面已画），不再请求；还没到的那几路会在到达时画到这份 DOM 上
   const isLangSwitch = langSwitch;
   langSwitch = false;
-  if (isLangSwitch && (snapshot.changes || snapshot.catalog || snapshot.plan)) return;
-  load(ctx);
+  if (isLangSwitch && sameSession) return;
+  load(ctx, api);
 }

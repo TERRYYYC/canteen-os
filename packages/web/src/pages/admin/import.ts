@@ -19,12 +19,12 @@
  */
 import "./import.css";
 
-import type { MealType, MenuPlan, MenuPlanMeal, ParsedLine } from "@canteenos/core";
+import type { AnyMenuPlan, MealType, MenuPlanV3, MenuPlanMealV3, ParsedLine } from "@canteenos/core";
 import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPlanId } from "@canteenos/core";
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getDraftPlan, getDraftSource, setDraftPlan, setHandoff, undoDraftPlan } from "../../admin/store";
-import { getApi } from "../../api/client";
-import type { Catalog } from "../../api/types";
+import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
+import { text as teamText } from "../team-ui";
 import { isApiError } from "../../api/types";
 import { append, h, replace } from "../../dom";
 import { pick, type Lang } from "../../i18n";
@@ -95,7 +95,11 @@ const T = {
   "import.swap.all": { uk: "Усі страви", zh: "全部菜", en: "All dishes" },
   "import.swap.draft": { uk: "(чернетка)", zh: "（草稿）", en: "(draft)" },
   "import.servings": { uk: "порц.", zh: "份", en: "servings" },
-  "import.servings.default": { uk: "за замовчуванням", zh: "默认", en: "default" },
+  "import.servings.unknown": { uk: "Порції не вказано", zh: "份数未录", en: "Servings unspecified" },
+  "import.servings.clear": { uk: "Очистити порції", zh: "清空份数", en: "Clear servings" },
+  "import.servings.cleared": { uk: "Порції буде залишено порожніми", zh: "份数将留空", en: "Servings will be left blank" },
+  "import.servings.preserve": { uk: "Порожній текст зберігає відомі порції у відповідному рядку. Щоб прибрати їх, натисніть «Очистити порції».", zh: "文本没写份数时，保留匹配行已有的份数；要移除请点「清空份数」。", en: "Text without servings keeps a matching row’s known count. Use Clear servings to remove it." },
+  "import.servings.invalid": { uk: "Залиште порожнім або введіть додатне ціле число", zh: "请留空或填写正整数", en: "Leave blank or enter a positive integer" },
   "import.none": { uk: "Жодного рядка не розпізнано", zh: "一行都没认出来", en: "Nothing was recognised" },
   "import.none.hint": {
     uk: "Найчастіша причина: назви страв не збігаються з тими, що в базі",
@@ -135,8 +139,6 @@ function tt(lang: Lang, key: Key, params?: Record<string, string | number>): str
 // 常量
 // ---------------------------------------------------------------------------
 
-/** 没写份数时的默认值（§9 矛盾 10：基准份数 50 是常量，本轮没有全局设置页） */
-const DEFAULT_SERVINGS = 50;
 /** 粘贴后自动解析的防抖（§4.3 移动端与键盘） */
 const PARSE_DEBOUNCE_MS = 300;
 /** CSV 文件上限：与 worker 的 JSON 请求体上限同一个数（契约 D-07），够排半年 */
@@ -167,7 +169,9 @@ interface CsvState {
 /** 行内改动：换一个 / 改份数；key = 结果数组下标 */
 interface LineEdit {
   dishRef?: string;
+  /** Own undefined is an explicit clear; absent property preserves the parsed value. */
   servings?: number;
+  servingsInvalid?: boolean;
 }
 
 interface State {
@@ -183,6 +187,10 @@ interface State {
 }
 
 let state: State = freshState("");
+let activeApi: TeamMealsApi | null = null;
+let activeAuth: number | null = null;
+let renderGeneration = 0;
+let inputGeneration = 0;
 
 function freshState(planId: string): State {
   return { planId, text: "", source: "paste", csv: null, parsed: null, edits: new Map(), imported: false };
@@ -430,9 +438,9 @@ async function readFileText(file: File): Promise<string> {
 // 解析 + 行的有效状态（含行内改动）
 // ---------------------------------------------------------------------------
 
-type DishList = ReadonlyArray<{ id: string; name: Catalog["dishes"][string]["name"]; status?: Catalog["dishes"][string]["status"] }>;
+type DishList = ReadonlyArray<{ id: string; name: TeamCatalog["dishes"][string]["name"]; status?: TeamCatalog["dishes"][string]["status"] }>;
 
-function dishList(catalog: Catalog): DishList {
+function dishList(catalog: TeamCatalog): DishList {
   return Object.entries(catalog.dishes).map(([id, d]) => ({ id, name: d.name, status: d.status }));
 }
 
@@ -440,7 +448,7 @@ function currentText(): string {
   return state.source === "csv" && state.csv ? csvToText(state.csv) : state.text;
 }
 
-function runParse(catalog: Catalog, weekStart: string): void {
+function runParse(catalog: TeamCatalog, weekStart: string): void {
   const text = currentText();
   if (!text.trim()) {
     state.parsed = null;
@@ -466,33 +474,38 @@ type EffStatus = ParsedLine["status"];
 interface Effective {
   status: EffStatus;
   dishRef?: string;
-  servings: number;
-  servingsDefaulted: boolean;
+  servings?: number;
+  servingsValid: boolean;
   importable: boolean;
 }
 
-function effective(line: ParsedLine, edit: LineEdit | undefined, catalog: Catalog, weekStart: string): Effective {
-  const servings = edit?.servings ?? line.plannedServings ?? DEFAULT_SERVINGS;
-  const servingsDefaulted = edit?.servings === undefined && line.plannedServings === undefined;
-  const base: Effective = { status: line.status, servings, servingsDefaulted, importable: false };
+function effective(line: ParsedLine, edit: LineEdit | undefined, catalog: TeamCatalog, weekStart: string): Effective {
+  const servings = edit && Object.hasOwn(edit, "servings") ? edit.servings : line.plannedServings;
+  const servingsValid = !edit?.servingsInvalid && (servings === undefined || (Number.isSafeInteger(servings) && servings > 0));
+  const base: Effective = { status: line.status, servings, servingsValid, importable: false };
   if (line.status === "unparsed" || !line.date || !line.mealType) return base;
   const dishRef = edit?.dishRef ?? line.dishRef;
   const dish = dishRef ? catalog.dishes[dishRef] : undefined;
   if (!dishRef || !dish || dish.status === "archived") return { ...base, status: "unknown-dish" };
   if (dish.status === "draft") return { ...base, status: "draft-dish", dishRef };
   const off = dayOffset(line.date, weekStart);
-  return { ...base, status: off >= 7 ? "next-week" : "ok", dishRef, importable: true };
+  return { ...base, status: off >= 7 ? "next-week" : "ok", dishRef, importable: servingsValid };
 }
 
-/** 结果 → MenuPlan：以已有草稿 / 已保存计划为底，同一（日期 × 餐次 × 菜）覆盖份数，其余追加；按日期、餐次排序 */
-function mergePlan(base: MenuPlan | null, meals: MenuPlanMeal[], planId: string, weekStart: string): MenuPlan {
-  const plan: MenuPlan = base ? structuredClone(base) : { schemaVersion: "2", meals: [] };
-  plan.schemaVersion = "2";
+/** Whole v3 draft: first matching date/meal/dish receives supplied counts or explicit clear; untouched true values survive. */
+function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: string, weekStart: string, clearServings: ReadonlySet<number> = new Set()): MenuPlanV3 {
+  const plan: MenuPlanV3 = base ? { ...structuredClone(base), schemaVersion: "3" } : { schemaVersion: "3", meals: [] };
   const list = Array.isArray(plan.meals) ? [...plan.meals] : [];
-  for (const m of meals) {
+  for (const [index, incoming] of meals.entries()) {
+    const m = structuredClone(incoming);
+    // Unknown input preserves an existing true count unless the preview explicitly cleared it.
+    if (m.plannedServings === undefined) delete m.plannedServings;
     const i = list.findIndex((x) => x.date === m.date && x.mealType === m.mealType && x.dishRef === m.dishRef);
-    if (i >= 0) list[i] = { ...list[i], ...m };
-    else list.push(m);
+    if (i >= 0) {
+      const merged = { ...list[i], ...m };
+      if (clearServings.has(index)) delete merged.plannedServings;
+      list[i] = merged;
+    } else list.push(m);
   }
   list.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : MEAL_ORDER[a.mealType] - MEAL_ORDER[b.mealType]));
   plan.meals = list;
@@ -512,10 +525,13 @@ function mergePlan(base: MenuPlan | null, meals: MenuPlanMeal[], planId: string,
 // 渲染
 // ---------------------------------------------------------------------------
 
-export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promise<void> {
+export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   const lang = ctx.lang;
   const { planId, weekStart } = resolveWeek(rest, ctx);
-  if (state.planId !== planId) state = freshState(planId);
+  const auth = api.sessionKey(), ticket = ++renderGeneration;
+  if (state.planId !== planId || activeApi !== api || activeAuth !== auth) state = freshState(planId);
+  activeApi = api; activeAuth = auth;
+  const live = () => el.isConnected && ticket === renderGeneration && activeApi === api && api.sessionKey() === auth;
   installUnloadGuard();
 
   const returnTo = adminHref("plan", planId, "import");
@@ -542,6 +558,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     bottom,
   );
   el.append(root);
+  if (api.mode !== "real") root.insertBefore(notice({ kind: "info", text: teamText(lang, api.mode === "mock" ? "mock" : "unconfigured") }), noticeHost);
+  if (api.mode === "unconfigured") return;
 
   // —— 已有导入草稿：可撤销（§4.3 DoD「未保存前可撤销」）——
   function paintDraftNotice(): void {
@@ -589,6 +607,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     kind: "ghost",
     class: "adm-import-clear",
     onClick: () => {
+      inputGeneration++;
       state = freshState(planId);
       ta.value = "";
       fitRows();
@@ -629,7 +648,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
   );
 
   // —— 数据：菜品名单 ——
-  let catalog: Catalog | null = null;
+  let catalog: TeamCatalog | null = null;
 
   function paintUpload(): void {
     replace(uploadMsg);
@@ -654,6 +673,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
       }
       sel.value = String(csv.mapping[role]);
       sel.addEventListener("change", () => {
+        inputGeneration++;
         csv.mapping[role] = Number(sel.value);
         state.source = "csv";
         if (catalog) runParse(catalog, weekStart);
@@ -666,6 +686,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
 
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
+    const fileTicket = ++inputGeneration;
     if (!file) return;
     replace(uploadMsg);
     if (file.size > MAX_FILE_BYTES) {
@@ -680,7 +701,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
       uploadMsg.append(h("span", { class: "adm-import-cols-warn" }, tt(lang, "import.upload.failed")));
       return;
     }
-    if (!el.isConnected) return;
+    if (!live()) return;
+    if (fileTicket !== inputGeneration) return;
     let rows = parseCsv(text);
     if (rows.length === 0) {
       state.csv = null;
@@ -713,6 +735,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     const csvLabel = state.source === "csv" && state.csv ? ` · ${tt(lang, "import.result.from", { f: state.csv.name })}` : "";
     resultHost.append(h("p", { class: "section-label adm-import-label" }, `${tt(lang, "import.result.title", { n: lines.length })}${csvLabel}`));
 
+    resultHost.append(h("p", { class: "muted" }, tt(lang, "import.servings.preserve")));
     const effs = lines.map((l, i) => effective(l, state.edits.get(i), cat, weekStart));
     const okCount = effs.filter((e) => e.importable).length;
 
@@ -748,7 +771,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     return d ? pick(d.name, lang) || id : id;
   }
 
-  function lineCard(line: ParsedLine, idx: number, eff: Effective, cat: Catalog): HTMLElement {
+  function lineCard(line: ParsedLine, idx: number, eff: Effective, cat: TeamCatalog): HTMLElement {
     const icon =
       eff.status === "ok" || eff.status === "next-week"
         ? ["✓", "adm-import-ic-ok"]
@@ -797,29 +820,40 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     }
 
     const side = h("div", { class: "adm-import-side" });
-    if (eff.importable) {
+    if (eff.dishRef && (eff.status === "ok" || eff.status === "next-week")) {
+      const originalEdit = state.edits.get(idx);
+      const hint = h("span", { class: "muted", role: "status" }, !eff.servingsValid ? tt(lang, "import.servings.invalid") : eff.servings === undefined ? tt(lang, originalEdit && Object.hasOwn(originalEdit, "servings") ? "import.servings.cleared" : "import.servings.unknown") : "");
       const inp = h("input", {
         class: "adm-import-servings",
         type: "number",
         inputmode: "numeric",
         min: "1",
         step: "1",
-        value: String(eff.servings),
+        value: eff.servings === undefined ? "" : String(eff.servings),
+        "aria-invalid": String(!eff.servingsValid),
+        "data-line-index": String(idx),
         "aria-label": tt(lang, "import.servings"),
       });
-      inp.addEventListener("change", () => {
-        const v = Math.round(Number(inp.value));
-        const edit = state.edits.get(idx) ?? {};
-        if (Number.isFinite(v) && v >= 1) edit.servings = v;
-        else delete edit.servings;
-        state.edits.set(idx, edit);
-        inp.value = String(edit.servings ?? line.plannedServings ?? DEFAULT_SERVINGS);
+      const changeServings = (): void => {
+        if (!live()) return;
+        const raw = inp.value.trim(), edit = state.edits.get(idx) ?? {};
+        edit.servings = raw === "" ? undefined : Number(raw);
+        edit.servingsInvalid = inp.validity.badInput;
+        state.edits.set(idx, edit); inputGeneration++;
+        const next = effective(line, edit, cat, weekStart);
+        inp.setAttribute("aria-invalid", String(!next.servingsValid));
+        hint.textContent = !next.servingsValid ? tt(lang, "import.servings.invalid") : next.servings === undefined ? tt(lang, "import.servings.cleared") : "";
         paintBottomOnly();
-      });
+      };
+      inp.addEventListener("input", changeServings);
+      inp.addEventListener("change", changeServings);
       append(
         side,
         h("div", { class: "adm-import-servings-wrap" }, inp, h("span", { class: "muted" }, tt(lang, "import.servings"))),
-        eff.servingsDefaulted ? h("span", { class: "muted adm-import-default" }, tt(lang, "import.servings.default")) : null,
+      );
+      append(
+        main, hint,
+        button({ label: tt(lang, "import.servings.clear"), kind: "ghost", class: "adm-import-clear-servings", onClick: () => { inp.value = ""; changeServings(); } }),
       );
     }
 
@@ -858,7 +892,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
   }
 
   /** 「换一个」：行内下拉，候选在前、全部菜在后（草稿标出来），就地改不跳转 */
-  function swapSelect(line: ParsedLine, idx: number, eff: Effective, cat: Catalog): HTMLElement {
+  function swapSelect(line: ParsedLine, idx: number, eff: Effective, cat: TeamCatalog): HTMLElement {
     const sel = h("select", { class: "adm-input adm-import-swap", "aria-label": tt(lang, "import.action.swap") });
     sel.append(h("option", { value: "" }, tt(lang, "import.action.swap")));
     const seen = new Set<string>();
@@ -882,6 +916,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     sel.append(all);
     sel.value = eff.dishRef ?? "";
     sel.addEventListener("change", () => {
+      if (!live()) return;
+      inputGeneration++;
       const edit = state.edits.get(idx) ?? {};
       if (sel.value) edit.dishRef = sel.value;
       else delete edit.dishRef;
@@ -905,28 +941,33 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
 
   // —— 导入：合并成 MenuPlan → store（不调写入端点）→ 跳周视图 ——
   async function doImport(btn: HTMLButtonElement): Promise<void> {
-    if (!catalog || !state.parsed) return;
+    if (!catalog || !state.parsed || !live()) return;
     const cat = catalog;
-    const meals: MenuPlanMeal[] = [];
+    const meals: MenuPlanMealV3[] = [];
+    const clearServings = new Set<number>();
+    const inputTicket = inputGeneration;
     state.parsed.forEach((line, i) => {
       const eff = effective(line, state.edits.get(i), cat, weekStart);
       if (!eff.importable || !eff.dishRef || !line.date || !line.mealType) return;
-      meals.push({ date: line.date, mealType: line.mealType, dishRef: eff.dishRef, plannedServings: eff.servings });
+      const edit = state.edits.get(i);
+      if (edit && Object.hasOwn(edit, "servings") && edit.servings === undefined) clearServings.add(meals.length);
+      meals.push({ date: line.date, mealType: line.mealType, dishRef: eff.dishRef, ...(eff.servings === undefined ? {} : { plannedServings: eff.servings }) });
     });
     if (meals.length === 0) return;
     const done = busyButton(btn);
     try {
-      let base = getDraftPlan(planId);
+      let base: AnyMenuPlan | null = getDraftPlan(planId);
       if (!base) {
-        const saved = await getApi().getPlan(planId);
+        const saved = await api.getPlan(planId, { force: true });
         base = saved?.content ?? null;
       }
-      if (!el.isConnected) return;
-      setDraftPlan(planId, mergePlan(base, meals, planId, weekStart), "import");
+      if (!live()) return;
+      if (inputTicket !== inputGeneration) return;
+      setDraftPlan(planId, mergePlan(base, meals, planId, weekStart, clearServings), "import");
       state.imported = true;
       location.hash = planHref;
     } catch (err) {
-      if (!el.isConnected) return;
+      if (!live()) return;
       if (isApiError(err) && err.status === 401) {
         sessionExpired(el, lang);
         return;
@@ -957,12 +998,14 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     if (timer !== null) window.clearTimeout(timer);
     timer = window.setTimeout(() => {
       timer = null;
-      if (!catalog || !el.isConnected) return;
+      if (!catalog || !live()) return;
       runParse(catalog, weekStart);
       paintResults();
     }, PARSE_DEBOUNCE_MS);
   };
   ta.addEventListener("input", () => {
+    if (!live()) return;
+    inputGeneration++;
     state.text = ta.value;
     state.source = "paste";
     state.edits = new Map();
@@ -984,8 +1027,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
   async function loadCatalog(): Promise<void> {
     replace(catalogHint, tt(lang, "import.catalog.loading"));
     try {
-      const c = await getApi().getCatalog();
-      if (!el.isConnected) return;
+      const c = await api.getCatalog();
+      if (!live()) return;
       catalog = c;
       replace(catalogHint);
       paintDraftNotice(); // 重试成功后把 errorCard 撤掉
@@ -994,7 +1037,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
       if (currentText().trim()) runParse(catalog, weekStart);
       paintResults();
     } catch (err) {
-      if (!el.isConnected) return;
+      if (!live()) return;
       if (isApiError(err) && err.status === 401) {
         sessionExpired(el, lang);
         return;
