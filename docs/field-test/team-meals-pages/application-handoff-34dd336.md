@@ -47,3 +47,5 @@ status: awaiting-shared-pwa-repair
 调度已将 R3 明确交给 C。D 等待 C 固定修复及其原 reviewer 批准，只消费调度正式释放的完整历史，然后由原 application reviewer 对最终组合复验受影响的首次安装/已受控更新、授权失效、pending/unknown 和仅一次重载。不重复已通过的大矩阵，不修改 C 所有文件。Q 在最终固定应用获准前保持 idle。
 
 未执行远程推送、真实 Worker、真实发布/回退、部署或 L2。原 dirty main、根目录既有杂项均未改动。
+
+后续固定组合：D b1 测试修订获原非作者批准后，已按调度正式释放完整合入 C 7f3 历史，形成 [948026 组合复核入口](combination-948026-checkpoint.md)。本页 34dd 原裁决不改写；新组合裁决、首屏预算和最终验收分开记录。
