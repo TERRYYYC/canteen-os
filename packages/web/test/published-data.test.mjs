@@ -70,6 +70,20 @@ test('external and absent ImageRefs do not request any bytes; forged published v
  await assert.rejects(api.loadPublishedAsset(copy(view),'/ingredients/tomato/image'),{code:'publication_changed'});
  await assert.rejects(api.loadPublishedAsset(view,'/ingredients/missing/image'),{code:'asset_binding_invalid'});
 });
+test('public asset sources cannot mutate the private validated binding or later readers',async()=>{
+ for(const name of ['external-image','image-a']) {
+  const fixture=name==='image-a'?publishedFixture(name):cases[name];
+  try {
+   const {api}=setup('normal',u=>u.pathname.endsWith('build.json')?json(fixture.manifest):u.pathname.includes('/team-meals/')?json(fixture.projection):undefined);
+   const view=await load(api),first=await api.loadPublishedAsset(view,'/ingredients/tomato/image');
+   const original=copy(first.source);
+   assert.throws(()=>{first.source.src='https://changed.invalid/other.png';},TypeError);
+   assert.throws(()=>{first.source.license='Changed';},TypeError);
+   const second=await api.loadPublishedAsset(view,'/ingredients/tomato/image');
+   assert.deepEqual(second.source,original);assert.deepEqual(view.projection.ingredients.tomato.image,original);
+  } finally {if(name==='image-a')fixture.cleanup();}
+ }
+});
 function withImages() {
  const p=copy(cases.normal.projection);const img={src:'../images/A %2F?# 雪.png',license:'CC0'};
  p.ingredients.tomato.image=img;p.techniques=[{id:'chosen-a',name:{en:'A'},image:img},{id:'chosen-b',name:{en:'B'},image:copy(img)}];

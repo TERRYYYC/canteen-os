@@ -164,7 +164,7 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
         const repo=repoImagePath(asset.ownerPath,asset.source.src);
         if(!repo||asset.path!==`assets/${raw.sourceRevision}/${repo}`)return bad();
       } else if(asset.status!=='external-unpinned'||own(asset,'path')||!/^https?:\/\//.test(asset.source.src))return bad();
-      bindings.set(pointer,asset as AssetBinding);
+      bindings.set(pointer,frozen(asset as AssetBinding));
     }
     if(bindings.size!==slots.size)return fail('asset_binding_invalid');
     const view:PublishedTeamPlan=frozen({[planBrand]:true,kind:'published',target:'team-meals',planId,sourceRevision:raw.sourceRevision,builtAt:publication.manifest.builtAt,
