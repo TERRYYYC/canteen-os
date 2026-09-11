@@ -37,7 +37,7 @@ import { onAuthSessionChange } from "../../admin/token";
 import { text as teamText } from "../team-ui";
 import { ApiError, FIELD_ERROR_CODES, isApiError, type Catalog, type FieldError, type ImageMeta, type ImageRef, type Ingredient, type WriteResult } from "../../api/types";
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, stepper, topBar } from "../../admin/kit";
-import { takeHandoff } from "../../admin/store";
+import { bindDraftStore, type BoundDraftStore } from "../../admin/store";
 import { append, h } from "../../dom";
 import type { Lang } from "../../i18n";
 import type { PageCtx } from "../../types";
@@ -1152,8 +1152,8 @@ onAuthSessionChange(() => {
   // through the new session, render into it, or dispose an unresolved operation.
 });
 
-function createOwner(key: string, api: TeamMealsApi): IngredientOwner {
-  const hand = takeHandoff();
+function createOwner(key: string, api: TeamMealsApi, drafts: BoundDraftStore): IngredientOwner {
+  const hand = drafts.takeHandoff();
   const owner: IngredientOwner = {
     key, api, session: api.sessionKey(), legacy: getApi(), leftRoute: false,
     draft: key === "new" ? createIngredientDraft(hand.newIngredientName ? { zh: hand.newIngredientName } : {}) : null,
@@ -1207,6 +1207,7 @@ function enterToNext(ev: KeyboardEvent): void {
 }
 
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
+  const drafts = bindDraftStore(api);
   watchIngredientBuffers();
   const generation = ++viewGeneration;
   if (mountedIngredient && (mountedIngredient.owner.key !== rest || mountedIngredient.owner.api !== api)) mountedIngredient.owner.leftRoute = true;
@@ -1228,7 +1229,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     ingredientOwners.delete(ownerKey);
     owner = undefined;
   }
-  if (!owner) { owner = createOwner(rest, api); ingredientOwners.set(ownerKey, owner); }
+  if (!owner) { owner = createOwner(rest, api, drafts); ingredientOwners.set(ownerKey, owner); }
   owner.leftRoute = false;
   if (!owner.draft) {
     el.append(h("p", { class: "muted" }, adm("adm.loading", undefined, ctx.lang)));

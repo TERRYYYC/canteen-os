@@ -31,6 +31,7 @@ export function createPurchaseForm(api: TeamMealsApi, options: { at: string }) {
   let sealed = false;
   const session = createEditSession<ShoppingList>({
     mode: () => api.mode, authSession: () => api.sessionKey(),
+    peekAuthSession: () => api.peekSessionKey?.(),
     save: (identity, body, condition) => api.saveShoppingList(identity.id, body, condition),
     read: (identity, opts) => api.getShoppingList(identity.id, opts),
   });

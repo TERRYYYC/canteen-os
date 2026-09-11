@@ -8,7 +8,7 @@ import { ApiError, isApiError, type Source, type FieldError, type ImageMeta, typ
 import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, topBar } from "../../admin/kit";
 import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
 import { createEditSession, type EditState } from "../../view-models/edit-session";
-import { takeHandoff } from "../../admin/store";
+import { bindDraftStore } from "../../admin/store";
 import { append, h } from "../../dom";
 import { pick, type Lang } from "../../i18n";
 import type { PageCtx } from "../../types";
@@ -606,6 +606,7 @@ export function createDishForm(api: TeamMealsApi) {
   const session = createEditSession<AnyDish>({
     mode: () => api.mode,
     authSession: () => api.sessionKey(),
+    peekAuthSession: () => api.peekSessionKey?.(),
     save: (identity, body, condition) => {
       const id = identities.get(identity.id)?.target;
       if (!id) throw new Error("Missing dish identity");
@@ -783,6 +784,7 @@ function watchLeave(key: string): void {
   unwatch = () => { window.removeEventListener("hashchange", onHash); window.removeEventListener("beforeunload", onUnload); };
 }
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamApi: TeamMealsApi = getTeamMealsApi()): Promise<void> {
+  const drafts = bindDraftStore(teamApi);
   const lang = ctx.lang;
   const api = getApi();
   const auth = teamApi.sessionKey();
@@ -793,7 +795,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamAp
   const owner = formOwner;
   if (draftKey !== rest) {
     discardDraft(); draftKey = rest;
-    const hand = takeHandoff(); returnTo = hand.returnTo ?? null;
+    const hand = drafts.takeHandoff(); returnTo = hand.returnTo ?? null;
     const load = ++renderGeneration;
     const bar = (): HTMLElement => topBar({ back: adminHref(), title: tt(lang, rest === "new" ? "dish.title.new" : "dish.title.edit") });
     const root = h("div", { class: "adm adm-dish" }, bar(), h("p", { class: "muted" }, adm("adm.loading", undefined, lang)));

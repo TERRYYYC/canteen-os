@@ -4,7 +4,7 @@ import { weekStartOfPlanId, planIdOfDate, normalizeSelection, type MealType, typ
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
 import { apiMessage } from '../../admin/kit';
-import { getDraftPlan, clearDraftPlan } from '../../admin/store';
+import { bindDraftStore } from '../../admin/store';
 import { h, replace } from '../../dom';
 import { pick } from '../../i18n';
 import type { PageCtx } from '../../types';
@@ -30,6 +30,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
   const touch=(view:View)=>{view.generation=++rawGeneration;};
   async function renderPlan(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void> {
+    const drafts=bindDraftStore(api);
     cleanup(); const renderTicket=++renderSequence;
     if(auth!==api.sessionKey()){form=createPlanForm(api);auth=api.sessionKey();views.clear();}
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
@@ -187,7 +188,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
         const key=sourceKey();
         const result=state.identity?.id===id&&state.phase!=='closed'
           ? await owner.loadCatalog(force)
-          : await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
+          : await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
         if(isLive()&&owner.session.getState().identity?.id===id&&(state.identity?.id!==id||sourceKey()===key)){
           catalog=result;boundKey=catalogKey(result);requestedKey=boundKey;loadError=null;
         }
@@ -198,7 +199,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     const stopObserve=onDetached(el,()=>{unsubscribe();if(owner.session.getState().contextId===contextId)owner.detach();});
     cleanup=()=>{unsubscribe();stopObserve();};
     try{
-      catalog=await owner.load(id,isLive,getDraftPlan(id)??undefined,()=>clearDraftPlan(id));
+      catalog=await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
       if(!isLive())return;
       boundKey=catalogKey(catalog);
       const s=owner.session.getState();

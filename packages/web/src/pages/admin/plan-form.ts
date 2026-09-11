@@ -10,6 +10,7 @@ export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgrad
 export function createPlanForm(api: TeamMealsApi) {
   const session = createEditSession<AnyMenuPlan>({
     mode: () => api.mode, authSession: () => api.sessionKey(),
+    peekAuthSession: () => api.peekSessionKey?.(),
     save: (identity, body, condition) => api.savePlan(identity.id, body, condition),
     read: (identity, options) => api.getPlan(identity.id, options),
   });

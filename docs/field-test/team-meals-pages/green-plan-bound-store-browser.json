@@ -1,0 +1,125 @@
+[
+  {
+    "name": "retry source after switching A to failed B",
+    "bReads": 2,
+    "rows": 1,
+    "body": "BackPlan mealsPaste importLoaded; unchangedSimulation; no real repository writeSource version: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-10-05 · LunchDishChoose a dishNew dish BServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishNew dish BAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publish",
+    "log": [
+      {
+        "method": "GET",
+        "path": "/source/plan/week-a",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-b",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-b",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ]
+  },
+  {
+    "name": "edit while imported draft waits for catalog",
+    "expectedLatestCount": "9",
+    "actualCount": "9",
+    "phase": "dirty"
+  },
+  {
+    "name": "catalog after adopting conflict source B",
+    "dish": "New dish B",
+    "source": "Loaded; unchangedSimulation; no real repository writeSource version: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "log": [
+      {
+        "method": "GET",
+        "path": "/source/plan/week-conflict",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "method": "POST",
+        "path": "/plan/week-conflict",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-conflict",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ]
+  },
+  {
+    "name": "language change during initial catalog load",
+    "dishDisabled": false,
+    "addFormPresent": true,
+    "readAgainPresent": false,
+    "log": [
+      {
+        "method": "GET",
+        "path": "/source/plan/week-language",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "name": "catalog after save before initial catalog completes",
+    "dish": "Soup B",
+    "source": "Saved; check publication on the publish pageSimulation; no real repository writeSource version: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "log": [
+      {
+        "method": "GET",
+        "path": "/source/plan/week-early-save",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "method": "POST",
+        "path": "/plan/week-early-save",
+        "revision": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ]
+  },
+  {
+    "name": "correct invalid count back to prior valid draft",
+    "count": "13",
+    "saveDisabled": false,
+    "errorPresent": false,
+    "phase": "dirty"
+  }
+]

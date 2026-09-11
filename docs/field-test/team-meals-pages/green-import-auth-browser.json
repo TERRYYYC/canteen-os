@@ -1,0 +1,101 @@
+{
+  "summary": "15/15",
+  "checks": [
+    {
+      "name": "CSV absent counts stay blank",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "CSV keeps prior duplicate counts and absent new count",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Source 403 cannot create an empty-base draft",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "confirmed Source 404 alone creates v3 unknown count",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "language rebind ignores old saved-plan completion",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "invalid late preview stays blocked after canceled import",
+      "pass": true,
+      "detail": "{\"draft\":null,\"invalid\":\"true\",\"disabled\":true,\"button\":\"Nothing to import\"}"
+    },
+    {
+      "name": "new auth does not display old imported draft notice",
+      "pass": true,
+      "detail": "←Вставити списокТиждень від 2026-09-14Симуляція; без запису в справжнє сховищеВставте сюди повідомлення з WeChatФормат вільний: день тижня або дата · сніданок / обід / вечеря · страва · порції. Нерозпізнані рядки буде позначено, а не відхилено всі разом.РозібратиОчиститиАбо завантажте таблицюCSV, чотири стовпчикиДата · прийом їжі · страва · порції — назви стовпчиків будь-які, розпізнаються автомат"
+    },
+    {
+      "name": "new-auth import uses its own source rather than old shared draft",
+      "pass": true,
+      "detail": "{\"plan\":{\"schemaVersion\":\"3\",\"name\":{\"zh\":\"B-plan\"},\"margin\":9,\"meals\":[{\"date\":\"2026-09-15\",\"mealType\":\"dinner\",\"dishRef\":\"other\"}],\"dateRange\":{\"start\":\"2026-09-14\",\"end\":\"2026-09-20\"}},\"requests\":[{\"principal\":1,\"method\":\"GET\",\"path\":\"/catalog\"},{\"principal\":1,\"method\":\"GET\",\"path\":\"/source/plan/week-38\"},{\"principal\":2,\"method\":\"GET\",\"path\":\"/catalog\"},{\"principal\":2,\"method\":\"GET\",\"path\":\"/source/plan/week-38\"}]}"
+    },
+    {
+      "name": "Import draft enters Plan with supplied count and complete duplicate rows",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Import raw survives Plan return in same authentication",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Plan C1 draft survives Import round trip without another write",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "old Source completion and handles cannot mutate B",
+      "pass": true,
+      "detail": {
+        "blocked": 5,
+        "plan": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "B-owned"
+          },
+          "meals": []
+        }
+      }
+    },
+    {
+      "name": "Ingredient consumes same API handoff once",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Ingredient never consumes a prior identity handoff",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "equal session keys on different APIs do not share drafts",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "requests": [
+    {
+      "principal": 1,
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "principal": 1,
+      "method": "GET",
+      "path": "/catalog"
+    }
+  ]
+}

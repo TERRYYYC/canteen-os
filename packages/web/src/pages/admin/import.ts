@@ -22,7 +22,7 @@ import "./import.css";
 import type { AnyMenuPlan, MealType, MenuPlanV3, MenuPlanMealV3, ParsedLine } from "@canteenos/core";
 import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPlanId } from "@canteenos/core";
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
-import { getDraftPlan, getDraftSource, setDraftPlan, setHandoff, undoDraftPlan } from "../../admin/store";
+import { bindDraftStore } from "../../admin/store";
 import { onAuthSessionChange } from "../../admin/token";
 import { parseServingsInput } from "./servings-input";
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
@@ -576,6 +576,7 @@ function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: st
 // ---------------------------------------------------------------------------
 
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
+  const drafts = bindDraftStore(api);
   const lang = ctx.lang;
   const { planId, weekStart } = resolveWeek(rest, ctx);
   const owner = getImportInputOwner(api, planId), state = owner.state;
@@ -614,8 +615,8 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
   // —— 已有导入草稿：可撤销（§4.3 DoD「未保存前可撤销」）——
   function paintDraftNotice(): void {
     replace(noticeHost);
-    const draft = getDraftPlan(planId);
-    if (!draft || getDraftSource(planId) !== "import") return;
+    const draft = drafts.getDraftPlan(planId);
+    if (!draft || drafts.getDraftSource(planId) !== "import") return;
     const bar = notice({
       kind: "ok",
       text: tt(lang, "import.draft.exists", { n: draft.meals.length }),
@@ -623,7 +624,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
         label: adm("adm.undo", undefined, lang),
         onClick: () => {
           if (!live()) return;
-          undoDraftPlan(planId);
+          drafts.undoDraftPlan(planId);
           paintDraftNotice();
           noticeHost.prepend(notice({ kind: "info", text: tt(lang, "import.draft.undone") }));
         },
@@ -925,7 +926,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
           class: "adm-import-act",
           onClick: () => {
             if (!live()) return;
-            setHandoff({ newDishName: line.dishNameRaw ?? "", returnTo });
+            drafts.setHandoff({ newDishName: line.dishNameRaw ?? "", returnTo });
             location.hash = adminHref("dish", "new");
           },
         }),
@@ -939,7 +940,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
           class: "adm-import-act",
           onClick: () => {
             if (!live()) return;
-            setHandoff({ returnTo });
+            drafts.setHandoff({ returnTo });
             location.hash = adminHref("dish", id);
           },
         }),
@@ -1023,14 +1024,14 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
     paintReadStatus();
     const done = busyButton(btn);
     try {
-      let base: AnyMenuPlan | null = getDraftPlan(planId);
+      let base: AnyMenuPlan | null = drafts.getDraftPlan(planId);
       if (!base) {
         const saved = await api.getPlan(planId, { force: true });
         base = saved?.content ?? null;
       }
       if (!live()) return;
       if (inputTicket !== owner.inputGeneration) return;
-      setDraftPlan(planId, mergePlan(base, meals, planId, weekStart, clearServings), "import");
+      drafts.setDraftPlan(planId, mergePlan(base, meals, planId, weekStart, clearServings), "import");
       state.imported = meals.length === state.parsed.length;
       owner.generation++;
       location.hash = planHref;

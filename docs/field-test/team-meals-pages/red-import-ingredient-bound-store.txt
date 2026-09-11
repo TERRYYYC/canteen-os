@@ -1,0 +1,715 @@
+✔ real core parsed missing servings stay blank rather than receiving a page default (2.599125ms)
+✔ explicit preview clear overrides parsed original, while untouched preview keeps it (0.725833ms)
+✔ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.32875ms)
+✔ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.430542ms)
+✔ only an explicit clear removes matched known count; duplicate rows and service window survive (0.091875ms)
+✔ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.084292ms)
+✖ actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST (0.139584ms)
+✖ actual preview explicit clear survives language repaint and invalid entry can be corrected (0.059333ms)
+✖ late saved-plan read cannot import over a newer preview or an auth lifetime (0.0615ms)
+✔ unconfigured import shows honest unavailable state without fallback mock reads (1.269917ms)
+✖ an initially blank preview has an explicit clear action to remove a matched saved count (0.080708ms)
+✖ I-R1 canceled source read derives action validity from the current preview (0.058084ms)
+✖ raw preview refuses loss of numeric precision and retains the original input after repaint (0.061291ms)
+✖ exact integer decimal and exponent representations remain supported in the preview (0.049ms)
+✖ approved core invalid servings are shown as unparsed original text with no import fallback (0.040875ms)
+✖ raw paste and invalid line edit belong to the original plan across another plan and language (0.046042ms)
+✖ selected CSV completes into the original owner after a language repaint or navigating away (0.0595ms)
+✖ a newer CSV or paste wins over an older selected file without changing the wrong owner (0.046167ms)
+✖ Source-read busy state survives language repaint and cancellation preserves raw validity (0.040334ms)
+✖ late file failure is retained for its owner across repaint and cannot leak into a new auth session (0.042667ms)
+✖ raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle (0.046708ms)
+✖ a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft (0.044417ms)
+✖ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (4.616125ms)
+✖ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (15.921167ms)
+✖ late source cannot paint an old language into a reused connected mount (2.48525ms)
+✖ late previous-session source cannot overwrite the current session (2.165791ms)
+✖ raw buffer and unload protection survive leaving the ingredient route (2.116833ms)
+✖ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (2.135583ms)
+✖ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (2.465042ms)
+✖ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (2.275333ms)
+✖ unknown upload remains protected because a source read cannot prove the upload result (2.594417ms)
+✔ shared form keeps default translation behavior and an explicit declined task sends nothing (23.546167ms)
+✖ translation owner survives language and ignores a result after newer raw name edits (2.432333ms)
+✖ photo decode is busy before a preview exists and its result survives language/navigation (2.724709ms)
+✖ photo decode failure releases busy while keeping prior photo and raw edits (2.210166ms)
+✖ successful translation from an old language view updates the current view without repeating (2.111541ms)
+✖ malformed successful save responses stay unknown and cannot discard the pending attempt (2.048166ms)
+✖ unrecognized write rejection cannot be assumed safe to retry (2.030917ms)
+✖ field validation survives language and does not steal focus on every later keystroke (2.161917ms)
+✖ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (2.307583ms)
+✖ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (2.141375ms)
+✖ ING-R1 pending and later edits keep the first new identity across return and acknowledgement (2.030208ms)
+✖ ING-R1 unknown new creation never retires its target or permits another write on return (2.007708ms)
+✖ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (2.334584ms)
+✖ ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison (2.203292ms)
+ℹ Error: Test "late previous-session source cannot overwrite the current session" at packages/web/test/team-meals-pages-ingredient.test.mjs:73:1 generated asynchronous activity after the test ended. This activity created the error "ApiError" and would have caused the test to fail, but instead triggered an unhandledRejection event.
+ℹ tests 45
+ℹ suites 0
+ℹ pass 8
+ℹ fail 37
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.745166
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-import.test.mjs:68:1
+✖ actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST (0.139584ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:69:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:72:1
+✖ actual preview explicit clear survives language repaint and invalid entry can be corrected (0.059333ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:73:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:76:1
+✖ late saved-plan read cannot import over a newer preview or an auth lifetime (0.0615ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:77:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:83:1
+✖ an initially blank preview has an explicit clear action to remove a matched saved count (0.080708ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:84:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:87:1
+✖ I-R1 canceled source read derives action validity from the current preview (0.058084ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:89:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:98:1
+✖ raw preview refuses loss of numeric precision and retains the original input after repaint (0.061291ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:100:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:108:1
+✖ exact integer decimal and exponent representations remain supported in the preview (0.049ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:110:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:116:1
+✖ approved core invalid servings are shown as unparsed original text with no import fallback (0.040875ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:118:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:124:1
+✖ raw paste and invalid line edit belong to the original plan across another plan and language (0.046042ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:125:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:130:1
+✖ selected CSV completes into the original owner after a language repaint or navigating away (0.0595ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:132:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:138:1
+✖ a newer CSV or paste wins over an older selected file without changing the wrong owner (0.046167ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:139:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:143:1
+✖ Source-read busy state survives language repaint and cancellation preserves raw validity (0.040334ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:144:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:148:1
+✖ late file failure is retained for its owner across repaint and cannot leak into a new auth session (0.042667ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:149:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:153:1
+✖ raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle (0.046708ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:154:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:159:1
+✖ a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft (0.044417ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-import-x5ocmm/import.mjs:1036:9)
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:64:2)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:160:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:70:1
+✖ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (4.616125ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=1:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=1:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=1:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:70:167)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:71:1
+✖ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (15.921167ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=3:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=3:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=3:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:71:435)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:72:1
+✖ late source cannot paint an old language into a reused connected mount (2.48525ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=4:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=4:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=4:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:72:176)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:73:1
+✖ late previous-session source cannot overwrite the current session (2.165791ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=5:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=5:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=5:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:73:355)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:74:1
+✖ raw buffer and unload protection survive leaving the ingredient route (2.116833ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=6:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=6:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=6:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:74:138)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:75:1
+✖ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (2.135583ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=7:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=7:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=7:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:75:326)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:76:1
+✖ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (2.465042ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=8:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=8:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=8:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:76:321)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:77:1
+✖ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (2.275333ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=9:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=9:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=9:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:77:311)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:78:1
+✖ unknown upload remains protected because a source read cannot prove the upload result (2.594417ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=10:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=10:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=10:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:78:245)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:81:1
+✖ translation owner survives language and ignores a result after newer raw name edits (2.432333ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=12:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=12:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=12:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:81:236)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:82:1
+✖ photo decode is busy before a preview exists and its result survives language/navigation (2.724709ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=13:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=13:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=13:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:82:253)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:83:1
+✖ photo decode failure releases busy while keeping prior photo and raw edits (2.210166ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=14:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=14:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=14:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:83:208)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:84:1
+✖ successful translation from an old language view updates the current view without repeating (2.111541ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=15:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=15:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=15:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:84:244)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:85:1
+✖ malformed successful save responses stay unknown and cannot discard the pending attempt (2.048166ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=16:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=16:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=16:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:85:196)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:86:1
+✖ unrecognized write rejection cannot be assumed safe to retry (2.030917ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=17:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=17:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=17:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:86:216)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:87:1
+✖ field validation survives language and does not steal focus on every later keystroke (2.161917ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=18:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=18:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=18:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:87:322)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:90:1
+✖ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (2.307583ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=19:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=19:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=19:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:91:52)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:95:1
+✖ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (2.141375ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=20:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=20:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=20:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:96:52)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:99:1
+✖ ING-R1 pending and later edits keep the first new identity across return and acknowledgement (2.030208ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=21:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=21:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=21:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:100:207)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:103:1
+✖ ING-R1 unknown new creation never retires its target or permits another write on return (2.007708ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=22:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=22:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=22:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:104:144)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:107:1
+✖ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (2.334584ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=23:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=23:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=23:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:108:256)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }
+
+test at packages/web/test/team-meals-pages-ingredient.test.mjs:111:1
+✖ ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison (2.203292ms)
+  Error [ApiError]
+      at scopeRequired (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=24:614:9)
+      at createOwner (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=24:2238:16)
+      at Module.render (file:///private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/team-ingredient-n77k2Q/ingredient.mjs?test=24:2339:13)
+      at Object.mount (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:63:237)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:112:332)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    status: 0,
+    code: 'store_scope_required',
+    errors: [ { path: '', code: 'store_scope_required', message: '' } ],
+    retryAfter: undefined,
+    reviewRequired: undefined
+  }

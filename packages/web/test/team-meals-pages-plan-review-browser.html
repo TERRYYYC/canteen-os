@@ -3,14 +3,14 @@
 import '../src/tokens.css';import '../src/styles.css';
 import {createPlanRenderer} from '../src/pages/admin/plan.ts';
 import {createTeamMealsApi} from '../src/api/team-meals.ts';
-import {setDraftPlan,clearDraftPlan} from '../src/admin/store.ts';
+import {bindDraftStore} from '../src/admin/store.ts';
 const A='a'.repeat(40), B='b'.repeat(40),tick=()=>new Promise(r=>setTimeout(r,15));
 const plan=(dish='soup',n=12)=>({schemaVersion:'3',meals:[{date:'2026-10-05',mealType:'lunch',dishRef:dish,plannedServings:n}]});
 const source=(content,commit=A)=>({content,commit,blobSha:'blob-'+commit[0]});
 const catalog=(commit=A)=>({commit,dishes:commit===A?{soup:{name:{en:'Soup A'},components:[]}}:{newdish:{name:{en:'New dish B'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{}});
 function ok(body){return new Response(JSON.stringify(body),{status:200,headers:{'Content-Type':'application/json'}});}
 function bad(status,code){return new Response(JSON.stringify({ok:false,errors:[{path:'',code,message:''}]}),{status,headers:{'Content-Type':'application/json'}});}
-function setup(handler){const log=[];const api=createTeamMealsApi('https://independent-mock.invalid',{mode:'mock',token:()=>'explicit-review-mock',identity:()=>1,fetch:async(url,init)=>{const u=new URL(url);log.push({method:init.method,path:u.pathname,revision:u.searchParams.get('revision')});return handler(u,init);}});return {render:createPlanRenderer(api),log};}
+function setup(handler){const log=[];const api=createTeamMealsApi('https://independent-mock.invalid',{mode:'mock',token:()=>'explicit-review-mock',identity:()=>1,fetch:async(url,init)=>{const u=new URL(url);log.push({method:init.method,path:u.pathname,revision:u.searchParams.get('revision')});return handler(u,init);}});return {render:createPlanRenderer(api),drafts:bindDraftStore(api),log};}
 async function draw(render,id='week-a',lang='en'){const el=document.createElement('section');document.querySelector('#app').replaceChildren(el);const promise=render(el,{lang,planId:id,route:'admin',rest:id,data:{},t:k=>k},id);return promise;}
 function button(label){return [...document.querySelectorAll('#app button')].find(b=>b.textContent===label);}
 function set(value){const e=document.querySelector('[data-focus="servings-0"]');e.value=value;e.dispatchEvent(new Event('input',{bubbles:true}));}
@@ -23,10 +23,10 @@ document.querySelector('#run').onclick=async()=>{
   await draw(one.render);await draw(one.render,'week-b');button('Read again').click();await tick();
   report('retry source after switching A to failed B',{bReads,rows:document.querySelectorAll('[data-meal-index]').length,body:document.querySelector('#app').textContent,log:one.log});
   let release;const held=new Promise(r=>release=r);
-  setDraftPlan('week-import',{schemaVersion:'2',meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'soup',plannedServings:2}]},'import');
   const two=setup(async u=>u.pathname==='/catalog'?(await held,ok(catalog())):ok(source(plan())));
+  two.drafts.setDraftPlan('week-import',{schemaVersion:'2',meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'soup',plannedServings:2}]},'import');
   const pending=draw(two.render,'week-import');await tick();set('9');release();await pending;
-  report('edit while imported draft waits for catalog',{expectedLatestCount:'9',actualCount:document.querySelector('[data-focus="servings-0"]').value,phase:document.querySelector('[data-phase]').dataset.phase});clearDraftPlan('week-import');
+  report('edit while imported draft waits for catalog',{expectedLatestCount:'9',actualCount:document.querySelector('[data-focus="servings-0"]').value,phase:document.querySelector('[data-phase]').dataset.phase});two.drafts.clearDraftPlan('week-import');
   let remote=false;
   const three=setup((u,init)=>{if(init.method==='POST'){remote=true;return bad(409,'conflict');}return u.pathname==='/catalog'?ok(catalog(u.searchParams.get('revision')||A)):ok(source(remote?plan('newdish',4):plan(),remote?B:A));});
   await draw(three.render,'week-conflict');set('13');button('Save plan').click();await tick();button('Read remote and compare').click();await tick();button('Use remote content').click();await tick();
