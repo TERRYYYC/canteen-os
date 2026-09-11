@@ -1,0 +1,1295 @@
+{
+  "reviewerIdentity": "Codex /root/plan_review (original nonauthor)",
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "reviewSubjectRef": "task:01a08db7-43f3-7952-adb5-75106389e557/Q-UI-T01-02",
+  "acceptedSourceRef": "docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+  "acceptedRevision": "85be50155723114256d8e597160e7db7a8c2995a",
+  "verdict": "APPROVE",
+  "entryCount": 214,
+  "entries": [
+    {
+      "path": "COMMANDS.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/COMMANDS.md",
+      "bytes": 6013,
+      "sha256": "ee6ebe9bbd1f4883c9d84706924b0a6899e7a5d291f7d9834a1a03c66cb99cf4"
+    },
+    {
+      "path": "REVIEW.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/REVIEW.md",
+      "bytes": 11935,
+      "sha256": "832a3db244fd7c924b1b875a6d0f686bf49c08519f469440dc7c2f2cd086f0c8"
+    },
+    {
+      "path": "VERDICT.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/VERDICT.json",
+      "bytes": 683,
+      "sha256": "a7b31444216b401c43afaf50de91e7efa41d3536ae4f25ff6c15e20bee7546d0"
+    },
+    {
+      "path": "build-default/assets/admin-CPXa32ud.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/admin-CPXa32ud.js",
+      "bytes": 3632,
+      "sha256": "714ddf0edef207d4364f3ded86f8506fb966120b041f2dc21a33f7177277f12e"
+    },
+    {
+      "path": "build-default/assets/client-hyJMN4Vy.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/client-hyJMN4Vy.js",
+      "bytes": 32159,
+      "sha256": "af50097323e3d21d0bf2771063f30cda59e8e0ae984371366381d92574d2e60e"
+    },
+    {
+      "path": "build-default/assets/dish-new-DK3WVt9P.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/dish-new-DK3WVt9P.css",
+      "bytes": 7081,
+      "sha256": "fdf33f2f1ca58d717670d193c49afb261425e847fe0b37ee6d54130808386b7d"
+    },
+    {
+      "path": "build-default/assets/dish-new-TUcyBgAk.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/dish-new-TUcyBgAk.js",
+      "bytes": 68383,
+      "sha256": "54ad79004269612993f735258280676fdf2414944b09a9edca6e89edbe807d30"
+    },
+    {
+      "path": "build-default/assets/edit-session-BAJliQGW.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/edit-session-BAJliQGW.js",
+      "bytes": 6509,
+      "sha256": "c9fc95f3b56f1e76be3900eda226bdd1f4b5a7b6ebfe7de5a247aa855ac35acc"
+    },
+    {
+      "path": "build-default/assets/editor-image-B408a5BL.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/editor-image-B408a5BL.js",
+      "bytes": 1101,
+      "sha256": "ba613f0d30619ab816074c1603b72c77a31a25d6cb0c471e982494a8defe3cec"
+    },
+    {
+      "path": "build-default/assets/home-Bw8HMtwR.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/home-Bw8HMtwR.css",
+      "bytes": 2279,
+      "sha256": "a8710d4980d0b7892756e4e57d4a54ef6a668b1b749c4f84eb93af710c47c0c7"
+    },
+    {
+      "path": "build-default/assets/home-tMvkewcr.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/home-tMvkewcr.js",
+      "bytes": 10814,
+      "sha256": "d14910c46736c4f74cc7895d6ca0eec64bf2580754e82fe1015bc4df302f7da5"
+    },
+    {
+      "path": "build-default/assets/import-DavkaiKj.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/import-DavkaiKj.css",
+      "bytes": 5333,
+      "sha256": "c267a701b660e406f5a30ff9db9dd1d74513fa38b4dbed71d85c57ac3d3b335a"
+    },
+    {
+      "path": "build-default/assets/import-qLwlbXwa.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/import-qLwlbXwa.js",
+      "bytes": 30015,
+      "sha256": "52e071df6f284893b88705938dd5839e5d05eedfe1d034b4876cb839e2a933d5"
+    },
+    {
+      "path": "build-default/assets/index-6YWh8feD.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/index-6YWh8feD.js",
+      "bytes": 42331,
+      "sha256": "d422dcc51903e516656ddf3e35df9b65ac249d2d37231238d673019d36d8bd5b"
+    },
+    {
+      "path": "build-default/assets/index-_eYw8u9e.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/index-_eYw8u9e.css",
+      "bytes": 8779,
+      "sha256": "077a3303f9edb4d7240f8405a36e4028ba71d8912fbda7fd700ece4925301092"
+    },
+    {
+      "path": "build-default/assets/ingredient-draft-CB7LC3Et.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/ingredient-draft-CB7LC3Et.js",
+      "bytes": 3442,
+      "sha256": "aedae0ff679ab7509316595d757b8d970e22f6065d14bf3b1012877fff20e515"
+    },
+    {
+      "path": "build-default/assets/ingredient-form-CT2dSWut.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/ingredient-form-CT2dSWut.css",
+      "bytes": 4495,
+      "sha256": "7224b4e15606573dcbccb02c14437399d3395e6f44f60afa87586c309f26a516"
+    },
+    {
+      "path": "build-default/assets/ingredient-form-ZlpfWMG2.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/ingredient-form-ZlpfWMG2.js",
+      "bytes": 23484,
+      "sha256": "b1dbea1d754d865cc611a3bcaeb85bcaa2eb01a609a57fa77ce11529351d1fbf"
+    },
+    {
+      "path": "build-default/assets/ingredient-new-QwM6OXHa.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/ingredient-new-QwM6OXHa.js",
+      "bytes": 14584,
+      "sha256": "014425215a1d350f8c968bd3867d15f48676e552f4aee5e1c2979234c3227aae"
+    },
+    {
+      "path": "build-default/assets/kit-hHF0cNTc.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/kit-hHF0cNTc.css",
+      "bytes": 3733,
+      "sha256": "a33f38bc2e312272f16098437ee44df55e1742337a2753ae8b1009a69a8920f2"
+    },
+    {
+      "path": "build-default/assets/kit-ksRNkOR5.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/kit-ksRNkOR5.js",
+      "bytes": 22256,
+      "sha256": "7eb052a2506107c72b8124d1042cb38d350a78498f47b110899e6b320021a2e1"
+    },
+    {
+      "path": "build-default/assets/menu-AiJcRmZo.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/menu-AiJcRmZo.css",
+      "bytes": 5738,
+      "sha256": "fd7e5aa5dad99aa89764b938da83c175c7a17f832706c7f7e3f783f232b4be40"
+    },
+    {
+      "path": "build-default/assets/menu-CYu2JBBZ.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/menu-CYu2JBBZ.js",
+      "bytes": 14042,
+      "sha256": "6d04effa361d3a33b589aef1759f1400e6d7d4b01c804e4f5886ee35c7adc6c9"
+    },
+    {
+      "path": "build-default/assets/parse-plan-text-DBZQVSv5.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/parse-plan-text-DBZQVSv5.js",
+      "bytes": 13248,
+      "sha256": "3ec90be07feaf1b63802d229cdbac8ba78820fb6791ef81e72355d41c84a5c98"
+    },
+    {
+      "path": "build-default/assets/plan-SO7uGC0S.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/plan-SO7uGC0S.js",
+      "bytes": 13635,
+      "sha256": "973637eaee25366ea86a5766f814d5fe4d7a56601af6e3f14d02c68d92dceee5"
+    },
+    {
+      "path": "build-default/assets/plan-import-RSLHW7vM.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/plan-import-RSLHW7vM.js",
+      "bytes": 721,
+      "sha256": "4d40b445492a0361064949ebe41300786fd81c8a58f57cd30ed187b29fb4d8d4"
+    },
+    {
+      "path": "build-default/assets/prep-1RIs5-kI.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/prep-1RIs5-kI.js",
+      "bytes": 37046,
+      "sha256": "996ebf20eb6fc97198f3d1fe25666d82146ff4b297d4d8f5540d551c35ce0695"
+    },
+    {
+      "path": "build-default/assets/prep-CZU-3gXe.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/prep-CZU-3gXe.css",
+      "bytes": 6801,
+      "sha256": "a6b01187bb8a6bcda8275f3874ce119bbde33cb9413a89eacf323443afdea9ce"
+    },
+    {
+      "path": "build-default/assets/publish-Dbeqz2IJ.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/publish-Dbeqz2IJ.js",
+      "bytes": 29872,
+      "sha256": "e48870ab6f5813f324dd00d4e431bbcb201af670c99d361e4db7c2919f9b3eba"
+    },
+    {
+      "path": "build-default/assets/publish-DvJfnWK2.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/publish-DvJfnWK2.css",
+      "bytes": 5172,
+      "sha256": "5dbb17789a69bc9dd70648507635a2ce0559ab81554437be4b0232d9fbf6de30"
+    },
+    {
+      "path": "build-default/assets/purchase-DNKopws3.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/purchase-DNKopws3.js",
+      "bytes": 19587,
+      "sha256": "89ee793c381b8e3c78fe4e832c7f8961877ef9ac721582d136d8b50f1741f8d2"
+    },
+    {
+      "path": "build-default/assets/purchase-StWw7liZ.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/purchase-StWw7liZ.css",
+      "bytes": 6000,
+      "sha256": "0482338862075ef1c2c0d429d5675de12b44a1bdba905fe5744072cdc178d0f6"
+    },
+    {
+      "path": "build-default/assets/purchase-list-CRLPFa5o.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/purchase-list-CRLPFa5o.css",
+      "bytes": 3058,
+      "sha256": "651f20f1d8a995ada94cd87e451c1d87c265c74d0a2e4a2a47748c7f545d9ff9"
+    },
+    {
+      "path": "build-default/assets/purchase-list-DMlwYbKv.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/purchase-list-DMlwYbKv.js",
+      "bytes": 32205,
+      "sha256": "3e193f8c453f8f976181903a3b2b2633935cd0f0bfadc1a10f88c898003c45ce"
+    },
+    {
+      "path": "build-default/assets/qr-95YfxYR1.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/qr-95YfxYR1.css",
+      "bytes": 2254,
+      "sha256": "c9a41dadb380a5cae77aad3d18cbdd919ebd0d4579954adf2a56ceecc47d69b2"
+    },
+    {
+      "path": "build-default/assets/qr-C9hM9k_j.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/qr-C9hM9k_j.js",
+      "bytes": 4075,
+      "sha256": "14c16a87e99588ff0924b94038ba51fc979f28192d3e543afc7def574cafa942"
+    },
+    {
+      "path": "build-default/assets/store-CKq3PP8k.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/store-CKq3PP8k.js",
+      "bytes": 2012,
+      "sha256": "217b6be43e1a6b354424ca7c09212acfe37851ede962412bca1d513dbe6f7d4e"
+    },
+    {
+      "path": "build-default/assets/team-ui-CDfRkLut.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/team-ui-CDfRkLut.js",
+      "bytes": 5577,
+      "sha256": "33fb4693e60780e8c26f9588a7677fc1c2674f9905cd4717014095da04fef97d"
+    },
+    {
+      "path": "build-default/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "bytes": 5706,
+      "sha256": "a5e753498adaeaf5aa2aeb6aa33cc8b477f6dae8621f1960ab8e12d4cebf9c70"
+    },
+    {
+      "path": "build-default/bundle-attribution-final.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/bundle-attribution-final.json",
+      "bytes": 18851,
+      "sha256": "aee429ffc55292f3fffd16bf6c2670ebca21b3cb51e21cbc72e7253d5b06259a"
+    },
+    {
+      "path": "build-default/bundle-attribution.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/bundle-attribution.json",
+      "bytes": 17489,
+      "sha256": "ae07ec26cf4231318b5d31349f164958cb61817ce298e0c3da16e76d5cbf5d10"
+    },
+    {
+      "path": "build-default/index.html",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/index.html",
+      "bytes": 2148,
+      "sha256": "1160933c342d1cd41311b587514721b9f2f9ef99afe191f2a93011a57cccf75d"
+    },
+    {
+      "path": "build-default/manifest.webmanifest",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/manifest.webmanifest",
+      "bytes": 777,
+      "sha256": "9684be793b3ef8b627172a1e593122bb7c4198671426b7febd89928a4f7f68e9"
+    },
+    {
+      "path": "build-default/sw.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/sw.js",
+      "bytes": 4963,
+      "sha256": "57b1ca3a5f9261d5f3c087273e2323665338b6285ff7e090ec9e6761f1716c12"
+    },
+    {
+      "path": "build-default/workbox-4e9e9954.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-default/workbox-4e9e9954.js",
+      "bytes": 22311,
+      "sha256": "f2db86fc677662558d612bdbf847e94438d835e808b0ef03e6c3b7ac52c20a75"
+    },
+    {
+      "path": "build-http/assets/admin-B8DNFVO5.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/admin-B8DNFVO5.js",
+      "bytes": 3632,
+      "sha256": "d0c7bcf17525134e40dcfc9a2e85bc41d6dab4a848e41c834b4e0d0e1f1bebbf"
+    },
+    {
+      "path": "build-http/assets/client-C4-tibzI.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/client-C4-tibzI.js",
+      "bytes": 32224,
+      "sha256": "97dcf179b120cd5b9bb65de059a01d84d87239e65194d4d95a68bcc1b8d1146a"
+    },
+    {
+      "path": "build-http/assets/dish-new-BIgXXGXR.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/dish-new-BIgXXGXR.js",
+      "bytes": 68383,
+      "sha256": "db691c0bfb55c8a2f7ebd5019a3732c5b81325cb9a0e84fdd4cdc193b67c0ec0"
+    },
+    {
+      "path": "build-http/assets/dish-new-DK3WVt9P.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/dish-new-DK3WVt9P.css",
+      "bytes": 7081,
+      "sha256": "fdf33f2f1ca58d717670d193c49afb261425e847fe0b37ee6d54130808386b7d"
+    },
+    {
+      "path": "build-http/assets/edit-session-BAEN6PGB.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/edit-session-BAEN6PGB.js",
+      "bytes": 6509,
+      "sha256": "e16c1df02bb075e7b4fc2c300bc25cd66f01ae01fa7ed522c3da13020c382f5b"
+    },
+    {
+      "path": "build-http/assets/editor-image-B408a5BL.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/editor-image-B408a5BL.js",
+      "bytes": 1101,
+      "sha256": "ba613f0d30619ab816074c1603b72c77a31a25d6cb0c471e982494a8defe3cec"
+    },
+    {
+      "path": "build-http/assets/home-Bw8HMtwR.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/home-Bw8HMtwR.css",
+      "bytes": 2279,
+      "sha256": "a8710d4980d0b7892756e4e57d4a54ef6a668b1b749c4f84eb93af710c47c0c7"
+    },
+    {
+      "path": "build-http/assets/home-DR-7CF_a.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/home-DR-7CF_a.js",
+      "bytes": 10814,
+      "sha256": "78e68ae66b0ad9a92425e0cae8682da8c2b1e5a51fda427af3124204a6779597"
+    },
+    {
+      "path": "build-http/assets/import-BSA6L_gt.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/import-BSA6L_gt.js",
+      "bytes": 30015,
+      "sha256": "e55524067de229df723981b3afff28bbd91f2ebe6a4e343fb60422335e42aa07"
+    },
+    {
+      "path": "build-http/assets/import-DavkaiKj.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/import-DavkaiKj.css",
+      "bytes": 5333,
+      "sha256": "c267a701b660e406f5a30ff9db9dd1d74513fa38b4dbed71d85c57ac3d3b335a"
+    },
+    {
+      "path": "build-http/assets/index-CMNAFHU0.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/index-CMNAFHU0.js",
+      "bytes": 42331,
+      "sha256": "acd621ae7e762b2613be177c7435b95b4c78cd4ef98f4ae32b214e945a2a3955"
+    },
+    {
+      "path": "build-http/assets/index-_eYw8u9e.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/index-_eYw8u9e.css",
+      "bytes": 8779,
+      "sha256": "077a3303f9edb4d7240f8405a36e4028ba71d8912fbda7fd700ece4925301092"
+    },
+    {
+      "path": "build-http/assets/ingredient-draft-BGaFXj1n.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/ingredient-draft-BGaFXj1n.js",
+      "bytes": 3442,
+      "sha256": "de7e10520583ae844fcb128b6407b26ba0ceca9f813e585bf56fcd89fc153d38"
+    },
+    {
+      "path": "build-http/assets/ingredient-form-CSFrYie6.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/ingredient-form-CSFrYie6.js",
+      "bytes": 23484,
+      "sha256": "b76e7a9a884cb0eafced831b01bfc90c8e3395450c9cd5e33a8574a8ca567a7a"
+    },
+    {
+      "path": "build-http/assets/ingredient-form-CT2dSWut.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/ingredient-form-CT2dSWut.css",
+      "bytes": 4495,
+      "sha256": "7224b4e15606573dcbccb02c14437399d3395e6f44f60afa87586c309f26a516"
+    },
+    {
+      "path": "build-http/assets/ingredient-new-C41K0F91.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/ingredient-new-C41K0F91.js",
+      "bytes": 14584,
+      "sha256": "96bd6a4c03e8d4745fb5841695aefa179b5c916303f1768d74256cb181b21fc3"
+    },
+    {
+      "path": "build-http/assets/kit-DCyL5lR_.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/kit-DCyL5lR_.js",
+      "bytes": 22293,
+      "sha256": "28da7da21bc6ffcc7229cc8ae9a925bef6a70be286261dcd820f087b05ea60ac"
+    },
+    {
+      "path": "build-http/assets/kit-hHF0cNTc.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/kit-hHF0cNTc.css",
+      "bytes": 3733,
+      "sha256": "a33f38bc2e312272f16098437ee44df55e1742337a2753ae8b1009a69a8920f2"
+    },
+    {
+      "path": "build-http/assets/menu-AiJcRmZo.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/menu-AiJcRmZo.css",
+      "bytes": 5738,
+      "sha256": "fd7e5aa5dad99aa89764b938da83c175c7a17f832706c7f7e3f783f232b4be40"
+    },
+    {
+      "path": "build-http/assets/menu-B1gkvFYm.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/menu-B1gkvFYm.js",
+      "bytes": 14042,
+      "sha256": "9b1ad8fa8bbd834c7b528600e9b9f5ba0fcdd271cc28d986ee11def05991da4b"
+    },
+    {
+      "path": "build-http/assets/parse-plan-text-DBZQVSv5.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/parse-plan-text-DBZQVSv5.js",
+      "bytes": 13248,
+      "sha256": "3ec90be07feaf1b63802d229cdbac8ba78820fb6791ef81e72355d41c84a5c98"
+    },
+    {
+      "path": "build-http/assets/plan-Bzj43Kkh.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/plan-Bzj43Kkh.js",
+      "bytes": 13635,
+      "sha256": "71b2bd533eb66492de95badc49aa28bcd8329c4865704513cd09f23c297e4748"
+    },
+    {
+      "path": "build-http/assets/plan-import-RSLHW7vM.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/plan-import-RSLHW7vM.js",
+      "bytes": 721,
+      "sha256": "4d40b445492a0361064949ebe41300786fd81c8a58f57cd30ed187b29fb4d8d4"
+    },
+    {
+      "path": "build-http/assets/prep-CZU-3gXe.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/prep-CZU-3gXe.css",
+      "bytes": 6801,
+      "sha256": "a6b01187bb8a6bcda8275f3874ce119bbde33cb9413a89eacf323443afdea9ce"
+    },
+    {
+      "path": "build-http/assets/prep-DOAI1CQu.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/prep-DOAI1CQu.js",
+      "bytes": 37046,
+      "sha256": "f82af4a3d58dfe5b90f2ed33fbed84925b677b6ee361e5e06a8c3aaa3cd9c36f"
+    },
+    {
+      "path": "build-http/assets/publish-CHRyh28K.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/publish-CHRyh28K.js",
+      "bytes": 29872,
+      "sha256": "c27a291dc121d03ae54ae70e11f48e354194375de2eccd7e7773b7852ebfcd50"
+    },
+    {
+      "path": "build-http/assets/publish-DvJfnWK2.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/publish-DvJfnWK2.css",
+      "bytes": 5172,
+      "sha256": "5dbb17789a69bc9dd70648507635a2ce0559ab81554437be4b0232d9fbf6de30"
+    },
+    {
+      "path": "build-http/assets/purchase-DQl5ohzl.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/purchase-DQl5ohzl.js",
+      "bytes": 19587,
+      "sha256": "86fc489a04ae6c5135dadb6ea35197190b32e6a95568d5dbf8692c6bf09655c1"
+    },
+    {
+      "path": "build-http/assets/purchase-StWw7liZ.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/purchase-StWw7liZ.css",
+      "bytes": 6000,
+      "sha256": "0482338862075ef1c2c0d429d5675de12b44a1bdba905fe5744072cdc178d0f6"
+    },
+    {
+      "path": "build-http/assets/purchase-list-CRLPFa5o.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/purchase-list-CRLPFa5o.css",
+      "bytes": 3058,
+      "sha256": "651f20f1d8a995ada94cd87e451c1d87c265c74d0a2e4a2a47748c7f545d9ff9"
+    },
+    {
+      "path": "build-http/assets/purchase-list-CffFEUox.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/purchase-list-CffFEUox.js",
+      "bytes": 32205,
+      "sha256": "d6d019435953927ce347461c47abe4462f8245a5a2f1caa8d3886d20e75b3411"
+    },
+    {
+      "path": "build-http/assets/qr-95YfxYR1.css",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/qr-95YfxYR1.css",
+      "bytes": 2254,
+      "sha256": "c9a41dadb380a5cae77aad3d18cbdd919ebd0d4579954adf2a56ceecc47d69b2"
+    },
+    {
+      "path": "build-http/assets/qr-B0H2-fb7.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/qr-B0H2-fb7.js",
+      "bytes": 4075,
+      "sha256": "d0a603e09c55f919d49d423794adbd60ae89abbd5649b1f4f6749343e3e0884d"
+    },
+    {
+      "path": "build-http/assets/store-v51A38S1.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/store-v51A38S1.js",
+      "bytes": 2012,
+      "sha256": "4d3be914de4f1b398786b58f9a631f6277bcabf91d84b1d74b847f642b3a16c2"
+    },
+    {
+      "path": "build-http/assets/team-ui-h_b64nE1.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/team-ui-h_b64nE1.js",
+      "bytes": 5577,
+      "sha256": "f543cb7666053cf29ab540431b96b69b30a7fa263c5b347531bb969a77a7005c"
+    },
+    {
+      "path": "build-http/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "bytes": 5706,
+      "sha256": "a5e753498adaeaf5aa2aeb6aa33cc8b477f6dae8621f1960ab8e12d4cebf9c70"
+    },
+    {
+      "path": "build-http/bundle-attribution-final.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/bundle-attribution-final.json",
+      "bytes": 18851,
+      "sha256": "f461bf9192abf2b50d7447cf217ec41911f9eafb7fc2f709d070b9c444a1b65e"
+    },
+    {
+      "path": "build-http/bundle-attribution.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/bundle-attribution.json",
+      "bytes": 17489,
+      "sha256": "97651d75d80a8e51985f0d8c0342cc77eee5d9ae8d567800e90c2bc8af18b725"
+    },
+    {
+      "path": "build-http/index.html",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/index.html",
+      "bytes": 2148,
+      "sha256": "e8b19da1ce2c5e3801756ed6f57c9cf5f4259a6499a499a71369f3736ddf2028"
+    },
+    {
+      "path": "build-http/manifest.webmanifest",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/manifest.webmanifest",
+      "bytes": 777,
+      "sha256": "9684be793b3ef8b627172a1e593122bb7c4198671426b7febd89928a4f7f68e9"
+    },
+    {
+      "path": "build-http/sw.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/sw.js",
+      "bytes": 4963,
+      "sha256": "2781626c2ed9a0e2e501c3cff40e31eca47142ee94a1a3d77fc8af2ac3135c9b"
+    },
+    {
+      "path": "build-http/workbox-4e9e9954.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/build-http/workbox-4e9e9954.js",
+      "bytes": 22311,
+      "sha256": "f2db86fc677662558d612bdbf847e94438d835e808b0ef03e6c3b7ac52c20a75"
+    },
+    {
+      "path": "consumed-author/README.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/README.md",
+      "bytes": 7469,
+      "sha256": "95fedfe8b679578fafa623ae90fd8c71e1d8335c38975c0878d864fef100ecf7"
+    },
+    {
+      "path": "consumed-author/build-default.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/build-default.log",
+      "bytes": 5754,
+      "sha256": "3a86d8d1aed0794c22b3f92ac7042c9c54fd634d1a6a853bbb09ca4d3c461ec7"
+    },
+    {
+      "path": "consumed-author/build-http-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/build-http-first.log",
+      "bytes": 5672,
+      "sha256": "770f41732ffa440469033b127b3ba631c4640fc6b274b00103ca1316fc304cb2"
+    },
+    {
+      "path": "consumed-author/build-http.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/build-http.log",
+      "bytes": 5631,
+      "sha256": "1d4ffce2193010de15030ce7d6ed784cba9a54386f661174358f101c0cacd2a4"
+    },
+    {
+      "path": "consumed-author/check-builds-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/check-builds-first.log",
+      "bytes": 345,
+      "sha256": "ea77d6d0457218d0a05c623988b952da7c8aedc33015cb43779855cac9084c1f"
+    },
+    {
+      "path": "consumed-author/check-builds.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/check-builds.log",
+      "bytes": 222,
+      "sha256": "369bd492c1115d1f2323a03a862d4a0b6e45929912340f40864c697e1321bf9a"
+    },
+    {
+      "path": "consumed-author/check-builds.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/check-builds.py",
+      "bytes": 3908,
+      "sha256": "c4164ec0b4fd6055137eb8f982e68dfecd1564b6087361f7aaaa290928a4d1b1"
+    },
+    {
+      "path": "consumed-author/commands.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/commands.md",
+      "bytes": 2759,
+      "sha256": "250b33a4d2f00833f307a63301a4c68c50ece6d6c76d37556e46210b389d8ee2"
+    },
+    {
+      "path": "consumed-author/default-graph.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/default-graph.json",
+      "bytes": 21480,
+      "sha256": "0e5fdaa9e97782fdbc2a800f5105a1f429d403c24863e96741c7c051ba0ee201"
+    },
+    {
+      "path": "consumed-author/default.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/default.json",
+      "bytes": 5741,
+      "sha256": "d6477952170c4ba56078aebf8b70956eb10abd57ffac7d1e8d396ea405ef9b8d"
+    },
+    {
+      "path": "consumed-author/full-web.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/full-web.log",
+      "bytes": 122069,
+      "sha256": "a6d4f0feeab88416840615c61dd07510fea4d6766a50e1b39182814775a73454"
+    },
+    {
+      "path": "consumed-author/green-composition-expanded.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/green-composition-expanded.log",
+      "bytes": 7227,
+      "sha256": "26ec8d7a768aecbd7de751541cfc677ade07e87bf98889aba2d63b731c345f92"
+    },
+    {
+      "path": "consumed-author/green-composition-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/green-composition-first.log",
+      "bytes": 4078,
+      "sha256": "3c2d0f84f032eab99dbbf417b28112c70acbc5858c989052a626c41747e71fb2"
+    },
+    {
+      "path": "consumed-author/green-target.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/green-target.log",
+      "bytes": 20652,
+      "sha256": "5a1670f296b27475d695fee86c945d1550944bd165f0fea2827117771cfae102"
+    },
+    {
+      "path": "consumed-author/http-first-graph.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/http-first-graph.json",
+      "bytes": 21479,
+      "sha256": "86339294df3479764945e6b22da5d56969003bb6e34b5035301c2f5e14f6a494"
+    },
+    {
+      "path": "consumed-author/http-first-totals.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/http-first-totals.log",
+      "bytes": 5742,
+      "sha256": "ca50ebf5c772dfbcbe17d9fa91119a4862be5cb51ffc7413c8953896a7317f91"
+    },
+    {
+      "path": "consumed-author/http-first.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/http-first.json",
+      "bytes": 5741,
+      "sha256": "39a2d3665e0acbd01644d194434f5b95805a119fc5134770d169ba7365350392"
+    },
+    {
+      "path": "consumed-author/http-graph.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/http-graph.json",
+      "bytes": 21480,
+      "sha256": "be9add738a90daa6c976336ed5fc0cfc04791298b48b505f2d376266c81de1f7"
+    },
+    {
+      "path": "consumed-author/http.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/http.json",
+      "bytes": 5741,
+      "sha256": "39a2d3665e0acbd01644d194434f5b95805a119fc5134770d169ba7365350392"
+    },
+    {
+      "path": "consumed-author/manifest.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/manifest.json",
+      "bytes": 3036,
+      "sha256": "771ab1a3ea81465569fa9f99f67570e776b0f46b2d1ccdfd021a33ef14f4d45f"
+    },
+    {
+      "path": "consumed-author/preload-validation.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/preload-validation.json",
+      "bytes": 16736,
+      "sha256": "7d8d9a391597facd9563ba67bf4d302c54b36b3525cb561d42c10975f964e9cb"
+    },
+    {
+      "path": "consumed-author/red-calibrated.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-calibrated.log",
+      "bytes": 13334,
+      "sha256": "d9688e27cc2955e7879e6074178b79d6c21e1fd6e53fc2deb68968c313f7120f"
+    },
+    {
+      "path": "consumed-author/red-calibrated.test.mjs.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-calibrated.test.mjs.txt",
+      "bytes": 17078,
+      "sha256": "f20e48bfa658a3d1f69291420525d78845343fb2d99b82de9cefefac57f2912c"
+    },
+    {
+      "path": "consumed-author/red-composition-expanded.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-composition-expanded.log",
+      "bytes": 10990,
+      "sha256": "891b0628a23a30b04d38b49e84b7d704c45ef7354d5e3b0dfb30ff3ecbbad64a"
+    },
+    {
+      "path": "consumed-author/red-composition-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-composition-first.log",
+      "bytes": 9702,
+      "sha256": "93cadb6f7f72f5e549ddec6d7451f704064466d9cf2675868e67c656150dc7d4"
+    },
+    {
+      "path": "consumed-author/red-composition.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-composition.log",
+      "bytes": 7865,
+      "sha256": "235d97b5dfb64cc7a05db1068d2e13f58a24b0080914f4fd442e51138b9e4b0a"
+    },
+    {
+      "path": "consumed-author/red-composition.test.mjs.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/red-composition.test.mjs.txt",
+      "bytes": 14909,
+      "sha256": "8344f5d543f2cd5636e2d735e80b1fbd212aa864f666aff528336b389d5f48e9"
+    },
+    {
+      "path": "consumed-author/runtime.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/runtime.json",
+      "bytes": 771,
+      "sha256": "333391e0b02e180b1aad91cba9c2e00bf7837fedd75ddb4e8b6458f5f632d2f0"
+    },
+    {
+      "path": "consumed-author/source-hashes.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/source-hashes.json",
+      "bytes": 586,
+      "sha256": "98e923e168f4a97681e750ed073fc325b0d7e7e73f79b6782dc030cf3e805b75"
+    },
+    {
+      "path": "consumed-author/summary.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/summary.json",
+      "bytes": 3502,
+      "sha256": "4a4a20bec7f64c6fef31564c31d3155c7732c08c20d9968584ff89edab3c0ea5"
+    },
+    {
+      "path": "consumed-author/totals-default.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/totals-default.log",
+      "bytes": 5742,
+      "sha256": "cfdea48866fd2dc3fd85a71838b4839a3f352bedafc728a074a436e675e3f162"
+    },
+    {
+      "path": "consumed-author/totals-http.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/totals-http.log",
+      "bytes": 5742,
+      "sha256": "ca50ebf5c772dfbcbe17d9fa91119a4862be5cb51ffc7413c8953896a7317f91"
+    },
+    {
+      "path": "consumed-author/type-final.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/type-final.log",
+      "bytes": 50,
+      "sha256": "5899b853f6e406eb3aec20876bfdd39b3feb9b7fb59a457ac5a4dca980143350"
+    },
+    {
+      "path": "consumed-author/type-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-author/type-first.log",
+      "bytes": 50,
+      "sha256": "5899b853f6e406eb3aec20876bfdd39b3feb9b7fb59a457ac5a4dca980143350"
+    },
+    {
+      "path": "consumed-browser/README.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/README.md",
+      "bytes": 5798,
+      "sha256": "cffb6ba38a6628f4faac659ef998d06b82d7934bb6ebed11fa824b873f29de51"
+    },
+    {
+      "path": "consumed-browser/browser-results.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/browser-results.json",
+      "bytes": 1772,
+      "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d"
+    },
+    {
+      "path": "consumed-browser/capture-dom-function.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/capture-dom-function.txt",
+      "bytes": 852,
+      "sha256": "651617bfa4632208d7b268a1a63c504418d65686ba75d2530a0e4eb80ea86d35"
+    },
+    {
+      "path": "consumed-browser/fixed-6bb1-prepare.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/fixed-6bb1-prepare.log",
+      "bytes": 654,
+      "sha256": "192d075839528a535712be6aca76d4ec7afec7ce098f3616db8e2d40c24c4ffc"
+    },
+    {
+      "path": "consumed-browser/fixed-6bb1-server.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/fixed-6bb1-server.log",
+      "bytes": 12961,
+      "sha256": "6cfb9289e1de15b36ad25f24812227de88f7d2be27e9334d73316f0022c98818"
+    },
+    {
+      "path": "consumed-browser/fixed-server.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/fixed-server.mjs",
+      "bytes": 9358,
+      "sha256": "0b47f1083060c672d0f8bb6efb703df6c4cef8980f512409a871dc570f03aa54"
+    },
+    {
+      "path": "consumed-browser/green-after.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-after.json",
+      "bytes": 1803,
+      "sha256": "4fa1b40a2aa605e0161db3a60b31f77811a0a158dc0cfcf24be1aaf02062bc1b"
+    },
+    {
+      "path": "consumed-browser/green-all-dates.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-all-dates.json",
+      "bytes": 2689,
+      "sha256": "6f3b9782b45c63bc885684120048b74bc79acc7cac70361b30c9ec9a8872bf2e"
+    },
+    {
+      "path": "consumed-browser/green-before.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-before.json",
+      "bytes": 1803,
+      "sha256": "4fa1b40a2aa605e0161db3a60b31f77811a0a158dc0cfcf24be1aaf02062bc1b"
+    },
+    {
+      "path": "consumed-browser/green-explicit.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-explicit.json",
+      "bytes": 1801,
+      "sha256": "b123e20c582e7c39cb2df27f2afa8c871b3285df1b427fbef536efa1ab1c2a5a"
+    },
+    {
+      "path": "consumed-browser/green-held-after-release.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-held-after-release.json",
+      "bytes": 3573,
+      "sha256": "368cd4afedd2f3c6fd57d0f35bb6286fe7ad3b9094b50f77cd2b0286a55a1e72"
+    },
+    {
+      "path": "consumed-browser/green-held-before-release.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-held-before-release.json",
+      "bytes": 3583,
+      "sha256": "a500b078dc61e60118b0159d40fd21abaf053b4fb141201b5e89a5254a2184f4"
+    },
+    {
+      "path": "consumed-browser/green-input.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-input.json",
+      "bytes": 1046,
+      "sha256": "2e37c4dc3de5048286a6a56781f785efe85867b87b6093d7dfcc9283dca3ddd7"
+    },
+    {
+      "path": "consumed-browser/green-journey-check-01.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-journey-check-01.log",
+      "bytes": 1772,
+      "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d"
+    },
+    {
+      "path": "consumed-browser/green-ledger.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-ledger.json",
+      "bytes": 61982,
+      "sha256": "344fa684518a3022058d410921b283723e5833adc297aba8c61f4af23404e48c"
+    },
+    {
+      "path": "consumed-browser/green-native-assertion.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-native-assertion.log",
+      "bytes": 181,
+      "sha256": "b391194ac79c5c407b0f639b4d79f884144c0b0b652127b310b960bacaa93011"
+    },
+    {
+      "path": "consumed-browser/green-raw-before.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-raw-before.json",
+      "bytes": 1867,
+      "sha256": "8e3057e83ccdb87cd34e319ee3bbea7ed52ba87ed8b638ce67cc40e162383e73"
+    },
+    {
+      "path": "consumed-browser/green-raw-moved.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-raw-moved.json",
+      "bytes": 1867,
+      "sha256": "7ba5e8cd554e9bdf387efb30a83e95cd758084ff76144ddd396199775f65193c"
+    },
+    {
+      "path": "consumed-browser/green-save-held.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-save-held.json",
+      "bytes": 3140,
+      "sha256": "c798c4d3d94e437ee68f91076647fdb9c88f4677defdfa5d49283c716ca32ea0"
+    },
+    {
+      "path": "consumed-browser/green-saved-eight.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-saved-eight.json",
+      "bytes": 2284,
+      "sha256": "d5e6ade59cab0b207ac635992745b7c4d64ba4bdacffadea527aaa8f0bbe9463"
+    },
+    {
+      "path": "consumed-browser/green-server-info.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-server-info.json",
+      "bytes": 9785,
+      "sha256": "1165db6399e50f2b695bc8f1fa9900dc9ddbe7ec029cb5394098cbf702b1240d"
+    },
+    {
+      "path": "consumed-browser/green-source-integrity.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/green-source-integrity.json",
+      "bytes": 9642,
+      "sha256": "f0ccabd90a3c20e8d06813b31642559bdaee088e8ad473ec8d7f7b9f1fb97fc1"
+    },
+    {
+      "path": "consumed-browser/manifest.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/manifest.json",
+      "bytes": 6458,
+      "sha256": "432cbdb4e1593589250722087178f6db84a3a48134bd3f16967dffcb833a9a9f"
+    },
+    {
+      "path": "consumed-browser/plan-controls.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/plan-controls.js",
+      "bytes": 1137,
+      "sha256": "1bc0c5a9cba6747e0e96663b713d6d826efb2bb5060b81fdbf5d784132578984"
+    },
+    {
+      "path": "consumed-browser/prepare.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/prepare.mjs",
+      "bytes": 2816,
+      "sha256": "7e3b8ade507da28d6168c5a4bff5365689f4e205be479e967652ea4ffd352dd2"
+    },
+    {
+      "path": "consumed-browser/verify-journey.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/verify-journey.py",
+      "bytes": 3289,
+      "sha256": "3946b12c6503e07cc91cf48b34ceb6353173fc920e5904ea5eec8db1f01fa13b"
+    },
+    {
+      "path": "consumed-browser/verify-preserved.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-browser/verify-preserved.py",
+      "bytes": 622,
+      "sha256": "e986e88ab52b23de3fd03f45195ead07b52a38ec5b2fb8d897d3993abd1ca370"
+    },
+    {
+      "path": "consumed-native-red/RED-README.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/RED-README.md",
+      "bytes": 2587,
+      "sha256": "4cc8fff882356905a879a932b6aafd41eec3a128ab2cae479b92001d4ac58e3b"
+    },
+    {
+      "path": "consumed-native-red/manifest.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/manifest.json",
+      "bytes": 3354,
+      "sha256": "71b3198790878ae5a6f2179d5f28f2a7a435a97137178732350ac1be2f8bb496"
+    },
+    {
+      "path": "consumed-native-red/plan-controls.js",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/plan-controls.js",
+      "bytes": 1137,
+      "sha256": "1bc0c5a9cba6747e0e96663b713d6d826efb2bb5060b81fdbf5d784132578984"
+    },
+    {
+      "path": "consumed-native-red/prepare.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/prepare.mjs",
+      "bytes": 2816,
+      "sha256": "7e3b8ade507da28d6168c5a4bff5365689f4e205be479e967652ea4ffd352dd2"
+    },
+    {
+      "path": "consumed-native-red/red-994a-prepare.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-994a-prepare.log",
+      "bytes": 650,
+      "sha256": "f55ccb8e4dca46800781cb8a77f9a6ee0582bb573ef62e04bb9cf16b2d1d3846"
+    },
+    {
+      "path": "consumed-native-red/red-994a-server.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-994a-server.log",
+      "bytes": 12804,
+      "sha256": "1e8991894db19ae739ab08bb4d6a371565e14815575d762b6bbe3b2a80f11379"
+    },
+    {
+      "path": "consumed-native-red/red-after.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-after.json",
+      "bytes": 1477,
+      "sha256": "1fca6d24d317f68c039bb819999dedb865cd424d46a9244c050311ced2bc9851"
+    },
+    {
+      "path": "consumed-native-red/red-all-dates.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-all-dates.json",
+      "bytes": 2077,
+      "sha256": "98e2b9baf9aea1706983acbb4562bb8ee212cbaff62cbfa7d0c75a518dbcd132"
+    },
+    {
+      "path": "consumed-native-red/red-before.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-before.json",
+      "bytes": 1478,
+      "sha256": "e3f876692cd3a4715aea9a2c5a1ce9fc82589a9ad60e324ebb017d7e76c35582"
+    },
+    {
+      "path": "consumed-native-red/red-input.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-input.json",
+      "bytes": 803,
+      "sha256": "dd06409d014a972eff1a47125d4c416b49328479a56c58931e982e8c4cd62c4c"
+    },
+    {
+      "path": "consumed-native-red/red-ledger.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-ledger.json",
+      "bytes": 52095,
+      "sha256": "a8805fb24c4d2734aa9bd20145ff7cdd7d2572df7878be3f091521d73e927c0c"
+    },
+    {
+      "path": "consumed-native-red/red-native-assertion.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-native-assertion.log",
+      "bytes": 502,
+      "sha256": "2c46b391cc8680b9aa09bca35fe89739dc57a128082330e87ea71b57dcef737f"
+    },
+    {
+      "path": "consumed-native-red/red-server-info.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-server-info.json",
+      "bytes": 9628,
+      "sha256": "a0bb79120afb14a82cb6844d0f1fc98d3017750e1b119a2337982c3bebf41669"
+    },
+    {
+      "path": "consumed-native-red/red-source-integrity.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/red-source-integrity.json",
+      "bytes": 9485,
+      "sha256": "2e877382423d266cb23ec3c1b5a2b7b089a1aef89a087457bced8ba3a85831ac"
+    },
+    {
+      "path": "consumed-native-red/verify-preserved.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/consumed-native-red/verify-preserved.py",
+      "bytes": 622,
+      "sha256": "e986e88ab52b23de3fd03f45195ead07b52a38ec5b2fb8d897d3993abd1ca370"
+    },
+    {
+      "path": "docs/design/team-meals-pages/D0-contract.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/design/team-meals-pages/D0-contract.md",
+      "bytes": 8994,
+      "sha256": "2e47accf31d45e84acfdb0ad17847975f9f5aeabb9f5fe9882e0053c5a294abf"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+      "bytes": 9800,
+      "sha256": "6dd6585bcd5634c1d879bd5371c13ce4c5e7d8da6c73f030d9da52a7d2e4cef3"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/Q-UI-T01-02.md",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/Q-UI-T01-02.md",
+      "bytes": 3496,
+      "sha256": "1abbe3031aeb4e1aecb9c39255f6f827621f3bff9c00cbc5cf05f727c614730d"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-draft-red.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-draft-red.log",
+      "bytes": 626,
+      "sha256": "364e206e6efb06dd7eccf74853ae1fe56900a570b0b11214e3ef3ab060e3099f"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-all-dates.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-all-dates.txt",
+      "bytes": 4282,
+      "sha256": "575165ab2850bdb8d35c0bd8fbfbcd027d40742693722e649d49e534a18cef56"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-edit-before.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-edit-before.txt",
+      "bytes": 3009,
+      "sha256": "035750609f51fc90943790119af937a329fd221dfa2cf4f7d7cc4671c5458051"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-edit-lost.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-edit-lost.txt",
+      "bytes": 2999,
+      "sha256": "d8ac7e63c829e12a82a3c6e8349e8cd5cae08ec5f16d55cfcdb8f3ac4a42ee78"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-input.txt",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/T01-import-unrelated-input.txt",
+      "bytes": 1568,
+      "sha256": "7aa12ab564289e418ba451ab0805c5e3237636a8100ec1675bf158f664e1baea"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/import-draft-capture.repro.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/import-draft-capture.repro.mjs",
+      "bytes": 1101,
+      "sha256": "dcec2d4c59cec1efc6367e461db0b84fc906dc681d252fa7a7eec2b349efa5aa"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/ledger-T01-import-red-checkpoint.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/ledger-T01-import-red-checkpoint.json",
+      "bytes": 222728,
+      "sha256": "e5ec3be1f6bf719beafe4e06b3218bc9f04a3e89139d0fd41e4c022ef783892e"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/manifest.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/manifest.json",
+      "bytes": 2919,
+      "sha256": "5070ae624495d40874009ccd6a086f1a6e74c5b4fccb806082a2d630de3be4d5"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/q-ui-t01-02/setup-06-capture-parser.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/docs/field-test/team-meals-pages/q-ui-t01-02/setup-06-capture-parser.log",
+      "bytes": 503,
+      "sha256": "e0ca911a4bf6338188a832d0243a40de3512fce494a45e5e1a5f8960629dcab4"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.ts",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/src/pages/admin/import.ts",
+      "bytes": 56510,
+      "sha256": "34bd052707bdba898eb2b0902a5d280afbbec3798c56c1eab5a6bf641f67dd70"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-form.ts",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/src/pages/admin/plan-form.ts",
+      "bytes": 5680,
+      "sha256": "f6e456359f74250e6e147a881f8c0e5cafd1143c176583eddc95f05a6489e48f"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-import.ts",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/src/pages/admin/plan-import.ts",
+      "bytes": 955,
+      "sha256": "db94625717b353f66d52bf8e22bcd268f9f3876b0c0e75883db0b8e12d51ad5b"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.ts",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/src/pages/admin/plan.ts",
+      "bytes": 18570,
+      "sha256": "e914c3836142ea5026cfe693ef86bbd479bbeea95f19b329591f435cc8ecbd50"
+    },
+    {
+      "path": "packages/web/test/reviewer-q-t01.test.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/test/reviewer-q-t01.test.mjs",
+      "bytes": 14536,
+      "sha256": "7861ba82d9380092491841e580e0b074911e63dde050bf7b46bd5b2f70f984dd"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-import.test.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/test/team-meals-pages-plan-import.test.mjs",
+      "bytes": 24605,
+      "sha256": "9804229e15866a05a8009007f0fb91c8e2341d39e914e873d5764c2a29f61be8"
+    },
+    {
+      "path": "reviewer-browser-recompute.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-browser-recompute.log",
+      "bytes": 1772,
+      "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d"
+    },
+    {
+      "path": "reviewer-browser-recompute.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-browser-recompute.py",
+      "bytes": 3327,
+      "sha256": "19576743dfcf0d493ca0d6c3e79c335e9e3c3a3340f9b5e51d6000a04123a45e"
+    },
+    {
+      "path": "reviewer-browser-recomputed.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-browser-recomputed.json",
+      "bytes": 1772,
+      "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d"
+    },
+    {
+      "path": "reviewer-budget-default.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-budget-default.json",
+      "bytes": 21571,
+      "sha256": "71fa499d1057b34780b501bebb3c4af02b4fc7fd0d45123df9df3962aecda60a"
+    },
+    {
+      "path": "reviewer-budget-default.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-budget-default.log",
+      "bytes": 964,
+      "sha256": "d392c26268a36854efa38c9836cb05fb191279f4d111672812381f79c3e61393"
+    },
+    {
+      "path": "reviewer-budget-http.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-budget-http.json",
+      "bytes": 21571,
+      "sha256": "a7232b2f6857bbf3b38f4a003ca5a6262247cbe7f38be9bf8272a3c3549d3dd7"
+    },
+    {
+      "path": "reviewer-budget-http.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-budget-http.log",
+      "bytes": 964,
+      "sha256": "6849634e1f0c748fe22f7a8071b38aaba0357ec576e6b5fe2cee3c969258c786"
+    },
+    {
+      "path": "reviewer-build-default.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-build-default.log",
+      "bytes": 3868,
+      "sha256": "b9892b338f15b0f40b30bf710046fbb61928f6645ebe75fde9531f1f15b68869"
+    },
+    {
+      "path": "reviewer-build-http.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-build-http.log",
+      "bytes": 3745,
+      "sha256": "f8168738190df2cd3084bc5d49255957604d3810484f397ceec2eada50cfcd4f"
+    },
+    {
+      "path": "reviewer-core-node20-v2.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-core-node20-v2.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reviewer-core-node20.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-core-node20.log",
+      "bytes": 517,
+      "sha256": "daa7502aa5cfb45a52c98700574d5b05eaf316db61f7de104a913d59818d8d47"
+    },
+    {
+      "path": "reviewer-custody.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-custody.json",
+      "bytes": 26343,
+      "sha256": "f321f52b769d6d4b733edea393b645c5c7590f7832bb2a12f7d9f1a19daffdc6"
+    },
+    {
+      "path": "reviewer-custody.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-custody.log",
+      "bytes": 1155,
+      "sha256": "ef25e92321c9246cf8254a425c0b895e0b837357f5a11f3ce6a6c3f415d5f0b0"
+    },
+    {
+      "path": "reviewer-custody.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-custody.py",
+      "bytes": 2951,
+      "sha256": "f450259a847032221c4f33cc60f65f78752c1f06004a03d809496f70e50f4f0f"
+    },
+    {
+      "path": "reviewer-data.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-data.log",
+      "bytes": 526,
+      "sha256": "ba157df9767cbf9db8f388bdf4eea8c5c236c5cd803305d89449a97cb1c5835b"
+    },
+    {
+      "path": "reviewer-dependency-continuity.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-dependency-continuity.json",
+      "bytes": 1474,
+      "sha256": "176ca384df6f8e38702b70c92c1711c57242a4ae96a07eca916ad6f9a508e78b"
+    },
+    {
+      "path": "reviewer-dependency-continuity.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-dependency-continuity.log",
+      "bytes": 1474,
+      "sha256": "176ca384df6f8e38702b70c92c1711c57242a4ae96a07eca916ad6f9a508e78b"
+    },
+    {
+      "path": "reviewer-dependency-continuity.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-dependency-continuity.py",
+      "bytes": 1953,
+      "sha256": "fe7a0a5cb93d7ae6e3415125d075aac046a64e1ba7957e7b7a1114c8af2ea0cb"
+    },
+    {
+      "path": "reviewer-dependency-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-dependency-first.log",
+      "bytes": 671,
+      "sha256": "b89b94cddca9b11e3a80b366c7bd6dc8075888a041e083b83dc33dff8aeb9f09"
+    },
+    {
+      "path": "reviewer-emitted-sha256.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-emitted-sha256.json",
+      "bytes": 9085,
+      "sha256": "689a7059a77bd0eba02d76e60a2a44e92816a546271566d66dec558b3bb23f99"
+    },
+    {
+      "path": "reviewer-extra-node20.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-extra-node20.log",
+      "bytes": 1722,
+      "sha256": "f6e30278f1404f19be8bdc6c07a4589680757844eb5afb95a92d06fa4941534e"
+    },
+    {
+      "path": "reviewer-final-check.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-final-check.json",
+      "bytes": 2212,
+      "sha256": "17312eba63774381f7eff365324aa94adc4cbcaf6e7b0f62bb5a69ab94ca8021"
+    },
+    {
+      "path": "reviewer-final-check.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-final-check.log",
+      "bytes": 2212,
+      "sha256": "17312eba63774381f7eff365324aa94adc4cbcaf6e7b0f62bb5a69ab94ca8021"
+    },
+    {
+      "path": "reviewer-final-check.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-final-check.py",
+      "bytes": 3306,
+      "sha256": "f6a361138cca72712f52aab4667d6ece6eef9c663f12b751da4f98a16e4d548a"
+    },
+    {
+      "path": "reviewer-full-node20.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-full-node20.log",
+      "bytes": 122032,
+      "sha256": "2d9ae3b9b224808418b9ef22e2cff3b5597c090d160bb559bd3eb41ac4a43ccc"
+    },
+    {
+      "path": "reviewer-graph.mjs",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-graph.mjs",
+      "bytes": 4723,
+      "sha256": "f1287c20312829256a9b78e98c5dc5549060882fdbeab8149e6a5c38a145b8d0"
+    },
+    {
+      "path": "reviewer-manifest.py",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-manifest.py",
+      "bytes": 2402,
+      "sha256": "c89eead54a1c627ffa1d2f7ffb906cd1fbaca263e31e170468fc6076a97a7858"
+    },
+    {
+      "path": "reviewer-prebuild.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-prebuild.log",
+      "bytes": 734,
+      "sha256": "f0ecda938702a5ba713deb59fe7bcd68af673bb4f05a89da07cdce214c7e1445"
+    },
+    {
+      "path": "reviewer-runtime.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-runtime.json",
+      "bytes": 785,
+      "sha256": "c2cb200279eff76293432643b13272d5331946efbe65c0e2fc037ddb5daf4486"
+    },
+    {
+      "path": "reviewer-setup-first.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-setup-first.log",
+      "bytes": 304,
+      "sha256": "b9d0f2b05050b536fbd64f78033c1b78d5d936349ca0c891a079382efaa4a35c"
+    },
+    {
+      "path": "reviewer-source-delta.patch",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-source-delta.patch",
+      "bytes": 12284,
+      "sha256": "0b1676ec4256804aabc28a9238cb1daf6ca1bd654737885450347f92f7de21d3"
+    },
+    {
+      "path": "reviewer-source-integrity.json",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-source-integrity.json",
+      "bytes": 36466,
+      "sha256": "858a7225c9b9f5f2fc3ead33e2f627dbe1b230ab06863c4e0b4f96acf1da0c1e"
+    },
+    {
+      "path": "reviewer-type-node20.log",
+      "original": "/private/tmp/canteen-q-t01-review-6bb1ce9/reviewer-type-node20.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

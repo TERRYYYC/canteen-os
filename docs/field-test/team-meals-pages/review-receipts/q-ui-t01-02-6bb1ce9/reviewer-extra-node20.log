@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: known new C1 document with explicit 404 source imports without a second Source read and saves create-only
+ok 1 - known new C1 document with explicit 404 source imports without a second Source read and saves create-only
+  ---
+  duration_ms: 22.806417
+  ...
+# Subtest: old initial Plan catalog completion cannot overwrite an import applied after Source initialized C1
+ok 2 - old initial Plan catalog completion cannot overwrite an import applied after Source initialized C1
+  ---
+  duration_ms: 13.685083
+  ...
+# Subtest: specified-omitted: repeated incoming key keeps first-match semantics and only that duplicate loses invalid raw
+ok 3 - specified-omitted: repeated incoming key keeps first-match semantics and only that duplicate loses invalid raw
+  ---
+  duration_ms: 12.225
+  ...
+# Subtest: omitted-specified: repeated incoming key keeps first-match semantics and only that duplicate loses invalid raw
+ok 4 - omitted-specified: repeated incoming key keeps first-match semantics and only that duplicate loses invalid raw
+  ---
+  duration_ms: 11.721917
+  ...
+# Subtest: unknown original-source-present: recovery leaves merged draft and restores only original conditional lock
+ok 5 - unknown original-source-present: recovery leaves merged draft and restores only original conditional lock
+  ---
+  duration_ms: 14.582458
+  ...
+# Subtest: unknown original-source-absent: recovery leaves merged draft and restores only original conditional lock
+ok 6 - unknown original-source-absent: recovery leaves merged draft and restores only original conditional lock
+  ---
+  duration_ms: 13.386375
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 146.570083

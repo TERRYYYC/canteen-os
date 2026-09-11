@@ -1,0 +1,31 @@
+{
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "sets": [
+    {
+      "name": "consumed-author",
+      "evidenceCommit": "af115810c2097d51e021f1437ef7580eff236d20",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/",
+      "packagesUnchanged": true,
+      "manifestSha256": "771ab1a3ea81465569fa9f99f67570e776b0f46b2d1ccdfd021a33ef14f4d45f",
+      "count": 33
+    },
+    {
+      "name": "consumed-browser",
+      "evidenceCommit": "fb00e8292bc5e531d1e7c3432516bdb6b7a4ecf7",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-browser-green/",
+      "packagesUnchanged": true,
+      "manifestSha256": "432cbdb4e1593589250722087178f6db84a3a48134bd3f16967dffcb833a9a9f",
+      "count": 26
+    },
+    {
+      "name": "consumed-native-red",
+      "evidenceCommit": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-browser-red/",
+      "packagesUnchanged": true,
+      "manifestSha256": "71b3198790878ae5a6f2179d5f28f2a7a435a97137178732350ac1be2f8bb496",
+      "count": 14
+    }
+  ],
+  "browserSourceCount": 58,
+  "authorSourceCount": 5
+}

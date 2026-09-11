@@ -1,0 +1,52 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 72 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/manifest.webmanifest                         0.75 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/index.html                                   1.94 kB │ gzip:  1.13 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/bundle-attribution.json                     20.12 kB │ gzip:  1.75 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/qr-95YfxYR1.css                       2.25 kB │ gzip:  0.87 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/home-Bw8HMtwR.css                     2.28 kB │ gzip:  0.71 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/purchase-list-CRLPFa5o.css            3.06 kB │ gzip:  1.02 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/kit-hHF0cNTc.css                      3.73 kB │ gzip:  1.04 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/ingredient-form-CT2dSWut.css          4.50 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/publish-DvJfnWK2.css                  5.17 kB │ gzip:  1.40 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/import-DavkaiKj.css                   5.33 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/menu-AiJcRmZo.css                     5.74 kB │ gzip:  1.62 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/purchase-StWw7liZ.css                 6.00 kB │ gzip:  1.71 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/prep-CZU-3gXe.css                     6.80 kB │ gzip:  1.96 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/dish-new-DK3WVt9P.css                 7.08 kB │ gzip:  1.74 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/index-_eYw8u9e.css                    8.78 kB │ gzip:  2.56 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/plan-import-RSLHW7vM.js               0.72 kB │ gzip:  0.44 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/editor-image-B408a5BL.js              1.10 kB │ gzip:  0.62 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/store-v51A38S1.js                     2.01 kB │ gzip:  0.92 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/ingredient-draft-BGaFXj1n.js          3.31 kB │ gzip:  1.68 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/qr-B0H2-fb7.js                        3.50 kB │ gzip:  2.13 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/admin-B8DNFVO5.js                     3.51 kB │ gzip:  1.66 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/team-ui-h_b64nE1.js                   4.08 kB │ gzip:  2.90 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/workbox-window.prod.es5-BqEJf4Xk.js   5.71 kB │ gzip:  2.34 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/edit-session-BAEN6PGB.js              6.51 kB │ gzip:  2.51 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/home-DR-7CF_a.js                     10.01 kB │ gzip:  4.68 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/parse-plan-text-DBZQVSv5.js          12.32 kB │ gzip:  5.77 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/menu-B1gkvFYm.js                     12.94 kB │ gzip:  6.13 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/plan-Bzj43Kkh.js                     13.23 kB │ gzip:  5.89 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/ingredient-new-C41K0F91.js           14.04 kB │ gzip:  5.96 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/purchase-DQl5ohzl.js                 19.19 kB │ gzip:  7.61 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/kit-DCyL5lR_.js                      19.85 kB │ gzip:  8.86 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/ingredient-form-CSFrYie6.js          20.57 kB │ gzip:  9.53 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/publish-CHRyh28K.js                  26.76 kB │ gzip: 11.52 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/import-BSA6L_gt.js                   27.42 kB │ gzip: 12.13 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/purchase-list-CffFEUox.js            28.74 kB │ gzip: 12.27 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/client-C4-tibzI.js                   29.91 kB │ gzip: 12.77 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/prep-DOAI1CQu.js                     33.95 kB │ gzip: 13.53 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/index-CMNAFHU0.js                    40.20 kB │ gzip: 16.33 kB
+../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/assets/dish-new-BIgXXGXR.js                 62.50 kB │ gzip: 23.70 kB
+✓ built in 358ms
+
+PWA v1.3.0
+mode      generateSW
+precache  52 entries (549.35 KiB)
+files generated
+  ../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/sw.js
+  ../../../../../../../../../private/tmp/canteen-q-t01-6bb1-http/workbox-4e9e9954.js

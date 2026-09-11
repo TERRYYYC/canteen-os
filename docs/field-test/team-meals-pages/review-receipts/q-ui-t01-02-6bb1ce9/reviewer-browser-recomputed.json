@@ -1,0 +1,69 @@
+{
+  "sourceCommit": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "packagesTree": "38957ad074a6b7d102e730023613c9a5bb153ed7",
+  "node": "v20.20.2",
+  "boundary": "D author browser: actual main, C and Worker; fixed Q FakeRepo 6276f1; explicit save response hold/drop controls; no live publish or rollback",
+  "checks": [
+    {
+      "name": "initial unsaved eleven is visible",
+      "pass": true
+    },
+    {
+      "name": "unrelated import retains eleven",
+      "pass": true
+    },
+    {
+      "name": "import returns to original day filter",
+      "pass": true
+    },
+    {
+      "name": "new unrelated meal count remains omitted",
+      "pass": true
+    },
+    {
+      "name": "original omitted count stays omitted",
+      "pass": true
+    },
+    {
+      "name": "invalid raw numeric text observed",
+      "pass": true
+    },
+    {
+      "name": "raw invalid follows original row through earlier-date sort",
+      "pass": true
+    },
+    {
+      "name": "explicit matching import replaces invalid override",
+      "pass": true
+    },
+    {
+      "name": "imported new row is present while original save pending",
+      "pass": true
+    },
+    {
+      "name": "old save acknowledgement does not clean later import",
+      "pass": true
+    },
+    {
+      "name": "only two explicit saves wrote to Worker",
+      "pass": true
+    },
+    {
+      "name": "initial explicit save transmitted eight",
+      "pass": true
+    },
+    {
+      "name": "held save retained acknowledged original condition",
+      "pass": true
+    },
+    {
+      "name": "later imported row never entered the already-dispatched request",
+      "pass": true
+    },
+    {
+      "name": "all captured Web production sources match reviewed Git code",
+      "pass": true
+    }
+  ],
+  "summary": "15/15"
+}

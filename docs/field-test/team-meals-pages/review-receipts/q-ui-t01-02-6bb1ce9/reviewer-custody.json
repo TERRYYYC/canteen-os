@@ -1,0 +1,550 @@
+{
+  "reviewerIdentity": "/root/plan_review (original nonauthor)",
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "packagesTree": "38957ad074a6b7d102e730023613c9a5bb153ed7",
+  "sets": [
+    {
+      "name": "consumed-author",
+      "evidenceCommit": "af115810c2097d51e021f1437ef7580eff236d20",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/",
+      "packagesUnchanged": true,
+      "manifestSha256": "771ab1a3ea81465569fa9f99f67570e776b0f46b2d1ccdfd021a33ef14f4d45f",
+      "count": 33,
+      "entries": [
+        {
+          "path": "README.md",
+          "bytes": 7469,
+          "sha256": "95fedfe8b679578fafa623ae90fd8c71e1d8335c38975c0878d864fef100ecf7",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/README.md"
+        },
+        {
+          "path": "build-default.log",
+          "bytes": 5754,
+          "sha256": "3a86d8d1aed0794c22b3f92ac7042c9c54fd634d1a6a853bbb09ca4d3c461ec7",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/build-default.log"
+        },
+        {
+          "path": "build-http-first.log",
+          "bytes": 5672,
+          "sha256": "770f41732ffa440469033b127b3ba631c4640fc6b274b00103ca1316fc304cb2",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/build-http-first.log"
+        },
+        {
+          "path": "build-http.log",
+          "bytes": 5631,
+          "sha256": "1d4ffce2193010de15030ce7d6ed784cba9a54386f661174358f101c0cacd2a4",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/build-http.log"
+        },
+        {
+          "path": "check-builds-first.log",
+          "bytes": 345,
+          "sha256": "ea77d6d0457218d0a05c623988b952da7c8aedc33015cb43779855cac9084c1f",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/check-builds-first.log"
+        },
+        {
+          "path": "check-builds.log",
+          "bytes": 222,
+          "sha256": "369bd492c1115d1f2323a03a862d4a0b6e45929912340f40864c697e1321bf9a",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/check-builds.log"
+        },
+        {
+          "path": "check-builds.py",
+          "bytes": 3908,
+          "sha256": "c4164ec0b4fd6055137eb8f982e68dfecd1564b6087361f7aaaa290928a4d1b1",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/check-builds.py"
+        },
+        {
+          "path": "commands.md",
+          "bytes": 2759,
+          "sha256": "250b33a4d2f00833f307a63301a4c68c50ece6d6c76d37556e46210b389d8ee2",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/commands.md"
+        },
+        {
+          "path": "default-graph.json",
+          "bytes": 21480,
+          "sha256": "0e5fdaa9e97782fdbc2a800f5105a1f429d403c24863e96741c7c051ba0ee201",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/default-graph.json"
+        },
+        {
+          "path": "default.json",
+          "bytes": 5741,
+          "sha256": "d6477952170c4ba56078aebf8b70956eb10abd57ffac7d1e8d396ea405ef9b8d",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/default.json"
+        },
+        {
+          "path": "full-web.log",
+          "bytes": 122069,
+          "sha256": "a6d4f0feeab88416840615c61dd07510fea4d6766a50e1b39182814775a73454",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/full-web.log"
+        },
+        {
+          "path": "green-composition-expanded.log",
+          "bytes": 7227,
+          "sha256": "26ec8d7a768aecbd7de751541cfc677ade07e87bf98889aba2d63b731c345f92",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/green-composition-expanded.log"
+        },
+        {
+          "path": "green-composition-first.log",
+          "bytes": 4078,
+          "sha256": "3c2d0f84f032eab99dbbf417b28112c70acbc5858c989052a626c41747e71fb2",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/green-composition-first.log"
+        },
+        {
+          "path": "green-target.log",
+          "bytes": 20652,
+          "sha256": "5a1670f296b27475d695fee86c945d1550944bd165f0fea2827117771cfae102",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/green-target.log"
+        },
+        {
+          "path": "http-first-graph.json",
+          "bytes": 21479,
+          "sha256": "86339294df3479764945e6b22da5d56969003bb6e34b5035301c2f5e14f6a494",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/http-first-graph.json"
+        },
+        {
+          "path": "http-first-totals.log",
+          "bytes": 5742,
+          "sha256": "ca50ebf5c772dfbcbe17d9fa91119a4862be5cb51ffc7413c8953896a7317f91",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/http-first-totals.log"
+        },
+        {
+          "path": "http-first.json",
+          "bytes": 5741,
+          "sha256": "39a2d3665e0acbd01644d194434f5b95805a119fc5134770d169ba7365350392",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/http-first.json"
+        },
+        {
+          "path": "http-graph.json",
+          "bytes": 21480,
+          "sha256": "be9add738a90daa6c976336ed5fc0cfc04791298b48b505f2d376266c81de1f7",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/http-graph.json"
+        },
+        {
+          "path": "http.json",
+          "bytes": 5741,
+          "sha256": "39a2d3665e0acbd01644d194434f5b95805a119fc5134770d169ba7365350392",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/http.json"
+        },
+        {
+          "path": "preload-validation.json",
+          "bytes": 16736,
+          "sha256": "7d8d9a391597facd9563ba67bf4d302c54b36b3525cb561d42c10975f964e9cb",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/preload-validation.json"
+        },
+        {
+          "path": "red-calibrated.log",
+          "bytes": 13334,
+          "sha256": "d9688e27cc2955e7879e6074178b79d6c21e1fd6e53fc2deb68968c313f7120f",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-calibrated.log"
+        },
+        {
+          "path": "red-calibrated.test.mjs.txt",
+          "bytes": 17078,
+          "sha256": "f20e48bfa658a3d1f69291420525d78845343fb2d99b82de9cefefac57f2912c",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-calibrated.test.mjs.txt"
+        },
+        {
+          "path": "red-composition-expanded.log",
+          "bytes": 10990,
+          "sha256": "891b0628a23a30b04d38b49e84b7d704c45ef7354d5e3b0dfb30ff3ecbbad64a",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-composition-expanded.log"
+        },
+        {
+          "path": "red-composition-first.log",
+          "bytes": 9702,
+          "sha256": "93cadb6f7f72f5e549ddec6d7451f704064466d9cf2675868e67c656150dc7d4",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-composition-first.log"
+        },
+        {
+          "path": "red-composition.log",
+          "bytes": 7865,
+          "sha256": "235d97b5dfb64cc7a05db1068d2e13f58a24b0080914f4fd442e51138b9e4b0a",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-composition.log"
+        },
+        {
+          "path": "red-composition.test.mjs.txt",
+          "bytes": 14909,
+          "sha256": "8344f5d543f2cd5636e2d735e80b1fbd212aa864f666aff528336b389d5f48e9",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/red-composition.test.mjs.txt"
+        },
+        {
+          "path": "runtime.json",
+          "bytes": 771,
+          "sha256": "333391e0b02e180b1aad91cba9c2e00bf7837fedd75ddb4e8b6458f5f632d2f0",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/runtime.json"
+        },
+        {
+          "path": "source-hashes.json",
+          "bytes": 586,
+          "sha256": "98e923e168f4a97681e750ed073fc325b0d7e7e73f79b6782dc030cf3e805b75",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/source-hashes.json"
+        },
+        {
+          "path": "summary.json",
+          "bytes": 3502,
+          "sha256": "4a4a20bec7f64c6fef31564c31d3155c7732c08c20d9968584ff89edab3c0ea5",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/summary.json"
+        },
+        {
+          "path": "totals-default.log",
+          "bytes": 5742,
+          "sha256": "cfdea48866fd2dc3fd85a71838b4839a3f352bedafc728a074a436e675e3f162",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/totals-default.log"
+        },
+        {
+          "path": "totals-http.log",
+          "bytes": 5742,
+          "sha256": "ca50ebf5c772dfbcbe17d9fa91119a4862be5cb51ffc7413c8953896a7317f91",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/totals-http.log"
+        },
+        {
+          "path": "type-final.log",
+          "bytes": 50,
+          "sha256": "5899b853f6e406eb3aec20876bfdd39b3feb9b7fb59a457ac5a4dca980143350",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/type-final.log"
+        },
+        {
+          "path": "type-first.log",
+          "bytes": 50,
+          "sha256": "5899b853f6e406eb3aec20876bfdd39b3feb9b7fb59a457ac5a4dca980143350",
+          "gitAndOriginalMatch": true,
+          "original": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/docs/field-test/team-meals-pages/q-ui-t01-02-import-fix/type-first.log"
+        }
+      ]
+    },
+    {
+      "name": "consumed-browser",
+      "evidenceCommit": "fb00e8292bc5e531d1e7c3432516bdb6b7a4ecf7",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-browser-green/",
+      "packagesUnchanged": true,
+      "manifestSha256": "432cbdb4e1593589250722087178f6db84a3a48134bd3f16967dffcb833a9a9f",
+      "count": 26,
+      "entries": [
+        {
+          "path": "README.md",
+          "bytes": 5798,
+          "sha256": "cffb6ba38a6628f4faac659ef998d06b82d7934bb6ebed11fa824b873f29de51",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/README.md"
+        },
+        {
+          "path": "browser-results.json",
+          "bytes": 1772,
+          "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/browser-results.json"
+        },
+        {
+          "path": "capture-dom-function.txt",
+          "bytes": 852,
+          "sha256": "651617bfa4632208d7b268a1a63c504418d65686ba75d2530a0e4eb80ea86d35",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/capture-dom-function.txt"
+        },
+        {
+          "path": "fixed-6bb1-prepare.log",
+          "bytes": 654,
+          "sha256": "192d075839528a535712be6aca76d4ec7afec7ce098f3616db8e2d40c24c4ffc",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/fixed-6bb1-prepare.log"
+        },
+        {
+          "path": "fixed-6bb1-server.log",
+          "bytes": 12961,
+          "sha256": "6cfb9289e1de15b36ad25f24812227de88f7d2be27e9334d73316f0022c98818",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/fixed-6bb1-server.log"
+        },
+        {
+          "path": "fixed-server.mjs",
+          "bytes": 9358,
+          "sha256": "0b47f1083060c672d0f8bb6efb703df6c4cef8980f512409a871dc570f03aa54",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/fixed-server.mjs"
+        },
+        {
+          "path": "green-after.json",
+          "bytes": 1803,
+          "sha256": "4fa1b40a2aa605e0161db3a60b31f77811a0a158dc0cfcf24be1aaf02062bc1b",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-after.json"
+        },
+        {
+          "path": "green-all-dates.json",
+          "bytes": 2689,
+          "sha256": "6f3b9782b45c63bc885684120048b74bc79acc7cac70361b30c9ec9a8872bf2e",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-all-dates.json"
+        },
+        {
+          "path": "green-before.json",
+          "bytes": 1803,
+          "sha256": "4fa1b40a2aa605e0161db3a60b31f77811a0a158dc0cfcf24be1aaf02062bc1b",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-before.json"
+        },
+        {
+          "path": "green-explicit.json",
+          "bytes": 1801,
+          "sha256": "b123e20c582e7c39cb2df27f2afa8c871b3285df1b427fbef536efa1ab1c2a5a",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-explicit.json"
+        },
+        {
+          "path": "green-held-after-release.json",
+          "bytes": 3573,
+          "sha256": "368cd4afedd2f3c6fd57d0f35bb6286fe7ad3b9094b50f77cd2b0286a55a1e72",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-held-after-release.json"
+        },
+        {
+          "path": "green-held-before-release.json",
+          "bytes": 3583,
+          "sha256": "a500b078dc61e60118b0159d40fd21abaf053b4fb141201b5e89a5254a2184f4",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-held-before-release.json"
+        },
+        {
+          "path": "green-input.json",
+          "bytes": 1046,
+          "sha256": "2e37c4dc3de5048286a6a56781f785efe85867b87b6093d7dfcc9283dca3ddd7",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-input.json"
+        },
+        {
+          "path": "green-journey-check-01.log",
+          "bytes": 1772,
+          "sha256": "0e042163af03ef10bc5a0e41cf753b60da47d8060e073a177a72bead16e3db1d",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-journey-check-01.log"
+        },
+        {
+          "path": "green-ledger.json",
+          "bytes": 61982,
+          "sha256": "344fa684518a3022058d410921b283723e5833adc297aba8c61f4af23404e48c",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-ledger.json"
+        },
+        {
+          "path": "green-native-assertion.log",
+          "bytes": 181,
+          "sha256": "b391194ac79c5c407b0f639b4d79f884144c0b0b652127b310b960bacaa93011",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-native-assertion.log"
+        },
+        {
+          "path": "green-raw-before.json",
+          "bytes": 1867,
+          "sha256": "8e3057e83ccdb87cd34e319ee3bbea7ed52ba87ed8b638ce67cc40e162383e73",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-raw-before.json"
+        },
+        {
+          "path": "green-raw-moved.json",
+          "bytes": 1867,
+          "sha256": "7ba5e8cd554e9bdf387efb30a83e95cd758084ff76144ddd396199775f65193c",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-raw-moved.json"
+        },
+        {
+          "path": "green-save-held.json",
+          "bytes": 3140,
+          "sha256": "c798c4d3d94e437ee68f91076647fdb9c88f4677defdfa5d49283c716ca32ea0",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-save-held.json"
+        },
+        {
+          "path": "green-saved-eight.json",
+          "bytes": 2284,
+          "sha256": "d5e6ade59cab0b207ac635992745b7c4d64ba4bdacffadea527aaa8f0bbe9463",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-saved-eight.json"
+        },
+        {
+          "path": "green-server-info.json",
+          "bytes": 9785,
+          "sha256": "1165db6399e50f2b695bc8f1fa9900dc9ddbe7ec029cb5394098cbf702b1240d",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-server-info.json"
+        },
+        {
+          "path": "green-source-integrity.json",
+          "bytes": 9642,
+          "sha256": "f0ccabd90a3c20e8d06813b31642559bdaee088e8ad473ec8d7f7b9f1fb97fc1",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/green-source-integrity.json"
+        },
+        {
+          "path": "plan-controls.js",
+          "bytes": 1137,
+          "sha256": "1bc0c5a9cba6747e0e96663b713d6d826efb2bb5060b81fdbf5d784132578984",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/plan-controls.js"
+        },
+        {
+          "path": "prepare.mjs",
+          "bytes": 2816,
+          "sha256": "7e3b8ade507da28d6168c5a4bff5365689f4e205be479e967652ea4ffd352dd2",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/prepare.mjs"
+        },
+        {
+          "path": "verify-journey.py",
+          "bytes": 3289,
+          "sha256": "3946b12c6503e07cc91cf48b34ceb6353173fc920e5904ea5eec8db1f01fa13b",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/verify-journey.py"
+        },
+        {
+          "path": "verify-preserved.py",
+          "bytes": 622,
+          "sha256": "e986e88ab52b23de3fd03f45195ead07b52a38ec5b2fb8d897d3993abd1ca370",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-green-author/verify-preserved.py"
+        }
+      ]
+    },
+    {
+      "name": "consumed-native-red",
+      "evidenceCommit": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+      "gitPrefix": "docs/field-test/team-meals-pages/q-ui-t01-02-browser-red/",
+      "packagesUnchanged": true,
+      "manifestSha256": "71b3198790878ae5a6f2179d5f28f2a7a435a97137178732350ac1be2f8bb496",
+      "count": 14,
+      "entries": [
+        {
+          "path": "RED-README.md",
+          "bytes": 2587,
+          "sha256": "4cc8fff882356905a879a932b6aafd41eec3a128ab2cae479b92001d4ac58e3b",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/RED-README.md"
+        },
+        {
+          "path": "plan-controls.js",
+          "bytes": 1137,
+          "sha256": "1bc0c5a9cba6747e0e96663b713d6d826efb2bb5060b81fdbf5d784132578984",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/plan-controls.js"
+        },
+        {
+          "path": "prepare.mjs",
+          "bytes": 2816,
+          "sha256": "7e3b8ade507da28d6168c5a4bff5365689f4e205be479e967652ea4ffd352dd2",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/prepare.mjs"
+        },
+        {
+          "path": "red-994a-prepare.log",
+          "bytes": 650,
+          "sha256": "f55ccb8e4dca46800781cb8a77f9a6ee0582bb573ef62e04bb9cf16b2d1d3846",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-994a-prepare.log"
+        },
+        {
+          "path": "red-994a-server.log",
+          "bytes": 12804,
+          "sha256": "1e8991894db19ae739ab08bb4d6a371565e14815575d762b6bbe3b2a80f11379",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-994a-server.log"
+        },
+        {
+          "path": "red-after.json",
+          "bytes": 1477,
+          "sha256": "1fca6d24d317f68c039bb819999dedb865cd424d46a9244c050311ced2bc9851",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-after.json"
+        },
+        {
+          "path": "red-all-dates.json",
+          "bytes": 2077,
+          "sha256": "98e2b9baf9aea1706983acbb4562bb8ee212cbaff62cbfa7d0c75a518dbcd132",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-all-dates.json"
+        },
+        {
+          "path": "red-before.json",
+          "bytes": 1478,
+          "sha256": "e3f876692cd3a4715aea9a2c5a1ce9fc82589a9ad60e324ebb017d7e76c35582",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-before.json"
+        },
+        {
+          "path": "red-input.json",
+          "bytes": 803,
+          "sha256": "dd06409d014a972eff1a47125d4c416b49328479a56c58931e982e8c4cd62c4c",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-input.json"
+        },
+        {
+          "path": "red-ledger.json",
+          "bytes": 52095,
+          "sha256": "a8805fb24c4d2734aa9bd20145ff7cdd7d2572df7878be3f091521d73e927c0c",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-ledger.json"
+        },
+        {
+          "path": "red-native-assertion.log",
+          "bytes": 502,
+          "sha256": "2c46b391cc8680b9aa09bca35fe89739dc57a128082330e87ea71b57dcef737f",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-native-assertion.log"
+        },
+        {
+          "path": "red-server-info.json",
+          "bytes": 9628,
+          "sha256": "a0bb79120afb14a82cb6844d0f1fc98d3017750e1b119a2337982c3bebf41669",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-server-info.json"
+        },
+        {
+          "path": "red-source-integrity.json",
+          "bytes": 9485,
+          "sha256": "2e877382423d266cb23ec3c1b5a2b7b089a1aef89a087457bced8ba3a85831ac",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/red-source-integrity.json"
+        },
+        {
+          "path": "verify-preserved.py",
+          "bytes": 622,
+          "sha256": "e986e88ab52b23de3fd03f45195ead07b52a38ec5b2fb8d897d3993abd1ca370",
+          "gitAndOriginalMatch": true,
+          "original": "/private/tmp/canteen-q-t01-browser-author/verify-preserved.py"
+        }
+      ]
+    }
+  ],
+  "capturedBrowserSourcesVerified": 58,
+  "authorSourcesVerified": 5
+}

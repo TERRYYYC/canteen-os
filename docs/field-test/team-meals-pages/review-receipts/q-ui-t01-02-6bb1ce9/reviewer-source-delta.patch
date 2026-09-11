@@ -1,0 +1,185 @@
+diff --git a/packages/web/src/pages/admin/import.ts b/packages/web/src/pages/admin/import.ts
+index bea5692..69c3ac6 100644
+--- a/packages/web/src/pages/admin/import.ts
++++ b/packages/web/src/pages/admin/import.ts
+@@ -9,7 +9,7 @@
+  *   3. CSV 上传走同一条结果表：手写 CSV 解析（引号 / 逗号 / 分号 / Tab / CRLF / BOM / GBK 回退），四列自动识别，
+  *      认不出就给四个下拉让人手工点；**文件只在浏览器里读，不上传任何地方**（隐私红线）；
+  *      xlsx 本轮不做（不加依赖）：文件选择器只收 .csv / .txt，界面上写「Excel 请先另存为 CSV」；
+- *   4. 底部 sticky 「导入 N 行，跳过 M 行」→ 合并成 MenuPlan → store.setDraftPlan(planId, plan, "import")
++ *   4. 底部 sticky 「导入 N 行，跳过 M 行」→ 合并进原 C1 计划稿；首次未打开的计划走 store 暂存
+  *      → 跳 #/admin/plan/<planId>；导入本身不调任何写入端点。已有导入草稿时顶部可「撤销」（store.undoDraftPlan）。
+  *
+  * 原始输入按 API 会话与计划保留；语言与导航只更换视图，异步文件结果回到原 owner。
+@@ -26,6 +26,7 @@ import { bindDraftStore } from "../../admin/store";
+ import { onAuthSessionChange } from "../../admin/token";
+ import { registerAuxiliaryEdits, type AuxiliaryEditHandle } from "../../view-models/reload-safety";
+ import { parseServingsInput } from "./servings-input";
++import { applyPlanImport } from "./plan-import";
+ import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from "../../api/team-meals";
+ import { text as teamText } from "../team-ui";
+ import { isApiError } from "../../api/types";
+@@ -76,6 +77,7 @@ const T = {
+   "import.upload.truncated": { uk: "Прочитано лише перші {n} рядків", zh: "只读了前 {n} 行", en: "Only the first {n} rows were read" },
+   "import.upload.reading": { uk: "Читаю файл {f}…", zh: "正在读取文件 {f}…", en: "Reading file {f}…" },
+   "import.source.reading": { uk: "Читаю збережене меню; введені дані збережено", zh: "正在读取已存计划；当前输入已保留", en: "Reading the saved plan; current input is retained" },
++  "import.target.changed": { uk: "Редактор плану змінився. Введені дані ще не застосовано; поверніться до плану й перевірте його.", zh: "计划编辑会话已变化。输入尚未应用，请返回计划核对。", en: "The plan editor changed. Input has not been applied; return to the plan to check it." },
+   "import.upload.failed": { uk: "Не вдалося прочитати файл", zh: "文件读不出来", en: "Couldn't read the file" },
+   "import.col.date": { uk: "Дата", zh: "日期", en: "Date" },
+   "import.col.meal": { uk: "Прийом їжі", zh: "餐次", en: "Meal" },
+@@ -153,7 +155,7 @@ const MAX_ROWS = 200;
+ const MEAL_ORDER: Record<MealType, number> = { breakfast: 0, lunch: 1, dinner: 2 };
+ 
+ // ---------------------------------------------------------------------------
+-// 原始输入 owner（跨语言与导航；共享 store 仍是 JSON 草稿的唯一 owner）
++// 原始输入 owner（跨语言与导航；计划 JSON 留在原 C1 / 首次交接的共享 store）
+ // ---------------------------------------------------------------------------
+ 
+ type ColRole = "date" | "meal" | "dish" | "servings";
+@@ -539,9 +541,11 @@ function effective(line: ParsedLine, edit: LineEdit | undefined, catalog: TeamCa
+ }
+ 
+ /** Whole v3 draft: first matching date/meal/dish receives supplied counts or explicit clear; untouched true values survive. */
+-function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: string, weekStart: string, clearServings: ReadonlySet<number> = new Set()): MenuPlanV3 {
++function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: string, weekStart: string, clearServings: ReadonlySet<number> = new Set(), mapRows?: (order:number[])=>void): MenuPlanV3 {
+   const plan: MenuPlanV3 = base ? { ...structuredClone(base), schemaVersion: "3" } : { schemaVersion: "3", meals: [] };
+   const list = Array.isArray(plan.meals) ? [...plan.meals] : [];
++  // Transient original positions follow the stable sort; no IDs enter the plan JSON.
++  const positions = new Map(list.map((meal,index)=>[meal,index]));
+   for (const [index, incoming] of meals.entries()) {
+     const m = structuredClone(incoming);
+     // Unknown input preserves an existing true count unless the preview explicitly cleared it.
+@@ -550,10 +554,13 @@ function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: st
+     if (i >= 0) {
+       const merged = { ...list[i], ...m };
+       if (clearServings.has(index)) delete merged.plannedServings;
++      const old=positions.get(list[i]!);
++      if(old!==undefined&&m.plannedServings===undefined&&!clearServings.has(index))positions.set(merged,old);
+       list[i] = merged;
+     } else list.push(m);
+   }
+   list.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : MEAL_ORDER[a.mealType] - MEAL_ORDER[b.mealType]));
++  mapRows?.(list.map(meal=>positions.get(meal)??-1));
+   plan.meals = list;
+   const maxDate = list.reduce((acc, m) => (m.date > acc ? m.date : acc), addDaysIso(weekStart, 6));
+   const start = plan.dateRange?.start && plan.dateRange.start < weekStart ? plan.dateRange.start : weekStart;
+@@ -1005,7 +1012,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
+     }
+   }
+ 
+-  // —— 导入：合并成 MenuPlan → store（不调写入端点）→ 跳周视图 ——
++  // —— 导入：同步编辑原 C1，或首次 store 交接；不调写入端点 ——
+   async function doImport(btn: HTMLButtonElement): Promise<void> {
+     if (!catalog || !state.parsed || !live() || owner.importing || owner.fileTasks.size > 0) return;
+     const cat = catalog;
+@@ -1027,14 +1034,28 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: T
+     paintReadStatus();
+     const done = busyButton(btn);
+     try {
+-      let base: AnyMenuPlan | null = drafts.getDraftPlan(planId);
+-      if (!base) {
+-        const saved = await api.getPlan(planId, { force: true });
+-        base = saved?.content ?? null;
++      const current=()=>live()&&inputTicket===owner.inputGeneration;
++      const apply=()=>applyPlanImport(api,planId,base=>{
++        let order:number[]=[];
++        const plan=mergePlan(base,meals,planId,weekStart,clearServings,value=>{order=value;});
++        return {plan,order};
++      },current);
++      let result=apply();
++      if(result==='absent'){
++        let base: AnyMenuPlan | null = drafts.getDraftPlan(planId);
++        if (!base) base = (await api.getPlan(planId, { force: true }))?.content ?? null;
++        if(!current())return;
++        // A document may have become available while the fallback source was read.
++        result=apply();
++        if(result==='absent')drafts.setDraftPlan(planId,mergePlan(base,meals,planId,weekStart,clearServings),"import");
+       }
+-      if (!live()) return;
+-      if (inputTicket !== owner.inputGeneration) return;
+-      drafts.setDraftPlan(planId, mergePlan(base, meals, planId, weekStart, clearServings), "import");
++      if(result==='rejected'){
++        if(current())replace(noticeHost,notice({kind:'info',text:tt(lang,'import.target.changed')}));
++        return;
++      }
++      // Clear the captured store after acceptance even if a synchronous observer left the route.
++      if(result==='applied')drafts.clearDraftPlan(planId);
++      if(!current())return;
+       state.imported = meals.length === state.parsed.length;
+       owner.generation++;
+       location.hash = planHref;
+diff --git a/packages/web/src/pages/admin/plan-form.ts b/packages/web/src/pages/admin/plan-form.ts
+index a5c4e21..2f522cb 100644
+--- a/packages/web/src/pages/admin/plan-form.ts
++++ b/packages/web/src/pages/admin/plan-form.ts
+@@ -4,10 +4,11 @@ import type { TeamMealsApi, TeamCatalog } from '../../api/team-meals';
+ import type { Source } from '../../api/types';
+ import { createEditSession } from '../../view-models/edit-session';
+ import { parseServingsInput } from './servings-input';
++import { connectPlanImport } from './plan-import';
+ 
+ export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
+ 
+-export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void } } = {}) {
++export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void }; remapRows?(id:string,order:number[]):()=>void } = {}) {
+   async function read<T>(id: string, request: () => Promise<T>): Promise<T> {
+     const operation = options.beginRead?.(id);
+     try { const value = await request(); operation?.finish(false); return value; }
+@@ -20,6 +21,17 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
+     read: (identity, options) => api.getPlan(identity.id, options),
+   });
+   const known = new Set<string>();
++  connectPlanImport(api,(id,merge,live)=>{
++    if(!known.has(id))return 'absent';
++    // open resumes the real record, including detached pending/unknown/conflict state.
++    session.open({kind:'plan',id},{schemaVersion:'3',meals:[]},null);
++    const state=session.getState();
++    if(!live()||state.phase==='closed'||state.identity?.id!==id||!state.draft)return 'rejected';
++    const {plan,order}=merge(state.draft),restore=options.remapRows?.(id,order);
++    let accepted=false;
++    try{accepted=live()&&session.edit(plan,state.contextId);return accepted?'applied':'rejected';}
++    finally{if(!accepted)restore?.();}
++  });
+   // Catalogs are versioned data, never metadata owned by a plan id.
+   const catalogs = new Map<string, TeamCatalog>();
+   const pending = new Map<string, Promise<TeamCatalog>>();
+diff --git a/packages/web/src/pages/admin/plan-import.ts b/packages/web/src/pages/admin/plan-import.ts
+new file mode 100644
+index 0000000..42457d9
+--- /dev/null
++++ b/packages/web/src/pages/admin/plan-import.ts
+@@ -0,0 +1,16 @@
++/** Synchronous page capability only. JSON and save operations stay in the original C1 session. */
++import type {AnyMenuPlan, MenuPlanV3} from '@canteenos/core';
++import type {TeamMealsApi} from '../../api/team-meals';
++export type ImportPlan = (base:AnyMenuPlan)=>{plan:MenuPlanV3;order:number[]};
++export type ImportResult = 'absent'|'applied'|'rejected';
++type Apply = (id:string,merge:ImportPlan,live:()=>boolean)=>ImportResult;
++const targets=new WeakMap<TeamMealsApi,{auth:number;mode:TeamMealsApi['mode'];apply:Apply}>();
++export function connectPlanImport(api:TeamMealsApi,apply:Apply):void {
++ targets.set(api,{auth:api.sessionKey(),mode:api.mode,apply});
++}
++export function applyPlanImport(api:TeamMealsApi,id:string,merge:ImportPlan,live:()=>boolean):ImportResult {
++ const target=targets.get(api);
++ if(!target)return 'absent';
++ if(target.auth!==api.sessionKey()||target.mode!==api.mode||!live())return 'rejected';
++ return target.apply(id,merge,live);
++}
+diff --git a/packages/web/src/pages/admin/plan.ts b/packages/web/src/pages/admin/plan.ts
+index 41ec379..3cdc632 100644
+--- a/packages/web/src/pages/admin/plan.ts
++++ b/packages/web/src/pages/admin/plan.ts
+@@ -30,7 +30,12 @@ export function createPlanRenderer(api:TeamMealsApi) {
+   const auxiliary=new WeakMap<View,AuxiliaryEditHandle>();
+   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
+   const touch=(view:View)=>{view.generation=++rawGeneration;};
+-  const createForm=()=>createPlanForm(api,{beginRead(id){
++  const createForm=()=>createPlanForm(api,{remapRows(id,order){
++    const view=views.get(id);if(!view)return ()=>{};
++    const previous=view.invalid;
++    view.invalid=new Map(order.flatMap<[number,string]>((old,index)=>previous.has(old)?[[index,previous.get(old)!]]:[]));touch(view);
++    return ()=>{view.invalid=previous;touch(view);};
++  },beginRead(id){
+     const view=views.get(id),handle=view&&auxiliary.get(view);
+     if(!view||!handle)throw new Error('Plan read owner is not registered');
+     const ticket=handle.beginOperation('read');view.reads++;touch(view);
