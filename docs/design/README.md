@@ -4,6 +4,7 @@
 
 | 文件 | 内容 | 状态 |
 |---|---|---|
+| [`reference-v3/index.html`](reference-v3/index.html) | 按 2026-09-10 用户绿色参考图的十屏交互原型：三语、知识库、视频/文件草稿导入、菜单采购、点菜反馈与报告；[运行与边界](reference-v3/README.md) | **设计提案**；独立保留，不替换下面的已接受设计或生产范围 |
 | [`screens-v2.html`](screens-v2.html) | 前台 5 屏：左上角目录角标 + 抽屉；备料单 `/prep` A 清单式 / B 图卡式 / C 按时间分组；采购单 `/purchase`；菜单 `/menu` 列表 + 详情（参照 Expirenza 骨架） | **定稿**（2026-09-07，Terry 接受） |
 | [`backoffice-v1.html`](backoffice-v1.html) | 后台 7 屏：工作台、排菜单周视图、粘贴导入、贴视频链接 + 进度、复核、新食材、发布 / 回退 / 二维码；页尾是写入通道架构 | **定稿**（2026-09-07） |
 | [`screens-v1.html`](screens-v1.html) | 前台第一版（无目录角标，菜单未参照 Expirenza） | 已取代，仅供对照 |
