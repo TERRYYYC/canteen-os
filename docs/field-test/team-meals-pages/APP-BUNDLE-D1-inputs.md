@@ -27,3 +27,19 @@ The separately reported JSON refresh-tag offline P2 remains assigned to C. D doe
 Next action: the D production author follows the frozen contract's actual RED→GREEN checks, rebuilds complete final closures in both environments, preserves all precached JS and original editor protections, and obtains independent review at the resulting fixed SHA. Root maintains custody and can operate the author's/reviewer's explicitly identified local browser fixture. The original non-author remains separate from production authorship.
 
 Prior 948026 bounded approval and its 56 original artifacts remain immutable, including the original 4/5 cancellation probe and undetermined delay cause. No new whole-feature, offline, Q, real Worker L2, remote-write or deployment approval is implied. Q remains idle.
+
+## Subsequently released reader and final composition input
+
+Dispatch released C implementation `3dd9db9d07ec8fdc67990ecbb77a0578f2dc2338` through full history `587d24bfee5cb92715db42a3a2d1014f61a543d2`. Root read the original fixed reader REVIEW and contract in full and inspected its 25-line production delta. The same read-only custody agent verified **25/25** review originals (940,936 bytes) and **28/28** author evidence originals (1,068,623 bytes), against both Git manifests and original local files, with no duplicate/missing/mismatched entry.
+
+| Reader artifact | SHA256 |
+|---|---|
+| Review CUSTODY.json, 6,291 bytes | `4fb69229519d9ba06b2c28f06e0922d0fe954e143d28f292601b411b6fec020f` |
+| Original `/private/tmp/reader-offline-c1-review-3dd9db9-rmoz_4r6/REVIEW.md` | `9595f26bef2f16b75b1849b0c2497432ab565ebdd0476af67c0bbb151cddb792` |
+| Author 62908cf2593fab775e9426a4f92c8992e063d58e CUSTODY.json, 5,527 bytes | `8832761a5ee796e6d9c75de52798ededaa2879c7c8c73eddd2f194e96eea42d8` |
+
+The reader's 587d24b, 3dd9 and 62908cf packages trees are identical (`94e6ac1b7770ee868f7ebbb40b72b21a39b4eb5b`). Its original non-author approved bounded same-revision team-projection recovery: independent Node20 Web 450/450, typecheck and additional 19/19, actual first claim and external B takeover staying in the same document while offline, plus a new offline B document. The initial missing-core setup errors are retained. Main/PWA/owner, D pages, core/Worker/config and dependencies did not change; no new native image/R3/full D/L2 approval is inferred. This closes the two original team-projection offline counterexamples, not analogous legacy or QR limitations.
+
+D author checkpoint `1d0cd35a2037e486492410fa21d2165c61883ac7` fixes the six D page/helper files and associated target tests/evidence, with author Node20 **95/95** and typecheck. This remains an author result; intermediate 11/11 budgets are not final. Complete local composition `4278f1a80966c23be70ffc05001aa31920b5b4d1` has parents **1d0cd35 + 587d24b**, with no conflict and only `published.ts`/`published-offline.test.mjs` changing under packages relative to D's checkpoint. Full approved C history and original authors are preserved.
+
+Next action is final Node20 Web/type and default/HTTP all-route budget/cache verification on 4278, plus actual emitted-module browser failure/retention and already-loaded action retry. Root's preview work is author evidence; the original non-author will review the resulting precise implementation/evidence subject. The native module recovery clarification was accepted by dispatch and frozen at `5414cf1d16e29ac55a2efbaa8a5f23f313c46267`; this document does not promise successful same-URL native retry.
