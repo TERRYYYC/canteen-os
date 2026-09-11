@@ -1,0 +1,66 @@
+- banner:
+  - button "打开目录"
+  - heading "采购单" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - link "返回":
+    - /url: "#/purchase"
+  - heading "本次采购" [level=2]
+  - link "排每天的菜":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: 清单已保存
+    - 'generic "资料版本: 4529ceca"'
+  - 'generic "材料和菜单资料版本: e1441c8d"'
+  - link "本次采购":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "资料版本: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "另看当前资料"
+    - heading "番茄 B版" [level=2]
+    - paragraph: tomato
+    - term: ZH
+    - definition: 番茄 B版
+    - term: EN
+    - definition: Tomato revision B
+    - term: UK
+    - definition: Томат версії B
+    - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "番茄 B版"
+      - status
+      - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: 材料角色
+    - definition: 主料
+    - term: 基准单位
+    - definition: g
+    - term: Wikidata
+    - definition: 未录
+    - term: 供应商
+    - definition: Fixture supplier
+    - term: 包装规格
+    - definition: 1 kg
+    - term: 最小起订包数
+    - definition: 未录
+    - term: 记录价格
+    - definition: 10 CNY
+    - term: 记录库存
+    - definition: "false"
+    - term: 资料中的现有量（不是本次判断）
+    - definition: 未录
+    - heading "哪些菜用到它" [level=3]
+    - paragraph:
+      - text: 2026-09-14 · 午餐 ·
+      - link "第一道样本菜":
+        - /url: "#/purchase/page-shop%2Fdish%2Ffirst-dish"
+      - text: · team-week / 0 / 0
+    - paragraph:
+      - text: 2026-09-14 · 午餐 ·
+      - link "第二道样本菜":
+        - /url: "#/purchase/page-shop%2Fdish%2Fsecond-dish"
+      - text: · team-week / 1 / 0
+    - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

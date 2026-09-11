@@ -1,0 +1,75 @@
+- banner:
+  - button "Відкрити меню розділів"
+  - heading "Закупівля" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - link "Назад":
+    - /url: "#/purchase"
+  - heading "Цей список покупок" [level=2]
+  - link "Планувати страви":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: Список збережено
+    - 'generic "Версія даних: 4529ceca"'
+  - 'generic "Версія інгредієнтів і меню: e1441c8d"'
+  - heading "Дати й прийоми їжі цього списку" [level=3]
+  - paragraph: 2026-09-14 · Обід · team-week
+  - button "Зберегти список" [disabled]
+  - paragraph: Записані інгредієнти; повноту рецепта має перевірити людина.
+  - status:
+    - paragraph: Рецепт ще не активний · team-week / 2026-09-14 / Обід / second-dish
+  - heading "Олія" [level=3]:
+    - link "Олія":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+  - paragraph: Приправа
+  - button "Перевірити" [pressed]
+  - button "Купити"
+  - button "Є в наявності"
+  - generic "Використовується в · 1"
+  - paragraph: "Повний розрахунок недоступний: Закупівельні параметри не записано"
+  - heading "Сіль" [level=3]:
+    - link "Сіль":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+  - paragraph: Приправа
+  - button "Перевірити"
+  - button "Купити"
+  - button "Є в наявності" [pressed]
+  - generic "Використовується в · 2"
+  - paragraph: "Повний розрахунок недоступний: Закупівельні параметри не записано · За смаком · Порції в плані не вказано · Порції рецепта не вказано · Рецепт ще не активний"
+  - heading "Томат версії B" [level=3]:
+    - link "Томат версії B":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+  - paragraph: Основний інгредієнт
+  - button "Перевірити"
+  - button "Купити"
+  - button "Є в наявності" [pressed]
+  - generic "Використовується в · 2"
+  - paragraph: "Повний розрахунок недоступний: Порції в плані не вказано · Порції рецепта не вказано · Рецепт ще не активний · Кількість рецепта не вказано"
+  - heading "Помідор" [level=3]:
+    - link "Помідор":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato-other"
+  - paragraph: Основний інгредієнт
+  - button "Перевірити" [pressed]
+  - button "Купити"
+  - button "Є в наявності"
+  - generic "Використовується в · 1"
+  - paragraph: "Повний розрахунок недоступний: Закупівельні параметри не записано · Порції в плані не вказано · Порції рецепта не вказано · Рецепт ще не активний"
+  - paragraph: Розраховані суми є орієнтирами, а не повним бюджетом.
+  - heading "Застосувати діапазон і перевірити знову" [level=3]
+  - generic: Назви планів через кому
+  - textbox "Назви планів через кому": team-week
+  - button "Прочитати останні збережені плани"
+  - 'generic "Версія інгредієнтів і меню: e1441c8d"'
+  - checkbox "2026-09-14 · Обід · team-week" [checked]
+  - generic: 2026-09-14 · Обід · team-week
+  - checkbox "2026-09-15 · Сніданок · team-week"
+  - generic: 2026-09-15 · Сніданок · team-week
+  - checkbox "2026-09-15 · Вечеря · team-week"
+  - generic: 2026-09-15 · Вечеря · team-week
+  - button "Застосувати діапазон і перевірити знову"
+  - button "Копіювати список"
+  - status

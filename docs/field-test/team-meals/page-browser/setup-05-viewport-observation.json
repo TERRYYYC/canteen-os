@@ -1,0 +1,12 @@
+{
+  "finding": "Browser viewport applies to selected tab2, not background tab1. First attempted T08-plan mobile captures measured 1440x900 and are excluded; recaptured after closing owned tab2.",
+  "tab1": {
+    "width": 1440,
+    "height": 900
+  },
+  "tab2": {
+    "width": 393,
+    "height": 852
+  },
+  "productFailure": false
+}

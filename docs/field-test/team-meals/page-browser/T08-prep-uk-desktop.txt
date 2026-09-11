@@ -1,0 +1,112 @@
+- banner:
+  - button "Відкрити меню розділів" [active]
+  - heading "Підготовка" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - heading "Фіксоване тестове меню" [level=1]
+  - status: Опубліковані оригінальні рецепти
+  - generic "ab3f5846"
+  - generic "Зауваження до публікації"
+  - navigation "Дні":
+    - link "2026-09-14":
+      - /url: "#/prep/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/prep/2026-09-15"
+  - navigation "Прийоми їжі":
+    - link "Обід":
+      - /url: "#/prep/2026-09-14/lunch"
+  - navigation "Страви":
+    - button "Перша тестова страва" [pressed]
+    - button "Друга тестова страва"
+  - button "Усі терміни підготовки" [pressed]
+  - button "Сьогодні вранці"
+  - button "Перед подачею"
+  - button "Напередодні"
+  - heading "Рецепти й підготовка" [level=1]
+  - 'generic "Версія даних: ab3f5846"'
+  - heading "Перша тестова страва" [level=2]:
+    - link "Перша тестова страва":
+      - /url: "#/menu/2026-09-14/first-dish"
+  - paragraph: 2026-09-14 · Обід
+  - paragraph: "Заплановані порції: Не записано"
+  - paragraph: "ZH: 第一道样本菜"
+  - paragraph: "EN: First test dish"
+  - paragraph: "UK: Перша тестова страва"
+  - paragraph: "Базові порції рецепта: 2"
+  - paragraph: "Записаний стан: active"
+  - paragraph
+  - figure:
+    - status: Зображення не записано
+  - heading "Усі записані інгредієнти й приправи" [level=3]
+  - paragraph: Кількості оригінального рецепта, без масштабування
+  - heading "Помідор" [level=4]:
+    - link "Помідор":
+      - /url: "#/prep/2026-09-14/lunch/tomato"
+  - paragraph: "ZH: 番茄"
+  - paragraph: "EN: Tomato"
+  - paragraph: "UK: Помідор"
+  - paragraph: 300 g
+  - paragraph: "Роль інгредієнта: Основний інгредієнт"
+  - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: Не записано"':
+    - status
+    - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Не записано"
+  - paragraph: "Розмір пакування: 1 kg"
+  - paragraph: "Постачальник: Fixture supplier"
+  - paragraph: "Техніка: Шматки рулонним нарізанням"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "Вихідна примітка: Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+  - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: Не записано"':
+    - status
+    - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Не записано"
+  - paragraph: "Розмір підготовки: Не записано"
+  - paragraph: "Час підготовки: Не записано"
+  - paragraph: "Вихідна примітка: Не записано"
+  - figure:
+    - status: Зображення не записано
+  - heading "Сіль" [level=4]:
+    - link "Сіль":
+      - /url: "#/prep/2026-09-14/lunch/salt"
+  - paragraph: "ZH: 盐"
+  - paragraph: "EN: Salt"
+  - paragraph: "UK: Сіль"
+  - paragraph: За смаком
+  - paragraph: "Роль інгредієнта: Приправа"
+  - paragraph: "Розмір пакування: Не записано"
+  - paragraph: "Постачальник: Не записано"
+  - heading "Олія" [level=4]:
+    - link "Олія":
+      - /url: "#/prep/2026-09-14/lunch/cooking-oil"
+  - paragraph: "ZH: 油"
+  - paragraph: "EN: Oil"
+  - paragraph: "UK: Олія"
+  - paragraph: 20 ml
+  - paragraph: "Роль інгредієнта: Приправа"
+  - paragraph: "Розмір пакування: Не записано"
+  - paragraph: "Постачальник: Не записано"
+  - heading "Усі записані кроки" [level=3]
+  - generic: "1"
+  - paragraph: Підготуйте томати за записаними вказівками.
+  - paragraph: "ZH: 按原始记录准备番茄。"
+  - paragraph: "EN: Prepare tomatoes using the recorded instructions."
+  - paragraph: "UK: Підготуйте томати за записаними вказівками."
+  - paragraph: "Техніка: Шматки рулонним нарізанням"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "Вихідна примітка: Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі."
+  - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: Не записано"':
+    - status
+    - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Не записано"
+  - figure:
+    - status: Зображення не записано
+  - paragraph: "Джерело рецепта: manual"
+  - paragraph: Показано лише записані дані; повноту рецепта має перевірити людина.

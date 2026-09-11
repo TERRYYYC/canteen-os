@@ -1,0 +1,66 @@
+- banner:
+  - button "Відкрити меню розділів"
+  - heading "Закупівля" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - link "Назад":
+    - /url: "#/purchase"
+  - heading "Цей список покупок" [level=2]
+  - link "Планувати страви":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: Список збережено
+    - 'generic "Версія даних: 4529ceca"'
+  - 'generic "Версія інгредієнтів і меню: e1441c8d"'
+  - link "Цей список покупок":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "Версія даних: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "Окремо переглянути поточні дані"
+    - heading "Томат версії B" [level=2]
+    - paragraph: tomato
+    - term: ZH
+    - definition: 番茄 B版
+    - term: EN
+    - definition: Tomato revision B
+    - term: UK
+    - definition: Томат версії B
+    - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "Томат версії B"
+      - status
+      - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: Роль інгредієнта
+    - definition: Основний інгредієнт
+    - term: Базова одиниця
+    - definition: g
+    - term: Wikidata
+    - definition: Не записано
+    - term: Постачальник
+    - definition: Fixture supplier
+    - term: Розмір упаковки
+    - definition: 1 kg
+    - term: Мінімум упаковок
+    - definition: Не записано
+    - term: Записана ціна
+    - definition: 10 CNY
+    - term: Облік запасів
+    - definition: "false"
+    - term: Записаний залишок (окремо від цього списку)
+    - definition: Не записано
+    - heading "У яких стравах використовується" [level=3]
+    - paragraph:
+      - text: 2026-09-14 · Обід ·
+      - link "Перша тестова страва":
+        - /url: "#/purchase/page-shop%2Fdish%2Ffirst-dish"
+      - text: · team-week / 0 / 0
+    - paragraph:
+      - text: 2026-09-14 · Обід ·
+      - link "Друга тестова страва":
+        - /url: "#/purchase/page-shop%2Fdish%2Fsecond-dish"
+      - text: · team-week / 1 / 0
+    - paragraph: Показано лише записані дані; повноту рецепта має перевірити людина.

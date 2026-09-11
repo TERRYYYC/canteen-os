@@ -1,0 +1,41 @@
+- banner:
+  - button "Open sections menu" [active]
+  - heading "Meals" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - heading "Fixed test menu" [level=1]
+  - status: Published original recipes
+  - generic "ab3f5846"
+  - generic "Publication notices"
+  - navigation "Days":
+    - link "2026-09-14":
+      - /url: "#/menu/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/menu/2026-09-15"
+  - navigation "Meals":
+    - button "Lunch" [pressed]
+  - navigation "Dishes"
+  - heading "Meal plan" [level=1]
+  - 'generic "Source version: ab3f5846"'
+  - generic "Information to review · 1"
+  - heading "First test dish" [level=2]
+  - generic: Перша тестова страва
+  - generic: 第一道样本菜
+  - paragraph: 2026-09-14 · Lunch
+  - paragraph: "Planned servings: Not recorded"
+  - paragraph: "All recorded ingredients and seasonings: Tomato · Salt · Oil"
+  - link "Read the full original recipe":
+    - /url: "#/menu/2026-09-14/first-dish"
+  - heading "Second test dish" [level=2]
+  - generic: Друга тестова страва
+  - generic: 第二道样本菜
+  - paragraph: 2026-09-14 · Lunch
+  - paragraph: "Planned servings: Not recorded"
+  - paragraph: "All recorded ingredients and seasonings: Tomato · Salt · Tomato"
+  - link "Read the full original recipe":
+    - /url: "#/menu/2026-09-14/second-dish"
+  - paragraph: Only recorded information is shown; recipe completeness still needs human review.

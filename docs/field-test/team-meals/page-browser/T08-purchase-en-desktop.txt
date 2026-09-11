@@ -1,0 +1,75 @@
+- banner:
+  - button "Open sections menu"
+  - heading "Purchasing" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - link "Back":
+    - /url: "#/purchase"
+  - heading "This shopping list" [level=2]
+  - link "Plan meals":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: List saved
+    - 'generic "Source version: 4529ceca"'
+  - 'generic "Ingredient and menu version: e1441c8d"'
+  - heading "Dates and meals for this list" [level=3]
+  - paragraph: 2026-09-14 · Lunch · team-week
+  - button "Save list" [disabled]
+  - paragraph: Recorded ingredient candidates; recipe completeness needs human review.
+  - status:
+    - paragraph: Recipe is not active · team-week / 2026-09-14 / Lunch / second-dish
+  - heading "Oil" [level=3]:
+    - link "Oil":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+  - paragraph: Seasoning
+  - button "Check" [pressed]
+  - button "Buy"
+  - button "Available"
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing"
+  - heading "Salt" [level=3]:
+    - link "Salt":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+  - paragraph: Seasoning
+  - button "Check"
+  - button "Buy"
+  - button "Available" [pressed]
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · To taste · Planned servings missing · Recipe servings missing · Recipe is not active"
+  - heading "Tomato revision B" [level=3]:
+    - link "Tomato revision B":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+  - paragraph: Main ingredient
+  - button "Check"
+  - button "Buy"
+  - button "Available" [pressed]
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Planned servings missing · Recipe servings missing · Recipe is not active · Recipe quantity missing"
+  - heading "Tomato" [level=3]:
+    - link "Tomato":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato-other"
+  - paragraph: Main ingredient
+  - button "Check" [pressed]
+  - button "Buy"
+  - button "Available"
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · Planned servings missing · Recipe servings missing · Recipe is not active"
+  - paragraph: Calculable amounts are references, not a complete budget.
+  - heading "Apply scope and review again" [level=3]
+  - generic: Plan IDs, separated by commas
+  - textbox "Plan IDs, separated by commas": team-week
+  - button "Read latest saved plans"
+  - 'generic "Ingredient and menu version: e1441c8d"'
+  - checkbox "2026-09-14 · Lunch · team-week" [checked]
+  - generic: 2026-09-14 · Lunch · team-week
+  - checkbox "2026-09-15 · Breakfast · team-week"
+  - generic: 2026-09-15 · Breakfast · team-week
+  - checkbox "2026-09-15 · Dinner · team-week"
+  - generic: 2026-09-15 · Dinner · team-week
+  - button "Apply scope and review again"
+  - button "Copy list"
+  - status

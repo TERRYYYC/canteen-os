@@ -1,0 +1,112 @@
+- banner:
+  - button "打开目录" [active]
+  - heading "备料" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - heading "固定样本菜单" [level=1]
+  - status: 已发布原配方
+  - generic "ab3f5846"
+  - generic "发布资料提示"
+  - navigation "日期":
+    - link "2026-09-14":
+      - /url: "#/prep/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/prep/2026-09-15"
+  - navigation "餐次":
+    - link "午餐":
+      - /url: "#/prep/2026-09-14/lunch"
+  - navigation "菜品":
+    - button "第一道样本菜" [pressed]
+    - button "第二道样本菜"
+  - button "全部时机" [pressed]
+  - button "当天早上"
+  - button "出餐前"
+  - button "前一天"
+  - heading "原配方与备料资料" [level=1]
+  - 'generic "资料版本: ab3f5846"'
+  - heading "第一道样本菜" [level=2]:
+    - link "第一道样本菜":
+      - /url: "#/menu/2026-09-14/first-dish"
+  - paragraph: 2026-09-14 · 午餐
+  - paragraph: "计划份数: 未录"
+  - paragraph: "ZH: 第一道样本菜"
+  - paragraph: "EN: First test dish"
+  - paragraph: "UK: Перша тестова страва"
+  - paragraph: "原配方基准份数: 2"
+  - paragraph: "记录状态: active"
+  - paragraph
+  - figure:
+    - status: 图片未录
+  - heading "全部已录食材与调料" [level=3]
+  - paragraph: 原配方用量，未缩放
+  - heading "番茄" [level=4]:
+    - link "番茄":
+      - /url: "#/prep/2026-09-14/lunch/tomato"
+  - paragraph: "ZH: 番茄"
+  - paragraph: "EN: Tomato"
+  - paragraph: "UK: Помідор"
+  - paragraph: 300 g
+  - paragraph: "材料角色: 主料"
+  - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: 未录"':
+    - status
+    - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: 未录"
+  - paragraph: "包装规格: 1 kg"
+  - paragraph: "供应商: Fixture supplier"
+  - paragraph: "技法: 滚刀块"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "原备注: 边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。"
+  - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: 未录"':
+    - status
+    - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: 未录"
+  - paragraph: "切配规格: 未录"
+  - paragraph: "准备时机: 未录"
+  - paragraph: "原备注: 未录"
+  - figure:
+    - status: 图片未录
+  - heading "盐" [level=4]:
+    - link "盐":
+      - /url: "#/prep/2026-09-14/lunch/salt"
+  - paragraph: "ZH: 盐"
+  - paragraph: "EN: Salt"
+  - paragraph: "UK: Сіль"
+  - paragraph: 适量
+  - paragraph: "材料角色: 调料"
+  - paragraph: "包装规格: 未录"
+  - paragraph: "供应商: 未录"
+  - heading "油" [level=4]:
+    - link "油":
+      - /url: "#/prep/2026-09-14/lunch/cooking-oil"
+  - paragraph: "ZH: 油"
+  - paragraph: "EN: Oil"
+  - paragraph: "UK: Олія"
+  - paragraph: 20 ml
+  - paragraph: "材料角色: 调料"
+  - paragraph: "包装规格: 未录"
+  - paragraph: "供应商: 未录"
+  - heading "完整已录步骤" [level=3]
+  - generic: "1"
+  - paragraph: 按原始记录准备番茄。
+  - paragraph: "ZH: 按原始记录准备番茄。"
+  - paragraph: "EN: Prepare tomatoes using the recorded instructions."
+  - paragraph: "UK: Підготуйте томати за записаними вказівками."
+  - paragraph: "技法: 滚刀块"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "原备注: 边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。"
+  - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: 未录"':
+    - status
+    - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: 未录"
+  - figure:
+    - status: 图片未录
+  - paragraph: "配方来源: manual"
+  - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

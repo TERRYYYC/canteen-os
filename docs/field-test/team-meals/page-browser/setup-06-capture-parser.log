@@ -1,0 +1,18 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The captured initial local edit must be eleven servings
++ actual - expected
+
++ undefined
+- '11'
+    at file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/import-draft-capture.repro.mjs:12:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: '11',
+  operator: 'strictEqual'
+}
+
+Node.js v20.20.2

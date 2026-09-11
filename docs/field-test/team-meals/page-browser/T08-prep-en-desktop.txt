@@ -1,0 +1,112 @@
+- banner:
+  - button "Open sections menu" [active]
+  - heading "Prep" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - heading "Fixed test menu" [level=1]
+  - status: Published original recipes
+  - generic "ab3f5846"
+  - generic "Publication notices"
+  - navigation "Days":
+    - link "2026-09-14":
+      - /url: "#/prep/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/prep/2026-09-15"
+  - navigation "Meals":
+    - link "Lunch":
+      - /url: "#/prep/2026-09-14/lunch"
+  - navigation "Dishes":
+    - button "First test dish" [pressed]
+    - button "Second test dish"
+  - button "All preparation times" [pressed]
+  - button "This morning"
+  - button "Before service"
+  - button "The day before"
+  - heading "Recipes and preparation" [level=1]
+  - 'generic "Source version: ab3f5846"'
+  - heading "First test dish" [level=2]:
+    - link "First test dish":
+      - /url: "#/menu/2026-09-14/first-dish"
+  - paragraph: 2026-09-14 · Lunch
+  - paragraph: "Planned servings: Not recorded"
+  - paragraph: "ZH: 第一道样本菜"
+  - paragraph: "EN: First test dish"
+  - paragraph: "UK: Перша тестова страва"
+  - paragraph: "Original recipe servings: 2"
+  - paragraph: "Recorded status: active"
+  - paragraph
+  - figure:
+    - status: Image not recorded
+  - heading "All recorded ingredients and seasonings" [level=3]
+  - paragraph: Original recipe quantities, unscaled
+  - heading "Tomato" [level=4]:
+    - link "Tomato":
+      - /url: "#/prep/2026-09-14/lunch/tomato"
+  - paragraph: "ZH: 番茄"
+  - paragraph: "EN: Tomato"
+  - paragraph: "UK: Помідор"
+  - paragraph: 300 g
+  - paragraph: "Ingredient role: Main ingredient"
+  - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: Not recorded"':
+    - status
+    - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Not recorded"
+  - paragraph: "Package size: 1 kg"
+  - paragraph: "Supplier: Fixture supplier"
+  - paragraph: "Technique: Roll-cut chunks"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "Original note: Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes."
+  - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: Not recorded"':
+    - status
+    - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Not recorded"
+  - paragraph: "Prep size: Not recorded"
+  - paragraph: "Prep timing: Not recorded"
+  - paragraph: "Original note: Not recorded"
+  - figure:
+    - status: Image not recorded
+  - heading "Salt" [level=4]:
+    - link "Salt":
+      - /url: "#/prep/2026-09-14/lunch/salt"
+  - paragraph: "ZH: 盐"
+  - paragraph: "EN: Salt"
+  - paragraph: "UK: Сіль"
+  - paragraph: To taste
+  - paragraph: "Ingredient role: Seasoning"
+  - paragraph: "Package size: Not recorded"
+  - paragraph: "Supplier: Not recorded"
+  - heading "Oil" [level=4]:
+    - link "Oil":
+      - /url: "#/prep/2026-09-14/lunch/cooking-oil"
+  - paragraph: "ZH: 油"
+  - paragraph: "EN: Oil"
+  - paragraph: "UK: Олія"
+  - paragraph: 20 ml
+  - paragraph: "Ingredient role: Seasoning"
+  - paragraph: "Package size: Not recorded"
+  - paragraph: "Supplier: Not recorded"
+  - heading "All recorded steps" [level=3]
+  - generic: "1"
+  - paragraph: Prepare tomatoes using the recorded instructions.
+  - paragraph: "ZH: 按原始记录准备番茄。"
+  - paragraph: "EN: Prepare tomatoes using the recorded instructions."
+  - paragraph: "UK: Підготуйте томати за записаними вказівками."
+  - paragraph: "Technique: Roll-cut chunks"
+  - paragraph: "ZH: 滚刀块"
+  - paragraph: "EN: Roll-cut chunks"
+  - paragraph: "UK: Шматки рулонним нарізанням"
+  - paragraph: "Original note: Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes."
+  - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: Not recorded"':
+    - status
+    - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: Not recorded"
+  - figure:
+    - status: Image not recorded
+  - paragraph: "Recipe source: manual"
+  - paragraph: Only recorded information is shown; recipe completeness still needs human review.
