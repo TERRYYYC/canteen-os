@@ -96,10 +96,16 @@ jobs:
           set -e
           npm --prefix packages/worker run build
           node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
-          node scripts/build-data.mjs --check --compare-snapshots
+          # Capture after the translation commit, then reuse this exact revision for output.
+          TEAM_MEALS_SOURCE_REVISION="$(git rev-parse HEAD)"
+          node scripts/build-data.mjs --target team-meals --check --revision "$TEAM_MEALS_SOURCE_REVISION"
+          node scripts/build-data.mjs --target legacy-numeric --check --compare-snapshots --root test/fixtures/contracts/valid/golden --at 2026-10-03T00:00:00.000Z
+          printf 'TEAM_MEALS_SOURCE_REVISION=%s\n' "$TEAM_MEALS_SOURCE_REVISION" >> "$GITHUB_ENV"
 
       - name: Build data (three sheets + build.json → packages/web/public/data/)
-        run: node scripts/build-data.mjs
+        run: |
+          set -e
+          node scripts/build-data.mjs --target team-meals --revision "${TEAM_MEALS_SOURCE_REVISION:?Missing checked source revision}" --out packages/web/public/data
 
       - name: Build web (vite → packages/web/dist/)
         run: pnpm -C packages/web build
