@@ -8,6 +8,8 @@ status: harness-ready-browser-verification-pending
 
 # Shopping page browser verification fixture
 
+Historical fixture record. After auxiliary ownership integration at `213e2ce`, current browser regression uses `packages/web/test/team-meals-pages-shopping-raw-regression-browser.html`, which retains the production renderer across language/navigation. The original entry below deliberately remains as historical evidence; its fresh-renderer step is incompatible with the current one-owner registry. Current composition results are in `composition-browser-checkpoint.md`.
+
 What: `packages/web/test/team-meals-pages-shopping-browser.html` calls the actual `createPurchaseRenderer` with the actual C1 `createTeamMealsApi`; the page's own C2 view model and C1 edit session remain in use. Why: verify the rendered journey, source binding and conditional writes rather than a separate fixture controller. Tradeoff: all network responses and repository storage live in explicit local fixture memory. Open questions: actual browser results and any production-page defects found there. Next action: root runs the entry, fixes its production files as needed, records exact browser evidence and obtains independent review.
 
 The bounded subtask writes only this HTML entry and this D evidence document. It does not change production code, shared stores, C1/C2, original source design documents, Q E2E tests or fixture records. No commit or remote operation was performed. Initial worktree check: `canteen-os-team-pages`, branch `codex/team-meals-pages`, HEAD `247d6815865684236ce126cc82a1223a5132865f`. Other agents have concurrent production edits; this checkpoint is not a frozen acceptance claim.
