@@ -52,7 +52,7 @@ created: 2026-09-11
 - 实际 pwa.ts 的受控插件/DOM/时钟测试证明两秒后取消同意、晚 plugin callback 不强刷、重复 controllerchange 幂等、旧会话无私有 ID 提示。这个测试不是实际浏览器时钟或真实 SW 证据。
 - c7785 实际 main 入口 Vite 构建成功，输出 `/private/tmp/c2b-web-application-build`，36 precache；当时 144 Web tests 通过。当前整树 typecheck 仍有旧 D import/plan 共五处 AnyMenuPlan 错误；不作通过声明。
 
-完整固定代码的非作者复审仍进行中；D 完整已审页面历史尚未组合，三语言/视口/main 实际流程与真实 Worker/L2 仍待验收。
+以上为当时的检查状态；后续完整共享批准及基础组合记录于下节。最终D接线、三语言/视口/main实际流程与真实Worker/L2仍待验收。
 
 ## bae6308 正常认证切换的真实 SW 补验
 
@@ -84,3 +84,11 @@ created: 2026-09-11
 - 已审B终态全历史 `f1cecfee7ca8e762002864b67ceb945364c79150`（实现225a931）继续合入为 `413022734f07921397d223f7b8c6280dcc9fe0ae`，Web无差异。Worker构建和实际handler publish36/36通过，日志 `/private/tmp/c2b-b-publish-build.log` / `c2b-b-publish36.log`；全为FakeRepo，无真实写入。
 
 此时D的aux/tickets/coverage与正式published页面接线仍在D后续工作中。317绿、类型绿与构建绿仅证明已批准基础页可与共享层组合，不证明页面已登记全覆盖，也不证明菜单/备料已消费正式published handle。接下来只消费调度释放的D新固定批准点，再补实际main页面、三语/视口与真实更新链证据。
+
+## 启动壳层修订与实际应用入口模式
+
+838973689f67c6189d10353e4bc9e9681c5603cc 的启动壳层 coverage 两行增量已获原非作者有界 APPROVE，报告 `/private/tmp/c2b-startup-review-8389736-Av5bMH/REVIEW.md`。独立旧代码 RED2/3、新3/3+8/8补充probe+5个额外页面/owner保护检查、Web320/320、typecheck0和actualbuild通过。此前618e2a2基础组合亦获有界APPROVE，报告 `/private/tmp/c2b-combination-review-618e2a2-Wl9LxT/REVIEW.md`；独立确认C共享/D fa7/B f1内容忠实，Web317、typecheck、actualbuild和Workerpublish36通过。作者已直接阅读两完整报告。
+
+实际main基础兼容现场：固定d3ea488构建产物 `/private/tmp/c2b-fa7-application-build`，本地4189、IABtab8；原legacy数据的备料和菜单能显示并明确旧版限制，采购unconfigured显示不能保存，点击排菜进入未认证锁屏。仅基础兼容，不是team正式published接线完成。
+
+测试服务器新增application模式后，用固定838源码+原index.html构建正式team数据，临时目录 `/private/tmp/c2b-real-sw-KYqRnh`、本地62910/canteen、IABtab9，src全目录diff及原index.html cmp均为零差异。A revision34bb564f1d804047327fd59005915c0c64ac9f69、B revisionb9a16a774f7d36c102f667e82753f558e33f5398。真实入口备料显示数据未就绪，符合D fa7尚未接入新的published接口这一已知未完成边界。此记录用于后续D固定接线验收的基线，不作为完成证据。
