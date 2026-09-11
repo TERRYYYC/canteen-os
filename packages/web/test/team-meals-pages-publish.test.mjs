@@ -137,3 +137,8 @@ test('each original run read can end only its matching old write; another old ru
 test('known terminal proof clears registry while legacy failure and ambiguous dispatch protect it',async()=>{
  for(const [body,expected] of [[completedProgress('cancelled'),'clear'],[progress('failure'),'unknown']]){const f=await setup({respond:p=>p==='/publish/11'?Response.json({ok:true,...body}):undefined});try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.inspectReloadSafety().reason,expected);}finally{f.cleanup();}}
 });
+
+
+for(const old of [false,true])test(`an array masquerading as a rollback commit never proves ${old?'old':'current'} write completion`,async()=>{
+ const held=deferred(),f=await setup({respond:p=>!old&&p.startsWith('/rollback/')?Response.json({ok:true,commit:[C],restoredFrom:A,changedFiles:2}):undefined});try{if(old)f.legacy.rollback=()=>held.promise;let el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();if(old){f.auth();el=f.mount();await f.flush();held.resolve({commit:[C],restoredFrom:A,changedFiles:2});await f.flush();}assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.doesNotMatch(el.textContent,/Rolled back to/);}finally{f.cleanup();}
+});

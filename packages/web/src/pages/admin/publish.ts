@@ -580,7 +580,7 @@ async function onRollback(sha: string): Promise<void> {
   rollbackDone = null; publishError = null; repaint();
   try {
     const result = await context.api.rollback(sha);
-    if (!/^[0-9a-f]{40}$/.test(result.commit) || result.restoredFrom !== sha || !Number.isSafeInteger(result.changedFiles) || result.changedFiles < 0) throw new ApiError(502, "bad_response", "");
+    if (typeof result.commit !== "string" || !/^[0-9a-f]{40}$/.test(result.commit) || result.restoredFrom !== sha || !Number.isSafeInteger(result.changedFiles) || result.changedFiles < 0) throw new ApiError(502, "bad_response", "");
     settleWrite(context, original, "completed");
     if (!current(context)) return;
     rollbackDone = { sha: result.restoredFrom.slice(0, 7), n: result.changedFiles };

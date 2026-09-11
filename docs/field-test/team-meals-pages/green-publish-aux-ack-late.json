@@ -1,0 +1,49 @@
+{
+  "result": "PASS",
+  "case": "available late ACK after auth",
+  "sourceHash": "a6e847b9b356ab62eea3a0ad1b32efc175b3f2119142a7d4a1a760f6bca93697",
+  "response": {
+    "commit": [
+      "cccccccccccccccccccccccccccccccccccccccc"
+    ],
+    "restoredFrom": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "changedFiles": 2
+  },
+  "expected": "unknown",
+  "actual": "unknown",
+  "publishEnabled": true,
+  "rollbackSuccessVisible": false,
+  "snapshot": {
+    "reason": "unknown",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "unknown",
+        "id": "previous-session-operation",
+        "generation": 4,
+        "dirty": false,
+        "phase": "unknown"
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "publish",
+        "id": "publish",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 2
+      }
+    ],
+    "stamp": "[12,1,[[\"page:admin/publish\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":4,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"auxiliary-2\",\"kind\":\"publish\",\"id\":\"publish\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\",\"operation\":2}]]"
+  },
+  "calls": [
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    }
+  ]
+}
