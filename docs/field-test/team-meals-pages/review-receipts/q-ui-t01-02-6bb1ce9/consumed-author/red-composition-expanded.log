@@ -1,0 +1,252 @@
+TAP version 13
+# Subtest: real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+not ok 1 - real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+  ---
+  duration_ms: 26.737458
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:59:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '8' !== '11'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '11'
+  actual: '8'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:59:229)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: deliberately omitted local count is retained when another meal is imported
+not ok 2 - deliberately omitted local count is retained when another meal is imported
+  ---
+  duration_ms: 10.191791
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:60:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '8' !== ''
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ''
+  actual: '8'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:60:206)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: local added/deleted rows and whole-plan metadata survive a new import
+not ok 3 - local added/deleted rows and whole-plan metadata survive a new import
+  ---
+  duration_ms: 14.820292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:61:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(!plan.meals.some(m=>m.date==='2026-09-16'))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:61:365)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+not ok 4 - sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+  ---
+  duration_ms: 10.912666
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:62:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '12'
+    - '2.0000000000000001'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '2.0000000000000001'
+  actual: '12'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:62:316)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+not ok 5 - A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+  ---
+  duration_ms: 13.021167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:63:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '8' !== '11'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '11'
+  actual: '8'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:63:285)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: import edits the original saving document; its late ACK cannot consume the later merged draft
+not ok 6 - import edits the original saving document; its late ACK cannot consume the later merged draft
+  ---
+  duration_ms: 10.03475
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:64:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 4
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 4
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:64:391)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: lost: import changes only local draft and preserves original unresolved/conflict save state
+not ok 7 - lost: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 8.930875
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:39'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 4
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 4
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:467)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: conflict: import changes only local draft and preserves original unresolved/conflict save state
+not ok 8 - conflict: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 9.725042
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:39'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 4
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 4
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:467)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+ok 9 - an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+  ---
+  duration_ms: 5.025583
+  ...
+# Subtest: omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+not ok 10 - omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 8.558834
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:67:51'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '8' !== '11'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '11'
+  actual: '8'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:69:190)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+not ok 11 - specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.568834
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:67:51'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '6' !== '13'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '13'
+  actual: '6'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:69:264)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+not ok 12 - clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.433833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:67:51'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    '6' !== '13'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '13'
+  actual: '6'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:69:264)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: cancelling Import leaves the current Plan draft and raw Import input untouched
+ok 13 - cancelling Import leaves the current Plan draft and raw Import input untouched
+  ---
+  duration_ms: 7.555417
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 2
+# fail 11
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 199.259083

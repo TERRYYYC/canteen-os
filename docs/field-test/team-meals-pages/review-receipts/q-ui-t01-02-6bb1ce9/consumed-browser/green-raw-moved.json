@@ -1,0 +1,65 @@
+{
+  "hash": "#/admin/plan/team-week",
+  "inputs": [
+    {
+      "focus": "filter-date",
+      "type": "date",
+      "value": "2026-09-14"
+    },
+    {
+      "focus": "servings-1",
+      "type": "number",
+      "value": "13.7"
+    },
+    {
+      "focus": "servings-2",
+      "type": "number",
+      "value": ""
+    },
+    {
+      "focus": "add-date",
+      "type": "date",
+      "value": "2026-09-14"
+    }
+  ],
+  "phase": "dirty",
+  "rows": [
+    {
+      "dish": "first-dish",
+      "index": "1",
+      "invalid": "true",
+      "servings": "13.7",
+      "slot": "2026-09-14 · 午餐"
+    },
+    {
+      "dish": "second-dish",
+      "index": "2",
+      "invalid": null,
+      "servings": "",
+      "slot": "2026-09-14 · 午餐"
+    }
+  ],
+  "selects": [
+    {
+      "focus": "range",
+      "value": "day"
+    },
+    {
+      "focus": "dish-1",
+      "value": "first-dish"
+    },
+    {
+      "focus": "dish-2",
+      "value": "second-dish"
+    },
+    {
+      "focus": "add-meal",
+      "value": "lunch"
+    },
+    {
+      "focus": "add-dish",
+      "value": ""
+    }
+  ],
+  "text": "返回\n排每天的菜\n粘贴导入\n有未保存的修改\n资料版本: baccc6d1\n\n填写正整数或留空\n\n份数可以留空；保存会保留整份计划，使用新格式。\n\n查看范围\n全部日期\n一天\n一周\n日期\n2026-09-14 · 午餐\n菜品\n选择菜品\n第一道样本菜\n未录成分样本 · draft\n第二道样本菜 · draft\n份数（选填）\n移除\n\n填写正整数或留空\n\n菜品\n选择菜品\n第一道样本菜\n未录成分样本 · draft\n第二道样本菜 · draft\n份数（选填）\n移除\n日期\n餐次\n早餐\n午餐\n晚餐\n菜品\n选择菜品\n第一道样本菜\n未录成分样本 · draft\n第二道样本菜 · draft\n加一道菜\n查看材料候选从已保存计划建立采购清单\n保存计划\n去发布"
+}

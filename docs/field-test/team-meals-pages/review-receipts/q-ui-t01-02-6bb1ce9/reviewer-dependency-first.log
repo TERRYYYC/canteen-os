@@ -1,0 +1,6 @@
+Reviewer tool output, preserved from the initial inline comparison (not a product failure):
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+AssertionError: {'addedModules': ['/private/tmp/canteen-q-t01-review-6bb1ce9/packages/web/index.html', 'pages/admin/plan-import.ts'], 'removedModules': ['/private/tmp/canteen-q-t08-review-5049f0a/packages/web/index.html']}
+
+The first normalizer stripped only src prefixes and therefore counted the two archives' index.html paths as different modules. The corrected utility normalizes the archive root for every module before comparison. It changes no production, graph, budget threshold or emitted bytes.

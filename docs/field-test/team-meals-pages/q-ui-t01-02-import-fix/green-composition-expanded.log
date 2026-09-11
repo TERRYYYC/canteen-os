@@ -1,0 +1,150 @@
+TAP version 13
+# Subtest: real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+ok 1 - real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+  ---
+  duration_ms: 28.476041
+  ...
+# Subtest: deliberately omitted local count is retained when another meal is imported
+ok 2 - deliberately omitted local count is retained when another meal is imported
+  ---
+  duration_ms: 10.983458
+  ...
+# Subtest: local added/deleted rows and whole-plan metadata survive a new import
+ok 3 - local added/deleted rows and whole-plan metadata survive a new import
+  ---
+  duration_ms: 10.530417
+  ...
+# Subtest: sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+ok 4 - sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+  ---
+  duration_ms: 9.679
+  ...
+# Subtest: A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+ok 5 - A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+  ---
+  duration_ms: 12.549459
+  ...
+# Subtest: import edits the original saving document; its late ACK cannot consume the later merged draft
+ok 6 - import edits the original saving document; its late ACK cannot consume the later merged draft
+  ---
+  duration_ms: 13.349666
+  ...
+# Subtest: lost: import changes only local draft and preserves original unresolved/conflict save state
+ok 7 - lost: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 9.674417
+  ...
+# Subtest: conflict: import changes only local draft and preserves original unresolved/conflict save state
+ok 8 - conflict: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 10.045375
+  ...
+# Subtest: an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+ok 9 - an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+  ---
+  duration_ms: 5.160708
+  ...
+# Subtest: omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 10 - omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.23525
+  ...
+# Subtest: specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 11 - specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.709125
+  ...
+# Subtest: clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 12 - clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 10.153542
+  ...
+# Subtest: cancelling Import leaves the current Plan draft and raw Import input untouched
+ok 13 - cancelling Import leaves the current Plan draft and raw Import input untouched
+  ---
+  duration_ms: 7.747542
+  ...
+# Subtest: omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 14 - omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 8.128709
+  ...
+# Subtest: specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 15 - specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 8.303417
+  ...
+# Subtest: clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 16 - clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 9.469875
+  ...
+# Subtest: a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+ok 17 - a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+  ---
+  duration_ms: 7.34175
+  ...
+# Subtest: a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+ok 18 - a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+  ---
+  duration_ms: 9.361583
+  ...
+# Subtest: route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 19 - route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 8.228125
+  ...
+# Subtest: language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 20 - language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 8.971917
+  ...
+# Subtest: input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 21 - input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 8.339083
+  ...
+# Subtest: route: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 22 - route: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 4.980458
+  ...
+# Subtest: language: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 23 - language: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 5.252584
+  ...
+# Subtest: input: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 24 - input: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 5.120416
+  ...
+# Subtest: auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 25 - auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 4.973042
+  ...
+# Subtest: failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 26 - failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 5.296917
+  ...
+# Subtest: unknown save recovery verifies its original request and leaves the later imported draft dirty
+ok 27 - unknown save recovery verifies its original request and leaves the later imported draft dirty
+  ---
+  duration_ms: 11.283875
+  ...
+# Subtest: repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+ok 28 - repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+  ---
+  duration_ms: 9.925
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 319.398167

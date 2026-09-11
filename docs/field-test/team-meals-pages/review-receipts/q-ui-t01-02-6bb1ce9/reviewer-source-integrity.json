@@ -1,0 +1,934 @@
+{
+  "reviewerIdentity": "Codex /root/plan_review (original nonauthor)",
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "acceptedSourceRef": "docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+  "acceptedRevision": "85be50155723114256d8e597160e7db7a8c2995a",
+  "acceptedSourceSha256": "6dd6585bcd5634c1d879bd5371c13ce4c5e7d8da6c73f030d9da52a7d2e4cef3",
+  "packagesTree": "38957ad074a6b7d102e730023613c9a5bb153ed7",
+  "trackedPackageFilesUnchanged": 229,
+  "packageIntegrity": [
+    {
+      "path": "packages/core/package.json",
+      "sha256": "4a25d3cd6e0251339e5838c6192ac433f1d387c02d0a64d6589d2c090ac9e165"
+    },
+    {
+      "path": "packages/core/scripts/generate-field-test.mjs",
+      "sha256": "4c9fd5ce31157288149e700b3bf9ceb773277d8ab6e1357a444e486803585cc4"
+    },
+    {
+      "path": "packages/core/scripts/generate-week41.mjs",
+      "sha256": "c56c769cd2499ca1764e69bfc8f36976f7963fd246a55c603dc4092a1edccaf5"
+    },
+    {
+      "path": "packages/core/src/formats.ts",
+      "sha256": "a09e9eec5bc55b8f079cc0ea185166e2b842e25ba99cccaa468f096a68bfa134"
+    },
+    {
+      "path": "packages/core/src/import/parse-plan-text.ts",
+      "sha256": "761672c47471a3b4811480b4fd4b3b92adae123476e66321011f67c1a1822e3a"
+    },
+    {
+      "path": "packages/core/src/index.ts",
+      "sha256": "c3921fbb28a0bb973957bc6172ce777954e5e9d184a959844c48524289af5e7e"
+    },
+    {
+      "path": "packages/core/src/procurement/engine.ts",
+      "sha256": "d0be0303897a8eb2445935a48ece003a826629484924617932dbf1f7e8eabce3"
+    },
+    {
+      "path": "packages/core/src/render/menu.ts",
+      "sha256": "87471f41d1cf3d8fea700d4b491ac7c2398314d49f435d4ef1b994e711c71cd9"
+    },
+    {
+      "path": "packages/core/src/render/prep.ts",
+      "sha256": "193eef025fc872695732d14ec9d80ce10a0be2f7140b5eddb7d2e44e5471e37a"
+    },
+    {
+      "path": "packages/core/src/render/shared.ts",
+      "sha256": "59b913ff46f83738deac76c04ba75acbd656a811fc146fbd4112fc96cea36e49"
+    },
+    {
+      "path": "packages/core/src/sheets.ts",
+      "sha256": "8706aff4e99b21fa7533ab9d7a13ed3f45f964691900007e4363ee4e901ffbcd"
+    },
+    {
+      "path": "packages/core/src/team-meals.ts",
+      "sha256": "669b407cc5754ab533372a7b963ff0465e8b8223645ca3a8b1cc4ba629eabe40"
+    },
+    {
+      "path": "packages/core/src/types.ts",
+      "sha256": "4c434f090b54b263e7f408d4e70c0ef965d1915c6ab8b13a898eecb19e1eafef"
+    },
+    {
+      "path": "packages/core/test/engine.test.mjs",
+      "sha256": "ced23a4a917611d004c661187d742095664e3588987a4a2f8b7803d462bd273a"
+    },
+    {
+      "path": "packages/core/test/parse-plan-text.test.mjs",
+      "sha256": "113e6f9db1a2bdd1ad11fe4c5788f44b438f9485096567d85000861505e7fc1f"
+    },
+    {
+      "path": "packages/core/test/schema-contracts.test.mjs",
+      "sha256": "daf6efc6bfdbe96a4ccacfe1a386d0418d3c4565bbf006d86f03dee0380f803c"
+    },
+    {
+      "path": "packages/core/test/sheets.test.mjs",
+      "sha256": "ddf52add9b874fcd8a0f556f76a1d3acf0d8d51422a179decaee8b6e76056d29"
+    },
+    {
+      "path": "packages/core/test/team-meals.test.mjs",
+      "sha256": "5685726b101f81e4a0194b615c52aa77df3659e5c234474a94e800bc4176683e"
+    },
+    {
+      "path": "packages/core/tsconfig.build.json",
+      "sha256": "f7eb23c5e11abb1adb89787355f172c57557b7128be878bd030e3a8649f71146"
+    },
+    {
+      "path": "packages/core/tsconfig.json",
+      "sha256": "05315002e6fa8754362bda394b1d373c820d2b2f903d327ce15ca76c14fae0ca"
+    },
+    {
+      "path": "packages/web/.env.example",
+      "sha256": "5cb0b52e44a525b569eb99dcfb620efbdaca0f059df87193ad9207b8bdbf45a1"
+    },
+    {
+      "path": "packages/web/index.html",
+      "sha256": "7bf20aa3fea9bf6521ecae1b7ba6c253bf1293549ef016d1cbbf549346d03ef9"
+    },
+    {
+      "path": "packages/web/package.json",
+      "sha256": "b9c0c34195eb5fddf0d064d97e28b909b188f53e2d181d9be4ab7948064073b3"
+    },
+    {
+      "path": "packages/web/public/data/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "packages/web/public/icons/icon-maskable.svg",
+      "sha256": "c9a56a357b958de4e66070cdfc62cc066e4c65a87eeffca82807d4d00ff9b233"
+    },
+    {
+      "path": "packages/web/public/icons/icon.svg",
+      "sha256": "e12e5593b537adc8614dd916c03f1a3992335fb7f7c09cc2675aaac0d20a7046"
+    },
+    {
+      "path": "packages/web/public/qr/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "packages/web/scripts/gen-icons.mjs",
+      "sha256": "3afb2f0f8f87b7d9993b520b559a02d927d0089bff68dc9ec6948ab45ec98105"
+    },
+    {
+      "path": "packages/web/scripts/gen-qr.mjs",
+      "sha256": "90a550a8ae4c415cbb851066c1a30b19c7f246c9cd7364f3b7fd194bb1948a12"
+    },
+    {
+      "path": "packages/web/src/admin/kit.ts",
+      "sha256": "b3a0b378cfa1a94932552f2cb072d4b2c04b75f274535ff38aa1b04ebc233de5"
+    },
+    {
+      "path": "packages/web/src/admin/store.ts",
+      "sha256": "7082f80729b436b1c21db4e91f100282d22644ec19d2e8540de56eea59585b2d"
+    },
+    {
+      "path": "packages/web/src/admin/token.ts",
+      "sha256": "bc52456bd287fa5509caf501dc9f095f131d6ef60ac799d8585e4a9291f58f51"
+    },
+    {
+      "path": "packages/web/src/api/client.ts",
+      "sha256": "702da78ecb2384b16c3307b3db8aa844f989a22b5096642feacec09d5a6c2e4a"
+    },
+    {
+      "path": "packages/web/src/api/mock.ts",
+      "sha256": "d3fe30e67dc29daa70eb41c0d2de56cf804947d0551bedd75f4f95c62fde9c8f"
+    },
+    {
+      "path": "packages/web/src/api/team-meals.ts",
+      "sha256": "ee8992e5eb08ffb44e43abcc86a3995f387ebd89425707e16df3b09f4f79c256"
+    },
+    {
+      "path": "packages/web/src/api/transport.ts",
+      "sha256": "4db2955217cb6cdeaa49570ca07f122c327cff06f6b350959dfe86be3d103ce5"
+    },
+    {
+      "path": "packages/web/src/api/types.ts",
+      "sha256": "ed75628e930c0afcafd6f632fd551bbd2546d94b4b1b37a9d2ff96cc9bec5561"
+    },
+    {
+      "path": "packages/web/src/data.ts",
+      "sha256": "5cdfab89948ca5bb0859f0b744368083d9adc7f2d720779172c897196dd3cd00"
+    },
+    {
+      "path": "packages/web/src/dom.ts",
+      "sha256": "3eb6663c19dfee4093cefa63d5bd95eb041213d0e085da976488a106e4252510"
+    },
+    {
+      "path": "packages/web/src/i18n.ts",
+      "sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+    },
+    {
+      "path": "packages/web/src/main.ts",
+      "sha256": "60673d40a9e8256addab574cb618e0888312662cb17d9eb3554c01311a0656b1"
+    },
+    {
+      "path": "packages/web/src/pages/admin.ts",
+      "sha256": "23ec854967e90441116dd90c79844044dfbc6b151f3f8df51d60f52bd334da74"
+    },
+    {
+      "path": "packages/web/src/pages/admin/admin.css",
+      "sha256": "0aa9261d6b2be0fd04234aff551ca00334f427febf1c0182aaf9c80feea866e9"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.css",
+      "sha256": "c761a6e4b724203554a5eb07e401242c9139c76efe8eccae8af52725cdfe30f3"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.ts",
+      "sha256": "dfd89858c706f5f80d238a2c614622436fbb75fd3e0bf27e5f2e44c62e49c4d9"
+    },
+    {
+      "path": "packages/web/src/pages/admin/editor-actions.ts",
+      "sha256": "36e2d42b21f4e5f3d691a202fa5f935cf2e290f4c0cb72ab8ad2dd1db31c4255"
+    },
+    {
+      "path": "packages/web/src/pages/admin/editor-image.ts",
+      "sha256": "4f8d413579565fa5af165fb36a95b9fbc808456006bd84eb82adf127d4db1d1a"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.css",
+      "sha256": "e1fa522d3c56066a6cf730993bd7bac64191b8913ce97d1124ae29c87c863dfe"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.ts",
+      "sha256": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.css",
+      "sha256": "c0ed3104b1af3bc48a4d1a805138b552163d12013741d9f0e7e9ba3e8aeb1b83"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.ts",
+      "sha256": "34bd052707bdba898eb2b0902a5d280afbbec3798c56c1eab5a6bf641f67dd70"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-draft.ts",
+      "sha256": "3902ebaa47cc8a676eb272587a6683d64eac7bc56d3dccb71b115f43beb4995f"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-form.ts",
+      "sha256": "2a356e1f7b89938b78c54b1bf2e8ccff9134a515e3cd269f57648ef742422d42"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.css",
+      "sha256": "a8d08e4c6983b567647678db8b42797fda0efa351b7badd3ada44c280e465fc0"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.ts",
+      "sha256": "26abc05a2a7dc24e9ace4c74bbf4c50c8091bae918083fa1dc2e1e38ae88e81f"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-form.ts",
+      "sha256": "f6e456359f74250e6e147a881f8c0e5cafd1143c176583eddc95f05a6489e48f"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-import.ts",
+      "sha256": "db94625717b353f66d52bf8e22bcd268f9f3876b0c0e75883db0b8e12d51ad5b"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.css",
+      "sha256": "53abb92d56805e1fe3e9360c0ef3af2a305b68fdb8f36e975b2ccda8a19a4b39"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.ts",
+      "sha256": "e914c3836142ea5026cfe693ef86bbd479bbeea95f19b329591f435cc8ecbd50"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.css",
+      "sha256": "51fde411397144af5353c598d0e0af9185761212023fe0c8a7bb423ddb388cb5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.ts",
+      "sha256": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29"
+    },
+    {
+      "path": "packages/web/src/pages/admin/servings-input.ts",
+      "sha256": "a785c055a3701ce40baac0157f9d00e02699dae3305a0d1092aa14522bd8cb24"
+    },
+    {
+      "path": "packages/web/src/pages/menu.css",
+      "sha256": "825305f00ddf3acb6df77f0a6bb5ca581369256178eac4f1ba13bce84e2b20f8"
+    },
+    {
+      "path": "packages/web/src/pages/menu.ts",
+      "sha256": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d"
+    },
+    {
+      "path": "packages/web/src/pages/prep.css",
+      "sha256": "68a26bea91433c8c4fc8943532cdc4940080c4210e26e53a08bbc0de14fb4572"
+    },
+    {
+      "path": "packages/web/src/pages/prep.ts",
+      "sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+    },
+    {
+      "path": "packages/web/src/pages/published-meals.ts",
+      "sha256": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-form.ts",
+      "sha256": "0ba62e8ca2860a9d009f02ea2c4c1fb909dbc10b766bdfdb42d4f6f3121a4089"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-list.ts",
+      "sha256": "40ffbee4eab329de0fc02b139517ce8cbd02e2dc003379e59be3c083e20e92b0"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.css",
+      "sha256": "36736377724983eeba425cbd02006ba662276f994bb42511ef3c89ae9ea6fb0e"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.ts",
+      "sha256": "c814eeda5bfb5cec86a280675e36545a613b498971acdfde46779876ce31c382"
+    },
+    {
+      "path": "packages/web/src/pages/qr.css",
+      "sha256": "7653128483b376d6066f24a5055aeeabd83902e0d0494e57ac549afabcdcbce0"
+    },
+    {
+      "path": "packages/web/src/pages/qr.ts",
+      "sha256": "c1e78ada7901a28a086d5f24c05148fcf67e96b3691e07787d7a69819af2e755"
+    },
+    {
+      "path": "packages/web/src/pages/shopping-copy.ts",
+      "sha256": "d09f9ff311a54089452693fc769c309f6b51ecfe44cae40083e4c8381d1377d1"
+    },
+    {
+      "path": "packages/web/src/pages/team-details.ts",
+      "sha256": "7e11c51482927ac11b2e75d8604e01a3de8d6fadd9b0e2db4d4fc8ccf43c2aab"
+    },
+    {
+      "path": "packages/web/src/pages/team-ui.ts",
+      "sha256": "60835d22ba43f44bec30505eecb0b2d817498e95a87039ad7ec14358fb117832"
+    },
+    {
+      "path": "packages/web/src/pwa.ts",
+      "sha256": "4711d76dafe7d32c171c2de2c41285020a13690c1977c05a228007fea0b7173a"
+    },
+    {
+      "path": "packages/web/src/router.ts",
+      "sha256": "cc73d98ce769ab37e379f554e5c93bd50ad58275a7bce8381c97a5b6d2173812"
+    },
+    {
+      "path": "packages/web/src/shell.ts",
+      "sha256": "29621bc8ba8d4c5bc7ea3121817b4d63216b232e18dcda0777f1454a26a63373"
+    },
+    {
+      "path": "packages/web/src/styles.css",
+      "sha256": "9dd667db3c8ffe092ec50a9c2553998fed94126534a3397a3a46ee89c13ac6b3"
+    },
+    {
+      "path": "packages/web/src/theme.ts",
+      "sha256": "6befd39469c0e718b726fadbb8cf7785f2e0559f0d8e98fbab96220a7f7cfd34"
+    },
+    {
+      "path": "packages/web/src/tokens.css",
+      "sha256": "32e2eea759ebe4e36ed43fd5766b5e9607ef61444de3428c2fe95335ac86ddcb"
+    },
+    {
+      "path": "packages/web/src/types.ts",
+      "sha256": "4ce433ac1c809f09d878aa51270ad2384e04df7fc0efd7005f847117c0c01094"
+    },
+    {
+      "path": "packages/web/src/view-models/edit-session.ts",
+      "sha256": "dcfc2409ec119999e9d9b89542218d9d4c3c10eecea156730e965f7eafb70ec1"
+    },
+    {
+      "path": "packages/web/src/view-models/published.ts",
+      "sha256": "184aa5a1f29f9c9df9f03f4755e09cb4cad00b8bc660f8faefd0fe325fdcc90b"
+    },
+    {
+      "path": "packages/web/src/view-models/reload-safety.ts",
+      "sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+    },
+    {
+      "path": "packages/web/src/view-models/team-meals.ts",
+      "sha256": "87259084084498df170cbe49be0ede700729aa1136d91ddf1902b869e1421af7"
+    },
+    {
+      "path": "packages/web/test/api-client.test.mjs",
+      "sha256": "ec510df1f58dc2254cdb8d556324dfb716c15507d3ae581e82e941ad27b58262"
+    },
+    {
+      "path": "packages/web/test/auxiliary-auth.test.mjs",
+      "sha256": "514a6c80cae7235109d22c650cae75405ee8343b14c4d7cb169808df98da8672"
+    },
+    {
+      "path": "packages/web/test/c1-auth-pending.test.mjs",
+      "sha256": "6714fde6abb6a99fd8d9f887bf1d676818ed6768d5b2332890f4d79da13aff84"
+    },
+    {
+      "path": "packages/web/test/draft-store-auth.test.mjs",
+      "sha256": "7f0dde4d56c5da9682ee656d1f77637dfd0fa077e1794186b3d140a7260913b8"
+    },
+    {
+      "path": "packages/web/test/e2e/team-meals/api-contract.test.mjs",
+      "sha256": "4da18d1b169968e1bb4312a781ecf08c17cfecc82ac06fce0bf48039108e21c2"
+    },
+    {
+      "path": "packages/web/test/e2e/team-meals/evidence.md",
+      "sha256": "b8bf09a2ccbe4926023b2fc27e8f47cb6c8e6b510e1ae9f08716270a3ab1d37f"
+    },
+    {
+      "path": "packages/web/test/e2e/team-meals/helpers.mjs",
+      "sha256": "74d88ee31d119175860358b82b28100de16e33f510fe933e6d8cb623f8a82be2"
+    },
+    {
+      "path": "packages/web/test/edit-session.test.mjs",
+      "sha256": "481e4baeecd90f7260556ad571119cc13318378e0a9d85cc8ddc1a1985cd1b4c"
+    },
+    {
+      "path": "packages/web/test/main-publication-lifecycle.test.mjs",
+      "sha256": "804932d141792792a11ccd5f4a5e6c330e1cbb012a6cd8541478f9adb270d534"
+    },
+    {
+      "path": "packages/web/test/main-route-loading.test.mjs",
+      "sha256": "160c6e5dbd542e2ef7f02e6422783c9bce9b0b69fd1528c431be66bf8aaf3bfd"
+    },
+    {
+      "path": "packages/web/test/published-data.test.mjs",
+      "sha256": "d0ed661979b96382e2412535f0d5c639bd801d16f557af82714ca9cb30bd1fec"
+    },
+    {
+      "path": "packages/web/test/published-fixture.mjs",
+      "sha256": "6b89c275029648e54046653a70925857f0266dfa576da62f70544e03b8c541a0"
+    },
+    {
+      "path": "packages/web/test/published-offline.test.mjs",
+      "sha256": "88d3f747390a8a85f28f9e1337e7f7b6953f03cbccc2c2b5e6ca03f203aae148"
+    },
+    {
+      "path": "packages/web/test/pwa-browser-server.mjs",
+      "sha256": "605cc0b7410b3b840fa70706bbab005418c54af5066714943a48df43a3b7df4d"
+    },
+    {
+      "path": "packages/web/test/pwa-browser.html",
+      "sha256": "76520e78b8bb00050141a44b9a52a1ae732aef0c51bcea93fcebcd79d1fa21ef"
+    },
+    {
+      "path": "packages/web/test/pwa-integration.test.mjs",
+      "sha256": "3075b85b2763890a9b4c9f07230d2655ee0b5f699c0f46a855adc9354edbd967"
+    },
+    {
+      "path": "packages/web/test/reload-safety.test.mjs",
+      "sha256": "069cd962fbf4733883683e426f955273bb5ee0dd5a00c52bddc36464e367d769"
+    },
+    {
+      "path": "packages/web/test/shell-navigation.test.mjs",
+      "sha256": "02864e27f0301d95812b5774657e8cc66a0446f4c32d22a10d60a35df47a6d35"
+    },
+    {
+      "path": "packages/web/test/team-meals-api.test.mjs",
+      "sha256": "61139df974b3a961a56d85d8be802ac06cf1e11577dbf72baf6170ef4e7a3da7"
+    },
+    {
+      "path": "packages/web/test/team-meals-browser.html",
+      "sha256": "f0cac5edb242644fd7bf31f3ad6bd30756be1161af5919979a3a6fb8e1693687"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-ack.test.mjs",
+      "sha256": "39142594629a2612c44befbc4fbd8346157cc12692e8ecf0fc7f3f2b99492261"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-admin-coverage-browser.html",
+      "sha256": "84b0f29ae57c041862ecf9e480f4d5484e2ed7a69963f88ef742b0c56b31adcb"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-browser.html",
+      "sha256": "83ef11469921e59659b95052493e28fe3a2174508363851a9fc5a81b0b4e7858"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-bundle.test.mjs",
+      "sha256": "65d18cbd056e35c32682745401e5bcab9d81df9fd09d8646772d84033786d3f7"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-details-browser.html",
+      "sha256": "0a3e8360028e7501fc7272d129cc3c7f9b089cbd250fca0ef326d83ae6409f22"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-details-probe.ts",
+      "sha256": "1d2e5b968d1c4bd0584bf9bbc615fac4a4090c1cf38cb3a47eee500806e7f1cb"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-details.test.mjs",
+      "sha256": "9a13f6d82edfd1c9d5a6346313b7dd9751795c5dca61c930773e2918d6caddbf"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish-aux-browser.html",
+      "sha256": "ebe3e74fa47262874a1257d4128b681c2595b996d1477a054599d7f7e3220996"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish-browser.html",
+      "sha256": "bb150e8007204d85bdc02d1e57c9b681099d2d1e898b26a4904f09da6bea2977"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish-pending-review-browser.html",
+      "sha256": "e0249fa3a60a0237c29fc7f5de295c2e9851756253e4857057f3966b23f1accc"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish-slug-review-browser.html",
+      "sha256": "59cb3c04dabc2e9e28ff2b17de4dfb8aeb982ab90c6198b01dc8706e9def1d0d"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish-validation-review-browser.html",
+      "sha256": "6202757a74d08a7d9c8a0583dfd9325778bee1766fcf74db2e600c0fefd317f7"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-dish.test.mjs",
+      "sha256": "5fe53e20f870d154456a6036f8be0d7158b1a900d28f0664250228bd20159f3b"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-guard-browser-server.mjs",
+      "sha256": "e4d1798a1d9bd5c2bbb0c585c2907b8034967b965790f66123c2d61dd5df1223"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-guard-browser.html",
+      "sha256": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-guard-harness.mjs",
+      "sha256": "296ca58bc4b4887a7bb01a2104dc611be60028befcc4f8432b7e6b11496cf5cb"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-home-browser.build.mjs",
+      "sha256": "62fd9342e244d89e8e873248cb4e46b13c1315558627b1d9c9b02c700e9898b0"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-home-browser.generated.mjs",
+      "sha256": "6347ae7003dbb2a05f412466917b091bc1461228cd37c6d59915284305841572"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-home-browser.html",
+      "sha256": "24289003a4011a79e7e98658699e1a12570bae2b0e690b88508b754309cad733"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-home-coverage-browser.html",
+      "sha256": "5980e287700b397bb59dd4ae5352c6903b6f09d3f6bdcbe280b22606595a324b"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-home.test.mjs",
+      "sha256": "eb5a9521a713d8ce2b5a9c2e28ef6b55063fdd88870dc6896f71f7ce457cd191"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-auth-browser.html",
+      "sha256": "adc85c6a4897b9c0cb64d7d50488e8694631c92568fec90747acac3f750905fc"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-auth-probe.ts",
+      "sha256": "17c78ddfa94c87d5a22db3872b90b136655fd216a62cd16418b866134f2f490f"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-browser.html",
+      "sha256": "78ae0b1812f8e6c92aa451928557a785b205f69ad4c160e4d1226fa88b2a1029"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-ingredient-aux-browser.html",
+      "sha256": "0ad1d4af93866e3a4495557497d9ffd55062cc038fd42246ab7fe46655467cc1"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-owner-browser.html",
+      "sha256": "49298f25ee49ef6da778d7b54a80ce98efcfaa09d5c4d32c382806e11c8d6089"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-owner-probe.ts",
+      "sha256": "f04017a269c33b7a7865e1c601313f8b922c12159530e089bb2c99f5fcf53ea5"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-plan-raw-review-browser.html",
+      "sha256": "51861e4dc2484ca0563790f897be6ad76fb364699ef49ba8292c61844bf1e5a5"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import-plan-raw-review-probe.ts",
+      "sha256": "ffab87f024bdfb617eae3afc6dfed34251a12af8ce111b3fe39504c57975aa87"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-import.test.mjs",
+      "sha256": "6ae54cf9357d288d0d08691d4f014a872d8e60f25a161235bece92b2ee7be589"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-ingredient-browser.html",
+      "sha256": "dd3b096337833505b5699915af274e6d097a26e12fc2f3cae7e236e21832486a"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-ingredient-review-browser.html",
+      "sha256": "6e9e7a357d8cf5e04ce83b301237816ab0f5713da101621d950cdf0b7d78f584"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-ingredient.test.mjs",
+      "sha256": "a5dce403e7641c8e1e424c5ecfce63b2d0d58af039823af45c84b9f1e1396407"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-menu-prep-browser.html",
+      "sha256": "cdbc70c9d0dd9b1b03144bc4be603e42158540f7b7be77cca35711db507261d5"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-menu-prep-review-browser.html",
+      "sha256": "62054b652d8c2100ea7a19b3723440cd053a538428d6e9d6e8884faac981c62e"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-menu-prep-review-probe.ts",
+      "sha256": "eb3871917893c707c547e372b1d6a8623ca6e1a0b37b3a5cbdea4c882aaabe2d"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-menu-prep.test.mjs",
+      "sha256": "1ed7e7b107cbdb9d57357546429a72ee4bf63d15b6d53b84b6b74379743efe4b"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-peek.test.mjs",
+      "sha256": "1aa0eea4fbd59f485e38289969883761fd7770c35b2dab1f196b5349ab390cb1"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-aux-browser.html",
+      "sha256": "b57c6898014042229076fbc640dfd940f590a70a24c57fb07f0d518de8fa111b"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-import.test.mjs",
+      "sha256": "9804229e15866a05a8009007f0fb91c8e2341d39e914e873d5764c2a29f61be8"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-raw-browser.html",
+      "sha256": "a386acf4aa81a0d14e651f33b365b1ae7088c655ed932098aadd73015255f674"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-raw.test.mjs",
+      "sha256": "4e9522c9268695afeb345de0364106d0a9c0bcc0455f3f3f2f2e6778cd0f292e"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-review-browser.html",
+      "sha256": "aeee1a4dc8a9399cfc7fa2358542fb3dc30e8dd1284cf55f8bb5343c9feabdf7"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan-session.test.mjs",
+      "sha256": "4a756bd9e4ec2ed92292afe0af8ead8982ed3f9b1bb477e7d658ada208da25ee"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-plan.test.mjs",
+      "sha256": "472f1355e4bd8bb837ab3fef2ac3654e2e9b17bde399b1bc80f1aed7e6618ded"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish-ack-review-browser.html",
+      "sha256": "d5bebc677abcedf70b27c37fcba2c88917ecc0dd001215396f998a1650a68c9d"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish-aux-browser.html",
+      "sha256": "146bb2ee3122cc29f20863ba4b025cf20d33a8f27bfb67a81534c8b9114e53a4"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish-browser.build.mjs",
+      "sha256": "2bb25be607c12f9fde8f98de66d5bc0e3e7f327bb7dce3ac933e6e2b74672786"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish-browser.generated.mjs",
+      "sha256": "3d21e63345952fa9b0a73a5ab0b3a7058573541a96afb950078088dffdc7997c"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish-browser.html",
+      "sha256": "e1c1d3bc16505762e98bc7f3a40162deda327d844cf049e02e7d510c8b96a376"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-publish.test.mjs",
+      "sha256": "3a16ea8b52a409a8b167a684fd2957853423281c73ba6e049ca81340d840705f"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-published-browser-server.mjs",
+      "sha256": "21a5037a97ff694ab0fcff0b8cfafa0b08ff5fb8ca666dec4fe57e15cafa69de"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-published-browser.html",
+      "sha256": "0e677b5085e0eed2fe0d62e851ffb1f4fc70a9791aaa8c067f993c33e6799efb"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-published-fixture.mjs",
+      "sha256": "f4de0e769bc859e75c6a71561d9e73c824241f96a95d0f9643d5f57a8a8dca73"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-published.test.mjs",
+      "sha256": "3911c7c486d8ede8b6b732c455e6b1e8c1f590980deedd7ce6bf3dcd5a56e0fa"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-browser.html",
+      "sha256": "03db306a98ef01f25bac0b7fb6caa0b06b7a1f2c93fb164514a7e2ae83d63d91"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-copy.test.mjs",
+      "sha256": "4aae3501804f09a15941b634b4b30bba51d535a351b910f950802ea5179a3cb0"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-raw-browser.html",
+      "sha256": "4f974674e44e913090ac11bef2be9f4f7473e4aae02999290b7bb05fb3d72735"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-raw-regression-browser.html",
+      "sha256": "190d75a082e58818c01872f8fce1ac077a53fd97622e324540800b6b1d67182e"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+      "sha256": "32147748b0a57eb5b476f6cc5883f7c294bb5a62af6f007c92fa2c72f84a0c5f"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping.test.mjs",
+      "sha256": "7165a3ee1a826ccbcb242d077a093337b7a34d2bbd020d3da21250f514e7e00e"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-unload-dom.mjs",
+      "sha256": "847b9d808c41b6e07d3393c439efcfd6e6d455701e1047fd9d66f5f6184f4a01"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-unload.test.mjs",
+      "sha256": "509a58bbda9627cf68f5ba1ea982b78694d5065b0881df23107a6eec02f4ad91"
+    },
+    {
+      "path": "packages/web/test/team-meals-view-model-browser.html",
+      "sha256": "3de23e4a2f23125b89f04b41963198c9a32e5f023101f52c77d5883bb524bdff"
+    },
+    {
+      "path": "packages/web/test/team-meals-view-model.test.mjs",
+      "sha256": "7bad146617eac6898b0eb446c5d93152d46744fe9f5f86a975649a56202b2e2c"
+    },
+    {
+      "path": "packages/web/tsconfig.json",
+      "sha256": "96490b737c5135c695a8a7653ffa9ee8abb35dbe905ec3ddbc9a2610293cb361"
+    },
+    {
+      "path": "packages/web/vite.config.ts",
+      "sha256": "5fde595ff134d66d75c03f9388dcb66478c257ef97c655bb9a123c8448e50d3b"
+    },
+    {
+      "path": "packages/worker/package.json",
+      "sha256": "a56d9affd4e66ac670df7c1d7a680b9f9ee913a6478f721ece09183207cd748d"
+    },
+    {
+      "path": "packages/worker/scripts/gen-validators.mjs",
+      "sha256": "0c0f50bc66a5f1ec0f344e7504018da35255dad42d56ab869b6c6ca502469222"
+    },
+    {
+      "path": "packages/worker/src/asset-path.ts",
+      "sha256": "43905a60ac320e20529156f25d655ebad4240d99f56fb759fb90ceea9d0bf052"
+    },
+    {
+      "path": "packages/worker/src/auth.ts",
+      "sha256": "eec4d27399e8aad2a12bb95c297ba7713926671a3c534120e85251890e63e3b2"
+    },
+    {
+      "path": "packages/worker/src/context.ts",
+      "sha256": "31f7a69f791d2bf1fb63b8eb1cc6311c40f942c864b6d66b8632330df1c2095f"
+    },
+    {
+      "path": "packages/worker/src/endpoints/asset.ts",
+      "sha256": "a679a33f33faff2c43234edaea753cd712b846536cc3cc953905bf8de0a913a3"
+    },
+    {
+      "path": "packages/worker/src/endpoints/entities.ts",
+      "sha256": "e4b71de54eb9033f70092005bb593553f06bcae7eecc1ec16aada0817f6e1fc0"
+    },
+    {
+      "path": "packages/worker/src/endpoints/image.ts",
+      "sha256": "cb06b7014d181811bec0757003d00d35c627efff21a7eee424860a852f64edd7"
+    },
+    {
+      "path": "packages/worker/src/endpoints/publish.ts",
+      "sha256": "9fb68af6287f560690e16d5d2613de0092a118e84a55e2f5093eb1ae159171f4"
+    },
+    {
+      "path": "packages/worker/src/endpoints/read.ts",
+      "sha256": "cb84e256d8ffd0bdcf506d0cc14c995fedb6ebf236f7c39fbd13941edc72829e"
+    },
+    {
+      "path": "packages/worker/src/endpoints/rollback.ts",
+      "sha256": "86642e36e7ae9de75df4598ff9eccc91ef034c819718cbe1ac4f85408ab303e6"
+    },
+    {
+      "path": "packages/worker/src/endpoints/shopping-list.ts",
+      "sha256": "bc02e13d60d0149a1fc183f6a402412f67a57c7fac6f7229d130526b04d4d271"
+    },
+    {
+      "path": "packages/worker/src/endpoints/translate.ts",
+      "sha256": "ff74a828215e44bfd635ca4d327a212084e17a6e4795294e0c71cea9a2f2df9a"
+    },
+    {
+      "path": "packages/worker/src/github.ts",
+      "sha256": "ffb59c9e848b96454a4bb9b96f0eb3a8620cefdb2c7817766e5b8675f2416d58"
+    },
+    {
+      "path": "packages/worker/src/gitsha.ts",
+      "sha256": "f4055e211b2d47ea4d458c2fd3eabcea17cd6c44174469aeb5760523fe0139cc"
+    },
+    {
+      "path": "packages/worker/src/http.ts",
+      "sha256": "9fe3c26e6652bf5e5d004adce0a46316d040831cd53fa5d131ed06f1b343a88c"
+    },
+    {
+      "path": "packages/worker/src/image-integrity.ts",
+      "sha256": "b3d965b3ef4f980cc8dd216cc05db5e15c630edb0d4c8a3fa36de2d2cc8bb1c6"
+    },
+    {
+      "path": "packages/worker/src/index.ts",
+      "sha256": "def3b253ce420cdba0c221f3b211c78e8ea71d9ccf77abeb0ba3a9243e8d6720"
+    },
+    {
+      "path": "packages/worker/src/paths.ts",
+      "sha256": "101ae5002c653f2197af3711fb9f7ee2bbaf389d8eff1147f27ab9ce46cba091"
+    },
+    {
+      "path": "packages/worker/src/plan-range.ts",
+      "sha256": "585604e8a0a7ccff599e3e2c45c8fd058c8bd9b419faa1a81a6e75b1b2d036e8"
+    },
+    {
+      "path": "packages/worker/src/preconditions.ts",
+      "sha256": "4161a8b5f941537f6d8b2c524e121057e1c614524d7f2d10a02122f77a62d6b7"
+    },
+    {
+      "path": "packages/worker/src/ratelimit.ts",
+      "sha256": "5f78ebefb912c3c190d0d27d977e9e1b82de21463e5b00d77af261b77494f914"
+    },
+    {
+      "path": "packages/worker/src/revision.ts",
+      "sha256": "d0a027f035ae0bb2b6059014eb33ee7dc145225aa365deb22c047d246f819e06"
+    },
+    {
+      "path": "packages/worker/src/serialize.ts",
+      "sha256": "56d910f2422fa30f0f3f48ca324b59f7e0da7bc7288e456a27163159989aaf33"
+    },
+    {
+      "path": "packages/worker/src/shopping-basis.ts",
+      "sha256": "365e4f0ac9691f0d9de69cceb28d7803e4a4c4ac8e505fe174d0f92f027545bf"
+    },
+    {
+      "path": "packages/worker/src/shopping-inputs.ts",
+      "sha256": "76ecb812c164284e6c6b06aa62d50e0b432cb77c5c8a4bf90a5b852964b25f4d"
+    },
+    {
+      "path": "packages/worker/src/shopping-validation.ts",
+      "sha256": "605485f801299eb69995973a24ec511fe44e03e9327c819b6f67d3baabe6afa6"
+    },
+    {
+      "path": "packages/worker/src/source.ts",
+      "sha256": "85bb8a9f7251617bd5971ddb33b9d56b166f2ee40d9bc2882a5c8b5e8904a9d8"
+    },
+    {
+      "path": "packages/worker/src/types.ts",
+      "sha256": "a918146493fe7284f47d06772b378fd6fa2590f4bd817b4b2a227c6318080c5b"
+    },
+    {
+      "path": "packages/worker/src/validate.ts",
+      "sha256": "5b84efaa65e8f420d33225b9c6649c7cb3f770743cbe31f1677c963fb316b48c"
+    },
+    {
+      "path": "packages/worker/src/write.ts",
+      "sha256": "a6952e87b0db3b7f661986618bab8e4d65769fc3b457893d1bf193285664878a"
+    },
+    {
+      "path": "packages/worker/test/auth.test.mjs",
+      "sha256": "8654f2978fa7b69718e0346b43aa96dec02f206adaf6538132d3c71916eaa325"
+    },
+    {
+      "path": "packages/worker/test/github-boundary.test.mjs",
+      "sha256": "1f7e17d8a99946cf659a5f471cc2a072255f65c9393af522f0bf7eddee5deb58"
+    },
+    {
+      "path": "packages/worker/test/helpers.mjs",
+      "sha256": "07f4b6f357a72e1978153ee43c51ac060b22bb647bcbdba01f727988221b59e1"
+    },
+    {
+      "path": "packages/worker/test/image-fixtures.mjs",
+      "sha256": "fb4d43ceafd26f29e27f56ddb525e0c81c544b56569d0ae80f49b7c965f62850"
+    },
+    {
+      "path": "packages/worker/test/image.test.mjs",
+      "sha256": "680aa3e4ea4e7a4d852da4ef2c946b3df15a2ee3358ddf61dac527184d4e43c0"
+    },
+    {
+      "path": "packages/worker/test/misc.test.mjs",
+      "sha256": "518363938ed20faaebfa87c7fb0d2945d602c7095361854f887c7206a2e4c585"
+    },
+    {
+      "path": "packages/worker/test/publish-terminal.test.mjs",
+      "sha256": "7bfe4327381b97dd5f662b74dbbc290253d1d988acdec08dd9ac99aeeb2a638d"
+    },
+    {
+      "path": "packages/worker/test/publish.test.mjs",
+      "sha256": "a13ec2596b2ab55a02d1d48e4c9882bbc44d0f6fbb95095bd65e8c9154658da2"
+    },
+    {
+      "path": "packages/worker/test/read.test.mjs",
+      "sha256": "70ffb08ce730f54e5bc43c9beefef765672493aeee9c44347007a7b43431c59b"
+    },
+    {
+      "path": "packages/worker/test/rollback.test.mjs",
+      "sha256": "169c16d29acea38c2e5467ece110844d71e2bc0b457bdb690cd1a7463887e4d3"
+    },
+    {
+      "path": "packages/worker/test/shopping-inputs.test.mjs",
+      "sha256": "f21029e4c09825d709aab14b48b660b2c89223855ad7c24ec88e35d7b17c7953"
+    },
+    {
+      "path": "packages/worker/test/shopping-source.test.mjs",
+      "sha256": "ded4845aa4b8cedd69863fbb528141d1c2f344898e14aa1dcde1c6e81e407ad7"
+    },
+    {
+      "path": "packages/worker/test/shopping-transitions.test.mjs",
+      "sha256": "0c415ace5dcfa0c2b447486112637c1e0e648443dbdb2e17a8afef82507d515c"
+    },
+    {
+      "path": "packages/worker/test/shopping-write.test.mjs",
+      "sha256": "1d41534945856abf1206923d9ffa2d40bb5b383f66f00eb92461a5743bc59b5d"
+    },
+    {
+      "path": "packages/worker/test/team-formats.test.mjs",
+      "sha256": "01f489983e9516bcd64ac06f7449e1444b91cf260fa37859b5e99f4a2d10732f"
+    },
+    {
+      "path": "packages/worker/test/team-read.test.mjs",
+      "sha256": "c2bd2139110612043ecf88499183c700ecf7fb374fc5badeb0dc9e80f3eeab77"
+    },
+    {
+      "path": "packages/worker/test/team-rollback-validation.test.mjs",
+      "sha256": "04fe4f5162b03301a849f50c66cbe180e9772fbbf8f4cf9e9e4485913cd52924"
+    },
+    {
+      "path": "packages/worker/test/team-rollback.test.mjs",
+      "sha256": "0488a878093b02c86aa6a2de96508ee6f9ed8a50d706165a54152e25f455b5c9"
+    },
+    {
+      "path": "packages/worker/test/team-write.test.mjs",
+      "sha256": "cb2a5dc48b9820f37e3cfe7c88db3ba4524a2177c43fb255d6b24c6de256e7b9"
+    },
+    {
+      "path": "packages/worker/test/validation.test.mjs",
+      "sha256": "c36c6ea1a96695135928a012c32ed2883dd98d0c977467124652792b36edd7b4"
+    },
+    {
+      "path": "packages/worker/test/write.test.mjs",
+      "sha256": "63fd82d8e4a35740c7e977a960db80c953ad77cb03d9ff1d87418b2c44af1320"
+    },
+    {
+      "path": "packages/worker/tsconfig.build.json",
+      "sha256": "1e839081878c2992a3466c6a7475ebd9c835f02d40c144c5d2a6d60c5a8a0f7b"
+    },
+    {
+      "path": "packages/worker/tsconfig.json",
+      "sha256": "6cddcd23bedbce24ef1f468b7bee3d69ad5da181bfb39654ab9cf38bae90bf91"
+    },
+    {
+      "path": "packages/worker/wrangler.toml",
+      "sha256": "ce8f3ce0704b4276e6db756f9328747be9246c7f33c166df0750252a35f0c740"
+    }
+  ],
+  "changedPackages": [
+    "packages/web/src/pages/admin/import.ts",
+    "packages/web/src/pages/admin/plan-form.ts",
+    "packages/web/src/pages/admin/plan-import.ts",
+    "packages/web/src/pages/admin/plan.ts",
+    "packages/web/test/team-meals-pages-plan-import.test.mjs"
+  ]
+}
