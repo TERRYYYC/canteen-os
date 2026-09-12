@@ -14,6 +14,7 @@ import { createPlanForm, toSavePlan } from './plan-form';
 import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
 import {currentPlan,selectPlan} from './plan-context';
+import {recordValue} from '../record-display';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
@@ -191,7 +192,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     function dishSelect(value:string,key:string):HTMLSelectElement {
       const select=h('select',{'data-focus':key});select.append(h('option',{value:''},tr('choose')));
       if(value&&!Object.hasOwn(catalog?.dishes??{},value))select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
-      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${dish.status}`:''}`));
+      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`));
       select.value=value;return select;
     }
     function row(index:number):HTMLElement {
