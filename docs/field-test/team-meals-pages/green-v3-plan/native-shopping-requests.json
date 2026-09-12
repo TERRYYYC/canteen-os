@@ -1,0 +1,126 @@
+[
+  {
+    "id": 14,
+    "method": "POST",
+    "path": "/shopping-list/shop-2026-09-10",
+    "ifMatch": null,
+    "ifNoneMatch": "*",
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "shop-2026-09-10",
+      "basis": {
+        "sourceRevision": "86196222082de7de244abbde834a74fcd2f7fbeb",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-10",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    },
+    "status": 200,
+    "head": "6046d52362c1987dbbdeeca645162d04005fee6d"
+  },
+  {
+    "id": 20,
+    "method": "POST",
+    "path": "/shopping-list/shop-2026-09-10",
+    "ifMatch": "5b9b4df3245c448042fa614315073949cab50058",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "shop-2026-09-10",
+      "basis": {
+        "sourceRevision": "86196222082de7de244abbde834a74fcd2f7fbeb",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-10",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "buy"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "available"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    },
+    "status": 200,
+    "head": "f1eac3276604b5497e748d1249fb17fe5373c496"
+  },
+  {
+    "id": 39,
+    "method": "POST",
+    "path": "/shopping-list/shop-2026-09-10",
+    "ifMatch": "7a5ef907937c83be4f4a9de9bb4cb267c8d6d794",
+    "ifNoneMatch": null,
+    "body": {
+      "basis": {
+        "selection": [
+          {
+            "date": "2026-09-10",
+            "mealType": "lunch",
+            "menuPlanRef": "team-week"
+          }
+        ],
+        "sourceRevision": "86196222082de7de244abbde834a74fcd2f7fbeb"
+      },
+      "id": "shop-2026-09-10",
+      "items": [
+        {
+          "decision": "buy",
+          "ingredientRef": "cooking-oil",
+          "bought": true
+        },
+        {
+          "decision": "available",
+          "ingredientRef": "salt"
+        },
+        {
+          "decision": "check",
+          "ingredientRef": "tomato"
+        },
+        {
+          "decision": "check",
+          "ingredientRef": "tomato-other"
+        }
+      ],
+      "shoppingListVersion": "1"
+    },
+    "status": 200,
+    "head": "dac7854b3322ffa84e59aceb12ab94fdc94753e3"
+  }
+]

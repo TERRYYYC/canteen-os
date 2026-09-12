@@ -5,7 +5,40 @@ doc_kind: verification
 created: 2026-09-12
 ---
 
-# Reference v3 — actual Plan checkpoint
+# Reference v3 — actual page delivery
+
+## Current delivery — 08:44 UTC
+
+Fixed product: **`11c8a981d59ecda373328d0af9655f91347e2ed9`**, packages tree `4a7caa73d0c659bfcf230c495764bc6b1bc0c7b1`. Worktree: `canteen-os-team-pages`, branch `codex/team-meals-pages`. This one entry contains the initial Plan checkpoint and the subsequent Menu/Purchase/necessary-detail update authorized after dispatch viewed and accepted the real Plan.
+
+- Plan: accepted compact green layout, real date/Add linkage, optional counts, revision-bound photos, explicit save and purchase. Material preview now loads on request; its code read uses the existing auxiliary safety tickets and cannot overwrite another page or a later raw edit.
+- Menu: photo rows, compact actual published dates/meals, optional material/count details; full recipe modal with introduction/materials/steps. All recorded ingredients, unknown/to-taste quantities, source links and original steps remain available. Missing introduction/steps are explicit. No category, rating, time or additional date is invented from the prototype.
+- Purchase: real manual decisions, four exclusive counts (check / still to buy / available / bought), save and copy together, compact sources and incomplete-reference disclosures. Same-version material details show the actual record/image and keep translations and current-information navigation. Existing Prep behavior is preserved; this is not a full Prep visual redesign.
+
+### Stable preview
+
+[Plan](http://preview.localhost:4275/#/admin/plan/team-week) · [Menu](http://preview.localhost:4275/#/menu) · [saved local shopping sample](http://preview.localhost:4275/#/purchase/shop-2026-09-10).
+
+Managed preview `origin=launchd`, pid 56735, started **08:35:29 UTC**, expires **16:35:29 UTC** on 2026-09-12. Cwd `/private/tmp/canteen-hifi-4275`, port 4275. Final normal development preview uses exact product source above; all **60** copied TS/CSS files were compared byte-for-byte with that source. See `final-preview-source.json`. The final restart preserved the one explicitly local saved shopping sample; reload independently showed clean state and counts **2 / 0 / 1 / 1**, with no alert. Those restored sample records are not new native saves. No production data, remote repository, reserved runtime or PWA configuration was changed.
+
+### Fresh verification
+
+- Exact final affected suite: **165/165**, no failure/cancel/skip, `final-targeted-tests.txt`; Web TypeScript exit 0. This is the targeted Plan/Import/navigation/Shopping/copy/detail/Menu/published set, not a rerun of the unchanged lower-layer matrix.
+- Production bundle checks: **44/44** route/configuration/service-worker combinations fit the unchanged 60,000-byte limit. Final Plan gzip is **49,791 default / 49,806 HTTP bytes**; largest route is 58,755. All **25** application JS chunks remain precached. See `final-budget-default.json` and `final-budget-http.json`.
+- Initial new-visual Plan was **62,284 bytes**, a real budget failure. Moving only the user-requested material preview out of the initial load fixed it. The old observation helper captured chunk filenames before Vite's preload rewrite and subsequently failed with ENOENT; `measure-final-output.mjs` observes the final writeBundle graph and measures emitted bytes, without changing product configuration or thresholds.
+- Native final Menu at CSS 393×852: left gutter 20px, three rows 91px each, no horizontal overflow. All three photos decoded at original width 1200. S03 actually displays **用量未录 / 适量 / 200 g**, explicit missing description/steps, and the original same-version material deep link. Ukrainian desktop 1440×900 also inspected without overflow. Menu initial shrink-to-fit/old row padding and empty-step placement were found in the real preview and fixed before this final source.
+- Native Shopping: create → explicit save → mark buy/available → save → successful native copy → mark bought → save. Three real local Worker POSTs returned 200; exact bodies/conditional headers in `native-shopping-requests.json`. Bought no longer counts as still to buy. Chinese and Ukrainian mobile inspected; long labels fit. Details retained the fixed revision and unknown values. The ingredient image in the test fixture is a deliberate solid-color asset for controlled-image verification, not an ingredient photograph.
+- Native optional Plan material preview opens correctly. Two new module-wait/failure cases preserve edits and settle the original read on departure. Original count-clear/add/save evidence remains below.
+
+Final original captures here: `menu-final-zh-mobile.jpg`, `menu-final-uk-desktop.jpg`, `recipe-final-zh-mobile.jpg`, `purchase-final-zh-mobile.jpg`, `purchase-final-uk-mobile.jpg`. No screenshot editing or pixel-resizing was performed. Initial Plan images remain below. Shared global chrome was also sampled on Prep; its published-data semantics remain unchanged.
+
+Independent review: initial Plan `0c9caca` was approved by the original nonauthor reviewer (report `/private/tmp/canteen-green-v3-review-0c9caca/REVIEW.md`). The same original nonauthor, Codex `/root/plan_review`, has now returned **APPROVE** for exact final product `11c8a981d59ecda373328d0af9655f91347e2ed9`, with no open P1/P2. Review source is `local_cat`, subject `task:01a08db7-43f3-7952-adb5-75106389e557#green-v3-plan`, accepted source `docs/design/team-meals-pages/D0-contract.md` at `19fcb002ef29c7eee857ea1c1f829cc73356e151`. The unchanged small report is preserved as [final-independent-review.md](final-independent-review.md), SHA256 `8c322776aca572d1bf13e5578b7a76084f98fa1f6e0f3b494d44ae0c132421ca`; original archive `/private/tmp/canteen-green-v3-review-11c8a98`, manifest SHA256 `607a2cc65ac9a2589aefbb7061c9a51f95ea658daa567734be6fdea451f957b9`.
+
+The reviewer independently passed **86/86** relevant tests, **4/4** additional probes and TypeScript; rebuilt both original configurations and verified **44/44** budgets plus all 25 application JS precache entries. All application JS bytes matched the final author builds; 231 tracked package files and 60 runtime source files matched Git. The five original screenshots were directly inspected. The reviewer did not run a separate native browser journey, so native actions above remain author evidence. The original Plan budget pending item is closed. No repair or additional local check remains for this slice. No merge, push, deployment, complete PWA/offline certification, Q acceptance, or full production acceptance is claimed.
+
+## Initial Plan checkpoint (historical 08:10 UTC)
+
+The following records the first authorized visible slice; pending items mentioned there are superseded by the current delivery status above.
 
 ## Scope and visual source
 
