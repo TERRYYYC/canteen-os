@@ -13,6 +13,7 @@ import { text, action, field, status, onDetached } from '../team-ui';
 import { createPlanForm, toSavePlan } from './plan-form';
 import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
+import {currentPlan,selectPlan} from './plan-context';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
@@ -50,7 +51,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       views.clear();form=createForm();auth=api.sessionKey();
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
-    const id=rest||ctx.planId||planIdOfDate(new Date().toISOString().slice(0,10))||'';
+    const id=rest||currentPlan(ctx,api).id||planIdOfDate(new Date().toISOString().slice(0,10))||'';
     if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
     el.classList.add('tm-page');el.classList.add('tm-plan');
     const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{class:'tm-plan-sr'},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
@@ -79,7 +80,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(initialized&&!catalog&&requestedKey!==sourceKey()){requestedKey=sourceKey();void reloadCatalog(false);}
       const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;
       const documentStatus=status(s,lang),output:HTMLElement[]=[];
-      if(s.draft)output.push(filters());
+      if(s.draft){selectPlan(api,id,s.draft.name);output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')),filters());}
       output.push(documentStatus);
       if(rawPending(view)){
         // C1 may be unchanged while page-owned inputs are still unapplied.
@@ -112,7 +113,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
         if(groups.size===0)output.push(h('p',{class:'tm-card'},tr('empty')));
         const save=action(tr('save'),()=>void owner.session.save(s.contextId),true);
         save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0;
-        output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
+        output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}/${view.range}${view.range==='all'?'':`/${view.date}`}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
           h('p',{class:'tm-plan-note'},lang==='zh'?'采购清单使用已保存的计划':lang==='en'?'Shopping uses the saved plan':'Закупівлі використовують збережений план'));
         if(catalog){
           output.push(addForm(),h('div',{class:'tm-plan-secondary'},action(tr('preview'),()=>{if(!isLive())return;view.preview=previewError?true:!view.preview;previewError=null;paint();}),h('a',{href:adminHref('publish')},tr('publish'))));

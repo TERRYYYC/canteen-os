@@ -32,10 +32,12 @@ import { registerAuxiliaryEdits, type AuxiliaryEditHandle, type AuxiliaryOperati
 import type { ChangeItem, Changes, PublishProgress, PublishRecord, PublishResult, PublishStep, PublishStepKey } from "../../api/types";
 import { ApiError, isApiError } from "../../api/types";
 import { h, replace } from "../../dom";
-import type { Lang, TParams } from "../../i18n";
+import {pick,type Lang,type TParams} from "../../i18n";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
 import { text as teamText } from "../team-ui";
+import {currentPlan} from './plan-context';
+import {word,supportDetails} from '../record-display';
 
 // ---------------------------------------------------------------------------
 // 文案（§5.4 `pub.*` 最小集 + 本屏自用；zh 是权威语言，uk 初稿待帮厨校对）
@@ -50,10 +52,10 @@ const T = {
   "pub.title": { uk: "Публікація", zh: "发布", en: "Publish" },
   "pub.changes": { uk: "Неопубліковані зміни", zh: "还没发布的改动", en: "Unpublished changes" },
   "pub.changes.count": { uk: "Неопубліковані зміни · {n}", zh: "还没发布的改动 · {n}", en: "Unpublished changes · {n}" },
-  "pub.changes.none": { uk: "Усе опубліковано", zh: "都发布了", en: "Everything is published" },
+  "pub.changes.none": { uk: "Немає змін, що очікують публікації", zh: "没有待发布的改动", en: "No changes awaiting publication" },
   "pub.changes.truncated": { uk: "Показано лише останні 30", zh: "只显示最近 30 条", en: "Showing the latest 30 only" },
   "pub.lastPublished": { uk: "Остання публікація {at}", zh: "上次发布 {at}", en: "Last published {at}" },
-  "pub.lastPublished.never": { uk: "Ще не публікувалося", zh: "还没发布过", en: "Never published yet" },
+  "pub.lastPublished.never": { uk: "Немає доступних записів публікації", zh: "没有可用的发布记录", en: "No publication history available" },
   "pub.online.unknown": { uk: "Невідомо, яка версія зараз онлайн", zh: "线上是哪一版还不清楚", en: "Can't tell which version is live" },
   "pub.publish": { uk: "Опублікувати", zh: "发布", en: "Publish" },
   "pub.publishing": { uk: "Публікую…", zh: "正在发布…", en: "Publishing…" },
@@ -97,9 +99,9 @@ const T = {
     en: "Publishing via the temporary channel — progress may appear a few seconds late",
   },
   "pub.mode.off": {
-    uk: "Публікацію тимчасово вимкнено — чекаємо, поки Terry надасть доступ. Усі ваші зміни збережено ({n} неопублікованих); щойно доступ з'явиться, вони вийдуть разом.",
-    zh: "发布暂时关着：等 Terry 把权限打开。你排的改动都已经存好了（{n} 项未发布），权限一开就能一次发出去。",
-    en: "Publishing is switched off for now — waiting for Terry to grant access. Your changes are all saved ({n} unpublished); once access is granted they go out in one go.",
+    uk: "Публікацію вимкнено. {n} збережених змін очікують публікації. Зверніться до адміністратора; підготовку даних можна продовжити.",
+    zh: "当前未开放发布。有 {n} 项已保存改动待发布；请联系管理员开通，期间可以继续整理资料。",
+    en: "Publishing is unavailable. {n} saved changes await publication. Contact the administrator; you can continue preparing records.",
   },
   "pub.rateLimited": {
     uk: "Надто часті запити — подивіться на сторінці Actions",
@@ -676,10 +678,11 @@ function paintChanges(v: View): void {
   }
   const bits: string[] = [];
   bits.push(changes.lastPublishedAt ? tt(lang, "pub.lastPublished", { at: fmtWhen(changes.lastPublishedAt, lang) }) : tt(lang, "pub.lastPublished.never"));
-  if (changes.onlineCommit) bits.push(changes.onlineCommit.slice(0, 7));
+  if (changes.onlineCommit) bits.push(word(lang,'已取得线上版本记录','Live version record is available','Запис поточної версії доступний'));
   else bits.push(tt(lang, "pub.online.unknown"));
   if (changes.truncated) bits.push(tt(lang, "pub.changes.truncated"));
   box.append(h("p", { class: "muted adm-pub-foot" }, bits.join(" · ")));
+  if(changes.onlineCommit)box.append(supportDetails(lang,changes.onlineCommit));
 }
 
 /** 顶部提示条；签名没变就不重画（免得 role=alert 的条每 2 秒被重新播报一遍） */
@@ -1052,7 +1055,11 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const changesBox = h("div", { class: "adm-pub-section adm-pub-changes" });
   const progressBox = h("div", { class: "adm-pub-section adm-pub-progress-box" });
   const logBox = h("div", { class: "adm-pub-section adm-pub-log" });
-  const root = h("div", { class: "adm adm-pub" }, topBar({ back: adminHref(), title: tt(lang, "pub.title"), actions: [btn] }), notices, changesBox, progressBox, logBox);
+  const planContext=h('div',{class:'adm-pub-plan-context'});
+  const root = h("div", { class: "adm adm-pub" }, topBar({ back: adminHref(), title: tt(lang, "pub.title"), actions: [btn] }), planContext, notices, changesBox, progressBox, logBox);
+  const plan=currentPlan(ctx,team);
+  if(plan.id)planContext.append(h('p',{class:'muted'},word(lang,'当前计划：','Current plan: ','Поточний план: '),h('a',{href:adminHref('plan',plan.id)},pick(plan.name,lang)||teamText(lang,'plan'))));
+  if(ctx.publication)planContext.append(h('p',{class:'muted'},word(lang,'当前页面载入的资料生成于 ','Loaded page data was built at ','Дані поточної сторінки створено '),fmtWhen(ctx.publication.manifest.builtAt,lang),word(lang,'；与线上状态分别核对。','; verify live status separately.','; стан онлайн перевіряється окремо.')));
   replace(el, root);
 
   const v: View = { el, root, lang, btn, notices, changes: changesBox, progress: progressBox, log: logBox, noticeSig: "", statusLine: null, logWaiting: null };

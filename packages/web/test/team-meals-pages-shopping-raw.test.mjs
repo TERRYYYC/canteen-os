@@ -37,7 +37,7 @@ async function setup({existing=false,mode='mock'}={}){
  Object.defineProperty(globalThis,'navigator',{configurable:true,writable:true,value:{onLine:true}});
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};globalThis.window={addEventListener(){}};globalThis.location={hash:'#/purchase/new/team-week'};globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
- const page=await import(`${pathToFileURL(file)}?case=${++serial}`),calls=[],writes=[],snap=seed(),sources=new Map(),history=new Map(),gates=[];let identity=1,revision=A,seq=0,post='success';
+ const page=await import(`${pathToFileURL(file)}?case=${++serial}`),calls=[],writes=[],snap=seed(),sources=new Map(),history=new Map(),gates=[];let identity=1,revision=A,seq=0,post='success',indexFails=false;
  if(existing)sources.set('team-shop',{content:list(),commit:'c'.repeat(40),blobSha:'initial'});
  const json=x=>Response.json(clone(x)),failure=(status,code)=>Response.json({ok:false,errors:[{path:'',code,message:code}]},{status});
  const api=page.createTeamMealsApi('https://purchase-raw-fixture.invalid',{mode,identity:()=>identity,token:()=>`explicit-fixture-${identity}`,fetch:async(url,init)=>{
@@ -50,13 +50,27 @@ async function setup({existing=false,mode='mock'}={}){
   const r=call.revision??revision;
   if(u.pathname==='/catalog')return json({commit:r,...snap,suppliers:[],translations:{machine:0,human:0,stale:0}});
   if(u.pathname.startsWith('/source/plan/')){const id=u.pathname.split('/').at(-1),p=snap.menuPlans[id];return p?json({content:p,commit:r,blobSha:`plan-${r}`}):failure(404,'not_found');}
+  if(u.pathname==='/shopping-lists')return indexFails?failure(503,'unavailable'):json({ok:true,commit:revision,items:[...sources.values()].map(({content})=>({id:content.id,selection:content.basis.selection,itemCount:content.items.length})),nextCursor:null,skipped:0});
   if(u.pathname==='/asset')return failure(404,'not_found');throw new Error('Unexpected fixture request');
  }});
  const render=page.createPurchaseRenderer(api),coverage=page.createPageReloadCoverage();
  const start=(rest='new/team-week',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{rest,lang,planId:'team-week',route:'purchase',setReloadCoverage:coverage.beginRender('purchase',rest)});return{el,promise};};
- return{page,api,render,calls,writes,sources,start,async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},renameIngredient(id,name){snap.ingredients[id].name=name;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
+ return{page,api,render,calls,writes,sources,start,failIndex(){indexFails=true;},async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},renameIngredient(id,name){snap.ingredients[id].name=name;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
 }
 async function scope(f){const el=await f.mount();btn(el,'Read latest saved plans').click();await f.flush();assert.ok(boxes(el).length>1);return el;}
+
+test('purchase entry discovers server-saved lists with dates and opens their original identity',async()=>{
+ const f=await setup({existing:true});try{const el=await f.mount('');await f.flush();const card=walk(el).find(n=>n.attrs['data-shopping-index']==='true');assert.ok(card);assert.match(card.textContent,/Saved lists/);assert.match(card.textContent,/2026-09-14/);assert.match(card.textContent,/4/);assert.ok(walk(card).some(n=>n.tagName==='A'&&n.attrs.href==='#/purchase/team-shop'));assert.ok(f.calls.some(c=>c.path==='/shopping-lists'));}finally{f.cleanup();}
+});
+test('plan day range arrives preselected and generated list identifiers do not collide across plan entries',async()=>{
+ const f=await setup();try{let el=await f.mount('new/team-week/day/2026-09-14');await f.flush();assert.ok(boxes(el).length>1);assert.equal(boxes(el).filter(n=>n.checked).length,1);assert.match(walk(el).find(n=>n.tagName==='LABEL'&&walk(n).some(c=>c.checked))?.textContent??'',/2026-09-14/);const id=focus(el,'new-list-id').value;assert.match(id,/^shop-[a-z0-9-]+$/);el=await f.mount('new/next-week');assert.notEqual(focus(el,'new-list-id').value,id);}finally{f.cleanup();}
+});
+test('both detail return links go to the current shopping list',async()=>{
+ const f=await setup({existing:true});try{const el=await f.mount('team-shop/ingredient/tomato');const back=cls(el,'tm-head')[0].children.find(n=>n.tagName==='A');assert.equal(back.attrs.href,'#/purchase/team-shop');}finally{f.cleanup();}
+});
+test('language change during automatic range reads retains the live preselected scope',async()=>{
+ for(const oldFirst of [true,false]){const f=await setup();try{const a=f.hold(c=>c.path==='/source/plan/team-week'),first=f.start('new/team-week/day/2026-09-14');await f.flush();const b=f.hold(c=>c.path==='/source/plan/team-week'),second=f.start('new/team-week/day/2026-09-14','uk');await f.flush();(oldFirst?a:b).release();await f.flush();(oldFirst?b:a).release();await Promise.all([first.promise,second.promise]);await f.flush();assert.ok(boxes(second.el).length>1,`old response first: ${oldFirst}`);assert.equal(boxes(second.el).filter(n=>n.checked).length,1);assert.equal(f.render.readAuxiliary('new/team-week/day/2026-09-14').dirty,false);}finally{f.cleanup();}}
+});
 
 test('raw list ID, plan IDs and selections have stable dirty generations across language and route return',async()=>{
  const f=await setup();try{let el=await f.mount();assert.equal(typeof f.render.readAuxiliary,'function');const first=f.render.readAuxiliary('new/team-week');assert.equal(first.dirty,false);input(el,'new-list-id','my-shop');input(el,'plan-ids','team-week, later-week');const changed=f.render.readAuxiliary('new/team-week');assert.equal(changed.dirty,true);assert.ok(changed.generation>first.generation);await f.mount('new/other-week');el=await f.mount('new/team-week','uk');assert.equal(focus(el,'new-list-id').value,'my-shop');assert.equal(focus(el,'plan-ids').value,'team-week, later-week');assert.deepEqual(f.render.readAuxiliary('new/team-week'),changed);assert.equal(f.snapshot().reason,'dirty');}finally{f.cleanup();}
@@ -143,4 +157,9 @@ test('shopping summary reflects current manual decisions without counting bought
  btn(cls(el,'tm-material')[1],'Available').click();await f.flush();
  assert.equal(count('check'),'2');assert.equal(count('available'),'1');assert.equal(f.writes.length,0);
  }finally{f.cleanup();}
+});
+
+
+test('a failed refresh does not continue to claim an empty saved-list index',async()=>{
+ const f=await setup();try{const el=await f.mount('');assert.match(el.textContent,/No saved shopping lists yet/);f.failIndex();btn(el,'Refresh lists').click();await f.flush();assert.doesNotMatch(el.textContent,/No saved shopping lists yet/);assert.match(el.textContent,/could not be loaded/);}finally{f.cleanup();}
 });

@@ -62,7 +62,7 @@ function fixture() {
   };
 }
 let serial = 0;
-async function setup({ mode = 'real', input = fixture(), response } = {}) {
+async function setup({ mode = 'real', input = fixture(), response, planId = 'week-38' } = {}) {
   const events = {};
   globalThis.window = { addEventListener: (name, fn) => (events[name] ??= []).push(fn) };
   globalThis.location = { hash: '#/admin', replace() {} };
@@ -85,10 +85,17 @@ async function setup({ mode = 'real', input = fixture(), response } = {}) {
   const harness = { team, online: true, getLegacy() { legacyReads.push('getApi'); return legacy; } };
   globalThis.__homeHarness = harness;
   const coverage = page.createPageReloadCoverage();
-  const mount = (lang = 'zh') => { page.switchLanguage(lang); const el = new NodeDouble('section'); document.body.append(el); page.render(el, { lang, planId: 'week-38', rest: '', setReloadCoverage: coverage.beginRender('admin', '') }, ''); return el; };
+  const mount = (lang = 'zh') => { page.switchLanguage(lang); const el = new NodeDouble('section'); document.body.append(el); page.render(el, { lang, planId, rest: '', setReloadCoverage: coverage.beginRender('admin', '') }, ''); return el; };
   return { page, team, legacy, calls, legacyReads, harness, mount, input, events, bumpIdentity() { identity++; }, async flush() { for (let i = 0; i < 6; i++) await tick(); }, cleanup() { team.dispose(); legacy.dispose(); document.body.replaceChildren(); } };
 }
 
+test('home follows the provided saved plan and counts meal slots rather than dish rows',async()=>{
+ const input=fixture();input.plan.name={zh:'午餐安排'};input.plan.meals=[input.plan.meals[0],{...input.plan.meals[0],dishRef:'a-v2'}];
+ const s=await setup({input,planId:'lunch-plan'});try{const el=s.mount();await s.flush();assert.ok(s.calls.includes('/source/plan/lunch-plan'));assert.equal(byClass(el,'adm-home-tile-plan')[0].getAttribute('href'),'#/admin/plan/lunch-plan');assert.match(byClass(el,'adm-home-tile-plan')[0].textContent,/午餐安排.*已排 1 餐/);assert.doesNotMatch(el.textContent,/第 \d+ 周/);}finally{s.cleanup();}
+});
+test('zero changes and missing history are stated without claiming publication or fabricating a current plan',async()=>{
+ const input=fixture();input.changes={unpublished:[],lastPublishedAt:null,onlineCommit:null};const s=await setup({input,planId:null});try{const el=s.mount();await s.flush();assert.match(el.textContent,/没有待发布的改动/);assert.match(el.textContent,/没有可用的发布记录/);assert.doesNotMatch(el.textContent,/都发布了|还没发布过|已排 0/);assert.ok(!s.calls.some(p=>p.startsWith('/source/plan/')));}finally{s.cleanup();}
+});
 test('unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock', async () => {
   const s = await setup({ mode: 'unconfigured' });
   try {
@@ -110,7 +117,7 @@ test('mixed v2/v3 catalog and unknown servings render through C1; only publicati
   try {
     const before = JSON.stringify(s.input), el = s.mount(); await s.flush();
     assert.deepEqual(s.legacyReads, ['getApi', 'getChanges']);
-    assert.match(byClass(el, 'adm-home-tile-plan')[0].textContent, /本周已排 2 餐/);
+    assert.match(byClass(el, 'adm-home-tile-plan')[0].textContent, /已排 2 餐/);
     assert.match(byClass(el, 'adm-home-tile-draft')[0].textContent, /2 道草稿/);
     assert.equal(byClass(el, 'adm-home-tile-draft')[0].getAttribute('href'), '#/admin/dish/a-v2');
     assert.match(el.textContent, /1 项改动还没发布/);
@@ -118,7 +125,7 @@ test('mixed v2/v3 catalog and unknown servings render through C1; only publicati
     const count = s.calls.length; s.page.switchLanguage('en'); el.remove();
     const en = s.mount('en'); await s.flush();
     assert.equal(s.calls.length, count, 'language change reuses the same auth-bound snapshot');
-    assert.match(en.textContent, /2 meals planned this week/);
+    assert.match(en.textContent, /2 meal slots planned/);
   } finally { s.cleanup(); }
 });
 
@@ -128,7 +135,7 @@ test('explicit simulation is labelled and cannot claim actual publication', asyn
     const el = s.mount('en'); await s.flush();
     assert.match(el.textContent, /Simulation; no real repository write/);
     assert.equal(s.legacyReads.length, 0);
-    assert.match(el.textContent, /2 meals planned this week/);
+    assert.match(el.textContent, /2 meal slots planned/);
     assert.doesNotMatch(el.textContent, /changes not published yet|Everything is published|Last published/);
   } finally { s.cleanup(); }
 });
@@ -138,9 +145,9 @@ test('C1 read failures leave unknown numbers; a confirmed missing plan alone may
   const s = await setup({ response: async path => path.startsWith('/source/plan/') ? new Response(JSON.stringify({ ok: false, errors: [{ path: '', code: missing ? 'not_found' : 'forbidden', message: 'fixture read refused' }] }), { status: missing ? 404 : 403 }) : undefined });
   try {
     const el = s.mount(); await s.flush();
-    assert.match(byClass(el, 'adm-home-tile-plan')[0].textContent, /本周已排 — 餐.*数字暂时取不到/);
+    assert.match(byClass(el, 'adm-home-tile-plan')[0].textContent, /已排 — 餐.*数字暂时取不到/);
     missing = true; el.remove(); const next = s.mount(); await s.flush();
-    assert.match(byClass(next, 'adm-home-tile-plan')[0].textContent, /本周已排 0 餐/);
+    assert.match(byClass(next, 'adm-home-tile-plan')[0].textContent, /已排 0 餐/);
   } finally { s.cleanup(); }
 });
 
@@ -154,9 +161,9 @@ test('late prior-account replies cannot populate a new-account language render',
     s.bumpIdentity(); s.page.switchLanguage('en'); old.remove();
     hold = false; s.input.plan.meals.push({ date: '2026-09-16', mealType: 'lunch', dishRef: 'z-v3' });
     const current = s.mount('en'); await s.flush();
-    assert.match(current.textContent, /3 meals planned this week/);
+    assert.match(current.textContent, /3 meal slots planned/);
     release(); await s.flush();
-    assert.match(current.textContent, /3 meals planned this week/);
+    assert.match(current.textContent, /3 meal slots planned/);
     assert.equal(byClass(current, 'adm-lock').length, 0);
   } finally { release(); s.cleanup(); }
 });
@@ -165,11 +172,11 @@ test('auth changes immediately remove cached private numbers and late results do
   const s = await setup();
   try {
     const el = s.mount('en'); await s.flush();
-    assert.match(el.textContent, /2 meals planned this week/);
+    assert.match(el.textContent, /2 meal slots planned/);
     s.page.changeAuth(); await s.flush();
-    assert.doesNotMatch(el.textContent, /2 meals planned this week|2 draft dishes|Last published/);
+    assert.doesNotMatch(el.textContent, /2 meal slots planned|2 draft dishes|Last published/);
     s.page.switchLanguage('en'); el.remove(); const next = s.mount('en'); await s.flush();
-    assert.match(next.textContent, /2 meals planned this week/);
+    assert.match(next.textContent, /2 meal slots planned/);
     assert.equal(s.calls.filter(path => path === '/catalog').length, 2);
   } finally { s.cleanup(); }
 });
@@ -184,12 +191,12 @@ test('a completed snapshot from an earlier auth identity is not reused on langua
   const s = await setup({ input });
   try {
     const old = s.mount(); await s.flush();
-    assert.match(old.textContent, /本周已排 2 餐/);
+    assert.match(old.textContent, /已排 2 餐/);
     s.bumpIdentity(); s.input.plan.meals.push({ date: '2026-09-16', mealType: 'dinner', dishRef: 'a-v2', plannedServings: 8 });
     s.page.switchLanguage('en'); old.remove(); const next = s.mount('en');
-    assert.doesNotMatch(next.textContent, /2 meals planned this week/, 'old private numbers must not flash during replacement');
+    assert.doesNotMatch(next.textContent, /2 meal slots planned/, 'old private numbers must not flash during replacement');
     await s.flush();
-    assert.match(next.textContent, /3 meals planned this week/);
+    assert.match(next.textContent, /3 meal slots planned/);
     assert.equal(s.calls.filter(path => path === '/catalog').length, 2);
   } finally { s.cleanup(); }
 });
@@ -200,12 +207,12 @@ test('offline repaint retains known figures, explicitly marks offline and disabl
     const el = s.mount('en'); await s.flush(); const reads = s.calls.length;
     s.harness.online = false; s.events.offline.forEach(fn => fn());
     assert.match(el.textContent, /No network/);
-    assert.match(el.textContent, /2 meals planned this week/);
+    assert.match(el.textContent, /2 meal slots planned/);
     for (const key of ['plan', 'dish', 'draft', 'ingredient']) assert.equal(byClass(el, 'adm-home-tile-' + key)[0].getAttribute('href'), null);
     assert.equal(byClass(el, 'adm-home-tile-qr')[0].getAttribute('href'), '#/qr');
     assert.equal(s.calls.length, reads);
     s.harness.online = true; s.events.online.forEach(fn => fn());
-    assert.equal(byClass(el, 'adm-home-tile-plan')[0].getAttribute('href'), '#/admin/plan');
+    assert.equal(byClass(el, 'adm-home-tile-plan')[0].getAttribute('href'), '#/admin/plan/week-38');
   } finally { s.cleanup(); }
 });
 

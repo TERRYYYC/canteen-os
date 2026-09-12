@@ -1,10 +1,12 @@
 import {recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
-import type { TeamMealsProjection, I18nString, Quantity, ImageRef, Technique } from '@canteenos/core';
+import type { TeamMealsProjection, I18nString, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
 import { h } from '../dom';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
+import {quantityText} from './quantity-text';
+export {quantityText} from './quantity-text';
 const copy={
  missing:['未录','Not recorded','Не записано'],qty:['用量未录','Quantity not recorded','Кількість не записано'],taste:['适量','To taste','За смаком'],
  role:['材料角色','Ingredient role','Роль інгредієнта'],main:['主料','Main ingredient','Основний інгредієнт'],seasoning:['调料','Seasoning','Приправа'],
@@ -23,10 +25,6 @@ const copy={
 type Key=keyof typeof copy;
 const lookup=<T>(map:Record<string,T>,id:string):T|undefined=>Object.hasOwn(map,id)?map[id]:undefined;
 const tr=(lang:Lang,key:Key)=>copy[key][lang==='zh'?0:lang==='en'?1:2];
-export function quantityText(qty:Quantity|undefined,lang:Lang):string {
-  if(!qty)return tr(lang,'qty');if(qty.unit==='to-taste')return tr(lang,'taste');
-  return qty.value===undefined?tr(lang,'qty'):`${qty.value} ${qty.unit}`;
-}
 export function safeLink(value:string|undefined):string|null {
   if(!value||!/^https?:\/\//i.test(value))return null;
   try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)?url.href:null;}catch{return null;}

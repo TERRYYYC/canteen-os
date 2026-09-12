@@ -3,11 +3,12 @@ import type {IngredientCollection,ShoppingEstimate,AnyDish,Ingredient} from '@ca
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
 import {text} from './team-ui';
-import {quantityText} from './team-details';
+import {quantityText} from './quantity-text';
+import {word,supportDetails} from './record-display';
 export const shoppingWords={
  title:['本次采购','This shopping list','Цей список покупок'],check:['待核对','Check','Перевірити'],buy:['待买','Buy','Купити'],available:['已有','Available','Є в наявності'],bought:['已买','Bought','Куплено'],
- open:['打开清单','Open list','Відкрити список'],new:['新建清单','New list','Новий список'],id:['清单名称（字母、数字、短横线）','List ID (letters, numbers, hyphens)','Назва списку (латиниця, цифри, дефіс)'],
- plans:['计划名称，多个用逗号分隔','Plan IDs, separated by commas','Назви планів через кому'],read:['读取最新已保存计划','Read latest saved plans','Прочитати останні збережені плани'],
+ open:['打开清单','Open list','Відкрити список'],new:['新建清单','New list','Новий список'],id:['清单编号（字母、数字、短横线）','List ID (letters, numbers, hyphens)','Номер списку (латиниця, цифри, дефіс)'],
+ plans:['计划编号，多个用逗号分隔','Plan IDs, separated by commas','Номери планів через кому'],read:['读取最新已保存计划','Read latest saved plans','Прочитати останні збережені плани'],
  scope:['本次日期和餐次','Dates and meals for this list','Дати й прийоми їжі цього списку'],create:['生成待核对清单','Create list to check','Створити список для перевірки'],apply:['应用新范围并重新核对','Apply scope and review again','Застосувати діапазон і перевірити знову'],
  save:['保存清单','Save list','Зберегти список'],saved:['清单已保存','List saved','Список збережено'],first:['先保存这份待核对清单，再逐项判断。','Save this list first, then make individual decisions.','Спочатку збережіть список, потім приймайте рішення щодо інгредієнтів.'],
  changed:['范围或资料已变；先保存重新核对的清单，再确认。','Scope or information changed. Save the reviewed list before confirming items.','Діапазон або дані змінилися. Збережіть перевірений список перед підтвердженням.'],
@@ -42,16 +43,16 @@ export interface CandidatesOptions {
 }
 export function renderCandidates(options:CandidatesOptions):HTMLElement {
  const {lang,collection,estimate,ingredients,dishes}=options,t=(key:ShoppingWord)=>shoppingText(lang,key);
- const name=(kind:'ingredient'|'dish',id:string)=>pick(lookup<Ingredient|AnyDish>(kind==='ingredient'?ingredients:dishes,id)?.name,lang)||id;
+ const name=(kind:'ingredient'|'dish',id:string)=>pick(lookup<Ingredient|AnyDish>(kind==='ingredient'?ingredients:dishes,id)?.name,lang)||t('missing');
  const ref=(kind:'ingredient'|'dish',id:string)=>options.href?h('a',{href:options.href(kind,id)},name(kind,id)):h('span',{},name(kind,id));
  const result=h('div',{class:'tm-candidates'},h('p',{class:'muted'},t('coverage')));
- if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('p',{},reasonText(issue.code,lang),' · ',[issue.menuPlanRef,issue.date,issue.mealType?text(lang,issue.mealType):'',issue.dishRef,issue.ingredientRef].filter(Boolean).join(' / ')))));
+ if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('article',{},h('p',{},reasonText(issue.code,lang),' · ',[issue.date,issue.mealType?text(lang,issue.mealType):''].filter(Boolean).join(' / ')),issue.dishRef?ref('dish',issue.dishRef):null,issue.ingredientRef?ref('ingredient',issue.ingredientRef):null,h('p',{},word(lang,'查看来源资料并补齐后，再核对采购范围。','Check and complete the source records, then review the shopping scope.','Перевірте й доповніть вихідні дані, потім перевірте діапазон закупівель.')),supportDetails(lang,JSON.stringify(issue))))));
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  for(const item of collection.items){
   const ingredient=lookup(ingredients,item.ingredientRef),estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
   const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},h('h3',{},ref('ingredient',item.ingredientRef)),h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing')));
   if(options.controls)card.append(options.controls(item.ingredientRef));
-  card.append(h('details',{},h('summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${quantityText(s.qty,lang)}`,h('small',{class:'muted'},` · ${s.menuPlanRef}`))))));
+  card.append(h('details',{},h('summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${quantityText(s.qty,lang)}`,supportDetails(lang,s.menuPlanRef))))));
   if(estimateItem?.status==='complete')card.append(h('details',{},h('summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
   else if(estimateItem)card.append(h('details',{class:'muted'},h('summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));
   result.append(card);

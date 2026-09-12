@@ -13,7 +13,7 @@
  */
 import "./qr.css";
 
-import { h } from "../dom";
+import { h,replace } from "../dom";
 import { LANGS, type Lang } from "../i18n";
 import type { PageCtx } from "../types";
 
@@ -72,6 +72,8 @@ const UI = {
   },
   headline: { uk: "Роздрукуйте і повісьте", zh: "打印贴墙", en: "Print and post" },
   generated: { uk: "Згенеровано", zh: "生成于", en: "Generated" },
+  unavailable:{zh:'当前无法打印：二维码资料或图片尚未就绪。请重试；仍失败时请管理员重新生成二维码。',en:'Print is unavailable: QR data or images are not ready. Retry; if this persists, ask an administrator to regenerate the codes.',uk:'Друк недоступний: дані або зображення QR-кодів не готові. Спробуйте ще раз; якщо помилка повториться, попросіть адміністратора створити коди заново.'},
+  retry:{zh:'重新加载二维码',en:'Reload QR codes',uk:'Завантажити QR-коди знову'},
 } as const satisfies Record<string, L10n>;
 
 function isItem(v: unknown): v is QrItem {
@@ -82,7 +84,7 @@ function isItem(v: unknown): v is QrItem {
 function isIndex(v: unknown): v is QrIndex {
   if (!v || typeof v !== "object") return false;
   const o = v as Record<string, unknown>;
-  return typeof o["siteUrl"] === "string" && typeof o["generatedAt"] === "string" && Array.isArray(o["items"]) && o["items"].every(isItem);
+  return typeof o["siteUrl"] === "string" && typeof o["generatedAt"] === "string" && Array.isArray(o["items"]) && o["items"].length===3 && o["items"].every(isItem)&&['prep','purchase','menu'].every(route=>(o['items'] as QrItem[]).some(item=>item.route===route));
 }
 
 /** 当前语言排第一，其余按 LANGS 顺序 */
@@ -140,14 +142,21 @@ function renderItem(item: QrItem, ctx: PageCtx): HTMLElement {
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   const lang = ctx.lang;
   const printBtn = h("button", { type: "button", class: "chip solid qr-print" }, UI.print[lang]);
+  printBtn.disabled=true;
   printBtn.addEventListener("click", () => {
-    if (typeof window.print === "function") window.print();
+    if (!printBtn.disabled&&typeof window.print === "function") window.print();
   });
   const toolbar = h("div", { class: "qr-toolbar" }, h("p", { class: "muted" }, UI.hint[lang]), printBtn);
   const status = h("p", { class: "muted qr-status" }, ctx.t("data.loading"));
-  const page = h("div", { class: "qr-page" }, toolbar, status);
+  const content=h('div',{}),retry=h('button',{type:'button',class:'chip qr-retry'},UI.retry[lang]);retry.hidden=true;
+  const page = h("div", { class: "qr-page" }, toolbar, status,retry,content);
   el.append(page);
-
+  ctx.setReloadCoverage?.('read-only');
+  let generation=0;
+  retry.addEventListener('click',()=>void load());
+  async function load(){
+  const ticket=++generation;printBtn.disabled=true;retry.hidden=true;status.textContent=ctx.t('data.loading');replace(content);
+  const failed=()=>{if(ticket!==generation||!el.isConnected)return;printBtn.disabled=true;retry.hidden=false;status.textContent=UI.unavailable[lang];};
   let index: QrIndex;
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}qr/index.json`);
@@ -156,16 +165,22 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     if (!isIndex(json)) throw new Error("qr/index.json: unexpected shape");
     index = json;
   } catch (err) {
-    console.error(err);
-    status.textContent = ctx.t("data.notReady");
+    failed();
     return;
   }
-
+  if(ticket!==generation||!el.isConnected)return;
   const head = h(
     "header",
     { class: "qr-head" },
     h("h2", {}, `${ctx.t("app.name")} · ${UI.headline[lang]}`),
     h("p", { class: "muted" }, `${index.siteUrl} · ${UI.generated[lang]} ${formatWhen(index.generatedAt, lang)}`),
   );
-  status.replaceWith(head, ...index.items.map((item) => renderItem(item, ctx)));
+  const ready=new Set<string>(),broken=new Set<string>();
+  const cards=index.items.map(item=>{const card=renderItem(item,ctx),image=card.querySelector('img')!;
+   image.addEventListener('load',()=>{if(ticket!==generation||!el.isConnected)return;broken.delete(item.route);ready.add(item.route);if(ready.size===3&&!broken.size){printBtn.disabled=false;retry.hidden=true;status.textContent='';}});
+   image.addEventListener('error',()=>{ready.delete(item.route);broken.add(item.route);failed();});return card;
+  });
+  replace(content,head,...cards);
+  }
+  await load();
 }

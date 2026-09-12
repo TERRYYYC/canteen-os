@@ -177,3 +177,4 @@ a.src:hover { text-decoration: underline; }
 .prep [data-frozen-prep] [data-component-index]>figure>img{max-height:100px}
 .prep [data-frozen-prep] .step{padding:14px 0;align-items:flex-start}
 .prep [data-frozen-prep] p{line-height:1.5}
+.prep-filter-result .chip{min-height:44px;padding:0 16px}

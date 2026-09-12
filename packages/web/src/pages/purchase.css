@@ -165,3 +165,8 @@
 .tm-detail .tm-fact dt{font-size:10px}.tm-detail .tm-fact dd{font-size:13px;font-weight:500}
 .tm-detail>h3{font-size:17px;margin:20px 0 10px}
 .tm-detail>p{line-height:1.6}
+.tm-saved-list{padding:14px 16px;margin:10px 0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tm-saved-list>a{display:flex;min-height:44px;flex-direction:column;gap:6px;color:var(--ink);text-decoration:none}
+.tm-saved-list>a b{font-size:17px}.tm-saved-list>a span,.tm-saved-list details{color:var(--muted);font-size:12px}
+.tm-purchase-advanced>summary,.tm-saved-list summary{min-height:44px;padding:12px 0}
+.tm-purchase [data-shopping-index]>.tm-card>.tm-button{display:block;margin:8px 0;text-decoration:none}

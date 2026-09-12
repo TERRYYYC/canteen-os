@@ -2,7 +2,7 @@
 import type {IngredientSource, ReferenceIssue, ShoppingEstimate, ShoppingList, TeamMealsProjection} from '@canteenos/core';
 import {pick, type Lang} from '../i18n';
 import {text} from './team-ui';
-import {quantityText} from './team-details';
+import {quantityText} from './quantity-text';
 import {reasonText, shoppingText, type ShoppingWord} from './purchase-list';
 
 const words={
