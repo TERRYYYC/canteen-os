@@ -91,7 +91,7 @@
 
 /* ---------- 底部 sticky 保存条 ---------- */
 .adm-ing-bottom {
-  position: sticky; bottom: 0; z-index: 2;
+  position: sticky; bottom: var(--core-nav-height, 0px); z-index: 2;
   display: flex; gap: 10px;
   padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, transparent, var(--bg) 30%);

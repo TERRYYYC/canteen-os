@@ -64,7 +64,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   }
   function update(key:'listId'|'planIds',value:string){if(!live()||view[key]===value)return;view[key]=value;touch(view);const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;paint();if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();}
   function rawNotice(){return h('p',{class:'tm-status dirty',role:'status','data-purchase-raw-pending':'true'},lang==='zh'?'清单名称或范围选择尚未应用。':lang==='en'?'The list ID or scope choices have not been applied.':'Назву списку або вибір діапазону ще не застосовано.');}
-  function sourceVersion(revision:string){return h('details',{class:'tm-source'},h('summary',{},`${t('revision')}: ${revision.slice(0,8)}`),h('code',{},revision));}
+  function sourceVersion(revision:string){return h('details',{class:'tm-source'},h('summary',{},t('revision')),h('code',{},revision));}
   function scopeLabel(s:ShoppingSelection){return `${s.date} · ${tr(s.mealType)} · ${s.menuPlanRef}`;}
   function errorNode(e:unknown){return h('p',{class:'tm-error',role:'alert'},apiMessage(e,lang));}
   function paint(){

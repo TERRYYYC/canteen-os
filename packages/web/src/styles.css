@@ -232,9 +232,16 @@ img { max-width: 100%; }
 .dd{border:0;background:var(--surface-2);font-size:12px;min-height:32px}
 .dd select{min-height:32px;padding-left:12px;font-weight:500}
 .outlet{padding-left:20px;padding-right:20px}
-.core-nav{position:fixed;bottom:0;left:0;right:0;z-index:12;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));}
+:root{--core-nav-height:calc(76px + env(safe-area-inset-bottom,0px))}
+html{scroll-padding-bottom:calc(var(--core-nav-height) + 96px)}
+.outlet{padding-bottom:calc(var(--core-nav-height) + 24px)}
+.core-nav{height:var(--core-nav-height);position:fixed;bottom:0;left:0;right:0;z-index:12;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));}
 .core-nav>a,.core-nav>span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;text-decoration:none;color:var(--muted);font-size:11px;line-height:1.25;text-align:center;border-radius:8px}
 .core-nav [aria-current=page]{color:var(--accent);font-weight:650;background:var(--ok-bg)}
 .core-nav [aria-disabled=true]{opacity:.45}
 .nav-glyph{display:block;width:22px;height:22px;background:currentColor;mask-image:var(--nav-icon);mask-repeat:no-repeat;mask-position:center;mask-size:contain;-webkit-mask-image:var(--nav-icon);-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat}
 @media(min-width:900px){.appbar{padding-left:max(28px,calc((100vw - 1080px)/2));padding-right:max(28px,calc((100vw - 1080px)/2))}.core-nav{left:50%;transform:translateX(-50%);width:640px;border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0}.appbar .t{font-size:20px}.outlet{max-width:1080px}}
+
+.record-translations,.record-support,.prep-purchase-details{font-size:14px;color:var(--muted)}
+.record-translations summary,.record-support summary,.prep-purchase-details summary{cursor:pointer;padding:8px 0;min-height:40px}
+.record-support pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;font-size:12px}

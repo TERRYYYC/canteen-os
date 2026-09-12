@@ -1,3 +1,4 @@
+import {recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
 import type { TeamMealsProjection, I18nString, Quantity, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
@@ -43,13 +44,13 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   const dispose=()=>{live=false;for(const url of urls)URL.revokeObjectURL(url);urls.clear();};
   const stop=onDetached(el,dispose);
   const missing=()=>h('span',{class:'muted'},t('missing'));
-  const fact=(label:string,value:string|number|boolean|undefined)=>h('div',{class:'tm-fact'},h('dt',{},label),h('dd',{},value===undefined?missing():String(value)));
+  const fact=(label:string,value:string|number|boolean|undefined)=>h('div',{class:'tm-fact'},h('dt',{},label),h('dd',{},value===undefined?missing():typeof value==='boolean'?recordValue(value,lang)!:String(value)));
   const names=(name:I18nString)=>h('details',{class:'tm-detail-languages'},h('summary',{},t('languages')),h('dl',{class:'tm-facts'},...(['zh','en','uk'] as const).map(code=>fact(code.toUpperCase(),name[code]))));
   const link=(url:string|undefined,label:string):HTMLElement=>{const safe=safeLink(url);return safe?h('a',{href:safe,target:'_blank',rel:'noopener noreferrer'},label):h('span',{},label,': ',url??t('missing'));};
   function image(ref:ImageRef|undefined,owner:string,pointer:string,placeholder=false,read?:()=>Promise<RevisionAsset>):HTMLElement {
     const box=h('figure',{class:'tm-detail-image'});
     if(!ref){if(placeholder)box.append(h('p',{class:'muted'},t('imageMissing')));return box;}
-    const state=h('p',{class:'muted',role:'status'},t('imageLoading'));box.append(state,h('figcaption',{},`${t('license')}: ${ref.license} · ${t('author')}: ${ref.author??t('missing')} · `,link(ref.sourceUrl,ref.sourceUrl??t('missing'))));
+    const state=h('p',{class:'muted',role:'status'},t('imageLoading'));box.append(state,h('figcaption',{},h('details',{},h('summary',{},word(lang,'图片来源与许可','Image source and license','Джерело зображення й ліцензія')),`${t('license')}: ${ref.license} · ${t('author')}: ${ref.author??t('missing')} · `,link(ref.sourceUrl,word(lang,'查看来源','View source','Переглянути джерело')))));
     void (read?read():options.asset(owner,pointer)).then(result=>{
       if(!live||!el.isConnected)return;
       if(result.sourceRevision!==projection.sourceRevision)throw new Error('revision_mismatch');
@@ -62,35 +63,36 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   function technique(id:string|undefined):HTMLElement {
     if(!id)return h('p',{class:'muted'},`${t('technique')}: ${t('missing')}`);
     const value:Technique|undefined=projection.techniques.find(x=>x.id===id);
-    return h('div',{},h('p',{},`${t('technique')}: ${value?pick(value.name,lang):t('missingSource')} · ${id}`),value?names(value.name):null,value?.note?h('p',{},pick(value.note,lang)):null,value?.image?image(value.image,'data/techniques.json','',false,()=>options.techniqueAsset?options.techniqueAsset(id):Promise.reject(new Error('technique_asset_unavailable'))):null);
+    return h('div',{},h('p',{},`${t('technique')}: ${value?pick(value.name,lang):t('missingSource')}`),value?names(value.name):null,value?.note?h('p',{},pick(value.note,lang)):null,value?.image?image(value.image,'data/techniques.json','',false,()=>options.techniqueAsset?options.techniqueAsset(id):Promise.reject(new Error('technique_asset_unavailable'))):null);
   }
   function renderSources():void {
     el.append(h('h3',{},t('sources')));
     const sources=projection.collection.items.find(x=>x.ingredientRef===id)?.sources??[];
-    for(const source of sources)el.append(h('p',{},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||source.dishRef),h('small',{class:'muted'},` · ${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
+    for(const source of sources)el.append(h('div',{class:'tm-detail-source-recipe'},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||t('missingSource')),supportDetails(lang,`${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
-  el.append(h('details',{class:'tm-source'},h('summary',{},`${t('source')}: ${projection.sourceRevision.slice(0,8)}`),h('code',{},projection.sourceRevision)));
-  if(!record){el.append(h('p',{role:'alert'},`${t('missingSource')} · ${id}`));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
-  el.append(h('h2',{},pick(record.name,lang)),h('p',{class:'muted tm-detail-id'},id));
+  el.append(h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision)));
+  if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
+  el.append(h('h2',{},pick(record.name,lang)),supportDetails(lang,h('p',{class:'tm-detail-id'},id)));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
   el.append(image(record.image,owner,'/image',true));
   el.append(names(record.name));
   if(kind==='ingredient'){
     const item=lookup(projection.ingredients,id)!,p=item.purchase;
-    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit),fact('Wikidata',item.externalId),fact(t('supplier'),p?.supplier),fact(t('package'),p?`${p.packSize} ${p.packUnit}`:undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand!==undefined?`${item.onHand} ${item.baseUnit}`:undefined)));
+    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit),fact(t('supplier'),p?.supplier),fact(t('package'),p?`${p.packSize} ${p.packUnit}`:undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand!==undefined?`${item.onHand} ${item.baseUnit}`:undefined)));
+    if(item.externalId)el.append(supportDetails(lang,`Wikidata: ${item.externalId}`));
     renderSources();
   }else{
     const dish=lookup(projection.dishes,id)!;
-    el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),dish.provenance?.source)));
+    el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
     el.append(h('h3',{},t('components')),h('p',{class:'muted'},t('recipe')));
     if(!dish.components?.length)el.append(h('p',{role:'status'},t('missing')));
     for(const [index,component] of (dish.components??[]).entries()){
       const ingredient=lookup(projection.ingredients,component.ingredientRef),prep=component.prep;
       const card=h('section',{class:'tm-card','data-component-index':index},h('h4',{},h('a',{href:options.href('ingredient',component.ingredientRef)},ingredient?pick(ingredient.name,lang):component.ingredientRef)),h('p',{},quantityText(component.qty,lang)),h('p',{class:'muted'},`${t('role')}: ${ingredient?.role?t(ingredient.role):t('missing')}`));
-      if(prep)card.append(technique(prep.techniqueRef),h('dl',{class:'tm-facts'},fact(t('size'),prep.size),fact(t('timing'),prep.timing),fact(t('note'),prep.note?pick(prep.note,lang):undefined)),image(prep.image,owner,`/components/${index}/prep/image`));
-      if(component.confidence)card.append(h('small',{},`${t('confidence')}: ${component.confidence.value} · ${component.confidence.source}`));
+      if(prep)card.append(technique(prep.techniqueRef),h('dl',{class:'tm-facts'},fact(t('size'),prep.size),fact(t('timing'),recordValue(prep.timing,lang)),fact(t('note'),prep.note?pick(prep.note,lang):undefined)),image(prep.image,owner,`/components/${index}/prep/image`));
+      if(component.confidence)card.append(supportDetails(lang,h('small',{},`${t('confidence')}: ${component.confidence.value} · ${component.confidence.source}`)));
       el.append(card);
     }
     el.append(h('h3',{},t('steps')));

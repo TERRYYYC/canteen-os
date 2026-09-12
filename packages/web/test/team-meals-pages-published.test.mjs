@@ -58,3 +58,11 @@ test('Menu distinguishes external original images from unavailable pinned bytes 
 test('late Menu thumbnail bytes cannot attach after publication B replaces A in the same outlet',async()=>{let release;const pending=new Promise(r=>release=r),s=setup('menu-image',u=>u.pathname.includes('/assets/')?pending:undefined),el=mount();await mod.menu(el,await context(s,'menu'));await tick();assert(s.calls.some(c=>c.url.pathname.includes('/assets/')));s.select('empty-plan');await s.data.loadPublication({fresh:true});await mod.menu(el,await context(s,'menu'));release(new Response(await readFile(join(fixtures['menu-image'].root,'data/images/A %2F?# 雪.png')),{headers:{'Content-Type':'image/png'}}));await tick();assert.equal(nodes(el,'img').length,0);assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),'empty-plan');el.remove();});
 
 test('empty original description and steps are explicitly marked in their own Menu tabs',async()=>{const s=setup('menu-empty-recipe'),meal=fixtures['menu-empty-recipe'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,'zh'));assert.match(nodes(el,'[data-menu-recipe-panel="about"]')[0].textContent,/介绍尚未录入/);nodes(el,'[data-menu-recipe-tab="steps"]')[0].dispatch('click');assert.match(nodes(el,'[data-menu-recipe-panel="steps"]')[0].textContent,/做法尚未录入/);assert.equal(nodes(el,'[data-step-index]').length,0);assert(nodes(el,'[data-component-index]').length);el.remove();});
+
+test('publication notices are understandable without opening technical details',async()=>{
+ const s=setup('quantity-warning'),el=mount();await mod.prep(el,await context(s,'prep','','zh'));
+ const panel=nodes(el,'[data-publication-issues]')[0];assert(panel);panel.open=true;
+ const visible=n=>n.hidden?'':n.tagName==='DETAILS'&&!n.open?(n.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):n.text+n.children.map(visible).join(' ');
+ assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
+ assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
+});

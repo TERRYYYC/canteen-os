@@ -543,10 +543,10 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
   frozenMenuDisposers.set(el, dispose);
   const root = h("div", { class: "menu-page", "data-frozen-menu": "", "data-source-revision": source.projection.sourceRevision });
   root.append(h("h1", {class:"sr-only"}, t("title")));
-  const sourceInfo=h("details", {class:"raw-source"},h("summary",{},`${t("source")}: ${source.projection.sourceRevision.slice(0,8)}`),h("code",{},source.projection.sourceRevision));
+  const sourceInfo=h("details", {class:"raw-source"},h("summary",{},t("source")),h("code",{},source.projection.sourceRevision));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(source.projection.collection.issues, options.selection);
-  const issuePanel = renderFrozenIssues(selectedIssues, lang);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, source.projection);
   if (issuePanel) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingSource" : "empty")));
   for (const row of rows) {

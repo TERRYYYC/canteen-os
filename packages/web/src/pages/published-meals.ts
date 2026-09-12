@@ -1,3 +1,5 @@
+import {renderRecordNotice} from './record-notices';
+import {supportDetails,word} from './record-display';
 /** Page-owned navigation and presentation for C's verified public reader. */
 import type { MealType } from '@canteenos/core';
 import type { PublishedTeamPlan, Publication } from '../data';
@@ -52,7 +54,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const status = (state: string, message: string) => replace(el, h('p', { class: 'card', role: 'status', 'data-publication-state': state }, message));
   const failure = (error: unknown) => {
     status(error instanceof PublishedDataError ? error.code : 'unavailable', t('unavailable'));
-    if (error instanceof PublishedDataError) el.append(h('p', { class: 'muted', 'data-publication-error': error.code }, `${error.code} · ${error.stage}${error.status === null ? '' : ` · HTTP ${error.status}`}${error.sourceRevision ? ` · ${error.sourceRevision}` : ''}`));
+    if (error instanceof PublishedDataError) el.append(supportDetails(lang,h('p', { class: 'muted', 'data-publication-error': error.code }, `${error.code} · ${error.stage}${error.status === null ? '' : ` · HTTP ${error.status}`}${error.sourceRevision ? ` · ${error.sourceRevision}` : ''}`)));
   };
   if (ctx.publicationError) { failure(ctx.publicationError); return true; }
   if (!publication) { status('loading', ctx.t('data.loading')); return true; }
@@ -67,11 +69,11 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const record = plan.projection.menuPlans[plan.planId]!;
   const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
   replace(el, root);
-  const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':''},h('summary',{},page==='menu'?`${t('published')} · ${plan.sourceRevision.slice(0,8)}`:plan.sourceRevision.slice(0,8)),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
+  const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':''},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
   if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
-  else root.append(h('h1',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')),publicationInfo);
-  if (plan.issues.length) (page==='menu'?publicationInfo:root).append(h('details', { 'data-publication-issues': '' }, h('summary', {}, t('warning')),
-    ...plan.issues.map(issue => h('div', { 'data-publication-issue': issue.code }, h('p', {}, `${issue.kind} · ${issue.code}`), h('pre', { style: 'white-space:pre-wrap;overflow-wrap:anywhere' }, JSON.stringify(issue, null, 2))))));
+  else root.append(h('h1',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
+  if (plan.issues.length) root.append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
+    ...plan.issues.map(issue => renderRecordNotice(issue,lang,plan.projection,'data-publication-issue'))));
   if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')));if(page==='menu')root.append(publicationInfo); return true; }
   let memory = choices.get(publication);
   if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all' }; choices.set(publication, memory); }
@@ -88,7 +90,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
-  root.append(datesNav, mealsNav, dishNav, body);if(page==='menu')root.append(publicationInfo);
+  root.append(datesNav, mealsNav, dishNav, body, publicationInfo);
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
   function options(row?: FrozenMealRow): FrozenMealRenderOptions {
@@ -124,7 +126,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
       const button = h('button', { class: item === row ? 'chip accent' : 'chip', type: 'button', 'data-dish-index': item.mealIndex, 'aria-pressed': item === row ? 'true' : 'false' }, item.dish ? pick(item.dish.name, lang) : item.meal.dishRef);
       button.addEventListener('click', () => { memory!.dishes.set(key, item.mealIndex); paint(); }); dishNav.append(button);
     }
-    if (ingredientRef && !row) { body.append(h('p', { role: 'status', 'data-ingredient-source-choice': candidates.length ? 'multiple' : 'missing' }, `${t(candidates.length ? 'chooseSource' : 'missingIngredient')} · ${ingredientRef}`)); return; }
+    if (ingredientRef && !row) { body.append(h('p', { role: 'status', 'data-ingredient-source-choice': candidates.length ? 'multiple' : 'missing' }, t(candidates.length ? 'chooseSource' : 'missingIngredient'))); return; }
     if (ingredientRef) body.append(h('a', { class: 'chip', href: href('prep', date, selectedMeal ?? '') }, t('back')));
     const content = h('div');
     if (!ingredientRef) {
@@ -136,7 +138,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
       body.append(timings);
     }
     body.append(content);
-    stopBody = recipe(content, source, { ...options(row), ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing });
+    stopBody = recipe(content, source, { ...options(row), ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing, onShowAllTimings:()=>{memory!.timing='all';paint();} });
   }
   for (const type of mealTypes) {
     const windows = [...new Set(all.filter(row => row.meal.date === date && row.meal.mealType === type).map(row => row.meal.serviceWindow).filter(Boolean))];
@@ -150,7 +152,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   if (page === 'menu' && selectedMeal) memory.meal = selectedMeal;
   paint();
   if (page === 'menu' && second) {
-    if (!requestedDish) { root.append(h('p', { role: 'status' }, `${t('missingDish')} · ${second}`)); return true; }
+    if (!requestedDish) { root.append(h('p', { role: 'status' }, t('missingDish'))); return true; }
     const close = h('button', { type: 'button', class: 'chip', style: 'min-height:44px;flex:none', 'aria-label': t('close') }, t('close'));
     const content = h('div', { class: 'body', style: 'overflow-wrap:anywhere;min-height:0' });
     const dialog = h('div', { class: 'dsheet menu-recipe-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('published'), tabindex: '-1' }, close, content);
