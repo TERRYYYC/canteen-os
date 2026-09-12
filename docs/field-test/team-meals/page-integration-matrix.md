@@ -3,10 +3,38 @@ feature_ids: [team-meals]
 topics: [acceptance, browser, client-worker, T01-T09]
 doc_kind: test-plan
 created: 2026-09-11
-status: native-single-list-journey-verified-with-open-product-gap
+status: candidate-delta-verified-pending-product-review
 ---
 
 # 页面组合验收入口
+
+## 2026-09-13 追加：固定候选 4b1e5e1 差异验证通过
+
+**本轮列明的差异验证通过，未发现阻断本地人工验收的问题。** 原多清单辨识症状在本次新旧两单样本中未再现；这是 Q 对固定候选的真实 client→Worker 与页面验证，不替代 D 尚在进行的非作者审查或整体产品批准。按调度授权，仅消费 `4b1e5e13a82bd5a2437f95df20aaf49f77f8996f`（packages tree `88c692b92359a42bad85c4106645ee0c3627c863`），Q 集成及运行头为 `d9565a49c1271fcc20651c476b5925f713cb2e22`。下方 `68258e9 / c2f2b3a` 已完成的旅程原样继承，不重做保存结果未知、发布或其他未变路径。
+
+复用原 Q 工具，没有改产品源码或新增回执包。先编译新 Worker，再启动新 origin；64 份实际运行 Web 源及 30 份 Worker 源匹配固定候选，新索引由该 Worker 实际返回 decisionCounts，未接旧缓存接口。工具参数名 RCQ_APPROVED_PRODUCTION 在本轮只用作已指定候选的逐字校验，不代表审查批准。专用 Chrome 复用原 Q 标签，仅导航至 Q 新隔离端口；自然视口 1119×866，未操作用户其他标签、IAB 或 D 4275。
+
+新入口：[候选采购索引](http://127.0.0.1:4278/#/purchase)、[候选 Prep](http://127.0.0.1:4278/#/prep/2026-09-13)。收口实查 **running / launchd，PID 47124**，租约至 **2026-09-13 07:08:36 UTC（基辅 10:08:36）**，cwd 为本 Q 工作树。原 4277 同时仍 running / launchd、PID 27748，原租约 06:28:43 UTC 保持；没有重启原实例。
+
+### 隔离重建与本轮原生动作
+
+在新临时 Git `/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-local-publication-TPotbR` 重放冻结账本的 4 次原保存：新账本第 1–4 条**只是测试数据重建，不算新原生 Save**。4 次响应、提交与 blob 全部等于原件，恢复头仍为 `ffaaa84ac2e1815d11134510725cd8ba3ff83183`，10 个原文件记录逐字一致；独立本地构建恢复公共版 `577baf4ef1392d9840aea28defda3876d6542d74`，公共文件也与原件逐字一致。新 runtime `/private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-page-browser-eUrZpK` 与原运行目录分开。
+
+| 增量检查 | 实际结果 |
+|---|---|
+| 从真实索引找回原判断 | 第 5 条实际 GET /shopping-lists 返回原单 **待核对 1／待买 1／已有 2／已买 1**，页面显示同样摘要；原单编号为 shop-2026-09-12-be92ee96 |
+| 相同范围继续原单 | 从可读计划入口取消 9/12，仅选 9/13 午餐；页面出现相同范围旧单摘要、“继续这份清单”和“新建另一份清单”。实际点继续后打开原单，计数 1／1／2／1、保存禁用，没有 POST |
+| 明确另建并保存 | 返回同范围选择后明确点另建，生成独立 ID shop-2026-09-12-6301e70d，全待核对 5／0／0／0。第 15 条原生 Save 用 If-None-Match: *，成功提交 `0c3346b51bc4ee6c7938710df0e5e9aaf7f7ab02`；没有覆盖原单 |
+| 保存四类判断并重开 | 新单将油设已有、蛋设待买并已买、番茄设待买，盐和葱待核对。第 16 条原生 Save 的 If-Match 等于首次 ACK blob；成功提交 `7a2d400709a1dcfe12290824e75c142942fce530`，新 blob `fc116fb79bd8c207c1aea2a5cefe1b3abc13205f`。离开、reload 索引后为 **2／1／1／1**，再按该摘要重开仍相同；已买没有计入待买 |
+| 同范围两单可分别找回 | reload 后服务端同时显示两份日期、餐次、材料数相同的卡片，各有判断摘要和稳定完整编号；按 1／1／2／1 找回原单，原 blob 仍是 `b679665a6cad860b90e3dae72c720995d982f82e`。本轮没有第三单，也不外推全部分页或错误边界 |
+| Prep 前置与完整资料 | 9/13 首屏出现番茄，实测标题 y≈351.7 CSS px。5 项原量 7500 g／75 pcs／75 g／250 g／500 ml、3 个完整原步骤及各自视频片段都保留；配方来源展开后仍为原基准 50、计划份数未录和演示未核验声明。没有将原量说成实际需求 |
+| 空时机及缺资料 | 前一天仍显示空任务、3 项时机未录及查看全部，完整步骤不受筛选影响；点查看全部恢复 5 项原料。9/12 缺资料菜的待完善、缺配料、缺做法提示及对应补齐链接均可见 |
+
+新账本共 28 条 Worker 请求，其中 **4 条基础设施重建 + 24 条本轮原生请求；本轮原生 Save 仅第 15、16 条，全部实际响应 200**，另有 3 次公共 GET。7 次真实索引响应逐项与响应 commit 对应的 Git 保存内容独立计算核对，计数总和均等于 5、skipped=0、无下一页。新旧两单 selection 相同；basis revision 分别为原计划保存版 577baf4 与创建时最新私有版 ffaaa84，两版计划内容完全相同。
+
+最终数据差异仅新增 `data/shopping-lists/shop-2026-09-12-6301e70d.json`；其余原 10 文件、原采购单与公共输出全部逐字保持。原 4277 当前仍为 ffaaa84，26 条请求与旧冻结账本完全相同；旧证据索引内全部原件 SHA256 重新核对一致。没有远端 Git、发布/回退、菜谱人工核验或 PWA 更新动作。页面仍受原测试 CSP 的 SW 注册限制，本轮只验在线路径。
+
+证据：[增量断言](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-delta-4b1/verification.json)、[冻结账本](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-delta-4b1/ledger-at-completion.json)、[重建核对](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-delta-4b1/restoration-verification.json)、[16 组原始截图与 DOM 索引](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-delta-4b1/artifact-index.json)。账本 SHA256 `a062584369d946f5a7b7af58871c378d6ddf048711f05d6dfe6bb6543d5e99d8`。原始执行脚本、Worker 构建日志和两个托管状态同目录保存；没有全量重跑或将上游审查算作本轮执行。
 
 ## 2026-09-13：固定 68258e9 的本地单清单原生旅程已验证，多清单问题未关闭
 
