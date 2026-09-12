@@ -349,6 +349,8 @@ export interface FrozenMealSelection {
 }
 export type FrozenImageResult = RevisionAsset | PublishedAsset;
 export interface FrozenMealRenderOptions {
+  /** Compact task hierarchy for the public Prep entry; other recipe consumers keep their layout. */
+  layout?: "cooking";
   ingredientRef?: string;
   timing?: string;
   onShowAllTimings?: () => void;
@@ -465,7 +467,7 @@ export function renderFrozenIssues(issues: readonly ReferenceIssue[], lang: Lang
 export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions): () => void {
   const rows = selectFrozenMealRows(source, options.selection);
   frozenPrepDisposers.get(el)?.();
-  const { projection } = source, { lang } = options, t = (key: RawKey): string => rawText(lang, key);
+  const { projection } = source, { lang } = options, t = (key: RawKey): string => rawText(lang, key), cooking = options.layout === "cooking";
   let live = true;
   const urls = new Set<string>();
   const dispose = (): void => {
@@ -478,7 +480,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   const observer = new MutationObserver(() => { if (!el.isConnected) dispose(); });
   observer.observe(document.body, { childList: true, subtree: true });
   frozenPrepDisposers.set(el, dispose);
-  const root = h("div", { class: "prep", "data-frozen-prep": "", "data-source-revision": projection.sourceRevision });
+  const root = h("div", { class: cooking ? "prep prep-cooking" : "prep", "data-frozen-prep": "", "data-source-revision": projection.sourceRevision });
   el.replaceChildren(root);
   const fact = (label: string, value: string | number | undefined): HTMLElement => h("p", {}, h("b", {}, `${label}: `), value === undefined ? t("missing") : String(value));
   const names = (name: I18nString | undefined): HTMLElement => translations(name, lang);
@@ -493,6 +495,8 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     link.addEventListener("click", () => options.onReference?.(kind, id));
     return link;
   };
+  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message, " ",
+    h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
   function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>): HTMLElement {
     const box = h("figure", {});
     const load = read ?? (options.asset ? () => options.asset!({ revision: projection.sourceRevision, owner, pointer }) : undefined);
@@ -519,17 +523,19 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     }
     return box;
   }
-  function technique(ref: string | undefined): HTMLElement {
+  function technique(ref: string | undefined, dishRef?: string): HTMLElement {
     const record = ref ? projection.techniques.find(item => item.id === ref) : undefined;
     const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? t("missingRecord") : undefined), record ? names(record.name) : null, record?.note ? fact(t("note"), pick(record.note, lang)) : null);
     if (record?.image) result.append(image(record.image, "", "", options.techniqueAsset ? () => options.techniqueAsset!(record.id) : async () => { throw new Error("technique_asset_unavailable"); }));
+    if (cooking && ref && !record && dishRef) result.append(attention(word(lang,"技法资料未找到，无法确认这项操作，请向配方提供者核对。","Technique information is unavailable; check this operation with the recipe author.","Дані техніки недоступні; уточніть цю дію в автора рецепта."), "dish", dishRef));
     return result;
   }
-  root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision)));
+  const sourceInfo = h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision));
+  if (!cooking) root.append(h("h1", {}, t("title")), sourceInfo);
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
-  if (issuePanel) root.append(issuePanel);
+  if (issuePanel && !cooking) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
   const timedComponents = rows.flatMap(row => row.dish?.components ?? []);
   const matching = timedComponents.filter(component => (!options.ingredientRef || component.ingredientRef === options.ingredientRef) && (!options.timing || options.timing === "all" || component.prep?.timing === options.timing));
@@ -544,34 +550,62 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
-    section.append(h("div", { class: "dish-head" }, h("div", {}, h("h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`))), fact(t("planned"), meal.plannedServings));
+    const context = h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
+    section.append(h("div", { class: "dish-head" }, h("div", {}, h(cooking ? "h1" : "h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), cooking ? null : context)));
+    if (!cooking) section.append(fact(t("planned"), meal.plannedServings));
     root.append(section);
-    if (!dish) { section.append(h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,meal.dishRef))); continue; }
+    if (!dish) { section.append(cooking ? attention(word(lang,"菜谱未找到，备料和做法可能漏项。","Recipe unavailable; preparation and steps may be incomplete.","Рецепт недоступний; підготовка й кроки можуть бути неповними."), "dish", meal.dishRef) : h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,meal.dishRef))); continue; }
     const owner = `data/dishes/${meal.dishRef}.json`;
-    section.append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"), h("h3", { class: "section-label" }, t("components")), h("p", { class: "muted" }, t("original")));
-    if (!dish.components?.length) section.append(h("p", { class: "muted", role: "status" }, t("missing")));
+    const recipeRecord = h("details", { class: "prep-recipe-record" }, h("summary", {}, word(lang,"配方资料与来源","Recipe record and source","Дані й джерело рецепта")));
+    if (cooking) recipeRecord.append(context, fact(t("planned"), meal.plannedServings));
+    (cooking ? recipeRecord : section).append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"));
+    section.append(h("h3", { class: "section-label" }, cooking && options.ingredientRef ? t("selectedComponents") : t("components")), h("p", { class: "muted prep-quantity-basis" }, t("original")));
+    if (cooking && dish.baseServings === undefined) recipeRecord.append(attention(word(lang,"配方基准份数未录，暂不能按计划份数换算；请人工核对本次用量。","Recipe servings are not recorded; quantities cannot be scaled to the plan. Check this meal’s amounts manually.","Базові порції рецепта не записано; кількості не можна перерахувати за планом. Перевірте потрібну кількість вручну."), "dish", meal.dishRef));
+    if (cooking && meal.plannedServings === undefined) recipeRecord.append(attention(word(lang,"计划份数未录，无法确认本次用量；此页仍为原配方用量。","Planned servings are not recorded; this meal’s amounts cannot be confirmed. This page shows original quantities.","Порції в плані не записано; потрібну кількість не можна підтвердити. На цій сторінці наведено вихідні кількості."), "plan", menuPlanRef));
+    if (cooking && dish.status !== "active") section.append(attention(word(lang,"菜谱待完善，请核对材料和做法后再使用。","Recipe needs review; check ingredients and steps before use.","Рецепт потребує перевірки; перевірте інгредієнти й кроки перед використанням."), "dish", meal.dishRef));
+    if (!dish.components?.length) section.append(cooking ? attention(word(lang,"尚未录入配料，备料清单可能不完整。","Ingredients are not recorded; preparation may be incomplete.","Інгредієнти не записано; підготовка може бути неповною."), "dish", meal.dishRef) : h("p", { class: "muted", role: "status" }, t("missing")));
     if (options.ingredientRef && !dish.components?.some(component => component.ingredientRef === options.ingredientRef)) section.append(h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,options.ingredientRef)));
     for (const [componentIndex, component] of (dish.components ?? []).entries()) {
       if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
       if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
-      const card = h("section", { class: "card", "data-component-index": componentIndex }, h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), names(ingredient?.name), h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang)), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
-      if (ingredient?.image) card.append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
-      if (!ingredient) card.append(h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
-      card.append(h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier)));
-      if (prep) card.append(technique(prep.techniqueRef), fact(t("size"), prep.size), fact(t("timing"), recordValue(prep.timing, lang)), fact(t("note"), prep.note ? pick(prep.note, lang) : undefined), image(prep.image, owner, `/components/${componentIndex}/prep/image`));
+      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang));
+      const card = h("section", { class: "card", "data-component-index": componentIndex });
+      const ingredientRecord = h("details", { class: "prep-ingredient-record" }, h("summary", {}, word(lang,"材料与采购资料","Ingredient and purchase record","Дані інгредієнта й закупівлі")));
+      if (cooking) { card.append(h("div", { class: "prep-ingredient-heading" }, label, quantity)); ingredientRecord.append(names(ingredient?.name), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined)); }
+      else card.append(label, names(ingredient?.name), quantity, fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
+      if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
+      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
+      const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
+      (cooking ? ingredientRecord : card).append(purchase);
+      if (prep) {
+        (cooking && !prep.techniqueRef ? ingredientRecord : card).append(technique(prep.techniqueRef, meal.dishRef));
+        (cooking && !prep.size ? ingredientRecord : card).append(fact(t("size"), prep.size));
+        (cooking && !prep.timing ? ingredientRecord : card).append(fact(t("timing"), recordValue(prep.timing, lang)));
+        (cooking && !prep.note ? ingredientRecord : card).append(fact(t("note"), prep.note ? pick(prep.note, lang) : undefined));
+        (cooking && !prep.image ? ingredientRecord : card).append(image(prep.image, owner, `/components/${componentIndex}/prep/image`));
+      }
+      if (cooking) card.append(ingredientRecord);
       section.append(card);
     }
     section.append(h("h3", { class: "section-label" }, t("steps")));
-    if (!dish.steps?.length) section.append(h("p", { class: "muted", role: "status" }, t("missing")));
+    if (!dish.steps?.length) section.append(cooking ? attention(word(lang,"做法尚未录入，无法按记录完成制作。","Method not recorded; the recipe cannot be followed from this record.","Спосіб приготування не записано; за цим записом неможливо приготувати страву."), "dish", meal.dishRef) : h("p", { class: "muted", role: "status" }, t("missing")));
     for (const [stepIndex, step] of (dish.steps ?? []).entries()) {
-      const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)), names(step.text), technique(step.techniqueRef), image(step.image, owner, `/steps/${stepIndex}/image`));
+      const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)));
+      const stepRecord = h("details", { class: "prep-step-record" }, h("summary", {}, word(lang,"步骤资料","Step record","Дані кроку")), names(step.text));
+      if (!cooking) body.append(names(step.text));
+      (cooking && !step.techniqueRef ? stepRecord : body).append(technique(step.techniqueRef, meal.dishRef));
+      (cooking && !step.image ? stepRecord : body).append(image(step.image, owner, `/steps/${stepIndex}/image`));
       if (step.clip) body.append(h("p", {}, `${t("clip")}: ${step.clip.start}s–${step.clip.end}s · `, external(step.clip.videoUrl, word(lang,"查看原视频","View original video","Переглянути вихідне відео"))));
+      if (cooking) body.append(stepRecord);
       section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
     }
-    section.append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
-    if (dish.provenance?.videoUrl) section.append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
+    (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
+    if (dish.provenance?.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
+    if (cooking) section.append(recipeRecord);
   }
+  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }
   root.append(h("p", { class: "muted" }, t("coverage")));
   return dispose;
 }

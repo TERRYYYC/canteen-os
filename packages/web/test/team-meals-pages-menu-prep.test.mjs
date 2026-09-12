@@ -204,6 +204,31 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
 
 // Readability assertions model closed native disclosures, not CSS/layout.
 const ordinaryText=node=>node.hidden?'':node.tagName==='DETAILS'&&!node.open?(node.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):node.text+node.children.map(ordinaryText).join(' ');
+test('cooking layout leads with original ingredients and full steps; recorded metadata stays accessible after the task',()=>{
+ for(const lang of ['zh','en','uk']){
+  const el=mount(),source=fixture(),before=JSON.stringify(source),stop=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking'});
+  const recipe=attr(el,'data-recipe-meal-index')[0],children=recipe.children;
+  assert.equal(tag(el,'h1').length,1);assert.equal(tag(el,'h1')[0].textContent,source.projection.dishes['dish-a'].name[lang]);
+  assert(children.findIndex(n=>n.getAttribute('data-component-index')==='0')<children.findIndex(n=>n.tagName==='DETAILS'),'ingredients precede recipe metadata');
+  const metadata=tag(recipe,'details').find(n=>n.getAttribute('class')==='prep-recipe-record');assert(metadata,'recipe metadata has a secondary disclosure');
+  assert(children.indexOf(metadata)>children.findIndex(n=>n.getAttribute('data-step-index')==='1'),'full steps precede recipe metadata');
+  assert.match(metadata.textContent,/CC BY 4.0/);assert.doesNotMatch(ordinaryText(recipe),/CC BY 4.0|Recorded author/);
+  assert.deepEqual(attr(el,'data-original-quantity').map(n=>n.textContent),['1500 g',prep.rawQuantityText(undefined,lang),prep.rawQuantityText({unit:'to-taste'},lang),prep.rawQuantityText(undefined,lang)]);
+  assert.equal(attr(el,'data-step-index').length,2);assert.match(ordinaryText(el),new RegExp(source.projection.dishes['dish-a'].steps[1].text[lang]));
+  assert.equal(JSON.stringify(source),before);stop();el.remove();
+ }
+});
+test('cooking missing quantities and source gaps explain the impact beside the affected task and link to repair',()=>{
+ const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),{...options(),layout:'cooking'});
+ const quantity=attr(el,'data-component-index','1')[0],missing=attr(el,'data-component-index','3')[0];
+ assert.match(ordinaryText(quantity),/用量未录/);assert.match(ordinaryText(quantity),/无法确定.*备料量/);
+ assert(tag(quantity,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));
+ assert.match(ordinaryText(missing),/食材资料未找到/);assert(tag(missing,'a').some(n=>n.getAttribute('href')==='#/admin/ingredient/missing'));
+ assert.match(ordinaryText(el),/原配方用量，未缩放/);assert.doesNotMatch(ordinaryText(el),/基准份数未录|计划份数未录|乙菜|≈/);
+ const record=tag(el,'details').find(n=>n.getAttribute('class')==='prep-recipe-record');record.open=true;
+ assert.match(ordinaryText(record),/基准份数未录.*不能.*换算/);assert.match(ordinaryText(record),/计划份数未录/);
+ stop();el.remove();
+});
 test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());
  const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1500 g/);

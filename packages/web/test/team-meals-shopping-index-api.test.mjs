@@ -14,7 +14,7 @@ await writeFile(join(dir, 'api.mjs'), build.outputFiles[0].text);
 const {createTeamMealsApi} = await import(pathToFileURL(join(dir, 'api.mjs')));
 const A = 'a'.repeat(40), B = 'b'.repeat(40), TOKEN = 't'.repeat(43);
 const selection = [{menuPlanRef:'team', date:'2026-09-12', mealType:'lunch'}];
-const item = {id:'trip', selection, itemCount:2};
+const item = {id:'trip', selection, itemCount:2, decisionCounts:{check:1,buy:0,available:0,bought:1}};
 const page = overrides => ({ok:true, commit:A, items:[item], nextCursor:null, skipped:0, ...overrides});
 const json = (body, status=200) => new Response(JSON.stringify(body), {status});
 function setup(respond = () => json(page()), options = {}) {
@@ -29,14 +29,45 @@ function setup(respond = () => json(page()), options = {}) {
 test('shopping index client: authenticated GET, cloned cache, force and cursor partition', async () => {
   const {api, calls} = setup();
   assert.equal(typeof api.listShoppingLists, 'function', 'actual TeamMealsApi must expose discovery');
-  const first = await api.listShoppingLists(); first.items[0].selection[0].menuPlanRef = 'mutated';
+  const first = await api.listShoppingLists(); first.items[0].selection[0].menuPlanRef = 'mutated'; first.items[0].decisionCounts.check = 99;
   assert.equal((await api.listShoppingLists()).items[0].selection[0].menuPlanRef, 'team');
+  assert.deepEqual((await api.listShoppingLists()).items[0].decisionCounts, {check:1,buy:0,available:0,bought:1});
   assert.equal(calls.length, 1);
   await api.listShoppingLists({force:true}); await api.listShoppingLists({cursor:`v1.${A}.20`});
   assert.equal(calls.length, 3); assert.ok(calls.every(c => c.init.method === 'GET'));
   assert.equal(new Headers(calls[0].init.headers).get('Authorization'), `Bearer ${TOKEN}`);
   assert.equal(calls[2].url, `https://shopping-index.invalid/shopping-lists?cursor=v1.${A}.20`);
   assert.deepEqual(Object.keys(await api.listShoppingLists()).sort(), ['commit','items','nextCursor','skipped']);
+});
+
+test('shopping index client: missing or invalid decision counts never become usable summaries', async () => {
+  const {decisionCounts: _counts, ...oldItem} = item;
+  const responses = [oldItem, ...[
+    null, [], {}, {check:2,buy:0,available:0}, {check:2,buy:0,available:0,bought:0,extra:0},
+    {check:-1,buy:2,available:1,bought:0}, {check:0.5,buy:0.5,available:1,bought:0},
+    {check:'1',buy:0,available:0,bought:1}, {check:true,buy:0,available:0,bought:1},
+    {check:Number.MAX_SAFE_INTEGER+1,buy:0,available:0,bought:0},
+    {check:Number.MAX_SAFE_INTEGER,buy:Number.MAX_SAFE_INTEGER,available:0,bought:0},
+    {check:1,buy:0,available:0,bought:0}, {check:1,buy:1,available:0,bought:1},
+  ].map(decisionCounts => ({...item, decisionCounts}))];
+  for (const summary of responses) {
+    const {api} = setup(() => json(page({items:[summary]})));
+    await assert.rejects(api.listShoppingLists(), {code:'bad_response'}, JSON.stringify(summary));
+  }
+});
+
+test('shopping index client: zero decision counts and paged counts preserve their exact values', async () => {
+  const counts = {check:0,buy:0,available:0,bought:0};
+  const {api:empty} = setup(() => json(page({items:[{...item,itemCount:0,decisionCounts:counts}]})));
+  assert.deepEqual((await empty.listShoppingLists()).items[0].decisionCounts, counts);
+  const {api,calls} = setup(url => new URL(url).searchParams.has('cursor')
+    ? json(page({items:[{...item,decisionCounts:{check:0,buy:2,available:0,bought:0}}]}))
+    : json(page({skipped:19,nextCursor:`v1.${A}.20`})));
+  const first = await api.listShoppingLists();
+  const second = await api.listShoppingLists({cursor:first.nextCursor});
+  assert.deepEqual(first.items[0].decisionCounts, {check:1,buy:0,available:0,bought:1});
+  assert.deepEqual(second.items[0].decisionCounts, {check:0,buy:2,available:0,bought:0});
+  assert.equal(second.commit, first.commit); assert.equal(calls.length, 2);
 });
 
 test('shopping index client: rejects unknown/malformed summaries, revisions, cursors and page counts', async () => {

@@ -2,7 +2,7 @@
 import './admin/plan.css';
 import './purchase.css';
 import {normalizeSelection,type AnyMenuPlan,type ShoppingSelection,type ShoppingList} from '@canteenos/core';
-import {getTeamMealsApi,type TeamMealsApi,type ShoppingListIndex} from '../api/team-meals';
+import {getTeamMealsApi,type TeamMealsApi,type ShoppingListIndex,type ShoppingListSummary,type ShoppingDecisionCounts} from '../api/team-meals';
 import {ApiError,type Source} from '../api/types';
 import {apiMessage} from '../admin/kit';
 import {h,replace} from '../dom';
@@ -24,6 +24,12 @@ const scopeKey=(scope:Scope|null)=>scope?JSON.stringify([scope.revision,normaliz
 const rawPending=(view:View)=>view.listId!==view.baseline.listId||view.planIds!==view.baseline.planIds||scopeKey(view.scope)!==view.baseline.scope;
 const validId=(value:string)=>/^[a-z][a-z0-9-]*$/.test(value);
 const slotKey=(s:ShoppingSelection)=>JSON.stringify([s.menuPlanRef,s.date,s.mealType]);
+const selectionKey=(selection:ShoppingSelection[])=>JSON.stringify(normalizeSelection(selection).map(slotKey));
+const countDecisions=(list:ShoppingList):ShoppingDecisionCounts=>{
+ const counts={check:0,buy:0,available:0,bought:0};
+ for(const item of list.items)counts[item.decision==='buy'&&item.bought===true?'bought':item.decision]++;
+ return counts;
+};
 export function createPurchaseRenderer(api:TeamMealsApi){
  let auth=api.sessionKey(),controller=createPurchaseForm(api,{at:new Date().toISOString()}),epoch=0,cleanup=()=>{};
  const views=new Map<string,View>();let generation=0;
@@ -61,11 +67,11 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   el.classList.add('tm-page');el.classList.add('tm-purchase');const body=h('div',{});
   el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase',detail?routeId:'')},tr('back')),h('h2',{class:'sr-only'},t('title')),h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))));
   // Every non-C1 readonly operation settles its own original handle, even after auth/navigation.
-  async function read<T>(work:()=>Promise<T>):Promise<T>{
-   const handle=view.reload,operation=handle.beginOperation('read');touch(view);
+  async function read<T>(work:()=>Promise<T>,advance=true):Promise<T>{
+   const handle=view.reload,operation=handle.beginOperation('read');if(advance)touch(view);
    try{const result=await work();handle.settleOperation(operation,'completed');return result;}
    catch(e){handle.settleOperation(operation,'failed');throw e;}
-   finally{touch(view);}
+   finally{if(advance)touch(view);}
   }
   async function run(work:()=>Promise<unknown>,kind:'read'|'c1'='read',initial=false){
    if(!live()||(!initial&&view.active))return;view.active++;error=null;notify(view);
@@ -104,7 +110,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     if(view.planIds===view.baseline.planIds)view.planIds=planIds;
     view.baseline.planIds=planIds;view.baseline.scope=scopeKey(view.scope);touch(view);
    }
-   const stateNode=status(s,lang);if(s.phase==='saved-but-unpublished'&&stateNode.firstChild)stateNode.firstChild.textContent=t('saved');if(s.phase==='saving'&&stateNode.firstChild)stateNode.firstChild.textContent=lang==='zh'?'正在保存清单…':lang==='en'?'Saving list…':'Збереження списку…';nodes.push(stateNode,sourceVersion(basis.sourceRevision));
+   const stateNode=status(s,lang);if(s.phase==='saved-but-unpublished'&&stateNode.firstChild)stateNode.firstChild.textContent=t('saved');if(s.phase==='saving'&&stateNode.firstChild)stateNode.firstChild.textContent=lang==='zh'?'正在保存清单…':lang==='en'?'Saving list…':'Збереження списку…';nodes.push(stateNode,listReference(list.id),sourceVersion(basis.sourceRevision));
    if(s.error)nodes.push(errorNode(new ApiError(s.error.status,s.error.code,s.error.message,s.error.errors,s.error.retryAfter,s.error.reviewRequired)));
    if(detail){
     if(!detailsModule){nodes.push(h('p',{role:'status'},tr('loading')));if(!busy)nodes.push(action(tr('retry'),()=>void load()));replace(body,...nodes);return;}
@@ -121,7 +127,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    }
    nodes.push(h('section',{class:'tm-purchase-intro'},h('small',{},t('intro')),h('h2',{},t('headline')),
     h('details',{class:'tm-purchase-scope'},h('summary',{},`${t('scope')} · ${list.basis.selection.length}`),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
-   nodes.push(h('div',{class:'tm-purchase-metrics',role:'group','aria-label':t('summary')},...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('small',{},t(decision)),h('b',{'data-decision-count':decision},String(list.items.filter(item=>decision==='bought'?item.decision==='buy'&&item.bought===true:item.decision===decision&&(decision!=='buy'||!item.bought)).length))))));
+   const counts=countDecisions(list);
+   nodes.push(h('div',{class:'tm-purchase-metrics',role:'group','aria-label':t('summary')},...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('small',{},t(decision)),h('b',{'data-decision-count':decision},String(counts[decision]))))));
    if(s.phase==='outcome-unknown'){const recover=action(tr('recover'),()=>void run(()=>form.reconcileUnknown(s.contextId),'c1'));recover.disabled=s.recovering||busy;nodes.push(recover);}
    if(s.phase==='conflict')nodes.push(conflictPanel(list));
    if(!s.source)nodes.push(h('p',{class:'tm-status'},t('first')));
@@ -133,22 +140,31 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
    nodes.push(h('details',{class:'tm-purchase-advanced'},h('summary',{},t('apply')),scopeForm(true)));replace(body,...nodes);
   }
-  function savedLink(item:{id:string;selection:ShoppingSelection[];itemCount:number}){
+  function listReference(id:string){return h('p',{class:'tm-list-reference'},w('清单编号','List number','Номер списку'),' · ',h('code',{},id));}
+  function savedLink(item:ShoppingListSummary,continuing=false){
    const dates=[...new Set(item.selection.map(s=>s.date))].sort(),label=dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??w('未记录日期','Date unrecorded','Дату не записано');
-   return h('article',{class:'tm-saved-list'},h('a',{href:hrefOf('purchase',item.id)},h('b',{},label),h('span',{},`${item.itemCount} ${w('项材料','ingredients','інгредієнтів')} · ${item.selection.length} ${w('餐次','meal slots','прийомів їжі')}`)),
+   return h('article',{class:'tm-saved-list'},h('a',{href:hrefOf('purchase',item.id)},h('b',{},label),h('span',{},`${[...new Set(item.selection.map(slot=>tr(slot.mealType)))].join(' / ')} · ${item.itemCount} ${w('项材料','ingredients','інгредієнтів')} · ${item.selection.length} ${w('餐次','meal slots','прийомів їжі')}`),continuing?h('strong',{},w('继续这份清单','Continue list','Продовжити цей список')):null),
+    h('div',{class:'tm-saved-progress',role:'group','aria-label':w('已保存判断','Saved decisions','Збережені рішення')},h('p',{},w('已保存判断','Saved decisions','Збережені рішення')),...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('span',{},t(decision)),h('b',{'data-decision-count':decision},String(item.decisionCounts[decision]))))),listReference(item.id),
     h('details',{},h('summary',{},w('查看范围','View scope','Переглянути діапазон')),...item.selection.map(s=>h('p',{},scopeLabel(s))),supportDetails(lang,JSON.stringify({id:item.id,selection:item.selection}))));
   }
-  function discovery(){
-   const card=h('section',{'data-shopping-index':'true'},h('h3',{},w('已保存的清单','Saved lists','Збережені списки')));
-   if(recent.length)card.append(h('details',{},h('summary',{},w('本次使用最近打开','Recently opened in this session','Нещодавно відкриті в цьому сеансі')),...recent.map(list=>savedLink({id:list.id,selection:list.basis.selection,itemCount:list.items.length}))));
+  const matchingLists=(selection:ShoppingSelection[])=>index?.items.filter(item=>selectionKey(item.selection)===selectionKey(selection))??[];
+  const indexComplete=()=>!!index&&!indexBusy&&!indexError&&!index.nextCursor&&!index.skipped;
+  function savedIndex(selection?:ShoppingSelection[]){
+   const card=h('section',{[selection?'data-same-scope':'data-shopping-index']:'true'},h('h3',{},selection?w('相同范围的已保存清单','Saved lists for this exact scope','Збережені списки для цього діапазону'):w('已保存的清单','Saved lists','Збережені списки')));
+   if(!selection&&recent.length)card.append(h('details',{},h('summary',{},w('本次使用最近打开','Recently opened in this session','Нещодавно відкриті в цьому сеансі')),...recent.map(list=>savedLink({id:list.id,selection:list.basis.selection,itemCount:list.items.length,decisionCounts:countDecisions(list)}))));
    if(indexBusy)card.append(h('p',{role:'status'},tr('loading')));
-   if(index)card.append(...index.items.map(savedLink));
-   if(index&&!indexBusy&&!indexError&&!index.items.length&&!index.nextCursor&&!index.skipped)card.append(h('p',{},w('还没有保存的采购清单。先从计划选择采购范围。','No saved shopping lists yet. Choose a plan to start.','Збережених списків ще немає. Спочатку виберіть план.')));
-   if(index?.nextCursor)card.append(h('p',{},w('当前仅显示部分清单，还有下一页。','This is a partial list. More results are available.','Показано частину списків. Доступна наступна сторінка.')));
+   const items=selection?matchingLists(selection):index?.items??[];
+   card.append(...items.map(item=>savedLink(item,!!selection)));
+   if(indexComplete()&&!items.length)card.append(h('p',{},selection?w('这个范围还没有已保存清单。','No saved list has this exact scope.','Для цього діапазону ще немає збереженого списку.'):w('还没有保存的采购清单。先从计划选择采购范围。','No saved shopping lists yet. Choose a plan to start.','Збережених списків ще немає. Спочатку виберіть план.')));
+   if(index?.nextCursor)card.append(h('p',{},w('当前仅检查了部分清单，还有下一页。','Only part of the saved lists has been checked. More results are available.','Перевірено лише частину списків. Доступна наступна сторінка.')));
    if(index?.skipped)card.append(h('p',{role:'status'},`${index.skipped} ${w('份记录无法读取，清单列表不完整。请联系管理员检查。','records could not be read; this list is incomplete. Ask an administrator to check.','записів не вдалося прочитати; список неповний. Зверніться до адміністратора.')}`));
    if(indexError)card.append(h('p',{role:'alert'},w('清单列表读取失败；不能据此判断没有清单。','Saved lists could not be loaded; this does not mean none exist.','Не вдалося завантажити списки; це не означає, що їх немає.')),errorNode(indexError));
-   if(indexError&&index?.items.length)card.append(h('p',{role:'status'},w('以上是上次读到的清单；本次未更新成功。','Showing previously loaded lists; this refresh failed.','Показано попередньо завантажені списки; оновлення не вдалося.')));
+   if(indexError&&index?.items.length)card.append(h('p',{role:'status'},w('以上是上次读到的清单和已保存判断；本次未更新成功。','Showing previously loaded lists and saved decisions; this refresh failed.','Показано попередньо завантажені списки та рішення; оновлення не вдалося.')));
    const more=action(index?.nextCursor?w('加载更多','Load more','Завантажити ще'):indexError?tr('retry'):w('刷新清单','Refresh lists','Оновити списки'),()=>void loadIndex(index?.nextCursor??undefined));more.disabled=indexBusy;card.append(more);
+   return card;
+  }
+  function discovery(){
+   const card=savedIndex();
    const start=h('section',{class:'tm-card'},h('h3',{},w('从计划新建清单','Create from a plan','Створити з плану')));
    for(const [id,plan] of planChoices){if(plan)start.append(h('a',{class:'tm-button',href:hrefOf('purchase',`new/${id}/all`)},pick(plan.name,lang)||w('已保存的计划','Saved plan','Збережений план')));}
    if(!planChoices.size||plansFailed)start.append(h('p',{},w('未能列出可用计划。可从排菜单页打开所需计划，再选择“建立采购清单”。','Available plans could not be listed. Open a plan on the planning page and choose “Create shopping list”.','Не вдалося показати доступні плани. Відкрийте потрібний план і виберіть «Створити список покупок».')));
@@ -156,7 +172,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   }
   async function loadIndex(cursor?:string){
    if(!live()||indexBusy)return;indexBusy=true;indexError=null;paint();
-   try{const result=await read(()=>api.listShoppingLists({cursor,force:true}));if(!live())return;
+   try{const result=await read(()=>api.listShoppingLists({cursor,force:true}),false);if(!live())return;
     if(cursor&&index&&result.commit!==index.commit)throw new ApiError(0,'revision_mismatch','');
     index=cursor&&index?{...result,items:[...index.items,...result.items],skipped:index.skipped+result.skipped}:result;
    }catch(e){if(live())indexError=e;}finally{indexBusy=false;paint();}
@@ -209,13 +225,19 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     for(const option of scope.options){const checkbox=h('input',{type:'checkbox',checked:scope.selected.some(s=>slotKey(s)===slotKey(option))});checkbox.disabled=busy;
      checkbox.addEventListener('change',()=>{if(!live()||view.scope!==scope||busy)return;scope.selected=normalizeSelection(checkbox.checked?[...scope.selected,option]:scope.selected.filter(s=>slotKey(s)!==slotKey(option)));view.inputGeneration++;touch(view);paint();});
      card.append(h('label',{class:'tm-slot'},checkbox,h('span',{},scopeLabel(option))));}
-    const apply=action(existing?t('apply'):t('create'),()=>void run(async()=>{
+    if(!existing&&scope.selected.length)card.append(savedIndex(scope.selected));
+    const checkedIndex=index,checkedError=indexError,choiceScope=scopeKey(scope);
+    const createLabel=indexBusy?t('create'):!indexComplete()?w('未查全旧单，仍要新建','Create despite incomplete search','Створити попри неповну перевірку'):matchingLists(scope.selected).length?w('新建另一份清单','Create another list','Створити окремий список'):t('create');
+    if(!existing&&!indexBusy&&!indexComplete())card.append(h('p',{class:'muted'},w('可能还有同范围旧单。可继续检查，也可明确新建；已有清单会保留。','Other lists may have this scope. Keep checking or explicitly create a separate list; existing lists stay unchanged.','Можуть бути інші списки з цим діапазоном. Продовжте перевірку або створіть окремий список; наявні залишаться без змін.')));
+    const apply=action(existing?t('apply'):createLabel,()=>void run(async()=>{
+     // This visible choice belongs to the exact scope and discovery result shown.
+     if(!existing&&(indexBusy||checkedIndex!==index||checkedError!==indexError||scope!==view.scope||choiceScope!==scopeKey(scope)))return;
      if(!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds)throw new ApiError(400,'invalid_selection',t('choose'));
      const id=view.listId,baseline={listId:id,planIds:view.planIds,scope:scopeKey(scope)};
      const request={revision:scope.revision,selection:structuredClone(scope.selected),at:new Date().toISOString()};
      const result=existing?await form.rebase(request,live):await form.create(id,request,live);
      if(result){view.baseline=baseline;if(!existing){view.createdId=id;view.completed=false;}touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
-    }),true);apply.disabled=generated||busy||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
+    }),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
    }return card;
   }
   function decisions(id:string,list:ShoppingList){
@@ -259,7 +281,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   async function load(){await run(async()=>{if(detail&&!detailsModule){const loaded=await import('./team-details');if(!live())return;detailsModule=loaded;}const result=await form.load(routeId,live);if(live())notFound=!result;},'read',true);}
   view.listeners.add(paint);
   const unsub=form.session.subscribe(paint),stop=onDetached(el,()=>{view.listeners.delete(paint);unsub();disposeDetail();if(controller===form&&auth===api.sessionKey()&&form.session.getState().contextId===context)form.detach();});cleanup=()=>{view.listeners.delete(paint);unsub();stop();disposeDetail();};
-  if(creating){paint();if(entry)await Promise.allSettled([loadIndex(),loadPlans()]);else if(detailId&&!view.scope&&!rawPending(view))await run(async()=>{await readScope();if(live()&&view.scope)view.baseline.scope=scopeKey(view.scope);},'read',true);}else await load();
+  if(creating){paint();if(entry)await Promise.allSettled([loadIndex(),loadPlans()]);else await Promise.allSettled([loadIndex(),...(detailId&&!view.scope&&!rawPending(view)?[run(async()=>{await readScope();if(live()&&view.scope)view.baseline.scope=scopeKey(view.scope);},'read',true)]:[])]);}else await load();
   }finally{ctx.setReloadCoverage?.(covered?'tracked':'read-only');}
  }
  return Object.assign(renderPurchase,{readAuxiliary(key:string):PurchaseAuxiliaryState|null {
