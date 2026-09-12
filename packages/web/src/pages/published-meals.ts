@@ -65,12 +65,14 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   if (!current()) return true;
   const source: FrozenMealSource = { mode: 'real', projection: plan.projection };
   const record = plan.projection.menuPlans[plan.planId]!;
-  const root = h('div', { class: page === 'menu' ? 'menu-page' : 'prep', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
+  const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
   replace(el, root);
-  root.append(h('h1', {}, pick(record.name, lang) || plan.planId), h('p', { class: 'muted', role: 'status' }, t('published')), h('details', {}, h('summary', {}, plan.sourceRevision.slice(0, 8)), h('code', {}, plan.sourceRevision), h('p', {}, plan.builtAt)));
+  const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':''},h('summary',{},page==='menu'?`${t('published')} · ${plan.sourceRevision.slice(0,8)}`:plan.sourceRevision.slice(0,8)),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
+  if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
+  else root.append(h('h1',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')),publicationInfo);
   if (plan.issues.length) root.append(h('details', { 'data-publication-issues': '' }, h('summary', {}, t('warning')),
     ...plan.issues.map(issue => h('div', { 'data-publication-issue': issue.code }, h('p', {}, `${issue.kind} · ${issue.code}`), h('pre', { style: 'white-space:pre-wrap;overflow-wrap:anywhere' }, JSON.stringify(issue, null, 2))))));
-  if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty'))); return true; }
+  if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')));if(page==='menu')root.append(publicationInfo); return true; }
   let memory = choices.get(publication);
   if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all' }; choices.set(publication, memory); }
   const all = selectRows(source, { menuPlanRef: plan.planId });
@@ -82,11 +84,11 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const matchingDishes = all.filter(row => row.meal.date === date && row.meal.dishRef === second);
   const requestedDish = page === 'menu' ? matchingDishes.find(row => row.mealIndex === memory!.menuRow) ?? matchingDishes.find(row => row.meal.mealType === memory!.meal) ?? matchingDishes[0] : undefined;
   let selectedMeal = page === 'menu' ? requestedDish?.meal.mealType ?? (mealTypes.includes(memory.meal!) ? memory.meal! : mealTypes[0]) : mealTypes.find(type => type === second) ?? mealTypes[0];
-  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, d)));
+  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[d]))));
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
-  root.append(datesNav, mealsNav, dishNav, body);
+  root.append(datesNav, mealsNav, dishNav, body);if(page==='menu')root.append(publicationInfo);
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
   function options(row?: FrozenMealRow): FrozenMealRenderOptions {
@@ -141,7 +143,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     const label = `${mealNames[type][lang]}${windows.length ? ` · ${windows.join(' · ')}` : ''}`;
     if (page === 'prep') mealsNav.append(h('a', { class: type === selectedMeal ? 'chip accent' : 'chip', href: href('prep', date, type), 'data-meal': type, 'aria-current': type === selectedMeal ? 'true' : null }, label));
     else {
-      const button = h('button', { class: 'chip', type: 'button', 'data-meal': type, 'aria-pressed': type === selectedMeal ? 'true' : 'false' }, label);
+      const button = h('button', { class: 'chip', type: 'button', 'data-meal': type, 'aria-pressed': type === selectedMeal ? 'true' : 'false' }, h('span',{},mealNames[type][lang]),windows.length?h('small',{},windows.join(' · ')):null);
       button.addEventListener('click', () => { selectedMeal = type; memory!.meal = type; for (const b of mealsNav.querySelectorAll('button')) b.setAttribute('aria-pressed', b.getAttribute('data-meal') === type ? 'true' : 'false'); paint(); }); mealsNav.append(button);
     }
   }
@@ -151,7 +153,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     if (!requestedDish) { root.append(h('p', { role: 'status' }, `${t('missingDish')} · ${second}`)); return true; }
     const close = h('button', { type: 'button', class: 'chip', style: 'min-height:44px;flex:none', 'aria-label': t('close') }, t('close'));
     const content = h('div', { class: 'body', style: 'overflow-wrap:anywhere;min-height:0' });
-    const dialog = h('div', { class: 'dsheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('published'), tabindex: '-1' }, close, content);
+    const dialog = h('div', { class: 'dsheet menu-recipe-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('published'), tabindex: '-1' }, close, content);
     const scrim = h('div', { class: 'dsheet-scrim' });
     root.setAttribute('inert', ''); const overflow = document.body.style.overflow; document.body.style.overflow = 'hidden'; el.append(scrim, dialog);
     children.push(recipe(content, source, options(requestedDish)));
@@ -160,7 +162,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     dialog.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); dismiss(); }
       if (event.key === 'Tab') {
-        const focusable = [...dialog.querySelectorAll<HTMLElement>('a,button,summary,[tabindex]')].filter(node => node !== dialog);
+        const focusable = [...dialog.querySelectorAll<HTMLElement>('a,button,summary,[tabindex]')].filter(node => node !== dialog && node.getClientRects().length > 0);
         const first = focusable[0], last = focusable.at(-1);
         if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { event.preventDefault(); last?.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
