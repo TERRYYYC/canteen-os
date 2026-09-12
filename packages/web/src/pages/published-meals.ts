@@ -32,7 +32,7 @@ const mealNames = {
 };
 const order: MealType[] = ['breakfast', 'lunch', 'dinner'];
 const stops = new WeakMap<HTMLElement, () => void>();
-const choices = new WeakMap<Publication, { meal: MealType | null; menuRow?: number; dishes: Map<string, number>; timing: string }>();
+const choices = new WeakMap<Publication, { meal: MealType | null; menuRow?: number; dishes: Map<string, number>; timing: string; timingOpen: boolean }>();
 let openedByLink: string | null = null;
 let focusDish: string | null = null;
 const href = (page: string, ...parts: string[]) => `#/${page}${parts.length ? '/' + parts.map(encodeURIComponent).join('/') : ''}`;
@@ -67,16 +67,16 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   if (!current()) return true;
   const source: FrozenMealSource = { mode: 'real', projection: plan.projection };
   const record = plan.projection.menuPlans[plan.planId]!;
-  const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
+  const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep prep-publication', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
   replace(el, root);
-  const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':''},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
+  const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':'prep-publication-info'},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
   if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
-  else root.append(h('h1',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
-  if (plan.issues.length) root.append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
+  else publicationInfo.append(h('p',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
+  if (plan.issues.length) (page==='menu'?root:publicationInfo).append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
     ...plan.issues.map(issue => renderRecordNotice(issue,lang,plan.projection,'data-publication-issue'))));
-  if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')));if(page==='menu')root.append(publicationInfo); return true; }
+  if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')),publicationInfo); return true; }
   let memory = choices.get(publication);
-  if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all' }; choices.set(publication, memory); }
+  if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all', timingOpen: false }; choices.set(publication, memory); }
   const all = selectRows(source, { menuPlanRef: plan.planId });
   const slots = plan.projection.selection.filter(slot => slot.menuPlanRef === plan.planId);
   const dates = [...new Set(slots.map(slot => slot.date))].sort();
@@ -90,7 +90,8 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
-  root.append(datesNav, mealsNav, dishNav, body, publicationInfo);
+  if (page==='prep') root.append(h('div',{class:'prep-context-controls'},datesNav,mealsNav),dishNav,body,publicationInfo);
+  else root.append(datesNav, mealsNav, dishNav, body, publicationInfo);
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
   function options(row?: FrozenMealRow): FrozenMealRenderOptions {
@@ -130,15 +131,18 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     if (ingredientRef) body.append(h('a', { class: 'chip', href: href('prep', date, selectedMeal ?? '') }, t('back')));
     const content = h('div');
     if (!ingredientRef) {
-      const timings = h('div', { class: 'tabs filters', role: 'group' });
+      const timings = h('div', { class: 'tabs filters', role: 'group', 'aria-label': word(lang,'按准备时机筛选','Filter by preparation time','Фільтр за часом підготовки') });
       for (const timing of ['all', 'morning', 'before-service', 'day-before'] as const) {
         const button = h('button', { type: 'button', class: 'chip', 'data-filter': timing, 'aria-pressed': memory!.timing === timing ? 'true' : 'false' }, t(timing));
         button.addEventListener('click', () => { memory!.timing = timing; paint(); }); timings.append(button);
       }
-      body.append(timings);
+      const timingPanel=h('details',{class:'prep-timing-filter'},h('summary',{},word(lang,'准备时机','Preparation time','Час підготовки'),` · ${t(memory!.timing as 'all'|'morning'|'before-service'|'day-before')}`),timings);
+      timingPanel.open=memory!.timingOpen;
+      timingPanel.addEventListener('toggle',()=>{if(current()&&timingPanel.isConnected)memory!.timingOpen=timingPanel.open;});
+      body.append(timingPanel);
     }
     body.append(content);
-    stopBody = recipe(content, source, { ...options(row), ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing, onShowAllTimings:()=>{memory!.timing='all';paint();} });
+    stopBody = recipe(content, source, { ...options(row), layout:'cooking', ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing, onShowAllTimings:()=>{memory!.timing='all';paint();} });
   }
   for (const type of mealTypes) {
     const windows = [...new Set(all.filter(row => row.meal.date === date && row.meal.mealType === type).map(row => row.meal.serviceWindow).filter(Boolean))];

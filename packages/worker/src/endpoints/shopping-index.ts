@@ -35,7 +35,7 @@ export async function handleShoppingIndex(ctx: Ctx): Promise<unknown> {
   entries.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
   if (cursor && offset >= entries.length) throw badCursor();
   const candidates = entries.slice(offset, offset + PAGE_SIZE);
-  const items: {id: string; selection: ShoppingList['basis']['selection']; itemCount: number}[] = [];
+  const items: {id: string; selection: ShoppingList['basis']['selection']; itemCount: number; decisionCounts: Record<'check'|'buy'|'available'|'bought', number>}[] = [];
   let skipped = 0;
   for (const entry of candidates) {
     const id = entry.path.slice('data/shopping-lists/'.length, -'.json'.length);
@@ -54,7 +54,9 @@ export async function handleShoppingIndex(ctx: Ctx): Promise<unknown> {
       skipped++; continue;
     }
     if (list.id !== id || new Set(list.items.map(item => item.ingredientRef)).size !== list.items.length) { skipped++; continue; }
-    items.push({id, selection:list.basis.selection, itemCount:list.items.length});
+    const decisionCounts = {check:0, buy:0, available:0, bought:0};
+    for (const item of list.items) decisionCounts[item.decision === 'buy' && item.bought === true ? 'bought' : item.decision]++;
+    items.push({id, selection:list.basis.selection, itemCount:list.items.length, decisionCounts});
   }
   const position = offset + candidates.length;
   return {ok:true, commit, items, nextCursor:position < entries.length ? `v1.${commit}.${position}` : null, skipped};

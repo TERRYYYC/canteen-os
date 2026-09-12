@@ -66,3 +66,22 @@ test('publication notices are understandable without opening technical details',
  assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
  assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
 });
+
+test('Prep entry prioritizes its selected dish and materials, with date/meal controls retained and publication metadata secondary',async()=>{
+ const s=setup('multi-dish'),el=mount(),ctx=await context(s,'prep','2026-10-05/lunch','zh');await mod.prep(el,ctx);
+ const root=nodes(el,'[data-published-plan]')[0],info=nodes(el,'.prep-publication-info')[0],recipe=nodes(el,'[data-recipe-meal-index]')[0];
+ assert(info,'publication details are secondary');assert(root.children.indexOf(info)>root.children.findIndex(n=>nodes(n,'[data-recipe-meal-index]').includes(recipe)));
+ assert.equal(nodes(el,'h1').length,1);assert(nodes(el,'[data-date]').length);assert(nodes(el,'[data-meal]').length);assert.equal(nodes(el,'[data-dish-index]').length,2);
+ assert(nodes(el,'[data-component-index]').length);assert(nodes(el,'[data-step-index]').length);
+ const filters=nodes(el,'.prep-timing-filter')[0];assert(filters?.tagName==='DETAILS');assert.equal(filters.open,false);
+ filters.open=true;filters.dispatch('toggle');
+ nodes(el,'[data-filter="morning"]')[0].dispatch('click');assert.match(nodes(el,'.prep-timing-filter')[0].children[0].textContent,/当天早上/);
+ assert.equal(nodes(el,'.prep-timing-filter')[0].open,true,'a filter repaint retains the user’s expanded control');
+ await mod.prep(el,{...ctx,lang:'uk'});assert.equal(nodes(el,'.prep-timing-filter')[0].open,true,'language repaint retains expansion');
+ assert.equal(nodes(el,'[data-filter="morning"]')[0].getAttribute('aria-pressed'),'true');
+ const expanded=nodes(el,'.prep-timing-filter')[0];expanded.open=false;expanded.dispatch('toggle');
+ await mod.prep(el,ctx);assert.equal(nodes(el,'.prep-timing-filter')[0].open,false,'explicitly collapsed control stays collapsed');
+ assert(nodes(el,'[data-step-index]').length,'timing does not hide method steps');
+ nodes(el,'[data-filter="all"]')[0].dispatch('click');assert(nodes(el,'[data-component-index]').length);
+ nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();
+});

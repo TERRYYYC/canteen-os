@@ -178,3 +178,38 @@ a.src:hover { text-decoration: underline; }
 .prep [data-frozen-prep] .step{padding:14px 0;align-items:flex-start}
 .prep [data-frozen-prep] p{line-height:1.5}
 .prep-filter-result .chip{min-height:44px;padding:0 16px}
+
+/* S04: the selected recipe's ingredients and method lead the public Prep page. */
+.prep-publication{gap:8px}
+.prep-context-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;min-width:0}
+.prep-context-controls>.tabs{min-width:0;margin:0;padding:0 0 4px}
+.prep-publication>[data-published-dishes]{margin:0;padding:0 0 4px}
+.prep-publication>.list{gap:8px}
+.prep-timing-filter{font-size:14px;color:var(--muted)}
+.prep-timing-filter>summary{min-height:44px;padding:10px 0;cursor:pointer;line-height:1.5}
+.prep-timing-filter .filters{margin:0}
+.prep-publication-info{font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;overflow-wrap:anywhere}
+.prep-publication-info>summary{min-height:44px;padding:10px 0;cursor:pointer}
+.prep-publication-info>p{margin:8px 0}
+.prep .prep-cooking>[data-recipe-meal-index]{padding:14px}
+.prep .prep-cooking .dish-head{margin:0 0 14px}
+.prep-cooking .dish-head h1{font-size:24px;line-height:1.2;margin:0;font-family:var(--font-ui);letter-spacing:-.02em}
+.prep-cooking .dish-head h1 a{color:inherit;text-decoration:none}
+.prep-cooking .section-label{font-size:16px;line-height:1.35;margin:18px 0 4px}
+.prep-cooking .dish-head+.section-label{margin-top:0}
+.prep .prep-cooking .prep-quantity-basis{font-size:13px;margin:4px 0 10px}
+.prep .prep-cooking [data-component-index]{padding:12px;margin:8px 0}
+.prep-ingredient-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.prep .prep-cooking .prep-ingredient-heading h4{min-width:0;margin:0;font-size:17px;line-height:1.4}
+.prep .prep-cooking .prep-ingredient-heading [data-original-quantity]{flex-shrink:0;max-width:55%;margin:0;text-align:right;font-size:19px;line-height:1.4}
+.prep-cooking .prep-ingredient-record,.prep-cooking .prep-step-record,.prep-cooking .prep-recipe-record{font-size:13px;color:var(--muted)}
+.prep-cooking .prep-ingredient-record>summary,.prep-cooking .prep-step-record>summary,.prep-cooking .prep-recipe-record>summary{min-height:44px;padding:10px 0;line-height:1.5;cursor:pointer}
+.prep-cooking .prep-recipe-record{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
+.prep .prep-cooking .prep-task-note{font-size:14px;line-height:1.5;border-left:3px solid var(--warn);padding:8px 10px;background:var(--warn-bg);border-radius:0 8px 8px 0;margin:8px 0}
+.prep-task-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-weight:600}
+.prep .prep-cooking .step>.tx>p:first-child{font-size:16px;line-height:1.65;margin-top:0}
+@media(min-width:720px){
+ .prep-context-controls{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+ .prep .prep-cooking>[data-recipe-meal-index]{padding:20px}
+ .prep-cooking .dish-head h1{font-size:28px}
+}

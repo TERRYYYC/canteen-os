@@ -7,7 +7,8 @@ import type { HttpApiOptions } from './transport';
 export type { AnyDish, AnyMenuPlan, ShoppingList } from '@canteenos/core';
 export type TeamCatalog = Omit<Catalog, 'dishes'> & { dishes: Record<string, AnyDish> };
 export interface ReadOptions { revision?: string; force?: boolean }
-export interface ShoppingListSummary { id: string; selection: ShoppingList['basis']['selection']; itemCount: number }
+export interface ShoppingDecisionCounts { check: number; buy: number; available: number; bought: number }
+export interface ShoppingListSummary { id: string; selection: ShoppingList['basis']['selection']; itemCount: number; decisionCounts: ShoppingDecisionCounts }
 /** Read-only discovery, not a validated ShoppingList. Open through getShoppingList. */
 export interface ShoppingListIndex { commit: string; items: ShoppingListSummary[]; nextCursor: string | null; skipped: number }
 export interface ShoppingListIndexOptions { cursor?: string; force?: boolean }
@@ -69,8 +70,13 @@ function readIndex(value: unknown, cursor: ReturnType<typeof indexCursor>): Shop
   if (!Array.isArray(value.items) || !Number.isSafeInteger(value.skipped) || Number(value.skipped) < 0 || value.items.length + Number(value.skipped) > 20) throw invalid();
   const ids = new Set<string>();
   for (const item of value.items) {
-    if (!indexObject(item, 'id selection itemCount') || typeof item.id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(item.id)
+    if (!indexObject(item, 'id selection itemCount decisionCounts') || typeof item.id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(item.id)
       || ids.has(item.id) || !Number.isSafeInteger(item.itemCount) || Number(item.itemCount) < 0 || !indexSelection(item.selection)) throw invalid();
+    const counts = item.decisionCounts;
+    if (!indexObject(counts, 'check buy available bought')) throw invalid();
+    const values = ['check','buy','available','bought'].map(key => counts[key]);
+    if (!values.every(value => Number.isSafeInteger(value) && Number(value) >= 0)
+      || values.reduce<number>((sum, value) => sum + Number(value), 0) !== item.itemCount) throw invalid();
     ids.add(item.id);
   }
   if (value.nextCursor !== null) {

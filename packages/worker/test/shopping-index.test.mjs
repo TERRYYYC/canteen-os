@@ -41,20 +41,49 @@ test('shopping index: empty index is explicit, authenticated and read-only for a
 });
 
 test('shopping index: pages inspect 20 candidates, sorted by ID and pinned across HEAD changes', async () => {
-  const original = files(23), {repo, read} = setup(original), head = repo.head;
+  const original = files(23);
+  original['data/shopping-lists/trip-022.json'] = JSON.stringify({...list('trip-022'), items:[{ingredientRef:'salt', decision:'buy', bought:true}]});
+  const {repo, read} = setup(original), head = repo.head;
   const first = await read();
   assert.equal(first.status, 200); assert.equal(first.body.items.length, 20);
-  assert.deepEqual(first.body.items[0], {id:'trip-000', selection, itemCount:1});
+  assert.deepEqual(first.body.items[0], {id:'trip-000', selection, itemCount:1, decisionCounts:{check:1,buy:0,available:0,bought:0}});
   assert.equal(first.body.nextCursor, `v1.${head}.20`);
   assert.equal(repo.calls.filter(c => c.path.includes('/git/blobs/')).length, 20);
   assert.equal(repo.calls.length, 22); // One HEAD, one tree, twenty bounded blobs; no basis reads.
-  repo.commit({...original, 'data/shopping-lists/aaa.json':JSON.stringify(list('aaa'))});
+  repo.commit({...original, 'data/shopping-lists/trip-022.json':JSON.stringify(list('trip-022')), 'data/shopping-lists/aaa.json':JSON.stringify(list('aaa'))});
   const next = await read(`?cursor=${first.body.nextCursor}`);
   assert.equal(next.status, 200); assert.equal(next.body.commit, head);
   assert.deepEqual(next.body.items.map(item => item.id), ['trip-020','trip-021','trip-022']);
+  assert.deepEqual(next.body.items.at(-1).decisionCounts, {check:0,buy:0,available:0,bought:1});
   assert.equal(next.body.nextCursor, null);
   const fresh = await read(); assert.equal(fresh.body.commit, repo.head); assert.equal(fresh.body.items[0].id, 'aaa');
+  const freshNext = await read(`?cursor=${fresh.body.nextCursor}`);
+  assert.deepEqual(freshNext.body.items.at(-1).decisionCounts, {check:1,buy:0,available:0,bought:0});
   assert.deepEqual(repo.writeCalls(), []);
+});
+
+test('shopping index: decisions occupy four exclusive buckets and previous judgments stay historical', async () => {
+  const saved = list('trip');
+  saved.items = [
+    {ingredientRef:'unknown', decision:'check'},
+    {ingredientRef:'previous', decision:'check', previous:{basis:saved.basis, decision:'buy', bought:true}},
+    {ingredientRef:'salt', decision:'buy'},
+    {ingredientRef:'oil', decision:'buy', bought:false},
+    {ingredientRef:'tomato', decision:'buy', bought:true},
+    {ingredientRef:'pepper', decision:'available'},
+  ];
+  const {repo, read} = setup({'data/shopping-lists/trip.json':JSON.stringify(saved)}), head = repo.head;
+  const response = await read(); assert.equal(response.status, 200);
+  assert.deepEqual(response.body.items, [{id:'trip', selection, itemCount:6, decisionCounts:{check:2,buy:2,available:1,bought:1}}]);
+  assert.equal(repo.head, head); assert.deepEqual(repo.writeCalls(), []);
+  assert.equal(repo.calls.length, 3, 'no additional basis or catalog reads for counts');
+  assert.deepEqual(JSON.parse(repo.fileText('data/shopping-lists/trip.json')), saved, 'stored decisions unchanged');
+});
+
+test('shopping index: an empty saved list reports explicit zero decisions', async () => {
+  const {read} = setup({'data/shopping-lists/empty.json':JSON.stringify({...list('empty'), items:[]})});
+  const response = await read(); assert.equal(response.status, 200);
+  assert.deepEqual(response.body.items, [{id:'empty', selection, itemCount:0, decisionCounts:{check:0,buy:0,available:0,bought:0}}]);
 });
 
 test('shopping index: invalid cursors and unknown query options reject before upstream reads', async () => {
