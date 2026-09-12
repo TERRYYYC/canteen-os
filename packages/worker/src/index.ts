@@ -18,6 +18,7 @@ import { handlePublish, handlePublishLatest, handlePublishStatus } from "./endpo
 import { handleCatalog, handleChanges, handleSource } from "./endpoints/read.js";
 import { handleRollback } from "./endpoints/rollback.js";
 import { handleShoppingList } from "./endpoints/shopping-list.js";
+import { handleShoppingIndex } from "./endpoints/shopping-index.js";
 import { handleTranslate } from "./endpoints/translate.js";
 import { UpstreamError } from "./github.js";
 import {
@@ -81,6 +82,7 @@ export const ROUTES: Route[] = [
   route("GET", "/source/:kind/:id", handleSource, "read"),
   route("GET", "/asset", handleAsset, "read"),
   route("GET", "/catalog", handleCatalog, "read"),
+  route("GET", "/shopping-lists", handleShoppingIndex, "read"),
   route("GET", "/changes", handleChanges, "read"),
   route("POST", "/translate", handleTranslate, "write"),
   route("POST", "/image/:kind/:id", handleImage, "write", true),

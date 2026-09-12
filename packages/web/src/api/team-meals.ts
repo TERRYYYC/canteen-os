@@ -7,6 +7,10 @@ import type { HttpApiOptions } from './transport';
 export type { AnyDish, AnyMenuPlan, ShoppingList } from '@canteenos/core';
 export type TeamCatalog = Omit<Catalog, 'dishes'> & { dishes: Record<string, AnyDish> };
 export interface ReadOptions { revision?: string; force?: boolean }
+export interface ShoppingListSummary { id: string; selection: ShoppingList['basis']['selection']; itemCount: number }
+/** Read-only discovery, not a validated ShoppingList. Open through getShoppingList. */
+export interface ShoppingListIndex { commit: string; items: ShoppingListSummary[]; nextCursor: string | null; skipped: number }
+export interface ShoppingListIndexOptions { cursor?: string; force?: boolean }
 export interface AssetQuery { revision: string; owner: string; pointer: string; force?: boolean }
 export interface RevisionAsset { bytes: Blob; sourceRevision: string }
 export interface TeamApiOptions extends HttpApiOptions { mode?: 'real' | 'mock' }
@@ -20,6 +24,7 @@ export interface TeamMealsApi {
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null>;
   getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null>;
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null>;
+  listShoppingLists(opts?: ShoppingListIndexOptions): Promise<ShoppingListIndex>;
   getCatalog(opts?: ReadOptions): Promise<TeamCatalog>;
   getAsset(query: AssetQuery): Promise<RevisionAsset>;
   savePlan(id: string, plan: AnyMenuPlan, condition: WriteCondition): Promise<WriteResult>;
@@ -34,6 +39,46 @@ export function requireRevision(revision: string): void {
 function checkRevision(commit: unknown, revision?: string): void {
   if (typeof commit !== 'string' || !/^[0-9a-f]{40}$/.test(commit)) throw new ApiError(502, 'bad_response', '');
   if (revision !== undefined && commit !== revision) throw new ApiError(502, 'revision_mismatch', '');
+}
+
+function indexCursor(value: unknown): {revision: string; offset: number} | null {
+  const match = typeof value === 'string' ? /^v1\.([0-9a-f]{40})\.([1-9][0-9]*)$/.exec(value) : null;
+  const offset = Number(match?.[2]);
+  return match && Number.isSafeInteger(offset) && offset % 20 === 0 ? {revision:match[1]!, offset} : null;
+}
+function indexObject(value: unknown, keys: string): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(key => keys.split(' ').includes(key));
+}
+function indexSelection(value: unknown): boolean {
+  if (!Array.isArray(value) || !value.length) return false;
+  const seen = new Set<string>();
+  return value.every(row => {
+    if (!indexObject(row, 'menuPlanRef date mealType') || typeof row.menuPlanRef !== 'string' || !/^[a-z][a-z0-9-]*$/.test(row.menuPlanRef)
+      || typeof row.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(row.date)
+      || !Number.isFinite(Date.parse(row.date)) || new Date(row.date).toISOString().slice(0, 10) !== row.date
+      || typeof row.mealType !== 'string' || !['breakfast','lunch','dinner'].includes(row.mealType)) return false;
+    const key = JSON.stringify([row.menuPlanRef, row.date, row.mealType]);
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  });
+}
+function readIndex(value: unknown, cursor: ReturnType<typeof indexCursor>): ShoppingListIndex {
+  const invalid = () => new ApiError(502, 'bad_response', '');
+  if (!indexObject(value, 'ok commit items nextCursor skipped') || value.ok !== true) throw invalid();
+  checkRevision(value.commit, cursor?.revision);
+  if (!Array.isArray(value.items) || !Number.isSafeInteger(value.skipped) || Number(value.skipped) < 0 || value.items.length + Number(value.skipped) > 20) throw invalid();
+  const ids = new Set<string>();
+  for (const item of value.items) {
+    if (!indexObject(item, 'id selection itemCount') || typeof item.id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(item.id)
+      || ids.has(item.id) || !Number.isSafeInteger(item.itemCount) || Number(item.itemCount) < 0 || !indexSelection(item.selection)) throw invalid();
+    ids.add(item.id);
+  }
+  if (value.nextCursor !== null) {
+    const next = indexCursor(value.nextCursor);
+    if (!next || next.revision !== value.commit || next.offset !== (cursor?.offset ?? 0) + 20 || value.items.length + Number(value.skipped) !== 20) throw invalid();
+  }
+  const {ok: _ok, ...index} = value;
+  return index as unknown as ShoppingListIndex;
 }
 
 class TeamHttpApi implements TeamMealsApi {
@@ -92,6 +137,12 @@ class TeamHttpApi implements TeamMealsApi {
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null> { return this.source('dish',id,opts); }
   getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null> { return this.source('ingredient',id,opts); }
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null> { return this.source('shopping-list',id,opts); }
+  async listShoppingLists(opts: ShoppingListIndexOptions = {}): Promise<ShoppingListIndex> {
+    const cursor = opts.cursor === undefined ? null : indexCursor(opts.cursor);
+    if (opts.cursor !== undefined && !cursor) throw new ApiError(400, 'invalid_selection', '');
+    const path = `/shopping-lists${opts.cursor === undefined ? '' : `?cursor=${encodeURIComponent(opts.cursor)}`}`;
+    return this.cached(path, opts.force, async () => readIndex(await this.transport.request<unknown>({method:'GET',path}), cursor));
+  }
   async getCatalog(opts: ReadOptions = {}): Promise<TeamCatalog> {
     const path = `/catalog${this.query(opts)}`;
     return this.cached(path, opts.force, async () => {
