@@ -9,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
-import {createPageFixture,currentFiles,json,fixedAt} from './page-fixture.mjs';
+import {createPageFixture,currentFiles,json,fixedAt as legacyFixedAt} from './page-fixture.mjs';
 import {WORKER,TOKENS} from '../../../../worker/test/helpers.mjs';
 import {PNG_B} from '../../../../worker/test/image-fixtures.mjs';
 
@@ -19,7 +19,10 @@ const packagesTree=execFileSync('git',['rev-parse','HEAD:packages'],{cwd:repoRoo
 const approvedProduction=process.env.RCQ_APPROVED_PRODUCTION;
 if(approvedProduction)assert.match(approvedProduction,/^[a-f0-9]{40}$/);
 const clipboardControls=process.env.RCQ_CLIPBOARD_CONTROLS==='1';
-const fixture=createPageFixture();
+const localPublication=process.env.RCQ_LOCAL_PUBLICATION==='1';
+if(localPublication)assert.ok(approvedProduction,'Local publication preparation requires an explicit approved production revision');
+const fixture=localPublication?(await import('./local-publication-fixture.mjs')).createLocalPublicationFixture():createPageFixture();
+const fixedAt=fixture.fixedAt??legacyFixedAt;
 const worker=(await import(WORKER)).default;
 const root=realpathSync(mkdtempSync(join(tmpdir(),'rcq-page-browser-'))),web=join(root,'web'),evidence=join(root,'evidence');
 await mkdir(web);await mkdir(evidence);
@@ -64,18 +67,30 @@ await build({root:web,configFile:join(web,'vite.config.ts'),build:{outDir:join(w
 const metadata={head,packagesTree,node:process.version,nodePath:process.execPath,fixedAt,fixtureRevision:fixture.revision,fixtureRoot:fixture.root,root,sourceIntegrity,
   approvedProduction,approvedProductionPackagesTree:approvedProduction?execFileSync('git',['rev-parse',`${approvedProduction}:packages`],{cwd:repoRoot,encoding:'utf8'}).trim():undefined,clipboardControlSha256,
   boundary:'L1/browser: actual main, client and Worker; GitHub modeled; no real publish or rollback',
+  ...(localPublication?{localPublication:{kind:'local-generation-only',fixtureNotice:fixture.fixtureNotice,
+    serviceWorker:'Registration blocked by fixture HTTP CSP; requires a fresh origin without an existing controller. No PWA update coverage.'}}:{}),
   htmlChanges:['fixed-date/public-test-token bootstrap','remove external font links for offline isolation',...(clipboardControls?['verbatim approved D visible clipboard boundary controls']:[])],producer:{blocking:0,warnings:fixture.built.issues.length}};
 await writeFile(join(evidence,'source-integrity.json'),json(metadata));
 let state={dropNext:null,holdNext:null,release:false};
-const requests=[],controls=[];let serial=0,chain=Promise.resolve();
-const persist=()=>{const snapshot=json({metadata,requests,controls,head:fixture.repo.head,githubCalls:fixture.repo.calls,files:Object.fromEntries(Object.entries(currentFiles(fixture.repo)).map(([path,bytes])=>[path,{sha256:createHash('sha256').update(bytes).digest('hex'),json:path.endsWith('.json')?JSON.parse(bytes.toString()):undefined}]))});chain=chain.then(()=>writeFile(join(evidence,'ledger.json'),snapshot));};
+const requests=[],controls=[],publicReads=[];let serial=0,chain=Promise.resolve();
+const publicationEvidence=()=>localPublication?{localPublication:fixture.publication.snapshot(),publicReads}:{};
+const persist=()=>{const snapshot=json({metadata,requests,controls,...publicationEvidence(),head:fixture.repo.head,githubCalls:fixture.repo.calls,files:Object.fromEntries(Object.entries(currentFiles(fixture.repo)).map(([path,bytes])=>[path,{sha256:createHash('sha256').update(bytes).digest('hex'),json:path.endsWith('.json')?JSON.parse(bytes.toString()):undefined}]))});chain=chain.then(()=>writeFile(join(evidence,'ledger.json'),snapshot));};
 const send=(res,value,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(json(value));};
 const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'};
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 const server=createServer(async(req,res)=>{
   try {
     const url=new URL(req.url,'http://127.0.0.1');
-    if(url.pathname==='/__evidence'){await chain;send(res,{metadata,requests,controls,head:fixture.repo.head});return;}
+    if(url.pathname==='/__evidence'){await chain;send(res,{metadata,requests,controls,...publicationEvidence(),head:fixture.repo.head});return;}
+    if(localPublication&&url.pathname==='/__local-publication') {
+      // Independent test operation: never forwards to /worker/publish or dispatches CI.
+      const origin=`http://127.0.0.1:${server.address().port}`;
+      if(req.method!=='POST'||req.headers['x-rcq-local-build']!=='1'||req.headers.host!==new URL(origin).host||req.headers.origin&&req.headers.origin!==origin){send(res,{error:'local_control_required'},403);return;}
+      const chunks=[];for await(const chunk of req)chunks.push(chunk);
+      const {expectedRevision}=JSON.parse(Buffer.concat(chunks));
+      const result=fixture.publication.update(expectedRevision);
+      persist();await chain;send(res,result,result.status);return;
+    }
     if(url.pathname==='/__control'&&req.method==='POST') {
       const chunks=[];for await(const chunk of req)chunks.push(chunk);const command=JSON.parse(Buffer.concat(chunks));controls.push(command);
       if(command.action==='drop-next')state.dropNext=command.path;
@@ -103,10 +118,20 @@ const server=createServer(async(req,res)=>{
       if(state.dropNext===path&&req.method==='POST'&&result.ok){state.dropNext=null;row.dropped=true;persist();res.destroy();return;}
       res.writeHead(result.status,Object.fromEntries(result.headers));res.end(body);return;
     }
+    if(localPublication&&url.pathname.startsWith('/data/')) {
+      // Serve the formal producer's output directly. A missing new file must not
+      // fall back to the initial Vite copy, which would mix publication versions.
+      const path=resolve(fixture.publicDir,decodeURIComponent(url.pathname.slice('/data/'.length)));
+      if(req.method!=='GET'||!path.startsWith(fixture.publicDir+'/')){send(res,{error:'not_found'},404);return;}
+      let bytes;try{bytes=await readFile(path);}catch{send(res,{error:'not_found'},404);return;}
+      publicReads.push({path:url.pathname,search:url.search,status:200,sha256:createHash('sha256').update(bytes).digest('hex')});persist();
+      res.writeHead(200,{'Content-Type':mime[extname(path)]||'application/octet-stream','Cache-Control':'no-store'});res.end(bytes);return;
+    }
     const path=resolve(web,'dist',decodeURIComponent(url.pathname).slice(1)||'index.html');
     if(req.method!=='GET'||!path.startsWith(join(web,'dist')+'/')||!(await stat(path)).isFile()){res.writeHead(404);res.end();return;}
-    res.writeHead(200,{'Content-Type':mime[extname(path)]||'application/octet-stream','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; worker-src 'self' blob:"});res.end(await readFile(path));
+    res.writeHead(200,{'Content-Type':mime[extname(path)]||'application/octet-stream','Cache-Control':'no-store','Content-Security-Policy':`default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; worker-src ${localPublication?"'none'":"'self' blob:"}`});res.end(await readFile(path));
   }catch(error){if(!res.headersSent)send(res,{error:String(error)},500);else res.end();}
 });
 const port=Number(process.env.RCQ_PAGE_PORT??4271);assert.ok(![3003,3004,6399].includes(port));
-server.listen(port,'127.0.0.1',()=>{persist();console.log(json({url:`http://127.0.0.1:${port}/`,...metadata,evidence}).trim());});
+if(localPublication)assert.notEqual(port,4275,'D preview is not a Q local-publication target');
+server.listen(port,'127.0.0.1',()=>{persist();console.log(json({url:`http://127.0.0.1:${server.address().port}/`,...metadata,evidence}).trim());});
