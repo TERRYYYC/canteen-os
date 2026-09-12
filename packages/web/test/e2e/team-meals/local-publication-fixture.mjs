@@ -115,6 +115,13 @@ export function createLocalPublicationFixture() {
     assert.ok(url.origin==='https://api.github.com'||localBuildProbe,'only modeled GitHub and the local build probe are allowed');
     assert.ok(!url.pathname.endsWith('/dispatches'),'No workflow dispatch in the local publication fixture');
     const response=await fakeFetch(input,init);
+    if(method==='GET'&&url.pathname.startsWith(`/repos/${REPO}/git/trees/`)&&response.ok) {
+      const body=await response.json();
+      for(const entry of body.tree??[])if(entry.type==='blob') {
+        const bytes=repo.blobs.get(entry.sha);assert.ok(bytes,'tree blob must exist');entry.size=bytes.length;
+      }
+      return new Response(json(body),{status:response.status,headers:response.headers});
+    }
     if(method==='PATCH'&&url.pathname===`/repos/${REPO}/git/refs/heads/main`&&response.ok)repo.syncHead();
     return response;
   };

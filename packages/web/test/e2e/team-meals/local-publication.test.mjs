@@ -70,6 +70,10 @@ test('saved real Git revision remains private until explicit local build, then t
   const reopened=await request('GET',`/source/shopping-list/${list.id}`,{headers:bearer('buyer')});
   assert.deepEqual(reopened.body.content,judged);
   assert.equal(reopened.body.content.basis.sourceRevision,published.sourceRevision);
+  const index=await request('GET','/shopping-lists',{headers:bearer('buyer')});
+  assert.equal(index.status,200);
+  assert.equal(index.body.skipped,0,'Q tree responses must supply real blob byte sizes');
+  assert.equal(index.body.items.find(item=>item.id===list.id)?.itemCount,5);
   assert.equal((await readPublic()).sourceRevision,published.sourceRevision,'saving judgments must not publish implicitly');
   assert.equal(f.repo.dispatches.length,0);
   t.diagnostic(JSON.stringify({initial:original.sourceRevision,saved:saved.body.commit,public:published.sourceRevision,blankServings:true}));
