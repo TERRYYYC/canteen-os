@@ -3,10 +3,38 @@ feature_ids: [team-meals]
 topics: [acceptance, browser, client-worker, T01-T09]
 doc_kind: test-plan
 created: 2026-09-11
-status: local-publication-prepared-awaiting-approved-ui
+status: native-single-list-journey-verified-with-open-product-gap
 ---
 
 # 页面组合验收入口
+
+## 2026-09-13：固定 68258e9 的本地单清单原生旅程已验证，多清单问题未关闭
+
+**下列单清单旅程通过，不能宣布完整日用验收通过。** 原体验审查已在固定 `68258e9389028873c633a4ae50fe05181519e883` 的 D 预览确认：三份同日同范围清单都显示同样日期、材料数和餐次，展开范围后仍无法辨认哪一份已有判断。影响是无法可靠找到应继续的旧清单；最小修正为真实、稳定的辨识信息和已保存判断摘要，并在同范围新建前可确认旧单。[原复验报告](/Users/terry/Documents/Codex/2026-09-12/canteen-human-usage-audit/outputs/retest-20260913/CanteenOS-修复后复验.md)。这是消费的独立发现，Q 仅创建一份清单，未在 Q 样本复现三单歧义。调度已交 D 修复；Q 保持固定输入，收到新获批版本后只追加该差异验证，继承未变步骤。
+
+Q 集成提交 `9c598dc1d6e0d9017f23626dcfa7edfc4010d892` 消费 D 文档头 `c4adebb6727988cfcb7d257d0b67d23fa92bc435`，产品源码匹配 `68258e9`；原非作者 14 项回执哈希已核验。运行 Q 头 `621f06c7ef15af589f30d9b6d00f6f784c1cce74` 只追加 tree blob size 测试适配（先红 skipped=1，后 3/3 绿）。64 份实际运行 Web 源及 30 份当前 Worker 源均与批准产品逐字一致；Worker 已从当前源码编译，不重跑未变底层全套。Q 未修改产品源码。
+
+受托管入口：[已保存采购单](http://127.0.0.1:4277/#/purchase/shop-2026-09-12-be92ee96)、[Plan](http://127.0.0.1:4277/#/admin/plan/team-week)。收口时实查 `running / launchd`，PID 27748，租约到 **2026-09-13 06:28:43 UTC**（Europe/Kiev 09:28:43）。cwd 为本 Q 工作树；受管记录 `/private/tmp/rcq-native-682-managed/`。专用 Chrome 标签已保留给用户；D 4275 与其样本保持原状。
+
+本次在 Chrome 中文、深色界面按真实入口执行，初始自然视口 1119×866，没有覆盖浏览器尺寸或操作 IAB。23 张原始截图的实际像素尺寸为 1119×866 或 1104×854。浏览器返回 JPEG，最初误用的 png 扩展名已改为 jpg，23 张图的字节与最初哈希全部相同，未缩放或重编码。
+
+| 实际原生步骤 | 结果与可核对证据 |
+|---|---|
+| Plan 加排、日期与空份数 | 选 9/13 午餐并加番茄炒蛋演示菜，份数留空；真实 Save 为账本第 3 条。整份计划 3 餐全部未写 plannedServings，固定版本回读一致；截图 01–03 |
+| Save 与公开读取分开 | Save 后 Menu 仍只有 9/12；随后明确执行既有独立本地 runBuild，参数为实际保存 SHA `577baf4ef1392d9840aea28defda3876d6542d74`。正常 reload 后 Menu 出现 9/13、番茄炒蛋及“计划份数：未录”；截图 04–05 |
+| 可读入口、创建与判断保存 | Plan 的“建立采购清单”自动带入 9/13 午餐，未手输 ID。生成 5 项全 check 后明确保存；再将油设 available、蛋设 buy 并 bought、番茄设 buy，保存后为待确认 2／待采购 1／已有 1／已买 1；截图 06–09，账本第 9、10 条 |
+| 离开、重开、详情往返 | 离开后进入采购、reload，服务端入口仍显示“2026-09-13 · 5 项材料 · 1 餐次”，打开同一单且判断保留、无未保存修改。点番茄详情，再经原返回链接回同单，判断保持。返回链接测量中心命中自身，没有遮挡；截图 10–13、12-return-geometry.json |
+| Prep 同日同资料 | 选 9/13，原菜谱基准 50 份、5 项原始用量与 3 个原步骤可见，计划份数仍未录。原始用量依次为番茄 7500 g、蛋 75 pcs、盐 75 g、葱 250 g、油 500 ml；不将其当作本次计划需求量；截图 14、16 |
+| 空时机恢复 | “前一天”显示没有已录任务，并明确 3 项准备时机未录、完整做法不受筛选影响；点“查看全部”恢复 5 项食材原值；截图 15–16 |
+| 缺资料与补齐入口 | 9/12 的待完善演示菜明确缺配料/步骤，展开后有漏项提醒；点“查看/补齐资料”进入对应菜谱编辑表单，源读取成功且未修改。没有保存菜谱；截图 17–19，账本第 18 条 |
+| 保存结果未知与恢复 | 将盐改为已有后，测试层仅丢掉真实 Save 的 ACK（第 21 条，Worker 已 200 保存）。页面保留待确认 1／待采购 1／已有 2／已买 1，禁用再保存并提供“核实保存结果”。点击一次触发第 22、23 条双读取，恢复“清单已保存”，没有重复 POST；正常 reload 后第 24 条仍一致；截图 20–23 |
+| 同范围多清单辨识 | **未关闭。** 上述单清单入口检查不覆盖独立报告的三单歧义；本轮不将此项标绿，也不消费尚未批准的 D 浮动修复 |
+
+冻结账本共 **26 条 Worker 请求（全部实际响应 200，其中第 21 条 ACK 被测试层丢弃）、4 次原生 Save、7 次公共 GET**。强条件头链及创建 If-None-Match 已逐项核对；丢 ACK 后仅读取，没有重交。最终私有保存头为 `ffaaa84ac2e1815d11134510725cd8ba3ff83183`，公共版本及采购 basis 仍为计划保存版 `577baf4ef1392d9840aea28defda3876d6542d74`，采购 selection 始终是 team-week / 9 月 13 日 / 午餐。后续只保存采购判断，私有头与公共头不同符合本次操作；同版计划内容完全一致。本地 Git 数据仅改变该计划与该采购单两个文件，菜谱和食材原件未改。
+
+原始材料：[截图及 DOM 目录](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-native-682)、[断言结果](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-native-682/verification.json)、[冻结账本](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-native-682/ledger-at-completion.json)、[原件字节索引](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-native-682/artifact-index.json)、[最终重开截图](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/daily-native-682/23-shopping-recovered-reopened.jpg)。冻结账本 SHA256 为 `fb5ada9c4a7fc09063a34d91ca1d9d086b49335bbfe89ce55359ef298365f57f`；目录还保留正式公共输出、源哈希、本地构建原始输出和针对性测试红绿日志。这些是 Q 的本次执行与核对，不冒充第二次原生走查或新的独立审查回执。
+
+本地生成不等于产品发布按钮、远端 GitHub/Cloudflare 发布或 PWA 更新。本轮没有调用 publish/rollback，既有测试保护保持。Chrome 控制台实见夹具 CSP 拒绝 SW 注册；工具的只读 DOM 环境不提供 navigator，未将那次观察工具异常说成 controller=null 或产品失败。返回链接取坐标工具曾超时、首次坐标点击落在链接上沿之外，后以实测中心完成返回；细节原样记于 tool-observations.json。演示菜谱及 BV1example888 继续明确未人工核验，不能据此宣称厨房可用。
 
 ## 2026-09-12：本地公开资料更新已准备，完整页面走查待固定 D 修复版
 
