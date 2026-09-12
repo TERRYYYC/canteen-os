@@ -21,6 +21,8 @@ export const shoppingWords={
  revision:['材料和菜单资料版本','Ingredient and menu version','Версія інгредієнтів і меню'],keep:['保留本地范围并重新核对','Keep local scope and review again','Зберегти локальний діапазон і перевірити знову'],
  current:['打开当前资料编辑页','Open current information editor','Відкрити редактор поточних даних'],unknownCount:['份数未录','Servings unspecified','Порції не вказано'],main:['主料','Main ingredient','Основний інгредієнт'],seasoning:['调料','Seasoning','Приправа'],
  budget:['金额只按可计算项参考，不代表完整预算。','Calculable amounts are references, not a complete budget.','Розраховані суми є орієнтирами, а не повним бюджетом.'],
+ intro:['来自菜单计划','FROM YOUR MENU PLAN','З ПЛАНУ МЕНЮ'],headline:['这次买什么，逐项确认。','Decide what to buy.','Вирішіть, що купити.'],
+ issues:['需要核对的资料','Information to check','Дані для перевірки'],summary:['本次材料判断','Current ingredient decisions','Поточні рішення щодо інгредієнтів'],
 } as const;
 export type ShoppingWord=keyof typeof shoppingWords;
 export const shoppingText=(lang:Lang,key:ShoppingWord)=>shoppingWords[key][lang==='zh'?0:lang==='en'?1:2];
@@ -42,8 +44,8 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  const {lang,collection,estimate,ingredients,dishes}=options,t=(key:ShoppingWord)=>shoppingText(lang,key);
  const name=(kind:'ingredient'|'dish',id:string)=>pick(lookup<Ingredient|AnyDish>(kind==='ingredient'?ingredients:dishes,id)?.name,lang)||id;
  const ref=(kind:'ingredient'|'dish',id:string)=>options.href?h('a',{href:options.href(kind,id)},name(kind,id)):h('span',{},name(kind,id));
- const result=h('div',{},h('p',{class:'muted'},t('coverage')));
- if(collection.issues.length)result.append(h('div',{class:'tm-status',role:'status'},...collection.issues.map(issue=>h('p',{},reasonText(issue.code,lang),' · ',[issue.menuPlanRef,issue.date,issue.mealType?text(lang,issue.mealType):'',issue.dishRef,issue.ingredientRef].filter(Boolean).join(' / ')))));
+ const result=h('div',{class:'tm-candidates'},h('p',{class:'muted'},t('coverage')));
+ if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('p',{},reasonText(issue.code,lang),' · ',[issue.menuPlanRef,issue.date,issue.mealType?text(lang,issue.mealType):'',issue.dishRef,issue.ingredientRef].filter(Boolean).join(' / ')))));
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  for(const item of collection.items){
   const ingredient=lookup(ingredients,item.ingredientRef),estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
@@ -51,7 +53,7 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
   if(options.controls)card.append(options.controls(item.ingredientRef));
   card.append(h('details',{},h('summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${quantityText(s.qty,lang)}`,h('small',{class:'muted'},` · ${s.menuPlanRef}`))))));
   if(estimateItem?.status==='complete')card.append(h('details',{},h('summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
-  else if(estimateItem)card.append(h('p',{class:'muted'},`${t('unavailable')}: ${[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · ')}`));
+  else if(estimateItem)card.append(h('details',{class:'muted'},h('summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));
   result.append(card);
  }
  result.append(h('p',{class:'muted'},t('budget')));return result;

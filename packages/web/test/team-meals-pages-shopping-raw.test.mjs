@@ -130,3 +130,17 @@ for(const [lang,copyLabel] of [['zh','复制清单'],['en','Copy list'],['uk','�
 test('copy remains bound to saved A while newer B scope and raw plan choices have not been applied',async()=>{
  const f=await setup({existing:true});try{let el=await f.mount('team-shop');const before=walk(el).find(n=>n.tagName==='TEXTAREA').value;f.revision(B);f.renameIngredient('tomato',{zh:'当前资料改名',en:'Current renamed tomato',uk:'Поточна нова назва'});btn(el,'Read latest saved plans').click();await f.flush();input(el,'plan-ids','team-week, later-week');const after=walk(el).find(n=>n.tagName==='TEXTAREA').value;assert.equal(after,before);assert.ok(after.includes(A));assert.ok(!after.includes(B));assert.ok(!after.includes('Current renamed'));assert.ok(!after.includes('later-week'));assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });
+
+
+test('shopping summary reflects current manual decisions without counting bought items twice',async()=>{
+ const f=await setup({existing:true});try{const el=await f.mount('team-shop');
+ const count=kind=>el.querySelector(`[data-decision-count="${kind}"]`)?.textContent;
+ assert.equal(count('check'),'4');assert.equal(count('buy'),'0');assert.equal(count('available'),'0');
+ btn(cls(el,'tm-material')[0],'Buy').click();await f.flush();
+ assert.equal(count('check'),'3');assert.equal(count('buy'),'1');
+ const bought=boxes(cls(el,'tm-material')[0])[0];bought.checked=true;bought.dispatch('change');await f.flush();
+ assert.equal(count('buy'),'0');assert.equal(count('bought'),'1');assert.equal(f.writes.length,0);
+ btn(cls(el,'tm-material')[1],'Available').click();await f.flush();
+ assert.equal(count('check'),'2');assert.equal(count('available'),'1');assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
+});

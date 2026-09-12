@@ -48,8 +48,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const view=views.get(key)??createView(key,creating?`shop-${new Date().toISOString().slice(0,10)}`:routeId,creating?(detailKind||ctx.planId||''):ctx.planId||'');views.set(key,view);covered=true;
   const live=()=>ticket===epoch&&el.isConnected&&controller===form&&auth===api.sessionKey();
   let error:unknown=null,notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
-  el.classList.add('tm-page');const body=h('div',{});
-  el.append(h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase')},tr('back')),h('h2',{},t('title')),h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))),body);
+  el.classList.add('tm-page');el.classList.add('tm-purchase');const body=h('div',{});
+  el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase')},tr('back')),h('h2',{class:'sr-only'},t('title')),h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))));
   // Every non-C1 readonly operation settles its own original handle, even after auth/navigation.
   async function read<T>(work:()=>Promise<T>):Promise<T>{
    const handle=view.reload,operation=handle.beginOperation('read');touch(view);
@@ -78,9 +78,10 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(busy)nodes.push(h('p',{role:'status'},tr('loading')));
    if(!loaded){
     if(notFound)nodes.push(h('p',{role:'status'},t('noList')));
-    nodes.push(openForm());
+    nodes.push(h('section',{class:'tm-purchase-intro'},h('small',{},t('intro')),h('h2',{},t('headline'))));
     if(creating||notFound)nodes.push(scopeForm(false));
     else if(!busy)nodes.push(action(tr('retry'),()=>void load()));
+    nodes.push(openForm());
     replace(body,...nodes);return;
    }
    const list=s.draft!,basis=form.basis!;
@@ -104,17 +105,19 @@ export function createPurchaseRenderer(api:TeamMealsApi){
       return read(()=>form.getAsset('data/techniques.json',`/${index}/image`));
      },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:()=>{location.hash=adminHref(detailKind,detailId);}});return;
    }
-   nodes.push(h('div',{class:'tm-card'},h('h3',{},t('scope')),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot)))));
+   nodes.push(h('section',{class:'tm-purchase-intro'},h('small',{},t('intro')),h('h2',{},t('headline')),
+    h('details',{class:'tm-purchase-scope'},h('summary',{},`${t('scope')} · ${list.basis.selection.length}`),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
+   nodes.push(h('div',{class:'tm-purchase-metrics',role:'group','aria-label':t('summary')},...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('small',{},t(decision)),h('b',{'data-decision-count':decision},String(list.items.filter(item=>decision==='bought'?item.decision==='buy'&&item.bought===true:item.decision===decision&&(decision!=='buy'||!item.bought)).length))))));
    if(s.phase==='outcome-unknown'){const recover=action(tr('recover'),()=>void run(()=>form.reconcileUnknown(s.contextId),'c1'));recover.disabled=s.recovering||busy;nodes.push(recover);}
    if(s.phase==='conflict')nodes.push(conflictPanel(list));
    if(!s.source)nodes.push(h('p',{class:'tm-status'},t('first')));
    else if(!form.canDecide&&!s.operationId&&s.phase!=='conflict')nodes.push(h('p',{class:'tm-status'},t('changed')));
-   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-actions'},save));
+   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,copyPanel(list)));
    const removed=form.review?.removed??[];
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
    nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
-   nodes.push(scopeForm(true),copyPanel(list));replace(body,...nodes);
+   nodes.push(scopeForm(true));replace(body,...nodes);
   }
   function openForm(){
    const busy=view.active>0;

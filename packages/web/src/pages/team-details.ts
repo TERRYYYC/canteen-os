@@ -17,6 +17,7 @@ const copy={
  provenance:['配方来源','Recipe source','Джерело рецепта'],confidence:['记录的置信度','Recorded confidence','Записана впевненість'],
  size:['切配规格','Prep size','Розмір підготовки'],timing:['准备时机','Prep timing','Час підготовки'],note:['备注','Note','Примітка'],
  coverage:['这里只展示已录资料；配方完整性仍需人工核对。','Only recorded information is shown; recipe completeness still needs human review.','Показано лише записані дані; повноту рецепта має перевірити людина.'],
+ languages:['三语原文','Original language versions','Оригінальні мовні версії'],
 } as const;
 type Key=keyof typeof copy;
 const lookup=<T>(map:Record<string,T>,id:string):T|undefined=>Object.hasOwn(map,id)?map[id]:undefined;
@@ -38,11 +39,12 @@ export interface DetailOptions {
 }
 export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void {
   const {lang,projection,kind,id}=options,t=(key:Key)=>tr(lang,key),urls=new Set<string>();let live=true;
+  el.classList.add('tm-detail');
   const dispose=()=>{live=false;for(const url of urls)URL.revokeObjectURL(url);urls.clear();};
   const stop=onDetached(el,dispose);
   const missing=()=>h('span',{class:'muted'},t('missing'));
   const fact=(label:string,value:string|number|boolean|undefined)=>h('div',{class:'tm-fact'},h('dt',{},label),h('dd',{},value===undefined?missing():String(value)));
-  const names=(name:I18nString)=>h('dl',{class:'tm-facts'},...(['zh','en','uk'] as const).map(code=>fact(code.toUpperCase(),name[code])));
+  const names=(name:I18nString)=>h('details',{class:'tm-detail-languages'},h('summary',{},t('languages')),h('dl',{class:'tm-facts'},...(['zh','en','uk'] as const).map(code=>fact(code.toUpperCase(),name[code]))));
   const link=(url:string|undefined,label:string):HTMLElement=>{const safe=safeLink(url);return safe?h('a',{href:safe,target:'_blank',rel:'noopener noreferrer'},label):h('span',{},label,': ',url??t('missing'));};
   function image(ref:ImageRef|undefined,owner:string,pointer:string,placeholder=false,read?:()=>Promise<RevisionAsset>):HTMLElement {
     const box=h('figure',{class:'tm-detail-image'});
@@ -68,12 +70,12 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     for(const source of sources)el.append(h('p',{},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||source.dishRef),h('small',{class:'muted'},` · ${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
-  el.append(h('p',{class:'muted'},`${t('source')}: ${projection.sourceRevision}`));
-  if(options.current)el.append(action(t('current'),options.current));
-  if(!record){el.append(h('p',{role:'alert'},`${t('missingSource')} · ${id}`));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
-  el.append(h('h2',{},pick(record.name,lang)),h('p',{class:'muted'},id),names(record.name));
+  el.append(h('details',{class:'tm-source'},h('summary',{},`${t('source')}: ${projection.sourceRevision.slice(0,8)}`),h('code',{},projection.sourceRevision)));
+  if(!record){el.append(h('p',{role:'alert'},`${t('missingSource')} · ${id}`));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
+  el.append(h('h2',{},pick(record.name,lang)),h('p',{class:'muted tm-detail-id'},id));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
   el.append(image(record.image,owner,'/image',true));
+  el.append(names(record.name));
   if(kind==='ingredient'){
     const item=lookup(projection.ingredients,id)!,p=item.purchase;
     el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit),fact('Wikidata',item.externalId),fact(t('supplier'),p?.supplier),fact(t('package'),p?`${p.packSize} ${p.packUnit}`:undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand!==undefined?`${item.onHand} ${item.baseUnit}`:undefined)));
@@ -99,5 +101,6 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
       el.append(card);
     }
   }
+  if(options.current)el.append(action(t('current'),options.current));
   el.append(h('p',{class:'muted'},t('coverage')));return ()=>{stop();dispose();};
 }
