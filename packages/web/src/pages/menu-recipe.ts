@@ -36,6 +36,10 @@ export function renderMenuRecipe(el:HTMLElement,source:FrozenMealSource,options:
       }
       if(stepArea)provenance.append(move(node)!);else ingredients.append(move(node)!);
     }
+    if(!Array.from(steps.children).some(node=>node.getAttribute('data-step-index')!==null)){
+      const missing=Array.from(provenance.children).find(node=>node.getAttribute('role')==='status')??h('p',{role:'status'});
+      missing.textContent=word('做法尚未录入','Steps not recorded','Кроки ще не записано');steps.append(move(missing)!);
+    }
     const tabs=h('div',{class:'menu-recipe-tabs',role:'group','aria-label':word('菜品详情','Recipe details','Деталі рецепта')});
     const panels={about,ingredients,steps};
     const select=(key:keyof typeof panels)=>{for(const [name,panel] of Object.entries(panels))panel.hidden=name!==key;for(const button of Array.from(tabs.children))button.setAttribute('aria-pressed',String(button.getAttribute('data-menu-recipe-tab')===key));};

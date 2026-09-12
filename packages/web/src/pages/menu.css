@@ -130,7 +130,7 @@
 .comp .ci small { color: var(--muted); display: block; }
 
 /* Reference v3: Menu-only presentation over the verified publication. */
-.menu-publication{gap:12px;max-width:880px;margin:auto}
+.menu-publication{gap:12px;width:100%;max-width:880px;margin:0 auto}
 .menu-plan-context{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
 .menu-publication>.days{position:static;top:auto;margin:0;padding:0;gap:6px;background:transparent}
 .menu-publication>.days>a{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:46px;max-width:72px;min-height:60px;padding:8px 4px;border:1px solid transparent;background:var(--surface-2);border-radius:11px;text-decoration:none}
@@ -144,15 +144,17 @@
 .menu-publication>[data-published-dishes]:empty{display:none}
 .menu-publication .menu-body{gap:0}.menu-publication [data-frozen-menu]{gap:0}
 [data-frozen-menu]>.raw-issues{font-size:12px;color:var(--warn);padding:8px 0}
-.menu-recipe-row.mlist{padding:0;border-radius:0;background:transparent;border-bottom:1px solid var(--line)}
-.menu-recipe-row .mr{padding:12px 0 5px;gap:12px;align-items:center;border:0;min-height:84px}
+[data-frozen-menu]>.menu-recipe-row.mlist{position:relative;margin:0;padding:0;border-radius:0;background:transparent;border-bottom:1px solid var(--line)}
+.menu-recipe-row .mr{padding:12px 0;gap:12px;align-items:center;border:0;min-height:90px}
+.menu-recipe-row .mr .b{align-self:flex-start;padding-top:8px}
 .menu-recipe-row .n1{font-size:15px;line-height:1.45;font-weight:650;margin:0}
-.menu-recipe-row .ds{font-size:11px;margin:3px 0 0;line-height:1.5;-webkit-line-clamp:1}
+.menu-recipe-row .ds{display:none;font-size:11px;margin:3px 0 0;line-height:1.5;-webkit-line-clamp:1}
 .menu-thumbnail{flex:none;width:80px;height:66px;border-radius:12px;overflow:hidden;background:var(--surface-2);display:grid;place-items:center;text-align:center;color:var(--muted);font-size:10px;line-height:1.3}
 .menu-recipe-row .menu-thumbnail img{display:block;width:100%;height:100%;border-radius:0;object-fit:cover}
 .menu-chevron{font-size:23px;font-weight:300;color:var(--muted);margin-left:auto}
-.menu-row-record{font-size:11px;color:var(--muted);padding:0 0 9px 92px;line-height:1.6}
-.menu-row-record>summary{cursor:pointer;font-size:10px;width:fit-content}.menu-row-record p{margin:7px 0}
+[data-frozen-menu]>.menu-recipe-row.mlist>.menu-row-record{font-size:11px;color:var(--muted);padding:0;line-height:1.6}
+[data-frozen-menu]>.menu-recipe-row.mlist>.menu-row-record[open]{padding:0 0 12px}
+[data-frozen-menu]>.menu-recipe-row.mlist>.menu-row-record>summary{position:absolute;top:52px;left:92px;min-height:0;padding:0;cursor:pointer;font-size:10px;line-height:16px;width:fit-content}.menu-row-record p{margin:7px 0}
 .menu-row-record .n2{font-size:11px;display:flex;flex-direction:column;gap:3px;margin-top:8px}
 .menu-publication .raw-source,.menu-publication-info{font-size:11px;color:var(--muted);line-height:1.6;padding:4px 0;overflow-wrap:anywhere}
 .menu-publication .raw-source{margin-top:12px}.menu-publication-info code{font-size:10px}.menu-coverage{font-size:11px;line-height:1.7;margin:8px 0}
@@ -161,8 +163,8 @@
 .menu-recipe-dialog>.body{padding:0 20px 28px;display:block}
 .menu-recipe{gap:10px}.menu-recipe>h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .menu-recipe>.raw-source{font-size:10px;color:var(--muted);padding:8px 0}
-.menu-recipe>[data-recipe-meal-index]{background:transparent;border:0;padding:0}
-.menu-recipe-hero{margin:0 -20px 16px;background:var(--surface-2)}
+.menu-recipe[data-frozen-prep]>[data-recipe-meal-index]{background:transparent;border:0;padding:0;overflow:visible}
+.menu-recipe .menu-recipe-hero{margin:0 -20px 16px;background:var(--surface-2)}
 .menu-recipe-hero>img{display:block;width:100%;height:230px!important;object-fit:cover}
 .menu-recipe-hero>p:empty{display:none}.menu-recipe-hero>p{padding:20px;font-size:12px}
 .menu-recipe-hero figcaption{font-size:9px;padding:6px 20px;color:var(--muted);overflow-wrap:anywhere}
@@ -173,10 +175,15 @@
 [data-menu-recipe-panel=about]{font-size:14px;line-height:1.8;color:var(--muted)}
 .menu-recipe [data-menu-recipe-panel][hidden]{display:none}
 .menu-recipe .section-label{font:600 15px/1.5 var(--sans);letter-spacing:0;text-transform:none;margin:14px 0 8px}
-.menu-recipe [data-component-index]{padding:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+.menu-recipe[data-frozen-prep] [data-component-index]{padding:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
 .menu-component-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:13px 0;list-style:none}
-.menu-component-details>summary::-webkit-details-marker{display:none}.menu-component-details>summary h4{font-size:13px;margin:0}.menu-component-details>summary h4 a{color:var(--ink);text-decoration:none}.menu-component-details>summary .num{font:600 12px/1.5 var(--sans);color:var(--accent);margin:0;white-space:nowrap}
+.menu-component-details>summary::-webkit-details-marker{display:none}.menu-recipe[data-frozen-prep] .menu-component-details>summary h4{font-size:13px;margin:0}.menu-recipe[data-frozen-prep] .menu-component-details>summary h4 a{color:var(--ink);text-decoration:none}.menu-component-details>summary .num{font:600 12px/1.5 var(--sans);color:var(--accent);margin:0;white-space:nowrap}
 .menu-component-details>div{font-size:12px;line-height:1.6;padding:0 0 10px}.menu-component-details figure{margin:10px 0}.menu-component-details figcaption{font-size:10px}
 .menu-recipe .step{padding:12px 0;border-top:1px solid var(--line);gap:12px}.menu-recipe .step .k{background:var(--ok-bg);color:var(--accent);font-size:13px;width:26px;height:26px;border-radius:50%}.menu-recipe .step .tx{font-size:14px;line-height:1.8}.menu-recipe .step .tx>p{margin:0}
 .menu-step-details,.menu-recipe-provenance{font-size:11px;line-height:1.6;color:var(--muted);margin-top:12px}.menu-step-details summary,.menu-recipe-provenance summary{cursor:pointer}.menu-step-details figure{margin:10px 0}.menu-step-details figcaption{font-size:10px}
-@media(min-width:760px){.menu-recipe-row .mr{min-height:106px}.menu-thumbnail{width:104px;height:82px}.menu-recipe-row .n1{font-size:17px}.menu-recipe-row .ds{font-size:13px}.menu-row-record{padding-left:116px}.menu-publication>.days>a{max-width:90px}.menu-recipe-hero>img{height:280px!important}}
+@media(min-width:760px){.menu-recipe-row .mr{min-height:106px}.menu-thumbnail{width:104px;height:82px}.menu-recipe-row .n1{font-size:17px}.menu-recipe-row .ds{display:none;font-size:13px}[data-frozen-menu]>.menu-recipe-row.mlist>.menu-row-record>summary{left:116px;top:57px}.menu-publication>.days>a{max-width:90px}.menu-recipe-hero>img{height:280px!important}}
+
+/* Override only Menu descendants of the shared original-record stylesheet. */
+.menu-publication [data-frozen-menu]>.raw-issues{padding:0 10px;margin-bottom:6px;font-size:11px}
+.menu-publication [data-frozen-menu]>.raw-issues>summary{min-height:28px;padding:5px 0}
+.menu-publication .raw-source>summary{min-height:28px;padding:4px 0}

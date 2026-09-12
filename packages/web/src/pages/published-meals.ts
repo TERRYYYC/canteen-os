@@ -70,7 +70,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':''},h('summary',{},page==='menu'?`${t('published')} · ${plan.sourceRevision.slice(0,8)}`:plan.sourceRevision.slice(0,8)),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
   if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
   else root.append(h('h1',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')),publicationInfo);
-  if (plan.issues.length) root.append(h('details', { 'data-publication-issues': '' }, h('summary', {}, t('warning')),
+  if (plan.issues.length) (page==='menu'?publicationInfo:root).append(h('details', { 'data-publication-issues': '' }, h('summary', {}, t('warning')),
     ...plan.issues.map(issue => h('div', { 'data-publication-issue': issue.code }, h('p', {}, `${issue.kind} · ${issue.code}`), h('pre', { style: 'white-space:pre-wrap;overflow-wrap:anywhere' }, JSON.stringify(issue, null, 2))))));
   if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')));if(page==='menu')root.append(publicationInfo); return true; }
   let memory = choices.get(publication);
