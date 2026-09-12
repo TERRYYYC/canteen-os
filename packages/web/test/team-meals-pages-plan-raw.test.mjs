@@ -7,7 +7,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {test,after} from 'node:test';
 const here=dirname(fileURLToPath(import.meta.url)),require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const dir=await mkdtemp(join(tmpdir(),'plan-raw-owner-'));after(()=>rm(dir,{recursive:true,force:true}));
-const entry=join(here,'../src/pages/admin/plan.ts'),bundle=await esbuild.build({stdin:{contents:await readFile(entry,'utf8')+`\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here,'../src/view-models/reload-safety.ts'))};`,resolveDir:dirname(entry),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const entry=join(here,'../src/pages/admin/plan.ts'),bundle=await esbuild.build({stdin:{contents:(await readFile(entry,'utf8')).replace("await import('./plan-preview')","await (globalThis.__planPreviewModuleGate ? globalThis.__planPreviewModuleGate(() => import('./plan-preview')) : import('./plan-preview'))")+`\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here,'../src/view-models/reload-safety.ts'))};`,resolveDir:dirname(entry),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const file=join(dir,'page.mjs');await writeFile(file,bundle.outputFiles[0].text);
 class Element{
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.text=text;this.children=[];this.attrs={};this.listeners={};this.style={};this.value='';this.disabled=false;this.validity={badInput:false};this.parentNode=null;this.classList={add:x=>this.setAttribute('class',`${this.attrs.class??''} ${x}`)};}
@@ -24,13 +24,14 @@ const input=(el,key,value,type='input')=>{const node=focus(el,key);node.value=va
 const A='a'.repeat(40),B='b'.repeat(40),raw='2.0000000000000001';
 const seed=()=>({schemaVersion:'3',margin:1.13,meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'soup',plannedServings:8},{date:'2026-09-15',mealType:'dinner',dishRef:'stew',plannedServings:12,serviceWindow:'18:00-19:00'},{date:'2026-09-16',mealType:'lunch',dishRef:'soup'}]});
 let serial=0;
-async function setup({post,read,image=false}={}){
+async function setup({post,read,image=false,previewLoad}={}){
+ globalThis.__planPreviewModuleGate=previewLoad;
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};const events={};globalThis.window={addEventListener:(k,f)=>(events[k]??=[]).push(f)};globalThis.location={hash:'#/admin/plan/week-a'};globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const page=await import(`${pathToFileURL(file)}?case=${++serial}`),writes=[];let identity=1;
  const api=page.createTeamMealsApi('https://plan-raw-fixture.invalid',{mode:'mock',token:()=>'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{const u=new URL(url);if(init.method==='GET'&&read){const response=await read(u,identity);if(response)return response;}if(init.method==='POST'){const body=JSON.parse(init.body);writes.push({id:u.pathname,body});if(post)return post(body);return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});}if(u.pathname==='/catalog')return Response.json({commit:u.searchParams.get('revision')??A,dishes:{soup:{schemaVersion:'3',name:{en:'Soup'},...(image?{image:{path:'soup.jpg',license:'CC0'}}:{}),components:[]},stew:{schemaVersion:'3',name:{en:'Stew'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});return Response.json({content:seed(),commit:A,blobSha:'before'});}});
  const render=page.createPlanRenderer(api),coverage=page.createPageReloadCoverage(),start=(id='week-a',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{lang,planId:id,route:'admin',rest:id,setReloadCoverage:coverage.beginRender('admin',`plan/${id}`)},id);return{el,promise};},mount=async(id='week-a',lang='en')=>{const {el,promise}=start(id,lang);await promise;return el;};
- return{page,api,render,writes,mount,start,events,auth(){identity++;page.changeAuth();},async flush(){for(let i=0;i<5;i++)await tick();},cleanup(){api.dispose();document.body.replaceChildren();}};
+ return{page,api,render,writes,mount,start,events,auth(){identity++;page.changeAuth();},async flush(){for(let i=0;i<5;i++)await tick();},cleanup(){api.dispose();document.body.replaceChildren();delete globalThis.__planPreviewModuleGate;}};
 }
 
 test('deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save',async()=>{
@@ -101,4 +102,21 @@ test('selecting another day preserves pending Add inputs and visibly identifies 
 });
 test('retired-auth image completion settles its own ticket while the new identity image read stays busy',async()=>{
  const releases=new Map();const f=await setup({image:true,read:(u,identity)=>u.pathname==='/asset'?new Promise(r=>releases.set(identity,r)):undefined});try{const old=await f.mount();await f.flush();f.auth();const current=await f.mount('week-a','uk');await f.flush();assert.equal(releases.size,2);releases.get(1)(new Response('old image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(old.querySelectorAll('img').length,0);assert.equal(current.querySelectorAll('img').length,0);assert.equal(f.render.readAuxiliary('week-a').phase,'busy');releases.get(2)(new Response('current image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(current.querySelectorAll('img').length,2);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(f.writes.length,0);}finally{f.cleanup();}
+});
+
+// Explicit module-loading boundary only; renderer, projection and session remain real.
+const previewButton=el=>walk(el).find(n=>n.tagName==='BUTTON'&&n.textContent==='Preview ingredients');
+test('optional preview module wait keeps raw edits and settles its original page after departure',async()=>{
+ let release;const held=new Promise(r=>release=r);const f=await setup({previewLoad:load=>held.then(load)});try{
+ const old=await f.mount();assert.equal(old.querySelector('[data-preview="draft"]'),null);previewButton(old).click();
+ assert.equal(f.render.readAuxiliary('week-a').phase,'busy');input(old,'servings-0','9');
+ const other=await f.mount('week-b');release();await f.flush();
+ assert.equal(old.querySelector('[data-preview="draft"]'),null);assert.equal(other.querySelector('[data-preview="draft"]'),null);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');
+ const current=await f.mount();await f.flush();assert.equal(focus(current,'servings-0').value,'9');assert.ok(current.querySelector('[data-preview="draft"]'));assert.equal(f.writes.length,0);
+ }finally{release();await f.flush();f.cleanup();}
+});
+test('optional preview module failure releases only its read and keeps Save available for existing edits',async()=>{
+ const f=await setup({previewLoad:()=>Promise.reject(new TypeError('controlled module load failure'))});try{const el=await f.mount();input(el,'servings-0','9');previewButton(el).click();await f.flush();
+ assert.ok(el.querySelector('[role="alert"]'));assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(focus(el,'servings-0').value,'9');assert.equal(save(el).disabled,false);assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
 });

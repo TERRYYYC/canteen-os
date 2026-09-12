@@ -1,6 +1,6 @@
 /** Team plan page. D0 design: docs/design/team-meals-pages/. */
 import './plan.css';
-import { weekStartOfPlanId, planIdOfDate, normalizeSelection, type MealType, type AnyMenuPlan } from '@canteenos/core';
+import { weekStartOfPlanId, planIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
 import { apiMessage } from '../../admin/kit';
@@ -11,8 +11,6 @@ import type { PageCtx } from '../../types';
 import { adminHref } from '../admin';
 import { text, action, field, status, onDetached } from '../team-ui';
 import { createPlanForm, toSavePlan } from './plan-form';
-import {previewTeamMealsDraft} from '../../view-models/team-meals';
-import {renderCandidates} from '../purchase-list';
 import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
 export { createPlanForm } from './plan-form';
@@ -42,6 +40,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     return {finish(failed){view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');}};
   }});
   let form=createForm(),auth=api.sessionKey();
+  let previewModule:typeof import('./plan-preview')|undefined;
   async function renderPlan(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void> {
     const drafts=bindDraftStore(api);
     cleanup(); const renderTicket=++renderSequence;
@@ -60,6 +59,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
+    let previewLoading=false,previewError:unknown=null;
     const photos=new Map<string,{url?:string;failed?:boolean}>();
     const disposePhotos=()=>{for(const photo of photos.values())if(photo.url)URL.revokeObjectURL(photo.url);photos.clear();};
     const today=new Date().toISOString().slice(0,10);
@@ -115,16 +115,22 @@ export function createPlanRenderer(api:TeamMealsApi) {
         output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
           h('p',{class:'tm-plan-note'},lang==='zh'?'采购清单使用已保存的计划':lang==='en'?'Shopping uses the saved plan':'Закупівлі використовують збережений план'));
         if(catalog){
-          output.push(addForm(),h('div',{class:'tm-plan-secondary'},action(tr('preview'),()=>{view.preview=!view.preview;paint();}),h('a',{href:adminHref('publish')},tr('publish'))));
+          output.push(addForm(),h('div',{class:'tm-plan-secondary'},action(tr('preview'),()=>{if(!isLive())return;view.preview=previewError?true:!view.preview;previewError=null;paint();}),h('a',{href:adminHref('publish')},tr('publish'))));
           if(view.preview){
-            const selection=normalizeSelection([...groups.values()].flat().map(index=>{const meal=plan.meals[index]!;return{menuPlanRef:id,date:meal.date,mealType:meal.mealType};}));
-            const preview=previewTeamMealsDraft({inputs:{menuPlans:{[id]:plan},dishes:catalog.dishes,ingredients:catalog.ingredients,techniques:catalog.techniques},selection,at:new Date().toISOString()});
-            output.push(h('section',{'data-preview':'draft'},h('h3',{},tr('localPreview')),renderCandidates({lang,collection:preview.collection,estimate:preview.estimate,ingredients:catalog.ingredients,dishes:catalog.dishes})));
+            if(previewModule)output.push(previewModule.render(id,plan,catalog,lang,[...groups.values()].flat()));
+            else if(previewError)output.push(h('p',{class:'tm-error',role:'alert'},apiMessage(previewError,lang)));
+            else{output.push(h('p',{role:'status'},tr('loading')));if(!previewLoading)void loadPreview();}
           }
         }
       }
       replace(body,...output);
       if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
+    }
+    async function loadPreview():Promise<void>{
+      previewLoading=true;const handle=auxiliary.get(view)!,ticket=handle.beginOperation('read');view.reads++;touch(view);let failed=false;
+      try{previewModule=await import('./plan-preview');}
+      catch(error){failed=true;if(isLive())previewError=error;}
+      finally{view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');previewLoading=false;if(isLive())paint();}
     }
     function selectDate(date:string):void {
       // Only clean defaults follow navigation; unapplied Add intent keeps its own destination.
