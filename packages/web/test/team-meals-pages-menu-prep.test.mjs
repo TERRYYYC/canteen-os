@@ -201,3 +201,29 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
     }
   });
 }
+
+// Readability assertions model closed native disclosures, not CSS/layout.
+const ordinaryText=node=>node.hidden?'':node.tagName==='DETAILS'&&!node.open?(node.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):node.text+node.children.map(ordinaryText).join(' ');
+test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
+ const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());
+ const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1500 g/);
+ assert.doesNotMatch(visible,/ZH:|EN:|UK:|First original step|draft|active|manual|aaaaaaaa|Recorded author/);
+ assert.match(el.textContent,/First original step/);assert.match(el.textContent,/Recorded author/);stop();el.remove();
+});
+test('empty prep timing explains unrecorded timing and offers a working reset without inventing tasks',()=>{
+ const el=mount();let resets=0;const stop=prep.renderFrozenPrep(el,fixture(),{...options(),timing:'morning',onShowAllTimings:()=>resets++});
+ assert.equal(attr(el,'data-component-index').length,0);assert.match(ordinaryText(el),/没有.*准备任务/);assert.match(ordinaryText(el),/4.*准备时机未录/);
+ const reset=tag(el,'button').find(n=>n.textContent==='查看全部');assert(reset);reset.dispatch('click');assert.equal(resets,1);assert.equal(attr(el,'data-step-index').length,2);stop();el.remove();
+});
+test('source warning uses recorded names with date and a repair action; original identifiers remain in support details',()=>{
+ const data=JSON.parse(JSON.stringify(fixture()));data.projection.collection.issues=[{code:'components-unrecorded',menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',dishRef:'dish-a',mealIndex:0}];
+ const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options()),panel=tag(el,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));panel.open=true;
+ const visible=ordinaryText(panel);assert.match(visible,/甲菜/);assert.match(visible,/2026-09-11/);assert.match(visible,/补齐资料/);assert.doesNotMatch(visible,/dish-a|components-unrecorded|week/);
+ assert(tag(panel,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));assert.match(panel.textContent,/dish-a/);stop();el.remove();
+});
+test('same-version material detail uses human stock state and recipe context instead of IDs',async()=>{
+ const details=await loadPage('team-details'),el=mount();el.classList={add(){}};
+ const data=JSON.parse(JSON.stringify(fixture()));data.projection.collection.items=[{ingredientRef:'tomato',sources:[{menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',dishRef:'dish-a',mealIndex:0,componentIndex:0}]}];
+ const stop=details.renderTeamDetails(el,{lang:'zh',projection:freeze(data).projection,kind:'ingredient',id:'tomato',asset:async()=>{throw Error('unused');},href:(kind,id)=>`#/purchase/list/${kind}/${id}`});
+ const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/2026-09-11/);assert.match(visible,/未启用/);assert.doesNotMatch(visible,/false|tomato|week \/|aaaaaaaa|EN:|UK:/);assert.match(el.textContent,/Tomato/);stop();el.remove();
+});

@@ -98,3 +98,17 @@ test('navigation publication refresh leaves the existing editor outlet and pendi
  assert.equal(e.root.contains(outlet),true);assert.deepEqual(editor.getState(),before);assert.equal(e.m.inspectReloadSafety().reason,'saving');assert.equal(writes,1);
  resolve({commit:'b'.repeat(40),blobSha:'lock',unchanged:false,warnings:[]});await saving;editor.dispose();
 });
+
+test('core navigation remains visible, uses verified plan, and preserves current route after refresh',async()=>{
+ const e=await setup('zh'),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
+ const nav=e.root.querySelector('.core-nav');assert.ok(nav,'persistent core navigation is present');
+ assert.deepEqual(nav.querySelectorAll('a').map(a=>a.getAttribute('href')),['#/prep','#/menu','#/purchase','#/admin/plan/week-41']);
+ e.shell.setActive('admin','plan/week-41');e.shell.setTitle('师傅后台');
+ assert.equal(nav.querySelector('[aria-current="page"]').getAttribute('href'),'#/admin/plan/week-41');
+ assert.equal(e.root.querySelector('.t').textContent,'菜单计划');
+ assert.equal(e.root.querySelector('.plan-import').getAttribute('href'),'#/admin/plan/week-41/import');
+ e.shell.refresh();assert.equal(nav.querySelector('[aria-current="page"]').getAttribute('href'),'#/admin/plan/week-41');
+ e.shell.setActive('menu');assert.equal(e.root.querySelector('.plan-import').hidden,true);assert.equal(e.root.querySelector('.plan-import').hasAttribute('href'),false);
+ e.shell.openDrawer();assert.equal(nav.hasAttribute('inert'),true);e.shell.closeDrawer();assert.equal(nav.hasAttribute('inert'),false);
+ e.shell.setBuild(null);assert.equal(nav.querySelectorAll('a').some(a=>a.getAttribute('href').startsWith('#/admin/plan')),false);
+});

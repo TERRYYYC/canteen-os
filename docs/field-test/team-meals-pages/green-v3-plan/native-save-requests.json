@@ -1,0 +1,85 @@
+[
+  {
+    "id": 21,
+    "method": "POST",
+    "path": "/plan/team-week",
+    "body": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "本周餐食计划",
+        "en": "Weekly meal plan",
+        "uk": "План харчування на тиждень"
+      },
+      "dateRange": {
+        "start": "2026-09-07",
+        "end": "2026-09-13"
+      },
+      "meals": [
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "first-dish",
+          "plannedServings": 11
+        },
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "second-dish"
+        },
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "name-only",
+          "plannedServings": 6
+        },
+        {
+          "date": "2026-09-09",
+          "mealType": "lunch",
+          "dishRef": "first-dish"
+        }
+      ]
+    },
+    "status": 200
+  },
+  {
+    "id": 26,
+    "method": "POST",
+    "path": "/plan/team-week",
+    "body": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "本周餐食计划",
+        "en": "Weekly meal plan",
+        "uk": "План харчування на тиждень"
+      },
+      "dateRange": {
+        "start": "2026-09-07",
+        "end": "2026-09-13"
+      },
+      "meals": [
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "first-dish",
+          "plannedServings": 11
+        },
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "second-dish"
+        },
+        {
+          "date": "2026-09-10",
+          "mealType": "lunch",
+          "dishRef": "name-only"
+        },
+        {
+          "date": "2026-09-09",
+          "mealType": "lunch",
+          "dishRef": "first-dish"
+        }
+      ]
+    },
+    "status": 200
+  }
+]

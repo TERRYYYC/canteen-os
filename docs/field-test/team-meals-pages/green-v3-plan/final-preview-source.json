@@ -1,0 +1,269 @@
+{
+  "head": "11c8a981d59ecda373328d0af9655f91347e2ed9",
+  "packagesTree": "4a7caa73d0c659bfcf230c495764bc6b1bc0c7b1",
+  "node": "v20.20.2",
+  "nodePath": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+  "fixedAt": "2026-09-10T00:00:00.000Z",
+  "fixtureRevision": "86196222082de7de244abbde834a74fcd2f7fbeb",
+  "fixtureRoot": "/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-page-fixture-xv4Yi3",
+  "root": "/private/tmp/canteen-hifi-4275/runtime",
+  "sourceIntegrity": [
+    {
+      "file": "packages/web/src/data.ts",
+      "sha256": "5cdfab89948ca5bb0859f0b744368083d9adc7f2d720779172c897196dd3cd00"
+    },
+    {
+      "file": "packages/web/src/dom.ts",
+      "sha256": "3eb6663c19dfee4093cefa63d5bd95eb041213d0e085da976488a106e4252510"
+    },
+    {
+      "file": "packages/web/src/i18n.ts",
+      "sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+    },
+    {
+      "file": "packages/web/src/main.ts",
+      "sha256": "60673d40a9e8256addab574cb618e0888312662cb17d9eb3554c01311a0656b1"
+    },
+    {
+      "file": "packages/web/src/pwa.ts",
+      "sha256": "4711d76dafe7d32c171c2de2c41285020a13690c1977c05a228007fea0b7173a"
+    },
+    {
+      "file": "packages/web/src/router.ts",
+      "sha256": "cc73d98ce769ab37e379f554e5c93bd50ad58275a7bce8381c97a5b6d2173812"
+    },
+    {
+      "file": "packages/web/src/shell.ts",
+      "sha256": "1ea979bc83370e655e74de37c42d06d00a6c97e6037162e2a88f22840686991f"
+    },
+    {
+      "file": "packages/web/src/styles.css",
+      "sha256": "510acce318e28b289fcd5d07b866e4bbee55e44fae5db7ca7aa317c6b4c64529"
+    },
+    {
+      "file": "packages/web/src/theme.ts",
+      "sha256": "6befd39469c0e718b726fadbb8cf7785f2e0559f0d8e98fbab96220a7f7cfd34"
+    },
+    {
+      "file": "packages/web/src/tokens.css",
+      "sha256": "1d60bcaa5273c36b8ca8502cedd42a70963ae5e0beed1cd305f8c4983ef3377d"
+    },
+    {
+      "file": "packages/web/src/types.ts",
+      "sha256": "4ce433ac1c809f09d878aa51270ad2384e04df7fc0efd7005f847117c0c01094"
+    },
+    {
+      "file": "packages/web/src/admin/kit.ts",
+      "sha256": "b3a0b378cfa1a94932552f2cb072d4b2c04b75f274535ff38aa1b04ebc233de5"
+    },
+    {
+      "file": "packages/web/src/admin/store.ts",
+      "sha256": "7082f80729b436b1c21db4e91f100282d22644ec19d2e8540de56eea59585b2d"
+    },
+    {
+      "file": "packages/web/src/admin/token.ts",
+      "sha256": "bc52456bd287fa5509caf501dc9f095f131d6ef60ac799d8585e4a9291f58f51"
+    },
+    {
+      "file": "packages/web/src/api/client.ts",
+      "sha256": "702da78ecb2384b16c3307b3db8aa844f989a22b5096642feacec09d5a6c2e4a"
+    },
+    {
+      "file": "packages/web/src/api/mock.ts",
+      "sha256": "d3fe30e67dc29daa70eb41c0d2de56cf804947d0551bedd75f4f95c62fde9c8f"
+    },
+    {
+      "file": "packages/web/src/api/team-meals.ts",
+      "sha256": "ee8992e5eb08ffb44e43abcc86a3995f387ebd89425707e16df3b09f4f79c256"
+    },
+    {
+      "file": "packages/web/src/api/transport.ts",
+      "sha256": "4db2955217cb6cdeaa49570ca07f122c327cff06f6b350959dfe86be3d103ce5"
+    },
+    {
+      "file": "packages/web/src/api/types.ts",
+      "sha256": "ed75628e930c0afcafd6f632fd551bbd2546d94b4b1b37a9d2ff96cc9bec5561"
+    },
+    {
+      "file": "packages/web/src/pages/admin.ts",
+      "sha256": "23ec854967e90441116dd90c79844044dfbc6b151f3f8df51d60f52bd334da74"
+    },
+    {
+      "file": "packages/web/src/pages/menu-recipe.ts",
+      "sha256": "ab20a4d334a2236902e59480d5cdc29c91a0ac15a1bda89f1ea705b246e8464e"
+    },
+    {
+      "file": "packages/web/src/pages/menu.css",
+      "sha256": "cbc112ec41042cc818ccb91f9ffcd75a91bf506795f90ecd4428e1a0152dd77b"
+    },
+    {
+      "file": "packages/web/src/pages/menu.ts",
+      "sha256": "0770bd940a5168801c463a9fefb1b4a337852bf194815dad3f0b237e006a9cbf"
+    },
+    {
+      "file": "packages/web/src/pages/prep.css",
+      "sha256": "68a26bea91433c8c4fc8943532cdc4940080c4210e26e53a08bbc0de14fb4572"
+    },
+    {
+      "file": "packages/web/src/pages/prep.ts",
+      "sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+    },
+    {
+      "file": "packages/web/src/pages/published-meals.ts",
+      "sha256": "5f85559730084cdcbe8c17d1fe052005d4aa672d797a43ac18f05e4a0688b609"
+    },
+    {
+      "file": "packages/web/src/pages/purchase-form.ts",
+      "sha256": "0ba62e8ca2860a9d009f02ea2c4c1fb909dbc10b766bdfdb42d4f6f3121a4089"
+    },
+    {
+      "file": "packages/web/src/pages/purchase-list.ts",
+      "sha256": "a9f94e6c72a67edb7145b733f6a31bc3944742e19546743d0c4ad500e12955dd"
+    },
+    {
+      "file": "packages/web/src/pages/purchase.css",
+      "sha256": "dcc3fbd6edb0350287d57f135e6e458262c133cac2d6cf1a20257a3962e86ebd"
+    },
+    {
+      "file": "packages/web/src/pages/purchase.ts",
+      "sha256": "3dfd1ecb566c0a137ec9ecd6440018a43dbaa261d355fa8042238116f1b2f053"
+    },
+    {
+      "file": "packages/web/src/pages/qr.css",
+      "sha256": "7653128483b376d6066f24a5055aeeabd83902e0d0494e57ac549afabcdcbce0"
+    },
+    {
+      "file": "packages/web/src/pages/qr.ts",
+      "sha256": "c1e78ada7901a28a086d5f24c05148fcf67e96b3691e07787d7a69819af2e755"
+    },
+    {
+      "file": "packages/web/src/pages/shopping-copy.ts",
+      "sha256": "d09f9ff311a54089452693fc769c309f6b51ecfe44cae40083e4c8381d1377d1"
+    },
+    {
+      "file": "packages/web/src/pages/team-details.ts",
+      "sha256": "0bef1d2985f1d14eb3e42a62b99e80f67d02f056c4b501cdeaf6455d8990ddb7"
+    },
+    {
+      "file": "packages/web/src/pages/team-ui.ts",
+      "sha256": "60835d22ba43f44bec30505eecb0b2d817498e95a87039ad7ec14358fb117832"
+    },
+    {
+      "file": "packages/web/src/view-models/edit-session.ts",
+      "sha256": "dcfc2409ec119999e9d9b89542218d9d4c3c10eecea156730e965f7eafb70ec1"
+    },
+    {
+      "file": "packages/web/src/view-models/published.ts",
+      "sha256": "184aa5a1f29f9c9df9f03f4755e09cb4cad00b8bc660f8faefd0fe325fdcc90b"
+    },
+    {
+      "file": "packages/web/src/view-models/reload-safety.ts",
+      "sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+    },
+    {
+      "file": "packages/web/src/view-models/team-meals.ts",
+      "sha256": "87259084084498df170cbe49be0ede700729aa1136d91ddf1902b869e1421af7"
+    },
+    {
+      "file": "packages/web/src/pages/admin/admin.css",
+      "sha256": "0aa9261d6b2be0fd04234aff551ca00334f427febf1c0182aaf9c80feea866e9"
+    },
+    {
+      "file": "packages/web/src/pages/admin/dish-new.css",
+      "sha256": "c761a6e4b724203554a5eb07e401242c9139c76efe8eccae8af52725cdfe30f3"
+    },
+    {
+      "file": "packages/web/src/pages/admin/dish-new.ts",
+      "sha256": "dfd89858c706f5f80d238a2c614622436fbb75fd3e0bf27e5f2e44c62e49c4d9"
+    },
+    {
+      "file": "packages/web/src/pages/admin/editor-actions.ts",
+      "sha256": "36e2d42b21f4e5f3d691a202fa5f935cf2e290f4c0cb72ab8ad2dd1db31c4255"
+    },
+    {
+      "file": "packages/web/src/pages/admin/editor-image.ts",
+      "sha256": "4f8d413579565fa5af165fb36a95b9fbc808456006bd84eb82adf127d4db1d1a"
+    },
+    {
+      "file": "packages/web/src/pages/admin/home.css",
+      "sha256": "e1fa522d3c56066a6cf730993bd7bac64191b8913ce97d1124ae29c87c863dfe"
+    },
+    {
+      "file": "packages/web/src/pages/admin/home.ts",
+      "sha256": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5"
+    },
+    {
+      "file": "packages/web/src/pages/admin/import.css",
+      "sha256": "c0ed3104b1af3bc48a4d1a805138b552163d12013741d9f0e7e9ba3e8aeb1b83"
+    },
+    {
+      "file": "packages/web/src/pages/admin/import.ts",
+      "sha256": "34bd052707bdba898eb2b0902a5d280afbbec3798c56c1eab5a6bf641f67dd70"
+    },
+    {
+      "file": "packages/web/src/pages/admin/ingredient-draft.ts",
+      "sha256": "3902ebaa47cc8a676eb272587a6683d64eac7bc56d3dccb71b115f43beb4995f"
+    },
+    {
+      "file": "packages/web/src/pages/admin/ingredient-form.ts",
+      "sha256": "2a356e1f7b89938b78c54b1bf2e8ccff9134a515e3cd269f57648ef742422d42"
+    },
+    {
+      "file": "packages/web/src/pages/admin/ingredient-new.css",
+      "sha256": "a8d08e4c6983b567647678db8b42797fda0efa351b7badd3ada44c280e465fc0"
+    },
+    {
+      "file": "packages/web/src/pages/admin/ingredient-new.ts",
+      "sha256": "26abc05a2a7dc24e9ace4c74bbf4c50c8091bae918083fa1dc2e1e38ae88e81f"
+    },
+    {
+      "file": "packages/web/src/pages/admin/plan-form.ts",
+      "sha256": "f6e456359f74250e6e147a881f8c0e5cafd1143c176583eddc95f05a6489e48f"
+    },
+    {
+      "file": "packages/web/src/pages/admin/plan-import.ts",
+      "sha256": "db94625717b353f66d52bf8e22bcd268f9f3876b0c0e75883db0b8e12d51ad5b"
+    },
+    {
+      "file": "packages/web/src/pages/admin/plan-preview.ts",
+      "sha256": "3606cfc4c157a7a4af05f3976e47b985c30c74ca6f576ced7051a6b565651ad7"
+    },
+    {
+      "file": "packages/web/src/pages/admin/plan.css",
+      "sha256": "0d6543d11509e130dd08bc856ec06a5c4daaca484c4cf0f5eeb9d86a08e760d8"
+    },
+    {
+      "file": "packages/web/src/pages/admin/plan.ts",
+      "sha256": "b2a955cc935392691b45a4486bd1f4664ddfe0be8d799e22559e1454fc5fd4f5"
+    },
+    {
+      "file": "packages/web/src/pages/admin/publish.css",
+      "sha256": "51fde411397144af5353c598d0e0af9185761212023fe0c8a7bb423ddb388cb5"
+    },
+    {
+      "file": "packages/web/src/pages/admin/publish.ts",
+      "sha256": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29"
+    },
+    {
+      "file": "packages/web/src/pages/admin/servings-input.ts",
+      "sha256": "a785c055a3701ce40baac0157f9d00e02699dae3305a0d1092aa14522bd8cb24"
+    }
+  ],
+  "previewMode": "Vite development (PWA disabled by normal plugin default)",
+  "workingCopy": false,
+  "restoredLocalShopping": [
+    "data/shopping-lists/shop-2026-09-10.json"
+  ],
+  "visualSource": "2f890d8f182d02e8ed4acb55a865e8aa086416dd",
+  "qBase": "22eacba",
+  "boundary": "D local visual preview: actual main/router/C client/Worker, explicit local FakeRepo, supplied design images and D-only fixed visual names; no remote writes",
+  "htmlChanges": [
+    "visible local visual sample banner",
+    "fixed-date/public-test-token bootstrap",
+    "remove external font links for offline isolation"
+  ],
+  "producer": {
+    "blocking": 0,
+    "warnings": 22
+  }
+}

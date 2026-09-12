@@ -1,31 +1,7 @@
-/**
- * /admin 工作台（#20b；docs/specs/v03-admin-frontend-contract.md §4.1，版式照 docs/design/backoffice-v1.html 第 1 屏）。
- *
- * 屏上：顶部状态条「N 项改动还没发布 · 上次发布 hh:mm」+ 右侧「发布」chip，整条可点 → #/admin/publish；
- * 下面七个入口块（issue #20 正文 7 项，§9 矛盾 4）：排菜单（大块）/ 加一道菜 / 待确认 / 食材库 / 翻译待审 / 二维码 / 发布记录。
- *
- * 数据（§4.1 表；没有一个数字写死）：
- *   getChanges()              → unpublished.length / lastPublishedAt
- *   C1 getPlan(currentPlanId()) → v2/v3 meals.length；确认不存在（null）→ 0。currentPlanId = core 的 planIdOfDate(今天)，算不出退回 ctx.planId（D-06）
- *   C1 getCatalog()           → 草稿菜数（status 缺省视为 draft，core/types.ts）/ 食材数 / 调料缺口（< 20）/ translations.machine
- *   未配置：数字保持未知，不调用旧 API 的默认 mock。显式模拟不读取真实发布状态。
- *
- * 四种态：加载态先画齐入口块、数字位「—」（导航不依赖数字，不做骨架闪烁）；N = 0 → 「都发布了」+ 发布 chip 置灰（条仍可点）；
- * getChanges 失败 → 状态条换 errorCard + 重试，入口块照常；getCatalog / getPlan 失败 → 该块数字「—」+ 小字「数字暂时取不到」，块仍可点；
- * 离线（netState() !== "online"）→ 顶部灰条「现在没网，后台只能看不能存」+ 写入入口置灰；401 → kit.sessionExpired（清令牌 + 锁屏）。
- *
- * 推论 A（语言切换 = 整页重新 render）：已取到的数字放模块级 snapshot。由语言切换触发的那次 render 只用 snapshot 重画、不再请求；
- * 换路由回来则重新取（api 层自有缓存，任何写入成功后自动失效，§3.5）。晚到的请求结果写进 snapshot 并画到**当前**挂着的那份 DOM。
- *
- * 待确认块（D-10）：指向第一条草稿（id 升序）的编辑屏 #/admin/dish/<id>；0 条置灰不可点。翻译待审：本轮没有审阅屏，置灰只显示数字（§7）。
- * 红点数字带 .sr-only 文字等价物；入口块是 <a>，min-height 44px；焦点顺序 = DOM 顺序：状态条 → 排菜单 → 其余块。
- *
- * 只动本文件与 home.css（§3.3）；缺的小件（状态条、入口块、红点）都写在这里，不改 kit.ts（§3.4 规则 0）。
- * 文本一律 textContent（dom.ts 的 h()）；样式全部 .adm-home 前缀。
- */
+/** Back-office entries use the selected saved plan and explicitly qualified publication status. */
 import "./home.css";
 
-import { planIdOfDate } from "@canteenos/core";
+import type {AnyMenuPlan} from '@canteenos/core';
 
 import { adm, apiMessage, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { onAuthSessionChange } from "../../admin/token";
@@ -34,13 +10,14 @@ import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/
 import type { Changes } from "../../api/types";
 import { isApiError } from "../../api/types";
 import { h, replace } from "../../dom";
-import { type Lang, onLangChange, type TParams } from "../../i18n";
+import { pick, type Lang, onLangChange, type TParams } from "../../i18n";
 import { hrefOf, onRoute } from "../../router";
 import { formatBuiltAt, netState } from "../../shell";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
 import { text as teamText } from "../team-ui";
 import { registerAuxiliaryEdits, type AuxiliaryEditHandle } from "../../view-models/reload-safety";
+import {currentPlan,selectPlan} from './plan-context';
 
 // ---------------------------------------------------------------------------
 // 文案（§5.4 `home.` 最小集 + 本屏自用；zh 权威，en 直译，uk 初稿待帮厨校对）
@@ -50,24 +27,24 @@ const T = {
   "home.title": { uk: "Кабінет шефа", zh: "师傅后台", en: "Back office" },
   "home.nav": { uk: "Розділи кабінету", zh: "后台入口", en: "Back-office sections" },
   "home.unpublished": { uk: "Змін ще не опубліковано: {n}", zh: "{n} 项改动还没发布", en: "{n} changes not published yet" },
-  "home.unpublished.none": { uk: "Усе опубліковано", zh: "都发布了", en: "Everything is published" },
+  "home.unpublished.none": { uk: "Немає змін, що очікують публікації", zh: "没有待发布的改动", en: "No changes awaiting publication" },
   "home.lastPublished": { uk: "Остання публікація: {t}", zh: "上次发布 {t}", en: "Last published {t}" },
-  "home.lastPublished.never": { uk: "Ще жодного разу не публікувалося", zh: "还没发布过", en: "Never published yet" },
+  "home.lastPublished.never": { uk: "Немає доступних записів публікації", zh: "没有可用的发布记录", en: "No publication history available" },
   "home.publish": { uk: "Опублікувати", zh: "发布", en: "Publish" },
   "home.block.plan": { uk: "Скласти меню", zh: "排菜单", en: "Plan the menu" },
   "home.block.plan.week": { uk: "Тиждень {n}", zh: "第 {n} 周", en: "Week {n}" },
-  "home.block.plan.sub": { uk: "Цього тижня заплановано прийомів їжі: {n}", zh: "本周已排 {n} 餐", en: "{n} meals planned this week" },
+  "home.block.plan.sub": { uk: "Заплановано прийомів їжі: {n}", zh: "已排 {n} 餐", en: "{n} meal slots planned" },
   "home.block.dish": { uk: "Додати страву", zh: "加一道菜", en: "Add a dish" },
   "home.block.dish.sub": { uk: "Ввести вручну", zh: "手动输入这道菜", en: "Type it in by hand" },
   "home.block.draft": { uk: "На підтвердження", zh: "待确认", en: "To confirm" },
   "home.block.draft.sub": { uk: "Чернеток страв: {n}", zh: "{n} 道草稿", en: "{n} draft dishes" },
   "home.block.draft.none": { uk: "Нічого підтверджувати", zh: "没有要确认的", en: "Nothing to confirm" },
-  "home.block.ingredient": { uk: "Інгредієнти", zh: "食材库", en: "Ingredients" },
+  "home.block.ingredient": { uk: "Додати інгредієнт", zh: "新增食材", en: "Add ingredient" },
   "home.block.ingredient.sub": { uk: "Інгредієнтів: {n}", zh: "{n} 个食材", en: "{n} ingredients" },
   "home.block.ingredient.seasoning": { uk: "Бракує ще {n} звичних приправ", zh: "常用调料还差 {n} 个", en: "{n} common seasonings still missing" },
   "home.block.translate": { uk: "Переклади на перевірку", zh: "翻译待审", en: "Translations to review" },
   "home.block.translate.sub": { uk: "Машинних перекладів: {n}", zh: "{n} 条机翻", en: "{n} machine-translated" },
-  "home.block.translate.later": { uk: "Екран перевірки буде наступного разу", zh: "审阅屏下一轮做", en: "Review screen comes in a later round" },
+  "home.block.translate.later": { uk: "Окремого екрана перевірки немає. Перевіряйте переклад у редакторі страви або інгредієнта.", zh: "暂不支持集中审阅；可在对应菜品或食材编辑页核对译文。", en: "Bulk review is unavailable. Check translations in the relevant dish or ingredient editor." },
   "home.block.qr": { uk: "QR-коди", zh: "二维码", en: "QR codes" },
   "home.block.qr.sub": { uk: "Роздрукувати на стіну: підготовка / закупівля / меню", zh: "打印贴墙：备料 / 采购 / 菜单", en: "Print and pin up: prep / purchasing / menu" },
   "home.block.log": { uk: "Історія публікацій", zh: "发布记录", en: "Publish history" },
@@ -87,8 +64,6 @@ function tt(lang: Lang, key: HomeKey, params?: TParams): string {
 
 /** 数字还没到 / 取不到时数字位显示的占位（§4.1 加载态） */
 const DASH = "—";
-/** 执行简报 §3 v0.4「含常用调料 ≥ 20」：调料少于这个数就提示缺口（阈值来自简报；屏上显示的缺口数现算） */
-const SEASONING_TARGET = 20;
 
 // ---------------------------------------------------------------------------
 // 模块级状态（推论 A：切语言不重新请求、数字不丢）
@@ -98,10 +73,12 @@ type Loaded<V> = { ok: true; value: V } | { ok: false; error: unknown };
 
 interface PlanCount {
   planId: string | null;
-  meals: number;
+  meals: number|null;
+  name?:AnyMenuPlan['name'];
 }
 
 interface Snapshot {
+  planTarget?:string|null;
   /** 缺 = 还在读 */
   changes?: Loaded<Changes>;
   catalog?: Loaded<TeamCatalog>;
@@ -148,24 +125,9 @@ function onNet(): void {
 window.addEventListener("online", onNet);
 window.addEventListener("offline", onNet);
 
-// ---------------------------------------------------------------------------
-// 周号（D-06：换算只有 core 一份 —— planIdOfDate；算不出退回 ctx.planId）
-// ---------------------------------------------------------------------------
-
-/**
- * 本周的 planId：core 的 planIdOfDate（`week-<ISO 周号>`，**不补零**：week-5 / week-41，与 data/menu-plans/week-41.json 同形）；
- * 拿不到就退回 ctx.planId（= build.json.plans[0]）。now 取本地日历日（今天几号以用户所在时区为准），再按 core 的 UTC 规则算周。
- */
-function currentPlanId(ctx: PageCtx, now: Date = new Date()): string | null {
-  if (Number.isNaN(now.getTime())) return ctx.planId;
-  const localDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0, 10);
-  return planIdOfDate(localDay) ?? ctx.planId;
-}
-
-/** 「week-41」→ 41；不是这个形状 → null（子标题里的「第 N 周」只在认得出时显示） */
-function weekOf(planId: string | null): number | null {
-  const m = planId ? /^week-(\d{1,2})$/.exec(planId) : null;
-  return m ? Number(m[1]) : null;
+/** The explicit in-session plan wins, followed by the validated public manifest selection. */
+function currentPlanId(ctx: PageCtx): string | null {
+  return currentPlan(ctx,getTeamMealsApi()).id;
 }
 
 // ---------------------------------------------------------------------------
@@ -181,9 +143,7 @@ function draftIds(catalog: TeamCatalog): string[] {
     .sort();
 }
 
-function seasoningCount(catalog: TeamCatalog): number {
-  return Object.values(catalog.ingredients).filter((i) => i.role === "seasoning").length;
-}
+
 
 // ---------------------------------------------------------------------------
 // 取数：三路并行，各自到了就写 snapshot 并重画当前 DOM
@@ -203,9 +163,10 @@ function load(ctx: PageCtx, api: TeamMealsApi): void {
   const owner = snapshotOwner;
   if (!owner || owner.api !== api || owner.session !== session) return;
   const planId = currentPlanId(ctx);
+  if(snapshot.planTarget!==planId){delete snapshot.plan;snapshot.planTarget=planId;}
   const gen = ++generation;
 
-  function arrived<K extends keyof Snapshot>(key: K, r: NonNullable<Snapshot[K]>): void {
+  function arrived<K extends Exclude<keyof Snapshot,'planTarget'>>(key: K, r: NonNullable<Snapshot[K]>): void {
     if (gen !== generation || snapshotOwner?.api !== api || snapshotOwner.session !== session || api.sessionKey() !== session) return;
     snapshot[key] = r;
     if (!mounted || !mounted.el.isConnected) return;
@@ -223,7 +184,7 @@ function load(ctx: PageCtx, api: TeamMealsApi): void {
   const requests: Promise<void>[] = [];
   if (api.mode === "real") requests.push(read(() => getApi().getChanges()).then((r) => arrived("changes", r)));
   requests.push(read(() => api.getCatalog()).then((r) => arrived("catalog", r)));
-  requests.push(read(() => planId ? api.getPlan(planId).then((s) => ({ planId, meals: s?.content.meals.length ?? 0 })) : Promise.resolve({ planId, meals: 0 })).then((r) => arrived("plan", r)));
+  requests.push(read<PlanCount>(() => planId ? api.getPlan(planId).then((s) => ({ planId, name:s?.content.name, meals: s?new Set(s.content.meals.map(m=>`${m.date}/${m.mealType}`)).size:0 })) : Promise.resolve({ planId, meals: null })).then((r) => {if(r.ok&&r.value.planId&&gen===generation&&owner===snapshotOwner&&api.sessionKey()===session&&currentPlan(ctx,api).id===planId)selectPlan(api,r.value.planId,r.value.name);arrived("plan", r);}));
   void Promise.allSettled(requests).finally(() => ctx.setReloadCoverage?.("tracked"));
 }
 
@@ -327,6 +288,8 @@ function paintStat(bar: StatBar, lang: Lang, changes: Changes | null, offline: b
     bar.sub.textContent = changes.lastPublishedAt
       ? tt(lang, "home.lastPublished", { t: formatBuiltAt(changes.lastPublishedAt, lang) })
       : tt(lang, "home.lastPublished.never");
+    if(!changes.onlineCommit)bar.sub.textContent+=lang==='zh'?' · 线上版本尚未核实':lang==='en'?' · Live version is unverified':' · Поточну версію онлайн не перевірено';
+    if(changes.truncated)bar.sub.textContent+=lang==='zh'?' · 仅取得部分改动':lang==='en'?' · Only some changes were retrieved':' · Отримано лише частину змін';
   }
   // 发布 chip：有未发布且在线才亮；N = 0 或离线置灰（整条仍可点进发布屏看记录）
   const live = !!changes && changes.unpublished.length > 0 && !offline;
@@ -371,7 +334,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
 
   // 固定文案 + 固定去处（不依赖数字，加载态就能点）
   plan.name.textContent = tt(lang, "home.block.plan");
-  plan.href = adminHref("plan");
+  plan.href = adminHref("plan",currentPlanId(ctx)??'');
   dish.name.textContent = tt(lang, "home.block.dish");
   dish.sub.textContent = tt(lang, "home.block.dish.sub");
   dish.href = adminHref("dish", "new");
@@ -428,11 +391,12 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
       paintStat(bar, lang, ch ? ch.value : null, offline);
     }
 
-    // 排菜单：第 N 周 · 本周已排 n 餐
-    const pl = snapshot.plan;
-    const week = weekOf(pl && pl.ok ? pl.value.planId : currentPlanId(ctx));
-    const mealsText = tt(lang, "home.block.plan.sub", { n: pl && pl.ok ? pl.value.meals : DASH });
-    plan.sub.textContent = week === null ? mealsText : `${tt(lang, "home.block.plan.week", { n: week })} · ${mealsText}`;
+    // The named saved plan and unique date/meal slots, independent of dish rows.
+    const chosen=currentPlan(ctx,api),pl=snapshot.planTarget===chosen.id?snapshot.plan:undefined;
+    const name=pick(pl&&pl.ok?pl.value.name:chosen.name,lang);
+    const mealsText = tt(lang, "home.block.plan.sub", { n: pl && pl.ok ? pl.value.meals??DASH : DASH });
+    plan.href=adminHref('plan',chosen.id??'');
+    plan.sub.textContent = name?`${name} · ${mealsText}`:mealsText;
     setNote(plan, unconfigured || (pl && !pl.ok) ? tt(lang, "home.number.unknown") : null);
 
     // 目录：草稿 / 食材 / 翻译
@@ -450,11 +414,7 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
     setNote(draft, catNote);
 
     const ingN = catalog ? Object.keys(catalog.ingredients).length : null;
-    const seasoningGap = catalog ? Math.max(0, SEASONING_TARGET - seasoningCount(catalog)) : 0;
-    let ingText = tt(lang, "home.block.ingredient.sub", { n: ingN ?? DASH });
-    if (seasoningGap > 0) ingText += ` · ${tt(lang, "home.block.ingredient.seasoning", { n: seasoningGap })}`;
-    ingredient.sub.textContent = ingText;
-    ingredient.sub.classList.toggle("adm-home-tile-warn", seasoningGap > 0);
+    ingredient.sub.textContent = tt(lang, "home.block.ingredient.sub", { n: ingN ?? DASH });
     setNote(ingredient, catNote);
 
     const machineN = catalog ? catalog.translations.machine : null;
@@ -491,6 +451,6 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const isLangSwitch = langSwitch;
   langSwitch = false;
   if (api.mode === "unconfigured") { ctx.setReloadCoverage?.("read-only"); return; }
-  if (isLangSwitch && sameSession) { ctx.setReloadCoverage?.("tracked"); return; }
+  if (isLangSwitch && sameSession&&snapshot.planTarget===currentPlanId(ctx)) { ctx.setReloadCoverage?.("tracked"); return; }
   load(ctx, api);
 }

@@ -160,3 +160,21 @@ a.src:hover { text-decoration: underline; }
 [data-frozen-menu] > .mlist > details > summary { min-height: 44px; cursor: pointer; width: fit-content; }
 [data-frozen-menu] [data-frozen-prep] { margin-top: 18px; }
 [data-frozen-menu] [data-frozen-prep] h1 { font-size: 22px; }
+
+/* Daily preparation: current-language instructions first, supporting records on demand. */
+.record-notice{padding:12px 0;border-top:1px solid var(--line)}
+.record-notice p{margin:0 0 8px;line-height:1.5;color:var(--ink)}
+.record-notice a{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-weight:600}
+.prep-filter-result{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.prep-filter-result p{margin:0 0 8px}
+.prep [data-frozen-prep]>h1{font-size:18px}
+.prep [data-frozen-prep]>[data-recipe-meal-index]{padding:16px}
+.prep [data-frozen-prep] .dish-head{margin:0 0 12px}
+.prep [data-frozen-prep] figure{margin:12px 0}
+.prep [data-frozen-prep] figure>img{width:auto;max-width:100%;max-height:180px;object-fit:contain;border-radius:10px}
+.prep [data-frozen-prep] [data-component-index]{padding:14px;margin:10px 0}
+.prep [data-frozen-prep] [data-component-index] h4{font-size:18px;margin:0 0 6px}
+.prep [data-frozen-prep] [data-component-index]>figure>img{max-height:100px}
+.prep [data-frozen-prep] .step{padding:14px 0;align-items:flex-start}
+.prep [data-frozen-prep] p{line-height:1.5}
+.prep-filter-result .chip{min-height:44px;padding:0 16px}

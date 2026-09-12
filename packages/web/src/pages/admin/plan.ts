@@ -1,6 +1,6 @@
 /** Team plan page. D0 design: docs/design/team-meals-pages/. */
 import './plan.css';
-import { weekStartOfPlanId, planIdOfDate, normalizeSelection, type MealType, type AnyMenuPlan } from '@canteenos/core';
+import { weekStartOfPlanId, planIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
 import { apiMessage } from '../../admin/kit';
@@ -11,15 +11,15 @@ import type { PageCtx } from '../../types';
 import { adminHref } from '../admin';
 import { text, action, field, status, onDetached } from '../team-ui';
 import { createPlanForm, toSavePlan } from './plan-form';
-import {previewTeamMealsDraft} from '../../view-models/team-meals';
-import {renderCandidates} from '../purchase-list';
 import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
+import {currentPlan,selectPlan} from './plan-context';
+import {recordValue} from '../record-display';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { preview?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
+interface View { preview?:boolean; editing?:number; addExpanded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
@@ -42,6 +42,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     return {finish(failed){view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');}};
   }});
   let form=createForm(),auth=api.sessionKey();
+  let previewModule:typeof import('./plan-preview')|undefined;
   async function renderPlan(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void> {
     const drafts=bindDraftStore(api);
     cleanup(); const renderTicket=++renderSequence;
@@ -51,15 +52,18 @@ export function createPlanRenderer(api:TeamMealsApi) {
       views.clear();form=createForm();auth=api.sessionKey();
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
-    const id=rest||ctx.planId||planIdOfDate(new Date().toISOString().slice(0,10))||'';
+    const id=rest||currentPlan(ctx,api).id||planIdOfDate(new Date().toISOString().slice(0,10))||'';
     if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
-    el.classList.add('tm-page');
-    const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
-    const body=h('div',{});el.append(header,body);
+    el.classList.add('tm-page');el.classList.add('tm-plan');
+    const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{class:'tm-plan-sr'},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
+    const body=h('div',{});el.append(body,header);
     if(api.mode==='unconfigured'){body.append(h('div',{class:'tm-status',role:'status'},tr('unconfigured')));ctx.setReloadCoverage?.('read-only');return;}
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
+    let previewLoading=false,previewError:unknown=null;
+    const photos=new Map<string,{url?:string;failed?:boolean}>();
+    const disposePhotos=()=>{for(const photo of photos.values())if(photo.url)URL.revokeObjectURL(photo.url);photos.clear();};
     const today=new Date().toISOString().slice(0,10);
     const defaultDate=weekStartOfPlanId(id,today)??today;
     const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:'',addBaseline:[defaultDate,'lunch',''],initialized:false,generation:++rawGeneration,reads:0};views.set(id,view);
@@ -73,10 +77,12 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(!isLive())return;
       const s=owner.session.getState();contextId=s.contextId;
       if(s.identity?.id!==id){replace(body,h('p',{role:'status'},tr('loading')),...(loadError?[h('p',{role:'alert'},apiMessage(loadError,lang)),action(tr('retry'),()=>void reloadCatalog())]:[]));return;}
-      if(boundKey!==sourceKey())catalog=null;
+      if(boundKey!==sourceKey()){catalog=null;disposePhotos();}
       if(initialized&&!catalog&&requestedKey!==sourceKey()){requestedKey=sourceKey();void reloadCatalog(false);}
       const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;
-      const documentStatus=status(s,lang),output:HTMLElement[]=[documentStatus];
+      const documentStatus=status(s,lang),output:HTMLElement[]=[];
+      if(s.draft){selectPlan(api,id,s.draft.name);output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')),filters());}
+      output.push(documentStatus);
       if(rawPending(view)){
         // C1 may be unchanged while page-owned inputs are still unapplied.
         if(s.phase==='clean'){
@@ -84,7 +90,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
         }
         documentStatus.append(h('div',{'data-plan-raw-pending':'true'},
           view.invalid.size>0?h('p',{},tr('invalidServings')):null,
-          addPending(view)?h('p',{},lang==='zh'?'添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。':lang==='en'?'The Add choices have not been added to the plan. Use “Add a dish” to apply them.':'Вибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.'):null));
+          addPending(view)?h('p',{},`${view.addDate||tr('date')} · ${tr(view.addMeal)} — `,lang==='zh'?'添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。':lang==='en'?'The Add choices have not been added to the plan. Use “Add a dish” to apply them.':'Вибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.'):null));
       }
       if(loadError)output.push(h('div',{class:'tm-error',role:'alert'},apiMessage(loadError,lang),action(tr('retry'),()=>void reloadCatalog())));
       if(s.error)output.push(h('p',{class:'tm-error',role:'alert'},apiMessage(new ApiError(s.error.status,s.error.code,s.error.message,s.error.errors,s.error.retryAfter,s.error.reviewRequired),lang)));
@@ -93,7 +99,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       }
       if(s.phase==='conflict')output.push(conflict());
       if(s.draft){
-        output.push(h('p',{class:'muted'},tr('optional')),filters());
+        output.push(h('p',{class:'tm-plan-note'},lang==='zh'?'每道菜的份数可留空':lang==='en'?'Servings are optional for each dish':'Порції для кожної страви необов’язкові'));
         const plan=s.draft;
         const groups=new Map<string,number[]>();
         plan.meals.forEach((meal,index)=>{
@@ -103,36 +109,90 @@ export function createPlanRenderer(api:TeamMealsApi) {
         });
         for(const [key,indices] of [...groups].sort(([a],[b])=>a.localeCompare(b))){
           const [date,meal]=key.split('|');
-          output.push(h('section',{class:'tm-card'},h('h3',{},`${date} · ${tr(meal as MealType)}`),...indices.map(index=>row(index))));
+          output.push(h('section',{class:'tm-plan-group'},h('h3',{class:'tm-plan-sr'},`${date} · ${tr(meal as MealType)}`),...indices.map(index=>row(index))));
         }
         if(groups.size===0)output.push(h('p',{class:'tm-card'},tr('empty')));
-        if(catalog){
-          output.push(addForm(),action(tr('preview'),()=>{view.preview=!view.preview;paint();}));
-          if(view.preview){
-            const selection=normalizeSelection([...groups.values()].flat().map(index=>{const meal=plan.meals[index]!;return{menuPlanRef:id,date:meal.date,mealType:meal.mealType};}));
-            const preview=previewTeamMealsDraft({inputs:{menuPlans:{[id]:plan},dishes:catalog.dishes,ingredients:catalog.ingredients,techniques:catalog.techniques},selection,at:new Date().toISOString()});
-            output.push(h('section',{'data-preview':'draft'},h('h3',{},tr('localPreview')),renderCandidates({lang,collection:preview.collection,estimate:preview.estimate,ingredients:catalog.ingredients,dishes:catalog.dishes})));
-          }
-        }
-        output.push(h('a',{href:hrefOf('purchase',`new/${id}`)},lang==='zh'?'从已保存计划建立采购清单':lang==='en'?'Create shopping list from saved plan':'Створити список покупок зі збереженого плану'));
         const save=action(tr('save'),()=>void owner.session.save(s.contextId),true);
         save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0;
-        output.push(h('div',{class:'tm-actions'},save,h('a',{href:adminHref('publish')},tr('publish'))));
+        output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}/${view.range}${view.range==='all'?'':`/${view.date}`}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
+          h('p',{class:'tm-plan-note'},lang==='zh'?'采购清单使用已保存的计划':lang==='en'?'Shopping uses the saved plan':'Закупівлі використовують збережений план'));
+        if(catalog){
+          output.push(addForm(),h('div',{class:'tm-plan-secondary'},action(tr('preview'),()=>{if(!isLive())return;view.preview=previewError?true:!view.preview;previewError=null;paint();}),h('a',{href:adminHref('publish')},tr('publish'))));
+          if(view.preview){
+            if(previewModule)output.push(previewModule.render(id,plan,catalog,lang,[...groups.values()].flat()));
+            else if(previewError)output.push(h('p',{class:'tm-error',role:'alert'},apiMessage(previewError,lang)));
+            else{output.push(h('p',{role:'status'},tr('loading')));if(!previewLoading)void loadPreview();}
+          }
+        }
       }
       replace(body,...output);
       if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
     }
+    async function loadPreview():Promise<void>{
+      previewLoading=true;const handle=auxiliary.get(view)!,ticket=handle.beginOperation('read');view.reads++;touch(view);let failed=false;
+      try{previewModule=await import('./plan-preview');}
+      catch(error){failed=true;if(isLive())previewError=error;}
+      finally{view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');previewLoading=false;if(isLive())paint();}
+    }
+    function selectDate(date:string):void {
+      // Only clean defaults follow navigation; unapplied Add intent keeps its own destination.
+      if(!addPending(view)){view.addDate=date;view.addBaseline=[date,view.addMeal,view.addDish];}
+      view.date=date;
+    }
     function filters():HTMLElement {
-      const range=h('select',{'data-focus':'range'});
+      const range=h('select',{'data-focus':'range','aria-label':tr('filter'),class:'tm-plan-range-select',tabindex:-1,'aria-hidden':'true'});
       for(const key of ['all','day','week'] as const)range.append(h('option',{value:key,selected:view.range===key},tr(key)));
       range.addEventListener('change',()=>{view.range=range.value as View['range'];paint();});
-      const date=h('input',{type:'date',value:view.date,'data-focus':'filter-date'});date.addEventListener('change',()=>{if(date.value)view.date=date.value;paint();});
-      return h('div',{class:'tm-tools'},field(tr('filter'),range),field(tr('date'),date));
+      const periods=h('div',{class:'tm-plan-periods',role:'group','aria-label':tr('filter')});
+      for(const key of ['day','week','all'] as const){
+        const button=action(tr(key),()=>{if(!isLive())return;view.range=key;paint();});
+        button.setAttribute('aria-pressed',String(view.range===key));periods.append(button);
+      }
+      const date=h('input',{type:'date',value:view.date,'data-focus':'filter-date','aria-label':tr('date')});
+      date.addEventListener('change',()=>{if(!isLive())return;if(date.value)selectDate(date.value);paint();});
+      const start=shift(view.date,-((new Date(`${view.date}T12:00:00Z`).getUTCDay()+6)%7));
+      const days=h('div',{class:'tm-plan-dates',role:'group','aria-label':tr('date')});
+      const weekday=new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'});
+      for(let offset=0;offset<7;offset++){
+        const value=shift(start,offset),button=h('button',{type:'button',class:'tm-plan-day','aria-pressed':String(value===view.date),'aria-label':value},h('span',{},weekday.format(new Date(`${value}T12:00:00Z`))),h('b',{},String(Number(value.slice(8)))));
+        button.addEventListener('click',()=>{if(!isLive())return;selectDate(value);view.range='day';paint();});days.append(button);
+      }
+      return h('div',{class:'tm-plan-calendar'},periods,h('div',{class:'tm-plan-date-picker'},date,range),days);
+    }
+    function photo(dishRef:string,name:string):HTMLElement {
+      const record=catalog?.dishes[dishRef],revision=catalog?.commit;
+      const missing=lang==='zh'?'图片未录':lang==='en'?'No image':'Без фото';
+      const box=h('div',{class:'tm-plan-photo',role:'img','aria-label':missing},h('span',{'aria-hidden':'true'},'♧'));
+      if(!record?.image||!revision)return box;
+      const key=`${revision}/${dishRef}`;
+      let state=photos.get(key);
+      if(!state){
+        state={};photos.set(key,state);
+        const current=state,handle=auxiliary.get(view)!,ticket=handle.beginOperation('read');view.reads++;touch(view);
+        void api.getAsset({revision,owner:`data/dishes/${dishRef}.json`,pointer:'/image'}).then(result=>{
+          if(!isLive()||catalog?.commit!==revision)return;
+          if(result.sourceRevision!==revision)throw new Error('revision_mismatch');
+          current.url=URL.createObjectURL(result.bytes);
+        }).catch(()=>{current.failed=true;}).finally(()=>{
+          view.reads--;touch(view);handle.settleOperation(ticket,current.failed?'failed':'completed');
+          if(isLive()&&catalog?.commit===revision)paint();
+        });
+      }
+      if(state.url){
+        const img=h('img',{src:state.url,alt:name});
+        img.addEventListener('error',()=>{if(!isLive()||!img.isConnected||!state?.url)return;URL.revokeObjectURL(state.url);state.url=undefined;state.failed=true;paint();});
+        replace(box,img);box.removeAttribute('role');box.removeAttribute('aria-label');
+      }else {
+        const label=state.failed?(lang==='zh'?'图片未载入':lang==='en'?'Image unavailable':'Фото недоступне'):tr('loading');
+        box.setAttribute('aria-label',label);
+        if(state.failed)replace(box,h('span',{class:'tm-plan-photo-state'},label));
+      }
+      return box;
     }
     function dishSelect(value:string,key:string):HTMLSelectElement {
       const select=h('select',{'data-focus':key});select.append(h('option',{value:''},tr('choose')));
       if(value&&!Object.hasOwn(catalog?.dishes??{},value))select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
-      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${dish.status}`:''}`));
+      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`));
       select.value=value;return select;
     }
     function row(index:number):HTMLElement {
@@ -140,7 +200,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       const captured=s.contextId;
       const dish=dishSelect(meal.dishRef,`dish-${index}`);dish.disabled=!catalog;
       dish.addEventListener('change',()=>{if(dish.value)owner.changeDish(index,dish.value,captured);});
-      const input=h('input',{type:'number',min:1,step:1,value:view.invalid.get(index)??meal.plannedServings??'','data-focus':`servings-${index}`,'aria-invalid':view.invalid.has(index)?'true':undefined});
+      const input=h('input',{type:'number',min:1,step:1,placeholder:'—','aria-label':tr('servings'),value:view.invalid.get(index)??meal.plannedServings??'','data-focus':`servings-${index}`,'aria-invalid':view.invalid.has(index)?'true':undefined});
       input.addEventListener('input',()=>{
         if(!isLive()||owner.session.getState().contextId!==captured)return;
         touch(view);
@@ -156,8 +216,10 @@ export function createPlanRenderer(api:TeamMealsApi) {
         if(!owner.remove(index,captured))view.invalid=previous;
         paint();
       });
-      const node=h('div',{class:'tm-meal-row','data-meal-index':index},field(tr('dish'),dish),field(tr('servings'),input),remove);
-      if(meal.serviceWindow)node.append(h('small',{class:'muted'},meal.serviceWindow));
+      const name=pick(catalog?.dishes[meal.dishRef]?.name,lang)||meal.dishRef;
+      const edit=h('details',{class:'tm-plan-edit',open:view.editing===index},h('summary',{'aria-label':`${tr('dish')}: ${name}`},lang==='zh'?'编辑':lang==='en'?'Edit':'Змінити'),h('div',{},field(tr('dish'),dish),remove));
+      edit.addEventListener('toggle',()=>{if(isLive()&&edit.isConnected){if(edit.open)view.editing=index;else if(view.editing===index)view.editing=undefined;}});
+      const node=h('div',{class:'tm-meal-row','data-meal-index':index},h('div',{class:'tm-plan-row-main'},photo(meal.dishRef,name),h('div',{class:'tm-plan-dish-name'},h('b',{},name),h('small',{},`${meal.date.slice(5)} · ${tr(meal.mealType)}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`)),field(lang==='zh'?'份数':lang==='en'?'Servings':'Порції',input)),edit);
       if(view.invalid.has(index))node.append(h('p',{class:'tm-error'},tr('invalidServings')));
       return node;
     }
@@ -172,7 +234,9 @@ export function createPlanRenderer(api:TeamMealsApi) {
       };
       date.addEventListener('input',update);meal.addEventListener('change',update);dish.addEventListener('change',update);
       const add=h('button',{type:'submit',class:'tm-button'},tr('add'));
-      const formEl=h('form',{class:'tm-card tm-add-form'},field(tr('date'),date),field(tr('meal'),meal),field(tr('dish'),dish),add);
+      const extra=h('details',{class:'tm-plan-add-extra',open:view.addExpanded||addPending(view)},h('summary',{},`${view.addDate.slice(5)} · ${tr(view.addMeal)}`),h('div',{},field(tr('date'),date),field(tr('meal'),meal)));
+      extra.addEventListener('toggle',()=>{if(isLive()&&extra.isConnected)view.addExpanded=extra.open;});
+      const formEl=h('form',{class:'tm-card tm-add-form'},field(tr('dish'),dish),add,extra);
       formEl.addEventListener('submit',event=>{
         event.preventDefault();if(!isLive()||owner.session.getState().contextId!==captured)return;
         if(date.value&&dish.value&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
@@ -215,8 +279,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     replace(body,h('p',{role:'status'},tr('loading')));
     const unsubscribe=owner.session.subscribe(()=>paint());
-    const stopObserve=onDetached(el,()=>{unsubscribe();if(owner.session.getState().contextId===contextId)owner.detach();});
-    cleanup=()=>{unsubscribe();stopObserve();};
+    const stopObserve=onDetached(el,()=>{unsubscribe();disposePhotos();if(owner.session.getState().contextId===contextId)owner.detach();});
+    cleanup=()=>{unsubscribe();stopObserve();disposePhotos();};
     try{
       catalog=await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
       if(!isLive())return;

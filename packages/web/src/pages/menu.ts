@@ -1,20 +1,6 @@
-/**
- * /menu 菜单（issue #11）：日期条 + 餐次 chip + 菜品行 + 底部详情抽屉。
- * 骨架照 docs/design/screens-v2.html「菜单」两屏（.days .tabs .mtitle .mlist .mr / .dsheet .arow .comp），
- * 借 Expirenza 的骨架，不借价格强调与收藏；加三语并列与「成分」。
- *
- * 子状态走 hash 第二段（src/router.ts，页面从 ctx.rest 读）：
- *   #/menu                    默认日 = ≥ 今天（本地日期）的第一天；都过去了取最后一天
- *   #/menu/<date>             选中日
- *   #/menu/<date>/<dishId>    详情抽屉（浏览器返回键 = 关抽屉）
- * 餐次选择是页面内状态（模块级记忆，重渲染后保持），不进 hash。
- *
- * 三语并列：主语言 = ctx.lang（pick 只取主语言）；另两语按 uk → zh → en 去掉主语言后排列，直接读 name[l]，缺失不显示。
- * 示例菜（provenance.source=example）由 scripts/build-data.mjs 排除；MenuSheetDish 没有 provenance 字段，
- * 页面层只能兜底 dish.issue（构建期标出的问题）→ 行内 warn 卡。
- * 过敏原：第一轮 allergens 恒为 []（schema 冻结，见 core/sheets.ts）——为空时如实写「暂无信息」，不是「无过敏原」。
- */
+/** Menu presentation follows Reference v3; original public records and routing stay authoritative. */
 import "./menu.css";
+import {renderMenuRecipe} from "./menu-recipe";
 import { renderPublishedMeals } from "./published-meals";
 
 import type { I18nString, ImageRef, MealType, MenuSheet, MenuSheetDay, MenuSheetDish, MenuSheetMeal } from "@canteenos/core";
@@ -417,7 +403,7 @@ function openSheet(el: HTMLElement, page: HTMLElement, day: MenuSheetDay, meal: 
 
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   teardownSheet();
-  if (await renderPublishedMeals(el, ctx, "menu", renderFrozenMenu, renderFrozenPrep, selectFrozenMealRows)) return;
+  if (await renderPublishedMeals(el, ctx, "menu", renderFrozenMenu, renderMenuRecipe, selectFrozenMealRows)) return;
   const lang = ctx.lang;
   if (!ctx.planId) {
     el.append(h("p", { class: "muted" }, ctx.t("data.notReady")));
@@ -525,6 +511,11 @@ const FROZEN_MENU_COPY = {
   source: { zh: "资料版本", en: "Source version", uk: "Версія даних" },
   mock: { zh: "模拟资料，未证明真实保存或发布", en: "Simulation; no real save or publication verified", uk: "Симуляція; реальне збереження й публікацію не підтверджено" },
   ingredients: { zh: "全部已录食材与调料", en: "All recorded ingredients and seasonings", uk: "Усі записані інгредієнти й приправи" },
+  record: { zh: "材料与份数", en: "Ingredients & servings", uk: "Інгредієнти й порції" },
+  imageLoading: { zh: "图片读取中", en: "Loading image", uk: "Завантаження фото" },
+  imageMissing: { zh: "图片未载入", en: "Image unavailable", uk: "Фото недоступне" },
+  imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Фото не записано" },
+  external: { zh: "外部图片，未固定版本", en: "External image; version not pinned", uk: "Зовнішнє фото; версію не зафіксовано" },
   original: { zh: "查看完整原配方", en: "Read the full original recipe", uk: "Прочитати повний оригінальний рецепт" },
   servings: { zh: "计划份数", en: "Planned servings", uk: "Заплановані порції" },
   missing: { zh: "未录", en: "Not recorded", uk: "Не записано" },
@@ -540,47 +531,66 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
   frozenMenuDisposers.get(el)?.();
   const t = (key: keyof typeof FROZEN_MENU_COPY): string => FROZEN_MENU_COPY[key][lang];
   const children: Array<() => void> = [];
+  const urls=new Set<string>();
   let live = true;
   const dispose = (): void => {
     if (!live) return;
-    live = false; observer.disconnect(); children.forEach(stop => stop());
+    live = false; observer.disconnect(); children.forEach(stop => stop());for(const url of urls)URL.revokeObjectURL(url);urls.clear();
     if (frozenMenuDisposers.get(el) === dispose) frozenMenuDisposers.delete(el);
   };
   const observer = new MutationObserver(() => { if (!el.isConnected) dispose(); });
   observer.observe(document.body, { childList: true, subtree: true });
   frozenMenuDisposers.set(el, dispose);
   const root = h("div", { class: "menu-page", "data-frozen-menu": "", "data-source-revision": source.projection.sourceRevision });
-  root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, `${t("source")}: ${source.projection.sourceRevision.slice(0, 8)}`), h("code", {}, source.projection.sourceRevision)));
+  root.append(h("h1", {class:"sr-only"}, t("title")));
+  const sourceInfo=h("details", {class:"raw-source"},h("summary",{},t("source")),h("code",{},source.projection.sourceRevision));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(source.projection.collection.issues, options.selection);
-  const issuePanel = renderFrozenIssues(selectedIssues, lang);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, source.projection);
   if (issuePanel) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingSource" : "empty")));
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
-    const card = h("section", { class: "mlist", "data-menu-plan": menuPlanRef, "data-meal-index": mealIndex });
-    const body = h("div", { class: "b" }, h("h2", { class: "n1" }, dish ? pick(dish.name, lang) : meal.dishRef), dish ? namesLine(dish.name, lang) : null,
-      h("p", { class: "muted" }, `${meal.date} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`),
-      h("p", { class: "muted" }, `${t("servings")}: ${meal.plannedServings === undefined ? t("missing") : meal.plannedServings}`));
-    card.append(h("div", { class: "mr" }, body)); root.append(card);
+    const card = h("section", { class: "mlist menu-recipe-row", "data-menu-plan": menuPlanRef, "data-meal-index": mealIndex });
+    const name=dish?pick(dish.name,lang):meal.dishRef,recipeHref=options.recipeHref?.(row);
+    const body=h("div",{class:"b"},h("h2",{class:"n1"},name),dish?.description?h("p",{class:"ds"},pick(dish.description,lang)):null);
+    const photo=h('div',{class:'menu-thumbnail','data-asset-state':dish?.image?(options.asset?'loading':'unavailable'):'not-recorded'},h('span',{},t(dish?.image?(options.asset?'imageLoading':'imageMissing'):'imageUnrecorded')));
+    const line=recipeHref?.startsWith('#/')?h('a',{class:'mr',href:recipeHref,'aria-label':`${name} · ${t('original')}`,'data-recipe-link':meal.dishRef,'data-recipe-index':mealIndex},photo,body,h('span',{class:'menu-chevron','aria-hidden':'true'},'›')):h('div',{class:'mr'},photo,body);
+    card.append(line);root.append(card);
     if (!dish) { body.append(h("p", { class: "issue", role: "status" }, t("missingDish"))); continue; }
     const ingredients = (dish.components ?? []).map(component => {
       const record = Object.hasOwn(source.projection.ingredients, component.ingredientRef) ? source.projection.ingredients[component.ingredientRef] : undefined;
       return record ? pick(record.name, lang) : component.ingredientRef;
     });
-    body.append(h("p", { class: "muted" }, `${t("ingredients")}: ${ingredients.length ? ingredients.join(" · ") : t("missing")}`));
-    const recipeHref = options.recipeHref?.(row);
-    if (recipeHref?.startsWith("#/")) { body.append(h("a", { class: "chip", href: recipeHref, "data-recipe-link": meal.dishRef, "data-recipe-index": mealIndex }, t("original"))); continue; }
+    const recorded=h('details',{class:'menu-row-record'},h('summary',{},t('record')),namesLine(dish.name,lang),
+      h('p',{},`${meal.date} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`),
+      h('p',{},`${t('servings')}: ${meal.plannedServings===undefined?t('missing'):meal.plannedServings}`),
+      h('p',{},`${t('ingredients')}: ${ingredients.length?ingredients.join(' · '):t('missing')}`));
+    card.append(recorded);
+    if(dish.image&&options.asset){
+      const ref=dish.image;
+      recorded.append(h('p',{},`${ref.license} · ${ref.author??t('missing')}`));
+      void Promise.resolve().then(()=>options.asset!({revision:source.projection.sourceRevision,owner:`data/dishes/${meal.dishRef}.json`,pointer:'/image'})).then(result=>{
+        if(!live||!el.isConnected)return;
+        if('kind' in result&&result.kind==='not-recorded'){photo.setAttribute('data-asset-state','not-recorded');photo.textContent=t('imageUnrecorded');return;}
+        if(result.sourceRevision!==source.projection.sourceRevision)throw new Error('revision_mismatch');
+        if('kind' in result&&result.kind==='external-unpinned'){photo.setAttribute('data-asset-state',result.kind);photo.textContent=t('external');if(/^https?:\/\//i.test(result.source.src))recorded.append(h('a',{href:result.source.src,target:'_blank',rel:'noopener noreferrer'},result.source.src));return;}
+        const url=URL.createObjectURL(result.bytes);urls.add(url);const img=h('img',{src:url,alt:name});
+        img.addEventListener('error',()=>{URL.revokeObjectURL(url);urls.delete(url);if(live&&el.isConnected){photo.setAttribute('data-asset-state','unavailable');photo.textContent=t('imageMissing');}});
+        photo.setAttribute('data-asset-state','available');replace(photo,img);
+      }).catch(()=>{if(live&&el.isConnected){photo.setAttribute('data-asset-state','unavailable');photo.textContent=t('imageMissing');}});
+    }
+    if(recipeHref?.startsWith('#/'))continue;
     const detail = h("details", {}, h("summary", { class: "chip" }, t("original")));
     const host = h("div", {}); detail.append(host); card.append(detail);
     let rendered = false;
     detail.addEventListener("toggle", () => {
       if (!live || !detail.open || rendered) return;
       rendered = true;
-      children.push(renderFrozenPrep(host, source, { ...options, selection: { menuPlanRef, mealIndex, date: meal.date, mealType: meal.mealType } }));
+      children.push(renderMenuRecipe(host, source, { ...options, selection: { menuPlanRef, mealIndex, date: meal.date, mealType: meal.mealType } }));
     });
   }
-  root.append(h("p", { class: "muted" }, t("coverage")));
+  root.append(sourceInfo,h("p", { class: "muted menu-coverage" }, t("coverage")));
   el.replaceChildren(root);
   return dispose;
 }

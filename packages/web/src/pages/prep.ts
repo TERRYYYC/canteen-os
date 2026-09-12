@@ -1,3 +1,5 @@
+import {recordValue,translations,supportDetails,word} from './record-display';
+import {renderRecordNotice} from './record-notices';
 /**
  * /prep 备料单（issue #9）：A 版列表为主视图，点配料行进 B 版详情，C 版的时间分组做成筛选 chip。
  * UI 事实源 docs/design/screens-v2.html「备料单」三版；契约见 src/types.ts：render(el, ctx)。
@@ -349,6 +351,7 @@ export type FrozenImageResult = RevisionAsset | PublishedAsset;
 export interface FrozenMealRenderOptions {
   ingredientRef?: string;
   timing?: string;
+  onShowAllTimings?: () => void;
   recipeHref?: (row: FrozenMealRow) => string;
   onReference?: (kind: "ingredient" | "dish", id: string) => void;
   lang: Lang;
@@ -453,12 +456,10 @@ export function selectFrozenIssues(issues: readonly ReferenceIssue[], selection:
 export function hasFrozenSourceGap(issues: readonly ReferenceIssue[]): boolean {
   return issues.some(issue => issue.code === "missing-plan" || issue.code === "missing-dish" || issue.code === "components-unrecorded");
 }
-export function renderFrozenIssues(issues: readonly ReferenceIssue[], lang: Lang, selection: FrozenMealSelection = {}): HTMLElement | null {
+export function renderFrozenIssues(issues: readonly ReferenceIssue[], lang: Lang, selection: FrozenMealSelection = {}, projection?: TeamMealsProjection): HTMLElement | null {
   const selected = selectFrozenIssues(issues, selection);
   if (!selected.length) return null;
-  return h("details", { class: "raw-issues" }, h("summary", {}, `${rawText(lang, "issues")} · ${selected.length}`), ...selected.map(issue => h("p", { "data-source-issue": issue.code },
-    Object.hasOwn(RAW_COPY, issue.code) ? rawText(lang, issue.code) : issue.code, " · ",
-    [issue.menuPlanRef, issue.date, issue.mealType ? tt(lang, `meal.${issue.mealType}`) : undefined, issue.dishRef, issue.ingredientRef, issue.techniqueRef].filter(Boolean).join(" · "))));
+  return h("details", { class: "raw-issues" }, h("summary", {}, `${rawText(lang, "issues")} · ${selected.length}`), ...selected.map(issue => renderRecordNotice(issue, lang, projection)));
 }
 /** No IO other than the explicitly injected fixed-version asset reader. */
 export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions): () => void {
@@ -480,7 +481,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   const root = h("div", { class: "prep", "data-frozen-prep": "", "data-source-revision": projection.sourceRevision });
   el.replaceChildren(root);
   const fact = (label: string, value: string | number | undefined): HTMLElement => h("p", {}, h("b", {}, `${label}: `), value === undefined ? t("missing") : String(value));
-  const names = (name: I18nString | undefined): HTMLElement => h("div", { class: "muted" }, ...(["zh", "en", "uk"] as const).map(code => h("p", { lang: LANG_TAG[code] }, `${code.toUpperCase()}: ${name?.[code] ?? t("missing")}`)));
+  const names = (name: I18nString | undefined): HTMLElement => translations(name, lang);
   const external = (url: string | undefined, label: string): HTMLElement => {
     const safe = rawSafeLink(url);
     return safe ? h("a", { href: safe, target: "_blank", rel: "noopener noreferrer" }, label) : h("span", {}, label, `: ${t("missing")}`);
@@ -498,7 +499,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const state = h("p", { class: "muted", role: "status" }, t(!ref ? "imageUnrecorded" : load ? "imageLoading" : "imageMissing"));
     box.append(state);
     if (!ref) { box.setAttribute("data-asset-state", "not-recorded"); return box; }
-    box.append(h("figcaption", { class: "muted" }, `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, ref.sourceUrl ?? t("missing"))));
+    box.append(h("figcaption", { class: "muted" }, h("details", {}, h("summary", {}, word(lang,"图片来源与许可","Image source and license","Джерело зображення й ліцензія")), `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, word(lang,"查看来源","View source","Переглянути джерело")))));
     if (load) {
       void Promise.resolve().then(load).then(result => {
         if (!live || !el.isConnected) return;
@@ -520,46 +521,56 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   }
   function technique(ref: string | undefined): HTMLElement {
     const record = ref ? projection.techniques.find(item => item.id === ref) : undefined;
-    const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? `${t("missingRecord")} · ${ref}` : undefined), record ? names(record.name) : null, record?.note ? fact(t("note"), pick(record.note, lang)) : null);
+    const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? t("missingRecord") : undefined), record ? names(record.name) : null, record?.note ? fact(t("note"), pick(record.note, lang)) : null);
     if (record?.image) result.append(image(record.image, "", "", options.techniqueAsset ? () => options.techniqueAsset!(record.id) : async () => { throw new Error("technique_asset_unavailable"); }));
     return result;
   }
-  root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, `${t("source")}: ${projection.sourceRevision.slice(0, 8)}`), h("code", {}, projection.sourceRevision)));
+  root.append(h("h1", {}, t("title")), h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision)));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
-  const issuePanel = renderFrozenIssues(selectedIssues, lang);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
   if (issuePanel) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
+  const timedComponents = rows.flatMap(row => row.dish?.components ?? []);
+  const matching = timedComponents.filter(component => (!options.ingredientRef || component.ingredientRef === options.ingredientRef) && (!options.timing || options.timing === "all" || component.prep?.timing === options.timing));
+  if (options.timing && options.timing !== "all") {
+      const unknown = timedComponents.filter(component => !component.prep?.timing).length;
+      const hint = h("div", {class:"prep-filter-result", role:"status"});
+      if (!matching.length) hint.append(h("p", {}, word(lang,"这个时机没有已录的准备任务。","No preparation tasks recorded for this time.","На цей час не записано завдань підготовки.")));
+      if (unknown) hint.append(h("p", {}, `${unknown} ${word(lang,"项准备时机未录，请查看全部后核对。","items have no preparation time; view all to check.","позицій без часу підготовки; перегляньте всі для перевірки.")}`));
+      if (options.onShowAllTimings && (!matching.length || unknown)) {const button=h("button",{type:"button",class:"chip"},word(lang,"查看全部","View all","Переглянути всі"));button.addEventListener("click",()=>{if(live)options.onShowAllTimings?.();});hint.append(button);}
+      if (!matching.length || unknown) { hint.append(h("p", {}, word(lang,"下方保留完整做法，不受时机筛选影响。","The full method below is not filtered by preparation time.","Повний спосіб приготування нижче не фільтрується за часом."))); root.append(hint); }
+    }
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
-    section.append(h("div", { class: "dish-head" }, h("div", {}, h("h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : meal.dishRef)), h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`))), fact(t("planned"), meal.plannedServings));
+    section.append(h("div", { class: "dish-head" }, h("div", {}, h("h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`))), fact(t("planned"), meal.plannedServings));
     root.append(section);
-    if (!dish) { section.append(h("p", { role: "status" }, `${t("missingRecord")} · ${meal.dishRef}`)); continue; }
+    if (!dish) { section.append(h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,meal.dishRef))); continue; }
     const owner = `data/dishes/${meal.dishRef}.json`;
-    section.append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), dish.status), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"), h("h3", { class: "section-label" }, t("components")), h("p", { class: "muted" }, t("original")));
+    section.append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"), h("h3", { class: "section-label" }, t("components")), h("p", { class: "muted" }, t("original")));
     if (!dish.components?.length) section.append(h("p", { class: "muted", role: "status" }, t("missing")));
-    if (options.ingredientRef && !dish.components?.some(component => component.ingredientRef === options.ingredientRef)) section.append(h("p", { role: "status" }, `${t("missingRecord")} · ${options.ingredientRef}`));
+    if (options.ingredientRef && !dish.components?.some(component => component.ingredientRef === options.ingredientRef)) section.append(h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,options.ingredientRef)));
     for (const [componentIndex, component] of (dish.components ?? []).entries()) {
       if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
       if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
-      const card = h("section", { class: "card", "data-component-index": componentIndex }, h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : component.ingredientRef)), names(ingredient?.name), h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang)), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      const card = h("section", { class: "card", "data-component-index": componentIndex }, h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), names(ingredient?.name), h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang)), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
       if (ingredient?.image) card.append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
-      if (!ingredient) card.append(h("p", { role: "status" }, t("missingRecord")));
-      card.append(fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
-      if (prep) card.append(technique(prep.techniqueRef), fact(t("size"), prep.size), fact(t("timing"), prep.timing), fact(t("note"), prep.note ? pick(prep.note, lang) : undefined), image(prep.image, owner, `/components/${componentIndex}/prep/image`));
+      if (!ingredient) card.append(h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
+      card.append(h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier)));
+      if (prep) card.append(technique(prep.techniqueRef), fact(t("size"), prep.size), fact(t("timing"), recordValue(prep.timing, lang)), fact(t("note"), prep.note ? pick(prep.note, lang) : undefined), image(prep.image, owner, `/components/${componentIndex}/prep/image`));
       section.append(card);
     }
     section.append(h("h3", { class: "section-label" }, t("steps")));
     if (!dish.steps?.length) section.append(h("p", { class: "muted", role: "status" }, t("missing")));
     for (const [stepIndex, step] of (dish.steps ?? []).entries()) {
       const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)), names(step.text), technique(step.techniqueRef), image(step.image, owner, `/steps/${stepIndex}/image`));
-      if (step.clip) body.append(h("p", {}, `${t("clip")}: ${step.clip.start}s–${step.clip.end}s · `, external(step.clip.videoUrl, step.clip.videoUrl)));
+      if (step.clip) body.append(h("p", {}, `${t("clip")}: ${step.clip.start}s–${step.clip.end}s · `, external(step.clip.videoUrl, word(lang,"查看原视频","View original video","Переглянути вихідне відео"))));
       section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
     }
-    section.append(fact(t("provenance"), dish.provenance?.source));
-    if (dish.provenance?.videoUrl) section.append(external(dish.provenance.videoUrl, dish.provenance.videoUrl));
+    section.append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
+    if (dish.provenance?.videoUrl) section.append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
   }
   root.append(h("p", { class: "muted" }, t("coverage")));
   return dispose;

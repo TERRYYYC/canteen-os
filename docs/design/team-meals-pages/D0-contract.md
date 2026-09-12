@@ -12,9 +12,19 @@ Goal: 排日期、餐次和菜品，份数可留空；看到全部已录材料�
 Acceptance: 设计工作区 STANDARD-DATA-AND-ACCEPTANCE.md T01–T09；C01–C12 为兼容依据。顾客/订单/反馈/报告、库存流水、永久菜单行 ID、完整归档平台不在范围。
 Architecture cell: RC-D pages。Map delta: none；仅消费 C 共享接线及 A core。前端验证: Yes，zh/en/uk × 393×852、1440×900。
 
+## 2026-09-12 高保真更新（当前视觉依据）
+
+本轮以 `canteen-os-design@2f890d8f182d02e8ed4acb55a865e8aa086416dd` 的绿色 Reference v3 为唯一视觉来源，先对齐 S08 / `[data-screen="plan"]` 的实际 main/router 排菜页。原 screens-v2/backoffice-v1 的“定稿”不再决定本轮字体、配色、导航和布局；下方旧实现记录仅作行为历史。
+
+必须对齐绿色主色、浅背景、无衬线层级、紧凑日期/餐次、图文菜品行、主要动作和核心导航。小团队差异：份数可空且旧值保留，不显示人数/总份数，不补1；采购仍为人工判断，不引入预算/库存/顾客模块；原型工具栏、假状态栏不进入应用。渐进编辑保留新增、改菜、删除和份数能力；C1保存/冲突/unknown/迟到ACK/导入保护不变。
+
+在既有 D 页面/CSS范围外，本轮明确增授 `src/shell.ts` 导航呈现、必要本地化和对应壳测试；API/认证/编辑会话/router语义/core/Worker不改。临时样本可采用绿色稿同菜名与图片，走正常受控资产读取，不改冻结data或Q共享样本。
+
+顺序：先实际排菜代表页的中文393×852截图与可点击预览（最迟2026-09-12 08:30 UTC），由调度对照方向；再决定菜单/采购/详情扩展。第一检查点只做相关日期/份数/新增/保存/采购、至少一个非happy path及共享外观兄弟页抽样。长语言、桌面及后续独立审查按实际变化收口，不以全套历史矩阵阻塞可见成果。依据：调度feature-specs顶部“2026-09-12 高保真更新”。
+
 ## 输入及状态
 
-工作区 `canteen-os-team-pages`，分支 `codex/team-meals-pages`，base `5b8bdd50d1775cce441d0457f6be7f589a7bb673`；C1 实现批准对象 `1575f2b4768938c0efcc8a9c5db7c9c25096c738`。原主仓脏改动不碰。旧定稿 screens-v2/backoffice-v1 的字体、token、目录骨架继续适用；本目录 screens.html 是本次页面设计提案，尚无视觉签收。原 2026-09-07 定稿和 PR #91 不代替本次批准。
+工作区 `canteen-os-team-pages`，分支 `codex/team-meals-pages`，base `5b8bdd50d1775cce441d0457f6be7f589a7bb673`；C1 实现批准对象 `1575f2b4768938c0efcc8a9c5db7c9c25096c738`。原主仓脏改动不碰。历史选择 screens-v2/backoffice-v1 已由上方2026-09-12更新替换；本目录 screens.html 是本次页面设计提案，尚无视觉签收。原 2026-09-07 定稿和 PR #91 不代替本次批准。
 
 四份未提交输入由 `/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-design/` 绝对路径读取，未复制覆盖：
 

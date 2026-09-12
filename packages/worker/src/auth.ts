@@ -81,6 +81,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
   "GET /source/:kind/:id": ["chef", "buyer", "admin"],
   "GET /asset": ["chef", "buyer", "admin"],
   "GET /catalog": ["chef", "buyer", "admin"],
+  "GET /shopping-lists": ["chef", "buyer", "admin"],
   "GET /changes": ["chef", "buyer", "admin"],
   "POST /translate": ["chef", "admin"],
   "POST /image/:kind/:id": ["chef", "admin"],

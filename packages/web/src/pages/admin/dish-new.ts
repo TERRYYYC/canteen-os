@@ -33,9 +33,9 @@ const T = {
   "dish.tab.manual": { uk: "Ввести вручну", zh: "手动输入", en: "Enter by hand" },
   "dish.tab.video": { uk: "З відео", zh: "从视频", en: "From video" },
   "dish.video.later": {
-    uk: "З'явиться на 2-му етапі; поки що Terry імпортує відео з командного рядка",
-    zh: "第二轮上线；现在由 Terry 用命令行导入",
-    en: "Coming in round 2; for now Terry imports videos from the command line",
+    uk: "Імпорт відео тут недоступний. Виберіть ручне введення, щоб записати інгредієнти та кроки.",
+    zh: "此处暂不支持视频导入。可切回手动输入，记录配料和步骤。",
+    en: "Video import is unavailable here. Choose manual entry to record ingredients and steps.",
   },
   "dish.video.link": { uk: "Інструкція для командного рядка", zh: "看命令行说明", en: "See the command-line guide" },
 
@@ -277,8 +277,6 @@ const UNIT_KEY: Record<Unit, Key> = {
 };
 const KIND_ORDER: readonly Technique["kind"][] = ["cut", "pretreat", "heat"];
 const KIND_KEY: Record<Technique["kind"], Key> = { cut: "dish.kind.cut", pretreat: "dish.kind.pretreat", heat: "dish.kind.heat" };
-/** §4.5 屏上有什么第 7 条：视频分支占位链接到 skills/video-recipe-ingest/SKILL.md */
-const VIDEO_SKILL_URL = "https://github.com/TERRYYYC/canteen-os/blob/main/skills/video-recipe-ingest/SKILL.md";
 /** 搜索结果最多列几条 */
 const SEARCH_LIMIT = 8;
 
@@ -1187,11 +1185,13 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
   const tabManual = h("button", { type: "button", role: "tab", class: "adm-dish-tab", id: `${ID_PREFIX}-tab-manual`, "aria-controls": `${ID_PREFIX}-pane-manual` }, L("dish.tab.manual"));
   const tabVideo = h("button", { type: "button", role: "tab", class: "adm-dish-tab", id: `${ID_PREFIX}-tab-video`, "aria-controls": `${ID_PREFIX}-pane-video` }, L("dish.tab.video"));
   const tabs = h("div", { class: "adm-dish-tabs", role: "tablist" }, tabManual, tabVideo);
+  const enterManually=h('button',{type:'button',class:'adm-btn'},L('dish.tab.manual'));
+  enterManually.addEventListener('click',()=>{d.tab='manual';paintTabs();tabManual.focus();});
   const paneVideo = h(
     "div",
     { class: "card adm-dish-video", role: "tabpanel", id: `${ID_PREFIX}-pane-video`, "aria-labelledby": tabVideo.id },
     h("p", {}, L("dish.video.later")),
-    h("p", {}, h("a", { class: "adm-btn", href: VIDEO_SKILL_URL, target: "_blank", rel: "noopener" }, L("dish.video.link"))),
+    h("p", {}, enterManually),
   );
   function paintTabs(): void {
     const manual = d.tab === "manual";

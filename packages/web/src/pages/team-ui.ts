@@ -39,7 +39,7 @@ export function status<T>(state:EditState<T>,lang:Lang):HTMLElement {
   if(state.mode==='mock')node.append(h('p',{},text(lang,'mock')));
   if(state.mode==='unconfigured')node.append(h('p',{},text(lang,'unconfigured')));
   if(typeof navigator!=='undefined'&&!navigator.onLine)node.append(h('p',{},text(lang,'offline')));
-  if(state.source)node.append(h('details',{},h('summary',{},`${text(lang,'source')}: ${state.source.commit.slice(0,8)}`),h('code',{},state.source.commit)));
+  if(state.source)node.append(h('details',{},h('summary',{},text(lang,'source')),h('code',{},state.source.commit)));
   return node;
 }
 /** Teardown only when this exact view is detached; a language render can rebind first. */
