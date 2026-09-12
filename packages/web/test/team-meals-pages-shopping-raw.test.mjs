@@ -163,3 +163,14 @@ test('shopping summary reflects current manual decisions without counting bought
 test('a failed refresh does not continue to claim an empty saved-list index',async()=>{
  const f=await setup();try{const el=await f.mount('');assert.match(el.textContent,/No saved shopping lists yet/);f.failIndex();btn(el,'Refresh lists').click();await f.flush();assert.doesNotMatch(el.textContent,/No saved shopping lists yet/);assert.match(el.textContent,/could not be loaded/);}finally{f.cleanup();}
 });
+
+// Regression reproduced independently by the original nonauthor reviewer.
+test('reviewer: creating again from the same plan range generates a new identity after the first list is saved',async()=>{
+ const f=await setup();try{const route='new/team-week/day/2026-09-14';let el=await f.mount(route);const first=focus(el,'new-list-id').value;btn(el,'Create list to check').click();await f.flush();assert.equal(location.hash,'#/purchase/'+first);el=await f.mount(first);btn(el,'Save list').click();await f.flush();assert.equal(f.writes.length,1);assert.equal(f.snapshot().reason,'clear');el=await f.mount(route);const next=focus(el,'new-list-id').value;assert.notEqual(next,first,'a fresh New list action must not reuse the acknowledged hidden ID');btn(el,'Create list to check').click();await f.flush();assert.equal(location.hash,'#/purchase/'+next);assert.doesNotMatch(el.textContent,/conflict/); }finally{f.cleanup();}
+});
+test('unfinished, unknown and subsequently edited lists keep their original new-entry resume link',async()=>{
+ for(const state of ['unsaved','unknown','edited']){const f=await setup();try{const route='new/team-week/day/2026-09-14';let el=await f.mount(route);const id=focus(el,'new-list-id').value;btn(el,'Create list to check').click();await f.flush();el=await f.mount(id);
+  if(state!=='unsaved'){if(state==='unknown')f.post('lost');btn(el,'Save list').click();await f.flush();if(state==='edited'){const tomato=walk(el).find(n=>n.attrs['data-ingredient']==='tomato');btn(tomato,'Buy').click();}}
+  el=await f.mount(route);assert.ok(walk(el).some(n=>n.tagName==='A'&&n.textContent==='Open list'&&n.attrs.href==='#/purchase/'+id),state);assert.equal(walk(el).some(n=>n.tagName==='BUTTON'&&n.textContent==='Create list to check'),false);assert.equal(f.snapshot().reason,state==='unknown'?'unknown':'dirty');
+ }finally{f.cleanup();}}
+});

@@ -78,6 +78,7 @@ interface PlanCount {
 }
 
 interface Snapshot {
+  planTarget?:string|null;
   /** 缺 = 还在读 */
   changes?: Loaded<Changes>;
   catalog?: Loaded<TeamCatalog>;
@@ -162,9 +163,10 @@ function load(ctx: PageCtx, api: TeamMealsApi): void {
   const owner = snapshotOwner;
   if (!owner || owner.api !== api || owner.session !== session) return;
   const planId = currentPlanId(ctx);
+  if(snapshot.planTarget!==planId){delete snapshot.plan;snapshot.planTarget=planId;}
   const gen = ++generation;
 
-  function arrived<K extends keyof Snapshot>(key: K, r: NonNullable<Snapshot[K]>): void {
+  function arrived<K extends Exclude<keyof Snapshot,'planTarget'>>(key: K, r: NonNullable<Snapshot[K]>): void {
     if (gen !== generation || snapshotOwner?.api !== api || snapshotOwner.session !== session || api.sessionKey() !== session) return;
     snapshot[key] = r;
     if (!mounted || !mounted.el.isConnected) return;
@@ -390,8 +392,8 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
     }
 
     // The named saved plan and unique date/meal slots, independent of dish rows.
-    const pl = snapshot.plan;
-    const chosen=currentPlan(ctx,api),name=pick(pl&&pl.ok?pl.value.name:chosen.name,lang);
+    const chosen=currentPlan(ctx,api),pl=snapshot.planTarget===chosen.id?snapshot.plan:undefined;
+    const name=pick(pl&&pl.ok?pl.value.name:chosen.name,lang);
     const mealsText = tt(lang, "home.block.plan.sub", { n: pl && pl.ok ? pl.value.meals??DASH : DASH });
     plan.href=adminHref('plan',chosen.id??'');
     plan.sub.textContent = name?`${name} · ${mealsText}`:mealsText;
@@ -449,6 +451,6 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const isLangSwitch = langSwitch;
   langSwitch = false;
   if (api.mode === "unconfigured") { ctx.setReloadCoverage?.("read-only"); return; }
-  if (isLangSwitch && sameSession) { ctx.setReloadCoverage?.("tracked"); return; }
+  if (isLangSwitch && sameSession&&snapshot.planTarget===currentPlanId(ctx)) { ctx.setReloadCoverage?.("tracked"); return; }
   load(ctx, api);
 }

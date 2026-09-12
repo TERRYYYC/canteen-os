@@ -18,7 +18,7 @@ import {pick} from '../i18n';
 import {word,supportDetails} from './record-display';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
-interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
+interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
 export interface PurchaseAuxiliaryState {readonly ownerId:string;readonly identity:{readonly kind:'shopping-list';readonly id:string};readonly generation:number;readonly dirty:boolean;readonly phase:'idle'}
 const scopeKey=(scope:Scope|null)=>scope?JSON.stringify([scope.revision,normalizeSelection(scope.selected)]):'';
 const rawPending=(view:View)=>view.listId!==view.baseline.listId||view.planIds!==view.baseline.planIds||scopeKey(view.scope)!==view.baseline.scope;
@@ -50,6 +50,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   if((!creating&&!validId(routeId))||extra||(!creating&&(rangeDate||detailKind&&!detail))||(creating&&(!validRange||detailKind&&!validId(detailKind)||range!=='all'&&!rangeDate))){el.append(h('p',{role:'alert'},t('missing')));return;}
   if(api.mode==='unconfigured'){el.append(h('p',{class:'tm-status',role:'status'},tr('unconfigured')));return;}
   const key=creating?`new/${detailKind}${detailId?`/${detailId}/${rangeDate}`:''}`:routeId;
+  const previous=views.get(key);
+  if(creating&&previous?.completed&&!rawPending(previous)&&!previous.active){previous.reload.dispose();views.delete(key);}
   const view=views.get(key)??createView(key,creating?`shop-${new Date().toISOString().slice(0,10)}-${crypto.randomUUID().slice(0,8)}`:routeId,creating?(detailKind||ctx.planId||''):ctx.planId||'');views.set(key,view);covered=true;
   const live=()=>ticket===epoch&&el.isConnected&&controller===form&&auth===api.sessionKey();
   let error:unknown=null,notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
@@ -78,6 +80,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   function paint(){
    if(!live())return;const busy=view.active>0;disposeDetail();disposeDetail=()=>{};
    const s=form.session.getState();context=s.contextId;
+   if(s.identity&&s.phase!=='closed')for(const origin of views.values())if(origin.createdId===s.identity.id)origin.completed=!!s.source&&!s.dirty&&!s.operationId&&s.phase!=='conflict'&&s.phase!=='outcome-unknown';
    const loaded=!creating&&s.identity?.id===routeId&&s.phase!=='closed'&&s.draft&&form.basis;
    const nodes:HTMLElement[]=[];
    if(api.mode==='mock')nodes.push(h('p',{class:'tm-status'},tr('mock')));
@@ -189,10 +192,14 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   }
   function scopeForm(existing:boolean){
    const busy=view.active>0;
+   const generated=!existing&&view.createdId===view.listId;
+   const resume=()=>h('section',{class:'tm-card'},h('p',{},w('这份清单已生成，请打开继续处理并保存。','This list has been created. Open it to continue and save.','Цей список уже створено. Відкрийте його, щоб продовжити та зберегти.')),h('a',{class:'tm-button primary',href:hrefOf('purchase',view.createdId!)},t('open')));
+   if(generated&&!rawPending(view))return resume();
    const input=h('input',{value:view.planIds,'data-focus':'plan-ids'});input.addEventListener('input',()=>update('planIds',input.value));
    const read=action(t('read'),()=>void run(readScope));read.disabled=busy||(existing&&!form.canRebase);
    const advanced=h('details',{class:'tm-purchase-advanced'},h('summary',{},w('调整计划编号','Change plan IDs','Змінити номери планів')),field(t('plans'),input));
    const card=h('section',{class:'tm-card'},h('h3',{},existing?t('apply'):t('new')),h('p',{},w('选择日期和餐次；清单编号已自动生成。','Choose dates and meals. The list ID is generated automatically.','Виберіть дати та прийоми їжі. Номер списку створено автоматично.')),advanced,read);
+   if(generated)card.prepend(resume());
    if(existing&&!form.canRebase)card.append(h('p',{class:'muted'},t('saveBefore')));
    if(!existing){const name=h('input',{value:view.listId,pattern:'[a-z][a-z0-9-]*','data-focus':'new-list-id'});name.addEventListener('input',()=>update('listId',name.value));advanced.append(field(w('清单编号','List ID','Номер списку'),name));}
    if(view.scope){
@@ -207,8 +214,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
      const id=view.listId,baseline={listId:id,planIds:view.planIds,scope:scopeKey(scope)};
      const request={revision:scope.revision,selection:structuredClone(scope.selected),at:new Date().toISOString()};
      const result=existing?await form.rebase(request,live):await form.create(id,request,live);
-     if(result){view.baseline=baseline;touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
-    }),true);apply.disabled=busy||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
+     if(result){view.baseline=baseline;if(!existing){view.createdId=id;view.completed=false;}touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
+    }),true);apply.disabled=generated||busy||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
    }return card;
   }
   function decisions(id:string,list:ShoppingList){

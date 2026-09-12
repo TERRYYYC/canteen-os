@@ -20,7 +20,7 @@ const injected = {
   '../admin': 'export const adminHref = (...parts) => "#/admin" + (parts.length ? "/" + parts.map(encodeURIComponent).join("/") : "");',
 };
 const bundle = await esbuild.build({
-  stdin: { contents: await readFile(entry, 'utf8') + `\nexport { createTeamMealsApi } from ${JSON.stringify(join(here, '../src/api/team-meals.ts'))};\nexport { HttpAdminApi } from ${JSON.stringify(join(here, '../src/api/client.ts'))};\nexport { setLang as switchLanguage } from ${JSON.stringify(join(here, '../src/i18n.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here, '../src/view-models/reload-safety.ts'))};\nexport { clearToken as changeAuth } from ${JSON.stringify(join(here, '../src/admin/token.ts'))};`, resolveDir: dirname(entry), loader: 'ts' },
+  stdin: { contents: await readFile(entry, 'utf8') + `\nexport { createTeamMealsApi } from ${JSON.stringify(join(here, '../src/api/team-meals.ts'))};\nexport { HttpAdminApi } from ${JSON.stringify(join(here, '../src/api/client.ts'))};\nexport { setLang as switchLanguage } from ${JSON.stringify(join(here, '../src/i18n.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here, '../src/view-models/reload-safety.ts'))};\nexport { clearToken as changeAuth } from ${JSON.stringify(join(here, '../src/admin/token.ts'))};\nexport { selectPlan } from ${JSON.stringify(join(here, '../src/pages/admin/plan-context.ts'))};`, resolveDir: dirname(entry), loader: 'ts' },
   plugins: [{ name: 'home-dependencies', setup(build) {
     build.onResolve({ filter: /^\.\.\// }, args => injected[args.path] && (args.importer === '' || args.importer === '<stdin>' || args.importer.endsWith('home.ts')) ? { path: args.path, namespace: 'home-test' } : undefined);
     build.onLoad({ filter: /.*/, namespace: 'home-test' }, args => ({ contents: injected[args.path], loader: 'js' }));
@@ -225,4 +225,9 @@ test('old home initialization finishes only original scope after auth while new 
 });
 test('unconfigured and completed failed home reads release coverage without inventing numbers',async()=>{
  for(const mode of ['unconfigured','real']){const s=await setup({mode,response:()=>Response.json({ok:false,errors:[]},{status:503})});try{const el=s.mount();await s.flush();assert.equal(s.page.inspectReloadSafety().reason,'clear');assert.match(byClass(el,'adm-home-tile-plan')[0].textContent,/—/);}finally{s.cleanup();}}
+});
+
+// Regression reproduced independently by the original nonauthor reviewer.
+test('reviewer: a newly selected plan cannot show the previous plan name/count while its read is pending',async()=>{
+ let release;const gate=new Promise(r=>release=r),input=fixture();input.plan.name={zh:'甲计划'};const s=await setup({input,planId:'plan-a',response:path=>path==='/source/plan/plan-b'?gate:undefined});try{let el=s.mount();await s.flush();assert.match(byClass(el,'adm-home-tile-plan')[0].textContent,/甲计划.*已排 2/);el.remove();s.page.selectPlan(s.team,'plan-b',{zh:'乙计划'});el=s.mount();await s.flush();const tile=byClass(el,'adm-home-tile-plan')[0];assert.equal(tile.getAttribute('href'),'#/admin/plan/plan-b');assert.doesNotMatch(tile.textContent,/甲计划|已排 2 餐/,'pending plan B must not inherit A label/count');release(Response.json({content:{schemaVersion:'3',name:{zh:'乙计划'},meals:[]},commit:A,blobSha:'b'}));await s.flush();assert.match(tile.textContent,/乙计划.*已排 0/);}finally{release();s.cleanup();}
 });
