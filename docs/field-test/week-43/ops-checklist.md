@@ -50,11 +50,38 @@ created: 2026-09-13
 5. 先在隔离环境走完真实链路：排菜/导入并保存 → 正式发布并核对 `data/build.json.commit` 与同版计划/图片 → 菜单/备料可读 → 人工确认采购并保存/重开同一清单；覆盖冲突或丢 ACK 后的核实，确认没有重复写入。buyer 可保存采购单但不能改计划/菜谱，admin 才可回退；回退应新增 data commit，确认后再次发布。记录 commit/run 与成功结果，不记录凭据。
 6. 正式切换后按授权做最小验收，确认发布进度对应真实终态，三种 QR 指向正式站点并能打开对应能力；菜单/备料同版资料可读，PWA 联网更新与离线已读资产通过。**实际发布命令生成 QR 已本地实测通过**（见下方 9/13 单点证据）；正式站点目标和扫码打开仍需在授权发布后验收。以上缺项未关闭时，不能宣布完整可写上线。
 
-**当前缺失项（2026-09-13，调度只读盘点；本任务未重新访问远端）：** Pages 地址已知为上述正式站点，远端 main `1503074` 于 9/11 部署成功；仓库变量/secret 名单均为空，仅有 `github-pages` 环境。尚无已核实的真实 Worker、隔离远端环境或配套凭据证明。因此当前不能交付一个已验收的完整可写线上版本。主调度负责真实环境盘点和最后外部动作；配置补丁、既有本地产品验收均不替代这些事实。
+**历史盘点：** `1503074` 于 9/11 部署的记录属于上一版，已被本版上线事实替代；下方配置回归与 QR 记录仍仅作为各自源码版本的历史本地证据。
+
+**当前缺失项（2026-09-13，调度 20:02 后只读盘点）：** main 为 `f11d06d2d576545ace00d69c69e6c48394b19fbc`，`v0.3.0-alpha.1` 的 Pages 已真实部署；B 随后独立核对了 [Release](https://github.com/TERRYYYC/canteen-os/releases/tag/v0.3.0-alpha.1) 与 [线上 build.json](https://terryyyc.github.io/canteen-os/data/build.json)，两者均指向该提交。调度盘点时，本机尚无 Wrangler 安装或 Cloudflare 常规配置，相关环境变量缺失，仓库 Secrets 名单为空；随后仅为 §0.2 临时安装本地工具，未配置账号。[#68](https://github.com/TERRYYYC/canteen-os/issues/68) / [#69](https://github.com/TERRYYYC/canteen-os/issues/69) 均以 `NOT_PLANNED` 关闭，不是部署完成凭据；`TERRYYYC/canteen-os-test` 在本次权限下不可解析。真实 Worker 实例/地址、Cloudflare 账号、隔离目标仓库/分支与专用 PAT、三角色秘密配置、真实菜谱及其保存/发布/采购链路仍待核实。因此尚不能宣布完整可写版本已验收。主调度归口确认真实环境与外部动作；本地 dry-run 不替代部署或远端写入验证。
 
 **本轮本地证据：** 基于已审产品 `4b1e5e1` 与文档头 `7bbfe22`，实际 Node 20.20.2；旧流程的配置回归先出现 7 失败/3 通过，原非作者再指出未校验 Variables 会进入 runner 前置日志，新增日志边界测试复现失败。按官方源码的 Secret 预注册/日志遮罩模型修复后，配置 13 项与既有接线 21 项合计 **34/34**；模型不是一次真实 Actions 运行。发布映射 **16/16**，零跳过；core/Worker 前置编译通过。空值、公开 HTTPS 测试地址、本地 HTTP 地址三种实际 Vite 临时构建通过，后两者在产物中含各自配置值；输入载体修正未改 Vite 或产品代码，因此沿用该编译证据。这里只执行安全工作流片段和编译，未联系测试地址；临时 Vite 编译不证明 package prebuild/QR 被调用。证据保存在本机 `/private/tmp/canteen-ci-deploy-config-*.log` 与 `/private/tmp/canteen-ci-config-build-0q0vv264/validation.json`。未执行翻译提交、推送、上传或部署，也未重复全量产品验收；独立审查结论由原任务回传，沿用此入口，不另建交付包。
 
 **QR 原命令单点证据（2026-09-13）：** 源码 `563e08b00026542d04bcc06ee8fc4a970e5041e5`，独立临时副本复用既有依赖，仅清除副本旧 `public/qr` 与 `dist`；精确 pnpm **9.15.0**、Node **20.20.2**，执行从发布步骤提取的原命令 `pnpm -C packages/web build`，exit 0。日志实际出现 `prebuild`（图标与 QR）→ Vite；执行窗口为 `06:46:39.588979Z–06:46:42.104556Z`，新索引 `generatedAt=2026-09-13T06:46:40.209Z`，三条路由均使用本次唯一 `SITE_URL=https://qr-build-probe.invalid/canteen-qr-command-3j4_9d64-red/`。三张 PNG 均为 512×512，PNG 与索引共四组 `public/qr`、`dist/qr` SHA-256 完全一致。[pnpm 9 官方发布说明](https://github.com/orgs/pnpm/discussions/7932)也确认 pre/post scripts 默认启用；本次未添加配置或强制开启开关。证据在本机 `/private/tmp/canteen-qr-command-3j4_9d64/validation.json`、同目录 `red.log`（`red` 仅为初始探针标签，实际首次即 GREEN），复现实验脚本 `/private/tmp/canteen-qr-command-probe.py`。因此关闭原命令是否生成新 QR 的待证项，工作流保持不变；本项不是线上扫码、打印或真实 Actions 验收。
+
+### 0.2 本地 Worker 打包预演（不上传）
+
+固定工具为 **Wrangler 4.131.1**（[官方 npm 元数据](https://registry.npmjs.org/wrangler/4.131.1)，Node ≥22；本次 Node 24.18.0）与仓库指定的 pnpm 9.15.0。Wrangler 安装在临时目录；项目依赖沿用 `pnpm-lock.yaml`，不新增依赖、脚本或锁文件变更。[官方命令说明](https://developers.cloudflare.com/workers/wrangler/commands/workers/)定义 `deploy --dry-run` 为编译检查、不上传，`--outdir` 保留产物供检查。
+
+从已核实源码的**仓库根目录**执行以下独立子 shell。安装步骤需要 npm registry 网络；打包不需要 Cloudflare 登录、PAT 或角色令牌。保留 `--dry-run`，不要用本配置的生产目标做隔离写入验收。
+
+```sh
+(
+  set -e
+  worker_dryrun_dir="$(mktemp -d "${TMPDIR:-/tmp}/canteenos-worker-dryrun.XXXXXX")"
+  npm install --prefix "$worker_dryrun_dir/tool" --no-audit --no-fund --save-exact wrangler@4.131.1 pnpm@9.15.0
+  env -u NODE_ENV node "$worker_dryrun_dir/tool/node_modules/pnpm/bin/pnpm.cjs" \
+    --filter @canteenos/worker... install --frozen-lockfile --store-dir "$worker_dryrun_dir/pnpm-store"
+  npm --prefix packages/worker run gen:validators
+  env WRANGLER_SEND_METRICS=false CI=true XDG_CONFIG_HOME="$worker_dryrun_dir/config" \
+    WRANGLER_LOG_PATH="$worker_dryrun_dir/logs" \
+    node "$worker_dryrun_dir/tool/node_modules/wrangler/bin/wrangler.js" deploy \
+    --dry-run --autoconfig=false --config packages/worker/wrangler.toml \
+    --outdir "$worker_dryrun_dir/bundle" --metafile "$worker_dryrun_dir/bundle-meta.json"
+  printf '本地产物目录：%s\n' "$worker_dryrun_dir"
+)
+```
+
+**本次证据：** 源码 `f11d06d2d576545ace00d69c69e6c48394b19fbc`，独立 worktree `canteen-os-worker-deploy`。首次在未生成校验器时运行，exit 1，报 `Could not resolve "../generated/validators.js"`；这是已有生成前置步骤，运行上述生成命令后原配置的真实 dry-run exit 0，末行 `--dry-run: exiting now.`。日志显示 418.48 KiB、gzip 59.01 KiB（`Total Upload` 是 CLI 的体积标签，本次没有上传）。metafile 确认入口 `src/index.ts`、`generated/validators.js` 与 `../core/src/*` 一并打包，输出无外部 imports；当时 `core/dist` 不存在，验证了 core 的 `default` 导出条件直接使用源码。无需修复打包代码。随后从本文提取完整命令，在该提交的干净临时源码副本（带本次配置注释）重放，亦 exit 0。日志与 metadata 保存在本机 `/private/tmp/canteen-worker-dryrun-p0U4y5/`（`dry-run.log`、`bundle-meta.json`、`replay-doc.log`）。这证明固定工具的本地编译，尚不证明云端运行、远端权限或 L2 链路。
 
 ---
 
@@ -116,9 +143,16 @@ created: 2026-09-13
 4. 当面 / 私聊把新链接发给本人。不进群、不进文档。
 5. 在 [`log.md`](log.md) 记一行：哪天、哪个角色、为什么轮换。
 
-> 生成与哈希的命令以 `packages/worker` 的 README / #19 为准。参考写法（**未在本轮验证**，第一次用先对着输出核一眼长度）：
-> `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='` → 应得 43 个字符；
-> `printf %s "<token>" | openssl dgst -sha256` → 应得 64 位十六进制。
+生成与哈希命令如下；在本地可信终端关闭 shell 跟踪，明文仅放在临时变量中，不把真实值写进命令历史。把输出的**纯 64 位小写十六进制**填入对应 `TOKEN_HASH_*`，明文令牌/链接仅经当面扫码或已确认的安全私聊渠道交付，交付后清除本地变量。
+
+```sh
+set +x
+role_token="$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=\n')"
+printf %s "$role_token" | openssl dgst -sha256 -r | cut -d' ' -f1
+# 安全交付链接后：unset role_token
+```
+
+**命令验证（2026-09-13）：** 仅使用固定、公开、已废弃的 43 字符测试令牌；未生成或设置实际凭据。OpenSSL 3.6.3 下，旧的裸 `openssl dgst -sha256` 输出含前缀，共 81 字符，三个角色均无法通过现行 `resolveRole`。加 `-r | cut -d' ' -f1` 后满足 `^[0-9a-f]{64}$`，与 Node crypto、`shasum -a 256` 摘要一致，三角色均解析正确。macOS LibreSSL 3.3.6 的旧命令恰好输出纯哈希，新命令也通过，因此不能用单机旧命令成功推断跨实现兼容。复现脚本与红绿日志在 `/private/tmp/canteen-worker-dryrun-p0U4y5/hash-probe.mjs`、`hash-red.log`、`hash-green.log`；历史问题见 [#68 说明](https://github.com/TERRYYYC/canteen-os/issues/68#issuecomment-5606970334)。测试令牌及其哈希不得用于部署。
 
 **预防**
 

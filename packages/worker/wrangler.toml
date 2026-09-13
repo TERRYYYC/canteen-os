@@ -1,14 +1,15 @@
 # packages/worker —— CanteenOS 写入通道（ADR-0007）
 #
-# 本轮（#19）**不部署**：#68（Cloudflare 账号 + Worker + 4 个 secret）与 #69（L2 测试仓库 + 专用 PAT）
-# 都还没做，wrangler 也**没有**装进 devDependencies（重依赖，且部署本身被卡住）。
-# 这份文件是把「Worker 上线时需要的配置」写在纸面上，等 #68 一完成就可以：
-#   npx wrangler@3 deploy            # 或把 wrangler 加进 devDependencies 再 pnpm -C packages/worker deploy
+# 本配置尚无真实 Worker 部署验收；#68/#69 的 NOT_PLANNED 关闭不代表环境已就绪。
+# 本地预演已验证 Wrangler 4.131.1（Node >=22）；临时安装与完整命令见
+# docs/field-test/week-43/ops-checklist.md §0.2。仓库不新增 Wrangler 依赖。
+# 仅编译用 deploy --dry-run；实际部署前必须核实 §0.1 的账号、目标和凭据并获授权。
 #
 # 入口是 TypeScript 源码：wrangler 自带 esbuild，会把 src/index.ts 连同
 # generated/validators.js（ajv standalone 预编译产物，见 scripts/gen-validators.mjs）一起打包。
-# 部署前必须先跑一次生成器，否则 generated/ 是空的：
-#   pnpm -C packages/worker gen:validators
+# 部署前必须安装锁定依赖并运行生成器，否则 generated/ 是空的：
+#   npm --prefix packages/worker run gen:validators       # 从仓库根目录执行
+# @canteenos/core 通过 default export 条件选取源码；本地 dry-run 不依赖 core/dist。
 
 name = "canteenos-worker"
 main = "src/index.ts"
@@ -54,9 +55,11 @@ PUBLISH_CLAIM_TIMEOUT_MS = "90000"
 #                      secret 名定名见契约 D-09；落地后回填 ops-checklist §1 的登记表。
 #   DEEPL_API_KEY      可选。POST /translate 用；不设置时该端点返回空译文 + warning，不报错。
 #
-# 生成令牌与哈希（ops-checklist §2，标注为未验证）：
-#   openssl rand -base64 32 | tr '+/' '-_' | tr -d '='      → 43 字符令牌
-#   printf %s "<token>" | openssl dgst -sha256              → 64 位十六进制，填 TOKEN_HASH_*
+# 生成令牌与哈希（完整步骤见 ops-checklist §2；关闭 shell 跟踪，仅在本地变量保存明文）：
+#   role_token="$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=\n')"
+#   printf %s "$role_token" | openssl dgst -sha256 -r | cut -d' ' -f1
+# 只把纯 64 位小写十六进制填入 TOKEN_HASH_*；裸 dgst -sha256 在 OpenSSL 3 会带前缀。
+# 明文令牌/链接仅经安全渠道交付；测试用固定废弃令牌验证过的命令不代表已配置真实 secrets。
 #
 # ---------------------------------------------------------------------------
 # 还没接的绑定
