@@ -1,8 +1,8 @@
 {
   "name": "canteen-os",
-  "version": "0.0.3",
+  "version": "0.3.0-alpha.1",
   "private": true,
-  "description": "CanteenOS — 一个知识库出三张单：备料单（乌克兰帮厨）/ 采购单（采购员）/ 菜单（顾客）+ 师傅后台；spec-first，data/ 目录即知识库",
+  "description": "CanteenOS — 团队用餐计划、备料与采购协作；中英乌三语，data/ 目录即知识库",
   "type": "module",
   "workspaces": [
     "packages/*"

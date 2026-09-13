@@ -1,6 +1,6 @@
 {
   "name": "@canteenos/core",
-  "version": "0.0.3",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "description": "CanteenOS core: types, procurement engine, three sheet renderers, readiness gates. Types mirror schemas/ (single source of truth).",
   "type": "module",

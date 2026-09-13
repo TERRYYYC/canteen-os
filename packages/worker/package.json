@@ -1,6 +1,6 @@
 {
   "name": "@canteenos/worker",
-  "version": "0.0.3",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "description": "CanteenOS 写入通道（ADR-0007）：单文件 Cloudflare Worker，后台表单 → GitHub API → main 上的 commit → 发布触发 build-deploy。只准写 data/**。",
   "type": "module",

@@ -1,3 +1,4 @@
+import { version } from "./package.json";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -22,6 +23,9 @@ import { VitePWA } from "vite-plugin-pwa";
  */
 export default defineConfig({
   base: "./",
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   build: {
     target: "es2020",
     reportCompressedSize: true,

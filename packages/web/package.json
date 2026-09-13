@@ -1,8 +1,8 @@
 {
   "name": "@canteenos/web",
-  "version": "0.0.3",
+  "version": "0.3.0-alpha.1",
   "private": true,
-  "description": "CanteenOS 静态站：/prep /purchase /menu（v0.2）+ /admin 占位（v0.3）。原生 DOM + TypeScript，无 UI / CSS 框架、无状态库；数据只读 public/data/*.json（scripts/build-data.mjs 产物）。",
+  "description": "CanteenOS 团队用餐网页：菜单计划、备料、人工确认采购、菜品与食材编辑及发布；原生 DOM + TypeScript，读取同版静态资料，写入通过显式配置的 Worker。",
   "homepage": "https://terryyyc.github.io/canteen-os/",
   "type": "module",
   "scripts": {

@@ -167,6 +167,7 @@ export function mountShell(root: HTMLElement): Shell {
       "div",
       { class: "foot" },
       h("span", {}, `${t("foot.updated")} `, h("b", {}, formatBuiltAt(build?.builtAt, lang))),
+      h("span", { class: "app-version" }, `${localized("应用版本", "App version", "Версія застосунку")} ${__APP_VERSION__}`),
       h(
         "span",
         { class: state === "online" ? "online" : state === "cached" ? "offline cached" : "offline" },

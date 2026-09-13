@@ -1,7 +1,7 @@
 /** Actual shell + i18n + published reader with a small DOM boundary; native focus is checked separately. */
 import assert from 'node:assert/strict';
 import {test,after} from 'node:test';
-import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,rm} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
@@ -9,9 +9,12 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {publishedFixture} from './published-fixture.mjs';
 const web=dirname(fileURLToPath(new URL('../package.json',import.meta.url))),require=createRequire(import.meta.url);
 const esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')).href);
+const {loadConfigFromFile}=await import('vite');
+const config=(await loadConfigFromFile({command:'build',mode:'production'},join(web,'vite.config.ts'))).config;
+const packageVersion=JSON.parse(await readFile(join(web,'package.json'),'utf8')).version;
 const dir=await mkdtemp(join(tmpdir(),'c2b-shell-navigation-')),normal=publishedFixture(),empty=publishedFixture('no-plans');
 after(async()=>{normal.cleanup();empty.cleanup();await rm(dir,{recursive:true,force:true});});
-const bundle=await esbuild.build({stdin:{contents:"export * from './src/shell';export * from './src/i18n';export {createPublishedData} from './src/view-models/published';export {createEditSession} from './src/view-models/edit-session';export {inspectReloadSafety} from './src/view-models/reload-safety';",resolveDir:web},bundle:true,write:false,format:'esm',platform:'browser',logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:"export * from './src/shell';export * from './src/i18n';export {createPublishedData} from './src/view-models/published';export {createEditSession} from './src/view-models/edit-session';export {inspectReloadSafety} from './src/view-models/reload-safety';",resolveDir:web},bundle:true,write:false,format:'esm',platform:'browser',define:config.define,logLevel:'silent'});
 const file=join(dir,'shell.mjs');await writeFile(file,bundle.outputFiles[0].text);
 class Element {
  constructor(tag,value=''){this.tag=tag;this.value=value;this.children=[];this.attrs={};this.events={};this.hidden=false;this.classList={add:x=>this.attrs.class=((this.attrs.class??'')+' '+x).trim(),remove:x=>this.attrs.class=(this.attrs.class??'').split(' ').filter(c=>c!==x).join(' ')};}
@@ -54,8 +57,21 @@ async function setup(lang='en'){
  const drawer=root.querySelector('[role="dialog"]');
  return {m,shell,root,drawer,publication,links:()=>drawer.querySelectorAll('a.di'),byHref:href=>drawer.querySelectorAll('a.di').find(a=>a.getAttribute('href')===href)};
 }
+test('Vite derives the application version from the Web package',()=>{
+ assert.equal(config.define?.__APP_VERSION__,JSON.stringify(packageVersion));
+});
 const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',guest:'для гостей'}};
 for(const lang of ['zh','en','uk']){
+ test(`drawer version remains distinct from publication time and survives refresh (${lang})`,async()=>{
+  const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
+  const expected=({zh:'应用版本',en:'App version',uk:'Версія застосунку'})[lang]+` ${packageVersion}`;
+  assert.equal(e.drawer.querySelector('.app-version')?.textContent,expected);
+  assert.equal(e.root.querySelector('main').textContent.includes(packageVersion),false);
+  assert.ok(e.drawer.querySelector('.foot').children[0].textContent.includes(e.m.formatBuiltAt(p.manifest.builtAt,lang)));
+  e.shell.setBuild(null);e.shell.refresh();
+  assert.equal(e.drawer.querySelector('.app-version')?.textContent,expected);
+  assert.ok(e.drawer.querySelector('.foot').children[0].textContent.includes(e.m.t('foot.updated.unknown')));
+ });
  test(`formal team publication has team navigation and its real protected plan link (${lang})`,async()=>{
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
   assert.equal(e.drawer.textContent.includes(copy[lang].guest),false);
