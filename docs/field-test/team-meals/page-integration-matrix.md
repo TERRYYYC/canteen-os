@@ -3,20 +3,32 @@ feature_ids: [team-meals]
 topics: [acceptance, browser, client-worker, T01-T09]
 doc_kind: test-plan
 created: 2026-09-11
-status: remaining-production-paths-preparing
+status: bounded-native-complete-qr-print-and-l2-open
 ---
 
 # 页面组合验收入口
 
-## 2026-09-13：固定 f26db15 原生剩余路径验收进行中
+## 2026-09-13：固定 f26db15 本地原生验收完成，打印导航与远端条件未关闭
 
-Q 已安全集成 `f26db15229c59597c2318e9674f1ac70e6a22cf6`，集成头 `b55cf90d50389ac91196ecef2bab404564a21cc8`；新 4280 实际运行 64 Web / 30 Worker 源逐字匹配该固定候选，源码未修改。旧 4279 的 4b1 首次弹窗注册 InvalidStateError、真实 reload 后接管和二维码证据已冻结；f26 首次弹窗也出现同一错误，reload 后真实 controller 激活。此异常尚未定位为产品或浏览器启动方式问题，不把 reload 后成功写成首次打开成功。
+**本地发布按钮、真实生产 SW 离线/更新保护、二维码生成与独立解码已完成有界验证；不能宣布完整交付。** 剩余明确项是 QR 纸面混入底部导航（已交原 D 最小修正，待获准后只复验打印），以及真实远端 Worker/隔离环境和菜谱人工核验输入。GitHub dispatch/runs/jobs、托管切换和运行时间是本地模型，不算 L2 或真实发布耗时。
 
-已执行的新原生证据：断开本地应用请求后重载 Prep/Menu 及已读图片成功，另一此前未读图片明确“图片未载入”；真实新菜输入→继续编辑保留→明确丢弃只 reload 一次（document 5→6）；A/B 菜名和红/蓝测试图均实际变化，真实 CacheStorage 保留按 commit 隔离的不同正文；真实计划保存 ACK 暂扣期间，原页及离页后都只提供稍后更新，没有弃稿/强刷；ACK 到达后可更新。丢 ACK 恢复与发布按钮仍在继续，不提前标绿。所有图片均纯色诊断标记，菜谱仍为未人工核验演示。
+固定产品 `f26db15229c59597c2318e9674f1ac70e6a22cf6`，实际 Q 集成头 `b55cf90d50389ac91196ecef2bab404564a21cc8`；4280 运行的 64 Web / 30 Worker 源及原 Vite、QR 生成器逐字匹配，产品源码未改。后到 `1d83fbb10e3c980b41e64ef34fbe82905b559b84` 仅有 Prep 备注折叠、Plan/Purchase CSS 箭头及对应测试五文件差异，已用 Git 核实；本节未变的 Dish/session/PWA/Worker/QR 证据可继承，Prep 新画面由 D/原体验审查提供。新合并受限后没有再 merge/cherry-pick 或替换产品文件。
 
-**二维码新增发现（已在 f26 原生打印复现，待 D 最小修正）：** 独立 ZXing 已从 4b1 与 f26 正式输出各解出 3 个正确 URL；两版原生打印预览均为一页、三图三语，但底部“备料 / 菜单 / 采购 / 菜单计划”也进入纸面。f26 的团队成员/团队公告处文案正确，打印样式应隐藏 `.core-nav`（也应核对更新条等应用控件）。这里不是旧预览漏供给二维码产物的问题；旧漏供给已经由 Q 正式调用生成器补齐。原始目录分别为 `/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/production-native-4b1` 与同级 `production-native-f26`；新版缺陷证据 `32-f26-print-preview.txt/.jpg`。
+本次真实 Chrome 操作结果：
 
-后续原生步骤也已完成：丢 ACK 后原页/离页都只许稍后更新，核实回读后没有重复 POST 并允许 reload；再实际保存 39，公开菜单仍为 37，然后点发布，真实 Worker 第 41 请求返回 runId 8100/requestId rcq-local-workflow-1，第 42 请求 queued、第 43 请求真实读取模型终态 success；正式 producer/QR/Vite 产物全部成功后公共目录才变为 `3f49e0b77c3f1931956bc7cd1f3af4bfeaf5fc57`。真实更新后菜单显示 39。GitHub/托管/运行时间均为本地模型，不是远端 L2。正在冻结最后账本与正文断言。
+- **离线与图片：** 首次真实接管后，测试控制只断开 4280 应用请求，正常重载 Prep/Menu 仍可读，已读同版本图片成功。9/13 先被访问，因此实际已读图是文件名 cache-unread.png；9/12 的 cache-read.png 才是当时从未读取的图，离线明确显示“图片未载入”。以实际请求和 CacheStorage 为准，不按夹具命名推定。恢复后读取 A，再更新到 B，菜名与红/蓝诊断图都真实变化，两份不同图片正文按 commit URL 隔离。图片均为纯色测试标记，演示菜谱仍未人工核验。
+- **未保存编辑：** 新菜页面先显示“尚未填写”，真实输入后显示“有未保存改动”。更新对话框列出该编辑；继续编辑保留文字且 document=5，明确丢弃后 document 仅 5→6，空表单重新载入。没有覆盖 navigator、替换 SW 注册器或拦截浏览器 fetch。
+- **保存中与结果未知：** 真实计划 Save 37 的 ACK 暂扣，原页和离页后更新都只提供稍后更新，没有强刷/弃稿入口；响应到达后才允许更新（6→7）。下一次真实 Save 38 丢 ACK 后同样阻止更新；回到原页核实仅产生两次 source GET，没有重复 POST，核实后更新（7→8）且已保存值保留。
+- **实际发布按钮：** 再实际保存 39，公共菜单仍显示 37；点击发布后，第 41 请求是真实 Worker POST /publish，返回 runId=8100 / requestId=rcq-local-workflow-1，第 42、43 请求读取同一 run 的 queued→success。正式 producer + QR + 原 Vite 构建全部成功后，托管模型才切到 `3f49e0b77c3f1931956bc7cd1f3af4bfeaf5fc57`。真实 registration.update 和应用更新后 document 8→9，菜单显示 39，实际缓存 manifest/projection 与该提交产物完全一致。生成失败保留旧目录的针对性测试也通过。
+- **二维码与打印：** 正式生成器输出三张 512×512 PNG；独立 ZXing 从 4b1/f26 各解出正确 prep/purchase/menu URL，原生页面三图加载后解锁打印。f26 团队成员/团队公告处文案正确，真实 Chrome 打印为一页三图三语，**但“备料 / 菜单 / 采购 / 菜单计划”底部导航进入纸面**。证据 `32-f26-print-preview.txt/.jpg`；原 D 已收到。二维码是本地测试 URL，不是对外可用贴墙码。
+
+Q 自有工具的两处异常已单独修复，失败原件保留：一是诊断页立即触碰新弹窗初始 about:blank 的 SW 容器，导致两次首次注册 InvalidStateError；同一源码直接首开正常，Q 观察逻辑跳过空文档后，独立 4281 的首个真实文档直接 activated/controller 接管（document=1，无错误），没有产品 PWA 修复。二是 Q 代理把私有 PNG 当 JSON 解析，真实只读断言先得到 500；改为按 Content-Type 记录二进制并原样转发后，同一断言 200、image/png、字节完全相同，真实计划页两张图片成功显示。4280 主证据环境没有为这些工具修正而重启，不能将旧失败记录改写成成功。
+
+冻结主账本共 **49 请求：29 条 JSON 响应 200，另 20 条旧 /asset 转发错误未能写入响应字段**；这 20 条均属上述 Q 代理缺陷，独立红绿证据补在 4281，不称 49 条全成功。仅四次原生 POST：14/22/34 为三次 Save，41 为一次 publish。账本 SHA256 `dc14757a496d282156cb8088783388538fd579f7ff0bee65555b8301c4b07aa6`。Q 工具针对性测试在 f26 实际重跑 **2/2 通过**，PNG 转发独立断言红→绿、首次接管和私有图片另有真实原生证据。未全量重跑、未新增 review 树，也不将自检称为独立批准。
+
+证据：[实际正文与请求断言](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/production-native-f26/verification.json)、[冻结账本](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/production-native-f26/ledger-frozen.json)、[原始截图/DOM/缓存/工具红绿目录](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/production-native-f26)、[原件索引](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/production-native-f26/artifact-index.json)。原 4b1 首次弹窗及打印记录在同级 production-native-4b1，账本 SHA256 `1691f8359368fc27c382722debda7a3f98ee20c645ad0f2b17fc379b113bf871`；旧 4277/4278 数据、文件和原 publish/rollback guard 均未改，未操作 D 4275。
+
+受管入口：[f26 主验收 / 二维码](http://127.0.0.1:4280/canteen/#/qr)，诊断在同源 /__q/diagnostics、SW scope 外；4280 租约到 2026-09-13 14:04:39 UTC。4281 仅补 Q 工具红绿，租约到 10:17:48 UTC。对方任务消息受先前自动审批限制，本节是唯一状态文档，调度已通过直接读取取得发现。
 
 ## 2026-09-13：发布、二维码与 production SW 的剩余检查准备
 

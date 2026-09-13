@@ -7,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {createWorkflowPublicationFixture} from './workflow-publication-fixture.mjs';
 import {WORKER,call,bearer} from '../../../../worker/test/helpers.mjs';
 const worker=(await import(WORKER)).default;
-const fixed='4b1e5e13a82bd5a2437f95df20aaf49f77f8996f';
+const fixed=process.env.RCQ_FIXED_PRODUCTION??'f26db15229c59597c2318e9674f1ac70e6a22cf6';
 const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
 
 test('actual Worker dispatch owns a queued run; only a completed formal web build changes served publication',async t=>{
