@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test,after} from 'node:test';
-import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,dirname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
@@ -26,4 +26,25 @@ test('all three QR images must load before printing; an image failure disables i
 
 test('three real QR entry points describe team use in all languages',async()=>{
  for(const lang of ['zh','en','uk']){const f=await mount(()=>Response.json(valid),lang);assert.equal(f.el.querySelectorAll('img').length,3);const menu=f.el.querySelectorAll('.qr-item').find(n=>n.getAttribute('data-route')==='menu');assert.ok(menu);assert.doesNotMatch(menu.textContent,/顾客|档口|guests|counter|гостей|стійці/);assert.match(menu.textContent,/团队|team|команд/);assert.doesNotMatch(f.el.querySelector('.qr-toolbar').textContent,/档口|counter|стійка/);assert.equal(f.button().disabled,true);}
+});
+
+test('QR print excludes shell controls and update notices while retaining the wall sheet',async()=>{
+ const postcss=vr('postcss');
+ const css=postcss.parse(await readFile(join(here,'../src/pages/qr.css'),'utf8'));
+ const printHidden=new Set(),screenHidden=new Set();
+ css.walkDecls('display',decl=>{
+  if(decl.value!=='none'||!decl.important||decl.parent.type!=='rule')return;
+  let print=false;
+  for(let parent=decl.parent.parent;parent;parent=parent.parent){
+   if(parent.type==='atrule'&&parent.name==='media'&&parent.params==='print')print=true;
+  }
+  for(const selector of decl.parent.selectors)(print?printHidden:screenHidden).add(selector);
+ });
+ for(const selector of ['.appbar','.core-nav','.update-bar','.ios-hint','.scrim','.drawer','.qr-toolbar']){
+  assert.ok(printHidden.has(selector),`${selector} must be hidden on the printed wall sheet`);
+  assert.equal(screenHidden.has(selector),false,`${selector} must retain its screen behavior`);
+ }
+ for(const selector of ['html','body','#app','#main','.outlet','.qr-page','.qr-head','.qr-item','.qr-img','.qr-text','.qr-url']){
+  assert.equal(printHidden.has(selector),false,`${selector} remains part of the printable sheet`);
+ }
 });
