@@ -27,11 +27,15 @@ created: 2026-09-13
 
 ### 0.1 发布配置与完整可写版本的前置检查
 
-**配置入口只有一个：** 仓库 Settings → Secrets and variables → Actions → **Variables** 中的 `VITE_WORKER_URL`。`build-deploy.yml` 在 build job 注入 `vars.VITE_WORKER_URL`，校验和 Web 编译使用同一个值。它是公开 API 根地址，会进入浏览器产物，不能填 PAT/角色令牌，不能用 Secrets 代替。`github-pages` 环境属于后续 deploy job；只在那里设置变量不会为前面的 build job 提供此值。变量是构建期输入，修改后须重新构建才生效。参见 [GitHub 变量说明](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)及 [Vite 构建期环境变量](https://vite.dev/guide/env-and-mode)。
+**生产配置入口只有一个：** 仓库 Settings → Secrets and variables → Actions → **Secrets** → `VITE_WORKER_URL`。合法内容仍是公开 API 根地址；Secret 是保护校验前原始输入的载体，不得填 PAT、角色令牌或其他秘密。`build-deploy.yml` 只在最前面的 Install 步骤通过 `secrets.VITE_WORKER_URL` 传给 `WORKER_URL_INPUT`，Node 校验后才把合格地址或显式空值写入 `GITHUB_ENV` 供后续 Web 编译；不读取同名 Variables，不把原值插进 run 文本，不新增已跟踪的生产配置文件。
+
+使用 Secret 是为了让 runner 在显示步骤环境之前就具备遮罩规则：[Worker 在启动 job 前注册 Secret 值](https://github.com/actions/runner/blob/main/src/Runner.Worker/Worker.cs)，[Handler 随后打印步骤环境](https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/Handler.cs)。非法值不输出、不转换后打印，也不写入后续环境。不能靠脚本里稍后的 `add-mask` 补救先前日志。参见 [GitHub Secret 用法](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)。
+
+合格地址会进入公开浏览器产物，Secret 遮罩不是对前端内容保密。修改 Secret 后须重新构建才生效；`github-pages` 是后续 deploy job 的环境，只在那里设置 Secret 不能给前面的 build job 供值。参见 [GitHub 后续步骤环境变量](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable)及 [Vite 构建期环境变量](https://vite.dev/guide/env-and-mode)。
 
 | `VITE_WORKER_URL` | 构建行为与能力边界 |
 |---|---|
-| 未设置或空串 | 保留合法只读构建，Actions 给出 warning 和摘要。可查看已发布的菜单、备料及其可用资料；Team 编辑、保存采购单、发布不可用，不自动创建可写 mock |
+| Secret 未设置或空串 | 保留合法只读构建，Actions 给出 warning 和摘要。可查看已发布的菜单、备料及其可用资料；Team 编辑、保存采购单、发布不可用，不自动创建可写 mock |
 | 已确认的公网 HTTPS Worker 根地址 | 可带一个尾斜杠；不得含凭据、接口路径、查询或片段。先通过格式检查再安装/翻译/构建；合格格式不证明连通、权限或完整可写流程 |
 | 格式错误，或本地、IP、示例、GitHub Pages 地址 | 发布流程在安装及翻译提交之前失败，不输出可能含凭据的原值；不能把前端站点地址当 Worker 地址 |
 
@@ -42,13 +46,13 @@ created: 2026-09-13
 1. 确定同一套已批准的前端和 Worker 源码，以及专用的隔离验收环境。先核对目标仓库、分支、数据 seed 和专用凭据；`wrangler.toml` 当前默认指向生产 main，不能直接拿它做隔离验收。这里不另建后端方案，沿用既有 Cloudflare Worker → GitHub 架构。
 2. 确认真实 Worker 已部署、可达，记录公开根地址与部署版本。部署前依现有构建链生成 core/Worker/validators；核对 `GITHUB_REPO`、`GITHUB_BRANCH`、`PUBLISH_WORKFLOW=build-deploy.yml`、`PUBLISH_MODE=dispatch`。生产 `ALLOWED_ORIGIN` 为 `https://terryyyc.github.io`（无路径），`PAGES_BASE_URL` 为 `https://terryyyc.github.io/canteen-os/`；隔离环境必须填自己的成对地址，不能混用生产。
 3. 在 Worker 的秘密配置中核对 `GITHUB_PAT`、`TOKEN_HASH_CHEF`、`TOKEN_HASH_BUYER`、`TOKEN_HASH_ADMIN` 和有效期/轮换安排（§1–2）。PAT 只授权目标仓的 Contents RW + Actions RW，无 Workflows；明文角色令牌不进入仓库、构建变量或截图。DeepL 为可选，不是完整餐食流程的前置服务。
-4. 由发布负责人把已核实 Worker 地址设置为上述**仓库变量**，再授权运行发布。确认 Actions 摘要的配置状态，确认真实浏览器请求送往该 Worker、CORS 放行正确 Pages origin；错误源被拒绝，无令牌 401，越权 403。仅 URL 格式通过不能勾选此项。
+4. 由发布负责人把已核实 Worker 地址设置为上述**仓库 Secret**，再授权运行发布。确认 Actions 摘要的配置状态，确认真实浏览器请求送往该 Worker、CORS 放行正确 Pages origin；错误源被拒绝，无令牌 401，越权 403。仅 URL 格式通过不能勾选此项。
 5. 先在隔离环境走完真实链路：排菜/导入并保存 → 正式发布并核对 `data/build.json.commit` 与同版计划/图片 → 菜单/备料可读 → 人工确认采购并保存/重开同一清单；覆盖冲突或丢 ACK 后的核实，确认没有重复写入。buyer 可保存采购单但不能改计划/菜谱，admin 才可回退；回退应新增 data commit，确认后再次发布。记录 commit/run 与成功结果，不记录凭据。
 6. 正式切换后按授权做最小验收，确认发布进度对应真实终态，三种 QR 指向正式站点并能打开对应能力；菜单/备料同版资料可读，PWA 联网更新与离线已读资产通过。`packages/web` 已声明 `prebuild` 生成图标/QR，仍需检查**实际发布命令**确实调用并包含产物；本轮由 Q 检查，未拿到实际缺失证据前不改接线。以上缺项未关闭时，不能宣布完整可写上线。
 
 **当前缺失项（2026-09-13，调度只读盘点；本任务未重新访问远端）：** Pages 地址已知为上述正式站点，远端 main `1503074` 于 9/11 部署成功；仓库变量/secret 名单均为空，仅有 `github-pages` 环境。尚无已核实的真实 Worker、隔离远端环境或配套凭据证明。因此当前不能交付一个已验收的完整可写线上版本。主调度负责真实环境盘点和最后外部动作；配置补丁、既有本地产品验收均不替代这些事实。
 
-**本轮本地证据：** 基于已审产品 `4b1e5e1` 与文档头 `7bbfe22`，实际 Node 20.20.2；旧流程的配置回归先出现 7 失败/3 通过，修复后配置 11 项与既有接线 21 项合计 **32/32**，发布映射 **16/16**，零跳过。core/Worker 前置编译通过；空值、公开 HTTPS 测试地址、本地 HTTP 地址三种实际 Vite 临时构建通过，后两者在产物中含各自配置值。这里只执行提取的安全工作流片段和编译，没有联系测试地址；临时 Vite 编译不证明 package prebuild/QR 被调用。证据保存在本机 `/private/tmp/canteen-ci-deploy-config-*.log` 与 `/private/tmp/canteen-ci-config-build-0q0vv264/validation.json`。未执行翻译提交、推送、上传或部署，也未重复全量产品验收；独立审查结论由原任务回传，沿用此入口，不另建交付包。
+**本轮本地证据：** 基于已审产品 `4b1e5e1` 与文档头 `7bbfe22`，实际 Node 20.20.2；旧流程的配置回归先出现 7 失败/3 通过，原非作者再指出未校验 Variables 会进入 runner 前置日志，新增日志边界测试复现失败。按官方源码的 Secret 预注册/日志遮罩模型修复后，配置 13 项与既有接线 21 项合计 **34/34**；模型不是一次真实 Actions 运行。发布映射 **16/16**，零跳过；core/Worker 前置编译通过。空值、公开 HTTPS 测试地址、本地 HTTP 地址三种实际 Vite 临时构建通过，后两者在产物中含各自配置值；输入载体修正未改 Vite 或产品代码，因此沿用该编译证据。这里只执行安全工作流片段和编译，未联系测试地址；临时 Vite 编译不证明 package prebuild/QR 被调用。证据保存在本机 `/private/tmp/canteen-ci-deploy-config-*.log` 与 `/private/tmp/canteen-ci-config-build-0q0vv264/validation.json`。未执行翻译提交、推送、上传或部署，也未重复全量产品验收；独立审查结论由原任务回传，沿用此入口，不另建交付包。
 
 ---
 

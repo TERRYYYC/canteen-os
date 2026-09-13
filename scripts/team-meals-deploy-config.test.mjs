@@ -48,7 +48,7 @@ function boundary() {
 // Execute only the actual configuration/install and Web build run blocks.
 // The Node preflight is real; installation, tool preparation and Web compilation
 // are observable boundaries. Translation, Git writes and deployment never run.
-function run(t, value, fail = '') {
+function run(t, value, fail = '', {noHandoff = false} = {}) {
   const dir = mkdtempSync(path.join(tmpdir(), 'team-deploy-config-'));
   t.after(() => rmSync(dir, {recursive: true, force: true}));
   const bin = path.join(dir, 'bin'); mkdirSync(bin);
@@ -57,29 +57,65 @@ function run(t, value, fail = '') {
   }
   const eventsFile = path.join(dir, 'events');
   const summaryFile = path.join(dir, 'summary');
+  const handoffFile = path.join(dir, 'job-env');
   const env = {...process.env, PATH: `${bin}:/usr/bin:/bin`,
-    GITHUB_STEP_SUMMARY: summaryFile, DEPLOY_CONFIG_EVENTS: eventsFile, DEPLOY_CONFIG_FAIL: fail};
+    GITHUB_ENV: handoffFile, GITHUB_STEP_SUMMARY: summaryFile, DEPLOY_CONFIG_EVENTS: eventsFile, DEPLOY_CONFIG_FAIL: fail};
+  if (noHandoff) delete env.GITHUB_ENV;
   delete env.VITE_WORKER_URL;
-  // Model Actions' documented vars -> job env handoff from the actual YAML.
+  delete env.WORKER_URL_INPUT;
+  // Keep the old unsafe boundary observable so the runner-log regression fails
+  // if direct variable injection is accidentally restored.
   const source = yaml.match(/^      VITE_WORKER_URL: (.+)$/m)?.[1];
   if (source === '${{ vars.VITE_WORKER_URL }}') env.VITE_WORKER_URL = value ?? '';
-  let status = 0, stdout = '', stderr = '';
+  const protectedSource = yaml.match(/^          WORKER_URL_INPUT: (.+)$/m)?.[1];
+  // Model Worker.InitializeSecretMasker: register a secret (and its trimmed
+  // lines) before job execution. This is a log-boundary model, not a live runner.
+  const secret = protectedSource === '${{ secrets.VITE_WORKER_URL }}' ? value ?? '' : '';
+  const masks = [secret.trim(), ...secret.split(/[\r\n]/).map(line => line.trim())].filter(Boolean);
+  const mask = text => masks.reduce((result, entry) => result.split(entry).join('***'), text);
+  let status = 0, stdout = '', stderr = '', runnerLog = '';
   for (const name of [installName, buildName]) {
-    const result = spawnSync('/bin/bash', ['-e', '-c', stepRun(name)], {cwd: root, env, encoding: 'utf8'});
+    const stepEnv = {...env};
+    if (name === installName && protectedSource === '${{ secrets.VITE_WORKER_URL }}') stepEnv.WORKER_URL_INPUT = secret;
+    // Handler.PrintActionDetails prints the expanded script and environment
+    // before the script starts; an in-script add-mask cannot protect this log.
+    runnerLog += mask(`${stepRun(name)}\n`);
+    for (const key of ['VITE_WORKER_URL', 'WORKER_URL_INPUT']) {
+      if (stepEnv[key] !== undefined) runnerLog += mask(`${key}: ${stepEnv[key]}\n`);
+    }
+    const result = spawnSync('/bin/bash', ['-e', '-c', stepRun(name)], {cwd: dir, env: stepEnv, encoding: 'utf8'});
     assert.equal(result.error, undefined);
     status = result.status; stdout += result.stdout; stderr += result.stderr;
     if (status !== 0) break;
+    // Actions exposes GITHUB_ENV additions to subsequent steps, not this writer.
+    if (existsSync(handoffFile)) {
+      const line = readFileSync(handoffFile, 'utf8');
+      assert.match(line, /^VITE_WORKER_URL=[^\r\n]*\n$/);
+      env.VITE_WORKER_URL = line.slice('VITE_WORKER_URL='.length, -1);
+    }
   }
-  return {status, stdout, stderr,
+  return {status, stdout, stderr, runnerLog,
+    handoff: existsSync(handoffFile) ? readFileSync(handoffFile, 'utf8') : '',
     summary: existsSync(summaryFile) ? readFileSync(summaryFile, 'utf8') : '',
     events: existsSync(eventsFile) ? readFileSync(eventsFile, 'utf8').trim().split('\n').map(JSON.parse) : []};
 }
 
-test('build job injects the public repository variable, before translation and without a secret fallback', () => {
+test('raw credential-shaped configuration cannot reach the pre-execution runner log', t => {
+  for (const value of ['https://chef:synthetic-private-value@worker.unit-fixture.workers.dev', 'https://worker.unit-fixture.workers.dev\nsynthetic-private-value']) {
+    const result = run(t, value);
+    assert.notEqual(result.status, 0);
+    assert.equal(result.handoff, '');
+    assert.doesNotMatch(result.runnerLog + result.stdout + result.stderr, /synthetic-private-value/);
+  }
+});
+
+test('build protects raw input with a repository Secret and only hands validated public values to Vite', () => {
   const buildJob = yaml.slice(yaml.indexOf('  build:'), yaml.indexOf('  deploy:'));
-  assert.match(buildJob, /    env:\n(?:      #[^\n]*\n)*      VITE_WORKER_URL: \$\{\{ vars\.VITE_WORKER_URL \}\}/);
-  assert.equal((buildJob.match(/VITE_WORKER_URL:/g) ?? []).length, 1, 'one job value reaches validation and Vite unchanged');
-  assert.doesNotMatch(buildJob, /secrets\.VITE_WORKER_URL/);
+  assert.doesNotMatch(buildJob, /vars\.VITE_WORKER_URL/);
+  assert.match(buildJob, /^          WORKER_URL_INPUT: \$\{\{ secrets\.VITE_WORKER_URL \}\}$/m);
+  assert.equal((buildJob.match(/secrets\.VITE_WORKER_URL/g) ?? []).length, 1);
+  assert.doesNotMatch(buildJob.slice(0, buildJob.indexOf('    steps:')), /VITE_WORKER_URL|WORKER_URL_INPUT/, 'no job-wide raw input');
+  assert.doesNotMatch(stepRun(installName), /\$\{\{/, 'raw expressions never enter script text');
   assert.ok(yaml.indexOf(`- name: ${installName}`) < yaml.indexOf('- name: Machine-translate'));
   assert.match(stepRun(buildName), /^pnpm -C packages\/web build$/);
 });
@@ -102,6 +138,8 @@ for (const value of ['https://canteen.unit-fixture.workers.dev', 'https://cantee
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(result.events.map(e => e.kind), ['install', 'prepare', 'build']);
     assert.equal(result.events.at(-1).workerUrl, value);
+    assert.ok(result.events.slice(0, -1).every(e => e.workerUrl === ''), 'raw config is not a step environment input');
+    assert.equal(result.handoff, `VITE_WORKER_URL=${value}\n`);
     assert.match(result.summary, /format.*(?:only|passed)/i);
     assert.match(result.summary, /(?:connectivity|reachable)/i);
     assert.doesNotMatch(result.summary, /(?:full release|writable release) (?:ready|complete)/i);
@@ -126,10 +164,19 @@ test('bad or misdirected addresses fail before dependencies/build and never echo
     const result = run(t, value);
     assert.notEqual(result.status, 0, value);
     assert.deepEqual(result.events, [], value);
+    assert.equal(result.handoff, '', 'invalid config must not enter later step environments');
     assert.match(result.stdout + result.stderr, /::error::.*VITE_WORKER_URL/);
     if (value.trim().length > 8) assert.equal((result.stdout + result.stderr + result.summary).includes(value), false, 'do not echo a value that might contain credentials');
     assert.doesNotMatch(result.stdout + result.stderr + result.summary, /synthetic-token/);
+    assert.doesNotMatch(result.runnerLog, /synthetic-token/);
   }
+});
+
+test('a missing validated handoff fails before dependencies/build', t => {
+  const result = run(t, 'https://canteen.unit-fixture.workers.dev', '', {noHandoff: true});
+  assert.notEqual(result.status, 0);
+  assert.deepEqual(result.events, []);
+  assert.equal(result.handoff, '');
 });
 
 for (const phase of ['install', 'prepare', 'build']) {
