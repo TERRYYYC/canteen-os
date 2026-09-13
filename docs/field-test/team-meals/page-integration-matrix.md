@@ -3,10 +3,34 @@ feature_ids: [team-meals]
 topics: [acceptance, browser, client-worker, T01-T09]
 doc_kind: test-plan
 created: 2026-09-11
-status: candidate-delta-verified-pending-product-review
+status: remaining-production-paths-preparing
 ---
 
 # 页面组合验收入口
+
+## 2026-09-13：发布、二维码与 production SW 的剩余检查准备
+
+本轮按调度恢复原 Q，基线固定 `4b1e5e13a82bd5a2437f95df20aaf49f77f8996f`；原 `890cefd / d9565a4` 及下方全部旅程证据继承。当前新增内容是 **Q 隔离执行工具和准备验证，不是这些剩余原生场景已经通过**。产品源码只读，D 负责页面、C 负责 PWA，CI 原任务负责 workflow/配置；现有 4277/4278 样本、旧服务保护及 D 4275 保持。
+
+| 剩余项 | 已定位的入口 / 精确缺口 | 最小执行办法 |
+|---|---|---|
+| 正式二维码与打印 | 正式 `packages/web/scripts/gen-qr.mjs` 导出 main，输出 public/qr/{prep,purchase,menu}.png 和 index.json；package.json prebuild 已调用它，SITE_URL 优先于 homepage。原 Q page-server 直接调 Vite 且只复制 data/icons，没有运行生成器或复制 qr，故其缺图是测试构建准备缺项，不能据此说产品没有生成器 | 新隔离构建显式调用原 main，SITE_URL 指向自己的 /canteen/，正式 PNG 随 public 进入 dist。接着独立解码三张 PNG；真实页面读取三图后点打印，检查 A4 三码、三语与导航/提示条是否进入打印布局。尚未用正常页面/打印预览签收 |
+| 发布按钮→实际 Worker→本次 run→公共版 | 页面 admin/publish 已通过实际 client 调 POST /publish、GET /publish/:id；Worker 按 request_id 对应 run-name 认领。已有 D 页面 fixture 拦截前端 fetch，原 Q runBuild CLI 绕开按钮，二者都不能证明完整组合 | 新 Q adapter 只在独立 origin 模拟 GitHub dispatch/runs/jobs 和本地托管切换；真正 Worker 不替换。run 保存固定提交，先正式 runBuild + QR + 原 Vite 配置生成完整 dist/SW，全部成功后才切换服务目录；失败保留旧目录。真实按钮/进度/公共页面原生链待执行；远端 L2 不计入 |
+| 实际 production SW | 原4277/4278有 worker-src none，只覆盖在线；C既有真实SW和页面状态证据可继承，不能复用禁用SW环境宣布离线通过 | 新 origin /canteen/ 使用原 index/src/vite 配置、正式 producer 输出及每版新 sw.js；测试诊断页在 scope 外，读取真实 registration.active/waiting、应用 controller 和 CacheStorage 正文，按钮调用真实 registration.update()，不覆盖 navigator。A/B 含可见资料和测试像素变化；新 origin 离线通过断开该本地应用请求模拟，需注明 navigator.onLine 本身未改 |
+| 最小新增 SW 原生组合 | 首次接管后离线 Menu/Prep、已读同版图和未读图；真实 dirty 更新拒绝/显式弃稿一次 reload；saving / unknown（含离页 owner）不能强刷，核实后再更新 | 复用真实 Worker 数据保存及 hold/drop ACK 控制；分别记录客户端状态、实际 controller、等待SW、缓存正文和页面资料版本。C旧源未变的其他 clean/外部接管组合继承，不全量重复。D/C新固定集成头到达后只按差异确认 |
+| 真远端完整链 | Q 没有独立远端 Worker/测试环境的可用输入 | 主调度负责只读盘点与环境输入；本地模拟 dispatch、运行状态和目录切换不得充作 GitHub/Cloudflare 发布或 L2 结果 |
+
+新增 Q 文件：`workflow-publication-fixture.mjs`、`workflow-publication.test.mjs`、`workflow-page-server.mjs`（均位于 packages/web/test/e2e/team-meals）。旧 page-server 与 local-publication-fixture 未改；原 publish/rollback guard 逐字保留。新服务器继续禁止 rollback，新控制带本机 Host/Origin 与显式控制头；所有模拟外部请求只进 FakeRepo，没有真实远端请求或 Git remote。
+
+准备测试已实际执行 **2/2 通过**：真实 Worker Save→dispatch→精确runId→queued→完整产物成功→新公共版本；缺引用后的另一run失败且旧公共目录不变；正式二维码三个512×512产物与目标URL一致；A/B可见资料、实际图像字节和新sw.js均改变。第二项为控制生成的A/B准备，不是原生SW验收。首次RED为新模块尚未实现；第一次构建另暴露macOS临时目录实路径问题，规范化路径并在临时根使用原配置后通过，失败日志保留。日志 `/private/tmp/rcq-workflow-red.log`、`/private/tmp/rcq-workflow-build-root-red.log`、`/private/tmp/rcq-workflow-green.log`。
+
+新入口执行命令（必须先编译当前固定 Worker；启动前核对空闲端口并通过同一 managed launcher 托管）：
+
+```sh
+RCQ_FIXED_PRODUCTION=4b1e5e13a82bd5a2437f95df20aaf49f77f8996f RCQ_WORKFLOW_PORT=4279 RCQ_CACHE_DIAGNOSTICS=1 node packages/web/test/e2e/team-meals/workflow-page-server.mjs
+```
+
+输出会给出 /canteen/ 实际应用、/__q/diagnostics（scope外）和单份执行账本路径。此处只声明准备工具的针对性验证；二维码独立解码/打印、真实发布按钮及上述真实SW组合仍需各自的新原生证据。
 
 ## 2026-09-13 追加：固定候选 4b1e5e1 差异验证通过
 
