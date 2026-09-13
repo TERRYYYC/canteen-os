@@ -1,6 +1,13 @@
+---
+feature_ids: [team-meals]
+topics: [deployment, configuration, operations]
+doc_kind: operations-checklist
+created: 2026-09-13
+---
+
 # week-43 运维清单（出事怎么办）
 
-> **依据 ADR-0007《写入通道》（PR #61，待合并）。** 本文引用的令牌模型、回退语义、PAT 权限都以那份 ADR 为准。ADR 状态是 **Proposed**，落地实现 `packages/worker` 在写本文件时**还没建**——所以凡是涉及 worker 的步骤，测试周开工前都要照实际实现核对一遍，别拿本文件当既成事实。
+> 写入通道已在 `packages/worker` 实现；这不等于真实服务已部署。现行配置、角色权限与 Team API 行为以 `packages/worker/wrangler.toml`、`packages/worker/src/auth.ts`、[`team-meals-contract.md`](../../specs/team-meals-contract.md) 为准。下文原运维流程保留，发布前先完成 §0.1；不能把只读 Pages 构建当作完整可写版本上线。
 >
 > 一句话原则：**测试周不改代码，只让人能干完今天的活。**（执行简报 §3「真实厨房周」、§7）
 
@@ -17,6 +24,31 @@
 | PAT 快到期 / 已到期 | PAT | §1 |
 
 先问一句：**帮厨今天还能拿到单吗？** 能 → 不是 P0，记进 [`log.md`](log.md)，测试周内不动代码。
+
+### 0.1 发布配置与完整可写版本的前置检查
+
+**配置入口只有一个：** 仓库 Settings → Secrets and variables → Actions → **Variables** 中的 `VITE_WORKER_URL`。`build-deploy.yml` 在 build job 注入 `vars.VITE_WORKER_URL`，校验和 Web 编译使用同一个值。它是公开 API 根地址，会进入浏览器产物，不能填 PAT/角色令牌，不能用 Secrets 代替。`github-pages` 环境属于后续 deploy job；只在那里设置变量不会为前面的 build job 提供此值。变量是构建期输入，修改后须重新构建才生效。参见 [GitHub 变量说明](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)及 [Vite 构建期环境变量](https://vite.dev/guide/env-and-mode)。
+
+| `VITE_WORKER_URL` | 构建行为与能力边界 |
+|---|---|
+| 未设置或空串 | 保留合法只读构建，Actions 给出 warning 和摘要。可查看已发布的菜单、备料及其可用资料；Team 编辑、保存采购单、发布不可用，不自动创建可写 mock |
+| 已确认的公网 HTTPS Worker 根地址 | 可带一个尾斜杠；不得含凭据、接口路径、查询或片段。先通过格式检查再安装/翻译/构建；合格格式不证明连通、权限或完整可写流程 |
+| 格式错误，或本地、IP、示例、GitHub Pages 地址 | 发布流程在安装及翻译提交之前失败，不输出可能含凭据的原值；不能把前端站点地址当 Worker 地址 |
+
+本地 Vite 开发/构建仍可在 `packages/web/.env.local` 使用已经确认的 HTTP localhost 测试服务，或留空做只读构建；生产工作流的地址限制不加入产品代码。只读离线能力只覆盖已缓存且仍可用的资料，未读取/已淘汰资源不能承诺离线可用。
+
+**完整可写发布前，按顺序完成以下步骤并记录结果（本轮未执行外部动作）：**
+
+1. 确定同一套已批准的前端和 Worker 源码，以及专用的隔离验收环境。先核对目标仓库、分支、数据 seed 和专用凭据；`wrangler.toml` 当前默认指向生产 main，不能直接拿它做隔离验收。这里不另建后端方案，沿用既有 Cloudflare Worker → GitHub 架构。
+2. 确认真实 Worker 已部署、可达，记录公开根地址与部署版本。部署前依现有构建链生成 core/Worker/validators；核对 `GITHUB_REPO`、`GITHUB_BRANCH`、`PUBLISH_WORKFLOW=build-deploy.yml`、`PUBLISH_MODE=dispatch`。生产 `ALLOWED_ORIGIN` 为 `https://terryyyc.github.io`（无路径），`PAGES_BASE_URL` 为 `https://terryyyc.github.io/canteen-os/`；隔离环境必须填自己的成对地址，不能混用生产。
+3. 在 Worker 的秘密配置中核对 `GITHUB_PAT`、`TOKEN_HASH_CHEF`、`TOKEN_HASH_BUYER`、`TOKEN_HASH_ADMIN` 和有效期/轮换安排（§1–2）。PAT 只授权目标仓的 Contents RW + Actions RW，无 Workflows；明文角色令牌不进入仓库、构建变量或截图。DeepL 为可选，不是完整餐食流程的前置服务。
+4. 由发布负责人把已核实 Worker 地址设置为上述**仓库变量**，再授权运行发布。确认 Actions 摘要的配置状态，确认真实浏览器请求送往该 Worker、CORS 放行正确 Pages origin；错误源被拒绝，无令牌 401，越权 403。仅 URL 格式通过不能勾选此项。
+5. 先在隔离环境走完真实链路：排菜/导入并保存 → 正式发布并核对 `data/build.json.commit` 与同版计划/图片 → 菜单/备料可读 → 人工确认采购并保存/重开同一清单；覆盖冲突或丢 ACK 后的核实，确认没有重复写入。buyer 可保存采购单但不能改计划/菜谱，admin 才可回退；回退应新增 data commit，确认后再次发布。记录 commit/run 与成功结果，不记录凭据。
+6. 正式切换后按授权做最小验收，确认发布进度对应真实终态，三种 QR 指向正式站点并能打开对应能力；菜单/备料同版资料可读，PWA 联网更新与离线已读资产通过。`packages/web` 已声明 `prebuild` 生成图标/QR，仍需检查**实际发布命令**确实调用并包含产物；本轮由 Q 检查，未拿到实际缺失证据前不改接线。以上缺项未关闭时，不能宣布完整可写上线。
+
+**当前缺失项（2026-09-13，调度只读盘点；本任务未重新访问远端）：** Pages 地址已知为上述正式站点，远端 main `1503074` 于 9/11 部署成功；仓库变量/secret 名单均为空，仅有 `github-pages` 环境。尚无已核实的真实 Worker、隔离远端环境或配套凭据证明。因此当前不能交付一个已验收的完整可写线上版本。主调度负责真实环境盘点和最后外部动作；配置补丁、既有本地产品验收均不替代这些事实。
+
+**本轮本地证据：** 基于已审产品 `4b1e5e1` 与文档头 `7bbfe22`，实际 Node 20.20.2；旧流程的配置回归先出现 7 失败/3 通过，修复后配置 11 项与既有接线 21 项合计 **32/32**，发布映射 **16/16**，零跳过。core/Worker 前置编译通过；空值、公开 HTTPS 测试地址、本地 HTTP 地址三种实际 Vite 临时构建通过，后两者在产物中含各自配置值。这里只执行提取的安全工作流片段和编译，没有联系测试地址；临时 Vite 编译不证明 package prebuild/QR 被调用。证据保存在本机 `/private/tmp/canteen-ci-deploy-config-*.log` 与 `/private/tmp/canteen-ci-config-build-0q0vv264/validation.json`。未执行翻译提交、推送、上传或部署，也未重复全量产品验收；独立审查结论由原任务回传，沿用此入口，不另建交付包。
 
 ---
 
@@ -38,10 +70,10 @@
 | 签发日 | |
 | 到期日 | |
 | 日历提醒（到期前 30 天） | |
-| 存放位置（Cloudflare Workers secret 名） | |
+| 存放位置（Cloudflare Workers secret 名） | `GITHUB_PAT`；实例与配置状态待确认 |
 | 权限核对（应为 Contents RW + Actions RW，**无 Workflows**） | |
 
-> secret 的具体名字以 `packages/worker` 的实现为准。ADR 只写死了三个令牌哈希 secret（`TOKEN_HASH_CHEF` / `TOKEN_HASH_BUYER` / `TOKEN_HASH_ADMIN`），**没给 PAT 的 secret 名**。#19 落地后回来把上表补全。
+> secret 名已在 `packages/worker/src/types.ts` 与 `wrangler.toml` 固定；表中的实例、日期和权限仍须由负责人按真实部署补齐，不能从模板推断为已配置。
 
 **轮换步骤（到期前，或怀疑泄露时；约 10 分钟）**
 
@@ -64,7 +96,7 @@
 **照 ADR 的事实**
 
 - 三个角色令牌 `chef` / `buyer` / `admin`，各是 32 字节随机串（base64url，43 字符），**与人无关**——不存姓名、不存邮箱、不存设备标识。
-- 令牌走 URL 的 **fragment**（`…/admin#t=<token>`），不会进服务器日志、CDN 日志或 `Referer` 头。页面加载后读进 sessionStorage，再把地址栏里的令牌抹掉。
+- 令牌走 URL 的 **fragment**（`…/#/admin/t/<token>`；参见 `packages/web/src/admin/token.ts`），不会随 HTTP 请求发给静态站点。页面加载后读进 sessionStorage，再把地址栏里的令牌抹掉。
 - worker **只存 SHA-256 哈希**（`TOKEN_HASH_*`），常数时间比较。明文只存在于发给人的那条链接里。
 - **令牌不过期**（阶段 1 有意的取舍）。安全性完全靠「链接不外传 + 泄露后马上轮换」。
 
@@ -86,7 +118,7 @@
 
 - 链接一律**当面扫码或私聊**发；不进群、不进共享文档、不进 issue / PR、不进截图。
 - 一人一条，别几个人共用同一条。
-- 采购员的 `buyer` 令牌在 v0.3 **没有任何写权限**（他复制微信文本走的是前台，根本不经过 worker），所以 buyer 链接泄露影响最小——但照样换。
+- 现行 Team 权限允许 `buyer` 保存采购清单（`POST /shopping-list/:id`），但不允许修改计划/菜谱或发布/回退；泄露会影响采购记录，必须轮换。原 v0.3「buyer 无写权限」说明已不适用。
 
 ---
 
@@ -96,7 +128,7 @@
 
 - 代码回退**不经过 worker**（ADR-0007 §7：「只回退 `data/`。代码回退走正常的 git 流程」）。
 - 做法：GitHub 上找到那个 commit → Revert → 合进 `main` → CI 重新构建部署。
-- **注意**：`.github/workflows/**` 只有 Owner 能在网页上改（GitHub App 没有 workflows 权限；先例见 #50、#57）。workflow 本身坏了，agent 修不了，必须 Terry 上手。
+- **注意**：Worker 的 PAT 无 Workflows 权限，不能用它修部署流程。流程可先在本地修复和审查，再由有相应仓库权限的发布负责人授权发布；本清单不授予外部修改权限。
 - 判断「到底换版了没有」：打开 `https://terryyyc.github.io/canteen-os/data/build.json`，看 `commit` 和 `builtAt` 变了没有。别只看页面刷没刷新。
 
 ### 3.2 数据不对（回退 `data/`）

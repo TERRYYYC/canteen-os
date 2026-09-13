@@ -38,6 +38,9 @@ jobs:
   build:
     name: validate → translate → build-data → vite build
     runs-on: ubuntu-latest
+    env:
+      # Public build-time API origin. Set in repository Variables, never Secrets.
+      VITE_WORKER_URL: ${{ vars.VITE_WORKER_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +57,32 @@ jobs:
         # Retain the step name consumed by the Worker publish progress contract.
         run: |
           set -e
+          # Validate before installation, translation commits or any publishing work.
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          import {isIP} from 'node:net';
+          const raw = process.env.VITE_WORKER_URL ?? '';
+          let summary;
+          if (raw === '') {
+            console.log('::warning::VITE_WORKER_URL is unset: read-only published content; this is not a full writable release.');
+            summary = 'Read-only build: published Menu/Prep content remains available. Team editing, saved shopping lists and publishing require a configured Worker. This is not a full writable release.';
+          } else {
+            let address;
+            try { address = new URL(raw); } catch {}
+            const host = address?.hostname ?? '';
+            const reserved = /(^|\.)(localhost|local|internal|test|invalid|example|example\.(com|net|org)|github\.io)$/.test(host);
+            const dnsName = host.includes('.') && host.split('.').every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
+            if (!/^https:\/\/[^/@?#\\\s]+\/?$/i.test(raw) || address?.protocol !== 'https:'
+                || address.username || address.password || address.pathname !== '/'
+                || address.search || address.hash || !dnsName || isIP(host) || reserved) {
+              // Never print an invalid value: it may accidentally contain a token.
+              console.error('::error::VITE_WORKER_URL must be a public HTTPS Worker origin, with no credentials, API path, query or fragment; local, example and GitHub Pages addresses are not deployment API origins.');
+              process.exit(1);
+            }
+            summary = 'Worker URL format checks passed only. Connectivity, authorization, target repository, and save/publish/rollback acceptance still require the pre-release checks in docs/field-test/week-43/ops-checklist.md.';
+          }
+          if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Web API configuration\n\n${summary}\n`);
+          NODE
           pnpm install --frozen-lockfile
           node scripts/prepare-team-image-tools.mjs
 
