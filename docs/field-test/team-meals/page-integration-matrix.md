@@ -3,10 +3,20 @@ feature_ids: [team-meals]
 topics: [acceptance, browser, client-worker, T01-T09]
 doc_kind: test-plan
 created: 2026-09-11
-status: bounded-native-complete-qr-print-and-l2-open
+status: bounded-native-and-print-complete-l2-open
 ---
 
 # 页面组合验收入口
+
+## 2026-09-13：6c0657c 打印差异原生复验通过
+
+**原 QR 纸面混入底部导航的问题已在固定打印候选关闭。** 本轮只用 Q 自建 Chrome 标签打开 [独立静态预览](http://127.0.0.1:4282/#/qr)，核对 D 已生成的 `6c0657c560754bea0123c522a5dc8ae9a8cc2216` / packages `b6231f191d605182cb302297431b00da5284a08e` 输出；未将它合入 Q，也未重建、调用 Worker、操作 4275 或 UX 标签。Q 产品工作树仍是下方 f26 原生验收源码，原发布/SW证据继承。
+
+真实页面三张 PNG 均 complete、512×512，打印按钮可用。中文优先的 Chrome 原生打印预览为 **一页三图**，备料/采购/菜单三块的中文、乌克兰语、英文及三个完整目标地址都保留；底部“备料 / 菜单 / 采购 / 菜单计划”消失，纸面也无应用顶栏、打印工具栏或更新条。截图已目视核对，未裁切/缩放原件。Chrome 默认页眉页脚仍开启；它们不是应用导航。本轮未另制造可见的 SW 更新提示，更新条隐藏规则由固定 print CSS 与本次纸面观察支持，不扩展为新 PWA 场景。加载中的首次预览也原样保留，结论取加载完成的 `03-native-print-ready.txt/.jpg`。结束时点“取消”，确认回到 4282；没有保存 PDF 或产生纸张。
+
+该原构建的二维码目标是 `https://terryyyc.github.io/canteen-os/` 下的 `#/prep`、`#/purchase`、`#/menu`，页面和纸面地址与原 index 一致；没有重生成二维码、把目标改成 4282，或访问目标站点执行操作。原 index 标注生成于 2026-09-11，本次只是固定新版页面/CSS的本地打印验证，**不代表新版已部署到现有正式站点**。
+
+Q 独立核对 D 提供的 HTML、index、三 PNG 与 print CSS 六份原构建文件哈希一致；原生纸面文本断言确认 1 页、3 图、三语和地址存在，原导航串/更新文案不存在。证据：[实际打印截图](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/print-delta-6c0657c/03-native-print-ready.jpg)、[原生纸面文本](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/print-delta-6c0657c/03-native-print-ready.txt)、[有界断言](/Users/terry/.codex/visualizations/2026/09/10/01a08d74-9915-7191-ba9f-3177c587e52a/print-delta-6c0657c/verification.json)。原输出 `/private/tmp/canteen-hifi-4275/usage-audit-20260912/finish-build-6c0657c-default`；只读 4282 受管租约到 2026-09-13 08:34:07 UTC。未重跑旧矩阵或新建审查树。仍未关闭的是获准的最终集成、真实远端 L2 条件及人工菜谱核验，不能据此宣布整体交付。
 
 ## 2026-09-13：固定 f26db15 本地原生验收完成，打印导航与远端条件未关闭
 
