@@ -182,7 +182,7 @@
 .tm-purchase .tm-status.clean,.tm-purchase .tm-status.saved-but-unpublished{border:0;background:transparent;padding:2px 0;margin:0;color:var(--muted)}
 .tm-purchase .tm-purchase-loaded{padding:10px 12px;margin:6px 0}
 .tm-purchase .tm-purchase-loaded h2{font-size:20px;margin:0;line-height:1.35}
-.tm-purchase .tm-purchase-loaded summary{min-height:44px;display:flex;align-items:center}
+.tm-purchase .tm-purchase-loaded summary{min-height:44px;display:list-item;padding:12px 0}
 .tm-purchase-metrics{gap:6px;margin:8px 0}
 .tm-purchase-metrics>div{padding:8px 10px}
 .tm-purchase-metrics small{min-height:14px;line-height:1.4}
@@ -194,8 +194,8 @@
 .tm-material-heading>p{font-size:10px;color:var(--muted)}
 .tm-purchase .tm-decisions{margin:6px 0 0}
 .tm-purchase .tm-decisions .tm-button{min-height:44px;padding:6px 3px}
-.tm-purchase .tm-material-reference>summary{min-height:44px;display:flex;align-items:center;padding:6px 0}
+.tm-purchase .tm-material-reference>summary{min-height:44px;display:list-item;padding:12px 0}
 .tm-material-reference h4{font-size:12px;margin:8px 0 4px;color:var(--ink)}
 .tm-purchase-record{font-size:11px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
-.tm-purchase-record>summary,.tm-purchase-record details>summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
+.tm-purchase-record>summary,.tm-purchase-record details>summary{min-height:44px;display:list-item;padding:12px 0;cursor:pointer}
 .tm-purchase-record .tm-list-reference{margin:4px 0}

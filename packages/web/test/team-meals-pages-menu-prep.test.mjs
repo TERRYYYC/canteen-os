@@ -238,7 +238,7 @@ test('Prep long notes have an explicit excerpt and full text while steps stay co
  for(const lang of ['zh','en','uk']){
   const stop=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking',disclosureState:state});
   const component=attr(el,'data-component-index','0')[0],note=attr(component,'data-prep-note')[0];assert(note,'long notes expose a native full-text control');
-  const summary=tag(note,'summary')[0];assert.match(summary.textContent,/全文|full note|повний текст/);assert(summary.textContent.endsWith('…'));
+  const summary=tag(note,'summary')[0];assert.match(summary.textContent,/全文|full text|повний текст/i);assert(summary.textContent.endsWith('…'));
   assert.match(note.textContent,new RegExp(notes[lang].slice(-20).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.doesNotMatch(ordinaryText(component),/CC BY 4.0|Recorded author|图片来源与许可|Image source and license|Джерело зображення й ліцензія/);
   const method=attr(el,'data-step-index','0')[0];assert(ordinaryText(method).includes(notes[lang]),'the actual method is never shortened');
@@ -246,6 +246,19 @@ test('Prep long notes have an explicit excerpt and full text while steps stay co
   const next=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking',disclosureState:state});assert.equal(attr(attr(el,'data-component-index','0')[0],'data-prep-note')[0].open,true,'explicit note expansion survives repaint');next();
  }
  assert.equal(JSON.stringify(source),before);el.remove();
+});
+test('the actual roll-cut note uses a full-text control in every recorded language, including the 45-character Chinese original',async()=>{
+ const technique=JSON.parse(await readFile(join(here,'../../../data/techniques.json'),'utf8')).find(record=>record.id==='roll-cut-chunks');
+ assert.equal(Array.from(technique.note.zh).length,45,'retain the original native-audit boundary');
+ const data=JSON.parse(JSON.stringify(fixture()));data.projection.techniques[0].note=technique.note;const source=freeze(data);
+ for(const lang of ['zh','en','uk']){
+  const el=mount(),stop=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking'}),component=attr(el,'data-component-index','0')[0],note=attr(component,'data-prep-note')[0];
+  assert(note,`${lang}: the recorded note has an explicit full-text control`);
+  const summary=tag(note,'summary')[0];assert.match(summary.textContent,/全文|full text|повний текст/i);assert(summary.textContent.endsWith('…'));
+  assert.equal(tag(note,'p')[0].textContent,technique.note[lang],'the full original is retained verbatim');
+  assert(!ordinaryText(component).includes(technique.note[lang]),'ordinary reading shows a marked excerpt');
+  note.open=true;assert(ordinaryText(note).includes(technique.note[lang]));assert.equal(attr(el,'data-step-index').length,2);stop();el.remove();
+ }
 });
 test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());

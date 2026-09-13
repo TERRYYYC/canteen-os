@@ -58,4 +58,4 @@
 /* Quiet acknowledged state; exceptional states keep their existing emphasis. */
 .tm-plan .tm-status.clean{border:0;background:transparent;padding:2px 0;margin:0;color:var(--muted)}
 .tm-plan-version{font-size:11px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
-.tm-plan-version>summary{display:flex;align-items:center;min-height:44px;cursor:pointer}
+.tm-plan-version>summary{display:list-item;min-height:44px;padding:12px 0;cursor:pointer}

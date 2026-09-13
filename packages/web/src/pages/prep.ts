@@ -500,10 +500,10 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message, " ",
     h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
   function originalNote(text: string, key: string): HTMLElement {
-    const letters=Array.from(text),limit=lang==="zh"?48:96;
+    const letters=Array.from(text),limit=lang==="zh"?32:80;
     if(letters.length<=limit)return fact(t("note"),text);
     const details=h("details",{class:"prep-original-note","data-prep-note":key},h("summary",{},
-      h("span",{class:"prep-note-label"},word(lang,"原备注 · 查看全文","Original note · View full note","Вихідна примітка · Переглянути повний текст")),
+      h("span",{class:"prep-note-label"},word(lang,"原备注 · 查看全文","Note · Full text","Примітка · Повний текст")),
       h("span",{class:"prep-note-excerpt"},`${letters.slice(0,Math.floor(limit*2/3)).join("")}…`)),h("p",{class:"prep-note-full"},text));
     details.open=options.disclosureState?.get(key)??false;
     details.addEventListener("toggle",()=>{if(live&&el.isConnected&&details.isConnected)options.disclosureState?.set(key,details.open);});
