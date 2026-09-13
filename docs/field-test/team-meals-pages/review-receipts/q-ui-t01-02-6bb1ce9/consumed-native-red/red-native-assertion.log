@@ -1,0 +1,5 @@
+{"layer": "assertion over new D actual native DOM observations", "before": "11", "after": "8", "expected": "11", "input": "2026-09-15 \u5348 \u7b2c\u4e00\u9053\u6837\u672c\u83dc"}
+Traceback (most recent call last):
+  File "/private/tmp/canteen-q-t01-browser-author/verify-preserved.py", line 8, in <module>
+    assert value(after)=='11', 'Importing another date must retain the prior unsaved eleven-serving edit'
+AssertionError: Importing another date must retain the prior unsaved eleven-serving edit

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C2a shared view-model check</title>
+<h1>C2a shared view-model check</h1>
+<p>Mock network only. This exercises the real core, shared API, view-model and editor. It does not save real data or verify product pages.</p>
+<button id="run">Run candidate and review flow</button>
+<pre id="result" role="status">Ready</pre>
+<script type="module">
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {createTeamMealsViewModel,previewTeamMealsDraft} from '../src/view-models/team-meals.ts';
+import {createEditSession} from '../src/view-models/edit-session.ts';
+import plan from '../../../test/fixtures/contracts/pending-a1/valid/menu-plan-v3.json';
+import dish1 from '../../../test/fixtures/contracts/valid/boundaries/data/dishes/first-dish.json';
+import dish2 from '../../../test/fixtures/contracts/valid/boundaries/data/dishes/second-dish.json';
+import tomato from '../../../test/fixtures/contracts/valid/boundaries/data/ingredients/tomato.json';
+import tomatoOther from '../../../test/fixtures/contracts/valid/boundaries/data/ingredients/tomato-other.json';
+import oil from '../../../test/fixtures/contracts/valid/boundaries/data/ingredients/cooking-oil.json';
+import salt from '../../../test/fixtures/contracts/valid/boundaries/data/ingredients/salt.json';
+const A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40),D='d'.repeat(40),E='e'.repeat(40);
+const at='2026-09-10T00:00:00.000Z';
+const selection=[{menuPlanRef:'team-week',date:'2026-09-14',mealType:'lunch'}];
+const inputs={menuPlans:{'team-week':plan},dishes:{'first-dish':dish1,'second-dish':dish2},ingredients:{tomato,'tomato-other':tomatoOther,'cooking-oil':oil,salt},techniques:[]};
+const assert=(value,message)=>{if(!value)throw new Error(message);};
+const json=body=>new Response(JSON.stringify(body),{headers:{'Content-Type':'application/json'}});
+const reject=(status,code)=>new Response(JSON.stringify({ok:false,errors:[{path:'',code,message:code}]}),{status,headers:{'Content-Type':'application/json'}});
+document.querySelector('#run').onclick=async()=>{
+ const out=document.querySelector('#result');out.textContent='Running';let writes=0,saved=null,storedCommit=C;
+ const next=structuredClone(inputs);next.dishes['first-dish'].components[0].qty.value=301;
+ const empty=structuredClone(inputs);empty.menuPlans['team-week'].meals=[];
+ const versions={[A]:inputs,[B]:next,[D]:empty};
+ const api=createTeamMealsApi('https://mock.invalid',{mode:'mock',token:()=> 'mock-only',fetch:async(url,init)=>{
+  const u=new URL(url),revision=u.searchParams.get('revision')??C;
+  if(init.method==='POST') {
+   const headers=new Headers(init.headers),body=JSON.parse(init.body);
+   if(!saved) {
+    if(headers.get('If-None-Match')!=='*'||headers.has('If-Match'))return reject(428,'precondition_required');
+    if(body.items.some(item=>item.decision!=='check'||'bought' in item||'previous' in item))return reject(422,'invalid_selection');
+   } else if(headers.get('If-Match')!==storedCommit||headers.has('If-None-Match'))return reject(409,'conflict');
+   writes++;saved=body;storedCommit=writes===1?C:E;
+   return json({commit:storedCommit,blobSha:storedCommit,unchanged:false,warnings:[]});
+  }
+  if(u.pathname==='/source/shopping-list/list')return json({commit:storedCommit,blobSha:storedCommit,content:saved});
+  assert(versions[revision],'a fixed version is required');
+  const data=versions[revision];
+  if(u.pathname==='/catalog')return json({commit:revision,...data,suppliers:[],translations:{machine:0,human:0,stale:0}});
+  if(u.pathname==='/source/plan/team-week')return json({commit:revision,blobSha:revision,content:data.menuPlans['team-week']});
+  throw new Error(`Unexpected mock path: ${u.pathname}`);
+ }});
+ const vm=createTeamMealsViewModel(api);
+ const editor=createEditSession({mode:()=>api.mode,authSession:()=>api.sessionKey(),
+  save:(_,body,condition)=>api.saveShoppingList('list',body,condition),read:(_,opts)=>api.getShoppingList('list',opts)});
+ try {
+  const local=previewTeamMealsDraft({inputs,selection,at});assert(!('sourceRevision' in local),'local preview has a revision');
+  const view=await vm.loadSaved({revision:A,selection,at});
+  assert(view.mode==='mock','mock mode hidden');assert(view.projection.collection.items.length===4,'candidate lost');
+  assert(view.estimate.items.every(i=>i.status==='unavailable'),'missing servings fabricated an estimate');
+  let body=vm.createList('list',view);
+  // Keep the contract regression visible: a confirmed item cannot be a first create.
+  let rejectedCreate=false;
+  try {await api.saveShoppingList('list',vm.decide(body,view,'tomato','buy',true),{ifNoneMatch:'*'});}
+  catch(error) {rejectedCreate=error.code==='invalid_selection';}
+  assert(rejectedCreate&&writes===0,'illegal first creation was accepted');
+  const context=editor.open({kind:'shopping-list',id:'list'},body);await editor.save(context);
+  assert(writes===1&&editor.getState().phase==='saved-but-unpublished',`mock conditional save failed (${editor.getState().error?.code??'unknown'})`);
+  assert(saved.items.every(item=>item.decision==='check'),'first persisted body was not all check');
+  body=vm.decide(body,view,'tomato','buy',true);editor.edit(body,context);await editor.save(context);
+  assert(writes===2&&editor.getState().phase==='saved-but-unpublished','locked manual update failed');
+  const loaded=await vm.loadList('list',{at});assert(loaded.source.commit===E&&loaded.basis.sourceRevision===A,'list commit used as basis');
+  const newer=await vm.loadSaved({revision:B,selection,at});
+  const review=await vm.reviewList(loaded.source.content,newer,{at});
+  const changed=review.result.list.items.find(i=>i.ingredientRef==='tomato');
+  assert(changed.decision==='check'&&changed.previous.bought===true,'review lost prior purchase');
+  const cancelled=await vm.loadSaved({revision:D,selection,at});
+  const removal=await vm.reviewList(loaded.source.content,cancelled,{at});
+  assert(removal.result.list.items.length===0&&removal.result.removed.length===4,'cancelled materials remain active');
+  assert(writes===2,'view-model wrote derived state');
+  out.textContent='PASS — mock only\nIllegal confirmed creation: rejected\n4 candidates; unknown servings preserved\nExplicit editor saves: 2 (all-check create, locked manual update)\nList storage E; material basis A\nChanged tomato: check, previous bought retained\nCancelled scope: 0 active, 4 removed\nNo automatic saves from view-model';
+ } catch(error) {out.textContent=`FAIL: ${error.stack??error}`;}
+ finally {editor.dispose();vm.dispose();api.dispose();}
+};
+</script>
+</html>

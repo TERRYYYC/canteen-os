@@ -1,0 +1,370 @@
+✖ fixed Q boundary input uses one catalog and one unique plan, preserves every source and original JSON (14.433958ms)
+✖ v3 unknown values stay omitted, seasoning/missing package/base are still candidates and never partial estimates (7.42075ms)
+✖ saved handles reject nested edits, copies, forged values and another reader (0.542042ms)
+✖ missing material and opaque recipes remain visible; unresolved material cannot be confirmed (0.31425ms)
+✖ empty saved plan is visible without a persistent basis; cancelled nonempty scope can yield an empty list (0.297208ms)
+✖ invalid and unreadable revisions, missing plan and denied catalog never fall back (0.319917ms)
+✖ list source commit and basis revision remain distinct; missing lists alone return null (0.288958ms)
+✖ manual decisions match their exact basis/candidates and never modify the saved inputs or original body (0.41875ms)
+✖ review reads old and next independently, uses Q expected decisions and preserves removed purchases (0.376083ms)
+✖ review presentation-only edits retain decisions and scope changes reset them (0.3285ms)
+✖ whole previous body and requests are captured before asynchronous reads (0.429667ms)
+✖ formal core estimates satisfy every independent Q numerical oracle (2.736042ms)
+✖ assets stay at the handle revision and authentication changes invalidate all handles (0.356084ms)
+✖ late reads after auth change or disposal are rejected, and disposal does not dispose the C1 API (0.485417ms)
+✖ unconfigured API cannot create saved handles, but explicit draft previews need no network (0.113875ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 0
+ℹ fail 15
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 109.508292
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-view-model.test.mjs:68:1
+✖ fixed Q boundary input uses one catalog and one unique plan, preserves every source and original JSON (14.433958ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:69:56)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.start (node:internal/test_runner/test:1191:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:81:1
+✖ v3 unknown values stay omitted, seasoning/missing package/base are still candidates and never partial estimates (7.42075ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:84:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:95:1
+✖ saved handles reject nested edits, copies, forged values and another reader (0.542042ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:96:17)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:105:1
+✖ missing material and opaque recipes remain visible; unresolved material cannot be confirmed (0.31425ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:107:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:116:1
+✖ empty saved plan is visible without a persistent basis; cancelled nonempty scope can yield an empty list (0.297208ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:118:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:128:1
+✖ invalid and unreadable revisions, missing plan and denied catalog never fall back (0.319917ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:129:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:139:1
+✖ list source commit and basis revision remain distinct; missing lists alone return null (0.288958ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:141:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:149:1
+✖ manual decisions match their exact basis/candidates and never modify the saved inputs or original body (0.41875ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:150:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:162:1
+✖ review reads old and next independently, uses Q expected decisions and preserves removed purchases (0.376083ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:164:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:177:1
+✖ review presentation-only edits retain decisions and scope changes reset them (0.3285ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:179:13)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:187:1
+✖ whole previous body and requests are captured before asynchronous reads (0.429667ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:188:50)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:198:1
+✖ formal core estimates satisfy every independent Q numerical oracle (2.736042ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:203:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:211:1
+✖ assets stay at the handle revision and authentication changes invalidate all handles (0.356084ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:212:30)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:221:1
+✖ late reads after auth change or disposal are rejected, and disposal does not dispose the C1 API (0.485417ms)
+  AssertionError [ERR_ASSERTION]: C2a factory must exist
+  + actual - expected
+
+  + 'undefined'
+  - 'function'
+
+      at setup (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:61:9)
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:223:45)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-view-model.test.mjs:230:1
+✖ unconfigured API cannot create saved handles, but explicit draft previews need no network (0.113875ms)
+  TypeError: mod.createTeamMealsViewModel is not a function
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/team-meals-view-model.test.mjs:231:46)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)

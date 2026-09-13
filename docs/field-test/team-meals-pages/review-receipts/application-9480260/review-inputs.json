@@ -1,0 +1,24 @@
+{
+  "reviewedHeadSha": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "consumedReports": [
+    {
+      "path": "/private/tmp/canteen-app-r2-review-34dd336/REVIEW.md",
+      "sha256": "39133b4eef89e2a647000d8b55dca27e0b0a1b3f336de579b98a968f4d28b38b",
+      "scope": "Original actual-main R1/R2/ACK closure; original R3 remained open"
+    },
+    {
+      "path": "/private/tmp/canteen-node20-harness-review-b1c8434/REVIEW.md",
+      "sha256": "8d4ada04b885b11b3f65b15372da8294fc4911600ca8118e7cd23e4eff06b442",
+      "scope": "Independent Node20 harness approval"
+    },
+    {
+      "path": "/private/tmp/app-main-r3-review-7f3b4e6-tW7Xg0/REVIEW.md",
+      "sha256": "44bf62e4cbde1dad6c2eb3c2f0de0533188ffb34e0a3f747f20bfbf3298fb1b7",
+      "scope": "Independent C worker-bound final reload repair approval"
+    }
+  ],
+  "productionDeltaFromPrior34dd": [
+    "packages/web/src/pwa.ts"
+  ],
+  "unchangedSourceCoverage": "All other web src, core src, worker src, web index and Vite config equal 34dd; all final production entries equal approved 7f; D two repaired tests equal b1."
+}

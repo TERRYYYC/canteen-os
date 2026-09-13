@@ -89,6 +89,10 @@ export interface PublishStep {
 export interface PublishProgress {
   ok: true;
   runId: number | null;
+  /** Overall run evidence; mapped step failure or wall-clock timeout is not completion. */
+  runCompleted: boolean;
+  /** Raw nullable conclusion of that same run; unknown values are not success. */
+  runConclusion: string | null;
   status: "queued" | "in_progress" | "success" | "failure" | "timeout" | "unmapped";
   htmlUrl: string;
   steps: PublishStep[];
@@ -209,6 +213,8 @@ export function mapProgress(run: WorkflowRun, jobs: WorkflowJob[], now: number):
   const progress: PublishProgress = {
     ok: true,
     runId: run.id,
+    runCompleted,
+    runConclusion: run.conclusion,
     status,
     htmlUrl: run.htmlUrl,
     steps,

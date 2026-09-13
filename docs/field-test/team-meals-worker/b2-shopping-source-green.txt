@@ -1,0 +1,25 @@
+✔ B2 shopping inputs come entirely from their saved source revision (14.21975ms)
+✔ B2 shopping inputs reject missing selected plan as unavailable basis (0.940667ms)
+✔ B2 shopping inputs reject malformed source data/menu-plans/team.json (0.757542ms)
+✔ B2 shopping inputs reject malformed source data/dishes/soup.json (0.364833ms)
+✔ B2 shopping inputs reject malformed source data/ingredients/salt.json (0.435042ms)
+✔ B2 shopping inputs reject malformed source data/techniques.json (0.437458ms)
+✔ B2 shopping inputs preserve unresolved refs as absent records (0.323875ms)
+✔ B2 empty v3 plan remains a real selected plan (0.23175ms)
+✔ B2 shopping source read failures remain upstream errors (0.170541ms)
+✔ B2 source supports strict ShoppingList with pinned commit (14.072125ms)
+✔ B2 source checks stored basis ancestry (1.895917ms)
+✔ B2 source checks stored previous ancestry (0.85575ms)
+✔ B2 stored ShoppingList ID must match its source path (0.417125ms)
+✔ B2 source rejects missing selected basis plan (0.55475ms)
+✔ B2 source rejects json selected basis plan (0.464834ms)
+✔ B2 source rejects format selected basis plan (0.618459ms)
+✔ B2 source rejects duplicate stored ingredient IDs (0.456959ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.329334

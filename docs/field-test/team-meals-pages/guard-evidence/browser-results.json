@@ -1,0 +1,755 @@
+{
+  "scope": "Author Chrome; actual D renderers/C registry/PWA; controlled API and SW-registration boundaries; native unload/reload",
+  "results": [
+    {
+      "boot": 2,
+      "events": [],
+      "previous": {
+        "boot": 1,
+        "events": [
+          {
+            "defaultPrevented": true,
+            "reason": "dirty",
+            "type": "probe"
+          }
+        ],
+        "nativeUnload": {
+          "defaultPrevented": false,
+          "isTrusted": true,
+          "reason": "dirty"
+        },
+        "pagehide": true,
+        "prepared": true,
+        "previous": {},
+        "safety": {
+          "reason": "dirty",
+          "records": [
+            {
+              "dirty": false,
+              "generation": 6,
+              "id": "soup",
+              "kind": "dish",
+              "operation": 4,
+              "ownerId": "auxiliary-1",
+              "phase": "idle"
+            },
+            {
+              "dirty": false,
+              "generation": 2,
+              "id": "draft-store",
+              "kind": "store",
+              "ownerId": "draft-store",
+              "phase": "idle"
+            },
+            {
+              "context": 2,
+              "dirty": true,
+              "generation": 1,
+              "id": "soup",
+              "kind": "dish",
+              "operation": 0,
+              "ownerId": "editor-1",
+              "pending": false,
+              "phase": "dirty",
+              "recovering": false
+            }
+          ],
+          "stamp": "[9,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+        },
+        "scenario": "dish-dirty",
+        "sourceHashes": {
+          "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+          "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+          "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+          "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+          "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+          "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+          "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+        },
+        "writes": 0
+      },
+      "safety": {
+        "reason": "clear",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[1,0,[],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "dish-dirty",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 0
+    },
+    {
+      "boot": 2,
+      "events": [],
+      "previous": {
+        "boot": 1,
+        "events": [
+          {
+            "defaultPrevented": true,
+            "reason": "dirty",
+            "type": "probe"
+          }
+        ],
+        "nativeUnload": {
+          "defaultPrevented": false,
+          "isTrusted": true,
+          "reason": "dirty"
+        },
+        "pagehide": true,
+        "prepared": true,
+        "previous": {},
+        "safety": {
+          "reason": "dirty",
+          "records": [
+            {
+              "dirty": true,
+              "generation": 7,
+              "id": "salt",
+              "kind": "ingredient",
+              "operation": 4,
+              "ownerId": "auxiliary-1",
+              "phase": "idle"
+            },
+            {
+              "dirty": false,
+              "generation": 2,
+              "id": "draft-store",
+              "kind": "store",
+              "ownerId": "draft-store",
+              "phase": "idle"
+            }
+          ],
+          "stamp": "[8,0,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"
+        },
+        "scenario": "ingredient-dirty",
+        "sourceHashes": {
+          "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+          "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+          "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+          "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+          "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+          "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+          "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+        },
+        "writes": 0
+      },
+      "safety": {
+        "reason": "clear",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[1,0,[],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "ingredient-dirty",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 0
+    },
+    {
+      "boot": 2,
+      "events": [],
+      "previous": {
+        "boot": 1,
+        "events": [
+          {
+            "defaultPrevented": true,
+            "reason": "dirty",
+            "type": "probe"
+          }
+        ],
+        "nativeUnload": {
+          "defaultPrevented": false,
+          "isTrusted": true,
+          "reason": "dirty"
+        },
+        "pagehide": true,
+        "prepared": true,
+        "previous": {},
+        "safety": {
+          "reason": "dirty",
+          "records": [
+            {
+              "dirty": true,
+              "generation": 3,
+              "id": "week",
+              "kind": "import",
+              "operation": 2,
+              "ownerId": "auxiliary-1",
+              "phase": "idle"
+            },
+            {
+              "dirty": false,
+              "generation": 1,
+              "id": "draft-store",
+              "kind": "store",
+              "ownerId": "draft-store",
+              "phase": "idle"
+            }
+          ],
+          "stamp": "[6,0,[[\"page:admin/plan/week/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"import\",\"id\":\"week\",\"generation\":3,\"dirty\":true,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+        },
+        "scenario": "paste-dirty",
+        "sourceHashes": {
+          "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+          "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+          "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+          "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+          "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+          "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+          "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+        },
+        "writes": 0
+      },
+      "safety": {
+        "reason": "clear",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[1,0,[],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "paste-dirty",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 0
+    },
+    {
+      "boot": 2,
+      "events": [],
+      "previous": {
+        "boot": 1,
+        "events": [
+          {
+            "defaultPrevented": false,
+            "reason": "clear",
+            "type": "probe"
+          }
+        ],
+        "nativeUnload": {
+          "defaultPrevented": false,
+          "isTrusted": true,
+          "reason": "clear"
+        },
+        "pagehide": true,
+        "prepared": true,
+        "previous": {},
+        "safety": {
+          "reason": "clear",
+          "records": [
+            {
+              "dirty": false,
+              "generation": 3,
+              "id": "draft-store",
+              "kind": "store",
+              "ownerId": "draft-store",
+              "phase": "idle"
+            }
+          ],
+          "stamp": "[11,1,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+        },
+        "scenario": "ingredient-retired",
+        "sourceHashes": {
+          "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+          "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+          "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+          "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+          "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+          "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+          "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+        },
+        "writes": 0
+      },
+      "safety": {
+        "reason": "clear",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[1,0,[],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "ingredient-retired",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 0
+    },
+    {
+      "boot": 1,
+      "dialog": "Update applicationUnfinished work from a previous session is still unverified. Keep this page open.unknown: previous-session-operationContinue editing, update later",
+      "discardButtons": 0,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "saving",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 6,
+            "id": "previous-session-operation",
+            "kind": "unknown",
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 3,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[12,1,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":6,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "ingredient-pending",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "dialog": "Update applicationUnfinished work from a previous session is still unverified. Keep this page open.unknown: previous-session-saveContinue editing, update later",
+      "discardButtons": 0,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "saving",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 4,
+            "id": "previous-session-operation",
+            "kind": "unknown",
+            "ownerId": "auxiliary-1",
+            "phase": "idle"
+          },
+          {
+            "dirty": false,
+            "generation": 3,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          },
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "previous-session-save",
+            "kind": "unknown",
+            "operation": 1,
+            "ownerId": "editor-1",
+            "pending": true,
+            "phase": "unknown"
+          }
+        ],
+        "stamp": "[11,2,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":4,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"unknown\",\"id\":\"previous-session-save\",\"generation\":0,\"dirty\":false,\"phase\":\"unknown\",\"pending\":true,\"operation\":1}]]"
+      },
+      "scenario": "dish-pending",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "dialog": "Update applicationUnfinished work from a previous session is still unverified. Keep this page open.unknown: previous-session-operationContinue editing, update later",
+      "discardButtons": 0,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "saving",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 4,
+            "id": "previous-session-operation",
+            "kind": "unknown",
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 0,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[10,1,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":4,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "scenario": "publish-pending",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "saving",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "inlinePresent": false,
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": true,
+            "generation": 11,
+            "id": "salt",
+            "kind": "ingredient",
+            "operation": 6,
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 2,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[10,0,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":11,\"dirty\":true,\"phase\":\"unknown\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "saveDisabled": true,
+      "scenario": "ack-ingredient-current",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "inlinePresent": false,
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 6,
+            "id": "previous-session-operation",
+            "kind": "unknown",
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 3,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[12,1,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":6,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "saveDisabled": false,
+      "scenario": "ack-ingredient-late",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "saving",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "inlinePresent": true,
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": true,
+            "generation": 13,
+            "id": "soup",
+            "kind": "dish",
+            "operation": 6,
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 2,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          },
+          {
+            "context": 2,
+            "dirty": true,
+            "generation": 1,
+            "id": "soup",
+            "kind": "dish",
+            "operation": 0,
+            "ownerId": "editor-1",
+            "pending": false,
+            "phase": "dirty",
+            "recovering": false
+          }
+        ],
+        "stamp": "[11,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":13,\"dirty\":true,\"phase\":\"unknown\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+      },
+      "saveDisabled": true,
+      "scenario": "ack-dish-current",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    },
+    {
+      "boot": 1,
+      "events": [
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        },
+        {
+          "defaultPrevented": true,
+          "reason": "unknown",
+          "type": "probe"
+        }
+      ],
+      "inlinePresent": false,
+      "prepared": true,
+      "previous": {},
+      "safety": {
+        "reason": "unknown",
+        "records": [
+          {
+            "dirty": false,
+            "generation": 6,
+            "id": "previous-session-operation",
+            "kind": "unknown",
+            "ownerId": "auxiliary-1",
+            "phase": "unknown"
+          },
+          {
+            "dirty": false,
+            "generation": 3,
+            "id": "draft-store",
+            "kind": "store",
+            "ownerId": "draft-store",
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[14,2,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":6,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "saveDisabled": false,
+      "scenario": "ack-dish-late",
+      "sourceHashes": {
+        "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+        "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+        "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+        "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+        "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+        "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+        "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+      },
+      "writes": 1
+    }
+  ],
+  "hints": [
+    {
+      "hints": [
+        "Packaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list."
+      ],
+      "lang": "en"
+    },
+    {
+      "hints": [
+        "包装信息影响可选的数量参考；未填写时，仍可在采购清单中人工核对这个食材。"
+      ],
+      "lang": "zh"
+    },
+    {
+      "hints": [
+        "Дані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель."
+      ],
+      "lang": "uk"
+    }
+  ]
+}

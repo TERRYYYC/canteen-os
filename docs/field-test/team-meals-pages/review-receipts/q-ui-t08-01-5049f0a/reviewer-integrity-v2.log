@@ -1,0 +1,12 @@
+{
+  "reviewedHeadSha": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "trackedPackageFilesUnchanged": 227,
+  "browserOriginals": 33,
+  "authorOriginals": 24,
+  "browserSourceFiles": 57,
+  "budgetCombinations": 44,
+  "emittedJsPerConfig": {
+    "default": 26,
+    "http": 26
+  }
+}

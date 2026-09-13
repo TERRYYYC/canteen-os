@@ -1,0 +1,105 @@
+{
+  "receiptVersion": 1,
+  "receiptCreatedAtUtc": "2026-09-11T10:45:59.555565+00:00",
+  "localReviewVerdict": "APPROVE",
+  "verdictScope": "fixed evidence and Q test infrastructure only",
+  "reviewedHeadSha": "4813ebb2cb57330554f793a60d9d7d7ea09fa405",
+  "reviewBaseSha": "842b778bd352c0dba8921584ce142d94665e5ca2",
+  "reviewSubjectRef": "task:01a08d74-9915-7191-ba9f-3177c587e52a/RC-Q-native-842-evidence",
+  "acceptedSourceRef": "docs/specs/team-meals-contract.md",
+  "acceptedRevision": "ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2",
+  "acceptedDesignRef": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-design/docs/design/reference-v3/STANDARD-DATA-AND-ACCEPTANCE.md",
+  "acceptedDesignSha256": "6aaff3f33b65aad6f6952297abae9dd2dafef379bcc0fa64066c07f5300f0352",
+  "clientMessageId": "rcq-native-842-evidence-4813ebb-20260911",
+  "reviewerIdentity": "Codex non-author local reviewer /root/v2_review",
+  "deliveryRoute": "local_cat, return to author /root only",
+  "engagement": "iterative; stop at verdict, no open review items",
+  "fiveTuple": {
+    "What": "Review Q-owned native evidence and infrastructure in 842b778bd352c0dba8921584ce142d94665e5ca2..4813ebb2cb57330554f793a60d9d7d7ea09fa405 using an isolated exact-commit archive.",
+    "Why": "Verify real main/pages -> formal C client/editor -> real B Worker -> existing FakeRepo evidence without fabricated business/Worker responses or inflated acceptance claims.",
+    "Tradeoff": "Approve evidence accuracy and Q test infrastructure only. GitHub remains an in-memory model. The reviewer independently rebuilt/tested and replayed recorded requests, without running a browser. Existing import/copy defects remain open.",
+    "Open Questions": "No new actionable P-level review findings. Q-UI-T01-02 import draft loss and Q-UI-T08-01 copy omissions remain OPEN at this reviewed cut; all later repair cuts require separate review.",
+    "Next Action": "Archive this exact scoped APPROVE. Review any subsequently accepted fix and its native retest evidence separately; do not expand this verdict to overall T01-T09, real GitHub/Cloudflare history, L2, deployment, publication or visual signoff."
+  },
+  "newActionableFindings": [],
+  "knownOpenProductDefects": [
+    {
+      "id": "Q-UI-T01-02",
+      "status": "OPEN",
+      "observed": "Unrelated import replaces unsaved 11 with saved 8; captured-DOM repro remains RED."
+    },
+    {
+      "id": "Q-UI-T08-01",
+      "status": "OPEN",
+      "observed": "Copied output omits concrete missing-information warnings visible in the source UI; actual-function repro remains RED."
+    }
+  ],
+  "independentEvidence": {
+    "archivePath": "/private/tmp/rcq-review-native-4813-qr6b7sou",
+    "archiveHeadVerified": true,
+    "archiveCleanAfterBuild": true,
+    "node": "v20.20.2",
+    "coreWorkerBuild": "exit 0",
+    "targetedTests": {
+      "referenceBoundary": 2,
+      "pageLedger": 7,
+      "clientWorker": 5,
+      "total": 14,
+      "pass": 14
+    },
+    "workerReplay": {
+      "responseCount": 52,
+      "statusHeadersAndFullResponseBodySha256": "all exact",
+      "finalFileCount": 13,
+      "allFinalFileSha256": "all exact",
+      "finalHead": "1ea68909cae0498c834aaf825a049a6e5eee4c67",
+      "nativeFetch": "disabled",
+      "result": "worker-replay-result.json"
+    },
+    "baselineEvidenceManifest": {
+      "file": "inputs/EVIDENCE-SHA256-842.json",
+      "sha256": "8efd12d68a9f1505fa516e98a6440155c49331089ff793dd699f680adfacac58",
+      "entries": 150,
+      "allMatched": true,
+      "unlistedEvidenceFiles": []
+    },
+    "olderEvidence": {
+      "commit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "pageBrowserFiles": 28,
+      "bytes": 614233,
+      "allByteIdentical": true
+    },
+    "responsiveCaptures": {
+      "mainCombinations": 36,
+      "additionalUkrainianRecipeOverlay": 1,
+      "actualImageWidths": [
+        393,
+        1440
+      ],
+      "allWidthsMatchMetrics": true,
+      "actualImageEncoding": "JPEG despite .png filename; bytes retained unchanged"
+    },
+    "productionSourcesChangedInReviewedDelta": false,
+    "frozenDataAndFixturesChangedInReviewedDelta": false,
+    "inheritedSourceIdentity": [
+      "published.ts equals 3dd9db9",
+      "pwa.ts equals 7f3b4e6",
+      "reload-safety.ts equals 7f3b4e6"
+    ],
+    "claimBoundaryPeer": "/root/v2_review/native_claim_boundaries: no new actionable P findings"
+  },
+  "limitations": [
+    "No reviewer browser/server interaction occurred. Captured-DOM assertions and Worker request replay are not a browser rerun.",
+    "Prior offline/no-SW/update claims remain bounded inheritance; this receipt adds no native coverage.",
+    "T03 Worker 200 with dangling-ref warning is distinct from producer blocking missing-dish/ingredient.",
+    "36 language/width capture combinations are not 36 end-to-end runs or full visual approval.",
+    "Original package source 842 has tree dce6d72208652c80d2aa5b40865bef4a56732226; Q test additions change the later complete packages tree.",
+    "All later shared-branch changes and copy repair candidates are excluded."
+  ],
+  "setupObservations": [
+    "The first temporary archive attempt hit an older Python extractall API without filter; extraction was completed after validating archive member paths.",
+    "An initial dimension probe assumed PNG encoding from the suffix and failed; actual files are JPEG, then Pillow confirmed all 37 actual widths. Neither setup issue is a product failure."
+  ],
+  "archiveProvenance": "This receipt serializes already completed evidence; no tests, Worker replay or browser actions were newly run for archiving. Detailed replay rows are expanded from the already verified frozen ledger, not a new output stream.",
+  "manifest": "MANIFEST-SHA256.json"
+}

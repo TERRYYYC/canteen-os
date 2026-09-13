@@ -1,0 +1,560 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 2,
+  "summary": "2/2",
+  "checks": [
+    {
+      "name": "new application JS lifetime follows exactly one user-authorized reload",
+      "pass": true,
+      "detail": {
+        "beforeBoot": 1,
+        "actualBoot": 2,
+        "caseName": "explicit-dirty-discard:import"
+      }
+    },
+    {
+      "name": "native reload remains exactly once after the update settles",
+      "pass": true,
+      "detail": {
+        "expected": 2,
+        "actual": 2
+      }
+    }
+  ],
+  "route": "#/admin/plan/raw-discard/import",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "import",
+        "id": "raw-discard",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 2
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[8,1,[[\"page:admin/plan/raw-discard/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"import\",\"id\":\"raw-discard\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中EN←Paste to importWeek starting 2026-09-07Paste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "adm-import-text",
+      "value": ""
+    },
+    {
+      "id": "adm-import-file",
+      "value": ""
+    }
+  ],
+  "nativeIntent": {
+    "caseName": "explicit-dirty-discard:import",
+    "beforeBoot": 1,
+    "beforeEvidence": {
+      "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+      "boot": 1,
+      "summary": "4/5",
+      "checks": [
+        {
+          "name": "actual Import raw is dirty before any update",
+          "pass": true
+        },
+        {
+          "name": "new generated service worker waits without reload or activation",
+          "pass": true
+        },
+        {
+          "name": "actual update requires one explicit discard decision",
+          "pass": true,
+          "detail": [
+            {
+              "kind": "import",
+              "id": "raw-discard"
+            }
+          ]
+        },
+        {
+          "name": "actual native reload completes after user consent",
+          "pass": false,
+          "caseName": "explicit-dirty-discard:import",
+          "detail": {
+            "expected": 2,
+            "actual": 1
+          }
+        },
+        {
+          "name": "actual update requires one explicit discard decision",
+          "pass": true,
+          "detail": [
+            {
+              "kind": "import",
+              "id": "raw-discard"
+            }
+          ]
+        }
+      ],
+      "route": "#/admin/plan/raw-discard/import",
+      "safety": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "home",
+            "id": "home",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 6
+          },
+          {
+            "ownerId": "auxiliary-2",
+            "kind": "import",
+            "id": "raw-discard",
+            "generation": 3,
+            "dirty": true,
+            "phase": "idle",
+            "operation": 2
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 1,
+            "dirty": false,
+            "phase": "idle"
+          }
+        ],
+        "stamp": "[19,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/raw-discard/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"import\",\"id\":\"raw-discard\",\"generation\":3,\"dirty\":true,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+      },
+      "controller": true,
+      "pending": [],
+      "ledger": [
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": false
+        },
+        {
+          "method": "GET",
+          "path": "/changes",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-37",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        },
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": true
+        },
+        {
+          "method": "GET",
+          "path": "/canteen/data/build.json",
+          "probe": true
+        }
+      ],
+      "viewText": "Back officeLanguageUA中ENNew version availableReload←Paste to importWeek starting 2026-09-07Paste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the libraryunapplied raw must require consent✕line 1 · unapplied raw must require consentCouldn't read this line · 没认出日期，写「周一」或「10.05」unapplied raw must require consentNothing to importCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.import: raw-discardContinue editing, update laterDiscard listed local changes and update",
+      "inputs": [
+        {
+          "id": "adm-import-text",
+          "value": "unapplied raw must require consent"
+        },
+        {
+          "id": "adm-import-file",
+          "value": ""
+        }
+      ],
+      "nativeIntent": {
+        "caseName": "explicit-dirty-discard:import",
+        "beforeBoot": 1,
+        "beforeEvidence": {
+          "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+          "boot": 1,
+          "summary": "3/3",
+          "checks": [
+            {
+              "name": "actual Import raw is dirty before any update",
+              "pass": true
+            },
+            {
+              "name": "new generated service worker waits without reload or activation",
+              "pass": true
+            },
+            {
+              "name": "actual update requires one explicit discard decision",
+              "pass": true,
+              "detail": [
+                {
+                  "kind": "import",
+                  "id": "raw-discard"
+                }
+              ]
+            }
+          ],
+          "route": "#/admin/plan/raw-discard/import",
+          "safety": {
+            "reason": "dirty",
+            "records": [
+              {
+                "ownerId": "auxiliary-1",
+                "kind": "home",
+                "id": "home",
+                "generation": 6,
+                "dirty": false,
+                "phase": "idle",
+                "operation": 6
+              },
+              {
+                "ownerId": "auxiliary-2",
+                "kind": "import",
+                "id": "raw-discard",
+                "generation": 3,
+                "dirty": true,
+                "phase": "idle",
+                "operation": 2
+              },
+              {
+                "ownerId": "draft-store",
+                "kind": "store",
+                "id": "draft-store",
+                "generation": 1,
+                "dirty": false,
+                "phase": "idle"
+              }
+            ],
+            "stamp": "[19,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/raw-discard/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"import\",\"id\":\"raw-discard\",\"generation\":3,\"dirty\":true,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+          },
+          "controller": true,
+          "pending": [],
+          "ledger": [
+            {
+              "method": "GET",
+              "path": "/canteen/data/build.json",
+              "probe": false
+            },
+            {
+              "method": "GET",
+              "path": "/changes",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/catalog",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/source/plan/week-37",
+              "revision": null,
+              "ifMatch": null,
+              "ifNoneMatch": null
+            },
+            {
+              "method": "GET",
+              "path": "/canteen/data/build.json",
+              "probe": true
+            }
+          ],
+          "viewText": "Back officeLanguageUA中ENNew version availableReload←Paste to importWeek starting 2026-09-07Paste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the libraryunapplied raw must require consent✕line 1 · unapplied raw must require consentCouldn't read this line · 没认出日期，写「周一」或「10.05」unapplied raw must require consentNothing to importCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.import: raw-discardContinue editing, update laterDiscard listed local changes and update",
+          "inputs": [
+            {
+              "id": "adm-import-text",
+              "value": "unapplied raw must require consent"
+            },
+            {
+              "id": "adm-import-file",
+              "value": ""
+            }
+          ]
+        },
+        "expectedAfterBoot": 2,
+        "at": 1789098468304
+      },
+      "nativeReloadFailure": true
+    },
+    "expectedAfterBoot": 2,
+    "at": 1789098624946
+  },
+  "nativeReloadStable": true,
+  "priorBootEvidence": {
+    "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+    "boot": 1,
+    "summary": "4/5",
+    "checks": [
+      {
+        "name": "actual Import raw is dirty before any update",
+        "pass": true
+      },
+      {
+        "name": "new generated service worker waits without reload or activation",
+        "pass": true
+      },
+      {
+        "name": "actual update requires one explicit discard decision",
+        "pass": true,
+        "detail": [
+          {
+            "kind": "import",
+            "id": "raw-discard"
+          }
+        ]
+      },
+      {
+        "name": "actual native reload completes after user consent",
+        "pass": false,
+        "caseName": "explicit-dirty-discard:import",
+        "detail": {
+          "expected": 2,
+          "actual": 1
+        }
+      },
+      {
+        "name": "actual update requires one explicit discard decision",
+        "pass": true,
+        "detail": [
+          {
+            "kind": "import",
+            "id": "raw-discard"
+          }
+        ]
+      }
+    ],
+    "route": "#/admin/plan/raw-discard/import",
+    "safety": {
+      "reason": "dirty",
+      "records": [
+        {
+          "ownerId": "auxiliary-1",
+          "kind": "home",
+          "id": "home",
+          "generation": 6,
+          "dirty": false,
+          "phase": "idle",
+          "operation": 6
+        },
+        {
+          "ownerId": "auxiliary-2",
+          "kind": "import",
+          "id": "raw-discard",
+          "generation": 3,
+          "dirty": true,
+          "phase": "idle",
+          "operation": 2
+        },
+        {
+          "ownerId": "draft-store",
+          "kind": "store",
+          "id": "draft-store",
+          "generation": 1,
+          "dirty": false,
+          "phase": "idle"
+        }
+      ],
+      "stamp": "[19,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/raw-discard/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"import\",\"id\":\"raw-discard\",\"generation\":3,\"dirty\":true,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+    },
+    "controller": true,
+    "pending": [],
+    "ledger": [
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": false
+      },
+      {
+        "method": "GET",
+        "path": "/changes",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/source/plan/week-37",
+        "revision": null,
+        "ifMatch": null,
+        "ifNoneMatch": null
+      },
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": true
+      },
+      {
+        "method": "GET",
+        "path": "/canteen/data/build.json",
+        "probe": true
+      }
+    ],
+    "viewText": "Back officeLanguageUA中ENNew version availableReload←Paste to importWeek starting 2026-09-07Paste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the libraryunapplied raw must require consent✕line 1 · unapplied raw must require consentCouldn't read this line · 没认出日期，写「周一」或「10.05」unapplied raw must require consentNothing to importCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.import: raw-discardContinue editing, update laterDiscard listed local changes and update",
+    "inputs": [
+      {
+        "id": "adm-import-text",
+        "value": "unapplied raw must require consent"
+      },
+      {
+        "id": "adm-import-file",
+        "value": ""
+      }
+    ],
+    "nativeIntent": {
+      "caseName": "explicit-dirty-discard:import",
+      "beforeBoot": 1,
+      "beforeEvidence": {
+        "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+        "boot": 1,
+        "summary": "3/3",
+        "checks": [
+          {
+            "name": "actual Import raw is dirty before any update",
+            "pass": true
+          },
+          {
+            "name": "new generated service worker waits without reload or activation",
+            "pass": true
+          },
+          {
+            "name": "actual update requires one explicit discard decision",
+            "pass": true,
+            "detail": [
+              {
+                "kind": "import",
+                "id": "raw-discard"
+              }
+            ]
+          }
+        ],
+        "route": "#/admin/plan/raw-discard/import",
+        "safety": {
+          "reason": "dirty",
+          "records": [
+            {
+              "ownerId": "auxiliary-1",
+              "kind": "home",
+              "id": "home",
+              "generation": 6,
+              "dirty": false,
+              "phase": "idle",
+              "operation": 6
+            },
+            {
+              "ownerId": "auxiliary-2",
+              "kind": "import",
+              "id": "raw-discard",
+              "generation": 3,
+              "dirty": true,
+              "phase": "idle",
+              "operation": 2
+            },
+            {
+              "ownerId": "draft-store",
+              "kind": "store",
+              "id": "draft-store",
+              "generation": 1,
+              "dirty": false,
+              "phase": "idle"
+            }
+          ],
+          "stamp": "[19,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/raw-discard/import\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"import\",\"id\":\"raw-discard\",\"generation\":3,\"dirty\":true,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"}]]"
+        },
+        "controller": true,
+        "pending": [],
+        "ledger": [
+          {
+            "method": "GET",
+            "path": "/canteen/data/build.json",
+            "probe": false
+          },
+          {
+            "method": "GET",
+            "path": "/changes",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/catalog",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/source/plan/week-37",
+            "revision": null,
+            "ifMatch": null,
+            "ifNoneMatch": null
+          },
+          {
+            "method": "GET",
+            "path": "/canteen/data/build.json",
+            "probe": true
+          }
+        ],
+        "viewText": "Back officeLanguageUA中ENNew version availableReload←Paste to importWeek starting 2026-09-07Paste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the libraryunapplied raw must require consent✕line 1 · unapplied raw must require consentCouldn't read this line · 没认出日期，写「周一」或「10.05」unapplied raw must require consentNothing to importCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnlineUpdate applicationThere are unsaved changes. Updating will discard the local changes listed below.import: raw-discardContinue editing, update laterDiscard listed local changes and update",
+        "inputs": [
+          {
+            "id": "adm-import-text",
+            "value": "unapplied raw must require consent"
+          },
+          {
+            "id": "adm-import-file",
+            "value": ""
+          }
+        ]
+      },
+      "expectedAfterBoot": 2,
+      "at": 1789098468304
+    },
+    "nativeReloadFailure": true
+  }
+}

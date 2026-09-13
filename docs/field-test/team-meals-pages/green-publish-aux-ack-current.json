@@ -1,0 +1,41 @@
+{
+  "result": "PASS",
+  "case": "real HttpAdminApi current-auth ACK",
+  "sourceHash": "a6e847b9b356ab62eea3a0ad1b32efc175b3f2119142a7d4a1a760f6bca93697",
+  "response": {
+    "commit": [
+      "cccccccccccccccccccccccccccccccccccccccc"
+    ],
+    "restoredFrom": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "changedFiles": 2
+  },
+  "expected": "unknown",
+  "actual": "unknown",
+  "publishEnabled": false,
+  "rollbackSuccessVisible": false,
+  "snapshot": {
+    "reason": "unknown",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "publish",
+        "id": "publish",
+        "generation": 4,
+        "dirty": true,
+        "phase": "unknown",
+        "operation": 4
+      }
+    ],
+    "stamp": "[7,0,[[\"page:admin/publish\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"publish\",\"id\":\"publish\",\"generation\":4,\"dirty\":true,\"phase\":\"unknown\",\"operation\":4}]]"
+  },
+  "calls": [
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/rollback/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "method": "POST"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+- banner:
+  - button "打开目录"
+  - heading "备料" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - heading "固定样本菜单" [level=1]
+  - status: 已发布原配方
+  - generic "ab3f5846"
+  - generic "发布资料提示"
+  - navigation "日期":
+    - link "2026-09-14":
+      - /url: "#/prep/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/prep/2026-09-15"
+  - navigation "餐次":
+    - link "午餐":
+      - /url: "#/prep/2026-09-14/lunch"
+  - navigation "菜品":
+    - button "第一道样本菜"
+    - button "第二道样本菜" [pressed]
+  - button "全部时机" [pressed]
+  - button "当天早上"
+  - button "出餐前"
+  - button "前一天"
+  - heading "原配方与备料资料" [level=1]
+  - 'generic "资料版本: ab3f5846"'
+  - generic "需要核对的资料 · 1"
+  - heading "第二道样本菜" [level=2]:
+    - link "第二道样本菜":
+      - /url: "#/menu/2026-09-14/second-dish"
+  - paragraph: 2026-09-14 · 午餐
+  - paragraph: "计划份数: 未录"
+  - paragraph: "ZH: 第二道样本菜"
+  - paragraph: "EN: Second test dish"
+  - paragraph: "UK: Друга тестова страва"
+  - paragraph: "原配方基准份数: 未录"
+  - paragraph: "记录状态: draft"
+  - paragraph
+  - figure:
+    - status: 图片未录
+  - heading "全部已录食材与调料" [level=3]
+  - paragraph: 原配方用量，未缩放
+  - heading "番茄" [level=4]:
+    - link "番茄":
+      - /url: "#/prep/2026-09-14/lunch/tomato"
+  - paragraph: "ZH: 番茄"
+  - paragraph: "EN: Tomato"
+  - paragraph: "UK: Помідор"
+  - paragraph: 用量未录
+  - paragraph: "材料角色: 主料"
+  - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: 未录"':
+    - status
+    - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+    - generic: "data/ingredients/pattern.png: 未录"
+  - paragraph: "包装规格: 1 kg"
+  - paragraph: "供应商: Fixture supplier"
+  - heading "盐" [level=4]:
+    - link "盐":
+      - /url: "#/prep/2026-09-14/lunch/salt"
+  - paragraph: "ZH: 盐"
+  - paragraph: "EN: Salt"
+  - paragraph: "UK: Сіль"
+  - paragraph: 适量
+  - paragraph: "材料角色: 调料"
+  - paragraph: "包装规格: 未录"
+  - paragraph: "供应商: 未录"
+  - heading "番茄" [level=4]:
+    - link "番茄":
+      - /url: "#/prep/2026-09-14/lunch/tomato-other"
+  - paragraph: "ZH: 番茄"
+  - paragraph: "EN: Tomato"
+  - paragraph: "UK: Помідор"
+  - paragraph: 200 g
+  - paragraph: "材料角色: 主料"
+  - paragraph: "包装规格: 未录"
+  - paragraph: "供应商: 未录"
+  - heading "完整已录步骤" [level=3]
+  - status: 未录
+  - paragraph: "配方来源: manual"
+  - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

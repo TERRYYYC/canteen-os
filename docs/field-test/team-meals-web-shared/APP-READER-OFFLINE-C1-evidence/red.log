@@ -1,0 +1,206 @@
+TAP version 13
+# Subtest: first SW claim: verified fresh A recovers an unopened projection from installed A offline
+not ok 1 - first SW claim: verified fresh A recovers an unopened projection from installed A offline
+  ---
+  duration_ms: 9.463292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:38:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428098-1-1'
+  code: 'unavailable'
+  name: 'PublishedDataError'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:41:13)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: external B takeover: old A handles expire and unopened projection is installed B only
+not ok 2 - external B takeover: old A handles expire and unopened projection is installed B only
+  ---
+  duration_ms: 1.185458
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:47:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428099-2-1'
+  code: 'unavailable'
+  name: 'PublishedDataError'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:50:13)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: already controlled offline new document still reads ordinary installed manifest and projection
+ok 3 - already controlled offline new document still reads ordinary installed manifest and projection
+  ---
+  duration_ms: 0.582375
+  ...
+# Subtest: missing and wrong-revision copies fail instead of returning current or an empty plan
+not ok 4 - missing and wrong-revision copies fail instead of returning current or an empty plan
+  ---
+  duration_ms: 1.264083
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:61:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      Comparison {
+    +   code: 'unavailable',
+    -   code: 'revision_mismatch',
+        sourceRevision: '2edadb3362dda8677eb1c454508063a6846d4cc1',
+        stage: 'projection'
+      }
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'revision_mismatch'
+    stage: 'projection'
+    sourceRevision: '2edadb3362dda8677eb1c454508063a6846d4cc1'
+  actual:
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428100-4-1'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async waitForActual (node:assert:533:5)
+    async Function.rejects (node:assert:654:25)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:64:3)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:64:3)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ordinary same-revision response still passes all version, shape and asset-binding validation
+not ok 5 - ordinary same-revision response still passes all version, shape and asset-binding validation
+  ---
+  duration_ms: 0.616875
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:68:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      Comparison {
+    +   code: 'unavailable',
+    -   code: 'unsupported_version',
+        sourceRevision: '5f610a9494a962e4db6f0dbc1fcaef95c7b316e0',
+        stage: 'projection'
+      }
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    code: 'unsupported_version'
+    stage: 'projection'
+    sourceRevision: '5f610a9494a962e4db6f0dbc1fcaef95c7b316e0'
+  actual:
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428102-5-1'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async waitForActual (node:assert:533:5)
+    async Function.rejects (node:assert:654:25)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:73:3)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:73:3)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+ok 6 - tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+  ---
+  duration_ms: 1.939166
+  ...
+# Subtest: failed fresh manifest and offline probes cannot adopt the installed older publication
+ok 7 - failed fresh manifest and offline probes cannot adopt the installed older publication
+  ---
+  duration_ms: 0.304375
+  ...
+# Subtest: probe, clone and foreign-reader handles never authorize ordinary-path recovery
+not ok 8 - probe, clone and foreign-reader handles never authorize ordinary-path recovery
+  ---
+  duration_ms: 0.436708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:93:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428105-13-1'
+  code: 'unavailable'
+  name: 'PublishedDataError'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:97:58)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: clear during tagged failure prevents any obsolete ordinary-path request
+ok 9 - clear during tagged failure prevents any obsolete ordinary-path request
+  ---
+  duration_ms: 0.264833
+  ...
+# Subtest: late ordinary A success or failure cannot change B or remove its request cache
+not ok 10 - late ordinary A success or failure cannot change B or remove its request cache
+  ---
+  duration_ms: 0.30025
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:105:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the original failure must reach the ordinary candidate path
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:110:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: concurrent readers share the recovered validated plan and still reject unseen image bytes
+not ok 11 - concurrent readers share the recovered validated plan and still reject unseen image bytes
+  ---
+  duration_ms: 0.22275
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:118:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428106-17-1'
+  code: 'unavailable'
+  name: 'PublishedDataError'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async Promise.all (index 0)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:120:14)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: tagged projection body timeout can recover while generation remains current
+not ok 12 - tagged projection body timeout can recover while generation remains current
+  ---
+  duration_ms: 16.766334
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:124:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed: https://static.example.invalid/canteen/data/team-meals/week-41.json?__publication=1789103428106-18-1'
+  code: 'unavailable'
+  name: 'PublishedDataError'
+  stack: |-
+    withRevision (file:///private/tmp/published-offline-h18OQH/reader.mjs:96:71)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/published-offline.test.mjs:127:21)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: legacy sheets lack a revision identity and do not gain an unverified recovery path
+ok 13 - legacy sheets lack a revision identity and do not gain an unverified recovery path
+  ---
+  duration_ms: 0.438125
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 5
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 896.528625

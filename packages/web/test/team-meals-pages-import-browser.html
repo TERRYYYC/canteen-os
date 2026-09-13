@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>导入页 · 本地验证</title>
+<style>body>aside{display:flex;flex-wrap:wrap;gap:10px;padding:16px;background:#fff8e8;color:#292519;border-bottom:2px solid #98794d}body>aside p{flex-basis:100%;margin:0}main{max-width:1100px;margin:auto;padding:16px}#result,#draft,#calls{display:block;white-space:pre-wrap;overflow-wrap:anywhere;margin:16px}button,select{min-height:40px}</style></head><body>
+<aside><strong>导入页验证 · MOCK ONLY · 未保存</strong><label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label><button id="reset">重置本地输入</button><button id="run">运行导入页验证</button><label><input id="hold" type="checkbox">暂停读取已存计划</label><button id="release">释放读取</button><button id="away">离开 / 返回</button><p>真实页面、core 解析器、C1 与共享草稿 store。网络仅提供明确本地示意资料；导入只交接未保存草稿，任何 POST 都会失败。</p></aside>
+<output id="result">尚未运行</output><main id="app"></main><details open><summary>共享 store 中的未保存草稿</summary><pre id="draft">null</pre></details><details><summary>本地读取记录，无凭据</summary><pre id="calls"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {render as renderImport} from '../src/pages/admin/import.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {bindDraftStore} from '../src/admin/store.ts';
+const $=s=>document.querySelector(s),revision='a'.repeat(40),id='week-38',calls=[];
+const catalog={commit:revision,dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道',en:'Another dish',uk:'Інша страва'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+const saved={schemaVersion:'3',name:{zh:'本地示意完整计划'},margin:1.17,meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'soup',plannedServings:8,serviceWindow:'12:00-13:00'},{date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19}]};
+let api,drafts,pending=null,away=false,epoch=0;
+function connect(){api?.dispose();api=createTeamMealsApi('https://explicit-import-mock.invalid',{mode:'mock',token:()=>'local-fixture-only',fetch:async(url,init)=>{
+ const path=new URL(url).pathname;calls.push({method:init.method,path});$('#calls').textContent=JSON.stringify(calls,null,2);if(init.method!=='GET')throw new Error('Import fixture forbids writes');
+ if(path==='/catalog')return Response.json(catalog);
+ if(path===`/source/plan/${id}`){if($('#hold').checked)await new Promise(resolve=>pending=resolve);return Response.json({content:saved,commit:revision,blobSha:'mock-saved-plan'});}throw new Error('Unexpected fixture read');
+}});drafts=bindDraftStore(api);}
+function showDraft(){$('#draft').textContent=JSON.stringify(drafts.getDraftPlan(id),null,2);}
+async function paint(){const ticket=++epoch,outlet=document.createElement('section');$('#app').replaceChildren(outlet);document.documentElement.lang=$('#lang').value;if(away){outlet.textContent='已离开 / Page detached';return;}await renderImport(outlet,{lang:$('#lang').value,route:'admin',rest:id,planId:id,data:{},t:key=>key},id,api);if(ticket===epoch)showDraft();}
+function release(){const fn=pending;pending=null;$('#hold').checked=false;fn?.();}
+async function reset(){release();away=false;calls.length=0;connect();history.replaceState(null,'',`${location.pathname}${location.search}#/admin/plan/${id}/import`);await paint();$('#result').textContent='本地样本已重置；未保存';}
+$('#lang').onchange=()=>void paint();$('#reset').onclick=()=>void reset();$('#release').onclick=release;$('#away').onclick=()=>{away=!away;void paint();};
+window.addEventListener('hashchange',()=>{showDraft();$('#result').textContent='页面已请求跳转计划编辑；下方展示共享 store 中的未保存草稿。此验证入口仍保留导入页便于检查。';});
+const pause=()=>new Promise(r=>setTimeout(r,25));async function until(fn,msg){for(let i=0;i<100;i++){if(fn())return;await pause();}throw new Error(msg);}
+function assert(ok,msg){if(!ok)throw new Error(msg);}function type(selector,value){const el=$(selector);assert(el,selector);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));}
+function parse(text){type('#adm-import-text',text);$('.adm-import-parse').click();}
+$('#run').onclick=async()=>{const output=$('#result');$('#run').disabled=true;try{
+ $('#lang').value='zh';await reset();parse('周一午 原汤');assert($('.adm-import-servings').value==='','missing count must stay blank');$('.adm-import-submit').click();await until(()=>!!drafts.getDraftPlan(id),'initial draft');
+ let draft=drafts.getDraftPlan(id);assert(draft.schemaVersion==='3'&&draft.meals[0].plannedServings===8,'unknown text must preserve existing true count');assert(draft.meals[1].plannedServings===19&&draft.margin===1.17,'whole original plan preserved');
+ await paint();$('.adm-notice-action').click();assert(drafts.getDraftPlan(id)===null,'real shared undo');
+ $('.adm-import-clear-servings').click();$('#lang').value='uk';await paint();assert($('.adm-import-servings').value==='','explicit clear survives language');$('.adm-import-submit').click();await until(()=>!!drafts.getDraftPlan(id),'clear draft');
+ draft=drafts.getDraftPlan(id);assert(!Object.hasOwn(draft.meals[0],'plannedServings')&&draft.meals[0].serviceWindow==='12:00-13:00','explicit clear removes only count');showDraft();
+ await reset();parse('周一午 原汤 8');type('.adm-import-servings','1.5');assert($('.adm-import-servings').getAttribute('aria-invalid')==='true'&&$('.adm-import-submit').disabled,'fractional preview blocks import');type('.adm-import-servings','6');assert(!$('.adm-import-submit').disabled,'corrected integer accepted');
+ $('#hold').checked=true;$('.adm-import-submit').click();await until(()=>!!pending,'held source read');type('.adm-import-servings','7');release();await pause();assert(drafts.getDraftPlan(id)===null,'late source read must not import old preview');$('.adm-import-submit').click();await until(()=>!!drafts.getDraftPlan(id),'current preview import');assert(drafts.getDraftPlan(id).meals[0].plannedServings===7,'newest preview imported');assert(calls.every(x=>x.method==='GET'),'no remote write');showDraft();output.textContent='PASS · actual import page + core + C1 + shared draft store; explicit local mock only. Browser import is unsaved, not deployed evidence.';
+ }catch(e){output.textContent=`FAIL · ${e.message}`;}finally{$('#run').disabled=false;}};
+const params=new URLSearchParams(location.search);if(['zh','en','uk'].includes(params.get('lang')))$('#lang').value=params.get('lang');await reset();
+</script></body></html>

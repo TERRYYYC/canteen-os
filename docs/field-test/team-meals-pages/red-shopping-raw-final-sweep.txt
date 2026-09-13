@@ -1,0 +1,257 @@
+✖ raw list ID, plan IDs and selections have stable dirty generations across language and route return (4.25175ms)
+✖ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (15.787959ms)
+✖ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (3.370083ms)
+✖ initialization is registered before async and original auth settlement cannot clear the next auth read (2.850833ms)
+✖ held initialization stays guarded through language even when the real API coalesces identical GETs (2.486375ms)
+✖ create consumes only its captured inputs and routes to captured ID while later raw survives (4.440291ms)
+✖ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (3.6455ms)
+✖ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (8.419709ms)
+✖ unconfigured and malformed routes finish read-only coverage without fake transport (2.302667ms)
+✖ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (4.203834ms)
+✖ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (6.27475ms)
+✖ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (5.246584ms)
+✖ two distinct simultaneous initialization reads remain protected until both original tickets finish (3.577833ms)
+✖ late input events from the prior language/auth cannot change the active raw owner (2.12075ms)
+✖ an old discard proposal is invalidated by another raw edit through the real reload coordinator (2.130666ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 0
+ℹ fail 15
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121.971125
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:56:1
+✖ raw list ID, plan IDs and selections have stable dirty generations across language and route return (4.25175ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:57:58)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:59:1
+✖ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (15.787959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:60:182)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:62:1
+✖ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (3.370083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:63:271)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:65:1
+✖ initialization is registered before async and original auth settlement cannot clear the next auth read (2.850833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:66:140)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:68:1
+✖ held initialization stays guarded through language even when the real API coalesces identical GETs (2.486375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:69:173)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:71:1
+✖ create consumes only its captured inputs and routes to captured ID while later raw survives (4.440291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '#/purchase/later-shop'
+  - '#/purchase/created-shop'
+                ^
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:72:245)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '#/purchase/later-shop',
+    expected: '#/purchase/created-shop',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:74:1
+✖ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (3.6455ms)
+  TypeError: f.render.readAuxiliary is not a function
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:75:154)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:77:1
+✖ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (8.419709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:78:585)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:80:1
+✖ unconfigured and malformed routes finish read-only coverage without fake transport (2.302667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:81:72)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:84:1
+✖ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (4.203834ms)
+  TypeError: f.render.readAuxiliary is not a function
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:85:99)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:87:1
+✖ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (6.27475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:88:191)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:90:1
+✖ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (5.246584ms)
+  TypeError: f.render.readAuxiliary is not a function
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:91:334)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:93:1
+✖ two distinct simultaneous initialization reads remain protected until both original tickets finish (3.577833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:94:372)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:96:1
+✖ late input events from the prior language/auth cannot change the active raw owner (2.12075ms)
+  TypeError: f.render.readAuxiliary is not a function
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:97:182)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:99:1
+✖ an old discard proposal is invalidated by another raw edit through the real reload coordinator (2.130666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'blocked'
+  - 'confirm-discard'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:100:277)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'blocked',
+    expected: 'confirm-discard',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

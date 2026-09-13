@@ -1,0 +1,105 @@
+TAP version 13
+# Subtest: first SW claim: verified fresh A recovers an unopened projection from installed A offline
+ok 1 - first SW claim: verified fresh A recovers an unopened projection from installed A offline
+  ---
+  duration_ms: 10.110459
+  ...
+# Subtest: external B takeover: old A handles expire and unopened projection is installed B only
+ok 2 - external B takeover: old A handles expire and unopened projection is installed B only
+  ---
+  duration_ms: 1.193542
+  ...
+# Subtest: already controlled offline new document still reads ordinary installed manifest and projection
+ok 3 - already controlled offline new document still reads ordinary installed manifest and projection
+  ---
+  duration_ms: 0.58125
+  ...
+# Subtest: missing and wrong-revision copies fail instead of returning current or an empty plan
+ok 4 - missing and wrong-revision copies fail instead of returning current or an empty plan
+  ---
+  duration_ms: 1.547917
+  ...
+# Subtest: ordinary same-revision response still passes all version, shape and asset-binding validation
+ok 5 - ordinary same-revision response still passes all version, shape and asset-binding validation
+  ---
+  duration_ms: 1.377917
+  ...
+# Subtest: tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+ok 6 - tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+  ---
+  duration_ms: 1.553833
+  ...
+# Subtest: failed fresh manifest and offline probes cannot adopt the installed older publication
+ok 7 - failed fresh manifest and offline probes cannot adopt the installed older publication
+  ---
+  duration_ms: 0.221084
+  ...
+# Subtest: probe, clone and foreign-reader handles never authorize ordinary-path recovery
+ok 8 - probe, clone and foreign-reader handles never authorize ordinary-path recovery
+  ---
+  duration_ms: 0.583041
+  ...
+# Subtest: clear during tagged failure prevents any obsolete ordinary-path request
+ok 9 - clear during tagged failure prevents any obsolete ordinary-path request
+  ---
+  duration_ms: 0.237917
+  ...
+# Subtest: late ordinary A success or failure cannot change B or remove its request cache
+ok 10 - late ordinary A success or failure cannot change B or remove its request cache
+  ---
+  duration_ms: 1.023875
+  ...
+# Subtest: concurrent readers share the recovered validated plan and still reject unseen image bytes
+ok 11 - concurrent readers share the recovered validated plan and still reject unseen image bytes
+  ---
+  duration_ms: 0.38225
+  ...
+# Subtest: tagged projection body timeout can recover while generation remains current
+ok 12 - tagged projection body timeout can recover while generation remains current
+  ---
+  duration_ms: 17.289125
+  ...
+# Subtest: legacy sheets lack a revision identity and do not gain an unverified recovery path
+ok 13 - legacy sheets lack a revision identity and do not gain an unverified recovery path
+  ---
+  duration_ms: 0.329084
+  ...
+# Subtest: independent: fetch AbortError permits exactly one fully validated ordinary attempt
+ok 14 - independent: fetch AbortError permits exactly one fully validated ordinary attempt
+  ---
+  duration_ms: 0.635416
+  ...
+# Subtest: independent: errored JSON bodies with HTTP status do not broaden transport-only retry
+ok 15 - independent: errored JSON bodies with HTTP status do not broaden transport-only retry
+  ---
+  duration_ms: 0.419584
+  ...
+# Subtest: independent: failure of the ordinary candidate stops at two attempts and does not poison retry
+ok 16 - independent: failure of the ordinary candidate stops at two attempts and does not poison retry
+  ---
+  duration_ms: 0.411541
+  ...
+# Subtest: independent: ordinary refusal or invalid payload cannot trigger a third request
+ok 17 - independent: ordinary refusal or invalid payload cannot trigger a third request
+  ---
+  duration_ms: 0.411417
+  ...
+# Subtest: independent: clear triggered by deadline abort prevents obsolete recovery
+ok 18 - independent: clear triggered by deadline abort prevents obsolete recovery
+  ---
+  duration_ms: 12.987375
+  ...
+# Subtest: independent: timed-out tagged body cannot overwrite successful recovery when it later completes
+ok 19 - independent: timed-out tagged body cannot overwrite successful recovery when it later completes
+  ---
+  duration_ms: 14.087417
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 930.001458

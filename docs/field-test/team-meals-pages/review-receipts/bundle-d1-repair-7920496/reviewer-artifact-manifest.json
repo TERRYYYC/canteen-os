@@ -1,0 +1,382 @@
+[
+  {
+    "path": "COMMANDS.md",
+    "bytes": 3708,
+    "sha256": "296c9b1181ca457d528221cf27ff0a7f0bb18f7652ddea8d2c19b1deb582e464"
+  },
+  {
+    "path": "REVIEW.md",
+    "bytes": 12425,
+    "sha256": "7b8569c4c1eadda000c663879c2163b7e0cec663ce941bd49be85a2cf95a78ed"
+  },
+  {
+    "path": "build-default/bundle-attribution-final.json",
+    "bytes": 19377,
+    "sha256": "12c25d8e762511646543c25cee3579e9fee022e049ea3bab60d1e054944219bf"
+  },
+  {
+    "path": "build-http/bundle-attribution-final.json",
+    "bytes": 19377,
+    "sha256": "bffd1357ff28e82a76ca30816351900c3b2583d629c4b832ce80848e37750a9c"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/README.md",
+    "bytes": 4399,
+    "sha256": "6dc0c892283c7f6b9edaf979ee2a12f2cd6446e41fa2fdd47a31760b89edab80"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/application-d1.ts",
+    "bytes": 22586,
+    "sha256": "adde7d5ff0a37543b8069a085ac3f7e21d6eb91c9d080f0c857847cf4c5e885a"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/author-module-graph.json",
+    "bytes": 11655,
+    "sha256": "1c6c6245486eee7eacddd05328767a635d11deb5ac0bd6cca2d33b505e0d3f41"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/build-734e295.log",
+    "bytes": 3702,
+    "sha256": "4a19a63ca05eace30d7a9d34a4a4b5d1c51bec49eb91777842a9fe50c9b0cb37"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/build-fixed.mjs",
+    "bytes": 3554,
+    "sha256": "9994b592de275c68e188b318164bb23343d238a03ca70f9a0a54081cecc3c590"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/dish-away.json",
+    "bytes": 6946,
+    "sha256": "160a7a8d892ddfc8a344845825c108fc90c42e55c26bce0289631931a3fb8f7e"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/dish-before.json",
+    "bytes": 7139,
+    "sha256": "46c531276bec747772a80eb579280fc1552b8a5fc23e7cedad598b9ca7b91dee"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/dish-late.json",
+    "bytes": 8361,
+    "sha256": "0cd97cb0464d25ef7a44f61ce0c4e1f32f3efeaf82d72d069f1a4df0d9da5eec"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/ingredient-away.json",
+    "bytes": 7552,
+    "sha256": "b06d61fa5130059e1b7db23f1d082c7d02bb7ef0d5535e0d7af37ab1eaf1acc6"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/ingredient-before.json",
+    "bytes": 7289,
+    "sha256": "de63a1ebc379a8fef64141a149f5aa6abb3f79cc1c1081665799229b5b61ebbe"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/ingredient-late.json",
+    "bytes": 8969,
+    "sha256": "38e24940ef2236c97fcdbbc6b13ed29659a2a23e9f34f82c62dc612cc1f092cb"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/inline-language-completed.json",
+    "bytes": 10329,
+    "sha256": "a69bc83b1f59bc2a131714a65f6fe33281319ef8dd451caa877afd1f274297fa"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/inline-language-held.json",
+    "bytes": 12064,
+    "sha256": "b39fd4dc1de54ca1b7c3897036359a3e3569f6840db58c90413dc187735cfc29"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/manifest.json",
+    "bytes": 4749,
+    "sha256": "01a1583803f1e2a8b8a2263ad319f7cab30cb9f539845a4b9ebcc64d733194d4"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/serve-gated-dist.mjs",
+    "bytes": 2941,
+    "sha256": "92c315ff999bf1232dda5137d4c957a7712d1da54ce4dd17c9a3af5b77db3741"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/source-integrity.json",
+    "bytes": 9876,
+    "sha256": "9c0bf809c861fea9776e3dde0162f13857b85933b64b3b0c75e824eae828b00a"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/dish/transport-requests.json",
+    "bytes": 14725,
+    "sha256": "c434a27b454aa3d20c5f85414c09f15c1bdd7851bfa0f47cfbd31d0becf4569d"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/dish/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/ingredient/transport-requests.json",
+    "bytes": 14900,
+    "sha256": "0c377a228a1a4873c7dc382abc7495b291188c513e541d44e501ac113a3eacaa"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/ingredient/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/inline-language/transport-requests.json",
+    "bytes": 13312,
+    "sha256": "c566effd3e620d7e8bf75935259c21b79c6c8fec0e9b7c7e395b47f7838ae82b"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-browser/transport/inline-language/transport-state.json",
+    "bytes": 59,
+    "sha256": "bd8efb8ee11cc6fa80556868db966f723931db12009124497c625446df56a5be"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/README.md",
+    "bytes": 8114,
+    "sha256": "f97a965c24c497d65786ba9530a6d88935add252679169d451570c7656d51268"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/core.log",
+    "bytes": 61,
+    "sha256": "57afcdc56c63310692c4beae37f1c8d85dce9c1bfe9563c483db55e74754861a"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/data.log",
+    "bytes": 561,
+    "sha256": "8e1c8ec51e6ead6f2d063a49c436efccf7c51420f35d07875272333be2232504"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/default-build.log",
+    "bytes": 5918,
+    "sha256": "2e9383217039fe8b090c66d9ef66cb0dc929670772b296a58be08cd7a76460a8"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/default-graph.json",
+    "bytes": 21123,
+    "sha256": "1f99cc7e49fa386ab859a671ac155ad8d02fb7ddec3ab48590d9cddb8babf228"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/default-totals.log",
+    "bytes": 5751,
+    "sha256": "1937a3c789e529771dbfc435d48a9f4c73487c59a42a467a92c2291106a99672"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/default.json",
+    "bytes": 5750,
+    "sha256": "19c0756cd97f380701cc90b6e497ccce6749475e2a030e2c938ac2d7abc0176b"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/first-green.log",
+    "bytes": 8577,
+    "sha256": "992ea22cd2c541dd933fa7a8062b3062b1d9297ac55f621af60543c7605f315c"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/full-web-node20.log",
+    "bytes": 109869,
+    "sha256": "330c94db802f03c1e2dd8dda7e7650ce3e900376c1fa6f8035e7949463df9c2e"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/http-build.log",
+    "bytes": 5795,
+    "sha256": "6fc4deb8e742b23a35bf4a82290a6208304637da3a781fa038aaeea134c10d0c"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/http-graph.json",
+    "bytes": 21123,
+    "sha256": "34faaf9d9121fba2099d351f61c36b7a27ccb446b8075974fd4c4b172b11a11b"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/http-totals.log",
+    "bytes": 5751,
+    "sha256": "c5e9f8016dcd3c7600ee942a6c9c875f48a8cfb3201de08b1114b365fd9a9a80"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/http.json",
+    "bytes": 5750,
+    "sha256": "06f8038252e37ba969bfbdce0267333fd4e3f7458fee14856776131def4986e3"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/manifest.json",
+    "bytes": 2818,
+    "sha256": "d76d76ed3b9a7b3dcc005a2be9744dc60b188e04b3c845a2b569097286591006"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/original-two-red.log",
+    "bytes": 6624,
+    "sha256": "fc3e9cce129de304cc03c5777aa5b5803a3519f470afb097d27b328d73a7b6fc"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/prebuild.log",
+    "bytes": 734,
+    "sha256": "f0ecda938702a5ba713deb59fe7bcd68af673bb4f05a89da07cdce214c7e1445"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/preload-validation.json",
+    "bytes": 8536,
+    "sha256": "d9ae8f6cdc26021d227d98e21bfd1641207df472006b6898f07c371a2c80ae23"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/runtime.json",
+    "bytes": 1903,
+    "sha256": "ae6f5aebed87e21763218f02261a0fc8acd073fa3c9469e6674b9a241752625b"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/sweep-red-corrected.log",
+    "bytes": 17838,
+    "sha256": "9bd014e326e00d0dc2728f99d2cb41a05b3c79c499464e9bbe1a1db053e369cd"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/sweep-red.log",
+    "bytes": 17852,
+    "sha256": "d2d15030fc61ff6fd20dfb5d3f61edb0931651102f1d5cf4f61ebf836b677be1"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/target-final.log",
+    "bytes": 26367,
+    "sha256": "070394af03d662ac1af7c9cbb9f7a223427c02fd312b833eec53872ba60db389"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/target-green.log",
+    "bytes": 26354,
+    "sha256": "0761391bd96ac1d1037a5b45f0a509b2268966f86e12af1caf16b2259318b932"
+  },
+  {
+    "path": "docs/field-test/team-meals-pages/bundle-d1-route-fix/type-node20.log",
+    "bytes": 50,
+    "sha256": "5899b853f6e406eb3aec20876bfdd39b3feb9b7fb59a457ac5a4dca980143350"
+  },
+  {
+    "path": "packages/web/test/reviewer-d1-owner.test.mjs",
+    "bytes": 6465,
+    "sha256": "259d993c13ba394810f597fcee2c3721d31886e5a0ca21678f6e7c829990643d"
+  },
+  {
+    "path": "packages/web/test/reviewer-d1-repair-boundaries.test.mjs",
+    "bytes": 4977,
+    "sha256": "d8ef9c0bbbefd4b76a08e8a1896aa5c8ca09905bcbea4c36c34c7261fc4ee8c8"
+  },
+  {
+    "path": "reviewer-assertion-continuity.json",
+    "bytes": 3445,
+    "sha256": "dd958d5b05f7f3dcfb9e3169cc89afee4e0720814a0795c2d169d7ea52c7392c"
+  },
+  {
+    "path": "reviewer-assertions.log",
+    "bytes": 3445,
+    "sha256": "dd958d5b05f7f3dcfb9e3169cc89afee4e0720814a0795c2d169d7ea52c7392c"
+  },
+  {
+    "path": "reviewer-assertions.mjs",
+    "bytes": 1897,
+    "sha256": "bc7279e9b61acb2f27c660afa67c80575d81390f5f29af5a833b66af42e5705d"
+  },
+  {
+    "path": "reviewer-boundaries-initial.mjs",
+    "bytes": 4972,
+    "sha256": "c7ed16ad4a4076e43a0cdeea99df8bfca6f01b38f8c9574168baf9cc3a46c044"
+  },
+  {
+    "path": "reviewer-budget-default.json",
+    "bytes": 21604,
+    "sha256": "93a6bd3d869b47774827048667dbb01059157aec9dbd5f3f3534dfdbfc2f2ba4"
+  },
+  {
+    "path": "reviewer-budget-default.log",
+    "bytes": 964,
+    "sha256": "095eefe07c2e22afd1d390960b289057e23ee6bd40d8cc1655dcab8714fee79e"
+  },
+  {
+    "path": "reviewer-budget-http.json",
+    "bytes": 21604,
+    "sha256": "692a33d83dcf16858553a2426748fa9bc095d91066f4424f2b542fd7af06dde5"
+  },
+  {
+    "path": "reviewer-budget-http.log",
+    "bytes": 964,
+    "sha256": "87bb0b5916ae7235f4e736359f4a23ece5d562ab7e3a35c3e00e06dbd6e1b0cd"
+  },
+  {
+    "path": "reviewer-build-default.log",
+    "bytes": 3868,
+    "sha256": "7761f346b3bc9c6edef99fd2b19131735e7e6b021cc3144bebe97936f359e157"
+  },
+  {
+    "path": "reviewer-build-http.log",
+    "bytes": 3745,
+    "sha256": "d289bc1f2c5dfb0bc7d7d1bbed87ac9afdfb99351bb73da9726930185abd1baa"
+  },
+  {
+    "path": "reviewer-core-node20.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "reviewer-data.log",
+    "bytes": 526,
+    "sha256": "16bba59b0592899eb3900f4a083f92243015c0e2c84c5c6d09a80f7d4b009ac3"
+  },
+  {
+    "path": "reviewer-emitted-sha256.json",
+    "bytes": 8567,
+    "sha256": "81c233514642041ce08248d7dee47035cb768f41f01be6fb6fedd37771f5c8ba"
+  },
+  {
+    "path": "reviewer-full-node20.log",
+    "bytes": 109860,
+    "sha256": "25600576b8bf590ecc8e6e725155ce4cf0ef368d1c3de204a0c8bbd696bf37eb"
+  },
+  {
+    "path": "reviewer-graph.mjs",
+    "bytes": 4662,
+    "sha256": "82e9d5bae539f164eecf512a62284e8075dd1cb9f5e1e7593aa4357e25665706"
+  },
+  {
+    "path": "reviewer-integrity.json",
+    "bytes": 1277,
+    "sha256": "f3da3039871e3eb3707cfbb98d6c1a2986c2a89b692914612bbe28ca09daa959"
+  },
+  {
+    "path": "reviewer-integrity.log",
+    "bytes": 1277,
+    "sha256": "f3da3039871e3eb3707cfbb98d6c1a2986c2a89b692914612bbe28ca09daa959"
+  },
+  {
+    "path": "reviewer-integrity.py",
+    "bytes": 2845,
+    "sha256": "0e949be86cbce30b4d75f127b5010512ad5bfe6722a8e10ab67b8d41aae5ccb1"
+  },
+  {
+    "path": "reviewer-native-custody.json",
+    "bytes": 4360,
+    "sha256": "7c8a1d48bc1cee2a1cdc2e3a718f31851ed3f149cbe3106007991232fbfcec6f"
+  },
+  {
+    "path": "reviewer-new-boundaries-corrected-node20.log",
+    "bytes": 1147,
+    "sha256": "d568feec2976158ba0ce92954e13a1bf741c089215ddf3653b3a7afdd206b3e9"
+  },
+  {
+    "path": "reviewer-new-boundaries-node20.log",
+    "bytes": 1828,
+    "sha256": "5207ba90da23c28e53ddc077853abb57a9c7dbe5be84b510c6c62fd2a9765760"
+  },
+  {
+    "path": "reviewer-original-sweep-node20.log",
+    "bytes": 1973,
+    "sha256": "280ba35223f3878282ea84b7b7fbbb723437df688daa092fdc383a516564badf"
+  },
+  {
+    "path": "reviewer-prebuild.log",
+    "bytes": 734,
+    "sha256": "f0ecda938702a5ba713deb59fe7bcd68af673bb4f05a89da07cdce214c7e1445"
+  },
+  {
+    "path": "reviewer-runtime.json",
+    "bytes": 1087,
+    "sha256": "b6d21ebbee262a7acb5e09403d17c379e474725a1208981681f2ba5920550da5"
+  },
+  {
+    "path": "reviewer-type-node20.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

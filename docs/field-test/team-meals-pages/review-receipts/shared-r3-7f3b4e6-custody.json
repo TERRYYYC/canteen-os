@@ -1,0 +1,9 @@
+{
+  "source": "/private/tmp/app-main-r3-review-7f3b4e6-tW7Xg0/REVIEW.md",
+  "copy": "docs/field-test/team-meals-pages/review-receipts/shared-r3-7f3b4e6.md",
+  "sha256": "44bf62e4cbde1dad6c2eb3c2f0de0533188ffb34e0a3f747f20bfbf3298fb1b7",
+  "reviewedHeadSha": "7f3b4e65c03b4329ffd5b72ad4846937830f6d9c",
+  "verdict": "APPROVE bounded R3 increment",
+  "dispatchReleased": true,
+  "scope": "Original report byte copy only; full original native/log evidence remains in the original locations and C forthcoming custody docs. Not full application, CI, performance or L2 approval."
+}

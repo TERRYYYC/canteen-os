@@ -1,0 +1,835 @@
+TAP version 13
+# Subtest: formal team publication has team navigation and its real protected plan link (zh)
+ok 1 - formal team publication has team navigation and its real protected plan link (zh)
+  ---
+  duration_ms: 172.050292
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (zh)
+ok 2 - empty and failed publication do not invent or retain an editable target (zh)
+  ---
+  duration_ms: 28.918833
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (zh)
+ok 3 - legacy keeps reader meaning and opens only the listed plan (zh)
+  ---
+  duration_ms: 71.079125
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (en)
+ok 4 - formal team publication has team navigation and its real protected plan link (en)
+  ---
+  duration_ms: 16.631375
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (en)
+ok 5 - empty and failed publication do not invent or retain an editable target (en)
+  ---
+  duration_ms: 13.855416
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (en)
+ok 6 - legacy keeps reader meaning and opens only the listed plan (en)
+  ---
+  duration_ms: 69.662583
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (uk)
+ok 7 - formal team publication has team navigation and its real protected plan link (uk)
+  ---
+  duration_ms: 12.192834
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (uk)
+ok 8 - empty and failed publication do not invent or retain an editable target (uk)
+  ---
+  duration_ms: 15.619125
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (uk)
+ok 9 - legacy keeps reader meaning and opens only the listed plan (uk)
+  ---
+  duration_ms: 78.880833
+  ...
+# Subtest: open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+ok 10 - open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+  ---
+  duration_ms: 87.702834
+  ...
+# Subtest: navigation publication refresh leaves the existing editor outlet and pending save untouched
+ok 11 - navigation publication refresh leaves the existing editor outlet and pending save untouched
+  ---
+  duration_ms: 15.635542
+  ...
+# Subtest: core navigation remains visible, uses verified plan, and preserves current route after refresh
+ok 12 - core navigation remains visible, uses verified plan, and preserves current route after refresh
+  ---
+  duration_ms: 15.297958
+  ...
+# Subtest: details distinguish unknown quantity from recorded to-taste and preserve original units
+ok 13 - details distinguish unknown quantity from recorded to-taste and preserve original units
+  ---
+  duration_ms: 4.718125
+  ...
+# Subtest: reference links reject executable and protocol-relative URLs
+ok 14 - reference links reject executable and protocol-relative URLs
+  ---
+  duration_ms: 0.635
+  ...
+# Subtest: unknown quantity stays unknown; raw quantity units are never scaled or normalized
+ok 15 - unknown quantity stays unknown; raw quantity units are never scaled or normalized
+  ---
+  duration_ms: 1.781166
+  ...
+# Subtest: row selection respects projection scope and retains multiple dishes and repeated dish occurrences
+ok 16 - row selection respects projection scope and retains multiple dishes and repeated dish occurrences
+  ---
+  duration_ms: 1.045625
+  ...
+# Subtest: invalid revision and mutable source cannot be labelled fixed-source content
+ok 17 - invalid revision and mutable source cannot be labelled fixed-source content
+  ---
+  duration_ms: 0.402334
+  ...
+# Subtest: prep exposes all original components, steps, three names, truth labels and safe source links
+ok 18 - prep exposes all original components, steps, three names, truth labels and safe source links
+  ---
+  duration_ms: 33.013542
+  ...
+# Subtest: same-version image bytes use exact source pointers and object URLs are revoked on disposal
+ok 19 - same-version image bytes use exact source pointers and object URLs are revoked on disposal
+  ---
+  duration_ms: 10.788041
+  ...
+# Subtest: wrong-version or late assets never substitute current URLs into an old or repainted view
+ok 20 - wrong-version or late assets never substitute current URLs into an old or repainted view
+  ---
+  duration_ms: 3.817458
+  ...
+# Subtest: menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe
+ok 21 - menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe
+  ---
+  duration_ms: 3.358834
+  ...
+# Subtest: an unresolved plan is shown as missing source, not silently represented as an empty menu
+ok 22 - an unresolved plan is shown as missing source, not silently represented as an empty menu
+  ---
+  duration_ms: 0.36525
+  ...
+# Subtest: technique images resolve by explicit ID, independently of filtered projection positions
+ok 23 - technique images resolve by explicit ID, independently of filtered projection positions
+  ---
+  duration_ms: 7.042
+  ...
+# Subtest: recipe details show localized issue reasons only for the selected original row
+ok 24 - recipe details show localized issue reasons only for the selected original row
+  ---
+  duration_ms: 2.831375
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by menuPlanRef
+ok 25 - prep: empty selection excludes unrelated missing records by menuPlanRef
+  ---
+  duration_ms: 0.749208
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by date
+ok 26 - prep: empty selection excludes unrelated missing records by date
+  ---
+  duration_ms: 0.305292
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by mealType
+ok 27 - prep: empty selection excludes unrelated missing records by mealType
+  ---
+  duration_ms: 3.213292
+  ...
+# Subtest: prep: empty selection excludes unrelated missing records by mealIndex
+ok 28 - prep: empty selection excludes unrelated missing records by mealIndex
+  ---
+  duration_ms: 0.362542
+  ...
+# Subtest: prep: selected missing plan remains unavailable in all languages, including broad selection
+ok 29 - prep: selected missing plan remains unavailable in all languages, including broad selection
+  ---
+  duration_ms: 1.18325
+  ...
+# Subtest: prep: missing recipe and unrecorded components stay visible on their original row
+ok 30 - prep: missing recipe and unrecorded components stay visible on their original row
+  ---
+  duration_ms: 7.677917
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by menuPlanRef
+ok 31 - menu: empty selection excludes unrelated missing records by menuPlanRef
+  ---
+  duration_ms: 0.585417
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by date
+ok 32 - menu: empty selection excludes unrelated missing records by date
+  ---
+  duration_ms: 0.424542
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by mealType
+ok 33 - menu: empty selection excludes unrelated missing records by mealType
+  ---
+  duration_ms: 0.191625
+  ...
+# Subtest: menu: empty selection excludes unrelated missing records by mealIndex
+ok 34 - menu: empty selection excludes unrelated missing records by mealIndex
+  ---
+  duration_ms: 4.460625
+  ...
+# Subtest: menu: selected missing plan remains unavailable in all languages, including broad selection
+ok 35 - menu: selected missing plan remains unavailable in all languages, including broad selection
+  ---
+  duration_ms: 1.694375
+  ...
+# Subtest: menu: missing recipe and unrecorded components stay visible on their original row
+ok 36 - menu: missing recipe and unrecorded components stay visible on their original row
+  ---
+  duration_ms: 0.426125
+  ...
+# Subtest: real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+ok 37 - real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+  ---
+  duration_ms: 285.176542
+  ...
+# Subtest: deliberately omitted local count is retained when another meal is imported
+ok 38 - deliberately omitted local count is retained when another meal is imported
+  ---
+  duration_ms: 130.457584
+  ...
+# Subtest: local added/deleted rows and whole-plan metadata survive a new import
+ok 39 - local added/deleted rows and whole-plan metadata survive a new import
+  ---
+  duration_ms: 165.96075
+  ...
+# Subtest: sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+ok 40 - sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+  ---
+  duration_ms: 113.393125
+  ...
+# Subtest: A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+ok 41 - A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+  ---
+  duration_ms: 112.648292
+  ...
+# Subtest: import edits the original saving document; its late ACK cannot consume the later merged draft
+ok 42 - import edits the original saving document; its late ACK cannot consume the later merged draft
+  ---
+  duration_ms: 240.637125
+  ...
+# Subtest: lost: import changes only local draft and preserves original unresolved/conflict save state
+ok 43 - lost: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 172.428125
+  ...
+# Subtest: conflict: import changes only local draft and preserves original unresolved/conflict save state
+ok 44 - conflict: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 241.357541
+  ...
+# Subtest: an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+ok 45 - an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+  ---
+  duration_ms: 102.496333
+  ...
+# Subtest: omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 46 - omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 204.781125
+  ...
+# Subtest: specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 47 - specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 225.907166
+  ...
+# Subtest: clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 48 - clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 192.203958
+  ...
+# Subtest: cancelling Import leaves the current Plan draft and raw Import input untouched
+ok 49 - cancelling Import leaves the current Plan draft and raw Import input untouched
+  ---
+  duration_ms: 205.498667
+  ...
+# Subtest: omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 50 - omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 191.27825
+  ...
+# Subtest: specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 51 - specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 218.264125
+  ...
+# Subtest: clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 52 - clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 121.653083
+  ...
+# Subtest: a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+ok 53 - a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+  ---
+  duration_ms: 187.022083
+  ...
+# Subtest: a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+ok 54 - a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+  ---
+  duration_ms: 378.966958
+  ...
+# Subtest: route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 55 - route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 317.733666
+  ...
+# Subtest: language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 56 - language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 285.513042
+  ...
+# Subtest: input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 57 - input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 305.066292
+  ...
+# Subtest: route: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 58 - route: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 13.895625
+  ...
+# Subtest: language: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 59 - language: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 185.49475
+  ...
+# Subtest: input: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 60 - input: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 189.457292
+  ...
+# Subtest: auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 61 - auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 39.518667
+  ...
+# Subtest: failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 62 - failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 126.6055
+  ...
+# Subtest: unknown save recovery verifies its original request and leaves the later imported draft dirty
+ok 63 - unknown save recovery verifies its original request and leaves the later imported draft dirty
+  ---
+  duration_ms: 278.646917
+  ...
+# Subtest: repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+ok 64 - repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+  ---
+  duration_ms: 310.20425
+  ...
+# Subtest: same ID through a different real API instance cannot read or edit the first API draft
+ok 65 - same ID through a different real API instance cannot read or edit the first API draft
+  ---
+  duration_ms: 189.535167
+  ...
+# Subtest: a C1-refused edit rolls back the page raw remap and leaves the document intact
+ok 66 - a C1-refused edit rolls back the page raw remap and leaves the document intact
+  ---
+  duration_ms: 21.734917
+  ...
+# Subtest: deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+ok 67 - deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+  ---
+  duration_ms: 143.906125
+  ...
+# Subtest: raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+ok 68 - raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+  ---
+  duration_ms: 102.273084
+  ...
+# Subtest: unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+ok 69 - unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+  ---
+  duration_ms: 69.127333
+  ...
+# Subtest: removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+ok 70 - removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+  ---
+  duration_ms: 53.9505
+  ...
+# Subtest: unrelated later row removal never consumes an earlier invalid raw value
+ok 71 - unrelated later row removal never consumes an earlier invalid raw value
+  ---
+  duration_ms: 42.865
+  ...
+# Subtest: stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+ok 72 - stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+  ---
+  duration_ms: 64.642125
+  ...
+# Subtest: saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+ok 73 - saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+  ---
+  duration_ms: 63.002042
+  ...
+# Subtest: acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+ok 74 - acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+  ---
+  duration_ms: 85.775875
+  ...
+# Subtest: Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+ok 75 - Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+  ---
+  duration_ms: 28.1945
+  ...
+# Subtest: clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+ok 76 - clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+  ---
+  duration_ms: 29.822375
+  ...
+# Subtest: registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+ok 77 - registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+  ---
+  duration_ms: 57.967458
+  ...
+# Subtest: initial Source and catalog reads each register before awaiting and finish their original coverage
+ok 78 - initial Source and catalog reads each register before awaiting and finish their original coverage
+  ---
+  duration_ms: 76.71225
+  ...
+# Subtest: old initialization result closes only old scope while B same-page read remains protected
+ok 79 - old initialization result closes only old scope while B same-page read remains protected
+  ---
+  duration_ms: 41.407458
+  ...
+# Subtest: a known Source error releases its read and page coverage without clearing existing raw input
+ok 80 - a known Source error releases its read and page coverage without clearing existing raw input
+  ---
+  duration_ms: 62.865167
+  ...
+# Subtest: compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing
+ok 81 - compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing
+  ---
+  duration_ms: 32.377333
+  ...
+# Subtest: controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page
+ok 82 - controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page
+  ---
+  duration_ms: 58.740542
+  ...
+# Subtest: same-revision thumbnails survive a language rebind without overwriting raw counts or duplicating HTTP reads
+ok 83 - same-revision thumbnails survive a language rebind without overwriting raw counts or duplicating HTTP reads
+  ---
+  duration_ms: 64.89525
+  ...
+# Subtest: unavailable: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+ok 84 - unavailable: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+  ---
+  duration_ms: 93.83575
+  ...
+# Subtest: wrong-revision: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+ok 85 - wrong-revision: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+  ---
+  duration_ms: 52.579875
+  ...
+# Subtest: selecting another day moves a clean Add default to that day before directly adding a dish
+ok 86 - selecting another day moves a clean Add default to that day before directly adding a dish
+  ---
+  duration_ms: 100.656584
+  ...
+# Subtest: selecting another day preserves pending Add inputs and visibly identifies their destination
+ok 87 - selecting another day preserves pending Add inputs and visibly identifies their destination
+  ---
+  duration_ms: 31.120875
+  ...
+# Subtest: retired-auth image completion settles its own ticket while the new identity image read stays busy
+ok 88 - retired-auth image completion settles its own ticket while the new identity image read stays busy
+  ---
+  duration_ms: 191.7975
+  ...
+# Subtest: optional preview module wait keeps raw edits and settles its original page after departure
+ok 89 - optional preview module wait keeps raw edits and settles its original page after departure
+  ---
+  duration_ms: 105.275458
+  ...
+# Subtest: optional preview module failure releases only its read and keeps Save available for existing edits
+ok 90 - optional preview module failure releases only its read and keeps Save available for existing edits
+  ---
+  duration_ms: 86.995542
+  ...
+# Subtest: menu public entry reads approved team output and exposes original recipe via existing route
+ok 91 - menu public entry reads approved team output and exposes original recipe via existing route
+  ---
+  duration_ms: 24.404917
+  ...
+# Subtest: menu distinguishes empty manifest, empty plan, missing file and invalid target
+ok 92 - menu distinguishes empty manifest, empty plan, missing file and invalid target
+  ---
+  duration_ms: 3.171416
+  ...
+# Subtest: menu late A read cannot overwrite B in reused outlet
+ok 93 - menu late A read cannot overwrite B in reused outlet
+  ---
+  duration_ms: 24.189333
+  ...
+# Subtest: menu legacy remains an explicit branch
+ok 94 - menu legacy remains an explicit branch
+  ---
+  duration_ms: 1.411875
+  ...
+# Subtest: prep public entry reads approved team output and exposes original recipe via existing route
+ok 95 - prep public entry reads approved team output and exposes original recipe via existing route
+  ---
+  duration_ms: 4.427791
+  ...
+# Subtest: prep distinguishes empty manifest, empty plan, missing file and invalid target
+ok 96 - prep distinguishes empty manifest, empty plan, missing file and invalid target
+  ---
+  duration_ms: 3.163
+  ...
+# Subtest: prep late A read cannot overwrite B in reused outlet
+ok 97 - prep late A read cannot overwrite B in reused outlet
+  ---
+  duration_ms: 22.539416
+  ...
+# Subtest: prep legacy remains an explicit branch
+ok 98 - prep legacy remains an explicit branch
+  ---
+  duration_ms: 0.546333
+  ...
+# Subtest: prep published ingredient and technique images use original bytes; external and missing assets remain distinct
+ok 99 - prep published ingredient and technique images use original bytes; external and missing assets remain distinct
+  ---
+  duration_ms: 72.638625
+  ...
+# Subtest: absent optional image is visibly not recorded, distinct from a failed original image read
+ok 100 - absent optional image is visibly not recorded, distinct from a failed original image read
+  ---
+  duration_ms: 1.8655
+  ...
+# Subtest: menu clicking a repeated dish retains the exact original row across its existing deep link and language
+ok 101 - menu clicking a repeated dish retains the exact original row across its existing deep link and language
+  ---
+  duration_ms: 4.036458
+  ...
+# Subtest: prep dish selection survives language, ingredient deep link and date return without losing duplicate rows
+ok 102 - prep dish selection survives language, ingredient deep link and date return without losing duplicate rows
+  ---
+  duration_ms: 5.793917
+  ...
+# Subtest: fresh prep ingredient deep link resolves a unique ingredient in the second dish
+ok 103 - fresh prep ingredient deep link resolves a unique ingredient in the second dish
+  ---
+  duration_ms: 1.985
+  ...
+# Subtest: menu second-dish ingredient link carries its actual source row into prep for a shared ingredient
+ok 104 - menu second-dish ingredient link carries its actual source row into prep for a shared ingredient
+  ---
+  duration_ms: 4.173375
+  ...
+# Subtest: fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources
+ok 105 - fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources
+  ---
+  duration_ms: 1.553375
+  ...
+# Subtest: late original image bytes cannot attach after a new publication replaces the public outlet
+ok 106 - late original image bytes cannot attach after a new publication replaces the public outlet
+  ---
+  duration_ms: 44.619958
+  ...
+# Subtest: Menu presents compact dates, a recipe row with its original image, and disclosure for the full recorded summary
+ok 107 - Menu presents compact dates, a recipe row with its original image, and disclosure for the full recorded summary
+  ---
+  duration_ms: 22.239875
+  ...
+# Subtest: Menu recipe has separate accessible ingredients and steps views while retaining every original source link
+ok 108 - Menu recipe has separate accessible ingredients and steps views while retaining every original source link
+  ---
+  duration_ms: 6.357083
+  ...
+# Subtest: Menu distinguishes external original images from unavailable pinned bytes without fetching current URLs
+ok 109 - Menu distinguishes external original images from unavailable pinned bytes without fetching current URLs
+  ---
+  duration_ms: 44.780792
+  ...
+# Subtest: late Menu thumbnail bytes cannot attach after publication B replaces A in the same outlet
+ok 110 - late Menu thumbnail bytes cannot attach after publication B replaces A in the same outlet
+  ---
+  duration_ms: 44.2695
+  ...
+# Subtest: empty original description and steps are explicitly marked in their own Menu tabs
+ok 111 - empty original description and steps are explicitly marked in their own Menu tabs
+  ---
+  duration_ms: 4.512333
+  ...
+# Subtest: copy explicitly includes all current decisions without promoting old bought references
+ok 112 - copy explicitly includes all current decisions without promoting old bought references
+  ---
+  duration_ms: 0.9175
+  ...
+# Subtest: copy preserves raw unresolved reference and meal scope in each language
+ok 113 - copy preserves raw unresolved reference and meal scope in each language
+  ---
+  duration_ms: 0.533333
+  ...
+# Subtest: zh: real core export groups four current decisions and distinguishes same-name IDs
+ok 114 - zh: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 93.576792
+  ...
+# Subtest: zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 115 - zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 4.069917
+  ...
+# Subtest: zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 116 - zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 5.84275
+  ...
+# Subtest: zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 117 - zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.399916
+  ...
+# Subtest: en: real core export groups four current decisions and distinguishes same-name IDs
+ok 118 - en: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.890625
+  ...
+# Subtest: en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 119 - en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 6.05875
+  ...
+# Subtest: en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 120 - en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 5.632458
+  ...
+# Subtest: en: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 121 - en: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.97325
+  ...
+# Subtest: uk: real core export groups four current decisions and distinguishes same-name IDs
+ok 122 - uk: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.89475
+  ...
+# Subtest: uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+ok 123 - uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 3.755542
+  ...
+# Subtest: uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 124 - uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 1.208584
+  ...
+# Subtest: uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 125 - uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.817042
+  ...
+# Subtest: complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+ok 126 - complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+  ---
+  duration_ms: 0.942208
+  ...
+# Subtest: complete references come directly from the supplied core estimate, with no sum or mutation
+ok 127 - complete references come directly from the supplied core estimate, with no sum or mutation
+  ---
+  duration_ms: 0.664084
+  ...
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 128 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 90.102042
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 129 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 118.964333
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 130 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 46.084375
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 131 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 25.899584
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 132 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 67.785541
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 133 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 70.218291
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 134 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 65.413167
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 135 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 112.032375
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 136 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 18.40175
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 137 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 157.92125
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 138 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 125.801958
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 139 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 84.304167
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 140 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 42.208542
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 141 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 40.805083
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 142 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 34.07725
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+ok 143 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 141.323333
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 144 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 200.477875
+  ...
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 145 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 262.580667
+  ...
+# Subtest: zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 146 - zh: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 213.359709
+  ...
+# Subtest: en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 147 - en: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 177.357417
+  ...
+# Subtest: uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+ok 148 - uk: actual bound renderer sends identical rich text to success, rejected, thrown and missing clipboard paths
+  ---
+  duration_ms: 240.753542
+  ...
+# Subtest: copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+ok 149 - copy remains bound to saved A while newer B scope and raw plan choices have not been applied
+  ---
+  duration_ms: 160.715041
+  ...
+# Subtest: shopping summary reflects current manual decisions without counting bought items twice
+ok 150 - shopping summary reflects current manual decisions without counting bought items twice
+  ---
+  duration_ms: 245.081208
+  ...
+# Subtest: creation must acknowledge exact all-check body before a separate conditional manual save
+ok 151 - creation must acknowledge exact all-check body before a separate conditional manual save
+  ---
+  duration_ms: 93.877916
+  ...
+# Subtest: creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+ok 152 - creation in flight and unknown recovery keep decision barrier; source commit differs from basis
+  ---
+  duration_ms: 16.57325
+  ...
+# Subtest: rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+ok 153 - rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation
+  ---
+  duration_ms: 60.219084
+  ...
+# Subtest: removed bought materials stay in review notice outside current empty list and survive return
+ok 154 - removed bought materials stay in review notice outside current empty list and survive return
+  ---
+  duration_ms: 25.724667
+  ...
+# Subtest: save in flight survives language refresh while later same-basis decisions remain dirty
+ok 155 - save in flight survives language refresh while later same-basis decisions remain dirty
+  ---
+  duration_ms: 9.045958
+  ...
+# Subtest: unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+ok 156 - unknown rebase does not permit confirmations until pinned reconciliation confirms reset body
+  ---
+  duration_ms: 23.186917
+  ...
+# Subtest: same-basis conflict preserves local draft and adopts only the compared remote source lock
+ok 157 - same-basis conflict preserves local draft and adopts only the compared remote source lock
+  ---
+  duration_ms: 6.172708
+  ...
+# Subtest: fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+ok 158 - fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads
+  ---
+  duration_ms: 22.536042
+  ...
+# Subtest: different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+ok 159 - different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation
+  ---
+  duration_ms: 23.821417
+  ...
+# Subtest: unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+ok 160 - unknown rebase with original source intact unlocks only retrying its reset, not manual decisions
+  ---
+  duration_ms: 14.5
+  ...
+# Subtest: comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+ok 161 - comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions
+  ---
+  duration_ms: 18.360625
+  ...
+# Subtest: unresolved offscreen write prevents disposal and retains its recovery handle
+ok 162 - unresolved offscreen write prevents disposal and retains its recovery handle
+  ---
+  duration_ms: 5.959917
+  ...
+# Subtest: a fresh controller loads acknowledged list storage and original basis separately
+ok 163 - a fresh controller loads acknowledged list storage and original basis separately
+  ---
+  duration_ms: 7.953458
+  ...
+# Subtest: later decisions invalidate a pending rebase and retain the original matching basis
+ok 164 - later decisions invalidate a pending rebase and retain the original matching basis
+  ---
+  duration_ms: 4.033792
+  ...
+# Subtest: a detached pending load cannot reopen a list after the user leaves
+ok 165 - a detached pending load cannot reopen a list after the user leaves
+  ---
+  duration_ms: 10.423833
+  ...
+1..165
+# tests 165
+# suites 0
+# pass 165
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20994.673334

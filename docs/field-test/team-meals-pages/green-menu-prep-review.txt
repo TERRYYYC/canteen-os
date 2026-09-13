@@ -1,0 +1,30 @@
+✔ unknown quantity stays unknown; raw quantity units are never scaled or normalized (0.43375ms)
+✔ row selection respects projection scope and retains multiple dishes and repeated dish occurrences (0.501459ms)
+✔ invalid revision and mutable source cannot be labelled fixed-source content (0.210542ms)
+✔ prep exposes all original components, steps, three names, truth labels and safe source links (1.817792ms)
+✔ same-version image bytes use exact source pointers and object URLs are revoked on disposal (1.357541ms)
+✔ wrong-version or late assets never substitute current URLs into an old or repainted view (0.757084ms)
+✔ menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe (0.874541ms)
+✔ an unresolved plan is shown as missing source, not silently represented as an empty menu (0.230333ms)
+✔ technique images resolve by explicit ID, independently of filtered projection positions (0.627709ms)
+✔ recipe details show localized issue reasons only for the selected original row (0.247542ms)
+✔ prep: empty selection excludes unrelated missing records by menuPlanRef (0.178834ms)
+✔ prep: empty selection excludes unrelated missing records by date (0.106167ms)
+✔ prep: empty selection excludes unrelated missing records by mealType (0.081375ms)
+✔ prep: empty selection excludes unrelated missing records by mealIndex (0.074708ms)
+✔ prep: selected missing plan remains unavailable in all languages, including broad selection (0.273125ms)
+✔ prep: missing recipe and unrecorded components stay visible on their original row (0.18775ms)
+✔ menu: empty selection excludes unrelated missing records by menuPlanRef (0.095292ms)
+✔ menu: empty selection excludes unrelated missing records by date (0.08375ms)
+✔ menu: empty selection excludes unrelated missing records by mealType (0.083167ms)
+✔ menu: empty selection excludes unrelated missing records by mealIndex (0.06725ms)
+✔ menu: selected missing plan remains unavailable in all languages, including broad selection (0.473625ms)
+✔ menu: missing recipe and unrecorded components stay visible on their original row (0.154958ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.324542

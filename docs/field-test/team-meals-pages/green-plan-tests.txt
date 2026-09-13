@@ -1,0 +1,16 @@
+✔ page adapter saves complete plan, preserving true values and omitting cleared counts (1.1575ms)
+✔ page adapter retains edits through saving, language refresh and late acknowledgement (0.197292ms)
+✔ unknown result survives leaving/returning; recovery reads twice and does not duplicate write (0.284334ms)
+✔ empty new plan only follows not_found and uses creation lock (0.144583ms)
+✔ invalid optional count is not silently converted to unknown or zero (0.139208ms)
+✔ saving optional servings explicitly upgrades to v3 without invented counts (0.602625ms)
+✔ day filter cannot truncate the whole saved plan or true top-level values (0.087959ms)
+✔ deleting the last meal produces a legal empty v3 document (0.045ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.935416

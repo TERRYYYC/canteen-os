@@ -1,0 +1,42 @@
+[
+  {
+    "name": "main photo",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:25:66\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:25:8)"
+  },
+  {
+    "name": "inline photo",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at inline (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:17:34)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:26:68\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:26:8)"
+  },
+  {
+    "name": "main translation",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:27:72\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:27:8)"
+  },
+  {
+    "name": "main translation language",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:28:81\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:28:8)"
+  },
+  {
+    "name": "inline translation",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at inline (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:17:34)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:29:74\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:29:8)"
+  },
+  {
+    "name": "main photo detached",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:30:75\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:30:8)"
+  },
+  {
+    "name": "photo auth",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:31:103\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:31:8)"
+  },
+  {
+    "name": "photo decode failure",
+    "passed": false,
+    "error": "ApiError\n    at scopeRequired (http://127.0.0.1:4195/src/admin/store.ts:121:9)\n    at render (http://127.0.0.1:4195/src/pages/admin/dish-new.ts:691:18)\n    at draw (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:8:183)\n    at http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:32:76\n    at caseOf (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:22:42)\n    at document.querySelector.onclick (http://127.0.0.1:4195/test/team-meals-pages-dish-pending-review-browser.html?html-proxy&index=0.js:32:8)"
+  }
+]

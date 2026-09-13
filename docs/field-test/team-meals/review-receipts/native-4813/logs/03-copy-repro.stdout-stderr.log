@@ -1,0 +1,35 @@
+当前页面清单（请核对保存状态）
+copy-red
+材料和菜单资料版本: ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d
+2026-09-14 · 午餐 · team-week
+2026-09-15 · 晚餐 · team-week
+
+油 — 待核对
+盐 — 待核对
+番茄 — 待核对
+番茄 — 待核对
+已录材料候选；配方完整性仍需人工核对。
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: T08 copied output must retain the actual incomplete-recipe issue shown on screen
+    at file:///private/tmp/rcq-review-native-4813-qr6b7sou/packages/web/test/e2e/team-meals/copy-missing-info.repro.mjs:23:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '当前页面清单（请核对保存状态）\n' +
+    'copy-red\n' +
+    '材料和菜单资料版本: ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d\n' +
+    '2026-09-14 · 午餐 · team-week\n' +
+    '2026-09-15 · 晚餐 · team-week\n' +
+    '\n' +
+    '油 — 待核对\n' +
+    '盐 — 待核对\n' +
+    '番茄 — 待核对\n' +
+    '番茄 — 待核对\n' +
+    '已录材料候选；配方完整性仍需人工核对。',
+  expected: /尚未录入配料|未录成分|Ingredients not recorded/,
+  operator: 'match'
+}
+
+Node.js v20.20.2

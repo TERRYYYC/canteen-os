@@ -1,0 +1,36 @@
+[
+  {
+    "path": "packages/web/test/team-meals-pages-ack.test.mjs",
+    "byteEqual": false,
+    "oldAssertions": 15,
+    "newAssertions": 15,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-ingredient.test.mjs",
+    "byteEqual": false,
+    "oldAssertions": 147,
+    "newAssertions": 148,
+    "missingOldAssertions": [],
+    "addedAssertions": [
+      "assert.equal(images.length,1)"
+    ]
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-unload.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 21,
+    "newAssertions": 21,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 80,
+    "newAssertions": 80,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  }
+]

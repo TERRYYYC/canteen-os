@@ -1,0 +1,128 @@
+{
+  "reviewedHeadSha": "b1c84349f322601488a751961b646c97d24d55c7",
+  "parentSha": "73693f81b77db2668adf01441456683d9d5a4c87",
+  "verdict": "approved",
+  "scope": "two test-environment files only; native/production unchanged",
+  "entries": [
+    {
+      "path": "REVIEW.md",
+      "bytes": 5555,
+      "sha256": "8d4ada04b885b11b3f65b15372da8294fc4911600ca8118e7cd23e4eff06b442"
+    },
+    {
+      "path": "scope-integrity.json",
+      "bytes": 12077,
+      "sha256": "5f9f2757a1f1801f82efb63fc882e81e0515e3135cd96a8eef3b2258508e7ec8"
+    },
+    {
+      "path": "reviewer-author-manifest.log",
+      "bytes": 991,
+      "sha256": "82ba05b9a342033c101490be074c75d91a875c313458da8c0ac67053f7faab1b"
+    },
+    {
+      "path": "reviewer-commands.json",
+      "bytes": 3593,
+      "sha256": "2e2dffc7a7d9f0ed5d44b72db99ef14493502d2d2115bb4429cf6176b2d7c03d"
+    },
+    {
+      "path": "reviewer-core-build-node20.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reviewer-core-typecheck-node20.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reviewer-environment-probe-first.mjs",
+      "bytes": 2785,
+      "sha256": "c1f2bbabc527a69cbe6ee271da7ab31d508c183de8ef2dd7fedfde74fb71983f"
+    },
+    {
+      "path": "reviewer-environment-probe.mjs",
+      "bytes": 3028,
+      "sha256": "5b757a1ab2947e687bdd91e58a45a85786659ae03504cbb10db254af6c8cf813"
+    },
+    {
+      "path": "reviewer-native-descriptor-comparison-control.log",
+      "bytes": 174,
+      "sha256": "0dfec2844f4f8d8ba193e1a9d166b1859c68dfa032d40b2241c61ff6e9eca2f2"
+    },
+    {
+      "path": "reviewer-native-event-only-control.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reviewer-node20-environment.log",
+      "bytes": 1403,
+      "sha256": "e5f1494024e2f0c4618a7d6f6431d7d33f8723da643d97541598507d45fa94bb"
+    },
+    {
+      "path": "reviewer-node20-full-before-core-build.log",
+      "bytes": 91475,
+      "sha256": "16cb644cb1f3c5fa173b85bb3650b854496a80e3bc407aec90736babed0d4e5b"
+    },
+    {
+      "path": "reviewer-node20-full.log",
+      "bytes": 94118,
+      "sha256": "9c6578f4d188ffa9d92f0c73a95cc99c4e002cfc5f57c7e60460da445e17fb04"
+    },
+    {
+      "path": "reviewer-node20-selected53.log",
+      "bytes": 11396,
+      "sha256": "f0950d821e5b9455f03427006419017610275f0c417a69461d624b5f785676eb"
+    },
+    {
+      "path": "reviewer-node20-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reviewer-node24-environment-diagnostic.log",
+      "bytes": 7706,
+      "sha256": "035ec01377d552a2ec0b017a1ff1664bccbfc353bedda4d02fbf331367b7f92f"
+    },
+    {
+      "path": "reviewer-node24-environment-first.log",
+      "bytes": 7706,
+      "sha256": "b69ac76a02d4c1fd6105db09259550fe7f5a16e2433746f6f43442ce764749a0"
+    },
+    {
+      "path": "reviewer-node24-environment.log",
+      "bytes": 1375,
+      "sha256": "394b88bf7948679f5e7f92030e40eea929dc1891b43f770f07dd5918548e9fa5"
+    },
+    {
+      "path": "reviewer-node24-selected53.log",
+      "bytes": 5392,
+      "sha256": "237c1edb57e94801595c0f089752cc88525ff8f2038a5a0e7a3267baed5030f1"
+    },
+    {
+      "path": "reviewer-runtime.json",
+      "bytes": 2117,
+      "sha256": "468379c1ff48facd57a9fedd81dbe3c3130c204c39ff4b715e42e5f60dd7710a"
+    },
+    {
+      "path": "packages/web/test/reviewer-ack-sweep.mjs",
+      "bytes": 1973,
+      "sha256": "766a013047859c26fa6a2bb9f8bd34a7c4d3d537a767f9bbac49388e1dd03343"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+      "bytes": 21849,
+      "sha256": "0f46e0c31590643e16dc012d7e39db462cad6b0f7803d8bf8293a6fb3b12638b"
+    },
+    {
+      "path": "packages/web/test/team-meals-pages-guard-harness.mjs",
+      "bytes": 8153,
+      "sha256": "2d14f693d68672002bbfaf67083b662bfc79331ab80688abb7667414ea37adcb"
+    },
+    {
+      "path": "docs/field-test/team-meals-pages/node20-harness/SHA256SUMS",
+      "bytes": 1859,
+      "sha256": "dce17a2231a2bc425b9df75a6f979cbd0457807839876185fadb8f8ad211aa80"
+    }
+  ]
+}

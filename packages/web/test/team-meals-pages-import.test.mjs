@@ -1,0 +1,203 @@
+import assert from 'node:assert/strict';
+import {test,after} from 'node:test';
+import {readFile,mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {dirname,join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+const require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
+const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages/admin/import.ts'),source=await readFile(entry,'utf8');
+const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
+const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
+const week='2026-09-14',catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
+const row={date:week,mealType:'lunch',dishRef:'soup'};
+test('real core parsed missing servings stay blank rather than receiving a page default',()=>{
+ const line=parsed();assert.equal(line.status,'ok');assert.equal(Object.hasOwn(line,'plannedServings'),false);
+ const result=effective(line,undefined,catalog,week);assert.equal(result.importable,true);assert.equal(result.servings,undefined);
+});
+test('explicit preview clear overrides parsed original, while untouched preview keeps it',()=>{
+ const line=parsed('8');assert.equal(effective(line,undefined,catalog,week).servings,8);
+ assert.equal(effective(line,{servings:undefined},catalog,week).servings,undefined);
+});
+test('preview rejects fractional, nonpositive and nonfinite values without rounding or fallback',()=>{
+ for(const value of [1.5,0,-1,NaN,Infinity,Number.MAX_SAFE_INTEGER+1])assert.equal(effective(parsed('8'),{servings:value},catalog,week).importable,false,String(value));
+ assert.equal(effective(parsed(),{servings:3},catalog,week).servings,3);
+ assert.equal(effective(parsed(),{servings:undefined},catalog,week).importable,true);
+});
+test('import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count',()=>{
+ const first={...row,plannedServings:8,serviceWindow:'12:00-13:00'},duplicate={...row,plannedServings:11,serviceWindow:'13:00-14:00'},outside={date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19};
+ const base={schemaVersion:'2',name:{zh:'原计划',en:'Original'},margin:1.17,dateRange:{start:'2026-09-01',end:'2026-09-30'},meals:[first,duplicate,outside]},before=structuredClone(base);
+ const result=mergePlan(base,[row,{date:'2026-09-15',mealType:'dinner',dishRef:'soup'}],'week-38',week);
+ assert.equal(result.schemaVersion,'3');assert.equal(result.margin,1.17);assert.deepEqual(result.name,base.name);assert.deepEqual(result.dateRange,base.dateRange);
+ assert.deepEqual(result.meals[0],first);assert.deepEqual(result.meals[1],duplicate);assert.deepEqual(result.meals.at(-1),outside);assert.equal(Object.hasOwn(result.meals[2],'plannedServings'),false);assert.deepEqual(base,before);
+});
+test('only an explicit clear removes matched known count; duplicate rows and service window survive',()=>{
+ const first={...row,plannedServings:8,serviceWindow:'12:00-13:00'},duplicate={...row,plannedServings:11};
+ const result=mergePlan({schemaVersion:'3',meals:[first,duplicate]},[row],'week-38',week,new Set([0]));
+ assert.equal(Object.hasOwn(result.meals[0],'plannedServings'),false);assert.equal(result.meals[0].serviceWindow,first.serviceWindow);assert.deepEqual(result.meals[1],duplicate);
+});
+test('new unknown plan is v3 and known incoming count updates first matching occurrence only',()=>{
+ const fresh=mergePlan(null,[row],'week-38',week);assert.equal(fresh.schemaVersion,'3');assert.equal(Object.hasOwn(fresh.meals[0],'plannedServings'),false);
+ const result=mergePlan({schemaVersion:'3',meals:[{...row,plannedServings:8},{...row,plannedServings:9}]},[{...row,plannedServings:4}],'week-38',week);
+ assert.deepEqual(result.meals.map(x=>x.plannedServings),[4,9]);
+});
+
+// DOM double tests execute the actual renderer and C1 transport; no browser/layout claim.
+class Element {
+ constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.parentNode=null;this.connected=false;this.text=text;this.listeners={};this.value='';this.disabled=false;this.validity={badInput:false};this.style={};this.classList={add:x=>this.setAttribute('class',`${this.attrs.class??''} ${x}`),remove:x=>this.setAttribute('class',(this.attrs.class??'').split(' ').filter(v=>v!==x).join(' '))};}
+ setAttribute(k,v){this.attrs[k]=String(v);if(k==='value')this.value=String(v);if(k==='disabled')this.disabled=true;}getAttribute(k){return this.attrs[k]??null;}removeAttribute(k){delete this.attrs[k];if(k==='disabled')this.disabled=false;}
+ appendChild(c){if(typeof c==='string')c=new Element('',c);c.parentNode=this;this.children.push(c);return c;}append(...cs){cs.forEach(c=>this.appendChild(c));}prepend(c){this.insertBefore(c,this.children[0]);}insertBefore(c,b){c.parentNode=this;const i=this.children.indexOf(b);this.children.splice(i<0?this.children.length:i,0,c);return c;}
+ replaceChildren(...cs){this.children.forEach(c=>c.parentNode=null);this.children=[];this.text='';this.append(...cs);}remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(c=>c!==this);this.parentNode=null;}
+ get isConnected(){return this.connected||!!this.parentNode?.isConnected;}get childElementCount(){return this.children.filter(c=>c.tagName).length;}
+ get textContent(){return this.text+this.children.map(c=>c.textContent).join('');}set textContent(v){this.replaceChildren();this.text=String(v);}
+ addEventListener(t,f){(this.listeners[t]??=[]).push(f);}dispatch(t){if(t==='click'&&this.disabled)return;for(const f of this.listeners[t]??[])f({target:this,preventDefault(){}});}scrollIntoView(){}
+ querySelector(selector){return descendants(this).find(el=>selector.startsWith('.')?(el.attrs.class??'').split(' ').includes(selector.slice(1)):selector.startsWith('#')?el.attrs.id===selector.slice(1):el.tagName===selector.toUpperCase())??null;}
+}
+const descendants=n=>n.children.flatMap(c=>[c,...descendants(c)]),documentDouble={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t)};documentDouble.body.connected=true;
+globalThis.document=documentDouble;globalThis.window={addEventListener(){},confirm:()=>true,setTimeout,clearTimeout};globalThis.location={hash:'#/admin/plan/week-38/import'};
+const mount=()=>{const el=new Element('main');documentDouble.body.replaceChildren(el);return el;},tick=()=>new Promise(r=>setImmediate(r));
+const ctx=lang=>({lang,rest:'week-38',route:'admin',planId:'week-38',t:key=>key,data:{}});
+function setup({catalogRead}={}){
+ const calls=[],base={schemaVersion:'3',margin:1.17,name:{zh:'完整原计划'},meals:[{...row,plannedServings:8,serviceWindow:'12:00-13:00'},{date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19}]};let gate=null,principal=1;
+ const api=createTeamMealsApi('https://import-fixture.invalid',{mode:'mock',token:()=>`explicit-fixture-${principal}`,identity:()=>principal,fetch:async(url,init)=>{const u=new URL(url);calls.push({path:u.pathname,method:init.method});assert.equal(init.method,'GET','import must not write remotely');if(u.pathname==='/catalog')return new Response(JSON.stringify(await(catalogRead?.()??catalog)));if(u.pathname==='/source/plan/week-38'){if(gate)await gate;return new Response(JSON.stringify({content:base,blobSha:'fixture-plan',commit:catalog.commit}));}throw new Error('unexpected fixture path');}});
+ after(()=>api.dispose());return {api,drafts:bindDraftStore(api),base,calls,hold:()=>{let release;gate=new Promise(r=>release=r);return release;},changeAuth:()=>principal++};
+}
+async function preview(f,text='周一午 原汤'){const el=mount();await render(el,ctx('zh'),'week-38',f.api);const ta=el.querySelector('#adm-import-text');ta.value=text;ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');return el;}
+test('actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST',async()=>{
+ const f=setup(),el=await preview(f);assert.equal(el.querySelector('.adm-import-servings').value,'');assert.match(el.textContent,/模拟演示/);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();
+ const plan=f.drafts.getDraftPlan('week-38');assert.equal(plan.schemaVersion,'3');assert.equal(plan.meals[0].plannedServings,8);assert.deepEqual(plan.meals[1],f.base.meals[1]);assert.equal(plan.margin,1.17);assert.deepEqual(f.calls.map(c=>c.path),['/catalog','/source/plan/week-38']);assert.equal(f.drafts.undoDraftPlan('week-38'),true);assert.equal(f.drafts.getDraftPlan('week-38'),null);
+});
+test('actual preview explicit clear survives language repaint and invalid entry can be corrected',async()=>{
+ const f=setup();let el=await preview(f,'周一午 原汤 8'),field=el.querySelector('.adm-import-servings');assert.equal(field.value,'8');field.value='1.5';field.dispatch('input');assert.equal(field.value,'1.5');assert.equal(field.getAttribute('aria-invalid'),'true');assert.equal(el.querySelector('.adm-import-submit').disabled,true);
+ field.value='';field.dispatch('input');el=mount();await render(el,ctx('uk'),'week-38',f.api);field=el.querySelector('.adm-import-servings');assert.equal(field.value,'');assert.equal(field.getAttribute('aria-invalid'),'false');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.equal(Object.hasOwn(f.drafts.getDraftPlan('week-38').meals[0],'plannedServings'),false);assert.equal(f.drafts.getDraftPlan('week-38').meals[0].serviceWindow,'12:00-13:00');
+});
+test('late saved-plan read cannot import over a newer preview or an auth lifetime',async()=>{
+ const f=setup(),release=f.hold(),el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const field=el.querySelector('.adm-import-servings');field.value='6';field.dispatch('input');release();await tick();await tick();assert.equal(f.drafts.getDraftPlan('week-38'),null);assert.equal(field.value,'6');
+ f.changeAuth();const next=mount();await render(next,ctx('en'),'week-38',f.api);assert.equal(next.querySelector('#adm-import-text').value,'');assert.equal(next.querySelector('.adm-import-servings'),null);
+});
+test('unconfigured import shows honest unavailable state without fallback mock reads',async()=>{
+ let reads=0;const api=createTeamMealsApi('',{fetch:async()=>{reads++;throw new Error('must not read');}});after(()=>api.dispose());const el=mount();await render(el,ctx('en'),'week-38',api);assert.equal(reads,0);assert.match(el.textContent,/not connected|not configured|not set up/i);assert.equal(el.querySelector('.adm-import-submit'),null);
+});
+test('an initially blank preview has an explicit clear action to remove a matched saved count',async()=>{
+ const f=setup(),el=await preview(f),clear=el.querySelector('.adm-import-clear-servings');assert.ok(clear,'already blank rows still need an explicit clear action');clear.dispatch('click');assert.equal(el.querySelector('.adm-import-servings').value,'');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.equal(Object.hasOwn(f.drafts.getDraftPlan('week-38').meals[0],'plannedServings'),false);
+});
+
+test('I-R1 canceled source read derives action validity from the current preview',async()=>{
+ for(const raw of ['1.5','','6']){
+  const f=setup(),release=f.hold(),el=await preview(f,'周一午 原汤 8');
+  el.querySelector('.adm-import-submit').dispatch('click');await tick();
+  const field=el.querySelector('.adm-import-servings');field.value=raw;field.dispatch('input');
+  release();await tick();await tick();
+  assert.equal(f.drafts.getDraftPlan('week-38'),null);
+  assert.equal(el.querySelector('.adm-import-submit').disabled,raw==='1.5',raw);
+  assert.equal(el.querySelector('.adm-import-submit').getAttribute('aria-busy'),null);
+ }
+});
+test('raw preview refuses loss of numeric precision and retains the original input after repaint',async()=>{
+ for(const raw of ['2.0000000000000001','9007199254740993','9007199254740992','2.0000000000000001e1']){
+  const f=setup();let el=await preview(f,'周一午 原汤 8');let field=el.querySelector('.adm-import-servings');
+  field.value=raw;field.dispatch('input');
+  assert.equal(field.getAttribute('aria-invalid'),'true',raw);assert.equal(el.querySelector('.adm-import-submit').disabled,true,raw);
+  el=mount();await render(el,ctx('uk'),'week-38',f.api);field=el.querySelector('.adm-import-servings');
+  assert.equal(field.value,raw,'invalid raw survives language repaint');assert.equal(field.getAttribute('aria-invalid'),'true');
+  assert.equal(f.drafts.getDraftPlan('week-38'),null);
+ }
+});
+test('exact integer decimal and exponent representations remain supported in the preview',async()=>{
+ for(const [raw,value] of [['2',2],['2.0',2],['2e2',200],['20e-1',2],['9007199254740991',9007199254740991]]){
+  const f=setup(),el=await preview(f,'周一午 原汤 8'),field=el.querySelector('.adm-import-servings');field.value=raw;field.dispatch('input');
+  assert.equal(field.getAttribute('aria-invalid'),'false',raw);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();
+  assert.equal(f.drafts.getDraftPlan('week-38').meals[0].plannedServings,value,raw);
+ }
+});
+
+test('approved core invalid servings are shown as unparsed original text with no import fallback',async()=>{
+ for(const raw of ['周一午 原汤 2.5份','周一午 原汤 2.0000000000000001份','周一午 原汤 9007199254740993份']){
+  const f=setup(),el=await preview(f,raw);assert.ok(el.querySelector('.adm-import-line-unparsed'));assert.ok(el.textContent.includes(raw));assert.match(el.textContent,/份数/);assert.equal(el.querySelector('.adm-import-submit').disabled,true);assert.equal(f.drafts.getDraftPlan('week-38'),null);assert.equal(f.calls.length,1);
+ }
+});
+
+const deferredFile=(name,contents)=>{let release;const promise=new Promise(r=>release=()=>r(new TextEncoder().encode(contents).buffer));return {file:{name,size:contents.length,arrayBuffer:()=>promise},release};};
+const chooseFile=(el,file)=>{const field=el.querySelector('#adm-import-file');field.files=[file];field.dispatch('change');};
+test('raw paste and invalid line edit belong to the original plan across another plan and language',async()=>{
+ const f=setup();let el=await preview(f,'周一午 原汤 8');let field=el.querySelector('.adm-import-servings');field.value='2.0000000000000001';field.dispatch('input');
+ el=mount();await render(el,ctx('en'),'week-39',f.api);let ta=el.querySelector('#adm-import-text');ta.value='another week raw input';ta.dispatch('input');
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(el.querySelector('#adm-import-text').value,'周一午 原汤 8');assert.equal(el.querySelector('.adm-import-servings')?.value,'2.0000000000000001');assert.equal(el.querySelector('.adm-import-submit').disabled,true);
+ el=mount();await render(el,ctx('zh'),'week-39',f.api);assert.equal(el.querySelector('#adm-import-text').value,'another week raw input');
+});
+test('selected CSV completes into the original owner after a language repaint or navigating away',async()=>{
+ for(const detour of ['language','plan']){
+  const f=setup(),file=deferredFile('original.csv','date,meal,dish,servings\nMon,lunch,原汤,8');let el=await preview(f);chooseFile(el,file.file);
+  el=mount();await render(el,ctx('uk'),detour==='plan'?'week-39':'week-38',f.api);file.release();await tick();await tick();
+  if(detour==='plan'){assert.equal(el.querySelector('.adm-import-servings'),null);el=mount();await render(el,ctx('en'),'week-38',f.api);}
+  assert.match(el.textContent,/original.csv/,detour);assert.equal(el.querySelector('.adm-import-servings')?.value,'8',detour);
+ }
+});
+test('a newer CSV or paste wins over an older selected file without changing the wrong owner',async()=>{
+ const f=setup();let el=await preview(f);const old=deferredFile('old.csv','date,meal,dish,servings\nMon,lunch,原汤,3'),fresh=deferredFile('fresh.csv','date,meal,dish,servings\nMon,lunch,原汤,9');chooseFile(el,old.file);
+ el=mount();await render(el,ctx('en'),'week-38',f.api);chooseFile(el,fresh.file);fresh.release();await tick();await tick();old.release();await tick();await tick();assert.match(el.textContent,/fresh.csv/);assert.equal(el.querySelector('.adm-import-servings')?.value,'9');
+ const last=deferredFile('late.csv','date,meal,dish,servings\nMon,lunch,原汤,99');chooseFile(el,last.file);const ta=el.querySelector('#adm-import-text');ta.value='周一午 原汤 6';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');last.release();await tick();await tick();assert.equal(el.querySelector('.adm-import-servings')?.value,'6');
+});
+test('Source-read busy state survives language repaint and cancellation preserves raw validity',async()=>{
+ const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(el.querySelector('.adm-import-submit').disabled,true,'same pending read still owned after repaint');el.querySelector('.adm-import-submit').dispatch('click');assert.equal(f.calls.filter(c=>c.path.includes('/source/')).length,1);
+ const field=el.querySelector('.adm-import-servings');field.value='1.5';field.dispatch('input');release();await tick();await tick();assert.equal(f.drafts.getDraftPlan('week-38'),null);assert.equal(field.value,'1.5');assert.equal(el.querySelector('.adm-import-submit').disabled,true);assert.equal(el.querySelector('.adm-import-submit').getAttribute('aria-busy'),null);
+});
+test('late file failure is retained for its owner across repaint and cannot leak into a new auth session',async()=>{
+ const f=setup();let reject;const promise=new Promise((_,r)=>reject=r);let el=await preview(f);chooseFile(el,{name:'broken.csv',size:2,arrayBuffer:()=>promise});el=mount();await render(el,ctx('en'),'week-38',f.api);reject(new Error('local read failed'));await tick();await tick();assert.match(el.textContent,/Couldn't read the file/);
+ const late=deferredFile('private.csv','date,meal,dish,servings\nMon,lunch,原汤,9');chooseFile(el,late.file);f.changeAuth();el=mount();await render(el,ctx('en'),'week-38',f.api);late.release();await tick();await tick();assert.equal(el.querySelector('#adm-import-text').value,'');assert.equal(el.querySelector('.adm-import-servings'),null);assert.doesNotMatch(el.textContent,/private.csv/);
+});
+
+test('raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle',async()=>{
+ const f=setup();let el=await preview(f,'not parsed yet');const owner=getImportInputOwner(f.api,'week-38');let calls=0;const original=f.api.sessionKey.bind(f.api);f.api.sessionKey=()=>{calls++;return original();};
+ const before=owner.readAuxiliary();assert.equal(before.dirty,true);for(let n=0;n<5;n++)assert.deepEqual(owner.readAuxiliary(),before);assert.equal(calls,0,'metadata does not observe auth or read any service');
+ const file=deferredFile('pending.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(owner.readAuxiliary().phase,'busy');assert.equal(owner.readAuxiliary().dirty,true);assert.ok(owner.readAuxiliary().generation>before.generation);
+ el.querySelector('.adm-import-clear').dispatch('click');const cleared=owner.readAuxiliary();assert.equal(cleared.dirty,false);assert.equal(cleared.phase,'busy','clear cancels acceptance, not the actual read');file.release();await tick();await tick();assert.equal(owner.readAuxiliary().phase,'idle');assert.equal(owner.readAuxiliary().dirty,false);assert.equal(el.querySelector('.adm-import-servings'),null);
+});
+test('a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft',async()=>{
+ const f=setup();let el=await preview(f,'周一午 原汤 8\n这行无法解析');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.ok(f.drafts.getDraftPlan('week-38'));assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,true);
+ el=mount();await render(el,ctx('en'),'week-38',f.api);el.querySelector('.adm-import-clear').dispatch('click');const ta=el.querySelector('#adm-import-text');ta.value='周一午 原汤 8';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,false);
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(getImportInputOwner(f.api,'week-38').readAuxiliary().dirty,false,'language does not invent fresh raw changes after handoff');
+});
+
+
+test('I-R2 changed auth removes old notice, base, undo and handoff while same-auth navigation keeps them',async()=>{
+ const f=setup();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();const a=f.drafts;
+ a.setDraftPlan('week-39',{schemaVersion:'3',name:{zh:'A other plan'},meals:[]},'edit');a.setHandoff({newIngredientName:'A private handoff',returnTo:'#/admin/dish/soup'});
+ el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.ok(el.querySelector('.adm-notice-action'));assert.equal(a.getDraftPlan('week-38').margin,1.17,'same-auth render preserves original draft');
+ f.base.name={zh:'B-plan'};f.base.margin=9;f.base.meals=[];f.changeAuth();el=mount();await render(el,ctx('en'),'week-38',f.api);assert.equal(el.querySelector('.adm-notice-action'),null,'B never sees A undo notice');
+ const b=bindDraftStore(f.api);assert.equal(b.getDraftPlan('week-38'),null);assert.equal(b.getDraftPlan('week-39'),null);assert.equal(b.undoDraftPlan('week-38'),false);assert.deepEqual(b.takeHandoff(),{});assert.throws(()=>a.getDraftPlan('week-38'),e=>e.code==='session_changed');
+ const ta=el.querySelector('#adm-import-text');ta.value='周二晚 原汤';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();const plan=b.getDraftPlan('week-38');assert.equal(plan.name.zh,'B-plan');assert.equal(plan.margin,9);assert.equal(plan.meals.length,1);assert.equal(f.calls.filter(c=>c.path==='/source/plan/week-38').length,2,'B reads B source');
+});
+test('I-R2 old Source completion and captured handles cannot write or clear a newer bound draft',async()=>{
+ const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const a=f.drafts;
+ f.changeAuth();el=mount();await render(el,ctx('uk'),'week-38',f.api);const b=bindDraftStore(f.api),expected={schemaVersion:'3',name:{zh:'B-owned'},meals:[]};b.setDraftPlan('week-38',expected,'edit');b.setHandoff({newDishName:'B handoff'});release();await tick();await tick();assert.deepEqual(b.getDraftPlan('week-38'),expected);assert.deepEqual(b.takeHandoff(),{newDishName:'B handoff'});
+ for(const fn of [()=>a.setDraftPlan('week-38',{schemaVersion:'3',meals:[]},'import'),()=>a.clearDraftPlan('week-38'),()=>a.undoDraftPlan('week-38'),()=>a.setHandoff({newDishName:'late A'}),()=>a.takeHandoff()])assert.throws(fn,e=>e.code==='session_changed');assert.deepEqual(b.getDraftPlan('week-38'),expected);
+});
+test('different API instances with equal session keys never reuse another instance draft or handoff',async()=>{
+ const first=setup();let el=await preview(first);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();first.drafts.setHandoff({newIngredientName:'first API only'});const second=setup();assert.equal(first.api.sessionKey(),second.api.sessionKey());el=await preview(second);assert.equal(el.querySelector('.adm-notice-action'),null);assert.equal(second.drafts.getDraftPlan('week-38'),null);assert.deepEqual(second.drafts.takeHandoff(),{});assert.throws(()=>first.drafts.getDraftPlan('week-38'),e=>e.code==='session_changed');
+});
+
+test('old Import undo and handoff button callbacks cannot rebind into the newer identity',async()=>{
+ const f=setup();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();await tick();el=mount();await render(el,ctx('en'),'week-38',f.api);const undo=el.querySelector('.adm-notice-action');assert.ok(undo);const ta=el.querySelector('#adm-import-text');ta.value='周一午 完全不存在的特殊菜名';ta.dispatch('input');el.querySelector('.adm-import-parse').dispatch('click');const handoff=el.querySelector('.adm-import-act');assert.ok(handoff);
+ f.changeAuth();const bEl=mount();await render(bEl,ctx('uk'),'week-38',f.api);const b=bindDraftStore(f.api),expected={schemaVersion:'3',name:{zh:'B exact draft'},meals:[]};b.setDraftPlan('week-38',expected,'edit');b.setHandoff({newIngredientName:'B exact handoff'});undo.dispatch('click');handoff.dispatch('click');assert.deepEqual(b.getDraftPlan('week-38'),expected);assert.deepEqual(b.takeHandoff(),{newIngredientName:'B exact handoff'});
+});
+
+test('Import auxiliary tracks raw and actual file read across repaint and explicit clear',async()=>{
+ changeAuth();const f=setup();let el=await preview(f,'unparsed private raw');assert.equal(inspectReloadSafety().reason,'dirty');const file=deferredFile('held.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');el=mount();await render(el,ctx('uk'),'week-38',f.api);assert.equal(inspectReloadSafety().reason,'saving');el.querySelector('.adm-import-clear').dispatch('click');assert.equal(inspectReloadSafety().reason,'saving');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear');
+});
+test('two old Import read tickets survive auth and settle independently without exposing prior identity',async()=>{
+ changeAuth();const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const file=deferredFile('private-a.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');f.changeAuth();changeAuth();el=mount();await render(el,ctx('uk'),'week-38',f.api);let snapshot=inspectReloadSafety();assert.equal(snapshot.reason,'unknown');assert.ok(snapshot.records.some(r=>r.id==='previous-session-operation'));assert.equal(JSON.stringify(snapshot).includes('private-a.csv'),false);release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'unknown','the second old read still exists');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear','all old reads ended; B blank owner is clear');assert.equal(el.querySelector('#adm-import-text').value,'');
+});
+
+
+test('Import initialization completes original coverage after auth cancellation and snapshot never reads A raw',async()=>{
+ changeAuth();let release,old=true;const gate=new Promise(r=>release=r),f=setup({catalogRead:()=>old?gate:catalog}),coverage=createPageReloadCoverage();
+ const a=mount(),aCtx={...ctx('en'),setReloadCoverage:coverage.beginRender('admin','plan/week-38/import')};const loading=render(a,aCtx,'week-38',f.api);assert.equal(inspectReloadSafety().reason,'saving');
+ const oldOwner=getImportInputOwner(f.api,'week-38');let reads=0;const pure=oldOwner.readAuxiliary.bind(oldOwner);oldOwner.readAuxiliary=()=>{reads++;return pure();};
+ old=false;f.changeAuth();changeAuth();const b=mount();await render(b,{...ctx('uk'),setReloadCoverage:coverage.beginRender('admin','plan/week-38/import')},'week-38',f.api);reads=0;
+ for(let n=0;n<3;n++)assert.equal(inspectReloadSafety().reason,'unknown');assert.equal(reads,0,'changed identity snapshots never call old raw metadata');
+ const ta=b.querySelector('#adm-import-text');ta.value='B unparsed input';ta.dispatch('input');release(catalog);await loading;await tick();assert.equal(inspectReloadSafety().reason,'dirty');assert.equal(inspectReloadSafety().records.some(r=>r.id==='previous-session-page'),false);assert.equal(ta.value,'B unparsed input');
+});

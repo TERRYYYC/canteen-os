@@ -1,0 +1,191 @@
+TAP version 13
+# Subtest: startup evaluates no unselected page and waits for selected renderer
+not ok 1 - startup evaluates no unselected page and waits for selected renderer
+  ---
+  duration_ms: 1.790125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:44:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    5 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 5
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:45:30)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+    process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+  ...
+# Subtest: route ABA and language changes cannot start late renderers or settle new coverage
+not ok 2 - route ABA and language changes cannot start late renderers or settle new coverage
+  ---
+  duration_ms: 1.3585
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:49:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:50:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: auth changed during module load starts only a fresh session context
+not ok 3 - auth changed during module load starts only a fresh session context
+  ---
+  duration_ms: 0.611875
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:54:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:55:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: winning publication replaces pending editor load but preserves an already started editor
+not ok 4 - winning publication replaces pending editor load but preserves an already started editor
+  ---
+  duration_ms: 0.519041
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:58:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:59:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: loader rejection and abandoned failure never create orphan coverage or paint new outlet
+not ok 5 - loader rejection and abandoned failure never create orphan coverage or paint new outlet
+  ---
+  duration_ms: 0.417125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:63:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:64:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: loading does not acknowledge an earlier untracked render of the same route
+not ok 6 - loading does not acknowledge an earlier untracked render of the same route
+  ---
+  duration_ms: 0.467666
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:67:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:68:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+not ok 7 - unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+  ---
+  duration_ms: 0.518125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:71:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:73:11)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: renderer rejection cannot declare a started but unresolved page read-only
+not ok 8 - renderer rejection cannot declare a started but unresolved page read-only
+  ---
+  duration_ms: 0.3965
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:76:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    selected page must wait for its module instead of rendering eagerly
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    ready (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:43:105)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-web-shared/packages/web/test/main-route-loading.test.mjs:77:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 0
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 49.609583

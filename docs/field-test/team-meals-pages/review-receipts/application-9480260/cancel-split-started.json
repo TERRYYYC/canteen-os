@@ -1,0 +1,185 @@
+{
+  "head": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "boot": 1,
+  "summary": "2/2",
+  "checks": [
+    {
+      "name": "control only actual Plan is dirty",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/plan/sw-plan",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 3,
+        "operation": 0
+      }
+    ],
+    "stamp": "[24,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+  },
+  "controller": true,
+  "controllerAtStart": false,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/sw-plan",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "waiting",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    }
+  ],
+  "viewText": "Кабінет шефаМоваUA中ENЄ нова версіяОновитиНазадПланувати стравиІмпорт текстуЄ незбережені зміниВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaКількість можна не вказувати. Зберігається весь план у новому форматі.Діапазон переглядуУсі датиДеньТижденьДата2026-09-14 · ОбідСтраваВиберіть стравуСуп · draftПорції (необов’язково)ПрибратиДатаПрийом їжіСніданокОбідВечеряСтраваВиберіть стравуСуп · draftДодати стравуПереглянути інгредієнтиСтворити список покупок зі збереженого плануЗберегти планДо публікаціїCanteenOSКухня · 1 закладППідготовкадля помічника кухаря · 帮厨采Закупівля · 采购单для закупівельника · 采购员МХарчуванняДля команди计Планування менюдля шефа · 师傅ТемаЯк у системіСвітлаТемнаДані оновлено 11 вер. 2026 р., 03:00Онлайн",
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "11"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ],
+  "cancellationPhase": "language-cancelled-awaiting-native",
+  "cancellationBefore": {
+    "boot": 1,
+    "value": "11",
+    "stamp": "[22,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "selectedWorkerState": "installed",
+  "selectedIsCurrent": false
+}

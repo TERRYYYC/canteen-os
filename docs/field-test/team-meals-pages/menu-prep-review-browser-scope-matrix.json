@@ -1,0 +1,266 @@
+[
+  {
+    "page": "menu",
+    "lang": "zh",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "餐食安排资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1所选餐次没有排菜 · week · 2026-09-16 · 午餐所选范围没有已录餐食这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "zh",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "餐食安排资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1菜谱未找到 · week · 2026-09-15 · 晚餐 · missing-dishmissing-dish2026-09-15 · 晚餐计划份数: 未录菜谱未找到，原引用保留这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "en",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "en",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1Recipe unavailable · week · 2026-09-15 · Dinner · missing-dishmissing-dish2026-09-15 · DinnerPlanned servings: Not recordedRecipe unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "uk",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "План харчуванняВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1У вибраному прийомі їжі немає страв · week · 2026-09-16 · ОбідУ цьому виборі немає записаних стравПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "uk",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "План харчуванняВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1Рецепт недоступний · week · 2026-09-15 · Вечеря · missing-dishmissing-dish2026-09-15 · ВечеряЗаплановані порції: Не записаноРецепт недоступний; вихідне посилання збереженоПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "zh",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "原配方与备料资料资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1所选餐次没有排菜 · week · 2026-09-16 · 午餐所选范围没有已录餐食这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "zh",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "原配方与备料资料资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1菜谱未找到 · week · 2026-09-15 · 晚餐 · missing-dishmissing-dish2026-09-15 · 晚餐计划份数: 未录资料未找到，原引用保留 · missing-dish这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "en",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "en",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1Recipe unavailable · week · 2026-09-15 · Dinner · missing-dishmissing-dish2026-09-15 · DinnerPlanned servings: Not recordedRecord unavailable; original reference retained · missing-dishOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "uk",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 393,
+    "text": "Рецепти й підготовкаВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1У вибраному прийомі їжі немає страв · week · 2026-09-16 · ОбідУ цьому виборі немає записаних стравПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 393
+  },
+  {
+    "page": "prep",
+    "lang": "uk",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 393,
+    "text": "Рецепти й підготовкаВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1Рецепт недоступний · week · 2026-09-15 · Вечеря · missing-dishmissing-dish2026-09-15 · ВечеряЗаплановані порції: Не записаноДані недоступні; вихідне посилання збережено · missing-dishПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 393
+  },
+  {
+    "page": "menu",
+    "lang": "zh",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "餐食安排资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1所选餐次没有排菜 · week · 2026-09-16 · 午餐所选范围没有已录餐食这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "lang": "zh",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "餐食安排资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1菜谱未找到 · week · 2026-09-15 · 晚餐 · missing-dishmissing-dish2026-09-15 · 晚餐计划份数: 未录菜谱未找到，原引用保留这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "lang": "en",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "lang": "en",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "Meal planSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1Recipe unavailable · week · 2026-09-15 · Dinner · missing-dishmissing-dish2026-09-15 · DinnerPlanned servings: Not recordedRecipe unavailable; original reference retainedOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "lang": "uk",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "План харчуванняВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1У вибраному прийомі їжі немає страв · week · 2026-09-16 · ОбідУ цьому виборі немає записаних стравПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "lang": "uk",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "План харчуванняВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1Рецепт недоступний · week · 2026-09-15 · Вечеря · missing-dishmissing-dish2026-09-15 · ВечеряЗаплановані порції: Не записаноРецепт недоступний; вихідне посилання збереженоПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "zh",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "原配方与备料资料资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1所选餐次没有排菜 · week · 2026-09-16 · 午餐所选范围没有已录餐食这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "zh",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "原配方与备料资料资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa模拟资料，未证明真实保存或发布需要核对的资料 · 1菜谱未找到 · week · 2026-09-15 · 晚餐 · missing-dishmissing-dish2026-09-15 · 晚餐计划份数: 未录资料未找到，原引用保留 · missing-dish这里只展示已录资料；配方完整性仍需人工核对。",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "en",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1No dishes in the selected meal · week · 2026-09-16 · LunchNo recorded meals in this selectionOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "en",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "Recipes and preparationSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaSimulation; no real save or publication verifiedInformation to review · 1Recipe unavailable · week · 2026-09-15 · Dinner · missing-dishmissing-dish2026-09-15 · DinnerPlanned servings: Not recordedRecord unavailable; original reference retained · missing-dishOnly recorded information is shown; recipe completeness still needs human review.",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "uk",
+    "scope": "empty",
+    "issueCodes": [
+      "empty-selection"
+    ],
+    "scrollWidth": 1440,
+    "text": "Рецепти й підготовкаВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1У вибраному прийомі їжі немає страв · week · 2026-09-16 · ОбідУ цьому виборі немає записаних стравПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 1440
+  },
+  {
+    "page": "prep",
+    "lang": "uk",
+    "scope": "missing",
+    "issueCodes": [
+      "missing-dish"
+    ],
+    "scrollWidth": 1440,
+    "text": "Рецепти й підготовкаВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaСимуляція; реальне збереження й публікацію не підтвердженоДані для перевірки · 1Рецепт недоступний · week · 2026-09-15 · Вечеря · missing-dishmissing-dish2026-09-15 · ВечеряЗаплановані порції: Не записаноДані недоступні; вихідне посилання збережено · missing-dishПоказано лише записані дані; повноту рецепта має перевірити людина.",
+    "width": 1440
+  }
+]

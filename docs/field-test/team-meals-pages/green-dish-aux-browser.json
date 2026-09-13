@@ -1,0 +1,325 @@
+{
+  "summary": "8/8",
+  "results": [
+    {
+      "name": "source-coverage",
+      "passed": true,
+      "snapshot": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-2",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 5,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-2",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          }
+        ],
+        "stamp": "[17,1,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "catalog-read",
+      "passed": true,
+      "snapshot": {
+        "reason": "clear",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 7,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 6
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 3,
+            "operation": 0
+          }
+        ],
+        "stamp": "[13,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":7,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "photo-decode",
+      "passed": true,
+      "snapshot": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 12,
+            "dirty": true,
+            "phase": "idle",
+            "operation": 8
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 3,
+            "operation": 0
+          }
+        ],
+        "stamp": "[15,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":12,\"dirty\":true,\"phase\":\"idle\",\"operation\":8},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "translation",
+      "passed": true,
+      "snapshot": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 12,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 8
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 3,
+            "operation": 0
+          }
+        ],
+        "stamp": "[15,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":12,\"dirty\":false,\"phase\":\"idle\",\"operation\":8},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "c1-no-duplicate",
+      "passed": true,
+      "snapshot": {
+        "reason": "clear",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 9,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": false,
+            "phase": "saved-but-unpublished",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 1
+          }
+        ],
+        "stamp": "[9,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":9,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":false,\"phase\":\"saved-but-unpublished\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":1}]]"
+      }
+    },
+    {
+      "name": "inline-upload-save",
+      "passed": true,
+      "snapshot": {
+        "reason": "dirty",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 25,
+            "dirty": true,
+            "phase": "idle",
+            "operation": 12
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 2,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-1",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 1,
+            "dirty": true,
+            "phase": "dirty",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          }
+        ],
+        "stamp": "[17,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":25,\"dirty\":true,\"phase\":\"idle\",\"operation\":12},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "two-old-uploads",
+      "passed": true,
+      "snapshot": {
+        "reason": "clear",
+        "records": [
+          {
+            "ownerId": "auxiliary-3",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 5,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 6,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-2",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          }
+        ],
+        "stamp": "[35,2,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+      }
+    },
+    {
+      "name": "hidden-inline-ack",
+      "passed": true,
+      "snapshot": {
+        "reason": "unknown",
+        "records": [
+          {
+            "ownerId": "auxiliary-1",
+            "kind": "unknown",
+            "id": "previous-session-operation",
+            "generation": 10,
+            "dirty": false,
+            "phase": "unknown"
+          },
+          {
+            "ownerId": "auxiliary-2",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 5,
+            "dirty": false,
+            "phase": "idle",
+            "operation": 4
+          },
+          {
+            "ownerId": "draft-store",
+            "kind": "store",
+            "id": "draft-store",
+            "generation": 5,
+            "dirty": false,
+            "phase": "idle"
+          },
+          {
+            "ownerId": "editor-2",
+            "kind": "dish",
+            "id": "soup",
+            "generation": 0,
+            "dirty": false,
+            "phase": "clean",
+            "pending": false,
+            "recovering": false,
+            "context": 2,
+            "operation": 0
+          }
+        ],
+        "stamp": "[24,2,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":10,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"auxiliary-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+      }
+    }
+  ]
+}

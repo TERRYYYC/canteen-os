@@ -1,0 +1,26 @@
+{
+  "allStopped": true,
+  "servers": [
+    {
+      "origin": "http://127.0.0.1:55075/canteen/",
+      "session": 89387,
+      "stopExit": 130
+    },
+    {
+      "origin": "http://127.0.0.1:55085/canteen/",
+      "session": 14857,
+      "stopExit": 130
+    },
+    {
+      "origin": "http://127.0.0.1:55091/canteen/",
+      "session": 16582,
+      "stopExit": 130
+    },
+    {
+      "origin": "http://127.0.0.1:55546/canteen/",
+      "session": 10900,
+      "stopExit": 1,
+      "note": "Ctrl-C terminal exit; no subsequent server operations"
+    }
+  ]
+}

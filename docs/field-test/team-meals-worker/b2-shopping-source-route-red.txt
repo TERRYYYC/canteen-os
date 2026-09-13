@@ -1,0 +1,82 @@
+✖ B2 source supports strict ShoppingList with pinned commit (10.29875ms)
+✖ B2 source checks stored basis ancestry (0.773041ms)
+✖ B2 source checks stored previous ancestry (0.527125ms)
+✖ B2 stored ShoppingList ID must match its source path (0.928209ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.453625
+
+✖ failing tests:
+
+test at packages/worker/test/shopping-source.test.mjs:7:1
+✖ B2 source supports strict ShoppingList with pinned commit (10.29875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 200
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:7:208)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:8:41
+✖ B2 source checks stored basis ancestry (0.773041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:10:172)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:8:41
+✖ B2 source checks stored previous ancestry (0.527125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:10:172)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/shopping-source.test.mjs:12:1
+✖ B2 stored ShoppingList ID must match its source path (0.928209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 422
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/shopping-source.test.mjs:12:287)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

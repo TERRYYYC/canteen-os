@@ -1,0 +1,94 @@
+{
+  "summary": "11/11",
+  "checks": [
+    {
+      "name": "normal initial read finishes its actual coverage",
+      "pass": true
+    },
+    {
+      "name": "unapplied Add is protected while C1 JSON stays clean",
+      "pass": true
+    },
+    {
+      "name": "offscreen Plan raw owner remains protected",
+      "pass": true
+    },
+    {
+      "name": "language and return retain exact Add buffer",
+      "pass": true
+    },
+    {
+      "name": "explicitly reverting raw input clears protection",
+      "pass": true
+    },
+    {
+      "name": "Source read is registered before awaiting",
+      "pass": true
+    },
+    {
+      "name": "new auth hides old private identity and retains unresolved scope",
+      "pass": true
+    },
+    {
+      "name": "old completion settles only old read and original context",
+      "pass": true
+    },
+    {
+      "name": "new read completion finally makes current scope clear",
+      "pass": true
+    },
+    {
+      "name": "known initial read error completes its original coverage",
+      "pass": true
+    },
+    {
+      "name": "all browser probes issue zero writes",
+      "pass": true
+    }
+  ],
+  "snapshot": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-4",
+        "kind": "plan",
+        "id": "private-plan-a",
+        "generation": 18,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-5",
+        "kind": "plan",
+        "id": "failed-plan",
+        "generation": 21,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 2
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "private-plan-a",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[38,1,[[\"page:admin/plan/private-plan-a\",\"tracked\"],[\"page:admin/plan/failed-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-4\",\"kind\":\"plan\",\"id\":\"private-plan-a\",\"generation\":18,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-5\",\"kind\":\"plan\",\"id\":\"failed-plan\",\"generation\":21,\"dirty\":false,\"phase\":\"idle\",\"operation\":2},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"private-plan-a\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "posts": 0
+}

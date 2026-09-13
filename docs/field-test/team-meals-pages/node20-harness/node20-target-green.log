@@ -1,0 +1,195 @@
+TAP version 13
+# Subtest: ingredient: actual Http current-auth array ACK cannot prove completion
+ok 1 - ingredient: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 53.62375
+  ...
+# Subtest: ingredient: actual Http current-auth string ACK settles only its write
+ok 2 - ingredient: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 39.49225
+  ...
+# Subtest: ingredient: available old-auth array ACK cannot prove completion
+ok 3 - ingredient: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 39.468083
+  ...
+# Subtest: ingredient: available old-auth string ACK settles only its write
+ok 4 - ingredient: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 42.083667
+  ...
+# Subtest: dish: actual Http current-auth array ACK cannot prove completion
+ok 5 - dish: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 46.705166
+  ...
+# Subtest: dish: actual Http current-auth string ACK settles only its write
+ok 6 - dish: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 46.33
+  ...
+# Subtest: dish: available old-auth array ACK cannot prove completion
+ok 7 - dish: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 45.57625
+  ...
+# Subtest: dish: available old-auth string ACK settles only its write
+ok 8 - dish: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 45.067167
+  ...
+# Subtest: ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 9 - ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 40.601708
+  ...
+# Subtest: dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 10 - dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 45.985
+  ...
+# Subtest: ingredient: valid available old ACK settles A only while B still owns its write
+ok 11 - ingredient: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 72.845625
+  ...
+# Subtest: dish: valid available old ACK settles A only while B still owns its write
+ok 12 - dish: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 82.569916
+  ...
+# Subtest: raw list ID, plan IDs and selections have stable dirty generations across language and route return
+ok 13 - raw list ID, plan IDs and selections have stable dirty generations across language and route return
+  ---
+  duration_ms: 10.892875
+  ...
+# Subtest: scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+ok 14 - scope selection itself dirties owner; rereading preserves user selection instead of restoring all options
+  ---
+  duration_ms: 12.138541
+  ...
+# Subtest: later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+ok 15 - later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty
+  ---
+  duration_ms: 3.89125
+  ...
+# Subtest: initialization is registered before async and original auth settlement cannot clear the next auth read
+ok 16 - initialization is registered before async and original auth settlement cannot clear the next auth read
+  ---
+  duration_ms: 6.112791
+  ...
+# Subtest: held initialization stays guarded through language even when the real API coalesces identical GETs
+ok 17 - held initialization stays guarded through language even when the real API coalesces identical GETs
+  ---
+  duration_ms: 6.621833
+  ...
+# Subtest: create consumes only its captured inputs and routes to captured ID while later raw survives
+ok 18 - create consumes only its captured inputs and routes to captured ID while later raw survives
+  ---
+  duration_ms: 5.709125
+  ...
+# Subtest: successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+ok 19 - successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing
+  ---
+  duration_ms: 5.758834
+  ...
+# Subtest: C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+ok 20 - C1 unknown save and its recovery do not acquire a duplicate auxiliary operation
+  ---
+  duration_ms: 11.922292
+  ...
+# Subtest: unconfigured and malformed routes finish read-only coverage without fake transport
+ok 21 - unconfigured and malformed routes finish read-only coverage without fake transport
+  ---
+  duration_ms: 2.967
+  ...
+# Subtest: existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+ok 22 - existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK
+  ---
+  duration_ms: 12.166541
+  ...
+# Subtest: successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+ok 23 - successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope
+  ---
+  duration_ms: 11.293
+  ...
+# Subtest: scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+ok 24 - scope selection remains dirty and unchanged after readonly create is invalidated by leaving
+  ---
+  duration_ms: 5.174375
+  ...
+# Subtest: two distinct simultaneous initialization reads remain protected until both original tickets finish
+ok 25 - two distinct simultaneous initialization reads remain protected until both original tickets finish
+  ---
+  duration_ms: 6.554958
+  ...
+# Subtest: late input events from the prior language/auth cannot change the active raw owner
+ok 26 - late input events from the prior language/auth cannot change the active raw owner
+  ---
+  duration_ms: 3.165875
+  ...
+# Subtest: an old discard proposal is invalidated by another raw edit through the real reload coordinator
+ok 27 - an old discard proposal is invalidated by another raw edit through the real reload coordinator
+  ---
+  duration_ms: 2.786292
+  ...
+# Subtest: concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+ok 28 - concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback
+  ---
+  duration_ms: 8.432792
+  ...
+# Subtest: adopting a different remote basis refreshes untouched scope inputs and their real baseline
+ok 29 - adopting a different remote basis refreshes untouched scope inputs and their real baseline
+  ---
+  duration_ms: 10.995167
+  ...
+# Subtest: remote adoption does not consume a later raw edit after its C1 replacement notification
+ok 30 - remote adoption does not consume a later raw edit after its C1 replacement notification
+  ---
+  duration_ms: 10.587541
+  ...
+# Subtest: ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 31 - ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 54.134791
+  ...
+# Subtest: dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 32 - dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 38.966584
+  ...
+# Subtest: paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 33 - paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 39.537208
+  ...
+# Subtest: Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+ok 34 - Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+  ---
+  duration_ms: 30.8745
+  ...
+# Subtest: ingredient: actual pending and unknown operation still veto manual and application reload
+ok 35 - ingredient: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 60.535
+  ...
+# Subtest: dish: actual pending and unknown operation still veto manual and application reload
+ok 36 - dish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 62.520458
+  ...
+# Subtest: publish: actual pending and unknown operation still veto manual and application reload
+ok 37 - publish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 60.230208
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 662.788458

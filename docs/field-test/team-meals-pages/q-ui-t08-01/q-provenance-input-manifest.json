@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "docs/field-test/team-meals/page-browser/ledger-T08-red-checkpoint.json",
+      "copy": "q-fixed-ledger-T08-red-checkpoint.json",
+      "bytes": 129668,
+      "sha256": "97ddb1f4e7dbd7406dc49240062a183679b4bf710d0d13695a7fd0f217966b49"
+    },
+    {
+      "sourceCommit": "ad54d4ff31f977624e1605e883d3c2286a50358b",
+      "sourcePath": "docs/field-test/team-meals/page-browser/source-integrity-842.json",
+      "copy": "q-fixed-source-integrity-842.json",
+      "bytes": 9167,
+      "sha256": "7b4e46b465266fefe4e17f9302acf9aceeb8cab767650a92da54f9abf7b7b156"
+    }
+  ]
+}

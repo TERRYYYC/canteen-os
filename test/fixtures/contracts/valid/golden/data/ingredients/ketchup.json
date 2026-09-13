@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄酱",
+    "en": "Ketchup",
+    "uk": "Томатний кетчуп"
+  },
+  "baseUnit": "g",
+  "role": "seasoning",
+  "trackStock": false
+}

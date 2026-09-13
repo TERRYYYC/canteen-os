@@ -1,0 +1,99 @@
+- banner:
+  - button "Open sections menu"
+  - heading "Purchasing" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - link "Back":
+    - /url: "#/purchase"
+  - heading "This shopping list" [level=2]
+  - link "Plan meals":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: List saved
+    - 'generic "Source version: 4529ceca"'
+  - 'generic "Ingredient and menu version: e1441c8d"'
+  - link "This shopping list":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "Source version: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "View current information separately"
+    - heading "First test dish" [level=2]
+    - paragraph: first-dish
+    - term: ZH
+    - definition: 第一道样本菜
+    - term: EN
+    - definition: First test dish
+    - term: UK
+    - definition: Перша тестова страва
+    - figure:
+      - paragraph: Same-version image unavailable
+    - paragraph: Not recorded
+    - term: Original recipe servings
+    - definition: "2"
+    - term: Recipe source
+    - definition: manual
+    - heading "Ingredients and seasonings" [level=3]
+    - paragraph: Original recipe quantities, unscaled
+    - heading "Tomato revision B" [level=4]:
+      - link "Tomato revision B":
+        - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+    - paragraph: 300 g
+    - paragraph: "Ingredient role: Main ingredient"
+    - paragraph: "Technique: Roll-cut chunks · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.
+    - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "First test dish"
+      - status
+      - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: Prep size
+    - definition: Not recorded
+    - term: Prep timing
+    - definition: Not recorded
+    - term: Note
+    - definition: Not recorded
+    - figure
+    - heading "Salt" [level=4]:
+      - link "Salt":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+    - paragraph: To taste
+    - paragraph: "Ingredient role: Seasoning"
+    - heading "Oil" [level=4]:
+      - link "Oil":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+    - paragraph: 20 ml
+    - paragraph: "Ingredient role: Seasoning"
+    - heading "Full method" [level=3]
+    - heading "1" [level=4]
+    - paragraph: Prepare tomatoes using the recorded instructions.
+    - term: ZH
+    - definition: 按原始记录准备番茄。
+    - term: EN
+    - definition: Prepare tomatoes using the recorded instructions.
+    - term: UK
+    - definition: Підготуйте томати за записаними вказівками.
+    - paragraph: "Technique: Roll-cut chunks · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: Roll the ingredient between cuts to make irregular multi-faced chunks; suits round produce like tomatoes, radish, potatoes.
+    - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "First test dish"
+      - status
+      - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - figure
+    - paragraph: Only recorded information is shown; recipe completeness still needs human review.

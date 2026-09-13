@@ -1,0 +1,1256 @@
+[
+  {
+    "lang": "zh",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 393,
+    "text": "返回排每天的菜粘贴导入有未保存的修改模拟演示，未写入真实仓库资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。份数可以留空；保存会保留整份计划，使用新格式。查看范围全部日期一天一周日期2026-09-14 · 午餐菜品选择菜品汤炖菜份数（选填）移除2026-09-15 · 晚餐菜品选择菜品汤炖菜份数（选填）移除18:00-19:002026-09-16 · 午餐菜品选择菜品汤炖菜份数（选填）移除日期餐次早餐午餐晚餐菜品选择菜品汤炖菜加一道菜查看材料候选从已保存计划建立采购清单保存计划去发布",
+    "width": 393
+  },
+  {
+    "lang": "en",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 393,
+    "text": "BackPlan mealsPaste importUnsaved changesSimulation; no real repository writeSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaThe Add choices have not been added to the plan. Use “Add a dish” to apply them.Counts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoupStewServings (optional)Remove2026-09-15 · DinnerDishChoose a dishSoupStewServings (optional)Remove18:00-19:002026-09-16 · LunchDishChoose a dishSoupStewServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoupStewAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publish",
+    "width": 393
+  },
+  {
+    "lang": "uk",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 393,
+    "text": "НазадПланувати стравиІмпорт текстуЄ незбережені зміниСимуляція; без запису в справжнє сховищеВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaВибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.Кількість можна не вказувати. Зберігається весь план у новому форматі.Діапазон переглядуУсі датиДеньТижденьДата2026-09-14 · ОбідСтраваВиберіть стравуСупРагуПорції (необов’язково)Прибрати2026-09-15 · ВечеряСтраваВиберіть стравуСупРагуПорції (необов’язково)Прибрати18:00-19:002026-09-16 · ОбідСтраваВиберіть стравуСупРагуПорції (необов’язково)ПрибратиДатаПрийом їжіСніданокОбідВечеряСтраваВиберіть стравуСупРагуДодати стравуПереглянути інгредієнтиСтворити список покупок зі збереженого плануЗберегти планДо публікації",
+    "width": 393
+  },
+  {
+    "lang": "zh",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 1440,
+    "text": "返回排每天的菜粘贴导入有未保存的修改模拟演示，未写入真实仓库资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。份数可以留空；保存会保留整份计划，使用新格式。查看范围全部日期一天一周日期2026-09-14 · 午餐菜品选择菜品汤炖菜份数（选填）移除2026-09-15 · 晚餐菜品选择菜品汤炖菜份数（选填）移除18:00-19:002026-09-16 · 午餐菜品选择菜品汤炖菜份数（选填）移除日期餐次早餐午餐晚餐菜品选择菜品汤炖菜加一道菜查看材料候选从已保存计划建立采购清单保存计划去发布",
+    "width": 1440
+  },
+  {
+    "lang": "en",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 1440,
+    "text": "BackPlan mealsPaste importUnsaved changesSimulation; no real repository writeSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaThe Add choices have not been added to the plan. Use “Add a dish” to apply them.Counts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoupStewServings (optional)Remove2026-09-15 · DinnerDishChoose a dishSoupStewServings (optional)Remove18:00-19:002026-09-16 · LunchDishChoose a dishSoupStewServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoupStewAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publish",
+    "width": 1440
+  },
+  {
+    "lang": "uk",
+    "addDate": "2026-10-03",
+    "addDish": "stew",
+    "addMeal": "dinner",
+    "ledger": {
+      "calls": [
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 8
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              },
+              {
+                "date": "2026-10-03",
+                "dishRef": "stew",
+                "mealType": "dinner"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "body": {
+            "margin": 1.13,
+            "meals": [
+              {
+                "date": "2026-09-14",
+                "dishRef": "soup",
+                "mealType": "lunch",
+                "plannedServings": 9
+              },
+              {
+                "date": "2026-09-15",
+                "dishRef": "stew",
+                "mealType": "dinner",
+                "plannedServings": 12,
+                "serviceWindow": "18:00-19:00"
+              },
+              {
+                "date": "2026-09-16",
+                "dishRef": "soup",
+                "mealType": "lunch"
+              }
+            ],
+            "schemaVersion": "3"
+          },
+          "ifMatch": "before",
+          "method": "POST",
+          "path": "/plan/week-a"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-a",
+          "revision": null
+        },
+        {
+          "method": "GET",
+          "path": "/catalog",
+          "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "method": "GET",
+          "path": "/source/plan/week-b",
+          "revision": null
+        }
+      ],
+      "checks": [
+        {
+          "name": "remove earlier row preserves exact original row raw value and blocks save",
+          "pass": true
+        },
+        {
+          "name": "language repaint retains remapped invalid raw",
+          "pass": true
+        },
+        {
+          "name": "another plan does not consume original raw owner",
+          "pass": true
+        },
+        {
+          "name": "return keeps original identity and generation",
+          "pass": true
+        },
+        {
+          "name": "read-only range/date filters do not mark raw dirty",
+          "pass": true
+        },
+        {
+          "name": "Add choices retain date meal and dish across language",
+          "pass": true
+        },
+        {
+          "name": "unapplied choices do not present the page as unchanged",
+          "pass": true
+        },
+        {
+          "name": "unapplied Add survives cross-plan return",
+          "pass": true
+        },
+        {
+          "name": "failed incomplete Add does not consume pending",
+          "pass": true
+        },
+        {
+          "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+          "pass": true
+        },
+        {
+          "name": "Save serializes full plan only through C1",
+          "pass": true
+        },
+        {
+          "name": "unknown JSON save does not consume unapplied Add",
+          "pass": true
+        }
+      ],
+      "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+      "owners": [
+        {
+          "dirty": true,
+          "generation": 4,
+          "identity": {
+            "id": "week-a",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-a",
+          "phase": "idle"
+        },
+        {
+          "dirty": false,
+          "generation": 5,
+          "identity": {
+            "id": "week-b",
+            "kind": "plan"
+          },
+          "ownerId": "plan-buffer/week-b",
+          "phase": "idle"
+        }
+      ]
+    },
+    "scrollWidth": 1440,
+    "text": "НазадПланувати стравиІмпорт текстуЄ незбережені зміниСимуляція; без запису в справжнє сховищеВерсія даних: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaВибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.Кількість можна не вказувати. Зберігається весь план у новому форматі.Діапазон переглядуУсі датиДеньТижденьДата2026-09-14 · ОбідСтраваВиберіть стравуСупРагуПорції (необов’язково)Прибрати2026-09-15 · ВечеряСтраваВиберіть стравуСупРагуПорції (необов’язково)Прибрати18:00-19:002026-09-16 · ОбідСтраваВиберіть стравуСупРагуПорції (необов’язково)ПрибратиДатаПрийом їжіСніданокОбідВечеряСтраваВиберіть стравуСупРагуДодати стравуПереглянути інгредієнтиСтворити список покупок зі збереженого плануЗберегти планДо публікації",
+    "width": 1440
+  }
+]

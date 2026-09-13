@@ -1,0 +1,39 @@
+✔ menu public entry reads approved team output and exposes original recipe via existing route (9.610958ms)
+✔ menu distinguishes empty manifest, empty plan, missing file and invalid target (0.879792ms)
+✔ menu late A read cannot overwrite B in reused outlet (21.848125ms)
+✔ menu legacy remains an explicit branch (0.304458ms)
+✔ prep public entry reads approved team output and exposes original recipe via existing route (0.924208ms)
+✔ prep distinguishes empty manifest, empty plan, missing file and invalid target (0.450541ms)
+✔ prep late A read cannot overwrite B in reused outlet (21.705666ms)
+✔ prep legacy remains an explicit branch (0.372125ms)
+✔ prep published ingredient and technique images use original bytes; external and missing assets remain distinct (66.022333ms)
+✔ absent optional image is visibly not recorded, distinct from a failed original image read (0.940625ms)
+✖ menu clicking a repeated dish retains the exact original row across its existing deep link and language (1.325875ms)
+✔ prep dish selection survives language, ingredient deep link and date return without losing duplicate rows (1.8215ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 11
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2867.402375
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-published.test.mjs:48:1
+✖ menu clicking a repeated dish retains the exact original row across its existing deep link and language (1.325875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '0' !== '1'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:48:417)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

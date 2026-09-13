@@ -1,0 +1,122 @@
+[
+  {
+    "name": "inline local ID error survives auxiliary completion",
+    "passed": true,
+    "writes": 0,
+    "errors": [
+      "Fill in the short English name first"
+    ],
+    "idInvalid": "true",
+    "inlinePresent": true
+  },
+  {
+    "name": "inline server field error survives auxiliary completion",
+    "passed": true,
+    "errors": [
+      "Name needs at least two letters"
+    ],
+    "nameInvalid": "true",
+    "status": "Save service configuredUnsaved changesInvalid ingredientaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "server field error survives language repaint",
+    "passed": true,
+    "errors": [
+      "Name needs at least two letters"
+    ]
+  },
+  {
+    "name": "late server field errors reach the current language form",
+    "passed": true,
+    "errors": [
+      "Delayed name field error"
+    ]
+  },
+  {
+    "name": "local error is revalidated in the current language",
+    "passed": true,
+    "errors": [
+      "Спочатку вкажіть коротку англійську назву"
+    ]
+  },
+  {
+    "name": "generic recoverable error and retry survive repaint",
+    "passed": true,
+    "message": "Документ змінився. Чернетку збережено локально; перевірте зміни重试",
+    "writes": 1
+  },
+  {
+    "name": "explicit retry consumes the inline buffer once",
+    "passed": true,
+    "writes": 2
+  },
+  {
+    "name": "upload field error remains attached to its preserved photo",
+    "passed": true,
+    "errors": [
+      "Please check this photo license"
+    ]
+  },
+  {
+    "name": "late raw edits survive photo upload and save acknowledgement",
+    "passed": true,
+    "uploads": 1,
+    "writes": [
+      {
+        "id": "soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "原来的汤",
+            "en": "Original soup"
+          },
+          "status": "draft",
+          "image": {
+            "src": "data/dishes/soup/images/review.png",
+            "license": "own"
+          }
+        },
+        "condition": {
+          "ifMatch": "blob-a"
+        }
+      }
+    ],
+    "rawName": "编辑期间新增名字",
+    "dirty": true
+  },
+  {
+    "name": "detached photo completion retained and reused without duplicate upload",
+    "passed": true,
+    "uploads": 1,
+    "writesBeforeReturnSave": 0,
+    "writes": [
+      {
+        "id": "soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "原来的汤",
+            "en": "Original soup"
+          },
+          "image": {
+            "src": "data/dishes/soup/images/review.png",
+            "license": "own"
+          },
+          "status": "draft"
+        },
+        "condition": {
+          "ifMatch": "blob-a"
+        }
+      }
+    ]
+  },
+  {
+    "name": "unknown auxiliary upload preserves photo and stays protected",
+    "passed": true,
+    "uploads": 1,
+    "blocked": true,
+    "dirty": true,
+    "photoPresent": true,
+    "status": "Сервіс збереження налаштованоЄ незбережені зміниРезультат збереження фото або інгредієнта невідомий. Локальні дані збережено; спочатку перевірте результат на серверіНемає зв'язку з кабінетомaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+]

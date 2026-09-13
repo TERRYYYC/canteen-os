@@ -1,0 +1,95 @@
+{
+  "summary": "9/9",
+  "sourceHash": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5",
+  "checks": [
+    {
+      "name": "three initial reads are protected before any response",
+      "pass": true
+    },
+    {
+      "name": "language reuses three existing reads and registered coverage",
+      "pass": true
+    },
+    {
+      "name": "two results cannot release the third read",
+      "pass": true
+    },
+    {
+      "name": "all reads finishing release the actual home coverage",
+      "pass": true
+    },
+    {
+      "name": "new identity starts its own reads",
+      "pass": true
+    },
+    {
+      "name": "old pending reads become anonymous protected state",
+      "pass": true
+    },
+    {
+      "name": "old initialization completion leaves new reads protected",
+      "pass": true
+    },
+    {
+      "name": "new initialization completion releases current coverage",
+      "pass": true
+    },
+    {
+      "name": "home never posts or fabricates meal counts",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/changes"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37"
+    },
+    {
+      "method": "GET",
+      "path": "/changes"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37"
+    },
+    {
+      "method": "GET",
+      "path": "/changes"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37"
+    }
+  ],
+  "snapshot": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      }
+    ],
+    "stamp": "[29,2,[[\"page:admin/\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6}]]"
+  }
+}

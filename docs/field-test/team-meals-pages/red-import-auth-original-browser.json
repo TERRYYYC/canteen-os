@@ -1,0 +1,62 @@
+{
+  "summary": "5/8",
+  "checks": [
+    {
+      "name": "CSV absent counts stay blank",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "CSV keeps prior duplicate counts and absent new count",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Source 403 cannot create an empty-base draft",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "confirmed Source 404 alone creates v3 unknown count",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "language rebind ignores old saved-plan completion",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "invalid late preview stays blocked after canceled import",
+      "pass": false,
+      "detail": "{\"draft\":null,\"invalid\":\"true\",\"disabled\":false,\"button\":\"Import 1, skip 0\"}"
+    },
+    {
+      "name": "new auth does not display old imported draft notice",
+      "pass": false,
+      "detail": "←Вставити списокТиждень від 2026-09-14Симуляція; без запису в справжнє сховищеУже є імпортована чернетка (3 страв) · ще не збереженоСкасувати діюДо менюВставте сюди повідомлення з WeChatФормат вільний: день тижня або дата · сніданок / обід / вечеря · страва · порції. Нерозпізнані рядки буде позначено, а не відхилено всі разом.РозібратиОчиститиАбо завантажте таблицюCSV, чотири стовпчикиДата · прийо"
+    },
+    {
+      "name": "new-auth import uses its own source rather than old shared draft",
+      "pass": false,
+      "detail": "{\"plan\":{\"schemaVersion\":\"3\",\"name\":{\"zh\":\"private-A-plan\"},\"margin\":1.17,\"meals\":[{\"date\":\"2026-09-14\",\"mealType\":\"lunch\",\"dishRef\":\"soup\",\"plannedServings\":8,\"serviceWindow\":\"12:00-13:00\"},{\"date\":\"2026-09-14\",\"mealType\":\"lunch\",\"dishRef\":\"soup\",\"plannedServings\":11},{\"date\":\"2026-09-15\",\"mealType\":\"dinner\",\"dishRef\":\"other\"},{\"date\":\"2026-09-17\",\"mealType\":\"dinner\",\"dishRef\":\"other\",\"plannedServings\":19}],\"dateRange\":{\"start\":\"2026-09-14\",\"end\":\"2026-09-20\"}},\"requests\":[{\"principal\":1,\"method\":\"GET\",\"path\":\"/catalog\"},{\"principal\":1,\"method\":\"GET\",\"path\":\"/source/plan/week-38\"},{\"principal\":2,\"method\":\"GET\",\"path\":\"/catalog\"}]}"
+    }
+  ],
+  "requests": [
+    {
+      "principal": 1,
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "principal": 1,
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "principal": 2,
+      "method": "GET",
+      "path": "/catalog"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: repair boundary: physically detached Ingredient cannot send while its matching hash is unchanged
+ok 1 - repair boundary: physically detached Ingredient cannot send while its matching hash is unchanged
+  ---
+  duration_ms: 81.772875
+  ...
+# Subtest: repair boundary: already-sent actual Ingredient HTTP save ACK settles A while B and later A raw remain
+ok 2 - repair boundary: already-sent actual Ingredient HTTP save ACK settles A while B and later A raw remain
+  ---
+  duration_ms: 68.1425
+  ...
+# Subtest: repair boundary: already-sent Dish upload ACK settles hidden A without duplicate upload or overwriting B
+not ok 3 - repair boundary: already-sent Dish upload ACK settles hidden A without duplicate upload or overwriting B
+  ---
+  duration_ms: 60.980209
+  location: '/private/tmp/canteen-bundle-d1-repair-review-7920496/packages/web/test/reviewer-d1-repair-boundaries.test.mjs:13:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'Later A'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Later A'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/canteen-bundle-d1-repair-review-7920496/packages/web/test/reviewer-d1-repair-boundaries.test.mjs:14:719)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: repair boundary: inline language continuation saves old snapshot once and retains later buffer edits
+ok 4 - repair boundary: inline language continuation saves old snapshot once and retains later buffer edits
+  ---
+  duration_ms: 79.563292
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 3
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 349.935875

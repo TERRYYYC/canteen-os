@@ -1,0 +1,46 @@
+{
+  "result": [
+    {
+      "attempt": 1,
+      "ok": false,
+      "error": "TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:58976/optional.js"
+    },
+    {
+      "attempt": 2,
+      "ok": false,
+      "error": "TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:58976/optional.js"
+    }
+  ],
+  "requests": [
+    {
+      "path": "/",
+      "method": "GET",
+      "broken": true
+    },
+    {
+      "path": "/favicon.ico",
+      "method": "GET",
+      "broken": true
+    },
+    {
+      "path": "/optional.js",
+      "method": "GET",
+      "broken": true
+    },
+    {
+      "path": "/requests",
+      "method": "GET",
+      "broken": true
+    },
+    {
+      "path": "/restore",
+      "method": "POST",
+      "broken": true
+    },
+    {
+      "path": "/requests",
+      "method": "GET",
+      "broken": false
+    }
+  ]
+}

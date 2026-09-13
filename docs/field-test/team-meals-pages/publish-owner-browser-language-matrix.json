@@ -1,0 +1,50 @@
+[
+  {
+    "lang": "zh",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 393,
+    "text": "←发布发布操作结果未知；请先核实，当前不能再次发布或回退没有这次构建的编号，无法用最近一次构建证明结果。请联系管理员核实。Can't reach the back office还没发布的改动 · 1第 38 周菜单Explicit fixture meal edit · 师傅 · 03:00 · 1 个文件上次发布 2026年9月10日 03:00 · aaaaaaa发布记录2026年9月10日 03:00aaaaaaa · 构建 #10现在线上就是这版回到这版打印贴墙打印二维码备料 / 采购 / 菜单三张码，A4 一页贴墙",
+    "width": 393
+  },
+  {
+    "lang": "en",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 393,
+    "text": "←PublishPublishOperation outcome unknown; verify before publishing or rolling back againThis build has no known ID. The latest build cannot prove its outcome. Ask the administrator to verify.Can't reach the back officeUnpublished changes · 1Week 38 menuExplicit fixture meal edit · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet",
+    "width": 393
+  },
+  {
+    "lang": "uk",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 393,
+    "text": "←ПублікаціяОпублікуватиРезультат операції невідомий; перевірте перед повторною публікацією чи поверненнямНомер цієї збірки невідомий. Остання збірка не підтверджує її результат. Попросіть адміністратора перевірити.Can't reach the back officeНеопубліковані зміни · 1Меню на тиждень 38Explicit fixture meal edit · шеф · 03:00 · файлів: 1Остання публікація 10 вер. 2026 р., 03:00 · aaaaaaaІсторія публікацій10 вер. 2026 р., 03:00aaaaaaa · збірка #10Зараз онлайн саме ця версіяПовернутися до цієї версіїДрук на стінуРоздрукувати QR-кодиТри коди — заготовка, закупівля, меню — на одному аркуші A4",
+    "width": 393
+  },
+  {
+    "lang": "zh",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 1440,
+    "text": "←发布发布操作结果未知；请先核实，当前不能再次发布或回退没有这次构建的编号，无法用最近一次构建证明结果。请联系管理员核实。Can't reach the back office还没发布的改动 · 1第 38 周菜单Explicit fixture meal edit · 师傅 · 03:00 · 1 个文件上次发布 2026年9月10日 03:00 · aaaaaaa发布记录2026年9月10日 03:00aaaaaaa · 构建 #10现在线上就是这版回到这版打印贴墙打印二维码备料 / 采购 / 菜单三张码，A4 一页贴墙",
+    "width": 1440
+  },
+  {
+    "lang": "en",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 1440,
+    "text": "←PublishPublishOperation outcome unknown; verify before publishing or rolling back againThis build has no known ID. The latest build cannot prove its outcome. Ask the administrator to verify.Can't reach the back officeUnpublished changes · 1Week 38 menuExplicit fixture meal edit · chef · 3:00 AM · 1 filesLast published Sep 10, 2026, 3:00 AM · aaaaaaaPublish historySep 10, 2026, 3:00 AMaaaaaaa · build #10This is what's live nowGo back to this versionPrint for the wallPrint the QR codesPrep, purchase and menu codes on one A4 sheet",
+    "width": 1440
+  },
+  {
+    "lang": "uk",
+    "publishDisabled": true,
+    "rollbackDisabled": true,
+    "scrollWidth": 1440,
+    "text": "←ПублікаціяОпублікуватиРезультат операції невідомий; перевірте перед повторною публікацією чи поверненнямНомер цієї збірки невідомий. Остання збірка не підтверджує її результат. Попросіть адміністратора перевірити.Can't reach the back officeНеопубліковані зміни · 1Меню на тиждень 38Explicit fixture meal edit · шеф · 03:00 · файлів: 1Остання публікація 10 вер. 2026 р., 03:00 · aaaaaaaІсторія публікацій10 вер. 2026 р., 03:00aaaaaaa · збірка #10Зараз онлайн саме ця версіяПовернутися до цієї версіїДрук на стінуРоздрукувати QR-кодиТри коди — заготовка, закупівля, меню — на одному аркуші A4",
+    "width": 1440
+  }
+]

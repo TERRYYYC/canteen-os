@@ -1,0 +1,204 @@
+{
+  "receiptVersion": 1,
+  "createdAtUtc": "2026-09-11T11:31:18.780028+00:00",
+  "localReviewVerdict": "APPROVE",
+  "reviewedHeadSha": "1a0668ef4eb985d908f3fc44348bd9a2d9008595",
+  "qDeltaBaseSha": "9084fcc64689ddb66ef925d97b0e2e4a40433233",
+  "priorPreservedQCut": "c7b403bfa8f906f6455655223ed53976b0207f13",
+  "reviewSubjectRef": "task:01a08d74-9915-7191-ba9f-3177c587e52a/RC-Q-import-repair-6bb-evidence",
+  "acceptedSourceRef": "docs/specs/team-meals-contract.md",
+  "acceptedRevision": "ad1f427ae8d7ffc6841bfd2e51c279d2c90381d2",
+  "acceptedRepairSourceRef": "docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+  "acceptedRepairRevision": "85be50155723114256d8e597160e7db7a8c2995a",
+  "acceptedRepairContractSha256": "6dd6585bcd5634c1d879bd5371c13ce4c5e7d8da6c73f030d9da52a7d2e4cef3",
+  "acceptedDesignSha256": "6aaff3f33b65aad6f6952297abae9dd2dafef379bcc0fa64066c07f5300f0352",
+  "clientMessageId": "rcq-import-repair-evidence-1a0668e-20260911",
+  "acceptedProductionSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "acceptedFullDeliverySha": "fa6d1ab89abf9c0a98d053f5d34734547f4ec0cc",
+  "capturedExecutionSha": "9084fcc64689ddb66ef925d97b0e2e4a40433233",
+  "reviewerIdentity": "Codex non-author /root/v2_review",
+  "route": "local_cat; return only to author /root",
+  "engagement": "iterative; no open review items",
+  "fiveTuple": {
+    "What": "Review Q-owned import-native-evidence.test.mjs, page-repair-6bb sealed evidence and the cumulative local matrix at exact Q HEAD 1a0668ef4eb985d908f3fc44348bd9a2d9008595; capture execution source 9084fcc64689ddb66ef925d97b0e2e4a40433233.",
+    "Why": "Determine whether the original unsaved 11 -> unrelated meal import predicate is repaired, while preserving invalid/omitted counts, local add/remove edits, original conditional save ownership and later imports across an old ACK.",
+    "Tradeoff": "Consume approved D production 6bb1ce9/full fa6 and unaffected prior Q evidence. Independent work uses exact temporary source, real Node20/Core/Worker, captured-DOM checks and real Worker request replay with existing FakeRepo. No browser, production changes or new broad matrix run.",
+    "Open Questions": "No new actionable P-level findings. Evidence supports closing Q-UI-T01-02 and the affected local T01/T07 cells. It supports the matrix only with its documented executed/inherited/uncovered distinctions; unperformed native no-SW/offline/update, real history/L2 and visual walkthroughs remain outside approval.",
+    "Next Action": "Archive this exact local_cat APPROVE, then update the author closure record and bounded local matrix to reflect the review. Preserve 4813/810 and original RED artifacts; route any future product or acceptance scope through separate review."
+  },
+  "newActionableFindings": [],
+  "verdictScope": {
+    "Q-UI-T01-02": "closure supported",
+    "T01/T07 local affected cells": "closure supported within listed scope",
+    "cumulativeT01-T09Matrix": "executed/inherited/uncovered distinctions supported; not blanket validation of uncovered categories",
+    "Q-UI-T08-01": "prior independent closure unchanged",
+    "overallProductionOrL2": "not approved"
+  },
+  "independentEvidence": {
+    "archive": "/private/tmp/rcq-review-import-1a0668e-wybc_s5s",
+    "archiveClean": true,
+    "node": "v20.20.2",
+    "coreWorkerBuildExit": 0,
+    "newCapturedPredicates": {
+      "pass": 4,
+      "fail": 0
+    },
+    "originalCaptureRepro": {
+      "exitCode": 0,
+      "before": "11",
+      "after": "11",
+      "browserRerun": false
+    },
+    "realWorkerReplay": {
+      "requestCount": 11,
+      "postIds": [
+        3,
+        6,
+        8
+      ],
+      "sourceIds": [
+        1,
+        10
+      ],
+      "statusHeadersAndFullResponseBodySha256": "all exact",
+      "eachModelHead": "exact",
+      "conditionalChain": [
+        {
+          "requestId": 3,
+          "ifMatch": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96",
+          "priorAcknowledgedBlob": "d97b53d3fca48fb320a9081c9cdab07c2e7b0a96"
+        },
+        {
+          "requestId": 6,
+          "ifMatch": "64851f851dd8b49677a18d1e016f68c3a25b2847",
+          "priorAcknowledgedBlob": "64851f851dd8b49677a18d1e016f68c3a25b2847"
+        },
+        {
+          "requestId": 8,
+          "ifMatch": "2f6fe1f9181abeacc559759202dc2cce8f99da20",
+          "priorAcknowledgedBlob": "2f6fe1f9181abeacc559759202dc2cce8f99da20"
+        }
+      ],
+      "finalFiles": 11,
+      "allFinalFileSha256": "exact",
+      "changedFiles": [
+        "data/menu-plans/team-week.json"
+      ],
+      "finalHead": "c3e0fb32b3a924b880baa62e475a5c75de58a1ac",
+      "finalRowCount": 7,
+      "allFinalPlannedServings": "absent, no zero/default",
+      "nativeFetch": "disabled"
+    },
+    "rawAndLateAck": {
+      "originalEleven": "retained after unrelated import",
+      "raw13_7": "retained on original 09-14 row through sort, omitted matching import and EN/UK",
+      "explicit7": "replaces only matched invalid override",
+      "explicitBlank": "keyboard clear of original2 retained; preview clear removes matched raw13.7",
+      "finalRawRows": "indices0..6 unique; all empty; dish matches persisted row at each index",
+      "lateAck": "six-row POST ACK leaves later seventh row present and dirty; only next explicit POST persists seven"
+    },
+    "sourceCustody": {
+      "webSourceFiles": 58,
+      "allEqualExecution9084AndApproved6bb": true,
+      "newQPackagesDelta": [
+        "packages/web/test/e2e/team-meals/import-native-evidence.test.mjs"
+      ]
+    },
+    "newEvidenceManifest": {
+      "entries": 44,
+      "sha256": "9a71faa4fc53eef6ee6af0952cd7cf72f63f6be186e3cdbe23b258ceda7459fd",
+      "allHashAndSizeMatch": true,
+      "unlistedFiles": []
+    },
+    "preservedManifests": [
+      {
+        "manifest": "docs/field-test/team-meals/page-browser/EVIDENCE-SHA256-842.json",
+        "entries": 150,
+        "sha256": "8efd12d68a9f1505fa516e98a6440155c49331089ff793dd699f680adfacac58",
+        "allMatch": true
+      },
+      {
+        "manifest": "docs/field-test/team-meals/page-repair-5049/EVIDENCE-SHA256.json",
+        "entries": 33,
+        "sha256": "1a06f4f3261f990a2b257b9854dedeadda2397d90ea89ea4227d5de98c41cc78",
+        "allMatch": true
+      },
+      {
+        "manifest": "docs/field-test/team-meals/review-receipts/native-4813/MANIFEST-SHA256.json",
+        "entries": 16,
+        "sha256": "649fe511aa3f34f275a8f89e41e0d0a88855e99ab9d8f7bf6a2d7ad0616b1d8c",
+        "allMatch": true
+      },
+      {
+        "manifest": "docs/field-test/team-meals/review-receipts/copy-810df70/MANIFEST-SHA256.json",
+        "entries": 13,
+        "sha256": "1262a5dd2ddc23dfb17c4d2614339b587ce152e78435949da24253d48c8f40af",
+        "allMatch": true
+      }
+    ],
+    "acceptedDReceipt": {
+      "entries": 214,
+      "allGitBytesSizesSha256Match": true,
+      "allOriginalPathsPresentAndByteEqual": true,
+      "gitRef": "fa6d1ab89abf9c0a98d053f5d34734547f4ec0cc",
+      "reportSha256": "832a3db244fd7c924b1b875a6d0f686bf49c08519f469440dc7c2f2cd086f0c8",
+      "manifestSha256": "719f10b5691d79cd5ae67356cd3e53bf3f9064a71255927deb3094fb9fc5bc96",
+      "scope": "accepted upstream review consumed; its539+6 tests/budgets/native predicates were not re-executed by Q reviewer"
+    },
+    "screenshots": "existing retained11 and lateACK captures inspected; no new browser action"
+  },
+  "preservationInterpretation": {
+    "comparison": {
+      "priorQCut": "c7b403bfa8f906f6455655223ed53976b0207f13",
+      "newExecutionCut": "9084fcc64689ddb66ef925d97b0e2e4a40433233"
+    },
+    "meaning": "allUnchanged is an empty Git diff between c7 and9084 for each listed exact path, not for all admin pages or all Web production.",
+    "exactUnchangedPaths": [
+      "packages/web/src/api",
+      "packages/web/src/view-models",
+      "packages/web/src/main.ts",
+      "packages/web/src/admin",
+      "packages/core",
+      "packages/worker",
+      "packages/shared",
+      "schemas",
+      "data",
+      "test/fixtures"
+    ],
+    "adminDirectory": "packages/web/src/admin is the C store/token/kit support directory; it is distinct from packages/web/src/pages/admin.",
+    "approvedChangedDPageFiles": [
+      "packages/web/src/pages/admin/import.ts",
+      "packages/web/src/pages/admin/plan-form.ts",
+      "packages/web/src/pages/admin/plan-import.ts",
+      "packages/web/src/pages/admin/plan.ts"
+    ],
+    "oldEvidence": "c7 is the preserved prior Q baseline; old150, copy33 and both review receipt directories stay byte-identical.",
+    "laterQDelta": "9084..1a0668 adds only Q test/evidence/matrix; 58-source custody proves the executed Web equals accepted6bb."
+  },
+  "matrixAssessment": {
+    "T01": "Original day/week/empty-plan evidence inherited; new import/count/raw/add-remove/whole-save boundary verified.",
+    "T02": "Prior four-ID/all-source and independent core oracle checks inherited.",
+    "T03": "Prior visible warnings and separate realWorker200+warning/formalProducer blocking checks inherited.",
+    "T04": "Prior judgments, metadata retention, two-stage demand rebase and unaffected-byte proof inherited.",
+    "T05": "Prior real-handler/FakeRepo downgrade, concurrency and rollback checks inherited; no browser or remote rollback added.",
+    "T06": "Prior versioned asset/details and immutable reader evidence inherited; no new image or visual signoff.",
+    "T07": "Prior conflict/unknown/late-save checks inherited; new import-while-saving ACK preservation verified. D accepted Node composition covers additional auth/unknown/conflict cases, not new Q native runs.",
+    "T08": "Prior three-language/width captures, reviewed copy closure and bounded offline/update evidence inherited. No new native no-SW/offline/update or whole-user visual walkthrough.",
+    "T09": "Prior independent numerical oracles and unknown-quantity semantics inherited; new final data/DOM confirms absent counts remain absent."
+  },
+  "limits": [
+    "This reviewer did not start or operate a browser/server. Capture assertions and Worker replay are not browser reruns.",
+    "The hold/release request flags and before/after DOM are checked, but Worker replay does not reproduce wall-clock20-second browser timing.",
+    "New initial saved8 body equals original842 request39, but the fresh history starts at9203f8c2 and does not impersonate6f479b8a.",
+    "The cumulative matrix supports only listed local executed/inherited checks. No new native offline/no-SW/update, real GitHub/Cloudflare history, L2, deployment/publish/rollback, complete user walkthrough or visual signoff.",
+    "Test and capture counts are not independent E2E-run counts.",
+    "D implementation is an accepted independently reviewed dependency, not Q-authored code."
+  ],
+  "setupProvenance": "Author evidence accurately retains the rejected draft preview, ineffective fill-empty observation followed by actual keyboard clear, cross-realm assertion setup issue, and initially blocked then authorized loopback controls. These are not counted as product failures or successful unexecuted controls.",
+  "artifacts": {
+    "commands": "commands.json",
+    "replayScript": "replay.original.mjs",
+    "replayResult": "replay-result.json",
+    "manifest": "MANIFEST-SHA256.json"
+  }
+}

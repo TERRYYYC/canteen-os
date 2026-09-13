@@ -1,0 +1,153 @@
+{
+  "sourceCommit": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "baselineProduction": "842b778bd352c0dba8921584ce142d94665e5ca2",
+  "target": {
+    "pass": 55,
+    "fail": 0
+  },
+  "web": {
+    "pass": 509,
+    "fail": 0,
+    "cancelled": 0
+  },
+  "typecheck": "pass",
+  "budgetLimitGzipBytes": 60000,
+  "budgetCombinations": 44,
+  "preloadClosures": 24,
+  "browser": "Root author browser evidence pending, separately owned; Node DOM double is not native clipboard evidence",
+  "independentReview": "Pending original nonauthor plan_review",
+  "default": {
+    "paths": {
+      "prep": {
+        "gzipBytes": 32197,
+        "noSwGzipBytes": 29854,
+        "utf8Bytes": 85083
+      },
+      "menu": {
+        "gzipBytes": 38327,
+        "noSwGzipBytes": 35984,
+        "utf8Bytes": 99125
+      },
+      "purchase": {
+        "gzipBytes": 54444,
+        "noSwGzipBytes": 52101,
+        "utf8Bytes": 137806
+      },
+      "qr": {
+        "gzipBytes": 20797,
+        "noSwGzipBytes": 18454,
+        "utf8Bytes": 52112
+      },
+      "locked-admin": {
+        "gzipBytes": 20327,
+        "noSwGzipBytes": 17984,
+        "utf8Bytes": 51672
+      },
+      "home": {
+        "gzipBytes": 55234,
+        "noSwGzipBytes": 52891,
+        "utf8Bytes": 135726
+      },
+      "plan": {
+        "gzipBytes": 59540,
+        "noSwGzipBytes": 57197,
+        "utf8Bytes": 147080
+      },
+      "import": {
+        "gzipBytes": 50843,
+        "noSwGzipBytes": 48500,
+        "utf8Bytes": 124467
+      },
+      "ingredient-new": {
+        "gzipBytes": 50142,
+        "noSwGzipBytes": 47799,
+        "utf8Bytes": 123027
+      },
+      "dish-new": {
+        "gzipBytes": 57965,
+        "noSwGzipBytes": 55622,
+        "utf8Bytes": 154274
+      },
+      "publish": {
+        "gzipBytes": 56303,
+        "noSwGzipBytes": 53960,
+        "utf8Bytes": 141536
+      }
+    },
+    "allAppJs": {
+      "count": 24,
+      "gzipBytes": 171122,
+      "utf8Bytes": 434879
+    },
+    "precacheEntries": 52,
+    "missingPrecachedJs": [],
+    "swAndRuntimeGzip": 9513
+  },
+  "http": {
+    "paths": {
+      "prep": {
+        "gzipBytes": 32198,
+        "noSwGzipBytes": 29855,
+        "utf8Bytes": 85083
+      },
+      "menu": {
+        "gzipBytes": 38328,
+        "noSwGzipBytes": 35985,
+        "utf8Bytes": 99125
+      },
+      "purchase": {
+        "gzipBytes": 54467,
+        "noSwGzipBytes": 52124,
+        "utf8Bytes": 137843
+      },
+      "qr": {
+        "gzipBytes": 20796,
+        "noSwGzipBytes": 18453,
+        "utf8Bytes": 52112
+      },
+      "locked-admin": {
+        "gzipBytes": 20330,
+        "noSwGzipBytes": 17987,
+        "utf8Bytes": 51672
+      },
+      "home": {
+        "gzipBytes": 55294,
+        "noSwGzipBytes": 52951,
+        "utf8Bytes": 135828
+      },
+      "plan": {
+        "gzipBytes": 59568,
+        "noSwGzipBytes": 57225,
+        "utf8Bytes": 147117
+      },
+      "import": {
+        "gzipBytes": 50866,
+        "noSwGzipBytes": 48523,
+        "utf8Bytes": 124504
+      },
+      "ingredient-new": {
+        "gzipBytes": 50170,
+        "noSwGzipBytes": 47827,
+        "utf8Bytes": 123064
+      },
+      "dish-new": {
+        "gzipBytes": 57987,
+        "noSwGzipBytes": 55644,
+        "utf8Bytes": 154311
+      },
+      "publish": {
+        "gzipBytes": 56362,
+        "noSwGzipBytes": 54019,
+        "utf8Bytes": 141638
+      }
+    },
+    "allAppJs": {
+      "count": 24,
+      "gzipBytes": 171191,
+      "utf8Bytes": 434981
+    },
+    "precacheEntries": 52,
+    "missingPrecachedJs": [],
+    "swAndRuntimeGzip": 9515
+  }
+}

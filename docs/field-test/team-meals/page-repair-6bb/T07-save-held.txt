@@ -1,0 +1,105 @@
+- banner:
+  - button "打开目录"
+  - heading "师傅后台" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - link "返回":
+    - /url: "#/admin"
+  - heading "排每天的菜" [level=2]
+  - link "粘贴导入":
+    - /url: "#/admin/plan/team-week/import"
+  - status:
+    - text: 正在保存，可继续编辑
+    - 'generic "资料版本: 9203f8c2"'
+  - paragraph: 份数可以留空；保存会保留整份计划，使用新格式。
+  - generic: 查看范围
+  - combobox "查看范围":
+    - option "全部日期" [selected]
+    - option "一天"
+    - option "一周"
+  - generic: 日期
+  - textbox "日期": 2026-09-14
+  - heading "2026-09-13 · 晚餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - heading "2026-09-14 · 午餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - heading "2026-09-15 · 早餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - heading "2026-09-15 · 晚餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜"
+    - option "未录成分样本 · draft" [selected]
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - heading "2026-09-15 · 午餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - heading "2026-09-16 · 早餐" [level=3]
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - generic: 份数（选填）
+  - spinbutton "份数（选填）"
+  - button "移除"
+  - generic: 日期
+  - textbox "日期": 2026-09-16
+  - generic: 餐次
+  - combobox "餐次":
+    - option "早餐" [selected]
+    - option "午餐"
+    - option "晚餐"
+  - generic: 菜品
+  - combobox "菜品":
+    - option "选择菜品"
+    - option "第一道样本菜" [selected]
+    - option "未录成分样本 · draft"
+    - option "第二道样本菜 · draft"
+  - button "加一道菜"
+  - button "查看材料候选"
+  - link "从已保存计划建立采购清单":
+    - /url: "#/purchase/new%2Fteam-week"
+  - button "保存计划" [disabled]
+  - link "去发布":
+    - /url: "#/admin/publish"

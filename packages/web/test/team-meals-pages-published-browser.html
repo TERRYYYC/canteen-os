@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D published menu/prep — local producer fixture</title></head><body>
+<header id="fixture-toolbar" style="padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid #aaa">
+<b>LOCAL FIXTURE · 正式构建器本地输出 · 非线上发布</b>
+<label>资料 <select id="source"><option>image-a</option><option>image-b</option><option>multi-row</option><option>multi-dish</option><option>quantity-warning</option><option>normal</option><option>external-image</option><option>empty-plan</option><option>no-plans</option></select></label>
+<label>页面 <select id="page"><option>prep</option><option>menu</option></select></label>
+<label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<label>故障 <select id="fault"><option value="none">无</option><option value="missing-file">缺投影文件</option><option value="asset-unavailable">缺同版图片</option><option value="wrong-target">未知 target</option></select></label>
+<button id="hold">等待下一次投影读取</button><button id="release">释放旧读取</button><button id="refresh">读取所选版本</button><button id="run">运行验证</button>
+</header><p id="fixture-state" role="status" style="overflow-wrap:anywhere"></p><pre id="results" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre><main id="main" class="outlet" style="max-width:1120px;margin:auto;padding:16px"></main>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {render as menu} from '../src/pages/menu.ts';import {render as prep} from '../src/pages/prep.ts';import {createPublishedData} from '../src/view-models/published.ts';
+const $=id=>document.getElementById(id),meta=await fetch('/fixture-meta.json').then(r=>r.json()),pageSourceHashes=await fetch('/source-hashes.json').then(r=>r.json());
+let source='image-a',fault='none',hold=false,releases=[],publication=null,publicationError=null,turn=0,calls=[];
+const data=createPublishedData({baseUrl:new URL('/data/',location.href).href,fetch:async(address,init)=>{
+ const url=new URL(address),captured=source,problem=fault;calls.push({path:url.pathname,source:captured});
+ if(hold&&url.pathname.includes('/team-meals/')){hold=false;const response=await fetch(`/fixtures/${captured}${url.pathname}${url.search}`,init);await new Promise(resolve=>releases.push(resolve));return response;}
+ if(problem==='missing-file'&&url.pathname.includes('/team-meals/')||problem==='asset-unavailable'&&url.pathname.includes('/assets/'))return new Response('',{status:404});
+ const response=await fetch(`/fixtures/${captured}${url.pathname}${url.search}`,init);
+ if(problem==='wrong-target'&&url.pathname.endsWith('build.json')){const value=await response.json();return new Response(JSON.stringify({...value,target:'future'}),{headers:{'Content-Type':'application/json'}});}
+ return response;
+}});
+async function read(){const ticket=++turn;source=$('source').value;fault=$('fault').value;publication=null;publicationError=null;try{const next=await data.loadPublication({fresh:true});if(ticket!==turn)return;publication=next;}catch(e){if(ticket!==turn)return;publicationError=e;}await paint();}
+async function paint(){const old=$('main'),el=old.cloneNode(false);old.replaceWith(el);const page=$('page').value,parts=location.hash.slice(2).split('/');await ({menu,prep}[page])(el,{data,publication,publicationError,planId:publication?.manifest.plans[0]??null,route:page,rest:parts[0]===page?parts.slice(1).join('/'):'',lang:$('lang').value,t:key=>({'data.loading':'Loading publication…','data.notReady':'Data unavailable'}[key]??key)});$('fixture-state').textContent=JSON.stringify({source,revision:publication?.manifest.commit,held:releases.length,requests:calls.length});}
+window.addEventListener('hashchange',()=>{const page=location.hash.slice(2).split('/')[0];if(['menu','prep'].includes(page))$('page').value=page;void paint();});
+$('page').onchange=()=>{location.hash=`#/${$('page').value}`;void paint();};$('lang').onchange=paint;$('refresh').onclick=read;$('hold').onclick=()=>{hold=true;$('fixture-state').textContent='Next projection read will wait';};$('release').onclick=()=>{releases.splice(0).forEach(r=>r());};
+const wait=()=>new Promise(r=>setTimeout(r,60));
+async function choose(name,page='prep',lang='en',problem='none'){ $('source').value=name;$('page').value=page;$('lang').value=lang;$('fault').value=problem;history.replaceState(null,'',`#/${page}`);await read();await wait(); }
+$('run').onclick=async()=>{const results=[];const check=(name,value)=>{results.push({name,pass:!!value});$('results').textContent=JSON.stringify(results,null,2);};try{
+ for(const page of ['prep','menu']){
+ await choose('quantity-warning',page);check(`${page}: actual published raw entry`,!!document.querySelector('[data-source-revision]')&&!$('main').textContent.includes('≈'));
+ if(page==='menu'){document.querySelector('[data-recipe-link]').click();await wait();check('menu: route detail complete recipe',!!document.querySelector('[role="dialog"] [data-step-index]'));document.querySelector('[role="dialog"] button').click();await wait();check('menu: close returns list',!document.querySelector('[role="dialog"]'));}
+ for(const [name,state,problem] of [['empty-plan','empty-plan','none'],['no-plans','no-plans','none'],['normal','unavailable','missing-file'],['normal','unsupported_target','wrong-target']]){await choose(name,page,'en',problem);check(`${page}: ${state}`,document.querySelector('[data-publication-state]')?.dataset.publicationState===state);}
+ await choose('normal',page);hold=true;void read();await wait();await choose('empty-plan',page);releases.splice(0).forEach(r=>r());await wait();check(`${page}: late A cannot repaint B`,document.querySelector('[data-publication-state]')?.dataset.publicationState==='empty-plan');
+ }
+ await choose('multi-row','menu');document.querySelectorAll('[data-recipe-link]')[1].click();await wait();check('repeated menu dish keeps clicked source row',document.querySelector('[data-recipe-meal-index]')?.dataset.recipeMealIndex==='1');document.querySelector('[role="dialog"] button').click();await wait();
+ await choose('multi-row','prep');document.querySelectorAll('[data-dish-index]')[1].click();$('lang').value='uk';await paint();check('prep duplicate dish choice survives language',document.querySelector('[data-recipe-meal-index]')?.dataset.recipeMealIndex==='1');
+ await choose('multi-dish','prep');history.replaceState(null,'','#/prep/2026-10-05/lunch/ketchup');await paint();check('fresh unique ingredient resolves second dish',document.querySelector('[data-recipe-meal-index]')?.dataset.recipeMealIndex==='1');
+ await choose('multi-dish','prep');history.replaceState(null,'','#/prep/2026-10-05/lunch/tomato');await paint();check('fresh shared ingredient offers source choice',!!document.querySelector('[data-ingredient-source-choice]')&&!document.querySelector('[data-recipe-meal-index]'));
+ await choose('multi-dish','menu');document.querySelectorAll('[data-recipe-link]')[1].click();await wait();document.querySelector('[role="dialog"] a[href$="/tomato"]').click();await wait();check('menu second-dish ingredient keeps original source in prep',document.querySelector('[data-recipe-meal-index]')?.dataset.recipeMealIndex==='1');
+ await choose('image-a');check('ingredient + technique original image bytes',document.querySelectorAll('img[src^="blob:"]').length>=2);const images=[...document.querySelectorAll('img')];for(const img of images){img.scrollIntoView();await img.decode();}check('images decode',images.every(i=>i.complete&&i.naturalWidth===2));
+ const tomato=[...document.querySelectorAll('a')].find(a=>a.getAttribute('href')?.endsWith('/tomato'));tomato?.click();await wait();check('prep ingredient deep link preserves complete steps',location.hash.endsWith('/tomato')&&!!document.querySelector('[data-step-index]')&&document.querySelectorAll('[data-component-index]').length===1);
+ const requestStart=calls.length;await choose('external-image');check('external is explicit with no image request',!!document.querySelector('[data-asset-state="external-unpinned"]')&&!calls.slice(requestStart).some(c=>c.path.includes('/assets/')));
+ await choose('image-a','prep','en','asset-unavailable');check('same-version unavailable is distinct',!!document.querySelector('[data-asset-state="unavailable"]'));
+ for(const lang of ['zh','en','uk']){await choose('image-b','prep',lang);check(`language ${lang} retains B`,document.querySelector('[data-source-revision]')?.dataset.sourceRevision===meta['image-b'].revision);}
+ }catch(error){results.push({name:'unexpected error',pass:false,error:String(error)});}finally{$('results').textContent=JSON.stringify({pass:results.every(r=>r.pass),cases:results,sourceMetadata:meta,pageSourceHashes},null,2);}};
+await read();
+</script></body></html>

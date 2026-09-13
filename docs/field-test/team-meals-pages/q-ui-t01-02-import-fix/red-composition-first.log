@@ -1,0 +1,199 @@
+TAP version 13
+# Subtest: real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+not ok 1 - real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+  ---
+  duration_ms: 20.803
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:59:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:59:147)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: deliberately omitted local count is retained when another meal is imported
+not ok 2 - deliberately omitted local count is retained when another meal is imported
+  ---
+  duration_ms: 6.474292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:60:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:60:126)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: local added/deleted rows and whole-plan metadata survive a new import
+not ok 3 - local added/deleted rows and whole-plan metadata survive a new import
+  ---
+  duration_ms: 6.982458
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:61:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:61:121)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+not ok 4 - sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+  ---
+  duration_ms: 6.020833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:62:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:62:146)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+not ok 5 - A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+  ---
+  duration_ms: 6.190375
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:63:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:63:145)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: import edits the original saving document; its late ACK cannot consume the later merged draft
+not ok 6 - import edits the original saving document; its late ACK cannot consume the later merged draft
+  ---
+  duration_ms: 5.85025
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:64:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:64:145)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: lost: import changes only local draft and preserves original unresolved/conflict save state
+not ok 7 - lost: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 6.650583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:39'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:184)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: conflict: import changes only local draft and preserves original unresolved/conflict save state
+not ok 8 - conflict: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 7.334792
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:39'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saved-but-unpublished'
+    - 'clean'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'clean'
+  actual: 'saved-but-unpublished'
+  operator: 'strictEqual'
+  stack: |-
+    savedEight (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:56:157)
+    async TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-import.test.mjs:65:184)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+ok 9 - an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+  ---
+  duration_ms: 8.593708
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 1
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 132.868583

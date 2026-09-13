@@ -1,6 +1,6 @@
 {
   "name": "@canteenos/worker",
-  "version": "0.0.3",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "description": "CanteenOS 写入通道（ADR-0007）：单文件 Cloudflare Worker，后台表单 → GitHub API → main 上的 commit → 发布触发 build-deploy。只准写 data/**。",
   "type": "module",
@@ -10,8 +10,11 @@
     "gen:validators": "node scripts/gen-validators.mjs",
     "check:validators": "node scripts/gen-validators.mjs --check",
     "typecheck": "npm run gen:validators && tsc --noEmit",
-    "build": "npm run gen:validators && tsc -p tsconfig.build.json",
+    "build": "npm --prefix ../core run build && npm run gen:validators && tsc -p tsconfig.build.json",
     "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@canteenos/core": "workspace:*"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

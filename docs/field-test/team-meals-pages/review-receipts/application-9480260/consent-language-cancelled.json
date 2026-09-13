@@ -1,0 +1,225 @@
+{
+  "head": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "boot": 1,
+  "summary": "4/4",
+  "checks": [
+    {
+      "name": "control only actual Plan is dirty",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "new input invalidates spent-snapshot consent and survives real takeover",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/plan/sw-plan",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 7,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "sw-plan",
+        "generation": 2,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[22,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/sw-plan\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":7,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"sw-plan\",\"generation\":2,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "controllerAtStart": false,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/sw-plan",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "waiting",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "redundant",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": true,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReloadBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "12"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ],
+  "cancelledOrInvalidated": "new input",
+  "postCount": 0
+}

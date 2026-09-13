@@ -1,0 +1,65 @@
+✔ independent ingredient array proof boundary (67.486917ms)
+✔ independent ingredient boxed string proof boundary (96.102208ms)
+✔ independent ingredient custom coercion proof boundary (54.05875ms)
+✔ independent ingredient empty proof boundary (43.030292ms)
+✔ independent ingredient short proof boundary (40.766ms)
+✔ independent ingredient null proof boundary (36.523ms)
+✔ independent ingredient string proof boundary (39.678333ms)
+✔ independent dish array proof boundary (47.277625ms)
+✔ independent dish boxed string proof boundary (46.088875ms)
+✔ independent dish custom coercion proof boundary (45.24275ms)
+✔ independent dish empty proof boundary (48.089334ms)
+✔ independent dish short proof boundary (43.933583ms)
+✔ independent dish null proof boundary (45.294667ms)
+✔ independent dish string proof boundary (46.037959ms)
+✔ independent ingredient: B completes first and cannot settle malformed retired A (71.177166ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ independent dish: B completes first and cannot settle malformed retired A (78.474084ms)
+✔ ingredient: actual Http current-auth array ACK cannot prove completion (66.809875ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (46.201459ms)
+✔ ingredient: available old-auth array ACK cannot prove completion (72.581375ms)
+✔ ingredient: available old-auth string ACK settles only its write (51.592958ms)
+✔ dish: actual Http current-auth array ACK cannot prove completion (48.959334ms)
+✔ dish: actual Http current-auth string ACK settles only its write (45.203041ms)
+✔ dish: available old-auth array ACK cannot prove completion (43.879084ms)
+✔ dish: available old-auth string ACK settles only its write (44.634875ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (40.020084ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (45.647125ms)
+✔ ingredient: valid available old ACK settles A only while B still owns its write (73.002791ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ dish: valid available old ACK settles A only while B still owns its write (78.933ms)
+✔ raw list ID, plan IDs and selections have stable dirty generations across language and route return (12.41575ms)
+✔ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (41.163875ms)
+✔ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (6.475667ms)
+✔ initialization is registered before async and original auth settlement cannot clear the next auth read (8.298583ms)
+✔ held initialization stays guarded through language even when the real API coalesces identical GETs (8.534583ms)
+✔ create consumes only its captured inputs and routes to captured ID while later raw survives (6.847ms)
+✔ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (8.76525ms)
+✔ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (45.799709ms)
+✔ unconfigured and malformed routes finish read-only coverage without fake transport (3.476959ms)
+✔ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (45.002666ms)
+✔ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (49.22825ms)
+✔ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (9.058333ms)
+✔ two distinct simultaneous initialization reads remain protected until both original tickets finish (10.629791ms)
+✔ late input events from the prior language/auth cannot change the active raw owner (3.240542ms)
+✔ an old discard proposal is invalidated by another raw edit through the real reload coordinator (3.293375ms)
+✔ concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback (12.694875ms)
+✔ adopting a different remote basis refreshes untouched scope inputs and their real baseline (12.728375ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ remote adoption does not consume a later raw edit after its C1 replacement notification (14.237041ms)
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (69.881166ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (95.035666ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (59.551833ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (30.862583ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (63.748833ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (65.535333ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ publish: actual pending and unknown operation still veto manual and application reload (58.441791ms)
+ℹ tests 53
+ℹ suites 0
+ℹ pass 53
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 960.783083

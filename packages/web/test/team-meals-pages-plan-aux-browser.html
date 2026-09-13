@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plan update protection · local fixture</title>
+<style>body{margin:0}aside{padding:16px;background:#ffeac5}button{min-height:44px}main{padding:16px;max-width:1100px;margin:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:16px}</style>
+<aside>Actual Plan, API and reload registry · synthetic transport only <button id="run">Run Plan update protection checks</button></aside><pre id="results">Not run</pre><main id="app"></main>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {createPlanRenderer} from '../src/pages/admin/plan.ts';import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {createPageReloadCoverage,inspectReloadSafety} from '../src/view-models/reload-safety.ts';import {clearToken} from '../src/admin/token.ts';
+const A='a'.repeat(40),checks=[],app=document.querySelector('#app'),result=document.querySelector('#results'),coverage=createPageReloadCoverage();
+let identity=1,hold=false,fail=false,waiting=new Map(),posts=0;
+const seed={schemaVersion:'3',meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'soup',plannedServings:8}]};
+const source=()=>Response.json({content:seed,commit:A,blobSha:'before'});
+const api=createTeamMealsApi('https://plan-aux.invalid',{mode:'mock',token:()=>'explicit-fixture',identity:()=>identity,fetch:async(url,init)=>{
+ const u=new URL(url);if(u.origin!=='https://plan-aux.invalid')throw Error('Unexpected origin');if(init.method!=='GET'){posts++;throw Error('No write expected');}
+ if(u.pathname==='/catalog')return Response.json({commit:u.searchParams.get('revision')??A,dishes:{soup:{schemaVersion:'3',name:{en:'Soup',uk:'Суп'},components:[]},stew:{schemaVersion:'3',name:{en:'Stew'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});
+ if(hold)return new Promise(resolve=>waiting.set(identity,resolve));if(fail)return Response.json({ok:false,errors:[]},{status:503});return source();
+}}),renderer=createPlanRenderer(api);
+function start(id='week-a',lang='en'){const el=document.createElement('section');app.replaceChildren(el);const promise=renderer(el,{lang,planId:id,route:'admin',rest:`plan/${id}`,setReloadCoverage:coverage.beginRender('admin',`plan/${id}`)},id);return{el,promise};}
+async function mount(id,lang){const r=start(id,lang);await r.promise;return r.el;}
+const tick=()=>new Promise(resolve=>setTimeout(resolve,25));
+function input(el,key,value,type='input'){const field=el.querySelector(`[data-focus="${key}"]`);field.value=value;field.dispatchEvent(new Event(type,{bubbles:true}));}
+function check(name,pass){checks.push({name,pass:!!pass});result.textContent=JSON.stringify({summary:`${checks.filter(x=>x.pass).length}/${checks.length}`,checks,snapshot:inspectReloadSafety(),posts},null,2);if(!pass)throw Error(name);}
+document.querySelector('#run').onclick=async()=>{document.querySelector('#run').disabled=true;try{
+ let el=await mount('week-a');check('normal initial read finishes its actual coverage',inspectReloadSafety().reason==='clear');
+ input(el,'add-dish','stew','change');check('unapplied Add is protected while C1 JSON stays clean',inspectReloadSafety().reason==='dirty'&&!!el.querySelector('[data-phase="clean"]'));
+ await mount('week-b','uk');check('offscreen Plan raw owner remains protected',inspectReloadSafety().reason==='dirty');el=await mount('week-a','uk');check('language and return retain exact Add buffer',el.querySelector('[data-focus="add-dish"]').value==='stew');input(el,'add-dish','','change');check('explicitly reverting raw input clears protection',inspectReloadSafety().reason==='clear');
+ hold=true;const old=start('private-plan-a');await tick();check('Source read is registered before awaiting',inspectReloadSafety().reason==='saving');identity++;clearToken();const next=start('private-plan-a','uk');await tick();check('new auth hides old private identity and retains unresolved scope',inspectReloadSafety().reason==='unknown'&&!inspectReloadSafety().records.some(x=>x.kind==='unknown'&&x.id.includes('private-plan-a')));waiting.get(1)(source());await old.promise;check('old completion settles only old read and original context',inspectReloadSafety().reason==='saving'&&inspectReloadSafety().records.some(x=>x.phase==='untracked'));waiting.get(2)(source());await next.promise;check('new read completion finally makes current scope clear',inspectReloadSafety().reason==='clear');
+ hold=false;fail=true;await mount('failed-plan');check('known initial read error completes its original coverage',inspectReloadSafety().reason==='clear');check('all browser probes issue zero writes',posts===0);
+}catch(error){result.textContent+='\nFAIL '+error.stack;}};
+</script></html>

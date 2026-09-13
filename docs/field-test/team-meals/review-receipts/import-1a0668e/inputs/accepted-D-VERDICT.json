@@ -1,0 +1,14 @@
+{
+  "reviewerIdentity": "Codex /root/plan_review (original nonauthor)",
+  "reviewSource": "local_cat",
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "reviewSubjectRef": "task:01a08db7-43f3-7952-adb5-75106389e557/Q-UI-T01-02",
+  "acceptedSourceRef": "docs/field-test/team-meals-pages/Q-UI-T01-02-contract.md",
+  "acceptedRevision": "85be50155723114256d8e597160e7db7a8c2995a",
+  "reviewTargetId": "q-ui-t01-02-6bb1ce9",
+  "engagement": "iterative",
+  "verdict": "APPROVE",
+  "findings": [],
+  "packagesTree": "38957ad074a6b7d102e730023613c9a5bb153ed7",
+  "scope": "Bounded D Plan/import current-draft repair; not Q acceptance, whole-application or L2 approval."
+}

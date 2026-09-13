@@ -1,0 +1,274 @@
+{
+  "head": "80948be59b068da11855e3bf0c018f3fa13a8117",
+  "boot": 1,
+  "summary": "5/5",
+  "checks": [
+    {
+      "name": "Ingredient initial form and reads work before optional image code",
+      "pass": true
+    },
+    {
+      "name": "synthetic local file selection starts real page image-module protection",
+      "pass": true
+    },
+    {
+      "name": "real file selection protects its original image operation before module arrives",
+      "pass": true
+    },
+    {
+      "name": "held original photo survives language redraw",
+      "pass": true
+    },
+    {
+      "name": "late loaded image code attaches real decoded photo to retained original draft",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/ingredient/salt",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 11,
+        "dirty": true,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[12,1,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":11,\"dirty\":true,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    }
+  ],
+  "viewText": "Кабінет шефаМоваUA中ENЗбережено для роботи без мережі←Змінити інгредієнтЄ незбережені зміниНазва китайськоюОбов'язково. Англійську та українську можна перекласти автоматичноАнглійська · українськаМашинний переклад, можна змінитиПерекластиНазва англійськоюНазва українськоюКоротка англійська назва (ім'я файлу)Після збереження ім'я файлу змінити не можнаФотоСтиснуто до 0 КБ · 2×2; завантажиться під час збереженняПрибрати фотоЛіцензіяВласне фото: own; з інтернету — коротка назва ліцензії, напр. CC BY-SA 4.0Автор (необов'язково)Адреса джерела (необов'язково)ID у WikidataНапр. Q23501; необов'язковоОдиниця облікуза вагою (г)за об'ємом (мл)поштучноГрамів на штукугТак підготовка й закупівля переводять штуки в грамиСкільки залишається зі 100 г%Що лишається після чищення; не впевнені — залиште порожнім (рахується як 100%)Приправа · «за смаком»У рецепті можна писати «за смаком»; лист підготовки не вимагатиме нарізкиЯк купуватиДані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель.ПостачальникВиберіть наявного або введіть новогоРозмір упаковкиОдиницягкгмллштуп.Мінімум упаковок−+Остання ціна за упаковкуВалютаCNYUSDUAHEURДовго зберігається · облік залишківУвімкнути для олії, солі, рису; вимкнути для свіжих продуктів — їх купують під менюЗараз у наявностіВ одиниці з «Одиниця обліку»ЗберегтиCanteenOSКухня · 1 закладППідготовкадля помічника кухаря · 帮厨采Закупівля · 采购单для закупівельника · 采购员МХарчуванняДля команди计Планування менюдля шефа · 师傅ТемаЯк у системіСвітлаТемнаДані оновлено 11 вер. 2026 р., 03:00Онлайн",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/index-BVrSK6KL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/admin-BY1xuKar.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/ingredient-new-DN-P-66t.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/ingredient-draft-CaYBXKkL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/kit-fBQ2L38_.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/team-ui-BUNozO_y.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/store-C0BzgMAP.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/ingredient-form-DKpbjSQ1.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/data/assets/2b7a30250c03702d8ad65edd300fd79ada6f62fc/data/images/A%20%252F%3F%23%20%E9%9B%AA.png",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/assets/editor-image-B408a5BL.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:54111/canteen/data/build.json?__publication=1789116116607-1-1",
+      "initiatorType": "fetch"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "adm-ing-name-zh",
+      "value": "盐"
+    },
+    {
+      "id": "adm-ing-name-en",
+      "value": "Salt"
+    },
+    {
+      "id": "adm-ing-name-uk",
+      "value": "Сіль"
+    },
+    {
+      "id": "adm-ing-id",
+      "value": "salt"
+    },
+    {
+      "id": "adm-ing-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-image-license",
+      "value": "own"
+    },
+    {
+      "id": "adm-ing-image-author",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-image-sourceUrl",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-externalId",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-baseUnit",
+      "value": "g"
+    },
+    {
+      "id": "",
+      "value": "ml"
+    },
+    {
+      "id": "",
+      "value": "pcs"
+    },
+    {
+      "id": "adm-ing-pcsToGram",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-yield",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-role",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-supplier",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-packSize",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-minPacks",
+      "value": "1"
+    },
+    {
+      "id": "adm-ing-lastPrice",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-trackStock",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-onHand",
+      "value": ""
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}

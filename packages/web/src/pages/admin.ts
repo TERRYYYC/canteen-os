@@ -91,11 +91,13 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   const rest = consumeTokenFromRest(ctx.rest);
   if (getToken() === null) {
     renderLockScreen(el, ctx.lang);
+    ctx.setReloadCoverage?.("read-only");
     return;
   }
   const target = resolve(rest);
   if (!target) {
     notFound(el, ctx.lang);
+    ctx.setReloadCoverage?.("read-only");
     return;
   }
   const loading = h("p", { class: "muted adm-loading" }, tt(ctx.lang, "adm.loading"));
@@ -105,16 +107,17 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     mod = await LOADERS[target.screen]();
   } catch (err) {
     console.error(err);
-    if (!el.isConnected) return;
+    if (!el.isConnected) { ctx.setReloadCoverage?.("read-only"); return; }
     const retry = h("button", { type: "button", class: "chip solid" }, tt(ctx.lang, "adm.retry"));
     retry.addEventListener("click", () => {
       replace(el);
       void render(el, ctx);
     });
     replace(el, h("div", { class: "adm adm-notfound card", role: "alert" }, h("p", {}, tt(ctx.lang, "adm.err.load")), h("p", {}, retry)));
+    ctx.setReloadCoverage?.("read-only");
     return;
   }
-  if (!el.isConnected) return; // 路由 / 语言已经变了：旧 el 已摘掉，不用再画
+  if (!el.isConnected) { ctx.setReloadCoverage?.("read-only"); return; } // No screen owner was started in this abandoned render.
   loading.remove();
   await mod.render(el, ctx, target.rest);
 }

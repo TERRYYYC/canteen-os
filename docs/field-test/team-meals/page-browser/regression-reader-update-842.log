@@ -1,0 +1,330 @@
+TAP version 13
+# Subtest: shell-only loading is read-only across auth changes before the first page starts
+ok 1 - shell-only loading is read-only across auth changes before the first page starts
+  ---
+  duration_ms: 3.180417
+  ...
+# Subtest: leaving or redrawing a shell-only loading route does not orphan page coverage
+ok 2 - leaving or redrawing a shell-only loading route does not orphan page coverage
+  ---
+  duration_ms: 0.707125
+  ...
+# Subtest: loading coverage never retires an unrelated unresolved owner
+ok 3 - loading coverage never retires an unrelated unresolved owner
+  ---
+  duration_ms: 0.618208
+  ...
+# Subtest: main passes the winning publication kind and safe route context to team navigation
+ok 4 - main passes the winning publication kind and safe route context to team navigation
+  ---
+  duration_ms: 0.844583
+  ...
+# Subtest: startup evaluates no unselected page and waits for selected renderer
+ok 5 - startup evaluates no unselected page and waits for selected renderer
+  ---
+  duration_ms: 3.324625
+  ...
+# Subtest: route ABA and language changes cannot start late renderers or settle new coverage
+ok 6 - route ABA and language changes cannot start late renderers or settle new coverage
+  ---
+  duration_ms: 1.001
+  ...
+# Subtest: auth changed during module load starts only a fresh session context
+ok 7 - auth changed during module load starts only a fresh session context
+  ---
+  duration_ms: 0.832875
+  ...
+# Subtest: winning publication replaces pending editor load but preserves an already started editor
+ok 8 - winning publication replaces pending editor load but preserves an already started editor
+  ---
+  duration_ms: 0.681709
+  ...
+# Subtest: loader rejection and abandoned failure never create orphan coverage or paint new outlet
+ok 9 - loader rejection and abandoned failure never create orphan coverage or paint new outlet
+  ---
+  duration_ms: 0.562083
+  ...
+# Subtest: loading does not acknowledge an earlier untracked render of the same route
+ok 10 - loading does not acknowledge an earlier untracked render of the same route
+  ---
+  duration_ms: 0.807333
+  ...
+# Subtest: unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+ok 11 - unrelated dirty/pending/unknown owners survive loader waiting, failure and navigation
+  ---
+  duration_ms: 1.743708
+  ...
+# Subtest: renderer rejection cannot declare a started but unresolved page read-only
+ok 12 - renderer rejection cannot declare a started but unresolved page read-only
+  ---
+  duration_ms: 0.777125
+  ...
+# Subtest: four approved producer cases preserve projection, original time and diagnostics
+ok 13 - four approved producer cases preserve projection, original time and diagnostics
+  ---
+  duration_ms: 10.073459
+  ...
+# Subtest: no-plan manifest is valid and unknown plan fails before fetching any projection
+ok 14 - no-plan manifest is valid and unknown plan fails before fetching any projection
+  ---
+  duration_ms: 0.555958
+  ...
+# Subtest: unknown targets/versions, bad JSON and unsupported legacy calls never silently switch target
+ok 15 - unknown targets/versions, bad JSON and unsupported legacy calls never silently switch target
+  ---
+  duration_ms: 1.530708
+  ...
+# Subtest: A manifest with B projection, wrong plan and nonpublishable diagnostics fail closed
+ok 16 - A manifest with B projection, wrong plan and nonpublishable diagnostics fail closed
+  ---
+  duration_ms: 1.704167
+  ...
+# Subtest: external and absent ImageRefs do not request any bytes; forged published views are rejected
+ok 17 - external and absent ImageRefs do not request any bytes; forged published views are rejected
+  ---
+  duration_ms: 0.728458
+  ...
+# Subtest: public asset sources cannot mutate the private validated binding or later readers
+ok 18 - public asset sources cannot mutate the private validated binding or later readers
+  ---
+  duration_ms: 370.818833
+  ...
+# Subtest: asset mapping preserves literal percent/query/hash/Unicode and joins techniques by ID, not filtered index
+ok 19 - asset mapping preserves literal percent/query/hash/Unicode and joins techniques by ID, not filtered index
+  ---
+  duration_ms: 0.832666
+  ...
+# Subtest: asset source mismatch, duplicate/missing/foreign bindings and wrong revision path reject before bytes
+ok 20 - asset source mismatch, duplicate/missing/foreign bindings and wrong revision path reject before bytes
+  ---
+  duration_ms: 2.174458
+  ...
+# Subtest: removed old assets and non-image responses do not read current image URLs
+ok 21 - removed old assets and non-image responses do not read current image URLs
+  ---
+  duration_ms: 2.098375
+  ...
+# Subtest: timeout covers response body consumption, not only HTTP headers
+ok 22 - timeout covers response body consumption, not only HTTP headers
+  ---
+  duration_ms: 11.508375
+  ...
+# Subtest: late G1 success and failure cannot affect G2 after clear/fresh
+ok 23 - late G1 success and failure cannot affect G2 after clear/fresh
+  ---
+  duration_ms: 0.568
+  ...
+# Subtest: refresh invalidates handles and snapshot probes never adopt or overwrite active generation
+ok 24 - refresh invalidates handles and snapshot probes never adopt or overwrite active generation
+  ---
+  duration_ms: 0.19325
+  ...
+# Subtest: approved producer emits real original PNG bytes and stable technique bindings despite filtered indices
+ok 25 - approved producer emits real original PNG bytes and stable technique bindings despite filtered indices
+  ---
+  duration_ms: 705.02925
+  ...
+# Subtest: first SW claim: verified fresh A recovers an unopened projection from installed A offline
+ok 26 - first SW claim: verified fresh A recovers an unopened projection from installed A offline
+  ---
+  duration_ms: 10.22175
+  ...
+# Subtest: external B takeover: old A handles expire and unopened projection is installed B only
+ok 27 - external B takeover: old A handles expire and unopened projection is installed B only
+  ---
+  duration_ms: 1.396125
+  ...
+# Subtest: already controlled offline new document still reads ordinary installed manifest and projection
+ok 28 - already controlled offline new document still reads ordinary installed manifest and projection
+  ---
+  duration_ms: 0.604542
+  ...
+# Subtest: missing and wrong-revision copies fail instead of returning current or an empty plan
+ok 29 - missing and wrong-revision copies fail instead of returning current or an empty plan
+  ---
+  duration_ms: 1.629959
+  ...
+# Subtest: ordinary same-revision response still passes all version, shape and asset-binding validation
+ok 30 - ordinary same-revision response still passes all version, shape and asset-binding validation
+  ---
+  duration_ms: 1.46675
+  ...
+# Subtest: tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+ok 31 - tagged HTTP refusals, wrong revision and invalid JSON never retry through ordinary data
+  ---
+  duration_ms: 1.272667
+  ...
+# Subtest: failed fresh manifest and offline probes cannot adopt the installed older publication
+ok 32 - failed fresh manifest and offline probes cannot adopt the installed older publication
+  ---
+  duration_ms: 0.1975
+  ...
+# Subtest: probe, clone and foreign-reader handles never authorize ordinary-path recovery
+ok 33 - probe, clone and foreign-reader handles never authorize ordinary-path recovery
+  ---
+  duration_ms: 0.598875
+  ...
+# Subtest: clear during tagged failure prevents any obsolete ordinary-path request
+ok 34 - clear during tagged failure prevents any obsolete ordinary-path request
+  ---
+  duration_ms: 0.212625
+  ...
+# Subtest: late ordinary A success or failure cannot change B or remove its request cache
+ok 35 - late ordinary A success or failure cannot change B or remove its request cache
+  ---
+  duration_ms: 1.072667
+  ...
+# Subtest: concurrent readers share the recovered validated plan and still reject unseen image bytes
+ok 36 - concurrent readers share the recovered validated plan and still reject unseen image bytes
+  ---
+  duration_ms: 0.41775
+  ...
+# Subtest: tagged projection body timeout can recover while generation remains current
+ok 37 - tagged projection body timeout can recover while generation remains current
+  ---
+  duration_ms: 17.133291
+  ...
+# Subtest: legacy sheets lack a revision identity and do not gain an unverified recovery path
+ok 38 - legacy sheets lack a revision identity and do not gain an unverified recovery path
+  ---
+  duration_ms: 0.233542
+  ...
+# Subtest: actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+ok 39 - actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+  ---
+  duration_ms: 3.777375
+  ...
+# Subtest: actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+ok 40 - actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+  ---
+  duration_ms: 1.040791
+  ...
+# Subtest: actual PWA keeps old-auth write protection without offering an inaccessible private editor
+ok 41 - actual PWA keeps old-auth write protection without offering an inaccessible private editor
+  ---
+  duration_ms: 0.328417
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+ok 42 - actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+  ---
+  duration_ms: 0.480125
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+ok 43 - actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+  ---
+  duration_ms: 0.686541
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+ok 44 - actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+  ---
+  duration_ms: 0.325333
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+ok 45 - actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+  ---
+  duration_ms: 0.311208
+  ...
+# Subtest: actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+ok 46 - actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+  ---
+  duration_ms: 0.179833
+  ...
+# Subtest: actual PWA rejects target activation after generation invalidates consent
+ok 47 - actual PWA rejects target activation after generation invalidates consent
+  ---
+  duration_ms: 0.933917
+  ...
+# Subtest: actual PWA rejects target activation after pending invalidates consent
+ok 48 - actual PWA rejects target activation after pending invalidates consent
+  ---
+  duration_ms: 0.470542
+  ...
+# Subtest: actual PWA rejects target activation after unknown invalidates consent
+ok 49 - actual PWA rejects target activation after unknown invalidates consent
+  ---
+  duration_ms: 0.229833
+  ...
+# Subtest: actual PWA rejects target activation after timeout invalidates consent
+ok 50 - actual PWA rejects target activation after timeout invalidates consent
+  ---
+  duration_ms: 0.635292
+  ...
+# Subtest: actual PWA rejects target activation after cancel invalidates consent
+ok 51 - actual PWA rejects target activation after cancel invalidates consent
+  ---
+  duration_ms: 0.226458
+  ...
+# Subtest: offscreen dirty documents block updates, with no disposal or hidden saves
+ok 52 - offscreen dirty documents block updates, with no disposal or hidden saves
+  ---
+  duration_ms: 5.7385
+  ...
+# Subtest: malformed URI fallback cannot retain an encoded credential in URL or page coverage
+ok 53 - malformed URI fallback cannot retain an encoded credential in URL or page coverage
+  ---
+  duration_ms: 0.860041
+  ...
+# Subtest: pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+ok 54 - pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+  ---
+  duration_ms: 0.627959
+  ...
+# Subtest: reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+ok 55 - reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+  ---
+  duration_ms: 0.331875
+  ...
+# Subtest: discard consent expires with new input or newly started writes
+ok 56 - discard consent expires with new input or newly started writes
+  ---
+  duration_ms: 0.326791
+  ...
+# Subtest: clean or exact explicit discard reload once; externally reported control changes never authorize reload
+ok 57 - clean or exact explicit discard reload once; externally reported control changes never authorize reload
+  ---
+  duration_ms: 0.225334
+  ...
+# Subtest: new edits after SW activation block eventual plugin reload; timeout never forces a reload
+ok 58 - new edits after SW activation block eventual plugin reload; timeout never forces a reload
+  ---
+  duration_ms: 0.178959
+  ...
+# Subtest: legacy draft store preserves v3/clone/undo and participates in global reload checks
+ok 59 - legacy draft store preserves v3/clone/undo and participates in global reload checks
+  ---
+  duration_ms: 0.194792
+  ...
+# Subtest: untracked editing surface fails closed and safety inspection is read-only
+ok 60 - untracked editing surface fails closed and safety inspection is read-only
+  ---
+  duration_ms: 0.189291
+  ...
+# Subtest: auxiliary raw input and pre-save work survive navigation and stay metadata-only
+ok 61 - auxiliary raw input and pre-save work survive navigation and stay metadata-only
+  ---
+  duration_ms: 0.404208
+  ...
+# Subtest: provider read failures block and cannot be silently disposed
+ok 62 - provider read failures block and cannot be silently disposed
+  ---
+  duration_ms: 0.314958
+  ...
+# Subtest: purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+ok 63 - purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+  ---
+  duration_ms: 0.250209
+  ...
+# Subtest: synthetic login links and stale contexts never enter page identity, snapshots or stamps
+ok 64 - synthetic login links and stale contexts never enter page identity, snapshots or stamps
+  ---
+  duration_ms: 0.390584
+  ...
+1..64
+# tests 64
+# suites 0
+# pass 64
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2296.12925

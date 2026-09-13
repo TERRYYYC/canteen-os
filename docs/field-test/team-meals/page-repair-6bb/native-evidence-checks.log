@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: native import source custody binds approved 6bb and a fresh fixed history
+ok 1 - native import source custody binds approved 6bb and a fresh fixed history
+  ---
+  duration_ms: 917.664583
+  ...
+# Subtest: original eleven-serving draft, scope and raw input survive imports and language changes
+ok 2 - original eleven-serving draft, scope and raw input survive imports and language changes
+  ---
+  duration_ms: 2.294084
+  ...
+# Subtest: imports send no POST and late real ACK preserves the seventh later meal and original locks
+ok 3 - imports send no POST and late real ACK preserves the seventh later meal and original locks
+  ---
+  duration_ms: 0.427459
+  ...
+# Subtest: whole imported plan preserves add/remove, deliberate empty counts and metadata through day-save and reload
+ok 4 - whole imported plan preserves add/remove, deliberate empty counts and metadata through day-save and reload
+  ---
+  duration_ms: 403.05925
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1382.720834

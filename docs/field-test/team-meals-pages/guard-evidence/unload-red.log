@@ -1,0 +1,109 @@
+✖ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (53.003333ms)
+✖ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (39.433084ms)
+✖ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (35.81825ms)
+✖ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (18.927791ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (58.777666ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (60.675334ms)
+✔ publish: actual pending and unknown operation still veto manual and application reload (59.17425ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 3
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 379.12075
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-unload.test.mjs:33:2
+✖ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (53.003333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      attempts: 1,
+  +   cancelled: 1,
+  +   reloads: 0,
+  -   cancelled: 0,
+  -   reloads: 1,
+      writes: 0
+    }
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-unload.test.mjs:33:459)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { attempts: 1, reloads: 0, cancelled: 1, writes: 0 },
+    expected: { attempts: 1, reloads: 1, cancelled: 0, writes: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-unload.test.mjs:33:2
+✖ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (39.433084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      attempts: 1,
+  +   cancelled: 1,
+  +   reloads: 0,
+  -   cancelled: 0,
+  -   reloads: 1,
+      writes: 0
+    }
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-unload.test.mjs:33:459)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { attempts: 1, reloads: 0, cancelled: 1, writes: 0 },
+    expected: { attempts: 1, reloads: 1, cancelled: 0, writes: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-unload.test.mjs:33:2
+✖ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (35.81825ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      attempts: 1,
+  +   cancelled: 1,
+  +   reloads: 0,
+  -   cancelled: 0,
+  -   reloads: 1,
+      writes: 0
+    }
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-unload.test.mjs:33:459)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { attempts: 1, reloads: 0, cancelled: 1, writes: 0 },
+    expected: { attempts: 1, reloads: 1, cancelled: 0, writes: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-unload.test.mjs:35:1
+✖ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (18.927791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-unload.test.mjs:35:328)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

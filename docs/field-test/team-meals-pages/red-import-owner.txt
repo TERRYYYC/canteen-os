@@ -1,0 +1,95 @@
+✔ real core parsed missing servings stay blank rather than receiving a page default (2.604792ms)
+✔ explicit preview clear overrides parsed original, while untouched preview keeps it (0.667959ms)
+✔ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.315583ms)
+✔ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.420083ms)
+✔ only an explicit clear removes matched known count; duplicate rows and service window survive (0.08925ms)
+✔ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.083208ms)
+✔ actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST (10.815208ms)
+✔ actual preview explicit clear survives language repaint and invalid entry can be corrected (1.002833ms)
+✔ late saved-plan read cannot import over a newer preview or an auth lifetime (0.867167ms)
+✔ unconfigured import shows honest unavailable state without fallback mock reads (0.180083ms)
+✔ an initially blank preview has an explicit clear action to remove a matched saved count (0.641916ms)
+✔ I-R1 canceled source read derives action validity from the current preview (1.834833ms)
+✔ raw preview refuses loss of numeric precision and retains the original input after repaint (1.225167ms)
+✔ exact integer decimal and exponent representations remain supported in the preview (1.866167ms)
+✔ approved core invalid servings are shown as unparsed original text with no import fallback (0.729834ms)
+✖ raw paste and invalid line edit belong to the original plan across another plan and language (0.614875ms)
+✖ selected CSV completes into the original owner after a language repaint or navigating away (0.991292ms)
+✔ a newer CSV or paste wins over an older selected file without changing the wrong owner (1.261ms)
+✖ Source-read busy state survives language repaint and cancellation preserves raw validity (0.407417ms)
+✖ late file failure is retained for its owner across repaint and cannot leak into a new auth session (0.466042ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 16
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 380.2595
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-import.test.mjs:124:1
+✖ raw paste and invalid line edit belong to the original plan across another plan and language (0.614875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  '' !== '周一午 原汤 8'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:127:63)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '周一午 原汤 8',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:130:1
+✖ selected CSV completes into the original owner after a language repaint or navigating away (0.991292ms)
+  AssertionError [ERR_ASSERTION]: language
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:135:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '←Вставити списокТиждень від 2026-09-14Симуляція; без запису в справжнє сховищеВставте сюди повідомлення з WeChatФормат вільний: день тижня або дата · сніданок / обід / вечеря · страва · порції. Нерозпізнані рядки буде позначено, а не відхилено всі разом.РозібратиОчиститиАбо завантажте таблицюCSV, чотири стовпчикиДата · прийом їжі · страва · порції — назви стовпчиків будь-які, розпізнаються автоматичноОбрати файлExcel: спершу «Зберегти як CSV»Розпізнано · 1 рядк.Порожній текст зберігає відомі порції у відповідному рядку. Щоб прибрати їх, натисніть «Очистити порції».✓пн 09.14 обід · Початковий супРозпізнаноПорції не вказаноОчистити порціїпорц.Імпортувати 1, пропустити 0',
+    expected: /original.csv/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:143:1
+✖ Source-read busy state survives language repaint and cancellation preserves raw validity (0.407417ms)
+  AssertionError [ERR_ASSERTION]: same pending read still owned after repaint
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:145:63)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:148:1
+✖ late file failure is retained for its owner across repaint and cannot leak into a new auth session (0.466042ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Couldn't read the file/. Input:
+
+  '←Paste to importWeek starting 2026-09-14Simulation; no real repository writePaste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.✓Mon 09.14 lunch · Original soupRecognisedServings unspecifiedClear servingsservingsImport 1, skip 0'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:149:288)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '←Paste to importWeek starting 2026-09-14Simulation; no real repository writePaste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.✓Mon 09.14 lunch · Original soupRecognisedServings unspecifiedClear servingsservingsImport 1, skip 0',
+    expected: /Couldn't read the file/,
+    operator: 'match',
+    diff: 'simple'
+  }

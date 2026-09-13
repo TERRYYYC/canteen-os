@@ -1,0 +1,15 @@
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (51.330625ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (39.616917ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (39.555167ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (29.867417ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (61.259ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (64.785875ms)
+✔ publish: actual pending and unknown operation still veto manual and application reload (60.657167ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 402.126833

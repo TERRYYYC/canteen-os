@@ -1,0 +1,95 @@
+{
+  "reviewedHeadSha": "94802608447a3a6dbc60a8ca21cb9b6b0ad83a11",
+  "variants": [
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-MiXcFV",
+      "version": "a",
+      "revision": "f91f126d713c9ed0bca897c56a7d1c772c46a1ac",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-initial.ts",
+      "probeSha256": "4d3b1052e9535996f85212bc4b70d861fdd5161d9b30527cf1b16190e76c2cdf",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-MiXcFV",
+      "version": "a-time",
+      "revision": "f91f126d713c9ed0bca897c56a7d1c772c46a1ac",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-initial.ts",
+      "probeSha256": "4d3b1052e9535996f85212bc4b70d861fdd5161d9b30527cf1b16190e76c2cdf",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-MiXcFV",
+      "version": "b",
+      "revision": "42dbfe22d092e3a36eba744dfa4c0eeff591c3db",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-initial.ts",
+      "probeSha256": "4d3b1052e9535996f85212bc4b70d861fdd5161d9b30527cf1b16190e76c2cdf",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-ctAl4h",
+      "version": "a",
+      "revision": "73df4c559f76309d7f464025a8405e7724a43d7a",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-consent-initial.ts",
+      "probeSha256": "0d933a101dae73d6bb2aa8dd3c35bc03e3d674b7f25c191377cbf3529696aa75",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-ctAl4h",
+      "version": "a-time",
+      "revision": "73df4c559f76309d7f464025a8405e7724a43d7a",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-consent-initial.ts",
+      "probeSha256": "0d933a101dae73d6bb2aa8dd3c35bc03e3d674b7f25c191377cbf3529696aa75",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-ctAl4h",
+      "version": "b",
+      "revision": "0378322b11716d38d9829a0af1cc0bcdbe6e87d8",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review-consent-initial.ts",
+      "probeSha256": "0d933a101dae73d6bb2aa8dd3c35bc03e3d674b7f25c191377cbf3529696aa75",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-l6yuF2",
+      "version": "a",
+      "revision": "099b6e360e50f6e3243ec2dd6b3e994fef5c106b",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review.ts",
+      "probeSha256": "5e7256c4aa6d1a2a33d26583a37b7850555fdf6b45b6c3d660e26bf31ba4f2cc",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-l6yuF2",
+      "version": "a-time",
+      "revision": "099b6e360e50f6e3243ec2dd6b3e994fef5c106b",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review.ts",
+      "probeSha256": "5e7256c4aa6d1a2a33d26583a37b7850555fdf6b45b6c3d660e26bf31ba4f2cc",
+      "probeMatches": true
+    },
+    {
+      "serverRoot": "/private/tmp/c2b-real-sw-l6yuF2",
+      "version": "b",
+      "revision": "2438b50b7dae86b3774f14d28431de15d7a63bce",
+      "sourceFiles": 52,
+      "allSourcesMatch": true,
+      "probePath": "packages/web/test/application-review.ts",
+      "probeSha256": "5e7256c4aa6d1a2a33d26583a37b7850555fdf6b45b6c3d660e26bf31ba4f2cc",
+      "probeMatches": true
+    }
+  ]
+}

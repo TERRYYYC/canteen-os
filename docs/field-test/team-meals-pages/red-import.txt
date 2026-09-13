@@ -1,0 +1,140 @@
+✖ real core parsed missing servings stay blank rather than receiving a page default (3.156041ms)
+✖ explicit preview clear overrides parsed original, while untouched preview keeps it (0.8085ms)
+✖ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.168416ms)
+✖ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.199291ms)
+✖ only an explicit clear removes matched known count; duplicate rows and service window survive (0.341792ms)
+✖ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.113417ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 0
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.689334
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-import.test.mjs:16:1
+✖ real core parsed missing servings stay blank rather than receiving a page default (3.156041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  50 !== undefined
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:18:98)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.start (node:internal/test_runner/test:1191:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 50,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:20:1
+✖ explicit preview clear overrides parsed original, while untouched preview keeps it (0.8085ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== undefined
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:22:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:24:1
+✖ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.168416ms)
+  AssertionError [ERR_ASSERTION]: 1.5
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:25:78)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:29:1
+✖ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.199291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '2' !== '3'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:33:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '2',
+    expected: '3',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:36:1
+✖ only an explicit clear removes matched known count; duplicate rows and service window survive (0.341792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:39:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-import.test.mjs:41:1
+✖ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.113417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '2' !== '3'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:42:58)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '2',
+    expected: '3',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: repair native custody binds approved production and exactly reproduces original lunch writes
+ok 1 - repair native custody binds approved production and exactly reproduces original lunch writes
+  ---
+  duration_ms: 945.405417
+  ...
+# Subtest: original lunch native success, readonly fallback and A-after-B copies agree in all three languages
+ok 2 - original lunch native success, readonly fallback and A-after-B copies agree in all three languages
+  ---
+  duration_ms: 1.919833
+  ...
+# Subtest: mobile copy evidence records business widths separately from overflowing test controls
+ok 3 - mobile copy evidence records business widths separately from overflowing test controls
+  ---
+  duration_ms: 0.3885
+  ...
+# Subtest: Q original supplemental all-meal RED expectations retain unrecorded components and purchase gaps
+ok 4 - Q original supplemental all-meal RED expectations retain unrecorded components and purchase gaps
+  ---
+  duration_ms: 1.044833
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 978.289959

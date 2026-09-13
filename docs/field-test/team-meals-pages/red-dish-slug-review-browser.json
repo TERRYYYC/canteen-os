@@ -1,0 +1,75 @@
+[
+  {
+    "name": "current new-dish slug matches the late translation and actual save target",
+    "passed": false,
+    "visibleId": "",
+    "visibleEnglish": "Hidden Target Soup",
+    "writes": [
+      {
+        "id": "hidden-target-soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "新增的汤",
+            "en": "Hidden Target Soup",
+            "uk": "Новий суп"
+          },
+          "provenance": {
+            "source": "manual"
+          },
+          "status": "draft"
+        },
+        "condition": {
+          "ifNoneMatch": "*"
+        }
+      }
+    ]
+  },
+  {
+    "name": "returning during translation updates the current slug field",
+    "passed": false,
+    "visibleId": "",
+    "english": "Returned Dish"
+  },
+  {
+    "name": "preset explicit slug remains original after translation",
+    "passed": true,
+    "visibleId": "user-slug"
+  },
+  {
+    "name": "late generated duplicate slug is visible and blocks local duplicate save",
+    "passed": false,
+    "visibleId": "",
+    "dupVisible": false,
+    "writes": [
+      {
+        "id": "soup",
+        "body": {
+          "schemaVersion": "3",
+          "name": {
+            "zh": "不是原汤",
+            "en": "Soup",
+            "uk": "Суп"
+          },
+          "provenance": {
+            "source": "manual"
+          },
+          "status": "draft"
+        },
+        "condition": {
+          "ifNoneMatch": "*"
+        }
+      }
+    ]
+  },
+  {
+    "name": "same-view translation keeps generated slug visible",
+    "passed": true,
+    "visibleId": "same-view-soup"
+  },
+  {
+    "name": "old-auth translation does not mutate replacement view or keep it busy",
+    "passed": true,
+    "value": "Original soup"
+  }
+]

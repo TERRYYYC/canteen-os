@@ -1,0 +1,114 @@
+[
+  {
+    "name": "successful creation permits a distinct next new ingredient",
+    "passed": true,
+    "reopened": {
+      "id": "",
+      "name": "",
+      "readonly": false,
+      "heading": "New ingredient"
+    },
+    "writes": [
+      {
+        "id": "ingredient-a",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "第一种食材"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        }
+      },
+      {
+        "id": "ingredient-b",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "第二种食材"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        }
+      }
+    ]
+  },
+  {
+    "name": "recognized rejected upload can recover without false source comparison",
+    "passed": true,
+    "phase": "error",
+    "uploads": 2,
+    "writes": 1,
+    "readCount": 2,
+    "afterCompare": 2,
+    "disabledAfterReturn": false,
+    "text": "Saved; check publication on the publish page"
+  },
+  {
+    "name": "known upload field rejection retains field error and allows explicit correction",
+    "passed": true,
+    "shown": true,
+    "fieldUploads": 2,
+    "writes": 1
+  },
+  {
+    "name": "malformed upload acknowledgement stays unknown without save or retry",
+    "passed": true,
+    "malformedUploads": 1,
+    "writes": 0
+  },
+  {
+    "name": "language repaint keeps acknowledged new record",
+    "passed": true,
+    "id": "first-hand"
+  },
+  {
+    "name": "new handoff is consumed after completed creation",
+    "passed": true,
+    "visibleName": "待补食材"
+  },
+  {
+    "name": "pending new and later raw edits retain original target and If-Match",
+    "passed": true,
+    "blocked": true,
+    "preserved": true,
+    "writes": [
+      {
+        "id": "pending-new",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "点击时名字"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        }
+      },
+      {
+        "id": "pending-new",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "保存期间新名字"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        },
+        "condition": {
+          "ifMatch": "salt-b"
+        }
+      }
+    ]
+  },
+  {
+    "name": "unknown new retains its target and blocks repeated creation write",
+    "passed": true,
+    "unknownWrites": 1,
+    "id": "unknown-new",
+    "phase": "unknown"
+  }
+]

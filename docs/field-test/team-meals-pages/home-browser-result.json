@@ -1,0 +1,374 @@
+{
+  "homeSourceHash": "eb93fd85dfe20ed5cec00e9c3b230a607609836b88ed9ac9ebe1122618b621eb",
+  "run393": "PASS",
+  "run1440": "PASS",
+  "observations": [
+    {
+      "lang": "zh",
+      "mode": "unconfigured",
+      "plan": "排菜单第 37 周 · 本周已排 — 餐数字暂时取不到",
+      "scrollWidth": 393,
+      "status": "未连接后台，不能保存",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "en",
+      "mode": "unconfigured",
+      "plan": "Plan the menuWeek 37 · — meals planned this weekNumbers unavailable right now",
+      "scrollWidth": 393,
+      "status": "Not connected; saving is unavailable",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "uk",
+      "mode": "unconfigured",
+      "plan": "Скласти менюТиждень 37 · Цього тижня заплановано прийомів їжі: —Цифри поки недоступні",
+      "scrollWidth": 393,
+      "status": "Немає з’єднання; збереження недоступне",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "zh",
+      "mode": "mock",
+      "plan": "排菜单第 37 周 · 本周已排 2 餐",
+      "scrollWidth": 393,
+      "status": "模拟演示，未写入真实仓库",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "en",
+      "mode": "mock",
+      "plan": "Plan the menuWeek 37 · 2 meals planned this week",
+      "scrollWidth": 393,
+      "status": "Simulation; no real repository write",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "uk",
+      "mode": "mock",
+      "plan": "Скласти менюТиждень 37 · Цього тижня заплановано прийомів їжі: 2",
+      "scrollWidth": 393,
+      "status": "Симуляція; без запису в справжнє сховище",
+      "tiles": 7,
+      "width": 393
+    },
+    {
+      "lang": "zh",
+      "mode": "unconfigured",
+      "plan": "排菜单第 37 周 · 本周已排 — 餐数字暂时取不到",
+      "scrollWidth": 1440,
+      "status": "未连接后台，不能保存",
+      "tiles": 7,
+      "width": 1440
+    },
+    {
+      "lang": "en",
+      "mode": "unconfigured",
+      "plan": "Plan the menuWeek 37 · — meals planned this weekNumbers unavailable right now",
+      "scrollWidth": 1440,
+      "status": "Not connected; saving is unavailable",
+      "tiles": 7,
+      "width": 1440
+    },
+    {
+      "lang": "uk",
+      "mode": "unconfigured",
+      "plan": "Скласти менюТиждень 37 · Цього тижня заплановано прийомів їжі: —Цифри поки недоступні",
+      "scrollWidth": 1440,
+      "status": "Немає з’єднання; збереження недоступне",
+      "tiles": 7,
+      "width": 1440
+    },
+    {
+      "lang": "zh",
+      "mode": "mock",
+      "plan": "排菜单第 37 周 · 本周已排 2 餐",
+      "scrollWidth": 1440,
+      "status": "模拟演示，未写入真实仓库",
+      "tiles": 7,
+      "width": 1440
+    },
+    {
+      "lang": "en",
+      "mode": "mock",
+      "plan": "Plan the menuWeek 37 · 2 meals planned this week",
+      "scrollWidth": 1440,
+      "status": "Simulation; no real repository write",
+      "tiles": 7,
+      "width": 1440
+    },
+    {
+      "lang": "uk",
+      "mode": "mock",
+      "plan": "Скласти менюТиждень 37 · Цього тижня заплановано прийомів їжі: 2",
+      "scrollWidth": 1440,
+      "status": "Симуляція; без запису в справжнє сховище",
+      "tiles": 7,
+      "width": 1440
+    }
+  ],
+  "ledger": [
+    {
+      "assertion": "unconfigured/3/zh: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "zh: explicit unconfigured notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured count remains unknown",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured makes no fixture request",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured/3/en: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "en: explicit unconfigured notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured count remains unknown",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured makes no fixture request",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured/3/uk: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "uk: explicit unconfigured notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured count remains unknown",
+      "result": "PASS"
+    },
+    {
+      "assertion": "unconfigured makes no fixture request",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "fixturePlanSchema": "3"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "fixturePlanSchema": "3"
+    },
+    {
+      "assertion": "mock/3/zh: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/zh: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/zh: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/zh: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "mock/3/en: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/en: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/en: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/en: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "mock/3/uk: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/uk: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/uk: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "3/uk: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "same-session language change reuses one catalog and one plan read",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "fixturePlanSchema": "2"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "fixturePlanSchema": "2"
+    },
+    {
+      "assertion": "mock/2/zh: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/zh: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/zh: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/zh: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "mock/2/en: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/en: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/en: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/en: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "mock/2/uk: seven actual entry tiles",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/uk: explicit mock notice",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/uk: exact recorded meal count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "2/uk: mixed v2/v3 draft count",
+      "result": "PASS"
+    },
+    {
+      "assertion": "draft link uses actual first ID",
+      "result": "PASS"
+    },
+    {
+      "assertion": "no fabricated publication state",
+      "result": "PASS"
+    },
+    {
+      "assertion": "same-session language change reuses one catalog and one plan read",
+      "result": "PASS"
+    },
+    {
+      "assertion": "only C1 catalog and plan reads",
+      "result": "PASS"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "fixturePlanSchema": "2"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "fixturePlanSchema": "2"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "fixturePlanSchema": "3"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "fixturePlanSchema": "3"
+    }
+  ],
+  "errors": []
+}

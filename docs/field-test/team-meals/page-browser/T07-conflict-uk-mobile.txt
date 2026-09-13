@@ -1,0 +1,86 @@
+- banner:
+  - button "Відкрити меню розділів"
+  - heading "Кабінет шефа" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - link "Назад":
+    - /url: "#/admin"
+  - heading "Планувати страви" [level=2]
+  - link "Імпорт тексту":
+    - /url: "#/admin/plan/team-week/import"
+  - status:
+    - text: Конфлікт версій; локальні зміни збережено
+    - 'generic "Версія даних: 1a8ab2de"'
+  - alert: Документ змінився. Чернетку збережено локально; перевірте зміни
+  - button "Прочитати й порівняти віддалені дані"
+  - paragraph: Кількість можна не вказувати. Зберігається весь план у новому форматі.
+  - generic: Діапазон перегляду
+  - combobox "Діапазон перегляду":
+    - option "Усі дати" [selected]
+    - option "День"
+    - option "Тиждень"
+  - generic: Дата
+  - textbox "Дата": 2026-09-14
+  - heading "2026-09-14 · Обід" [level=3]
+  - generic: Страва
+  - combobox "Страва":
+    - option "Виберіть страву"
+    - option "Перша тестова страва" [selected]
+    - option "Інгредієнти не записані · draft"
+    - option "Друга тестова страва · draft"
+  - generic: Порції (необов’язково)
+  - spinbutton "Порції (необов’язково)": "5"
+  - button "Прибрати"
+  - generic: Страва
+  - combobox "Страва":
+    - option "Виберіть страву"
+    - option "Перша тестова страва"
+    - option "Інгредієнти не записані · draft"
+    - option "Друга тестова страва · draft" [selected]
+  - generic: Порції (необов’язково)
+  - spinbutton "Порції (необов’язково)"
+  - button "Прибрати"
+  - heading "2026-09-15 · Сніданок" [level=3]
+  - generic: Страва
+  - combobox "Страва":
+    - option "Виберіть страву"
+    - option "Перша тестова страва" [selected]
+    - option "Інгредієнти не записані · draft"
+    - option "Друга тестова страва · draft"
+  - generic: Порції (необов’язково)
+  - spinbutton "Порції (необов’язково)"
+  - button "Прибрати"
+  - heading "2026-09-15 · Вечеря" [level=3]
+  - generic: Страва
+  - combobox "Страва":
+    - option "Виберіть страву"
+    - option "Перша тестова страва"
+    - option "Інгредієнти не записані · draft" [selected]
+    - option "Друга тестова страва · draft"
+  - generic: Порції (необов’язково)
+  - spinbutton "Порції (необов’язково)": "2"
+  - button "Прибрати"
+  - generic: Дата
+  - textbox "Дата": 2026-09-14
+  - generic: Прийом їжі
+  - combobox "Прийом їжі":
+    - option "Сніданок"
+    - option "Обід" [selected]
+    - option "Вечеря"
+  - generic: Страва
+  - combobox "Страва":
+    - option "Виберіть страву" [selected]
+    - option "Перша тестова страва"
+    - option "Інгредієнти не записані · draft"
+    - option "Друга тестова страва · draft"
+  - button "Додати страву"
+  - button "Переглянути інгредієнти"
+  - link "Створити список покупок зі збереженого плану":
+    - /url: "#/purchase/new%2Fteam-week"
+  - button "Зберегти план" [disabled]
+  - link "До публікації":
+    - /url: "#/admin/publish"

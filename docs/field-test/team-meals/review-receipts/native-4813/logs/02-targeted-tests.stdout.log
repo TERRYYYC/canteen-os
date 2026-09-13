@@ -1,0 +1,87 @@
+TAP version 13
+# Subtest: L1 plan: absent servings survive editor save, strong-lock update, and fixed readback
+ok 1 - L1 plan: absent servings survive editor save, strong-lock update, and fixed readback
+  ---
+  duration_ms: 91.457875
+  ...
+# {"layer":"L1 client–Worker","requests":5,"clientPosts":2,"responseDrops":0,"githubModelWrites":8}
+# Subtest: L1 shopping: create → judgment → changed demand → rejected combined save → rebase and separate confirmation
+ok 2 - L1 shopping: create → judgment → changed demand → rejected combined save → rebase and separate confirmation
+  ---
+  duration_ms: 59.766709
+  ...
+# {"layer":"L1 client–Worker","requests":15,"clientPosts":6,"responseDrops":0,"githubModelWrites":20}
+# Subtest: L1 two clients: create collision and stale-lock update keep the losing editor draft
+ok 3 - L1 two clients: create collision and stale-lock update keep the losing editor draft
+  ---
+  duration_ms: 28.066875
+  ...
+# {"layer":"L1 client–Worker","requests":9,"clientPosts":4,"responseDrops":0,"githubModelWrites":8}
+# Subtest: L1 fixed source/catalog/assets: exact version bytes and structured failures, without current fallback
+ok 4 - L1 fixed source/catalog/assets: exact version bytes and structured failures, without current fallback
+  ---
+  duration_ms: 29.192333
+  ...
+# {"layer":"L1 client–Worker","requests":15,"clientPosts":0,"responseDrops":0,"githubModelWrites":0}
+# Subtest: L1 unknown outcome: actual commit then lost response; forced current + pinned reads reconcile without duplicate writes
+ok 5 - L1 unknown outcome: actual commit then lost response; forced current + pinned reads reconcile without duplicate writes
+  ---
+  duration_ms: 22.514791
+  ...
+# {"layer":"L1 client–Worker","requests":5,"clientPosts":1,"responseDrops":1,"githubModelWrites":4}
+# Subtest: native source custody binds actual Node20, 842 source and deterministic formal fixture
+ok 6 - native source custody binds actual Node20, 842 source and deterministic formal fixture
+  ---
+  duration_ms: 541.449583
+  ...
+# Subtest: T01 day-filter save sends all four rows, no defaults; empty v3 creates and reloads
+ok 7 - T01 day-filter save sends all four rows, no defaults; empty v3 creates and reloads
+  ---
+  duration_ms: 0.348792
+  ...
+# Subtest: T02/T04 all four IDs, scoped judgments, metadata preservation and two-stage demand rebase
+ok 8 - T02/T04 all four IDs, scoped judgments, metadata preservation and two-stage demand rebase
+  ---
+  duration_ms: 0.242708
+  ...
+# Subtest: T07 conflict retains stale lock; unknown recovery reads current and pinned; late ACK preserves later input
+ok 9 - T07 conflict retains stale lock; unknown recovery reads current and pinned; late ACK preserves later input
+  ---
+  duration_ms: 2.085042
+  ...
+# Subtest: T06 ingredient and technique assets use their exact historical revision and owner/index
+ok 10 - T06 ingredient and technique assets use their exact historical revision and owner/index
+  ---
+  duration_ms: 0.33725
+  ...
+# Subtest: T08 six main pages have actual three-language/two-size captures with no horizontal overflow
+ok 11 - T08 six main pages have actual three-language/two-size captures with no horizontal overflow
+  ---
+  duration_ms: 3.202584
+  ...
+# Subtest: T04 complete final repository differs only in explicitly exercised fixture paths
+ok 12 - T04 complete final repository differs only in explicitly exercised fixture paths
+  ---
+  duration_ms: 428.3
+  ...
+# Subtest: T03 missing dish: save warns, collection is unresolved, publication retains old bytes
+ok 13 - T03 missing dish: save warns, collection is unresolved, publication retains old bytes
+  ---
+  duration_ms: 722.048041
+  ...
+# {"layer":"real Worker + formal producer, isolated Git/FakeRepo","kind":"dish","revision":"c76a64cf602aabf94145b288c51361f2722a63d4","workerStatus":200,"warnings":["plan-id-shape","dangling-ref"],"blocking":[{"planId":"team-week","menuPlanRef":"team-week","date":"2026-09-14","mealType":"lunch","dishRef":"missing-dish","mealIndex":3,"code":"missing-dish","kind":"error"}]}
+# Subtest: T03 missing ingredient: save warns, collection is unresolved, publication retains old bytes
+ok 14 - T03 missing ingredient: save warns, collection is unresolved, publication retains old bytes
+  ---
+  duration_ms: 591.744875
+  ...
+# {"layer":"real Worker + formal producer, isolated Git/FakeRepo","kind":"ingredient","revision":"888a0a493601c5e809d34b9431094614e527bf47","workerStatus":200,"warnings":["dangling-ref"],"blocking":[{"planId":"team-week","menuPlanRef":"team-week","date":"2026-09-14","mealType":"lunch","dishRef":"first-dish","mealIndex":0,"componentIndex":0,"ingredientRef":"missing-ingredient","code":"missing-ingredient","kind":"error"}]}
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1377.60825

@@ -1,0 +1,274 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "25/28",
+  "checks": [
+    {
+      "name": "actual main Menu uses frozen published revision while Plan raw stays protected",
+      "pass": true
+    },
+    {
+      "name": "real Menu recipe retains all five components and three steps",
+      "pass": true
+    },
+    {
+      "name": "real full recipe keeps 7500 g original quantity with no planned-serving multiplication",
+      "pass": true,
+      "detail": "7500 g"
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in en",
+      "pass": true
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in zh",
+      "pass": true
+    },
+    {
+      "name": "actual Prep preserves revision original quantity and offscreen raw in uk",
+      "pass": true
+    },
+    {
+      "name": "actual public image bytes decode without private API fallback",
+      "pass": true,
+      "detail": {
+        "revision": "9a497e733f1735488293a1514ff12f76f212b7a6",
+        "naturalWidth": 2
+      }
+    },
+    {
+      "name": "public navigation returns to retained invalid Plan input",
+      "pass": true
+    },
+    {
+      "name": "actual team drawer removes guest semantics in en",
+      "pass": true
+    },
+    {
+      "name": "actual verified first plan is a live route in en",
+      "pass": true
+    },
+    {
+      "name": "actual team drawer removes guest semantics in zh",
+      "pass": true
+    },
+    {
+      "name": "actual verified first plan is a live route in zh",
+      "pass": true
+    },
+    {
+      "name": "actual team drawer removes guest semantics in uk",
+      "pass": true
+    },
+    {
+      "name": "actual verified first plan is a live route in uk",
+      "pass": true
+    },
+    {
+      "name": "actual shell link opens production Plan with existing auth",
+      "pass": true
+    },
+    {
+      "name": "same real plan route does not bypass authentication",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual controller change refreshes reader without replacing editing DOM",
+      "pass": true,
+      "detail": {
+        "refreshes": 2
+      }
+    },
+    {
+      "name": "actual failed reader removes stale editable plan link",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual controller change refreshes reader without replacing editing DOM",
+      "pass": true,
+      "detail": {
+        "refreshes": 3
+      }
+    },
+    {
+      "name": "4 External activation preserves editor",
+      "pass": false,
+      "error": "Error: waiting worker\n    at Le (http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:19431)\n    at http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:30453\n    at async n.onclick (http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:21213)"
+    },
+    {
+      "name": "actual empty team publication keeps team role but no plan link",
+      "pass": false
+    },
+    {
+      "name": "Check empty team publication has no invented plan target",
+      "pass": false,
+      "error": "Error: actual empty team publication keeps team role but no plan link\n    at Le (http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:19431)\n    at D (http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:20253)\n    at http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:39569\n    at n.onclick (http://127.0.0.1:4194/canteen/assets/index-qBdlnZn4.js:2:21219)"
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    },
+    {
+      "name": "actual controller change refreshes reader without replacing editing DOM",
+      "pass": true,
+      "detail": {
+        "refreshes": 4
+      }
+    },
+    {
+      "name": "actual empty team publication keeps team role but no plan link",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/plan/week-41",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-4",
+        "kind": "plan",
+        "id": "week-41",
+        "generation": 16,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "week-41",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 3,
+        "operation": 0
+      }
+    ],
+    "stamp": "[67,4,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/plan/week-41\",\"tracked\"],[\"page:menu/\",\"read-only\"]],[{\"ownerId\":\"auxiliary-4\",\"kind\":\"plan\",\"id\":\"week-41\",\"generation\":16,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"week-41\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":3,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/public-guard",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-41",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-41",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReloadBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsNo plan availableThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "11"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ]
+}

@@ -1,0 +1,675 @@
+TAP version 13
+# Subtest: copy explicitly includes all current decisions without promoting old bought references
+ok 1 - copy explicitly includes all current decisions without promoting old bought references
+  ---
+  duration_ms: 0.6345
+  ...
+# Subtest: copy preserves raw unresolved reference and meal scope in each language
+ok 2 - copy preserves raw unresolved reference and meal scope in each language
+  ---
+  duration_ms: 0.090166
+  ...
+# Subtest: zh: real core export groups four current decisions and distinguishes same-name IDs
+ok 3 - zh: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 5.670584
+  ...
+# Subtest: zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 4 - zh: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 1.110208
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /0 g|0 kg/. Input:
+    
+    '当前页面清单（请核对保存状态）\n' +
+      'export-shop\n' +
+      '材料和菜单资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' +
+      '2026-09-14 · 午餐 · team-week\n' +
+      '2026-09-15 · 晚餐 · team-week\n' +
+      '2026-09-16 · 早餐 · team-week\n' +
+      '\n' +
+      '待核对\n' +
+      'missing-material — 待核对\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · 原配方用量: 用量未录 · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · 原配方用量: 用量未录 · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  missing-material · 无法完整计算: 尚未录入配料\n' +
+      '  missing-material · 无法完整计算: 菜谱未找到\n' +
+      '  missing-material · 无法完整计算: 材料资料未找到\n' +
+      '  missing-material · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5\n' +
+      '  missing-material · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5\n' +
+      '  missing-material · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5\n' +
+      '  missing-material · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5\n' +
+      '番茄 [tomato] — 待核对 · 主料\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1 · 原配方用量: 300 g · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 4 · 原配方用量: 1 g · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 · 原配方用量: 用量未录 · 计划份数: 2 · 配方基准份数: 配方基准份数未录\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 1 · 原配方用量: 300 g · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 4 · 原配方用量: 1 g · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  番茄 [tomato] · 无法完整计算: 尚未录入配料\n' +
+      '  番茄 [tomato] · 无法完整计算: 菜谱未找到\n' +
+      '  番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1\n' +
+      '  番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 4\n' +
+      '  番茄 [tomato] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1\n' +
+      '  番茄 [tomato] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1\n' +
+      '  番茄 [tomato] · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1\n' +
+      '  番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 1\n' +
+      '  番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 4\n' +
+      '\n' +
+      '待买\n' +
+      '油 [cooking-oil] — 待买 · 调料\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3 · 原配方用量: 20 ml · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 3 · 原配方用量: 20 ml · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  油 [cooking-oil] · 无法完整计算: 尚未录入配料\n' +
+      '  油 [cooking-oil] · 无法完整计算: 菜谱未找到\n' +
+      '  油 [cooking-oil] · 无法完整计算: 采购规格未录\n' +
+      '  油 [cooking-oil] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3\n' +
+      '  油 [cooking-oil] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 3\n' +
+      '\n' +
+      '已有\n' +
+      '盐 [salt] — 已有 · 调料\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 2 · 配方基准份数: 配方基准份数未录\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 2\n' +
+      '  盐 [salt] · 无法完整计算: 尚未录入配料\n' +
+      '  盐 [salt] · 无法完整计算: 菜谱未找到\n' +
+      '  盐 [salt] · 无法完整计算: 采购规格未录\n' +
+      '  盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2\n' +
+      '  盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2\n' +
+      '\n' +
+      '已买\n' +
+      '番茄 [tomato-other] — 已买 · 主料\n' +
+      '  使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 · 原配方用量: 200 g · 计划份数: 2 · 配方基准份数: 配方基准份数未录\n' +
+      '  番茄 [tomato-other] · 无法完整计算: 尚未录入配料\n' +
+      '  番茄 [tomato-other] · 无法完整计算: 菜谱未找到\n' +
+      '  番茄 [tomato-other] · 无法完整计算: 采购规格未录\n' +
+      '  番茄 [tomato-other] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3\n' +
+      '  番茄 [tomato-other] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3\n' +
+      '\n' +
+      '缺项与资料提示\n' +
+      '材料资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · missing-material\n' +
+      '技法资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · missing-material · missing-cut\n' +
+      '菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2\n' +
+      '材料资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · missing-material\n' +
+      '技法资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · missing-material · missing-cut\n' +
+      '菜谱待完善 · team-week · 2026-09-15 · 晚餐 · 未录成分样本 [name-only] · 计划行: 3\n' +
+      '尚未录入配料 · team-week · 2026-09-15 · 晚餐 · 未录成分样本 [name-only] · 计划行: 3\n' +
+      '菜谱未找到 · team-week · 2026-09-15 · 晚餐 · missing-recipe · 计划行: 5\n' +
+      '所选餐次没有菜品记录 · team-week · 2026-09-16 · 早餐\n' +
+      '\n' +
+      '已录材料候选；配方完整性仍需人工核对。\n' +
+      '金额只按可计算项参考，不代表完整预算。'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    当前页面清单（请核对保存状态）
+    export-shop
+    材料和菜单资料版本: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    2026-09-14 · 午餐 · team-week
+    2026-09-15 · 晚餐 · team-week
+    2026-09-16 · 早餐 · team-week
+    
+    待核对
+    missing-material — 待核对
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · 原配方用量: 用量未录 · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · 原配方用量: 用量未录 · 计划份数: 计划份数未录 · 配方基准份数: 2
+      missing-material · 无法完整计算: 尚未录入配料
+      missing-material · 无法完整计算: 菜谱未找到
+      missing-material · 无法完整计算: 材料资料未找到
+      missing-material · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5
+      missing-material · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5
+      missing-material · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5
+      missing-material · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5
+    番茄 [tomato] — 待核对 · 主料
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1 · 原配方用量: 300 g · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 4 · 原配方用量: 1 g · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1 · 原配方用量: 用量未录 · 计划份数: 2 · 配方基准份数: 配方基准份数未录
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 1 · 原配方用量: 300 g · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 4 · 原配方用量: 1 g · 计划份数: 计划份数未录 · 配方基准份数: 2
+      番茄 [tomato] · 无法完整计算: 尚未录入配料
+      番茄 [tomato] · 无法完整计算: 菜谱未找到
+      番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 1
+      番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 4
+      番茄 [tomato] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1
+      番茄 [tomato] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1
+      番茄 [tomato] · 无法完整计算: 原用量未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 1
+      番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 1
+      番茄 [tomato] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 4
+    
+    待买
+    油 [cooking-oil] — 待买 · 调料
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3 · 原配方用量: 20 ml · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 3 · 原配方用量: 20 ml · 计划份数: 计划份数未录 · 配方基准份数: 2
+      油 [cooking-oil] · 无法完整计算: 尚未录入配料
+      油 [cooking-oil] · 无法完整计算: 菜谱未找到
+      油 [cooking-oil] · 无法完整计算: 采购规格未录
+      油 [cooking-oil] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 3
+      油 [cooking-oil] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 3
+    
+    已有
+    盐 [salt] — 已有 · 调料
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 2
+      使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 2 · 配方基准份数: 配方基准份数未录
+      使用来源: team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2 · 原配方用量: 适量 · 计划份数: 计划份数未录 · 配方基准份数: 2
+      盐 [salt] · 无法完整计算: 尚未录入配料
+      盐 [salt] · 无法完整计算: 菜谱未找到
+      盐 [salt] · 无法完整计算: 采购规格未录
+      盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2
+      盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 2
+      盐 [salt] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2
+      盐 [salt] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2
+      盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 2
+      盐 [salt] · 无法完整计算: 计划份数未录 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2
+      盐 [salt] · 无法完整计算: 适量 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 2
+    
+    已买
+    番茄 [tomato-other] — 已买 · 主料
+      使用来源: team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3 · 原配方用量: 200 g · 计划份数: 2 · 配方基准份数: 配方基准份数未录
+      番茄 [tomato-other] · 无法完整计算: 尚未录入配料
+      番茄 [tomato-other] · 无法完整计算: 菜谱未找到
+      番茄 [tomato-other] · 无法完整计算: 采购规格未录
+      番茄 [tomato-other] · 无法完整计算: 配方基准份数未录 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3
+      番茄 [tomato-other] · 无法完整计算: 菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2 · 配料项: 3
+    
+    缺项与资料提示
+    材料资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · missing-material
+    技法资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 1 · 配料项: 5 · missing-material · missing-cut
+    菜谱待完善 · team-week · 2026-09-14 · 午餐 · 第二道样本菜 [second-dish] · 计划行: 2
+    材料资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · missing-material
+    技法资料未找到 · team-week · 2026-09-14 · 午餐 · 第一道样本菜 [first-dish] · 计划行: 4 · 配料项: 5 · missing-material · missing-cut
+    菜谱待完善 · team-week · 2026-09-15 · 晚餐 · 未录成分样本 [name-only] · 计划行: 3
+    尚未录入配料 · team-week · 2026-09-15 · 晚餐 · 未录成分样本 [name-only] · 计划行: 3
+    菜谱未找到 · team-week · 2026-09-15 · 晚餐 · missing-recipe · 计划行: 5
+    所选餐次没有菜品记录 · team-week · 2026-09-16 · 早餐
+    
+    已录材料候选；配方完整性仍需人工核对。
+    金额只按可计算项参考，不代表完整预算。
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:759)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async startSubtest (node:internal/test_runner/harness:259:3)
+  ...
+# Subtest: zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 5 - zh: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.4655
+  ...
+# Subtest: zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 6 - zh: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.130084
+  ...
+# Subtest: en: real core export groups four current decisions and distinguishes same-name IDs
+ok 7 - en: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.347
+  ...
+# Subtest: en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 8 - en: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.688084
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /0 g|0 kg/. Input:
+    
+    'Current page list (check save status)\n' +
+      'export-shop\n' +
+      'Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' +
+      '2026-09-14 · Lunch · team-week\n' +
+      '2026-09-15 · Dinner · team-week\n' +
+      '2026-09-16 · Breakfast · team-week\n' +
+      '\n' +
+      'Check\n' +
+      'missing-material — Check\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · Original recipe quantity: Quantity not recorded · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · Original recipe quantity: Quantity not recorded · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  missing-material · Complete estimate unavailable: Ingredients not recorded\n' +
+      '  missing-material · Complete estimate unavailable: Recipe missing\n' +
+      '  missing-material · Complete estimate unavailable: Ingredient missing\n' +
+      '  missing-material · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5\n' +
+      '  missing-material · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5\n' +
+      '  missing-material · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5\n' +
+      '  missing-material · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5\n' +
+      'Tomato [tomato] — Check · Main ingredient\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 4 · Original recipe quantity: 1 g · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1 · Original recipe quantity: Quantity not recorded · Planned servings: 2 · Recipe servings: Recipe servings missing\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 4 · Original recipe quantity: 1 g · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Ingredients not recorded\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Recipe missing\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 4\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 1\n' +
+      '  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 4\n' +
+      '\n' +
+      'Buy\n' +
+      'Oil [cooking-oil] — Buy · Seasoning\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3 · Original recipe quantity: 20 ml · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 3 · Original recipe quantity: 20 ml · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Oil [cooking-oil] · Complete estimate unavailable: Ingredients not recorded\n' +
+      '  Oil [cooking-oil] · Complete estimate unavailable: Recipe missing\n' +
+      '  Oil [cooking-oil] · Complete estimate unavailable: Purchase specification missing\n' +
+      '  Oil [cooking-oil] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3\n' +
+      '  Oil [cooking-oil] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 3\n' +
+      '\n' +
+      'Available\n' +
+      'Salt [salt] — Available · Seasoning\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: 2 · Recipe servings: Recipe servings missing\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: Ingredients not recorded\n' +
+      '  Salt [salt] · Complete estimate unavailable: Recipe missing\n' +
+      '  Salt [salt] · Complete estimate unavailable: Purchase specification missing\n' +
+      '  Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2\n' +
+      '  Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2\n' +
+      '\n' +
+      'Bought\n' +
+      'Tomato [tomato-other] — Bought · Main ingredient\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3 · Original recipe quantity: 200 g · Planned servings: 2 · Recipe servings: Recipe servings missing\n' +
+      '  Tomato [tomato-other] · Complete estimate unavailable: Ingredients not recorded\n' +
+      '  Tomato [tomato-other] · Complete estimate unavailable: Recipe missing\n' +
+      '  Tomato [tomato-other] · Complete estimate unavailable: Purchase specification missing\n' +
+      '  Tomato [tomato-other] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3\n' +
+      '  Tomato [tomato-other] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3\n' +
+      '\n' +
+      'Missing information and source notices\n' +
+      'Ingredient missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · missing-material\n' +
+      'Technique missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · missing-material · missing-cut\n' +
+      'Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2\n' +
+      'Ingredient missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · missing-material\n' +
+      'Technique missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · missing-material · missing-cut\n' +
+      'Recipe is not active · team-week · 2026-09-15 · Dinner · No components recorded [name-only] · Plan row: 3\n' +
+      'Ingredients not recorded · team-week · 2026-09-15 · Dinner · No components recorded [name-only] · Plan row: 3\n' +
+      'Recipe missing · team-week · 2026-09-15 · Dinner · missing-recipe · Plan row: 5\n' +
+      'No dish recorded for this meal · team-week · 2026-09-16 · Breakfast\n' +
+      '\n' +
+      'Recorded ingredient candidates; recipe completeness needs human review.\n' +
+      'Calculable amounts are references, not a complete budget.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Current page list (check save status)
+    export-shop
+    Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    2026-09-14 · Lunch · team-week
+    2026-09-15 · Dinner · team-week
+    2026-09-16 · Breakfast · team-week
+    
+    Check
+    missing-material — Check
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · Original recipe quantity: Quantity not recorded · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · Original recipe quantity: Quantity not recorded · Planned servings: Planned servings missing · Recipe servings: 2
+      missing-material · Complete estimate unavailable: Ingredients not recorded
+      missing-material · Complete estimate unavailable: Recipe missing
+      missing-material · Complete estimate unavailable: Ingredient missing
+      missing-material · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5
+      missing-material · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5
+      missing-material · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5
+      missing-material · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5
+    Tomato [tomato] — Check · Main ingredient
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 4 · Original recipe quantity: 1 g · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1 · Original recipe quantity: Quantity not recorded · Planned servings: 2 · Recipe servings: Recipe servings missing
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 4 · Original recipe quantity: 1 g · Planned servings: Planned servings missing · Recipe servings: 2
+      Tomato [tomato] · Complete estimate unavailable: Ingredients not recorded
+      Tomato [tomato] · Complete estimate unavailable: Recipe missing
+      Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1
+      Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 4
+      Tomato [tomato] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+      Tomato [tomato] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+      Tomato [tomato] · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+      Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 1
+      Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 4
+    
+    Buy
+    Oil [cooking-oil] — Buy · Seasoning
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3 · Original recipe quantity: 20 ml · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 3 · Original recipe quantity: 20 ml · Planned servings: Planned servings missing · Recipe servings: 2
+      Oil [cooking-oil] · Complete estimate unavailable: Ingredients not recorded
+      Oil [cooking-oil] · Complete estimate unavailable: Recipe missing
+      Oil [cooking-oil] · Complete estimate unavailable: Purchase specification missing
+      Oil [cooking-oil] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3
+      Oil [cooking-oil] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 3
+    
+    Available
+    Salt [salt] — Available · Seasoning
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: 2
+      Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: 2 · Recipe servings: Recipe servings missing
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: 2
+      Salt [salt] · Complete estimate unavailable: Ingredients not recorded
+      Salt [salt] · Complete estimate unavailable: Recipe missing
+      Salt [salt] · Complete estimate unavailable: Purchase specification missing
+      Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2
+      Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 2
+    
+    Bought
+    Tomato [tomato-other] — Bought · Main ingredient
+      Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3 · Original recipe quantity: 200 g · Planned servings: 2 · Recipe servings: Recipe servings missing
+      Tomato [tomato-other] · Complete estimate unavailable: Ingredients not recorded
+      Tomato [tomato-other] · Complete estimate unavailable: Recipe missing
+      Tomato [tomato-other] · Complete estimate unavailable: Purchase specification missing
+      Tomato [tomato-other] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3
+      Tomato [tomato-other] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3
+    
+    Missing information and source notices
+    Ingredient missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · missing-material
+    Technique missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 5 · missing-material · missing-cut
+    Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2
+    Ingredient missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · missing-material
+    Technique missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 4 · Recipe item: 5 · missing-material · missing-cut
+    Recipe is not active · team-week · 2026-09-15 · Dinner · No components recorded [name-only] · Plan row: 3
+    Ingredients not recorded · team-week · 2026-09-15 · Dinner · No components recorded [name-only] · Plan row: 3
+    Recipe missing · team-week · 2026-09-15 · Dinner · missing-recipe · Plan row: 5
+    No dish recorded for this meal · team-week · 2026-09-16 · Breakfast
+    
+    Recorded ingredient candidates; recipe completeness needs human review.
+    Calculable amounts are references, not a complete budget.
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:759)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 9 - en: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.38225
+  ...
+# Subtest: en: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 10 - en: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.069209
+  ...
+# Subtest: uk: real core export groups four current decisions and distinguishes same-name IDs
+ok 11 - uk: real core export groups four current decisions and distinguishes same-name IDs
+  ---
+  duration_ms: 0.239
+  ...
+# Subtest: uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+not ok 12 - uk: every raw source occurrence retains original quantity, both serving fields and zero-index addresses
+  ---
+  duration_ms: 0.502708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:2'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /0 g|0 kg/. Input:
+    
+    'Список поточної сторінки (перевірте стан збереження)\n' +
+      'export-shop\n' +
+      'Версія інгредієнтів і меню: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' +
+      '2026-09-14 · Обід · team-week\n' +
+      '2026-09-15 · Вечеря · team-week\n' +
+      '2026-09-16 · Сніданок · team-week\n' +
+      '\n' +
+      'Перевірити\n' +
+      'missing-material — Перевірити\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · Початкова кількість рецепта: Кількість не записано · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · Початкова кількість рецепта: Кількість не записано · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  missing-material · Повний розрахунок недоступний: Інгредієнти не записано\n' +
+      '  missing-material · Повний розрахунок недоступний: Рецепт не знайдено\n' +
+      '  missing-material · Повний розрахунок недоступний: Інгредієнт не знайдено\n' +
+      '  missing-material · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5\n' +
+      '  missing-material · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5\n' +
+      '  missing-material · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5\n' +
+      '  missing-material · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5\n' +
+      'Помідор [tomato] — Перевірити · Основний інгредієнт\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 1 · Початкова кількість рецепта: 300 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 4 · Початкова кількість рецепта: 1 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1 · Початкова кількість рецепта: Кількість не записано · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 1 · Початкова кількість рецепта: 300 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 4 · Початкова кількість рецепта: 1 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Інгредієнти не записано\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Рецепт не знайдено\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 1\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 4\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 1\n' +
+      '  Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 4\n' +
+      '\n' +
+      'Купити\n' +
+      'Олія [cooking-oil] — Купити · Приправа\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 3 · Початкова кількість рецепта: 20 ml · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 3 · Початкова кількість рецепта: 20 ml · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Олія [cooking-oil] · Повний розрахунок недоступний: Інгредієнти не записано\n' +
+      '  Олія [cooking-oil] · Повний розрахунок недоступний: Рецепт не знайдено\n' +
+      '  Олія [cooking-oil] · Повний розрахунок недоступний: Закупівельні параметри не записано\n' +
+      '  Олія [cooking-oil] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 3\n' +
+      '  Олія [cooking-oil] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 3\n' +
+      '\n' +
+      'Є в наявності\n' +
+      'Сіль [salt] — Є в наявності · Приправа\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: Порції в плані не вказано · Порції рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Інгредієнти не записано\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Рецепт не знайдено\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Закупівельні параметри не записано\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2\n' +
+      '  Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2\n' +
+      '\n' +
+      'Куплено\n' +
+      'Помідор [tomato-other] — Куплено · Основний інгредієнт\n' +
+      '  Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3 · Початкова кількість рецепта: 200 g · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано\n' +
+      '  Помідор [tomato-other] · Повний розрахунок недоступний: Інгредієнти не записано\n' +
+      '  Помідор [tomato-other] · Повний розрахунок недоступний: Рецепт не знайдено\n' +
+      '  Помідор [tomato-other] · Повний розрахунок недоступний: Закупівельні параметри не записано\n' +
+      '  Помідор [tomato-other] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3\n' +
+      '  Помідор [tomato-other] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3\n' +
+      '\n' +
+      'Відсутні дані й примітки джерела\n' +
+      'Інгредієнт не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · missing-material\n' +
+      'Техніку не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · missing-material · missing-cut\n' +
+      'Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2\n' +
+      'Інгредієнт не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · missing-material\n' +
+      'Техніку не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · missing-material · missing-cut\n' +
+      'Рецепт ще не активний · team-week · 2026-09-15 · Вечеря · Інгредієнти не записані [name-only] · Рядок плану: 3\n' +
+      'Інгредієнти не записано · team-week · 2026-09-15 · Вечеря · Інгредієнти не записані [name-only] · Рядок плану: 3\n' +
+      'Рецепт не знайдено · team-week · 2026-09-15 · Вечеря · missing-recipe · Рядок плану: 5\n' +
+      'Для цього прийому їжі страву не записано · team-week · 2026-09-16 · Сніданок\n' +
+      '\n' +
+      'Записані інгредієнти; повноту рецепта має перевірити людина.\n' +
+      'Розраховані суми є орієнтирами, а не повним бюджетом.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Список поточної сторінки (перевірте стан збереження)
+    export-shop
+    Версія інгредієнтів і меню: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    2026-09-14 · Обід · team-week
+    2026-09-15 · Вечеря · team-week
+    2026-09-16 · Сніданок · team-week
+    
+    Перевірити
+    missing-material — Перевірити
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · Початкова кількість рецепта: Кількість не записано · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · Початкова кількість рецепта: Кількість не записано · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      missing-material · Повний розрахунок недоступний: Інгредієнти не записано
+      missing-material · Повний розрахунок недоступний: Рецепт не знайдено
+      missing-material · Повний розрахунок недоступний: Інгредієнт не знайдено
+      missing-material · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5
+      missing-material · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5
+      missing-material · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5
+      missing-material · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5
+    Помідор [tomato] — Перевірити · Основний інгредієнт
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 1 · Початкова кількість рецепта: 300 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 4 · Початкова кількість рецепта: 1 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1 · Початкова кількість рецепта: Кількість не записано · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 1 · Початкова кількість рецепта: 300 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 4 · Початкова кількість рецепта: 1 g · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Помідор [tomato] · Повний розрахунок недоступний: Інгредієнти не записано
+      Помідор [tomato] · Повний розрахунок недоступний: Рецепт не знайдено
+      Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 1
+      Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 4
+      Помідор [tomato] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1
+      Помідор [tomato] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1
+      Помідор [tomato] · Повний розрахунок недоступний: Кількість рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 1
+      Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 1
+      Помідор [tomato] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 4
+    
+    Купити
+    Олія [cooking-oil] — Купити · Приправа
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 3 · Початкова кількість рецепта: 20 ml · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 3 · Початкова кількість рецепта: 20 ml · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Олія [cooking-oil] · Повний розрахунок недоступний: Інгредієнти не записано
+      Олія [cooking-oil] · Повний розрахунок недоступний: Рецепт не знайдено
+      Олія [cooking-oil] · Повний розрахунок недоступний: Закупівельні параметри не записано
+      Олія [cooking-oil] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 3
+      Олія [cooking-oil] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 3
+    
+    Є в наявності
+    Сіль [salt] — Є в наявності · Приправа
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано
+      Використовується в: team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2 · Початкова кількість рецепта: За смаком · Порції в плані: Порції в плані не вказано · Порції рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: Інгредієнти не записано
+      Сіль [salt] · Повний розрахунок недоступний: Рецепт не знайдено
+      Сіль [salt] · Повний розрахунок недоступний: Закупівельні параметри не записано
+      Сіль [salt] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: Порції в плані не вказано · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2
+      Сіль [salt] · Повний розрахунок недоступний: За смаком · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 2
+    
+    Куплено
+    Помідор [tomato-other] — Куплено · Основний інгредієнт
+      Використовується в: team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3 · Початкова кількість рецепта: 200 g · Порції в плані: 2 · Порції рецепта: Порції рецепта не вказано
+      Помідор [tomato-other] · Повний розрахунок недоступний: Інгредієнти не записано
+      Помідор [tomato-other] · Повний розрахунок недоступний: Рецепт не знайдено
+      Помідор [tomato-other] · Повний розрахунок недоступний: Закупівельні параметри не записано
+      Помідор [tomato-other] · Повний розрахунок недоступний: Порції рецепта не вказано · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3
+      Помідор [tomato-other] · Повний розрахунок недоступний: Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2 · Складник рецепта: 3
+    
+    Відсутні дані й примітки джерела
+    Інгредієнт не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · missing-material
+    Техніку не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 1 · Складник рецепта: 5 · missing-material · missing-cut
+    Рецепт ще не активний · team-week · 2026-09-14 · Обід · Друга тестова страва [second-dish] · Рядок плану: 2
+    Інгредієнт не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · missing-material
+    Техніку не знайдено · team-week · 2026-09-14 · Обід · Перша тестова страва [first-dish] · Рядок плану: 4 · Складник рецепта: 5 · missing-material · missing-cut
+    Рецепт ще не активний · team-week · 2026-09-15 · Вечеря · Інгредієнти не записані [name-only] · Рядок плану: 3
+    Інгредієнти не записано · team-week · 2026-09-15 · Вечеря · Інгредієнти не записані [name-only] · Рядок плану: 3
+    Рецепт не знайдено · team-week · 2026-09-15 · Вечеря · missing-recipe · Рядок плану: 5
+    Для цього прийому їжі страву не записано · team-week · 2026-09-16 · Сніданок
+    
+    Записані інгредієнти; повноту рецепта має перевірити людина.
+    Розраховані суми є орієнтирами, а не повним бюджетом.
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:31:759)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+ok 13 - uk: concrete collection issues and source-bound estimate reasons survive independently of candidate rows
+  ---
+  duration_ms: 0.302458
+  ...
+# Subtest: uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+ok 14 - uk: empty candidate collections still export localized missing-plan and empty-selection addresses
+  ---
+  duration_ms: 0.103167
+  ...
+# Subtest: complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+not ok 15 - complete core estimate with no purchase lines keeps the current check decision and does not invent a total
+  ---
+  duration_ms: 0.421875
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /Tomato.*Available|Total|0 CNY|0 g/. Input:
+    
+    'Current page list (check save status)\n' +
+      'export-shop\n' +
+      'Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n' +
+      '2026-09-14 · Lunch · team-week\n' +
+      '\n' +
+      'Check\n' +
+      'Tomato [tomato] — Check · Main ingredient\n' +
+      '  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: 2 · Recipe servings: 2\n' +
+      '\n' +
+      'Recorded ingredient candidates; recipe completeness needs human review.\n' +
+      'Calculable amounts are references, not a complete budget.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    Current page list (check save status)
+    export-shop
+    Ingredient and menu version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    2026-09-14 · Lunch · team-week
+    
+    Check
+    Tomato [tomato] — Check · Main ingredient
+      Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: 2 · Recipe servings: 2
+    
+    Recorded ingredient candidates; recipe completeness needs human review.
+    Calculable amounts are references, not a complete budget.
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-copy.test.mjs:35:725)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 11
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63.062292

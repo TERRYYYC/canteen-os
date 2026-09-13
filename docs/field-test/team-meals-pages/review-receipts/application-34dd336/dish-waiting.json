@@ -1,0 +1,169 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "2/2",
+  "checks": [
+    {
+      "name": "actual Dish raw is dirty before any update",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/dish/soup",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 2,
+        "operation": 0
+      }
+    ],
+    "stamp": "[22,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit this dishNo network: the back office is read-only until you're back onlineSave service configuredUnsaved changesaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaEnter by handFrom videoDraft1 itemsWhat's missingNo steps yetServings not setSalt: quantity not setDish nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateIn EnglishIn UkrainianShort English name (used as the file name)The file name can't change once savedShort dish descriptionEnglish · UkrainianMachine-translated, editableTranslateDescription in EnglishDescription in UkrainianHow many servings this recipe is written forOptional. Leave blank if unknown; keep known recipe servingsPhoto of the finished dish+Take a photo…Choose a fileIngredients 1 items1Salt▸↑↓IngredientsSaltsaltChangeTo tasteSelect only if the recipe says to taste. Leave unknown amounts blank; ingredients remain on the listQuantityUnitgkgmllpcspacktbsptsppinchHow to cut— not needed —How bige.g. 3 mm or 2 cmWhen to prep— that morning (default) —The day beforeThat morningRight before serviceNoteEnglish · UkrainianMachine-translated, editableTranslateNote in EnglishNote in UkrainianRemoveAdd an ingredientSteps Add a stepSaving or adding to the library does not publish. Check whether all recipe ingredients are recordedSave draftAdd to libraryComing in round 2; for now Terry imports videos from the command lineSee the command-line guideCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "adm-dish-name-zh",
+      "value": "未保存菜谱"
+    },
+    {
+      "id": "adm-dish-name-en",
+      "value": "Soup"
+    },
+    {
+      "id": "adm-dish-name-uk",
+      "value": "Суп"
+    },
+    {
+      "id": "adm-dish-id",
+      "value": "soup"
+    },
+    {
+      "id": "adm-dish-description-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-description-uk",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-baseServings",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-toTaste",
+      "value": "on"
+    },
+    {
+      "id": "adm-dish-c1-qty",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-size",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-zh",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-en",
+      "value": ""
+    },
+    {
+      "id": "adm-dish-c1-note-uk",
+      "value": ""
+    }
+  ]
+}

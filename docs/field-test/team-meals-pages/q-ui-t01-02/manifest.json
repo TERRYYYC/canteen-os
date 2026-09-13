@@ -1,0 +1,67 @@
+{
+  "entries": [
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/Q-UI-T01-02.md",
+      "path": "Q-UI-T01-02.md",
+      "bytes": 3496,
+      "sha256": "1abbe3031aeb4e1aecb9c39255f6f827621f3bff9c00cbc5cf05f727c614730d"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "packages/web/test/e2e/team-meals/import-draft-capture.repro.mjs",
+      "path": "import-draft-capture.repro.mjs",
+      "bytes": 1101,
+      "sha256": "dcec2d4c59cec1efc6367e461db0b84fc906dc681d252fa7a7eec2b349efa5aa"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T01-import-draft-red.log",
+      "path": "T01-import-draft-red.log",
+      "bytes": 626,
+      "sha256": "364e206e6efb06dd7eccf74853ae1fe56900a570b0b11214e3ef3ab060e3099f"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/setup-06-capture-parser.log",
+      "path": "setup-06-capture-parser.log",
+      "bytes": 503,
+      "sha256": "e0ca911a4bf6338188a832d0243a40de3512fce494a45e5e1a5f8960629dcab4"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T01-import-unrelated-edit-before.txt",
+      "path": "T01-import-unrelated-edit-before.txt",
+      "bytes": 3009,
+      "sha256": "035750609f51fc90943790119af937a329fd221dfa2cf4f7d7cc4671c5458051"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T01-import-unrelated-input.txt",
+      "path": "T01-import-unrelated-input.txt",
+      "bytes": 1568,
+      "sha256": "7aa12ab564289e418ba451ab0805c5e3237636a8100ec1675bf158f664e1baea"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T01-import-unrelated-edit-lost.txt",
+      "path": "T01-import-unrelated-edit-lost.txt",
+      "bytes": 2999,
+      "sha256": "d8ac7e63c829e12a82a3c6e8349e8cd5cae08ec5f16d55cfcdb8f3ac4a42ee78"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/T01-import-unrelated-all-dates.txt",
+      "path": "T01-import-unrelated-all-dates.txt",
+      "bytes": 4282,
+      "sha256": "575165ab2850bdb8d35c0bd8fbfbcd027d40742693722e649d49e534a18cef56"
+    },
+    {
+      "sourceCommit": "6276f1beacd9bb61c756d1a3974b180f6cbc74ab",
+      "sourcePath": "docs/field-test/team-meals/page-browser/ledger-T01-import-red-checkpoint.json",
+      "path": "ledger-T01-import-red-checkpoint.json",
+      "bytes": 222728,
+      "sha256": "e5ec3be1f6bf719beafe4e06b3218bc9f04a3e89139d0fd41e4c022ef783892e"
+    }
+  ]
+}

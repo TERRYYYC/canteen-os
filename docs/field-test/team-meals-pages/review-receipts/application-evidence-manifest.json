@@ -1,0 +1,68 @@
+[
+  {
+    "file": "application-guest-entry.png",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-guest-entry.png",
+    "sha256": "32a5e2078cf558257717aff3c2808bc82ce41b7dc9e986e5840fc08f83d178eb",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-ingredient-unload-minimal.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-ingredient-unload-minimal.json",
+    "sha256": "6103eaa99d3534b38c86dab3605d8e2c6ce5508574c4aa0ae464ec3dc99f481c",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-matrix-first.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-matrix-first.json",
+    "sha256": "328f6a719369a8fa6fa7813519bd54a44d5691bae06eb928afd6bd35a04dd727",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-matrix-v2.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-matrix-v2.json",
+    "sha256": "9ab705b5b1ea6018891103ef02814c228dbfa509ef3917da5501a231931c08ba",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-old-auth-save.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-old-auth-save.json",
+    "sha256": "225d181f2c3381bddcdd6528015544884ae85a544779b56ab50f6ccb5ff6db53",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-startup-failure.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-startup-failure.json",
+    "sha256": "625c90c23fe05290da3fc601e89c9ad9ffa8a1960dcd287f611bb5168476040f",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-sw-after-reload.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-sw-after-reload.json",
+    "sha256": "ac09bc6d6ec3484bd7034f5e0fa40fd10a549d77c4059c260ebb25e79284d4b8",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-sw-reader-failure.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-sw-reader-failure.json",
+    "sha256": "588e07e684ae866a949dcbc2adf1d61f165a60cc8f3aee8ab9520e924d8838e5",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-sw-retry-observed.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-sw-retry-observed.json",
+    "sha256": "8468953c9f3a7d1f1b05ce3cc9b69110f14e57d8043d7673761a8f045cfc9dbe",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-sw-retry-observed.png",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-sw-retry-observed.png",
+    "sha256": "e0c9475558415faf2ad60ef15143d7787aed8c7efe8825e7f7aa11c297e4cf45",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  },
+  {
+    "file": "application-sw-save-unknown.json",
+    "original": "/private/tmp/canteen-application-review-3eb2f35/application-sw-save-unknown.json",
+    "sha256": "d5dd17490071acea9c750acc3d8a0ae4f520135e22ace2d4284061d4c980be0b",
+    "role": "Original 3eb application review evidence; preserves failures and intermediate assertions, not a native-reload approval."
+  }
+]

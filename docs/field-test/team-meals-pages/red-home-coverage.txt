@@ -1,0 +1,78 @@
+✔ unconfigured home keeps unknown numbers, three-language connection notice, and never enters legacy mock (28.952584ms)
+✔ mixed v2/v3 catalog and unknown servings render through C1; only publication uses legacy API (25.67675ms)
+✔ explicit simulation is labelled and cannot claim actual publication (9.761292ms)
+✔ C1 read failures leave unknown numbers; a confirmed missing plan alone may display zero (16.912125ms)
+✔ late prior-account replies cannot populate a new-account language render (19.893042ms)
+✔ auth changes immediately remove cached private numbers and late results do not return them (26.017292ms)
+✔ a completed snapshot from an earlier auth identity is not reused on language change (19.565291ms)
+✔ offline repaint retains known figures, explicitly marks offline and disables write entry links (10.253334ms)
+✖ home owns each initial read until it finishes and language reuses pending coverage (9.21425ms)
+✖ old home initialization finishes only original scope after auth while new reads stay protected (33.213959ms)
+✖ unconfigured and completed failed home reads release coverage without inventing numbers (11.251584ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 8
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 259.158042
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-home.test.mjs:213:1
+✖ home owns each initial read until it finishes and language reuses pending coverage (9.21425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:214:152)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:216:1
+✖ old home initialization finishes only original scope after auth while new reads stay protected (33.213959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'unknown'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:217:326)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-home.test.mjs:219:1
+✖ unconfigured and completed failed home reads release coverage without inventing numbers (11.251584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-home.test.mjs:220:181)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

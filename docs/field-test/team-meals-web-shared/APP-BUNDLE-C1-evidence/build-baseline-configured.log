@@ -1,0 +1,34 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 66 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../app-bundle-c1-baseline-configured/manifest.webmanifest                          0.75 kB
+../../../app-bundle-c1-baseline-configured/index.html                                    1.94 kB │ gzip:  1.12 kB
+../../../app-bundle-c1-baseline-configured/bundle-attribution.json                      12.05 kB │ gzip:  1.33 kB
+../../../app-bundle-c1-baseline-configured/assets/home-Bw8HMtwR.css                      2.28 kB │ gzip:  0.71 kB
+../../../app-bundle-c1-baseline-configured/assets/ingredient-new-CT2dSWut.css            4.50 kB │ gzip:  1.30 kB
+../../../app-bundle-c1-baseline-configured/assets/publish-DvJfnWK2.css                   5.17 kB │ gzip:  1.40 kB
+../../../app-bundle-c1-baseline-configured/assets/import-DavkaiKj.css                    5.33 kB │ gzip:  1.30 kB
+../../../app-bundle-c1-baseline-configured/assets/dish-new-DK3WVt9P.css                  7.08 kB │ gzip:  1.74 kB
+../../../app-bundle-c1-baseline-configured/assets/index-Buwvlede.css                    36.35 kB │ gzip:  7.79 kB
+../../../app-bundle-c1-baseline-configured/assets/servings-input-DNG9trXJ.js             0.49 kB │ gzip:  0.32 kB
+../../../app-bundle-c1-baseline-configured/assets/store-WSjA-hER.js                      1.98 kB │ gzip:  0.90 kB
+../../../app-bundle-c1-baseline-configured/assets/workbox-window.prod.es5-BqEJf4Xk.js    5.71 kB │ gzip:  2.34 kB
+../../../app-bundle-c1-baseline-configured/assets/home-DxfeemT0.js                       9.90 kB │ gzip:  4.63 kB
+../../../app-bundle-c1-baseline-configured/assets/parse-plan-text-DBZQVSv5.js           12.32 kB │ gzip:  5.77 kB
+../../../app-bundle-c1-baseline-configured/assets/plan-DKearscT.js                      12.52 kB │ gzip:  5.62 kB
+../../../app-bundle-c1-baseline-configured/assets/import-CvrvXLqm.js                    26.64 kB │ gzip: 11.74 kB
+../../../app-bundle-c1-baseline-configured/assets/publish-GILJpFQ1.js                   26.65 kB │ gzip: 11.46 kB
+../../../app-bundle-c1-baseline-configured/assets/client-CTB5X9XR.js                    29.82 kB │ gzip: 12.71 kB
+../../../app-bundle-c1-baseline-configured/assets/ingredient-new-verYh16D.js            36.41 kB │ gzip: 15.44 kB
+../../../app-bundle-c1-baseline-configured/assets/dish-new-DcogcHRR.js                  59.84 kB │ gzip: 22.71 kB
+../../../app-bundle-c1-baseline-configured/assets/index-B_R8e6Ee.js                    167.68 kB │ gzip: 63.70 kB
+✓ built in 335ms
+
+PWA v1.3.0
+mode      generateSW
+precache  34 entries (536.81 KiB)
+files generated
+  ../../../app-bundle-c1-baseline-configured/sw.js
+  ../../../app-bundle-c1-baseline-configured/workbox-4e9e9954.js

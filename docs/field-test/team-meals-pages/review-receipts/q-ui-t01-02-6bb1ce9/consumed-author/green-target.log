@@ -1,0 +1,440 @@
+TAP version 13
+# Subtest: real core parsed missing servings stay blank rather than receiving a page default
+ok 1 - real core parsed missing servings stay blank rather than receiving a page default
+  ---
+  duration_ms: 3.303375
+  ...
+# Subtest: explicit preview clear overrides parsed original, while untouched preview keeps it
+ok 2 - explicit preview clear overrides parsed original, while untouched preview keeps it
+  ---
+  duration_ms: 0.696584
+  ...
+# Subtest: preview rejects fractional, nonpositive and nonfinite values without rounding or fallback
+ok 3 - preview rejects fractional, nonpositive and nonfinite values without rounding or fallback
+  ---
+  duration_ms: 0.457334
+  ...
+# Subtest: import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count
+ok 4 - import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count
+  ---
+  duration_ms: 0.417167
+  ...
+# Subtest: only an explicit clear removes matched known count; duplicate rows and service window survive
+ok 5 - only an explicit clear removes matched known count; duplicate rows and service window survive
+  ---
+  duration_ms: 0.144708
+  ...
+# Subtest: new unknown plan is v3 and known incoming count updates first matching occurrence only
+ok 6 - new unknown plan is v3 and known incoming count updates first matching occurrence only
+  ---
+  duration_ms: 0.084375
+  ...
+# Subtest: actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST
+ok 7 - actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST
+  ---
+  duration_ms: 12.673
+  ...
+# Subtest: actual preview explicit clear survives language repaint and invalid entry can be corrected
+ok 8 - actual preview explicit clear survives language repaint and invalid entry can be corrected
+  ---
+  duration_ms: 1.676041
+  ...
+# Subtest: late saved-plan read cannot import over a newer preview or an auth lifetime
+ok 9 - late saved-plan read cannot import over a newer preview or an auth lifetime
+  ---
+  duration_ms: 1.288125
+  ...
+# Subtest: unconfigured import shows honest unavailable state without fallback mock reads
+ok 10 - unconfigured import shows honest unavailable state without fallback mock reads
+  ---
+  duration_ms: 0.295458
+  ...
+# Subtest: an initially blank preview has an explicit clear action to remove a matched saved count
+ok 11 - an initially blank preview has an explicit clear action to remove a matched saved count
+  ---
+  duration_ms: 2.048125
+  ...
+# Subtest: I-R1 canceled source read derives action validity from the current preview
+ok 12 - I-R1 canceled source read derives action validity from the current preview
+  ---
+  duration_ms: 3.247667
+  ...
+# Subtest: raw preview refuses loss of numeric precision and retains the original input after repaint
+ok 13 - raw preview refuses loss of numeric precision and retains the original input after repaint
+  ---
+  duration_ms: 3.610584
+  ...
+# Subtest: exact integer decimal and exponent representations remain supported in the preview
+ok 14 - exact integer decimal and exponent representations remain supported in the preview
+  ---
+  duration_ms: 3.352875
+  ...
+# Subtest: approved core invalid servings are shown as unparsed original text with no import fallback
+ok 15 - approved core invalid servings are shown as unparsed original text with no import fallback
+  ---
+  duration_ms: 1.862875
+  ...
+# Subtest: raw paste and invalid line edit belong to the original plan across another plan and language
+ok 16 - raw paste and invalid line edit belong to the original plan across another plan and language
+  ---
+  duration_ms: 1.482791
+  ...
+# Subtest: selected CSV completes into the original owner after a language repaint or navigating away
+ok 17 - selected CSV completes into the original owner after a language repaint or navigating away
+  ---
+  duration_ms: 2.215792
+  ...
+# Subtest: a newer CSV or paste wins over an older selected file without changing the wrong owner
+ok 18 - a newer CSV or paste wins over an older selected file without changing the wrong owner
+  ---
+  duration_ms: 2.52375
+  ...
+# Subtest: Source-read busy state survives language repaint and cancellation preserves raw validity
+ok 19 - Source-read busy state survives language repaint and cancellation preserves raw validity
+  ---
+  duration_ms: 1.040916
+  ...
+# Subtest: late file failure is retained for its owner across repaint and cannot leak into a new auth session
+ok 20 - late file failure is retained for its owner across repaint and cannot leak into a new auth session
+  ---
+  duration_ms: 1.031667
+  ...
+# Subtest: raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle
+ok 21 - raw owner metadata is pure, tracks actual file tasks, and clear cannot report pending work idle
+  ---
+  duration_ms: 0.744584
+  ...
+# Subtest: a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft
+ok 22 - a partial import retains skipped original input as dirty while full import hands responsibility to JSON draft
+  ---
+  duration_ms: 6.573834
+  ...
+# Subtest: I-R2 changed auth removes old notice, base, undo and handoff while same-auth navigation keeps them
+ok 23 - I-R2 changed auth removes old notice, base, undo and handoff while same-auth navigation keeps them
+  ---
+  duration_ms: 1.483167
+  ...
+# Subtest: I-R2 old Source completion and captured handles cannot write or clear a newer bound draft
+ok 24 - I-R2 old Source completion and captured handles cannot write or clear a newer bound draft
+  ---
+  duration_ms: 0.937958
+  ...
+# Subtest: different API instances with equal session keys never reuse another instance draft or handoff
+ok 25 - different API instances with equal session keys never reuse another instance draft or handoff
+  ---
+  duration_ms: 0.948333
+  ...
+# Subtest: old Import undo and handoff button callbacks cannot rebind into the newer identity
+ok 26 - old Import undo and handoff button callbacks cannot rebind into the newer identity
+  ---
+  duration_ms: 2.156875
+  ...
+# Subtest: Import auxiliary tracks raw and actual file read across repaint and explicit clear
+ok 27 - Import auxiliary tracks raw and actual file read across repaint and explicit clear
+  ---
+  duration_ms: 2.180791
+  ...
+# Subtest: two old Import read tickets survive auth and settle independently without exposing prior identity
+ok 28 - two old Import read tickets survive auth and settle independently without exposing prior identity
+  ---
+  duration_ms: 1.06575
+  ...
+# Subtest: Import initialization completes original coverage after auth cancellation and snapshot never reads A raw
+ok 29 - Import initialization completes original coverage after auth cancellation and snapshot never reads A raw
+  ---
+  duration_ms: 0.946541
+  ...
+# Subtest: real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+ok 30 - real page handoff preserves unsaved eleven when importing another meal and issues no extra POST
+  ---
+  duration_ms: 31.947292
+  ...
+# Subtest: deliberately omitted local count is retained when another meal is imported
+ok 31 - deliberately omitted local count is retained when another meal is imported
+  ---
+  duration_ms: 12.365625
+  ...
+# Subtest: local added/deleted rows and whole-plan metadata survive a new import
+ok 32 - local added/deleted rows and whole-plan metadata survive a new import
+  ---
+  duration_ms: 11.769625
+  ...
+# Subtest: sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+ok 33 - sorting imported rows preserves invalid raw on its original row and leaves Add choices pending
+  ---
+  duration_ms: 10.915042
+  ...
+# Subtest: A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+ok 34 - A is resumed by ID after visiting B; importing A cannot use B or saved A as its current draft
+  ---
+  duration_ms: 13.233875
+  ...
+# Subtest: import edits the original saving document; its late ACK cannot consume the later merged draft
+ok 35 - import edits the original saving document; its late ACK cannot consume the later merged draft
+  ---
+  duration_ms: 14.058125
+  ...
+# Subtest: lost: import changes only local draft and preserves original unresolved/conflict save state
+ok 36 - lost: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 10.784334
+  ...
+# Subtest: conflict: import changes only local draft and preserves original unresolved/conflict save state
+ok 37 - conflict: import changes only local draft and preserves original unresolved/conflict save state
+  ---
+  duration_ms: 9.954
+  ...
+# Subtest: an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+ok 38 - an unvisited Plan still uses the guarded saved-source/store handoff without creating a write
+  ---
+  duration_ms: 5.214667
+  ...
+# Subtest: omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 39 - omitted: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.319
+  ...
+# Subtest: specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 40 - specified: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 9.955834
+  ...
+# Subtest: clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+ok 41 - clear: matching import affects only the first duplicate and preserves the other locally edited duplicate
+  ---
+  duration_ms: 10.177125
+  ...
+# Subtest: cancelling Import leaves the current Plan draft and raw Import input untouched
+ok 42 - cancelling Import leaves the current Plan draft and raw Import input untouched
+  ---
+  duration_ms: 7.802709
+  ...
+# Subtest: omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 43 - omitted: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 8.187541
+  ...
+# Subtest: specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 44 - specified: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 8.365083
+  ...
+# Subtest: clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+ok 45 - clear: explicit import intent controls the matching row raw override while preserving unrelated invalid input
+  ---
+  duration_ms: 8.936
+  ...
+# Subtest: a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+ok 46 - a genuinely closed known C1 owner refuses Import and cannot fall back to GET/store
+  ---
+  duration_ms: 7.36175
+  ...
+# Subtest: a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+ok 47 - a retired auth capability does not downgrade a new Import attempt to saved-source fallback
+  ---
+  duration_ms: 9.404291
+  ...
+# Subtest: route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 48 - route: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 8.419167
+  ...
+# Subtest: language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 49 - language: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 9.068958
+  ...
+# Subtest: input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+ok 50 - input: a synchronous C1 edit subscriber cannot trigger stale Import success/navigation or leave old store content to overwrite the merge
+  ---
+  duration_ms: 8.559583
+  ...
+# Subtest: route: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 51 - route: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 4.990625
+  ...
+# Subtest: language: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 52 - language: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 5.099167
+  ...
+# Subtest: input: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 53 - input: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 4.983792
+  ...
+# Subtest: auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 54 - auth: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 4.901792
+  ...
+# Subtest: failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+ok 55 - failure: an unvisited-document fallback read retains input and cannot create a stale handoff
+  ---
+  duration_ms: 5.539458
+  ...
+# Subtest: unknown save recovery verifies its original request and leaves the later imported draft dirty
+ok 56 - unknown save recovery verifies its original request and leaves the later imported draft dirty
+  ---
+  duration_ms: 11.344458
+  ...
+# Subtest: repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+ok 57 - repeated explicit import is idempotent and a later new Plan edit survives returning without resubmitting
+  ---
+  duration_ms: 9.657792
+  ...
+# Subtest: same ID through a different real API instance cannot read or edit the first API draft
+ok 58 - same ID through a different real API instance cannot read or edit the first API draft
+  ---
+  duration_ms: 7.87125
+  ...
+# Subtest: a C1-refused edit rolls back the page raw remap and leaves the document intact
+ok 59 - a C1-refused edit rolls back the page raw remap and leaves the document intact
+  ---
+  duration_ms: 3.436125
+  ...
+# Subtest: deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+ok 60 - deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+  ---
+  duration_ms: 20.591834
+  ...
+# Subtest: raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+ok 61 - raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+  ---
+  duration_ms: 6.390459
+  ...
+# Subtest: unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+ok 62 - unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+  ---
+  duration_ms: 8.759333
+  ...
+# Subtest: removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+ok 63 - removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+  ---
+  duration_ms: 7.269875
+  ...
+# Subtest: unrelated later row removal never consumes an earlier invalid raw value
+ok 64 - unrelated later row removal never consumes an earlier invalid raw value
+  ---
+  duration_ms: 4.631166
+  ...
+# Subtest: stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+ok 65 - stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+  ---
+  duration_ms: 5.61
+  ...
+# Subtest: saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+ok 66 - saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+  ---
+  duration_ms: 6.348167
+  ...
+# Subtest: acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+ok 67 - acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+  ---
+  duration_ms: 8.706042
+  ...
+# Subtest: Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+ok 68 - Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+  ---
+  duration_ms: 4.589166
+  ...
+# Subtest: clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+ok 69 - clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+  ---
+  duration_ms: 3.950959
+  ...
+# Subtest: registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+ok 70 - registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+  ---
+  duration_ms: 4.535292
+  ...
+# Subtest: initial Source and catalog reads each register before awaiting and finish their original coverage
+ok 71 - initial Source and catalog reads each register before awaiting and finish their original coverage
+  ---
+  duration_ms: 3.730334
+  ...
+# Subtest: old initialization result closes only old scope while B same-page read remains protected
+ok 72 - old initialization result closes only old scope while B same-page read remains protected
+  ---
+  duration_ms: 3.903542
+  ...
+# Subtest: a known Source error releases its read and page coverage without clearing existing raw input
+ok 73 - a known Source error releases its read and page coverage without clearing existing raw input
+  ---
+  duration_ms: 4.768958
+  ...
+# Subtest: page adapter saves complete plan, preserving true values and omitting cleared counts
+ok 74 - page adapter saves complete plan, preserving true values and omitting cleared counts
+  ---
+  duration_ms: 1.510292
+  ...
+# Subtest: page adapter retains edits through saving, language refresh and late acknowledgement
+ok 75 - page adapter retains edits through saving, language refresh and late acknowledgement
+  ---
+  duration_ms: 0.643042
+  ...
+# Subtest: unknown result survives leaving/returning; recovery reads twice and does not duplicate write
+ok 76 - unknown result survives leaving/returning; recovery reads twice and does not duplicate write
+  ---
+  duration_ms: 0.438917
+  ...
+# Subtest: empty new plan only follows not_found and uses creation lock
+ok 77 - empty new plan only follows not_found and uses creation lock
+  ---
+  duration_ms: 0.181833
+  ...
+# Subtest: invalid optional count is not silently converted to unknown or zero
+ok 78 - invalid optional count is not silently converted to unknown or zero
+  ---
+  duration_ms: 0.168041
+  ...
+# Subtest: R1 requested identity retry rereads B after its source failure
+ok 79 - R1 requested identity retry rereads B after its source failure
+  ---
+  duration_ms: 0.187542
+  ...
+# Subtest: R2 import is applied before awaiting catalog, so subsequent edits survive
+ok 80 - R2 import is applied before awaiting catalog, so subsequent edits survive
+  ---
+  duration_ms: 1.719084
+  ...
+# Subtest: R3 catalog cache follows adopted source and acknowledged save revision
+ok 81 - R3 catalog cache follows adopted source and acknowledged save revision
+  ---
+  duration_ms: 0.219375
+  ...
+# Subtest: R5 language rebind joins pending exact revision catalog
+ok 82 - R5 language rebind joins pending exact revision catalog
+  ---
+  duration_ms: 1.936667
+  ...
+# Subtest: raw plan count must be an exact safe integer before conversion
+ok 83 - raw plan count must be an exact safe integer before conversion
+  ---
+  duration_ms: 0.653625
+  ...
+# Subtest: saving optional servings explicitly upgrades to v3 without invented counts
+ok 84 - saving optional servings explicitly upgrades to v3 without invented counts
+  ---
+  duration_ms: 0.73325
+  ...
+# Subtest: day filter cannot truncate the whole saved plan or true top-level values
+ok 85 - day filter cannot truncate the whole saved plan or true top-level values
+  ---
+  duration_ms: 0.08125
+  ...
+# Subtest: deleting the last meal produces a legal empty v3 document
+ok 86 - deleting the last meal produces a legal empty v3 document
+  ---
+  duration_ms: 0.044667
+  ...
+1..86
+# tests 86
+# suites 0
+# pass 86
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 432.86

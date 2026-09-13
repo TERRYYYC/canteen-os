@@ -1,0 +1,332 @@
+[
+  {
+    "file": "assets/index-BVrSK6KL.js",
+    "imports": [],
+    "dynamicImports": [
+      "assets/prep-WMZ9TsY3.js",
+      "assets/purchase-BtgfGPWq.js",
+      "assets/menu-DNsPTKSx.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/qr-L7o2qisc.js"
+    ],
+    "modules": [
+      "\u0000vite/modulepreload-polyfill.js",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/dom.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/router.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/admin/token.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/view-models/reload-safety.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/i18n.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/test/application-d1.ts",
+      "\u0000vite/preload-helper.js",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/tokens.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/styles.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/view-models/published.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/data.ts",
+      "/@vite-plugin-pwa/virtual:pwa-register",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pwa.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/theme.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/shell.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/main.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/index.html"
+    ]
+  },
+  {
+    "file": "assets/purchase-BtgfGPWq.js",
+    "imports": [
+      "assets/purchase-list-9U2QHDaj.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/team-ui-BUNozO_y.js",
+      "assets/edit-session-DHxj2ztx.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/purchase.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/purchase-form.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/purchase.ts"
+    ]
+  },
+  {
+    "file": "assets/menu-DNsPTKSx.js",
+    "imports": [
+      "assets/prep-WMZ9TsY3.js",
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/menu.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/menu.ts"
+    ]
+  },
+  {
+    "file": "assets/prep-WMZ9TsY3.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/prep.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/published-meals.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/prep.ts"
+    ]
+  },
+  {
+    "file": "assets/admin-BY1xuKar.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [
+      "assets/home-BlliBEOa.js",
+      "assets/plan-BYwJEeL1.js",
+      "assets/import-BKhRlKHm.js",
+      "assets/ingredient-new-DN-P-66t.js",
+      "assets/dish-new-Z0L-NqfD.js",
+      "assets/publish-hvijvSVQ.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin.ts"
+    ]
+  },
+  {
+    "file": "assets/qr-L7o2qisc.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/qr.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/qr.ts"
+    ]
+  },
+  {
+    "file": "assets/home-BlliBEOa.js",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/client-CjG82euQ.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/team-ui-BUNozO_y.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/home.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/home.ts"
+    ]
+  },
+  {
+    "file": "assets/plan-BYwJEeL1.js",
+    "imports": [
+      "assets/purchase-list-9U2QHDaj.js",
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/store-C0BzgMAP.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/team-ui-BUNozO_y.js",
+      "assets/edit-session-DHxj2ztx.js",
+      "assets/servings-input-DNG9trXJ.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/formats.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/plan-form.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/plan.ts"
+    ]
+  },
+  {
+    "file": "assets/purchase-list-9U2QHDaj.js",
+    "imports": [
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/team-ui-BUNozO_y.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/plan.css",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/procurement/engine.ts",
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/team-meals.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/view-models/team-meals.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/team-details.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/purchase-list.ts"
+    ]
+  },
+  {
+    "file": "assets/import-BKhRlKHm.js",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/store-C0BzgMAP.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/servings-input-DNG9trXJ.js",
+      "assets/team-ui-BUNozO_y.js",
+      "assets/admin-BY1xuKar.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/import.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/import.ts"
+    ]
+  },
+  {
+    "file": "assets/servings-input-DNG9trXJ.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/servings-input.ts"
+    ]
+  },
+  {
+    "file": "assets/parse-plan-text-DBZQVSv5.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/import/parse-plan-text.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-new-DN-P-66t.js",
+    "imports": [
+      "assets/ingredient-draft-CaYBXKkL.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/team-ui-BUNozO_y.js",
+      "assets/store-C0BzgMAP.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/ingredient-form-DKpbjSQ1.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/ingredient-new.ts"
+    ]
+  },
+  {
+    "file": "assets/dish-new-Z0L-NqfD.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js",
+      "assets/ingredient-draft-CaYBXKkL.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/edit-session-DHxj2ztx.js",
+      "assets/store-C0BzgMAP.js",
+      "assets/admin-BY1xuKar.js"
+    ],
+    "dynamicImports": [
+      "assets/ingredient-form-DKpbjSQ1.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/dish-new.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/dish-new.ts"
+    ]
+  },
+  {
+    "file": "assets/edit-session-DHxj2ztx.js",
+    "imports": [
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/view-models/edit-session.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-draft-CaYBXKkL.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [
+      "assets/client-CjG82euQ.js",
+      "assets/editor-image-B408a5BL.js"
+    ],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/editor-actions.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/ingredient-draft.ts"
+    ]
+  },
+  {
+    "file": "assets/store-C0BzgMAP.js",
+    "imports": [
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/admin/store.ts"
+    ]
+  },
+  {
+    "file": "assets/publish-hvijvSVQ.js",
+    "imports": [
+      "assets/kit-fBQ2L38_.js",
+      "assets/client-CjG82euQ.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/admin-BY1xuKar.js",
+      "assets/team-ui-BUNozO_y.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/publish.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/publish.ts"
+    ]
+  },
+  {
+    "file": "assets/team-ui-BUNozO_y.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/team-ui.ts"
+    ]
+  },
+  {
+    "file": "assets/kit-fBQ2L38_.js",
+    "imports": [
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/api/types.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/api/transport.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/api/team-meals.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/admin.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/admin/kit.ts"
+    ]
+  },
+  {
+    "file": "assets/client-CjG82euQ.js",
+    "imports": [
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/api/mock.ts",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/api/client.ts"
+    ]
+  },
+  {
+    "file": "assets/editor-image-B408a5BL.js",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/editor-image.ts"
+    ]
+  },
+  {
+    "file": "assets/ingredient-form-DKpbjSQ1.js",
+    "imports": [
+      "assets/ingredient-draft-CaYBXKkL.js",
+      "assets/kit-fBQ2L38_.js",
+      "assets/index-BVrSK6KL.js",
+      "assets/admin-BY1xuKar.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/ingredient-new.css",
+      "/private/tmp/canteen-d1-author-80948-v3/packages/web/src/pages/admin/ingredient-form.ts"
+    ]
+  }
+]

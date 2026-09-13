@@ -1,0 +1,232 @@
+✖ B1 required precondition existing=false (11.398167ms)
+✖ B1 required precondition existing=true (1.671875ms)
+✖ B1 reject malformed precondition {"If-Match":"*"} (0.679833ms)
+✖ B1 reject malformed precondition {"If-Match":"W/\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""} (0.490792ms)
+✖ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\""} (0.550417ms)
+✖ B1 reject malformed precondition {"If-Match":""} (0.754458ms)
+✖ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} (0.52725ms)
+✖ B1 reject malformed precondition {"If-None-Match":"abc"} (0.893833ms)
+✖ B1 reject malformed precondition {"If-Match":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","If-None-Match":"*"} (0.451333ms)
+✔ B1 quoted current lock accepted, stale lock checked before idempotence (0.856917ms)
+✖ B1 simultaneous create has one winner and does not overwrite it (1.050584ms)
+✖ B1 mandatory lock on /dish/test (1.193625ms)
+✖ B1 mandatory lock on /dish/test/draft (0.51225ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 1
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.786583
+
+✖ failing tests:
+
+test at packages/worker/test/team-write.test.mjs:11:39
+✖ B1 required precondition existing=false (11.398167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 428
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:14:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 428,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:11:39
+✖ B1 required precondition existing=true (1.671875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 428
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:14:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 428,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":"*"} (0.679833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  409 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":"W/\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""} (0.490792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  409 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\""} (0.550417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  409 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":""} (0.754458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} (0.52725ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  409 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-None-Match":"abc"} (0.893833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:17:266
+✖ B1 reject malformed precondition {"If-Match":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","If-None-Match":"*"} (0.451333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  409 !== 400
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:20:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:29:1
+✖ B1 simultaneous create has one winner and does not overwrite it (1.050584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      200,
+  +   200
+  -   409
+    ]
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:32:52)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 200, 200 ],
+    expected: [ 200, 409 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:36:55
+✖ B1 mandatory lock on /dish/test (1.193625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 428
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:38:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 428,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/worker/test/team-write.test.mjs:36:55
+✖ B1 mandatory lock on /dish/test/draft (0.51225ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 428
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:38:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 428,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

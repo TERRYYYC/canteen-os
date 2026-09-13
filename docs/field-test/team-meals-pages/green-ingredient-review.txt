@@ -1,0 +1,48 @@
+✔ new dish omits unknown servings instead of defaulting to 50 (0.6055ms)
+✔ v3 unknown qty remains omitted and all source metadata survives an edit (0.441209ms)
+✔ v2 true quantities, to-taste and servings survive explicit v3 edit (0.093084ms)
+✔ draft action submits exact draft body under source lock through C1 (0.841ms)
+✔ late save and language refresh preserve later form edits (0.281292ms)
+✔ unknown result survives detach/return and recovery force-reads pinned source twice (0.315709ms)
+✔ legal to-taste source value survives an unrelated edit (0.3095ms)
+✔ new dish creates with if-none-match and optional fields remain absent (0.158875ms)
+✔ conflict retains edited draft and explicit adoption is required before a new write (0.350541ms)
+✔ late read cannot open a different dish after detaching (0.118541ms)
+✔ review: add-another on an existing dish must not orphan an unresolved new dish (0.303083ms)
+✔ review: pending image still requires dirty warning after language refresh (0.147166ms)
+✔ review: upload ownership survives refresh and submits its original snapshot without erasing later edits (0.388709ms)
+✔ review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution (0.221667ms)
+✔ review: detached photo completion stays with its original dish and does not upload again on return (0.225ms)
+✔ review: raw inline ingredient and auxiliary ownership survive refresh and navigation (0.129209ms)
+✔ review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes (0.238875ms)
+✔ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (33.324583ms)
+✔ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (34.444125ms)
+✔ late source cannot paint an old language into a reused connected mount (12.757292ms)
+✔ late previous-session source cannot overwrite the current session (14.162042ms)
+✔ raw buffer and unload protection survive leaving the ingredient route (5.23825ms)
+✔ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (46.128875ms)
+✔ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (43.718209ms)
+✔ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (24.133292ms)
+✔ unknown upload remains protected because a source read cannot prove the upload result (24.053959ms)
+✔ shared form keeps default translation behavior and an explicit declined task sends nothing (22.457041ms)
+✔ translation owner survives language and ignores a result after newer raw name edits (23.665875ms)
+✔ photo decode is busy before a preview exists and its result survives language/navigation (15.8155ms)
+✔ photo decode failure releases busy while keeping prior photo and raw edits (14.518791ms)
+✔ successful translation from an old language view updates the current view without repeating (15.373125ms)
+✔ malformed successful save responses stay unknown and cannot discard the pending attempt (14.429083ms)
+✔ unrecognized write rejection cannot be assumed safe to retry (14.636666ms)
+✔ field validation survives language and does not steal focus on every later keystroke (14.620208ms)
+✔ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (44.181084ms)
+✔ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (35.210791ms)
+✔ ING-R1 pending and later edits keep the first new identity across return and acknowledgement (45.290458ms)
+✔ ING-R1 unknown new creation never retires its target or permits another write on return (35.374875ms)
+✔ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (25.534333ms)
+✔ ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison (58.721333ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 670.871542

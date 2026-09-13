@@ -1,25 +1,25 @@
 # CanteenOS
 
-> Spec-first 的食堂开源系统：**一个中国师傅带乌克兰帮厨，在海外做中餐、买对料**。
-> A spec-first, open-source canteen system: one Chinese chef + a Ukrainian helper, cooking Chinese food abroad and buying the right ingredients.
+> **团队用餐计划、备料与采购协作**，支持中文、English、Українська。
+> **Meal planning, preparation and purchasing for a team**, in Chinese, English and Ukrainian.
 
 ---
 
 ## 中文
 
-**CanteenOS** = 一个知识库（`data/` 目录），每天出**三张单**：**备料单**（给乌克兰帮厨，配图）、**采购单**（给采购员，按供应商分组、按包装取整、可转微信）、**菜单**（给顾客，三语）。知识库的输入通道是做菜视频——视频解析 skill 直出菜品草稿，师傅审 PR 即入库。
+**CanteenOS** 把团队每天吃什么、厨房如何备料、采购员需要确认购买什么放在同一套资料里。师傅排菜或粘贴导入菜单，维护菜品和食材；团队查看用餐安排，帮厨查看备料，采购员人工确认并保存采购清单。`data/` 是 Git 中的知识库，允许不完整资料并明确显示缺项。
 
-2026-09-06 起执行 v2 收窄（[ADR-0006](docs/adr/0006-scope-reduction-v2.md)）：实体从 9 个减到 **5 个**，`examples/` 由 **`data/`（目录即知识库）** 取代，删除供应商/量纲/反馈/dishpack 中间层与 PO 状态机。
+**当前源码版本：0.3.0-alpha.1（2026-09-13，预发布）。** 网页已实现菜单计划、备料、菜单、采购、菜品/食材编辑及发布入口；支持三语、PWA 和 QR。写入通过显式配置的 Cloudflare Worker，未配置时为只读，不能把本地测试用的模拟接口当成服务上线。应用版本在抽屉底部显示，资料更新时间单独显示。
 
-**2026-09-07 状态（v0.0.3，设计收尾）**：采购引擎已实现（23 个测试，数字逐行手算），乌语备料单与微信采购单能从真实数据生成，前台 5 屏 + 后台 7 屏高保真已定稿（[docs/design/](docs/design/)）。**尚无网页**——第一轮（v0.1 → v1.0，9/7 → 10/30）做出一个网址、四个页面，收在一个真实厨房的一周。
+**上线边界：** 本地产品与接口已有独立审查、浏览器及构建证据；真实 Worker、隔离目标环境、配套凭据和真实菜谱/厨房流程仍待核实。此版本不宣称完整可写生产上线。当前验收与授权见 [团队调度状态](feature-specs/2026-09-11-team-meals-dispatch.md)、[发布检查表](docs/field-test/week-43/ops-checklist.md)，版本历史见 [CHANGELOG](CHANGELOG.md)。
 
 ### 打开
 
-线上地址（GitHub Pages，push `main` 后约 2–5 分钟自动更新，无人工步骤；首次上线的时间记在 [docs/field-test/log.md](docs/field-test/log.md)）：
+GitHub Pages 地址如下。成功合并到 `main` 会触发发布工作流；以实际 Actions 结果和抽屉版本为准，源码版本不代表该版本已经部署：
 
 - 备料单：<https://terryyyc.github.io/canteen-os/#/prep>
 - 采购单：<https://terryyyc.github.io/canteen-os/#/purchase>
-- 菜单：<https://terryyyc.github.io/canteen-os/#/menu>
+- 团队用餐安排：<https://terryyyc.github.io/canteen-os/#/menu>
 
 流水线是 [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml)：validate → translate（有 `DEEPL_API_KEY` 才跑，译文由 bot 回写）→ build-data → vite build → Pages；任一步红即不部署。
 
@@ -43,9 +43,14 @@ node scripts/create-issues.mjs             # 建标签 / 里程碑 / issue / 依
 本地验证现有成果：
 
 ```bash
-python3 scripts/local-validate.py                       # data/ ↔ schemas/ 14/14
-cd packages/core && npm run build && node --test        # 引擎 23/23
-node packages/core/scripts/generate-field-test.mjs      # 出微信采购单 + 乌语备料单 → docs/field-test/week-41/
+pnpm install --frozen-lockfile
+node scripts/prepare-team-image-tools.mjs               # 显式准备固定图片工具
+node scripts/validate-schemas.mjs
+pnpm -C packages/core test
+pnpm -C packages/worker test
+pnpm -C packages/web test
+node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
+# 完整检查及同版资料构建顺序见 .github/workflows/ci.yml
 ```
 
 ### 模块地图
@@ -53,7 +58,7 @@ node packages/core/scripts/generate-field-test.mjs      # 出微信采购单 + �
 | 模块 | 说明 | 文档 |
 |---|---|---|
 | ① 菜品知识库 | Ingredient / Technique（单文件受控词表）/ Dish；允许不完整（只有名字也能导入），readiness 关卡：能教/能排/能采；一实体一文件、文件名即 ID | [docs/modules/knowledge-base.md](docs/modules/knowledge-base.md) |
-| ② 菜单计划→采购单引擎 | BOM 展开 → 按份数缩放 → ÷yield ×margin（pcs 只跳过 yield，margin 对所有食材生效）→ 扣 onHand → `max(minPacks, ceil(需求/packSize))` → 按供应商字符串分组出快照；每行带 trace，无 PO 状态机 | [docs/modules/procurement.md](docs/modules/procurement.md) |
+| ② 团队计划与采购 | 按天/餐次排菜，基于已记录的配方汇总需求与缺项，由采购员人工确认并保存；旧版按包装计算的数值引擎仍以固定黄金夹具回归 | [docs/modules/procurement.md](docs/modules/procurement.md) |
 | ③ 点餐/评分/反馈 | **deferred（ADR-0006）**，设计稿保留 | [docs/modules/feedback.md](docs/modules/feedback.md) |
 
 ### 两条护城河（开源空白）
@@ -68,9 +73,9 @@ node packages/core/scripts/generate-field-test.mjs      # 出微信采购单 + �
 ### 快速导航
 
 - 产品需求：[docs/prd.md](docs/prd.md) ｜ 总体架构：[docs/architecture.md](docs/architecture.md)
-- 决策记录：[docs/adr/](docs/adr/)（ADR-0001 ~ 0006）
-- 数据模型单一事实源：[schemas/](schemas/)（JSON Schema draft 2020-12，5 实体 + common）
-- 知识库数据（通过校验）：[data/](data/)（番茄炒蛋全链路：5 食材 + 32 技法 + 菜品 + 第 41 周菜单 + 采购验收基准）
+- 决策记录：[docs/adr/](docs/adr/)（含团队用餐 ADR 与写入通道 ADR）
+- 数据模型单一事实源：[schemas/](schemas/)（JSON Schema draft 2020-12；兼容旧资料并支持团队计划和采购清单）
+- 知识库数据（通过校验）：[data/](data/)（当前种子与示例，不等于已完成真实厨房验收）
 - 调研报告：[docs/research/](docs/research/)（开源调研 + v2 八场景调研）
 - 贡献指南：[CONTRIBUTING.md](CONTRIBUTING.md) ｜ AI agent 规范：[AGENTS.md](AGENTS.md)
 
@@ -82,14 +87,16 @@ node packages/core/scripts/generate-field-test.mjs      # 出微信采购单 + �
 
 ## English
 
-**CanteenOS** = one knowledge base (the `data/` directory) producing **three sheets a day**: a **prep list** (for the Ukrainian helper, with photos), a **purchase order** (for the purchaser, grouped by supplier string, rounded up to pack sizes, WeChat-shareable), and a **menu** (for customers, trilingual). Knowledge enters through cooking videos — the parsing skill emits draft dishes directly and the chef merges a PR to accept them.
+**CanteenOS** keeps a team's meal plan, kitchen preparation and purchasing in one shared knowledge base. The chef plans meals or imports a menu, maintains dishes and ingredients, helpers read preparation instructions, and the buyer confirms and saves the shopping list. Incomplete recipes remain visible with explicit missing information; `data/` is stored in Git.
 
-Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reduction-v2.md)) applies: 9 schema entities narrowed to **5**, `examples/` replaced by **`data/` (directory-as-knowledge-base)**, and the supplier/unit-conversion/feedback entities, the video interchange bundle, and the PO state machine removed. **Status 2026-09-07 (v0.0.3, design closed):** the procurement engine is implemented (23 hand-verified tests) and the Ukrainian prep list and WeChat purchase orders render from real data; hi-fi screens for 5 front-end and 7 back-office views are final ([docs/design/](docs/design/)). **No web app yet** — Round 1 (v0.1 → v1.0, Sep 7 → Oct 30) ships one URL with four pages and ends with one real kitchen using it for a week. Start with [docs/plan-for-terry.md](docs/plan-for-terry.md) (owner) or [docs/execution-brief.md](docs/execution-brief.md) (agents); the backlog is [`.github/backlog/round-1.json`](.github/backlog/round-1.json).
+**Current source version: 0.3.0-alpha.1 (2026-09-13, prerelease).** The web app includes planning, preparation, meals, purchasing, dish/ingredient editing and publishing, with Chinese/English/Ukrainian UI, PWA support and QR links. Writes require an explicitly configured Cloudflare Worker; an unconfigured build stays read-only. The drawer shows the application version separately from the publication timestamp.
+
+**Release boundary:** local product, API, browser and build evidence is available. A real Worker, isolated target environment, credentials, recipes and kitchen operations still need verification. This is not an accepted fully writable production release. See the [current integration status](feature-specs/2026-09-11-team-meals-dispatch.md), [release checklist](docs/field-test/week-43/ops-checklist.md) and [version history](CHANGELOG.md).
 
 ### Modules
 
 1. **Dish knowledge base** — Ingredient / Technique (single-file controlled vocabulary) / Dish. Incomplete dishes allowed (a name alone imports); readiness gates: teach / plan / buy. One file per entity, filename = ID. See [docs/modules/knowledge-base.md](docs/modules/knowledge-base.md).
-2. **Menu-plan → purchase-order engine** — BOM expansion, serving scaling, ÷yield ×margin (pcs items skip yield only; margin applies to all), on-hand deduction, `max(minPacks, ceil(need/packSize))`, PO snapshots grouped by supplier string with a per-line trace. No PO state machine. See [docs/modules/procurement.md](docs/modules/procurement.md).
+2. **Team planning and purchasing** — Plan dishes by day and meal, aggregate recorded recipe requirements and missing information, then let the buyer confirm and save the list. The legacy numeric procurement engine remains covered by fixed golden fixtures. See [docs/modules/procurement.md](docs/modules/procurement.md).
 3. **Ordering / rating / feedback** — **deferred (ADR-0006)**; design kept at [docs/modules/feedback.md](docs/modules/feedback.md).
 
 ### Two differentiators (open-source gaps)
@@ -103,11 +110,11 @@ Since 2026-09-06 the v2 scope reduction ([ADR-0006](docs/adr/0006-scope-reductio
 
 ### Quick links
 
-- Live site (GitHub Pages, auto-deployed 2–5 min after a push to `main`): <https://terryyyc.github.io/canteen-os/> — [#/prep](https://terryyyc.github.io/canteen-os/#/prep) · [#/purchase](https://terryyyc.github.io/canteen-os/#/purchase) · [#/menu](https://terryyyc.github.io/canteen-os/#/menu)
+- GitHub Pages (merging to `main` triggers deployment; check Actions and the drawer version for the deployed result): <https://terryyyc.github.io/canteen-os/> — [#/prep](https://terryyyc.github.io/canteen-os/#/prep) · [#/purchase](https://terryyyc.github.io/canteen-os/#/purchase) · [#/menu](https://terryyyc.github.io/canteen-os/#/menu)
 - PRD: [docs/prd.md](docs/prd.md) ｜ Architecture: [docs/architecture.md](docs/architecture.md)
-- Decisions: [docs/adr/](docs/adr/) (ADR-0001 ~ 0006)
+- Decisions: [docs/adr/](docs/adr/) (including team-meals and write-channel decisions)
 - Single source of truth for data models: [schemas/](schemas/) (JSON Schema draft 2020-12)
-- Knowledge-base data (validated): [data/](data/) (full tomato-and-egg chain: 5 ingredients + 32 techniques + dish + week-41 menu + procurement acceptance baseline)
+- Knowledge-base data (validated): [data/](data/) (current seeds and examples; not a completed real-kitchen acceptance)
 - Research reports: [docs/research/](docs/research/)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md) ｜ AI agent rules: [AGENTS.md](AGENTS.md)
 

@@ -1,0 +1,89 @@
+{
+  "sourceCommit": "994a81720e95b9f123c689d4518cf4ddadcc1add",
+  "entries": [
+    {
+      "path": "RED-README.md",
+      "original": "/private/tmp/canteen-q-t01-browser-author/RED-README.md",
+      "bytes": 2587,
+      "sha256": "4cc8fff882356905a879a932b6aafd41eec3a128ab2cae479b92001d4ac58e3b"
+    },
+    {
+      "path": "plan-controls.js",
+      "original": "/private/tmp/canteen-q-t01-browser-author/plan-controls.js",
+      "bytes": 1137,
+      "sha256": "1bc0c5a9cba6747e0e96663b713d6d826efb2bb5060b81fdbf5d784132578984"
+    },
+    {
+      "path": "prepare.mjs",
+      "original": "/private/tmp/canteen-q-t01-browser-author/prepare.mjs",
+      "bytes": 2816,
+      "sha256": "7e3b8ade507da28d6168c5a4bff5365689f4e205be479e967652ea4ffd352dd2"
+    },
+    {
+      "path": "red-994a-prepare.log",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-994a-prepare.log",
+      "bytes": 650,
+      "sha256": "f55ccb8e4dca46800781cb8a77f9a6ee0582bb573ef62e04bb9cf16b2d1d3846"
+    },
+    {
+      "path": "red-994a-server.log",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-994a-server.log",
+      "bytes": 12804,
+      "sha256": "1e8991894db19ae739ab08bb4d6a371565e14815575d762b6bbe3b2a80f11379"
+    },
+    {
+      "path": "red-after.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-after.json",
+      "bytes": 1477,
+      "sha256": "1fca6d24d317f68c039bb819999dedb865cd424d46a9244c050311ced2bc9851"
+    },
+    {
+      "path": "red-all-dates.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-all-dates.json",
+      "bytes": 2077,
+      "sha256": "98e2b9baf9aea1706983acbb4562bb8ee212cbaff62cbfa7d0c75a518dbcd132"
+    },
+    {
+      "path": "red-before.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-before.json",
+      "bytes": 1478,
+      "sha256": "e3f876692cd3a4715aea9a2c5a1ce9fc82589a9ad60e324ebb017d7e76c35582"
+    },
+    {
+      "path": "red-input.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-input.json",
+      "bytes": 803,
+      "sha256": "dd06409d014a972eff1a47125d4c416b49328479a56c58931e982e8c4cd62c4c"
+    },
+    {
+      "path": "red-ledger.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-ledger.json",
+      "bytes": 52095,
+      "sha256": "a8805fb24c4d2734aa9bd20145ff7cdd7d2572df7878be3f091521d73e927c0c"
+    },
+    {
+      "path": "red-native-assertion.log",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-native-assertion.log",
+      "bytes": 502,
+      "sha256": "2c46b391cc8680b9aa09bca35fe89739dc57a128082330e87ea71b57dcef737f"
+    },
+    {
+      "path": "red-server-info.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-server-info.json",
+      "bytes": 9628,
+      "sha256": "a0bb79120afb14a82cb6844d0f1fc98d3017750e1b119a2337982c3bebf41669"
+    },
+    {
+      "path": "red-source-integrity.json",
+      "original": "/private/tmp/canteen-q-t01-browser-author/red-source-integrity.json",
+      "bytes": 9485,
+      "sha256": "2e877382423d266cb23ec3c1b5a2b7b089a1aef89a087457bced8ba3a85831ac"
+    },
+    {
+      "path": "verify-preserved.py",
+      "original": "/private/tmp/canteen-q-t01-browser-author/verify-preserved.py",
+      "bytes": 622,
+      "sha256": "e986e88ab52b23de3fd03f45195ead07b52a38ec5b2fb8d897d3993abd1ca370"
+    }
+  ]
+}

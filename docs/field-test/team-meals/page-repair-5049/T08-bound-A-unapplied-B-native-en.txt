@@ -1,0 +1,44 @@
+Current page list (check save status)
+page-shop
+Ingredient and menu version: 9d2e93483b9d16ab6f2e66161b1bcb337c20cedc
+2026-09-14 · Lunch · team-week
+
+Check
+Oil [cooking-oil] — Check · Seasoning
+  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3 · Original recipe quantity: 20 ml · Planned servings: Planned servings missing · Recipe servings: 2
+  Oil [cooking-oil] · Complete estimate unavailable: Purchase specification missing
+  Oil [cooking-oil] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 3
+Tomato [tomato-other] — Check · Main ingredient
+  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3 · Original recipe quantity: 200 g · Planned servings: Planned servings missing · Recipe servings: Recipe servings missing
+  Tomato [tomato-other] · Complete estimate unavailable: Purchase specification missing
+  Tomato [tomato-other] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3
+  Tomato [tomato-other] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3
+  Tomato [tomato-other] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 3
+
+Available
+Salt [salt] — Available · Seasoning
+  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: 2
+  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2 · Original recipe quantity: To taste · Planned servings: Planned servings missing · Recipe servings: Recipe servings missing
+  Salt [salt] · Complete estimate unavailable: Purchase specification missing
+  Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2
+  Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 2
+  Salt [salt] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+  Salt [salt] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+  Salt [salt] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+  Salt [salt] · Complete estimate unavailable: To taste · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 2
+
+Bought
+Tomato [tomato] — Bought · Main ingredient
+  Used in: team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1 · Original recipe quantity: 300 g · Planned servings: Planned servings missing · Recipe servings: 2
+  Used in: team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1 · Original recipe quantity: Quantity not recorded · Planned servings: Planned servings missing · Recipe servings: Recipe servings missing
+  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · First test dish [first-dish] · Plan row: 1 · Recipe item: 1
+  Tomato [tomato] · Complete estimate unavailable: Planned servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+  Tomato [tomato] · Complete estimate unavailable: Recipe servings missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+  Tomato [tomato] · Complete estimate unavailable: Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+  Tomato [tomato] · Complete estimate unavailable: Recipe quantity missing · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2 · Recipe item: 1
+
+Missing information and source notices
+Recipe is not active · team-week · 2026-09-14 · Lunch · Second test dish [second-dish] · Plan row: 2
+
+Recorded ingredient candidates; recipe completeness needs human review.
+Calculable amounts are references, not a complete budget.

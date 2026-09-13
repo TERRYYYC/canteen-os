@@ -1,0 +1,10 @@
+{
+  "default": {
+    "preloadClosures": 12,
+    "callbackConnectionChunk": "assets/plan-import-RSLHW7vM.js"
+  },
+  "http": {
+    "preloadClosures": 12,
+    "callbackConnectionChunk": "assets/plan-import-RSLHW7vM.js"
+  }
+}

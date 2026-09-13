@@ -20,3 +20,27 @@ useDefault = true
   condition = "AND"
   paths = ['''^\.github/backlog/[^/]+\.json$''']
   regexes = ['''^v\d{2}-[a-z0-9-]+$''']
+
+# PR #95: these exact audit fields contain verified Git commit IDs, not credentials.
+# Each value resolves to a commit object. Keep field/value pairs fixed: new values,
+# other fields, other paths and additional content on the line remain scanned.
+# The line target may include the preceding newline of its git diff fragment.
+[[allowlists]]
+  description = "Verified team-meals audit commit references (PR 95)"
+  targetRules = ["generic-api-key"]
+  condition = "AND"
+  paths = ['''^\.github/backlog/team-meals\.json$''']
+  regexTarget = "line"
+  regexes = [
+    '''^(?:\r?\n)?[ \t]*"storeAuthContractCommit"[ \t]*:[ \t]*"7191d631c289347a0ddc2bfe538745045184e5d5",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"storeAuthCandidateCommit"[ \t]*:[ \t]*"d8bb56875e927a08627f480473895bdbd5c75a21",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"storeAuthAcceptedCommit"[ \t]*:[ \t]*"d8bb56875e927a08627f480473895bdbd5c75a21",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"C2bAuxAuthContractCandidate"[ \t]*:[ \t]*"5885f8f3b6d80d376032555c84f8191a1392e761",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"C2bAuxAuthCandidateCommit"[ \t]*:[ \t]*"27867290bd6da40e06e7b6d28b886de9a073503f",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"C2bAuxAuthAcceptedCommit"[ \t]*:[ \t]*"27867290bd6da40e06e7b6d28b886de9a073503f",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"C2bAuxAuthHandoffHead"[ \t]*:[ \t]*"5885f8f3b6d80d376032555c84f8191a1392e761",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"C2bC1AuthContractCommit"[ \t]*:[ \t]*"28eb30f8c572a466215f82935bbfc54f8d9cb33b",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"storeAuthConsumedMerge"[ \t]*:[ \t]*"88125b62c0a33ee9af0eeeae186f830fd6fecf9a",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"storeAuthPageCandidateCommit"[ \t]*:[ \t]*"acd44750b0593f682fa14ecd16daeff898655078",?[ \t]*$''',
+    '''^(?:\r?\n)?[ \t]*"storeAuthPageAcceptedCommit"[ \t]*:[ \t]*"acd44750b0593f682fa14ecd16daeff898655078",?[ \t]*$''',
+  ]

@@ -1,0 +1,64 @@
+[
+  {
+    "name": "successful creation permits a distinct next new ingredient",
+    "passed": false,
+    "reopened": {
+      "id": "ingredient-a",
+      "name": "第一种食材",
+      "readonly": true,
+      "heading": "Edit ingredient"
+    },
+    "writes": [
+      {
+        "id": "ingredient-a",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "第一种食材"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        }
+      },
+      {
+        "id": "ingredient-a",
+        "body": {
+          "schemaVersion": "2",
+          "name": {
+            "zh": "第二种食材"
+          },
+          "baseUnit": "g",
+          "trackStock": false,
+          "role": "main"
+        },
+        "condition": {
+          "ifMatch": "salt-b"
+        }
+      }
+    ]
+  },
+  {
+    "name": "recognized rejected upload can recover without false source comparison",
+    "passed": false,
+    "phase": "conflict",
+    "uploads": 1,
+    "readCount": 2,
+    "afterCompare": 2,
+    "disabledAfterReturn": true,
+    "text": "Version conflict; local changes retainedRead remote and compare"
+  },
+  {
+    "name": "known upload field rejection retains field error and allows explicit correction",
+    "passed": true,
+    "shown": true,
+    "fieldUploads": 2,
+    "writes": 1
+  },
+  {
+    "name": "malformed upload acknowledgement stays unknown without save or retry",
+    "passed": true,
+    "malformedUploads": 1,
+    "writes": 0
+  }
+]

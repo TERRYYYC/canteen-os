@@ -1,0 +1,54 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 71 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/canteen-bundle-d1-review-df992aa/browser-web/test/application-d1.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/manifest.webmanifest                  0.75 kB
+dist/index.html                            1.94 kB │ gzip:  1.13 kB
+dist/reviewer-module-graph.json           11.51 kB │ gzip:  1.29 kB
+dist/assets/qr-95YfxYR1.css                2.25 kB │ gzip:  0.87 kB
+dist/assets/home-Bw8HMtwR.css              2.28 kB │ gzip:  0.71 kB
+dist/assets/purchase-list-CRLPFa5o.css     3.06 kB │ gzip:  1.02 kB
+dist/assets/kit-hHF0cNTc.css               3.73 kB │ gzip:  1.04 kB
+dist/assets/ingredient-form-CT2dSWut.css   4.50 kB │ gzip:  1.30 kB
+dist/assets/publish-DvJfnWK2.css           5.17 kB │ gzip:  1.40 kB
+dist/assets/import-DavkaiKj.css            5.33 kB │ gzip:  1.30 kB
+dist/assets/menu-AiJcRmZo.css              5.74 kB │ gzip:  1.62 kB
+dist/assets/purchase-StWw7liZ.css          6.00 kB │ gzip:  1.71 kB
+dist/assets/prep-CZU-3gXe.css              6.80 kB │ gzip:  1.96 kB
+dist/assets/dish-new-DK3WVt9P.css          7.08 kB │ gzip:  1.74 kB
+dist/assets/index-_eYw8u9e.css             8.78 kB │ gzip:  2.56 kB
+dist/assets/servings-input-DNG9trXJ.js     0.49 kB │ gzip:  0.32 kB
+dist/assets/editor-image-B408a5BL.js       1.10 kB │ gzip:  0.62 kB
+dist/assets/store-Dcmu5kJ2.js              2.01 kB │ gzip:  0.92 kB
+dist/assets/ingredient-draft-DfkuZ2qw.js   3.31 kB │ gzip:  1.68 kB
+dist/assets/qr-CW_3t1lL.js                 3.50 kB │ gzip:  2.13 kB
+dist/assets/admin-BavRcNuW.js              3.51 kB │ gzip:  1.67 kB
+dist/assets/team-ui-Bnwr_EJG.js            4.08 kB │ gzip:  2.90 kB
+dist/assets/edit-session-9rkTAC9v.js       6.51 kB │ gzip:  2.51 kB
+dist/assets/home-B-IoVyDz.js              10.01 kB │ gzip:  4.68 kB
+dist/assets/parse-plan-text-DBZQVSv5.js   12.32 kB │ gzip:  5.77 kB
+dist/assets/plan-BXxiUM0o.js              12.71 kB │ gzip:  5.70 kB
+dist/assets/menu-BZho3I_7.js              12.94 kB │ gzip:  6.13 kB
+dist/assets/ingredient-new-BJhNmZlu.js    13.93 kB │ gzip:  5.93 kB
+dist/assets/purchase-C-oacbnd.js          16.57 kB │ gzip:  6.30 kB
+dist/assets/kit-RXdzz6Yk.js               19.37 kB │ gzip:  8.70 kB
+dist/assets/ingredient-form-1JCVb91m.js   20.57 kB │ gzip:  9.53 kB
+dist/assets/import-CC2FkUqM.js            26.75 kB │ gzip: 11.78 kB
+dist/assets/publish-Bb-tVF5r.js           26.76 kB │ gzip: 11.52 kB
+dist/assets/purchase-list-DCYUac1p.js     29.10 kB │ gzip: 12.39 kB
+dist/assets/client-C6VYsiFN.js            29.70 kB │ gzip: 12.67 kB
+dist/assets/prep-BwPDzLYG.js              33.95 kB │ gzip: 13.53 kB
+dist/assets/dish-new-Ca4F7OSi.js          62.50 kB │ gzip: 23.70 kB
+dist/assets/index-Bc-O-R8w.js             62.75 kB │ gzip: 24.38 kB
+✓ built in 366ms
+
+PWA v1.3.0
+mode      generateSW
+precache  49 entries (556.18 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-4e9e9954.js

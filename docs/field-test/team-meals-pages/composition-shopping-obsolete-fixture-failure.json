@@ -1,0 +1,172 @@
+{
+  "source": "team-meals-pages-shopping-browser.html",
+  "status": "FAIL · Duplicate auxiliary owner\n请保留请求记录；页面实现由主任务检查修复。",
+  "ledger": [
+    {
+      "event": "reset",
+      "fixtureManifest": "Q afc3289",
+      "scope": "Pure core with explicit local input objects; no Git history, Worker admission, asset bytes or real save verified.",
+      "revisionCaveat": "These existing SHAs are format tokens only. The explicitly injected fixture objects are not their production data trees; no test asserts Git reachability, ancestry or authentic historical previous state."
+    },
+    {
+      "assertion": "action enabled: 读取最新已保存计划",
+      "result": "pass"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/team-week",
+      "revision": null,
+      "owner": null,
+      "pointer": null
+    },
+    {
+      "assertion": "action enabled: 生成待核对清单",
+      "result": "pass"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "owner": null,
+      "pointer": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/team-week",
+      "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+      "owner": null,
+      "pointer": null
+    },
+    {
+      "assertion": "creation displays four real collected all-check candidates",
+      "result": "pass"
+    },
+    {
+      "assertion": "creation decisions blocked before acknowledgement",
+      "result": "pass"
+    },
+    {
+      "assertion": "action enabled: 保存清单",
+      "result": "pass"
+    },
+    {
+      "method": "POST",
+      "path": "/shopping-list/team-shop",
+      "scenario": "success",
+      "ifMatch": null,
+      "ifNoneMatch": "*",
+      "body": {
+        "shoppingListVersion": "1",
+        "id": "team-shop",
+        "basis": {
+          "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+          "selection": [
+            {
+              "menuPlanRef": "team-week",
+              "date": "2026-09-14",
+              "mealType": "lunch"
+            }
+          ]
+        },
+        "items": [
+          {
+            "ingredientRef": "cooking-oil",
+            "decision": "check"
+          },
+          {
+            "ingredientRef": "salt",
+            "decision": "check"
+          },
+          {
+            "ingredientRef": "tomato",
+            "decision": "check"
+          },
+          {
+            "ingredientRef": "tomato-other",
+            "decision": "check"
+          }
+        ]
+      }
+    },
+    {
+      "assertion": "creation uses If-None-Match *",
+      "result": "pass"
+    },
+    {
+      "assertion": "creation writes exact all-check body",
+      "result": "pass"
+    },
+    {
+      "assertion": "action enabled: 待买",
+      "result": "pass"
+    },
+    {
+      "assertion": "buy reveals bought checkbox",
+      "result": "pass"
+    },
+    {
+      "assertion": "action enabled: 待买",
+      "result": "pass"
+    },
+    {
+      "assertion": "buy reveals bought checkbox",
+      "result": "pass"
+    },
+    {
+      "assertion": "action enabled: 保存清单",
+      "result": "pass"
+    },
+    {
+      "method": "POST",
+      "path": "/shopping-list/team-shop",
+      "scenario": "success",
+      "ifMatch": "mock-list-1",
+      "ifNoneMatch": null,
+      "body": {
+        "shoppingListVersion": "1",
+        "id": "team-shop",
+        "basis": {
+          "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+          "selection": [
+            {
+              "menuPlanRef": "team-week",
+              "date": "2026-09-14",
+              "mealType": "lunch"
+            }
+          ]
+        },
+        "items": [
+          {
+            "ingredientRef": "cooking-oil",
+            "decision": "check"
+          },
+          {
+            "ingredientRef": "salt",
+            "decision": "buy",
+            "bought": true
+          },
+          {
+            "ingredientRef": "tomato",
+            "decision": "buy",
+            "bought": true
+          },
+          {
+            "ingredientRef": "tomato-other",
+            "decision": "check"
+          }
+        ]
+      }
+    },
+    {
+      "assertion": "manual decision save uses acknowledged If-Match",
+      "result": "pass"
+    },
+    {
+      "assertion": "manual bought decisions are separate from creation",
+      "result": "pass"
+    },
+    {
+      "failure": "Duplicate auxiliary owner"
+    }
+  ]
+}

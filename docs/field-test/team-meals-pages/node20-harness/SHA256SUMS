@@ -1,0 +1,14 @@
+0f46e0c31590643e16dc012d7e39db462cad6b0f7803d8bf8293a6fb3b12638b  packages/web/test/team-meals-pages-shopping-raw.test.mjs
+2d14f693d68672002bbfaf67083b662bfc79331ab80688abb7667414ea37adcb  packages/web/test/team-meals-pages-guard-harness.mjs
+fc4d98c0976cc07def2a26b5114227be50faabf7f9aa22fa595f673cb8492f96  docs/field-test/team-meals-pages/node20-harness/README.md
+40709c92afd127a5e798aef0fb05619490bab77ab04868acfe226f054b51229f  docs/field-test/team-meals-pages/node20-harness/commands.json
+debff32703dc554d9647cd4dd97501c1571828ec15ac97e086b4b17278498284  docs/field-test/team-meals-pages/node20-harness/node20-full-green.log
+fa058fdb3c9f9fb550a13b251bbf5f7048627015f98680a8164479492252ba4f  docs/field-test/team-meals-pages/node20-harness/node20-full-red.log
+7380b4017133b8f470772fe5d5347812b539af6c7cf285fd34e182878efa9720  docs/field-test/team-meals-pages/node20-harness/node20-target-green.log
+75987cf6260b22a93ac3e5bbdf81f0b47671c8d3dfdb4a17e130e40d1e9601cf  docs/field-test/team-meals-pages/node20-harness/node20-target-restoration.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/field-test/team-meals-pages/node20-harness/node20-typecheck.log
+4d1f123a2273bfd67da5c174173587986d8fae9952fcbb0c2c7854b0ea328a69  docs/field-test/team-meals-pages/node20-harness/node24-target-baseline.log
+8e5fc093effeda051f945568d39f3459f69c269cb11d626de27d74b91aa4fdf7  docs/field-test/team-meals-pages/node20-harness/node24-target-green.log
+412942641154a49e1665cf17490f1d1313f7ef00b15eed5bafe0f569d9dbaeb4  docs/field-test/team-meals-pages/node20-harness/restore-check.mjs
+353b977fd5c93af1af29003a95e1eebbd5a790b8db1242309bcd67bed4738dc9  docs/field-test/team-meals-pages/node20-harness/runtime.json
+dcf71e87afab46c59e8409a70de98774db8f499c9c8d13d78fb141a7ac31c9a9  docs/field-test/team-meals-pages/node20-harness/unchanged-assertions.json

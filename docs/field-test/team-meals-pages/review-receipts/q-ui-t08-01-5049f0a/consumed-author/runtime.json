@@ -1,0 +1,14 @@
+{
+  "baseline": "1bf8564d456c4d7226402b17157ef0d9b38f4d0f",
+  "nodePath": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+  "node": "{\"node\":\"20.20.2\",\"acorn\":\"8.16.0\",\"ada\":\"2.9.2\",\"ares\":\"1.34.6\",\"brotli\":\"1.1.0\",\"cjs_module_lexer\":\"2.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.2\",\"llhttp\":\"9.3.1\",\"modules\":\"115\",\"napi\":\"9\",\"nghttp2\":\"1.61.0\",\"openssl\":\"3.0.19\",\"simdutf\":\"6.4.2\",\"tz\":\"2025c\",\"undici\":\"6.24.1\",\"unicode\":\"17.0\",\"uv\":\"1.46.0\",\"uvwasi\":\"0.0.23\",\"v8\":\"11.3.244.8-node.38\",\"zlib\":\"1.3.1-e00f703\"}",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "source": [
+    "packages/web/src/pages/purchase-list.ts",
+    "packages/web/src/pages/purchase.ts",
+    "packages/web/src/pages/shopping-copy.ts",
+    "packages/web/test/team-meals-pages-shopping-copy.test.mjs",
+    "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+    "packages/web/test/team-meals-pages-details-probe.ts"
+  ]
+}

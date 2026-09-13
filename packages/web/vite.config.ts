@@ -1,3 +1,4 @@
+import { version } from "./package.json";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -22,6 +23,9 @@ import { VitePWA } from "vite-plugin-pwa";
  */
 export default defineConfig({
   base: "./",
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   build: {
     target: "es2020",
     reportCompressedSize: true,
@@ -62,6 +66,26 @@ export default defineConfig({
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // Published assets use fetch (empty destination). Workbox serializes this callback into the SW.
+            urlPattern: ({ request, url, sameOrigin }) => {
+              if (request.method !== "GET" || !sameOrigin) return false;
+              const assetRoot = new URL(
+                "data/assets/",
+                (self as unknown as { registration: { scope: string } }).registration.scope,
+              ).pathname;
+              // Keep the browser's encoded path intact; never decode it to locate another resource.
+              return url.pathname.startsWith(assetRoot)
+                && /^[0-9a-f]{40}\/.+$/.test(url.pathname.slice(assetRoot.length));
+            },
+            method: "GET",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "published-assets",
+              expiration: { maxEntries: 300, maxAgeSeconds: 30 * 24 * 3600 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: ({ request }) => request.destination === "image",
             handler: "CacheFirst",

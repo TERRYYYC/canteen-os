@@ -1,0 +1,167 @@
+{
+  "pass": true,
+  "cases": [
+    {
+      "name": "prep: actual published raw entry",
+      "pass": true
+    },
+    {
+      "name": "prep: empty-plan",
+      "pass": true
+    },
+    {
+      "name": "prep: no-plans",
+      "pass": true
+    },
+    {
+      "name": "prep: unavailable",
+      "pass": true
+    },
+    {
+      "name": "prep: unsupported_target",
+      "pass": true
+    },
+    {
+      "name": "prep: late A cannot repaint B",
+      "pass": true
+    },
+    {
+      "name": "menu: actual published raw entry",
+      "pass": true
+    },
+    {
+      "name": "menu: route detail complete recipe",
+      "pass": true
+    },
+    {
+      "name": "menu: close returns list",
+      "pass": true
+    },
+    {
+      "name": "menu: empty-plan",
+      "pass": true
+    },
+    {
+      "name": "menu: no-plans",
+      "pass": true
+    },
+    {
+      "name": "menu: unavailable",
+      "pass": true
+    },
+    {
+      "name": "menu: unsupported_target",
+      "pass": true
+    },
+    {
+      "name": "menu: late A cannot repaint B",
+      "pass": true
+    },
+    {
+      "name": "repeated menu dish keeps clicked source row",
+      "pass": true
+    },
+    {
+      "name": "prep duplicate dish choice survives language",
+      "pass": true
+    },
+    {
+      "name": "fresh unique ingredient resolves second dish",
+      "pass": true
+    },
+    {
+      "name": "fresh shared ingredient offers source choice",
+      "pass": true
+    },
+    {
+      "name": "menu second-dish ingredient keeps original source in prep",
+      "pass": true
+    },
+    {
+      "name": "ingredient + technique original image bytes",
+      "pass": true
+    },
+    {
+      "name": "images decode",
+      "pass": true
+    },
+    {
+      "name": "prep ingredient deep link preserves complete steps",
+      "pass": true
+    },
+    {
+      "name": "external is explicit with no image request",
+      "pass": true
+    },
+    {
+      "name": "same-version unavailable is distinct",
+      "pass": true
+    },
+    {
+      "name": "language zh retains B",
+      "pass": true
+    },
+    {
+      "name": "language en retains B",
+      "pass": true
+    },
+    {
+      "name": "language uk retains B",
+      "pass": true
+    }
+  ],
+  "sourceMetadata": {
+    "multi-dish": {
+      "revision": "e0aa344357049e6ea1dad9071ad7635eb47c775b",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "multi-row": {
+      "revision": "3c7283d3706b2377b6166243e1d02631c3231da8",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "normal": {
+      "revision": "322d99b1b8332b78c689a3a2ec1e43c451630edb",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "image-a": {
+      "revision": "b51743644f895910dd56e2285c8646e7681d3012",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "image-b": {
+      "revision": "db78c092c602b4e0699af540dce49552cab1bba9",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "quantity-warning": {
+      "revision": "8ecb858d209276d85413ab5412c3ffa541517c68",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "external-image": {
+      "revision": "6de6cb84fef5b295bededbd6313a98ec1bc1f06f",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "empty-plan": {
+      "revision": "deba17f4fd0cac3f806a957d24994b4cb9596ce6",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    },
+    "no-plans": {
+      "revision": "915ac2bfb9c3daa3876945b36f7830376e78a60b",
+      "builtAt": "September 11, 2026 00:00:00 GMT",
+      "source": "publishedFixture → approved runBuild; isolated local Git fixture"
+    }
+  },
+  "pageSourceHashes": {
+    "../src/pages/menu.ts": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d",
+    "../src/pages/prep.ts": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846",
+    "../src/pages/published-meals.ts": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1",
+    "./team-meals-pages-published-browser.html": "0e677b5085e0eed2fe0d62e851ffb1f4fc70a9791aaa8c067f993c33e6799efb",
+    "./team-meals-pages-published-fixture.mjs": "f4de0e769bc859e75c6a71561d9e73c824241f96a95d0f9643d5f57a8a8dca73"
+  }
+}

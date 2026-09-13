@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 1 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.512708
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 2 - D1: dish initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.039083
+  ...
+# Subtest: D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+ok 3 - D1: no-image Dish save uses sole C1 without loading legacy or optional form/image # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.031833
+  ...
+# Subtest: D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+ok 4 - D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.077708
+  ...
+# Subtest: D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+ok 5 - D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.031625
+  ...
+# Subtest: D1: inline late module completion cannot install into auth
+ok 6 - D1: inline late module completion cannot install into auth # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.023125
+  ...
+# Subtest: D1: inline late module completion cannot install into remove
+ok 7 - D1: inline late module completion cannot install into remove # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.021792
+  ...
+# Subtest: D1: inline late module completion cannot install into replace
+ok 8 - D1: inline late module completion cannot install into replace # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.029
+  ...
+# Subtest: D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+ok 9 - D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.061583
+  ...
+# Subtest: D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+ok 10 - D1: dish legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.075375
+  ...
+# Subtest: D1: ingredient old auth cannot use a late legacy module
+ok 11 - D1: ingredient old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.034292
+  ...
+# Subtest: D1: dish old auth cannot use a late legacy module
+ok 12 - D1: dish old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.024333
+  ...
+# Subtest: D1: ingredient image module admission is protected and late auth prevents decoding
+ok 13 - D1: ingredient image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.024291
+  ...
+# Subtest: D1: dish image module admission is protected and late auth prevents decoding
+ok 14 - D1: dish image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.0545
+  ...
+# Subtest: D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+ok 15 - D1: loaded translation transport rejection can really retry without repeating inline automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.026542
+  ...
+# Subtest: D1: ingredient image module unavailable survives language; no-image save remains usable
+ok 16 - D1: ingredient image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.080292
+  ...
+# Subtest: D1: dish image module unavailable survives language; no-image save remains usable
+ok 17 - D1: dish image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.027708
+  ...
+# Subtest: D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+ok 18 - D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 63.851708
+  ...
+# Subtest: D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+ok 19 - D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 48.83175
+  ...
+# Subtest: D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+ok 20 - D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 67.174458
+  ...
+# Subtest: D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+ok 21 - D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 79.587208
+  ...
+# Subtest: D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+ok 22 - D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 70.820083
+  ...
+# Subtest: D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+ok 23 - D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 76.812792
+  ...
+# Subtest: D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 24 - D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 66.889416
+  ...
+# Subtest: D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 25 - D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 78.187917
+  ...
+# Subtest: D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 26 - D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 74.806459
+  ...
+# Subtest: D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 27 - D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 81.772541
+  ...
+# Subtest: D1-R1: ingredient language keeps original allowed operation
+ok 28 - D1-R1: ingredient language keeps original allowed operation
+  ---
+  duration_ms: 60.801334
+  ...
+# Subtest: D1-R1: ingredient return-before-ready keeps original allowed operation
+ok 29 - D1-R1: ingredient return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.9435
+  ...
+# Subtest: D1-R1: new language keeps original allowed operation
+ok 30 - D1-R1: new language keeps original allowed operation
+  ---
+  duration_ms: 61.806708
+  ...
+# Subtest: D1-R1: new return-before-ready keeps original allowed operation
+ok 31 - D1-R1: new return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 60.019708
+  ...
+# Subtest: D1-R1: new-photo language keeps original allowed operation
+ok 32 - D1-R1: new-photo language keeps original allowed operation
+  ---
+  duration_ms: 59.631833
+  ...
+# Subtest: D1-R1: new-photo return-before-ready keeps original allowed operation
+ok 33 - D1-R1: new-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 55.238917
+  ...
+# Subtest: D1-R1: dish-photo language keeps original allowed operation
+ok 34 - D1-R1: dish-photo language keeps original allowed operation
+  ---
+  duration_ms: 57.892792
+  ...
+# Subtest: D1-R1: dish-photo return-before-ready keeps original allowed operation
+ok 35 - D1-R1: dish-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.01225
+  ...
+# Subtest: D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+ok 36 - D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+  ---
+  duration_ms: 72.323709
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 17
+# todo 0
+# duration_ms 1318.591625

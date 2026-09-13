@@ -16,7 +16,7 @@
  */
 import { h } from "../dom";
 import type { Lang } from "../i18n";
-import { hrefOf } from "../router";
+import { hrefOf, parseHash } from "../router";
 
 const STORAGE_KEY = "canteenos.token";
 /** worker 签发的令牌是 32 字节的 base64url（无填充）= 43 个字符（worker 契约 §2.1） */
@@ -24,6 +24,27 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
 /** sessionStorage 不可用（隐私模式等）时的本页内存兜底：关标签页即失，与 sessionStorage 生命周期一致 */
 let memory: string | null = null;
+let observed: string | null = null;
+let sessionVersion = 0;
+const sessionListeners = new Set<() => void>();
+function changed(): void {
+  sessionVersion++;
+  for (const listener of sessionListeners) {
+    try { listener(); } catch { /* A render failure cannot prevent logout or cache invalidation. */ }
+  }
+}
+function observe(value: string | null): string | null {
+  if (observed !== value) { observed = value; changed(); }
+  return value;
+}
+/** Opaque lifetime marker; never exposes or hashes credentials. */
+export function getAuthSessionVersion(): number { getToken(); return sessionVersion; }
+/** Metadata inspection cannot trigger auth listeners or erase an editor as a side effect. */
+export function peekAuthSessionVersion(): number | null { return peekToken() === observed ? sessionVersion : null; }
+export function onAuthSessionChange(listener: () => void): () => void {
+  sessionListeners.add(listener);
+  return () => { sessionListeners.delete(listener); };
+}
 
 const T = {
   "adm.lock.title": { uk: "Відкрийте за посиланням шефа", zh: "请用师傅链接打开", en: "Open with the chef link" },
@@ -39,7 +60,7 @@ function tt(lang: Lang, key: keyof typeof T): string {
 }
 
 /** 当前会话的令牌；没有 / 形状不对 → null */
-export function getToken(): string | null {
+export function peekToken(): string | null {
   try {
     const v = sessionStorage.getItem(STORAGE_KEY);
     if (v !== null) return TOKEN_RE.test(v) ? v : null;
@@ -48,6 +69,7 @@ export function getToken(): string | null {
   }
   return memory;
 }
+export function getToken(): string | null { return observe(peekToken()); }
 
 /** 401 时调用：清掉令牌，随后由屏自己回锁屏（kit.sessionExpired 已把这两步包在一起） */
 export function clearToken(): void {
@@ -57,6 +79,8 @@ export function clearToken(): void {
   } catch {
     /* 没存过 */
   }
+  observed = null;
+  changed();
 }
 
 function storeToken(token: string): void {
@@ -66,6 +90,7 @@ function storeToken(token: string): void {
   } catch {
     /* 隐私模式：只在本页内存里有效 */
   }
+  observe(token);
 }
 
 /** `#/admin` 或 `#/admin/<segs…>`（逐段编码；与 pages/admin.ts 的 adminHref 同形，这里不能 import 它——会成环） */
@@ -82,14 +107,29 @@ function adminUrl(rest: string): string {
  * 消费 rest 里的令牌段（`t/<token>[/<rest…>]`），返回剥掉令牌段后的 rest。
  * 幂等：已有令牌时忽略 rest 里的那份；令牌串为空或长度不是 43 → 当作无令牌（仍然把它从地址栏抹掉）。
  */
+function normalizedAdminRest(rest: string): string | null {
+  // parseHash keeps the raw string when URI decoding fails. Such a route is not an identity.
+  try { return decodeURIComponent(rest).split('/').filter(Boolean).join('/'); }
+  catch { return null; }
+}
+
+export function stripTokenFromRest(rest: string): string {
+  let safe = normalizedAdminRest(rest) ?? '';
+  while (safe === 't' || safe.startsWith('t/')) safe = safe.split('/').slice(2).join('/');
+  return safe;
+}
+
 export function consumeTokenFromRest(rest: string): string {
-  if (rest !== "t" && !rest.startsWith("t/")) return rest;
-  const segs = rest.split("/");
+  const normalized = normalizedAdminRest(rest);
+  if (normalized !== null && normalized !== "t" && !normalized.startsWith("t/")) return normalized;
+  const segs = normalized?.split("/") ?? [];
   const candidate = segs[1] ?? "";
-  const remainder = segs.slice(2).join("/");
-  if (getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
+  const remainder = stripTokenFromRest(rest);
+  if (normalized !== null && getToken() === null && TOKEN_RE.test(candidate)) storeToken(candidate);
   // 无论存没存成功，令牌都不能留在地址栏（红线）。replaceState 不触发 hashchange。
-  if (/^#\/?admin\/t(\/|$)/.test(location.hash)) {
+  const address = parseHash(location.hash);
+  const addressRest = address ? normalizedAdminRest(address.rest) : null;
+  if (address?.page === 'admin' && (addressRest === null || addressRest === 't' || addressRest.startsWith('t/'))) {
     try {
       history.replaceState(null, "", adminUrl(remainder));
     } catch {

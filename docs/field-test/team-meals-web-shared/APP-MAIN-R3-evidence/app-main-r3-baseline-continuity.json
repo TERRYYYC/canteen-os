@@ -1,0 +1,27 @@
+[
+  {
+    "file": "pnpm-lock.yaml",
+    "sha256": "7f9afb80c0e0108d7ac6b3d6b9a33ee58d1ba4b24e150184406579027bd3ebe8",
+    "identical": true
+  },
+  {
+    "file": "packages/web/vite.config.ts",
+    "sha256": "5fde595ff134d66d75c03f9388dcb66478c257ef97c655bb9a123c8448e50d3b",
+    "identical": true
+  },
+  {
+    "file": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+    "sha256": "49cb68d3c6c66fa160be9b040b78c7a6cfc66eabf23e8109e93b117c0bacb295",
+    "identical": true
+  },
+  {
+    "file": "packages/web/test/team-meals-pages-guard-harness.mjs",
+    "sha256": "564bef17d17b04441f5d7ab5e48313aa67b726598c75c32b95c462ce64f7597f",
+    "identical": true
+  },
+  {
+    "file": "packages/web/test/team-meals-pages-unload.test.mjs",
+    "sha256": "509a58bbda9627cf68f5ba1ea982b78694d5065b0881df23107a6eec02f4ad91",
+    "identical": true
+  }
+]

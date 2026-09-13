@@ -1,0 +1,290 @@
+{
+  "head": "80948be59b068da11855e3bf0c018f3fa13a8117",
+  "src": [
+    {
+      "path": "packages/web/src/admin/kit.ts",
+      "bytes": 27241,
+      "sha256": "b3a0b378cfa1a94932552f2cb072d4b2c04b75f274535ff38aa1b04ebc233de5"
+    },
+    {
+      "path": "packages/web/src/admin/store.ts",
+      "bytes": 6206,
+      "sha256": "7082f80729b436b1c21db4e91f100282d22644ec19d2e8540de56eea59585b2d"
+    },
+    {
+      "path": "packages/web/src/admin/token.ts",
+      "bytes": 6855,
+      "sha256": "bc52456bd287fa5509caf501dc9f095f131d6ef60ac799d8585e4a9291f58f51"
+    },
+    {
+      "path": "packages/web/src/api/client.ts",
+      "bytes": 18017,
+      "sha256": "702da78ecb2384b16c3307b3db8aa844f989a22b5096642feacec09d5a6c2e4a"
+    },
+    {
+      "path": "packages/web/src/api/mock.ts",
+      "bytes": 55121,
+      "sha256": "d3fe30e67dc29daa70eb41c0d2de56cf804947d0551bedd75f4f95c62fde9c8f"
+    },
+    {
+      "path": "packages/web/src/api/team-meals.ts",
+      "bytes": 8383,
+      "sha256": "ee8992e5eb08ffb44e43abcc86a3995f387ebd89425707e16df3b09f4f79c256"
+    },
+    {
+      "path": "packages/web/src/api/transport.ts",
+      "bytes": 8399,
+      "sha256": "4db2955217cb6cdeaa49570ca07f122c327cff06f6b350959dfe86be3d103ce5"
+    },
+    {
+      "path": "packages/web/src/api/types.ts",
+      "bytes": 7099,
+      "sha256": "ed75628e930c0afcafd6f632fd551bbd2546d94b4b1b37a9d2ff96cc9bec5561"
+    },
+    {
+      "path": "packages/web/src/data.ts",
+      "bytes": 1115,
+      "sha256": "5cdfab89948ca5bb0859f0b744368083d9adc7f2d720779172c897196dd3cd00"
+    },
+    {
+      "path": "packages/web/src/dom.ts",
+      "bytes": 1183,
+      "sha256": "3eb6663c19dfee4093cefa63d5bd95eb041213d0e085da976488a106e4252510"
+    },
+    {
+      "path": "packages/web/src/i18n.ts",
+      "bytes": 11813,
+      "sha256": "331d76dc5602fe3085028f313cbef18bb49e270d079d804c33e28830f9541352"
+    },
+    {
+      "path": "packages/web/src/main.ts",
+      "bytes": 5298,
+      "sha256": "60673d40a9e8256addab574cb618e0888312662cb17d9eb3554c01311a0656b1"
+    },
+    {
+      "path": "packages/web/src/pages/admin.ts",
+      "bytes": 5980,
+      "sha256": "23ec854967e90441116dd90c79844044dfbc6b151f3f8df51d60f52bd334da74"
+    },
+    {
+      "path": "packages/web/src/pages/admin/admin.css",
+      "bytes": 5295,
+      "sha256": "0aa9261d6b2be0fd04234aff551ca00334f427febf1c0182aaf9c80feea866e9"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.css",
+      "bytes": 9705,
+      "sha256": "c761a6e4b724203554a5eb07e401242c9139c76efe8eccae8af52725cdfe30f3"
+    },
+    {
+      "path": "packages/web/src/pages/admin/dish-new.ts",
+      "bytes": 119241,
+      "sha256": "902844268b1991278a80424c0f36debb700afb004bda27e641e71bb57f3ac55c"
+    },
+    {
+      "path": "packages/web/src/pages/admin/editor-actions.ts",
+      "bytes": 1651,
+      "sha256": "36e2d42b21f4e5f3d691a202fa5f935cf2e290f4c0cb72ab8ad2dd1db31c4255"
+    },
+    {
+      "path": "packages/web/src/pages/admin/editor-image.ts",
+      "bytes": 2906,
+      "sha256": "4f8d413579565fa5af165fb36a95b9fbc808456006bd84eb82adf127d4db1d1a"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.css",
+      "bytes": 3441,
+      "sha256": "e1fa522d3c56066a6cf730993bd7bac64191b8913ce97d1124ae29c87c863dfe"
+    },
+    {
+      "path": "packages/web/src/pages/admin/home.ts",
+      "bytes": 25387,
+      "sha256": "22c5c01a7192c5bac0c143291f0bdc04a4c433061540607740107fd34ab54fc5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.css",
+      "bytes": 6888,
+      "sha256": "c0ed3104b1af3bc48a4d1a805138b552163d12013741d9f0e7e9ba3e8aeb1b83"
+    },
+    {
+      "path": "packages/web/src/pages/admin/import.ts",
+      "bytes": 54940,
+      "sha256": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-draft.ts",
+      "bytes": 6602,
+      "sha256": "3902ebaa47cc8a676eb272587a6683d64eac7bc56d3dccb71b115f43beb4995f"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-form.ts",
+      "bytes": 40936,
+      "sha256": "2a356e1f7b89938b78c54b1bf2e8ccff9134a515e3cd269f57648ef742422d42"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.css",
+      "bytes": 6561,
+      "sha256": "a8d08e4c6983b567647678db8b42797fda0efa351b7badd3ada44c280e465fc0"
+    },
+    {
+      "path": "packages/web/src/pages/admin/ingredient-new.ts",
+      "bytes": 29137,
+      "sha256": "15736960aa84ee143871f94b93348da384c197cc19a1535e27096430fbae55bb"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan-form.ts",
+      "bytes": 4960,
+      "sha256": "48b1d0fc5e456684471d8a136c37838eafd99d0e1200a0b5021475c99e02b256"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.css",
+      "bytes": 3145,
+      "sha256": "53abb92d56805e1fe3e9360c0ef3af2a305b68fdb8f36e975b2ccda8a19a4b39"
+    },
+    {
+      "path": "packages/web/src/pages/admin/plan.ts",
+      "bytes": 18272,
+      "sha256": "8f7e8552bfcc7c4da7360e48474df95fc82e8921ca7bb79ea60e3273fbe0cbf4"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.css",
+      "bytes": 6756,
+      "sha256": "51fde411397144af5353c598d0e0af9185761212023fe0c8a7bb423ddb388cb5"
+    },
+    {
+      "path": "packages/web/src/pages/admin/publish.ts",
+      "bytes": 54452,
+      "sha256": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29"
+    },
+    {
+      "path": "packages/web/src/pages/admin/servings-input.ts",
+      "bytes": 1167,
+      "sha256": "a785c055a3701ce40baac0157f9d00e02699dae3305a0d1092aa14522bd8cb24"
+    },
+    {
+      "path": "packages/web/src/pages/menu.css",
+      "bytes": 7713,
+      "sha256": "825305f00ddf3acb6df77f0a6bb5ca581369256178eac4f1ba13bce84e2b20f8"
+    },
+    {
+      "path": "packages/web/src/pages/menu.ts",
+      "bytes": 28052,
+      "sha256": "455bc8fbe99201551461b1e230f2f7514c859988f6b5957ea52c485b790b995d"
+    },
+    {
+      "path": "packages/web/src/pages/prep.css",
+      "bytes": 9353,
+      "sha256": "68a26bea91433c8c4fc8943532cdc4940080c4210e26e53a08bbc0de14fb4572"
+    },
+    {
+      "path": "packages/web/src/pages/prep.ts",
+      "bytes": 47858,
+      "sha256": "ff2711aecce186c1cc46d759093a226d524d6869d22ace482b38c183d63ea846"
+    },
+    {
+      "path": "packages/web/src/pages/published-meals.ts",
+      "bytes": 15833,
+      "sha256": "d2285e3ae60cd0a64d4f0af5b4deda94e6a6adece72ffb57cae5c0fa486a39c1"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-form.ts",
+      "bytes": 11024,
+      "sha256": "0ba62e8ca2860a9d009f02ea2c4c1fb909dbc10b766bdfdb42d4f6f3121a4089"
+    },
+    {
+      "path": "packages/web/src/pages/purchase-list.ts",
+      "bytes": 10522,
+      "sha256": "6c5efb7a3a07e209cc8df99872be70a7428bccd0ea265728c787b2808357c5fa"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.css",
+      "bytes": 8136,
+      "sha256": "36736377724983eeba425cbd02006ba662276f994bb42511ef3c89ae9ea6fb0e"
+    },
+    {
+      "path": "packages/web/src/pages/purchase.ts",
+      "bytes": 19121,
+      "sha256": "176b0a7af1ae0276b6a395415a1e5fbb09593d01affd4714f812513e07ac3acd"
+    },
+    {
+      "path": "packages/web/src/pages/qr.css",
+      "bytes": 3142,
+      "sha256": "7653128483b376d6066f24a5055aeeabd83902e0d0494e57ac549afabcdcbce0"
+    },
+    {
+      "path": "packages/web/src/pages/qr.ts",
+      "bytes": 7489,
+      "sha256": "c1e78ada7901a28a086d5f24c05148fcf67e96b3691e07787d7a69819af2e755"
+    },
+    {
+      "path": "packages/web/src/pages/team-details.ts",
+      "bytes": 10964,
+      "sha256": "7e11c51482927ac11b2e75d8604e01a3de8d6fadd9b0e2db4d4fc8ccf43c2aab"
+    },
+    {
+      "path": "packages/web/src/pages/team-ui.ts",
+      "bytes": 6472,
+      "sha256": "60835d22ba43f44bec30505eecb0b2d817498e95a87039ad7ec14358fb117832"
+    },
+    {
+      "path": "packages/web/src/pwa.ts",
+      "bytes": 11769,
+      "sha256": "4711d76dafe7d32c171c2de2c41285020a13690c1977c05a228007fea0b7173a"
+    },
+    {
+      "path": "packages/web/src/router.ts",
+      "bytes": 3041,
+      "sha256": "cc73d98ce769ab37e379f554e5c93bd50ad58275a7bce8381c97a5b6d2173812"
+    },
+    {
+      "path": "packages/web/src/shell.ts",
+      "bytes": 11513,
+      "sha256": "29621bc8ba8d4c5bc7ea3121817b4d63216b232e18dcda0777f1454a26a63373"
+    },
+    {
+      "path": "packages/web/src/styles.css",
+      "bytes": 10601,
+      "sha256": "9dd667db3c8ffe092ec50a9c2553998fed94126534a3397a3a46ee89c13ac6b3"
+    },
+    {
+      "path": "packages/web/src/theme.ts",
+      "bytes": 1634,
+      "sha256": "6befd39469c0e718b726fadbb8cf7785f2e0559f0d8e98fbab96220a7f7cfd34"
+    },
+    {
+      "path": "packages/web/src/tokens.css",
+      "bytes": 2337,
+      "sha256": "32e2eea759ebe4e36ed43fd5766b5e9607ef61444de3428c2fe95335ac86ddcb"
+    },
+    {
+      "path": "packages/web/src/types.ts",
+      "bytes": 2472,
+      "sha256": "4ce433ac1c809f09d878aa51270ad2384e04df7fc0efd7005f847117c0c01094"
+    },
+    {
+      "path": "packages/web/src/view-models/edit-session.ts",
+      "bytes": 19467,
+      "sha256": "dcfc2409ec119999e9d9b89542218d9d4c3c10eecea156730e965f7eafb70ec1"
+    },
+    {
+      "path": "packages/web/src/view-models/published.ts",
+      "bytes": 18604,
+      "sha256": "184aa5a1f29f9c9df9f03f4755e09cb4cad00b8bc660f8faefd0fe325fdcc90b"
+    },
+    {
+      "path": "packages/web/src/view-models/reload-safety.ts",
+      "bytes": 12794,
+      "sha256": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03"
+    },
+    {
+      "path": "packages/web/src/view-models/team-meals.ts",
+      "bytes": 8311,
+      "sha256": "87259084084498df170cbe49be0ede700729aa1136d91ddf1902b869e1421af7"
+    }
+  ],
+  "html": {
+    "original": "7bf20aa3fea9bf6521ecae1b7ba6c253bf1293549ef016d1cbbf549346d03ef9",
+    "instrumented": "7e8fbe30cb12e139802ee0b509229eb156390f0a09b88d6fe6388081ce3f571a"
+  },
+  "fixtureSha256": "c653f21f7843387bf7b5842686e7c5ac17c05ee29b78a3dc67c6da96d685ec2a"
+}

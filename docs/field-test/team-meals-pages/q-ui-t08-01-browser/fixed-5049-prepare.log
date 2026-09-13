@@ -1,0 +1,14 @@
+
+> @canteenos/worker@0.0.3 build
+> npm --prefix ../core run build && npm run gen:validators && tsc -p tsconfig.build.json
+
+
+> @canteenos/core@0.0.3 build
+> tsc -p tsconfig.build.json
+
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+generated 7 validators → packages/worker/generated/validators.js (242481 bytes, schema-digest 61cbb92f8d23)
+{"head":"5049f0a47c76c4149a91a288a6a9b6edf279b1ea","qhead":"ad54d4ff31f977624e1605e883d3c2286a50358b","root":"/private/tmp/canteen-q-t08-browser-fixed-5049","server":"/private/tmp/canteen-q-t08-browser-fixed-5049/packages/web/test/e2e/team-meals/team-meals-pages-copy-server.mjs"}

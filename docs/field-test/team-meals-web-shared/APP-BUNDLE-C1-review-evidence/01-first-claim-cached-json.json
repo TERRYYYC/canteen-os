@@ -1,0 +1,19 @@
+{
+  "kind": "first-claim-cached-json",
+  "entries": [
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:63832/canteen/",
+      "url": "http://127.0.0.1:63832/canteen/data/build.json?__WB_REVISION__=89a88e8db59c2743672ee2bc3d5f5b37",
+      "commit": "a968dcc67ee565abf0cb71735a5d42e26f756ca6"
+    },
+    {
+      "cache": "workbox-precache-v2-http://127.0.0.1:63832/canteen/",
+      "url": "http://127.0.0.1:63832/canteen/data/team-meals/week-41.json?__WB_REVISION__=69591257d7352a56ab1fccb13696d3a3",
+      "commit": "a968dcc67ee565abf0cb71735a5d42e26f756ca6"
+    }
+  ],
+  "implementation": "e79fe3b49b2a5d3c06c5d7298d9207adc5cc3c71",
+  "serverVersion": "a",
+  "available": true,
+  "serverRequests": []
+}

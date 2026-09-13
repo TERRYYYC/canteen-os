@@ -1,0 +1,85 @@
+[
+  {
+    "path": "packages/web/test/team-meals-pages-bundle.test.mjs",
+    "byteEqual": false,
+    "oldAssertions": 69,
+    "newAssertions": 103,
+    "missingOldAssertions": [],
+    "addedAssertions": [
+      "assert.equal(h.m.inspectReloadSafety().reason,'saving')",
+      "assert.deepEqual(sent,[])",
+      "assert.deepEqual(sent,[],'A deferred module must not begin transport after its page leaves (INV-B5)')",
+      "assert.equal(h.m.inspectReloadSafety().reason,'saving')",
+      "assert.deepEqual(a.sent,[])",
+      "assert.deepEqual(a.sent,[])",
+      "assert.equal(a.owner.readAuxiliary(a.key).phase,'idle')",
+      "assert.equal(draft.dirty,true)",
+      "assert.equal(h.el.querySelector(a.input).value,'Other record raw')",
+      "assert.equal(a.owner.draft,draft)",
+      "assert.equal(h.el.querySelector(a.input).value,'Original retained raw')",
+      "assert.equal(a.page==='dish'?h.el.querySelector('.adm-dish-save-draft').disabled:h.el.querySelector('.adm-ing-save').disabled,false,'known-unsent attempt releases saving')",
+      "assert.equal(a.sent.filter(x=>x[0]==='upload').length,kind.endsWith('photo')?1:0)",
+      "assert.equal(a.sent.filter(x=>x[0]==='save').length,a.page==='ingredient'?1:0)",
+      "assert.equal(h.counts.writes,1)",
+      "assert.equal(a.sent.filter(x=>x[0]==='upload').length,kind.endsWith('photo')?1:0)",
+      "assert.equal(h.counts.writes,1)",
+      "assert.equal(h.el.querySelector(a.input).value,'Original retained raw')",
+      "assert.equal(h.counts.writes,1)",
+      "assert.equal(h.m.inspectDishOwner().draft.components.at(-1).ingredientRef,'inline-route')",
+      "assert.equal(h.m.inspectReloadSafety().reason,'saving')",
+      "assert.equal(a.owner.readAuxiliary(a.key).phase,'idle')",
+      "assert.equal(draft.dirty,true)",
+      "assert.equal(draft.pending,null)",
+      "assert.equal(h.counts.writes,kind==='dish-photo'?0:1)",
+      "assert.equal(h.el.querySelector(a.input).value,'Later original raw')",
+      "assert.equal(a.owner.draft,draft)",
+      "assert.equal(a.sent.filter(x=>x[0]==='upload').length,uploads)",
+      "assert.equal(h.counts.writes,kind==='dish-photo'?1:2)",
+      "assert.equal(h.counts.writes,0)",
+      "assert.equal(owner.readAuxiliary('soup').phase,'idle')",
+      "assert.equal(row.newIngredient,buffer)",
+      "assert.equal(h.counts.writes,1)",
+      "assert.equal(row.ingredientRef,'inline-later')"
+    ]
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-guard-harness.mjs",
+    "byteEqual": false,
+    "oldAssertions": 2,
+    "newAssertions": 2,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-ack.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 15,
+    "newAssertions": 15,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-ingredient.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 148,
+    "newAssertions": 148,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-unload.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 21,
+    "newAssertions": 21,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  },
+  {
+    "path": "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+    "byteEqual": true,
+    "oldAssertions": 80,
+    "newAssertions": 80,
+    "missingOldAssertions": [],
+    "addedAssertions": []
+  }
+]

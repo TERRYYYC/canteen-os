@@ -1,0 +1,15 @@
+async tab => await tab.playwright.evaluate(() => ({
+  hash: location.hash,
+  text: document.querySelector('main').innerText,
+  phase: document.querySelector('main [data-phase]')?.getAttribute('data-phase'),
+  rows: [...document.querySelectorAll('main [data-meal-index]')].map(row => ({
+    index: row.getAttribute('data-meal-index'),
+    slot: row.parentElement.querySelector('h3')?.innerText,
+    dish: row.querySelector('select')?.value,
+    servings: row.querySelector('input')?.value,
+    invalid: row.querySelector('input')?.getAttribute('aria-invalid')
+  })),
+  inputs: [...document.querySelectorAll('main input')].map(e => ({type:e.type,value:e.value,focus:e.dataset.focus})),
+  selects: [...document.querySelectorAll('main select')].map(e => ({value:e.value,focus:e.dataset.focus})),
+  paste: document.querySelector('main textarea')?.value
+}))

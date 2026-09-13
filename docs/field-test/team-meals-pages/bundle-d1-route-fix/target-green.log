@@ -1,0 +1,605 @@
+TAP version 13
+# Subtest: ingredient: actual Http current-auth array ACK cannot prove completion
+ok 1 - ingredient: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 53.031458
+  ...
+# Subtest: ingredient: actual Http current-auth string ACK settles only its write
+ok 2 - ingredient: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 39.330833
+  ...
+# Subtest: ingredient: available old-auth array ACK cannot prove completion
+ok 3 - ingredient: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 38.879125
+  ...
+# Subtest: ingredient: available old-auth string ACK settles only its write
+ok 4 - ingredient: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 38.868916
+  ...
+# Subtest: dish: actual Http current-auth array ACK cannot prove completion
+ok 5 - dish: actual Http current-auth array ACK cannot prove completion
+  ---
+  duration_ms: 54.47475
+  ...
+# Subtest: dish: actual Http current-auth string ACK settles only its write
+ok 6 - dish: actual Http current-auth string ACK settles only its write
+  ---
+  duration_ms: 52.162083
+  ...
+# Subtest: dish: available old-auth array ACK cannot prove completion
+ok 7 - dish: available old-auth array ACK cannot prove completion
+  ---
+  duration_ms: 51.66475
+  ...
+# Subtest: dish: available old-auth string ACK settles only its write
+ok 8 - dish: available old-auth string ACK settles only its write
+  ---
+  duration_ms: 53.626959
+  ...
+# Subtest: ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 9 - ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 37.456042
+  ...
+# Subtest: dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+ok 10 - dish: real Http old-auth hides even a valid ACK and its unknown write remains protected
+  ---
+  duration_ms: 48.959416
+  ...
+# Subtest: ingredient: valid available old ACK settles A only while B still owns its write
+ok 11 - ingredient: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 65.921208
+  ...
+# Subtest: dish: valid available old ACK settles A only while B still owns its write
+ok 12 - dish: valid available old ACK settles A only while B still owns its write
+  ---
+  duration_ms: 92.23075
+  ...
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 13 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 31.519291
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 14 - D1: dish initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 20.047667
+  ...
+# Subtest: D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+ok 15 - D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+  ---
+  duration_ms: 30.724125
+  ...
+# Subtest: D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+ok 16 - D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+  ---
+  duration_ms: 87.621791
+  ...
+# Subtest: D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+ok 17 - D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+  ---
+  duration_ms: 42.74775
+  ...
+# Subtest: D1: inline late module completion cannot install into auth
+ok 18 - D1: inline late module completion cannot install into auth
+  ---
+  duration_ms: 50.591334
+  ...
+# Subtest: D1: inline late module completion cannot install into remove
+ok 19 - D1: inline late module completion cannot install into remove
+  ---
+  duration_ms: 39.691417
+  ...
+# Subtest: D1: inline late module completion cannot install into replace
+ok 20 - D1: inline late module completion cannot install into replace
+  ---
+  duration_ms: 43.460916
+  ...
+# Subtest: D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+ok 21 - D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+  ---
+  duration_ms: 48.352333
+  ...
+# Subtest: D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+ok 22 - D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+  ---
+  duration_ms: 48.874917
+  ...
+# Subtest: D1: ingredient old auth cannot use a late legacy module
+ok 23 - D1: ingredient old auth cannot use a late legacy module
+  ---
+  duration_ms: 48.1895
+  ...
+# Subtest: D1: dish old auth cannot use a late legacy module
+ok 24 - D1: dish old auth cannot use a late legacy module
+  ---
+  duration_ms: 49.116167
+  ...
+# Subtest: D1: ingredient image module admission is protected and late auth prevents decoding
+ok 25 - D1: ingredient image module admission is protected and late auth prevents decoding
+  ---
+  duration_ms: 48.469417
+  ...
+# Subtest: D1: dish image module admission is protected and late auth prevents decoding
+ok 26 - D1: dish image module admission is protected and late auth prevents decoding
+  ---
+  duration_ms: 48.720292
+  ...
+# Subtest: D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+ok 27 - D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+  ---
+  duration_ms: 35.891083
+  ...
+# Subtest: D1: ingredient image module unavailable survives language; no-image save remains usable
+ok 28 - D1: ingredient image module unavailable survives language; no-image save remains usable
+  ---
+  duration_ms: 38.108208
+  ...
+# Subtest: D1: dish image module unavailable survives language; no-image save remains usable
+ok 29 - D1: dish image module unavailable survives language; no-image save remains usable
+  ---
+  duration_ms: 48.50775
+  ...
+# Subtest: D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+ok 30 - D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 46.458292
+  ...
+# Subtest: D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+ok 31 - D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 48.466042
+  ...
+# Subtest: D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+ok 32 - D1-R1: ingredient home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 66.487917
+  ...
+# Subtest: D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+ok 33 - D1-R1: ingredient other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 76.935333
+  ...
+# Subtest: D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+ok 34 - D1-R1: new home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 66.961792
+  ...
+# Subtest: D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+ok 35 - D1-R1: new other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 74.965208
+  ...
+# Subtest: D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 36 - D1-R1: new-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 68.373583
+  ...
+# Subtest: D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 37 - D1-R1: new-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 81.040333
+  ...
+# Subtest: D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+ok 38 - D1-R1: dish-photo home before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 72.264416
+  ...
+# Subtest: D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+ok 39 - D1-R1: dish-photo other-record before legacy ready sends nothing; explicit return save retains raw
+  ---
+  duration_ms: 84.077916
+  ...
+# Subtest: D1-R1: ingredient language keeps original allowed operation
+ok 40 - D1-R1: ingredient language keeps original allowed operation
+  ---
+  duration_ms: 60.75625
+  ...
+# Subtest: D1-R1: ingredient return-before-ready keeps original allowed operation
+ok 41 - D1-R1: ingredient return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.778167
+  ...
+# Subtest: D1-R1: new language keeps original allowed operation
+ok 42 - D1-R1: new language keeps original allowed operation
+  ---
+  duration_ms: 58.679875
+  ...
+# Subtest: D1-R1: new return-before-ready keeps original allowed operation
+ok 43 - D1-R1: new return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.464208
+  ...
+# Subtest: D1-R1: new-photo language keeps original allowed operation
+ok 44 - D1-R1: new-photo language keeps original allowed operation
+  ---
+  duration_ms: 61.558709
+  ...
+# Subtest: D1-R1: new-photo return-before-ready keeps original allowed operation
+ok 45 - D1-R1: new-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 61.149
+  ...
+# Subtest: D1-R1: dish-photo language keeps original allowed operation
+ok 46 - D1-R1: dish-photo language keeps original allowed operation
+  ---
+  duration_ms: 61.623417
+  ...
+# Subtest: D1-R1: dish-photo return-before-ready keeps original allowed operation
+ok 47 - D1-R1: dish-photo return-before-ready keeps original allowed operation
+  ---
+  duration_ms: 59.17825
+  ...
+# Subtest: D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+ok 48 - D1-R1: inline Ingredient save waits on legacy through language without losing its original buffer
+  ---
+  duration_ms: 77.766875
+  ...
+# Subtest: D1-R1: already dispatched ingredient settles its original owner after departure
+ok 49 - D1-R1: already dispatched ingredient settles its original owner after departure
+  ---
+  duration_ms: 67.951708
+  ...
+# Subtest: D1-R1: already dispatched new-photo settles its original owner after departure
+ok 50 - D1-R1: already dispatched new-photo settles its original owner after departure
+  ---
+  duration_ms: 69.944916
+  ...
+# Subtest: D1-R1: already dispatched dish-photo settles its original owner after departure
+ok 51 - D1-R1: already dispatched dish-photo settles its original owner after departure
+  ---
+  duration_ms: 72.678042
+  ...
+# Subtest: D1-R1: inline legacy ready after home cannot send its new write
+ok 52 - D1-R1: inline legacy ready after home cannot send its new write
+  ---
+  duration_ms: 96.660333
+  ...
+# Subtest: D1-R1: inline legacy ready after other-record cannot send its new write
+ok 53 - D1-R1: inline legacy ready after other-record cannot send its new write
+  ---
+  duration_ms: 105.89775
+  ...
+# Subtest: new dish omits unknown servings instead of defaulting to 50
+ok 54 - new dish omits unknown servings instead of defaulting to 50
+  ---
+  duration_ms: 0.534209
+  ...
+# Subtest: v3 unknown qty remains omitted and all source metadata survives an edit
+ok 55 - v3 unknown qty remains omitted and all source metadata survives an edit
+  ---
+  duration_ms: 0.961125
+  ...
+# Subtest: v2 true quantities, to-taste and servings survive explicit v3 edit
+ok 56 - v2 true quantities, to-taste and servings survive explicit v3 edit
+  ---
+  duration_ms: 0.16325
+  ...
+# Subtest: draft action submits exact draft body under source lock through C1
+ok 57 - draft action submits exact draft body under source lock through C1
+  ---
+  duration_ms: 1.007125
+  ...
+# Subtest: late save and language refresh preserve later form edits
+ok 58 - late save and language refresh preserve later form edits
+  ---
+  duration_ms: 0.333208
+  ...
+# Subtest: unknown result survives detach/return and recovery force-reads pinned source twice
+ok 59 - unknown result survives detach/return and recovery force-reads pinned source twice
+  ---
+  duration_ms: 0.408833
+  ...
+# Subtest: legal to-taste source value survives an unrelated edit
+ok 60 - legal to-taste source value survives an unrelated edit
+  ---
+  duration_ms: 0.065041
+  ...
+# Subtest: new dish creates with if-none-match and optional fields remain absent
+ok 61 - new dish creates with if-none-match and optional fields remain absent
+  ---
+  duration_ms: 0.377667
+  ...
+# Subtest: conflict retains edited draft and explicit adoption is required before a new write
+ok 62 - conflict retains edited draft and explicit adoption is required before a new write
+  ---
+  duration_ms: 0.741584
+  ...
+# Subtest: late read cannot open a different dish after detaching
+ok 63 - late read cannot open a different dish after detaching
+  ---
+  duration_ms: 0.3225
+  ...
+# Subtest: review: add-another on an existing dish must not orphan an unresolved new dish
+ok 64 - review: add-another on an existing dish must not orphan an unresolved new dish
+  ---
+  duration_ms: 0.597042
+  ...
+# Subtest: review: pending image still requires dirty warning after language refresh
+ok 65 - review: pending image still requires dirty warning after language refresh
+  ---
+  duration_ms: 0.359542
+  ...
+# Subtest: review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+ok 66 - review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+  ---
+  duration_ms: 0.737459
+  ...
+# Subtest: review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+ok 67 - review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+  ---
+  duration_ms: 1.025917
+  ...
+# Subtest: review: detached photo completion stays with its original dish and does not upload again on return
+ok 68 - review: detached photo completion stays with its original dish and does not upload again on return
+  ---
+  duration_ms: 0.416084
+  ...
+# Subtest: review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+ok 69 - review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+  ---
+  duration_ms: 0.255542
+  ...
+# Subtest: review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+ok 70 - review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+  ---
+  duration_ms: 0.445833
+  ...
+# Subtest: Dish source loading is registered before its first await and canceled read ends only its own ticket
+ok 71 - Dish source loading is registered before its first await and canceled read ends only its own ticket
+  ---
+  duration_ms: 18.7075
+  ...
+# Subtest: Dish raw and processing owners remain registered across detach and return
+ok 72 - Dish raw and processing owners remain registered across detach and return
+  ---
+  duration_ms: 4.91825
+  ...
+# Subtest: Dish C1 save is protected once and does not create an auxiliary write ticket
+ok 73 - Dish C1 save is protected once and does not create an auxiliary write ticket
+  ---
+  duration_ms: 5.180125
+  ...
+# Subtest: Dish unknown upload remains an original anonymous operation after auth and cannot save B
+ok 74 - Dish unknown upload remains an original anonymous operation after auth and cannot save B
+  ---
+  duration_ms: 4.773167
+  ...
+# Subtest: Dish parallel old read tasks remain anonymous until both actual results finish
+ok 75 - Dish parallel old read tasks remain anonymous until both actual results finish
+  ---
+  duration_ms: 4.898875
+  ...
+# Subtest: Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+ok 76 - Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+  ---
+  duration_ms: 4.213792
+  ...
+# Subtest: Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+ok 77 - Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+  ---
+  duration_ms: 13.889584
+  ...
+# Subtest: inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+ok 78 - inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+  ---
+  duration_ms: 3.785875
+  ...
+# Subtest: inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+ok 79 - inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+  ---
+  duration_ms: 4.449917
+  ...
+# Subtest: captured inline API cannot dispatch a save after an old visible upload ACK under B
+ok 80 - captured inline API cannot dispatch a save after an old visible upload ACK under B
+  ---
+  duration_ms: 4.31775
+  ...
+# Subtest: old and new raw registration snapshots never observe credentials or return private old IDs
+ok 81 - old and new raw registration snapshots never observe credentials or return private old IDs
+  ---
+  duration_ms: 6.296333
+  ...
+# Subtest: standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+ok 82 - standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+  ---
+  duration_ms: 37.825875
+  ...
+# Subtest: unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+ok 83 - unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+  ---
+  duration_ms: 37.626125
+  ...
+# Subtest: late source cannot paint an old language into a reused connected mount
+ok 84 - late source cannot paint an old language into a reused connected mount
+  ---
+  duration_ms: 15.85
+  ...
+# Subtest: late previous-session source cannot overwrite the current session
+ok 85 - late previous-session source cannot overwrite the current session
+  ---
+  duration_ms: 15.613334
+  ...
+# Subtest: raw buffer and registry protection survive leaving the ingredient route
+ok 86 - raw buffer and registry protection survive leaving the ingredient route
+  ---
+  duration_ms: 12.480792
+  ...
+# Subtest: upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+ok 87 - upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+  ---
+  duration_ms: 46.727209
+  ...
+# Subtest: save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+ok 88 - save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+  ---
+  duration_ms: 44.017292
+  ...
+# Subtest: unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+ok 89 - unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+  ---
+  duration_ms: 27.383334
+  ...
+# Subtest: unknown upload remains protected because a source read cannot prove the upload result
+ok 90 - unknown upload remains protected because a source read cannot prove the upload result
+  ---
+  duration_ms: 24.95175
+  ...
+# Subtest: shared form keeps default translation behavior and an explicit declined task sends nothing
+ok 91 - shared form keeps default translation behavior and an explicit declined task sends nothing
+  ---
+  duration_ms: 24.147417
+  ...
+# Subtest: translation owner survives language and ignores a result after newer raw name edits
+ok 92 - translation owner survives language and ignores a result after newer raw name edits
+  ---
+  duration_ms: 26.674834
+  ...
+# Subtest: photo decode is busy before a preview exists and its result survives language/navigation
+ok 93 - photo decode is busy before a preview exists and its result survives language/navigation
+  ---
+  duration_ms: 25.125833
+  ...
+# Subtest: photo decode failure releases busy while keeping prior photo and raw edits
+ok 94 - photo decode failure releases busy while keeping prior photo and raw edits
+  ---
+  duration_ms: 25.667834
+  ...
+# Subtest: successful translation from an old language view updates the current view without repeating
+ok 95 - successful translation from an old language view updates the current view without repeating
+  ---
+  duration_ms: 15.952
+  ...
+# Subtest: malformed successful save responses stay unknown and cannot discard the pending attempt
+ok 96 - malformed successful save responses stay unknown and cannot discard the pending attempt
+  ---
+  duration_ms: 15.303375
+  ...
+# Subtest: unrecognized write rejection cannot be assumed safe to retry
+ok 97 - unrecognized write rejection cannot be assumed safe to retry
+  ---
+  duration_ms: 15.859292
+  ...
+# Subtest: field validation survives language and does not steal focus on every later keystroke
+ok 98 - field validation survives language and does not steal focus on every later keystroke
+  ---
+  duration_ms: 17.116292
+  ...
+# Subtest: ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+ok 99 - ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+  ---
+  duration_ms: 43.16225
+  ...
+# Subtest: ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+ok 100 - ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+  ---
+  duration_ms: 35.815542
+  ...
+# Subtest: ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+ok 101 - ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+  ---
+  duration_ms: 44.658625
+  ...
+# Subtest: ING-R1 unknown new creation never retires its target or permits another write on return
+ok 102 - ING-R1 unknown new creation never retires its target or permits another write on return
+  ---
+  duration_ms: 34.74425
+  ...
+# Subtest: ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+ok 103 - ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+  ---
+  duration_ms: 25.23725
+  ...
+# Subtest: ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+ok 104 - ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+  ---
+  duration_ms: 58.271917
+  ...
+# Subtest: bound Ingredient handoff is taken from the same API once and cannot cross authentication
+ok 105 - bound Ingredient handoff is taken from the same API once and cannot cross authentication
+  ---
+  duration_ms: 25.004917
+  ...
+# Subtest: Ingredient auxiliary protects raw, translation and save with the real owner through language
+ok 106 - Ingredient auxiliary protects raw, translation and save with the real owner through language
+  ---
+  duration_ms: 34.626292
+  ...
+# Subtest: Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+ok 107 - Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+  ---
+  duration_ms: 23.674333
+  ...
+# Subtest: real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+ok 108 - real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+  ---
+  duration_ms: 43.014833
+  ...
+# Subtest: Ingredient canceled A initialization settles its original coverage and preserves B raw
+ok 109 - Ingredient canceled A initialization settles its original coverage and preserves B raw
+  ---
+  duration_ms: 24.104833
+  ...
+# Subtest: two old Ingredient writes settle independently while B same-page raw remains protected
+ok 110 - two old Ingredient writes settle independently while B same-page raw remains protected
+  ---
+  duration_ms: 70.785875
+  ...
+# Subtest: Ingredient unknown save remains registered until a matching source verifies that exact write
+ok 111 - Ingredient unknown save remains registered until a matching source verifies that exact write
+  ---
+  duration_ms: 35.618417
+  ...
+# Subtest: Ingredient photo decode ticket ends after old auth failure without clearing B changes
+ok 112 - Ingredient photo decode ticket ends after old auth failure without clearing B changes
+  ---
+  duration_ms: 45.065042
+  ...
+# Subtest: ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 113 - ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 54.447375
+  ...
+# Subtest: dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 114 - dish: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 42.180125
+  ...
+# Subtest: paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+ok 115 - paste: unified guard protects dirty raw and approved discard reaches unload without a second veto
+  ---
+  duration_ms: 38.077833
+  ...
+# Subtest: Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+ok 116 - Ingredient old-auth local raw cannot veto a shared-clear unload or clean update
+  ---
+  duration_ms: 29.5495
+  ...
+# Subtest: ingredient: actual pending and unknown operation still veto manual and application reload
+ok 117 - ingredient: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 54.48775
+  ...
+# Subtest: dish: actual pending and unknown operation still veto manual and application reload
+ok 118 - dish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 56.653458
+  ...
+# Subtest: publish: actual pending and unknown operation still veto manual and application reload
+ok 119 - publish: actual pending and unknown operation still veto manual and application reload
+  ---
+  duration_ms: 54.386459
+  ...
+1..119
+# tests 119
+# suites 0
+# pass 119
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2498.734333

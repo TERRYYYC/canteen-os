@@ -1,0 +1,153 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "3/3",
+  "checks": [
+    {
+      "name": "publication read failure does not prevent actual Home or leave untracked coverage",
+      "pass": true
+    },
+    {
+      "name": "Plan works after failed publication with its own Source/catalog",
+      "pass": true
+    },
+    {
+      "name": "Purchase works with explicit plan after failed publication",
+      "pass": true
+    }
+  ],
+  "route": "#/purchase/new/week-41",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "startup-failure",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "shopping-list",
+        "id": "new/week-41",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 0
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 1,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "plan",
+        "id": "startup-failure",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[24,1,[[\"page:admin/\",\"tracked\"],[\"page:admin/plan/startup-failure\",\"tracked\"],[\"page:purchase/new/week-41\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"startup-failure\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-3\",\"kind\":\"shopping-list\",\"id\":\"new/week-41\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\",\"operation\":0},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":1,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"plan\",\"id\":\"startup-failure\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isUpdate": true,
+      "isExternal": false,
+      "controllerAtProbeStart": true,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "waiting",
+      "isUpdate": true,
+      "isExternal": false,
+      "controllerAtProbeStart": true,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/startup-failure",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "PurchasingLanguageUA中ENNew version availableReloadBackThis shopping listPlan mealsList ID (letters, numbers, hyphens)Open listNew listList ID (letters, numbers, hyphens)New listPlan IDs, separated by commasRead latest saved plansCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMenuView menu计Menu plan · 菜单计划Plan data is not available yetThemeSystemLightDarkData updated unknownOnline",
+  "inputs": [
+    {
+      "id": "",
+      "focus": "list-id",
+      "value": "shop-2026-09-11"
+    },
+    {
+      "id": "",
+      "focus": "new-list-id",
+      "value": "shop-2026-09-11"
+    },
+    {
+      "id": "",
+      "focus": "plan-ids",
+      "value": "week-41"
+    }
+  ]
+}

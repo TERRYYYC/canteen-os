@@ -1,0 +1,34 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 71 modules transformed.
+rendering chunks...
+x Build failed in 348ms
+
+PWA v1.3.0
+mode      generateSW
+precache  5 entries (25.70 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-4e9e9954.js
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+[vite:build-html] The "fileName" or "name" properties of emitted chunks and assets must be strings that are neither absolute nor relative paths, received "../../../../../../../private/var/folders/hj/blv37f392c722542z06qry0m0000gn/T/rcq-page-browser-AFpjMF/web/index.html".
+    at getRollupError (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/parseAst.js:317:41)
+    at error (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/parseAst.js:313:42)
+    at FileEmitter.emitFile (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/node-entry.js:22174:24)
+    at Object.generateBundle (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/vite@5.4.21_terser@5.51.2/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:35646:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Bundle.generate (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/node-entry.js:20918:9)
+    at async file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/node-entry.js:23850:27
+    at async catchUnfinishedHookActions (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/rollup@4.63.1/node_modules/rollup/dist/es/shared/node-entry.js:23215:16)
+    at async build (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/node_modules/.pnpm/vite@5.4.21_terser@5.51.2/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65715:16)
+    at async file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/page-server.mjs:48:1 {
+  code: 'PLUGIN_ERROR',
+  pluginCode: 'VALIDATION_ERROR',
+  plugin: 'vite:build-html',
+  hook: 'generateBundle'
+}
+
+Node.js v20.20.2

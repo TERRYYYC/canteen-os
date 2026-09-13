@@ -1,0 +1,108 @@
+import assert from 'node:assert/strict';
+import {test,after} from 'node:test';
+import {mkdtemp,writeFile,rm,readFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {pagesPublishedFixture as publishedFixture} from './team-meals-pages-published-fixture.mjs';
+const require=createRequire(import.meta.url),esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')));
+const temp=await mkdtemp(join(tmpdir(),'d-public-pages-'));
+const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+await writeFile(join(temp,'pages.mjs'),bundle.outputFiles[0].text);const mod=await import(pathToFileURL(join(temp,'pages.mjs')));
+const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b'].map(n=>[n,publishedFixture(n)]));
+after(()=>{Object.values(fixtures).forEach(f=>f.cleanup());return rm(temp,{recursive:true,force:true});});
+class Element {
+ constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.parentNode=null;this.text=text;this.style={};this.listeners={};this.open=false;this.classList={toggle:()=>{}};}
+ setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]??null;}removeAttribute(k){delete this.attrs[k];}
+ get dataset(){return Object.fromEntries(Object.entries(this.attrs).filter(([k])=>k.startsWith('data-')).map(([k,v])=>[k.slice(5).replace(/-([a-z])/g,(_,x)=>x.toUpperCase()),v]));}
+ appendChild(c){if(typeof c==='string')c=new Element('',c);c.parentNode=this;this.children.push(c);return c;}
+ append(...cs){cs.forEach(c=>this.appendChild(c));}prepend(...cs){cs.reverse().forEach(c=>{c.parentNode=this;this.children.unshift(c);});}
+ replaceChildren(...cs){this.children.forEach(c=>c.parentNode=null);this.children=[];this.text='';this.append(...cs);}
+ remove(){if(this.parentNode){this.parentNode.children=this.parentNode.children.filter(c=>c!==this);this.parentNode=null;}}
+ get isConnected(){return this===document.body||!!this.parentNode?.isConnected;}
+ get textContent(){return this.text+this.children.map(c=>c.textContent).join('');}set textContent(v){this.replaceChildren();this.text=String(v);}
+ addEventListener(t,fn){(this.listeners[t]??=[]).push(fn);}dispatch(t){for(const fn of this.listeners[t]??[])fn({target:this,preventDefault(){}});}
+ focus(){document.activeElement=this;}querySelectorAll(selector){return descendants(this).slice(1).filter(n=>selector.split(',').some(s=>matches(n,s.trim())));}
+}
+const descendants=n=>[n,...n.children.flatMap(descendants)];
+function matches(n,s){const attr=/^\[([^=\]]+)(?:="([^"]*)")?\]$/.exec(s);if(attr)return n.getAttribute(attr[1])!==null&&(attr[2]===undefined||n.getAttribute(attr[1])===attr[2]);if(s.startsWith('.'))return (n.getAttribute('class')??'').split(' ').includes(s.slice(1));return n.tagName===s.toUpperCase();}
+const nodes=(el,s)=>descendants(el).filter(n=>matches(n,s));
+globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
+globalThis.MutationObserver=class{observe(){}disconnect(){}};
+globalThis.window={addEventListener(){},removeEventListener(){},scrollTo(){}};
+globalThis.location={hash:'#/menu',replace(value){this.hash=value;}};globalThis.history={back(){}};
+const mount=()=>{const el=new Element('section');document.body.append(el);return el;};
+const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
+function setup(name='normal',custom){let selected=fixtures[name];const calls=[];const data=mod.createPublishedData({baseUrl:'https://fixture.invalid/data/',fetch:async(address,init)=>{const url=new URL(address);calls.push({url,init});const response=await custom?.(url,selected);if(response)return response;if(url.pathname.endsWith('build.json'))return json(selected.manifest);if(url.pathname.includes('/team-meals/'))return json(selected.projection);if(url.pathname.includes('/assets/'))return new Response(await readFile(join(selected.root,decodeURIComponent(url.pathname.split('/assets/')[1]).split('/').slice(1).join('/'))),{headers:{'Content-Type':'image/png'}});return json({},404);}});return {data,calls,select:n=>{selected=fixtures[n];}};}
+async function context(s,route,rest='',lang='en'){let publication=null,publicationError=null;try{publication=await s.data.loadPublication();}catch(e){publicationError=e;}return {data:s.data,publication,publicationError,planId:publication?.manifest.plans[0]??null,route,rest,lang,t:k=>k};}
+const tick=()=>new Promise(r=>setTimeout(r,20));
+for(const page of ['menu','prep']){
+ test(`${page} public entry reads approved team output and exposes original recipe via existing route`,async()=>{const s=setup('quantity-warning'),ctx=await context(s,page),meal=fixtures['quantity-warning'].projection.menuPlans['week-41'].meals[0];ctx.rest=page==='menu'?`${meal.date}/${meal.dishRef}`:`${meal.date}/${meal.mealType}`;const el=mount();await mod[page](el,ctx);assert(nodes(el,'[data-source-revision]').length,'actual public entry must render raw published source');assert.match(el.textContent,new RegExp(fixtures['quantity-warning'].revision));assert(nodes(el,'[data-step-index]').length>0);assert.match(el.textContent,/Salt|盐|Сіль/);assert.doesNotMatch(el.textContent,/legacy|Simulation|≈/i);assert(s.calls.some(c=>c.url.pathname.includes('/team-meals/')));assert(!s.calls.some(c=>/\/(menu|prep)\//.test(c.url.pathname)));el.remove();});
+ test(`${page} distinguishes empty manifest, empty plan, missing file and invalid target`,async()=>{for(const [name,custom,code] of [['no-plans',null,'no-plans'],['empty-plan',null,'empty-plan'],['normal',u=>u.pathname.includes('/team-meals/')?json({},404):undefined,'unavailable'],['normal',u=>u.pathname.endsWith('build.json')?json({...fixtures.normal.manifest,target:'future'}):undefined,'unsupported_target']]){const s=setup(name,custom),el=mount();await mod[page](el,await context(s,page));assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),code);if(code==='empty-plan')assert.match(el.textContent,/Empty/);if(code==='no-plans')assert.equal(s.calls.length,1);assert(!s.calls.some(c=>/\/(menu|prep)\//.test(c.url.pathname)));el.remove();}});
+ test(`${page} late A read cannot overwrite B in reused outlet`,async()=>{let release;const wait=new Promise(r=>release=r);let hold=true;const s=setup('normal',u=>u.pathname.includes('/team-meals/')&&hold?wait:undefined);const a=await context(s,page),el=mount(),pending=mod[page](el,a);await tick();hold=false;s.select('empty-plan');await s.data.loadPublication({fresh:true});await mod[page](el,await context(s,page));release(json(fixtures.normal.projection));await pending;assert.match(el.textContent,/Empty/);assert.doesNotMatch(el.textContent,/tomato-egg-stir-fry/);assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),'empty-plan');el.remove();});
+ test(`${page} legacy remains an explicit branch`,async()=>{const s=setup('normal',u=>u.pathname.endsWith('build.json')?json({builtAt:'2026-09-11',commit:'local',plans:['week-41']}):json({issues:[],days:[]}));const el=mount();await mod[page](el,await context(s,page));assert.match(el.textContent,/legacy|servings-based/i);assert(s.calls.some(c=>c.url.pathname.includes(`/${page}/`)));el.remove();});
+}
+test('prep published ingredient and technique images use original bytes; external and missing assets remain distinct',async()=>{for(const name of ['image-a','external-image']){const s=setup(name),el=mount(),ctx=await context(s,'prep'),meal=fixtures[name].projection.menuPlans['week-41'].meals[0];ctx.rest=`${meal.date}/${meal.mealType}/tomato`;await mod.prep(el,ctx);await tick();if(name==='image-a'){assert(nodes(el,'img').length>=2,'ingredient and technique original images');assert(nodes(el,'img').every(n=>n.getAttribute('src').startsWith('blob:')));}else{assert(nodes(el,'[data-asset-state="external-unpinned"]').length);assert.equal(s.calls.filter(c=>c.url.pathname.includes('/assets/')).length,0);assert(nodes(el,'a').some(n=>n.getAttribute('href')==='https://example.org/tomato.png'));}el.remove();}const s=setup('image-a',u=>u.pathname.includes('/assets/')?json({},404):undefined),el=mount();await mod.prep(el,await context(s,'prep'));await tick();assert(nodes(el,'[data-asset-state="unavailable"]').length);el.remove();});
+test('absent optional image is visibly not recorded, distinct from a failed original image read',async()=>{const s=setup(),el=mount();await mod.prep(el,await context(s,'prep'));const absent=nodes(el,'[data-asset-state="not-recorded"]');assert(absent.length);assert(absent.every(node=>/not recorded/i.test(node.textContent)));assert(absent.every(node=>!/unavailable/i.test(node.textContent)));el.remove();});
+test('menu clicking a repeated dish retains the exact original row across its existing deep link and language',async()=>{const s=setup('multi-row'),el=mount(),ctx=await context(s,'menu');await mod.menu(el,ctx);const links=nodes(el,'[data-recipe-link]');assert.equal(links.length,2);links[1].dispatch('click');ctx.rest=links[1].getAttribute('href').slice('#/menu/'.length);ctx.lang='uk';await mod.menu(el,ctx);assert.equal(nodes(el,'[data-recipe-meal-index]')[0]?.getAttribute('data-recipe-meal-index'),'1');el.remove();});
+test('prep dish selection survives language, ingredient deep link and date return without losing duplicate rows',async()=>{const s=setup('multi-row'),ctx=await context(s,'prep'),el=mount();await mod.prep(el,ctx);assert.equal(nodes(el,'[data-dish-index]').length,2);nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');const first=fixtures['multi-row'].projection.menuPlans['week-41'].meals[0];ctx.rest=`${first.date}/${first.mealType}/tomato`;ctx.lang='uk';await mod.prep(el,ctx);assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');assert.equal(nodes(el,'[data-component-index]').length,1);assert(nodes(el,'[data-step-index]').length);ctx.rest='2026-10-07/lunch';await mod.prep(el,ctx);ctx.rest=`${first.date}/${first.mealType}`;await mod.prep(el,ctx);assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();});
+test('fresh prep ingredient deep link resolves a unique ingredient in the second dish',async()=>{const s=setup('multi-dish'),ctx=await context(s,'prep','2026-10-05/lunch/ketchup'),el=mount();await mod.prep(el,ctx);assert.equal(nodes(el,'[data-recipe-meal-index]')[0]?.getAttribute('data-recipe-meal-index'),'1');assert.equal(nodes(el,'[data-component-index]').length,1);el.remove();});
+test('menu second-dish ingredient link carries its actual source row into prep for a shared ingredient',async()=>{const s=setup('multi-dish'),ctx=await context(s,'menu','2026-10-05/second-fixture'),el=mount();await mod.menu(el,ctx);const link=nodes(el,'a').find(n=>n.getAttribute('href')==='#/prep/2026-10-05/lunch/tomato');assert(link);link.dispatch('click');await mod.prep(el,{...ctx,route:'prep',rest:'2026-10-05/lunch/tomato'});assert.equal(nodes(el,'[data-recipe-meal-index]')[0]?.getAttribute('data-recipe-meal-index'),'1');el.remove();});
+test('fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources',async()=>{const s=setup('multi-dish'),ctx=await context(s,'prep','2026-10-05/lunch/tomato'),el=mount();await mod.prep(el,ctx);assert(nodes(el,'[data-ingredient-source-choice]').length);assert.equal(nodes(el,'[data-recipe-meal-index]').length,0);nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0]?.getAttribute('data-recipe-meal-index'),'1');el.remove();});
+test('late original image bytes cannot attach after a new publication replaces the public outlet',async()=>{let release;const pending=new Promise(r=>release=r);const s=setup('image-a',u=>u.pathname.includes('/assets/')?pending:undefined),el=mount();await mod.prep(el,await context(s,'prep'));await tick();assert(s.calls.some(c=>c.url.pathname.includes('/assets/')));s.select('empty-plan');await s.data.loadPublication({fresh:true});await mod.prep(el,await context(s,'prep'));release(new Response(await readFile(join(fixtures['image-a'].root,'data/images/A %2F?# 雪.png')),{headers:{'Content-Type':'image/png'}}));await tick();assert.equal(nodes(el,'img').length,0);assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),'empty-plan');el.remove();});
+test('Menu presents compact dates, a recipe row with its original image, and disclosure for the full recorded summary',async()=>{const s=setup('menu-image'),el=mount();await mod.menu(el,await context(s,'menu'));await tick();assert(nodes(el,'.menu-publication').length);assert(nodes(el,'.menu-date-number').length);assert(nodes(el,'.menu-row-record').length);assert(nodes(el,'.menu-thumbnail').length);assert(nodes(el,'.menu-thumbnail').some(n=>nodes(n,'img').length));assert(nodes(el,'[data-recipe-link]').length);assert(nodes(el,'.menu-publication-info').length);assert.match(el.textContent,new RegExp(fixtures['menu-image'].revision));el.remove();});
+test('Menu recipe has separate accessible ingredients and steps views while retaining every original source link',async()=>{const s=setup('quantity-warning'),ctx=await context(s,'menu'),meal=fixtures['quantity-warning'].projection.menuPlans['week-41'].meals[0];ctx.rest=`${meal.date}/${meal.dishRef}`;const el=mount();await mod.menu(el,ctx);assert.equal(nodes(el,'[data-menu-recipe-tab]').length,3);assert(nodes(el,'[data-component-index]').length);assert(nodes(el,'[data-step-index]').length);assert(nodes(el,'.menu-recipe-hero').length);const before=nodes(el,'[data-original-quantity]').map(n=>n.textContent);nodes(el,'[data-menu-recipe-tab="steps"]')[0].dispatch('click');assert.deepEqual(nodes(el,'[data-original-quantity]').map(n=>n.textContent),before);assert(nodes(el,'.menu-recipe-provenance').length);el.remove();});
+
+test('Menu distinguishes external original images from unavailable pinned bytes without fetching current URLs',async()=>{for(const name of ['menu-external','menu-image']){const s=setup(name,u=>name==='menu-image'&&u.pathname.includes('/assets/')?json({},404):undefined),el=mount();await mod.menu(el,await context(s,'menu'));await tick();assert(nodes(el,`[data-asset-state="${name==='menu-external'?'external-unpinned':'unavailable'}"]`).length);assert.equal(nodes(el,'img').length,0);assert(!s.calls.some(c=>c.url.hostname==='example.org'));if(name==='menu-external')assert(nodes(el,'a').some(a=>a.getAttribute('href')==='https://example.org/original-dish.png'));el.remove();}});
+test('late Menu thumbnail bytes cannot attach after publication B replaces A in the same outlet',async()=>{let release;const pending=new Promise(r=>release=r),s=setup('menu-image',u=>u.pathname.includes('/assets/')?pending:undefined),el=mount();await mod.menu(el,await context(s,'menu'));await tick();assert(s.calls.some(c=>c.url.pathname.includes('/assets/')));s.select('empty-plan');await s.data.loadPublication({fresh:true});await mod.menu(el,await context(s,'menu'));release(new Response(await readFile(join(fixtures['menu-image'].root,'data/images/A %2F?# 雪.png')),{headers:{'Content-Type':'image/png'}}));await tick();assert.equal(nodes(el,'img').length,0);assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),'empty-plan');el.remove();});
+
+test('empty original description and steps are explicitly marked in their own Menu tabs',async()=>{const s=setup('menu-empty-recipe'),meal=fixtures['menu-empty-recipe'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,'zh'));assert.match(nodes(el,'[data-menu-recipe-panel="about"]')[0].textContent,/介绍尚未录入/);nodes(el,'[data-menu-recipe-tab="steps"]')[0].dispatch('click');assert.match(nodes(el,'[data-menu-recipe-panel="steps"]')[0].textContent,/做法尚未录入/);assert.equal(nodes(el,'[data-step-index]').length,0);assert(nodes(el,'[data-component-index]').length);el.remove();});
+
+test('publication notices are understandable without opening technical details',async()=>{
+ const s=setup('quantity-warning'),el=mount();await mod.prep(el,await context(s,'prep','','zh'));
+ const panel=nodes(el,'[data-publication-issues]')[0];assert(panel);panel.open=true;
+ const visible=n=>n.hidden?'':n.tagName==='DETAILS'&&!n.open?(n.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):n.text+n.children.map(visible).join(' ');
+ assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
+ assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
+});
+
+test('Menu keeps selected-meal notices by its dishes and full-publication notices in the secondary record without mixing their counts',async()=>{
+ const s=setup('menu-notices'),el=mount();await mod.menu(el,await context(s,'menu','','zh'));
+ const publication=nodes(el,'[data-publication-issues]')[0],info=nodes(el,'.menu-publication-info')[0],mealNotices=nodes(el,'[data-source-issue]');
+ assert(publication);assert(mealNotices.length>0);assert(descendants(info).includes(publication),'whole-publication notices do not form a second warning block above the dates');
+ assert.equal(nodes(publication,'[data-publication-issue]').length,fixtures['menu-notices'].projection.issues.length);
+ const date=nodes(el,'[data-date]').find(n=>n.getAttribute('aria-current')==='date').getAttribute('data-date');
+ const meal=nodes(el,'[data-meal]').find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-meal');
+ assert.equal(mealNotices.length,fixtures['menu-notices'].projection.collection.issues.filter(issue=>(issue.mealType===undefined||issue.mealType===meal)&&(issue.date===undefined||issue.date===date)).length);
+ assert(mealNotices.some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));el.remove();
+});
+test('Menu recipe keeps the image next to its name and preserves the full license, author and source in its record',async()=>{
+ for(const lang of ['zh','en','uk']){
+  const s=setup('menu-image'),meal=fixtures['menu-image'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,lang));await tick();
+  const hero=nodes(el,'.menu-recipe-hero')[0],record=nodes(el,'.menu-recipe-provenance')[0];assert(nodes(hero,'img').length);
+  assert.equal(nodes(hero,'figcaption').length,0,'license controls do not separate the hero and dish name');
+  assert.match(record.textContent,/CC0/);assert.match(record.textContent,/Recorded fixture author/);
+  assert(nodes(record,'a').some(a=>a.getAttribute('href')==='https://example.org/fixture-source'));
+  assert(nodes(el,'.dish-head').length);assert.equal(nodes(el,'[data-menu-recipe-tab]').length,3);el.remove();
+ }
+});
+
+test('Prep entry prioritizes its selected dish and materials, with date/meal controls retained and publication metadata secondary',async()=>{
+ const s=setup('multi-dish'),el=mount(),ctx=await context(s,'prep','2026-10-05/lunch','zh');await mod.prep(el,ctx);
+ const root=nodes(el,'[data-published-plan]')[0],info=nodes(el,'.prep-publication-info')[0],recipe=nodes(el,'[data-recipe-meal-index]')[0];
+ assert(info,'publication details are secondary');assert(root.children.indexOf(info)>root.children.findIndex(n=>nodes(n,'[data-recipe-meal-index]').includes(recipe)));
+ assert.equal(nodes(el,'h1').length,1);assert(nodes(el,'[data-date]').length);assert(nodes(el,'[data-meal]').length);assert.equal(nodes(el,'[data-dish-index]').length,2);
+ assert(nodes(el,'[data-component-index]').length);assert(nodes(el,'[data-step-index]').length);
+ const filters=nodes(el,'.prep-timing-filter')[0];assert(filters?.tagName==='DETAILS');assert.equal(filters.open,false);
+ filters.open=true;filters.dispatch('toggle');
+ nodes(el,'[data-filter="morning"]')[0].dispatch('click');assert.match(nodes(el,'.prep-timing-filter')[0].children[0].textContent,/当天早上/);
+ assert.equal(nodes(el,'.prep-timing-filter')[0].open,true,'a filter repaint retains the user’s expanded control');
+ await mod.prep(el,{...ctx,lang:'uk'});assert.equal(nodes(el,'.prep-timing-filter')[0].open,true,'language repaint retains expansion');
+ assert.equal(nodes(el,'[data-filter="morning"]')[0].getAttribute('aria-pressed'),'true');
+ const expanded=nodes(el,'.prep-timing-filter')[0];expanded.open=false;expanded.dispatch('toggle');
+ await mod.prep(el,ctx);assert.equal(nodes(el,'.prep-timing-filter')[0].open,false,'explicitly collapsed control stays collapsed');
+ assert(nodes(el,'[data-step-index]').length,'timing does not hide method steps');
+ nodes(el,'[data-filter="all"]')[0].dispatch('click');assert(nodes(el,'[data-component-index]').length);
+ nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();
+});

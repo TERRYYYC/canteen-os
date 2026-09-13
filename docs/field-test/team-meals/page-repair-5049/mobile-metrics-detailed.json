@@ -1,0 +1,18 @@
+{
+  "documentScrollWidth": 2434,
+  "innerHeight": 852,
+  "innerWidth": 393,
+  "lang": "uk",
+  "main": {
+    "clientWidth": 393,
+    "scrollWidth": 393
+  },
+  "manualCopy": {
+    "clientWidth": 361,
+    "scrollWidth": 361
+  },
+  "testControlPanel": {
+    "clientWidth": 389,
+    "scrollWidth": 2432
+  }
+}

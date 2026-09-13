@@ -1,0 +1,97 @@
+✔ new dish omits unknown servings instead of defaulting to 50 (0.624084ms)
+✔ v3 unknown qty remains omitted and all source metadata survives an edit (0.404375ms)
+✔ v2 true quantities, to-taste and servings survive explicit v3 edit (0.115333ms)
+✔ draft action submits exact draft body under source lock through C1 (0.733834ms)
+✔ late save and language refresh preserve later form edits (0.230125ms)
+✔ unknown result survives detach/return and recovery force-reads pinned source twice (0.2955ms)
+✔ legal to-taste source value survives an unrelated edit (0.061542ms)
+✔ new dish creates with if-none-match and optional fields remain absent (0.146209ms)
+✔ conflict retains edited draft and explicit adoption is required before a new write (0.343292ms)
+✔ late read cannot open a different dish after detaching (0.112291ms)
+✔ review: add-another on an existing dish must not orphan an unresolved new dish (0.367667ms)
+✔ review: pending image still requires dirty warning after language refresh (0.151209ms)
+✔ review: upload ownership survives refresh and submits its original snapshot without erasing later edits (0.380166ms)
+✔ review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution (0.213ms)
+✔ review: detached photo completion stays with its original dish and does not upload again on return (0.22175ms)
+✔ review: raw inline ingredient and auxiliary ownership survive refresh and navigation (0.464792ms)
+✔ review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes (0.275833ms)
+✖ Dish source loading is registered before its first await and canceled read ends only its own ticket (10.139541ms)
+✖ Dish raw and processing owners remain registered across detach and return (9.978167ms)
+✖ Dish C1 save is protected once and does not create an auxiliary write ticket (6.95ms)
+✖ Dish unknown upload remains an original anonymous operation after auth and cannot save B (4.266959ms)
+ℹ Error: Test "Dish source loading is registered before its first await and canceled read ends only its own ticket" at packages/web/test/team-meals-pages-dish.test.mjs:151:1 generated asynchronous activity after the test ended. This activity created the error "ApiError" and would have caused the test to fail, but instead triggered an unhandledRejection event.
+ℹ tests 21
+ℹ suites 0
+ℹ pass 17
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 93.34125
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:151:1
+✖ Dish source loading is registered before its first await and canceled read ends only its own ticket (10.139541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  'clear' !== 'saving'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:152:116)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'clear',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:154:1
+✖ Dish raw and processing owners remain registered across detach and return (9.978167ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(s.p.inspectReloadSafety().records.some(r=>r.ownerId.startsWith('auxiliary-')&&r.dirty))
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:155:123)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:157:1
+✖ Dish C1 save is protected once and does not create an auxiliary write ticket (6.95ms)
+  AssertionError [ERR_ASSERTION]: raw owner registered without duplicate C1 saving phase
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:158:257)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-dish.test.mjs:160:1
+✖ Dish unknown upload remains an original anonymous operation after auth and cannot save B (4.266959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  'dirty' !== 'saving'
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-dish.test.mjs:161:200)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'dirty',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

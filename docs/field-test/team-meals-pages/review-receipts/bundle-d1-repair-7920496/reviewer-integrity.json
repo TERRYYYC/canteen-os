@@ -1,0 +1,30 @@
+{
+  "head": "7920496e06996eedac6e08e862fa097453ed9462",
+  "production": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+  "packagesEqualProduction": true,
+  "acceptedSource": "docs/design/team-meals-pages/APP-BUNDLE-D1-contract.md",
+  "acceptedRevision": "b5ccc0abad0bc07fd783b40e880321372c44b384",
+  "actualSourceRevision": "b5ccc0abad0bc07fd783b40e880321372c44b384",
+  "sourceEqualsAccepted": true,
+  "sourceSha256": "e58bcdf9b1b27bf757ac37c3dc4431ec380a014fe839457243e752b49fc8a3dd",
+  "authorManifests": [
+    {
+      "group": "bundle-d1-route-fix",
+      "count": 22,
+      "failures": []
+    },
+    {
+      "group": "bundle-d1-route-browser",
+      "count": 20,
+      "failures": []
+    }
+  ],
+  "authorBrowserSourceCount": 56,
+  "authorBrowserSourceFailures": [],
+  "oldReceiptCount": 67,
+  "oldArchiveAndReceiptFailures": [],
+  "oldReportSha256": "3749ee46ef84057e69f6d2198289735c9650f2ad62bf1b7ac4db10f89a33e2ba",
+  "originalProbeByteEqual": true,
+  "originalProbeSha256": "259d993c13ba394810f597fcee2c3721d31886e5a0ca21678f6e7c829990643d",
+  "packagesDiff": "M\tpackages/web/src/pages/admin/dish-new.ts\nM\tpackages/web/src/pages/admin/ingredient-new.ts\nM\tpackages/web/test/team-meals-pages-bundle.test.mjs\nM\tpackages/web/test/team-meals-pages-guard-harness.mjs\n"
+}

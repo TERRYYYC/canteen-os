@@ -1,3 +1,31 @@
+---
+feature_ids: [team-meals]
+topics: [release, status, team-meals]
+doc_kind: project-summary
+created: 2026-09-13
+---
+
+# CanteenOS 当前状态 — 0.3.0-alpha.1
+
+团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
+
+**English.** Version 0.3.0-alpha.1 is a team-meals prerelease with planning/import, preparation, meal views, buyer-confirmed shopping, dish/ingredient editing and publishing. The drawer distinguishes the application version from the data publication time. Local evidence does not establish a fully writable production deployment.
+
+| 当前范围 | 状态与入口 |
+|---|---|
+| 产品与接口 | 本版整合、版本展示及审查/CI 结果以对应 PR 和发布记录为准；已审候选与本地证据见 [当前调度状态](../feature-specs/2026-09-11-team-meals-dispatch.md) |
+| 发布资料 | 计划、菜品、食材和图片按同一提交投影；PWA 更新及编辑保护沿用已审实现 |
+| Worker 配置 | 显式配置公开 Worker 地址；校验后进入构建。空值保持只读，不能当成模拟写入成功 |
+| QR | 原 pnpm 9.15.0 构建命令已实测生成新 QR；本地打印证据与真实站点验收分别记录 |
+| 生产上线 | 真实 Worker、隔离环境与凭据仍需核实；合入后 Actions 和预发布记录由发布负责人检查。见 [发布检查表](field-test/week-43/ops-checklist.md) |
+| 真实厨房 | 菜谱、份量、语言质量及厨房工作流仍待实地验收；未完成真实厨房周 |
+
+版本和变更见 [CHANGELOG](../CHANGELOG.md)，使用与本地检查入口见 [README](../README.md)。本页的版本是源码版本，实际部署以 Actions 结果和网页抽屉版本为准。
+
+---
+
+**历史记录：以下完整保留 2026-09-07 设计快照。其中状态、数量、范围和排期属于当时记录，不作为当前完成声明。**
+
 # CanteenOS 项目总结（2026-09-07 · 设计收尾，开工前快照）
 
 > **English summary.** CanteenOS is an open-source knowledge base for one concrete job: *a Chinese chef with a Ukrainian prep cook cooks Chinese food abroad and buys the right ingredients.* One knowledge base (`data/`, one JSON file per entity, in git) produces three sheets a day — a prep list for the helper (uk, with cut photos), a purchase order for the buyer (grouped by supplier, rounded to pack sizes, WeChat-shareable), and a menu for guests (zh/en/uk side by side) — plus a chef back office to plan the week and publish. Cooking videos are the input channel. Status on 2026-09-07: design closed (v2 scope, 5 entities, engine implemented with 23 hand-verified tests, hi-fi screens for 5 front + 7 back-office screens, research done), no web app yet. Round 1 (v0.1 → v1.0, 2026-09-07 → 10-30) ends with one real kitchen using it for one week. Plan: `docs/plan-for-terry.md`; agent brief: `docs/execution-brief.md`; backlog: `.github/backlog/round-1.json`.

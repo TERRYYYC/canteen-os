@@ -1,0 +1,605 @@
+[
+  {
+    "id": 1,
+    "url": "/canteen/",
+    "method": "GET",
+    "destination": "document",
+    "startedAt": 1789117978295,
+    "status": 200,
+    "bytes": 2147,
+    "endedAt": 1789117978297
+  },
+  {
+    "id": 2,
+    "url": "/canteen/assets/index-vTzPNk6Y.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978304,
+    "status": 200,
+    "bytes": 66671,
+    "endedAt": 1789117978305
+  },
+  {
+    "id": 3,
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "method": "GET",
+    "destination": "style",
+    "startedAt": 1789117978304,
+    "status": 200,
+    "bytes": 8779,
+    "endedAt": 1789117978305
+  },
+  {
+    "id": 4,
+    "url": "/canteen/data/build.json",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978312,
+    "status": 200,
+    "bytes": 193,
+    "endedAt": 1789117978313
+  },
+  {
+    "id": 5,
+    "url": "/canteen/sw.js",
+    "method": "GET",
+    "destination": "serviceworker",
+    "startedAt": 1789117978331,
+    "status": 200,
+    "bytes": 4176,
+    "endedAt": 1789117978332
+  },
+  {
+    "id": 6,
+    "url": "/canteen/workbox-4e9e9954.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978336,
+    "status": 200,
+    "bytes": 22311,
+    "endedAt": 1789117978336
+  },
+  {
+    "id": 7,
+    "url": "/canteen/assets/admin-Bd2EkJ4A.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978338,
+    "status": 200,
+    "bytes": 3635,
+    "endedAt": 1789117978339
+  },
+  {
+    "id": 8,
+    "url": "/favicon.ico",
+    "method": "GET",
+    "destination": "image",
+    "startedAt": 1789117978338,
+    "status": 404,
+    "endedAt": 1789117978338
+  },
+  {
+    "id": 9,
+    "url": "/canteen/index.html",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978339,
+    "status": 200,
+    "bytes": 2147,
+    "endedAt": 1789117978339
+  },
+  {
+    "id": 10,
+    "url": "/canteen/assets/dish-new-ByQnx3wD.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978341,
+    "status": 200,
+    "bytes": 68383,
+    "endedAt": 1789117978343
+  },
+  {
+    "id": 11,
+    "url": "/canteen/assets/ingredient-draft-Deh7p9eG.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978342,
+    "status": 200,
+    "bytes": 3442,
+    "endedAt": 1789117978343
+  },
+  {
+    "id": 12,
+    "url": "/canteen/assets/kit-hHF0cNTc.css",
+    "method": "GET",
+    "destination": "style",
+    "startedAt": 1789117978342,
+    "status": 200,
+    "bytes": 3733,
+    "endedAt": 1789117978343
+  },
+  {
+    "id": 13,
+    "url": "/canteen/assets/kit-YysL-Uc4.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978342,
+    "status": 200,
+    "bytes": 22293,
+    "endedAt": 1789117978344
+  },
+  {
+    "id": 14,
+    "url": "/canteen/assets/dish-new-DK3WVt9P.css",
+    "method": "GET",
+    "destination": "style",
+    "startedAt": 1789117978342,
+    "status": 200,
+    "bytes": 7081,
+    "endedAt": 1789117978344
+  },
+  {
+    "id": 15,
+    "url": "/canteen/assets/edit-session--Qq806Of.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978342,
+    "status": 200,
+    "bytes": 6509,
+    "endedAt": 1789117978344
+  },
+  {
+    "id": 16,
+    "url": "/canteen/assets/store-uAQ_EDlp.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117978343,
+    "status": 200,
+    "bytes": 2012,
+    "endedAt": 1789117978345
+  },
+  {
+    "id": 17,
+    "url": "/canteen/icons/icon.svg",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978343,
+    "status": 200,
+    "bytes": 1062,
+    "endedAt": 1789117978345
+  },
+  {
+    "id": 18,
+    "url": "/canteen/icons/icon-maskable.svg",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978346,
+    "status": 200,
+    "bytes": 1060,
+    "endedAt": 1789117978347
+  },
+  {
+    "id": 19,
+    "url": "/canteen/assets/team-ui-B5smK-r8.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978348,
+    "status": 200,
+    "bytes": 5577,
+    "endedAt": 1789117978348
+  },
+  {
+    "id": 20,
+    "url": "/canteen/assets/store-uAQ_EDlp.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978351,
+    "status": 200,
+    "bytes": 2012,
+    "endedAt": 1789117978351
+  },
+  {
+    "id": 21,
+    "url": "/canteen/assets/servings-input-DNG9trXJ.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978354,
+    "status": 200,
+    "bytes": 492,
+    "endedAt": 1789117978355
+  },
+  {
+    "id": 22,
+    "url": "/canteen/assets/qr-BlhS2fyb.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978356,
+    "status": 200,
+    "bytes": 4075,
+    "endedAt": 1789117978357
+  },
+  {
+    "id": 23,
+    "url": "/canteen/assets/qr-95YfxYR1.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978359,
+    "status": 200,
+    "bytes": 2254,
+    "endedAt": 1789117978359
+  },
+  {
+    "id": 24,
+    "url": "/canteen/assets/purchase-list-hKKffoPl.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978362,
+    "status": 200,
+    "bytes": 32567,
+    "endedAt": 1789117978362
+  },
+  {
+    "id": 25,
+    "url": "/canteen/assets/purchase-list-CRLPFa5o.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978363,
+    "status": 200,
+    "bytes": 3058,
+    "endedAt": 1789117978363
+  },
+  {
+    "id": 26,
+    "url": "/canteen/assets/purchase-StWw7liZ.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978366,
+    "status": 200,
+    "bytes": 6000,
+    "endedAt": 1789117978367
+  },
+  {
+    "id": 27,
+    "url": "/canteen/assets/purchase-Cps5OLs8.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978368,
+    "status": 200,
+    "bytes": 16680,
+    "endedAt": 1789117978369
+  },
+  {
+    "id": 28,
+    "url": "/canteen/assets/publish-DvJfnWK2.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978372,
+    "status": 200,
+    "bytes": 5172,
+    "endedAt": 1789117978373
+  },
+  {
+    "id": 29,
+    "url": "/canteen/assets/publish-CFsg3cvx.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978374,
+    "status": 200,
+    "bytes": 29872,
+    "endedAt": 1789117978374
+  },
+  {
+    "id": 30,
+    "url": "/canteen/assets/prep-CZwMU_1I.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978376,
+    "status": 200,
+    "bytes": 37046,
+    "endedAt": 1789117978376
+  },
+  {
+    "id": 31,
+    "url": "/canteen/assets/prep-CZU-3gXe.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978377,
+    "status": 200,
+    "bytes": 6801,
+    "endedAt": 1789117978377
+  },
+  {
+    "id": 32,
+    "url": "/canteen/assets/plan-DuQwqdRQ.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978380,
+    "status": 200,
+    "bytes": 13109,
+    "endedAt": 1789117978380
+  },
+  {
+    "id": 33,
+    "url": "/canteen/assets/parse-plan-text-DBZQVSv5.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978381,
+    "status": 200,
+    "bytes": 13248,
+    "endedAt": 1789117978381
+  },
+  {
+    "id": 34,
+    "url": "/canteen/assets/menu-Dxq4hUVT.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978383,
+    "status": 200,
+    "bytes": 14042,
+    "endedAt": 1789117978383
+  },
+  {
+    "id": 35,
+    "url": "/canteen/assets/menu-AiJcRmZo.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978384,
+    "status": 200,
+    "bytes": 5738,
+    "endedAt": 1789117978384
+  },
+  {
+    "id": 36,
+    "url": "/canteen/assets/kit-hHF0cNTc.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978385,
+    "status": 200,
+    "bytes": 3733,
+    "endedAt": 1789117978386
+  },
+  {
+    "id": 37,
+    "url": "/canteen/assets/kit-YysL-Uc4.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978386,
+    "status": 200,
+    "bytes": 22293,
+    "endedAt": 1789117978387
+  },
+  {
+    "id": 38,
+    "url": "/canteen/assets/ingredient-new-Ckten1aL.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978388,
+    "status": 200,
+    "bytes": 14584,
+    "endedAt": 1789117978388
+  },
+  {
+    "id": 39,
+    "url": "/canteen/assets/ingredient-form-CT2dSWut.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978389,
+    "status": 200,
+    "bytes": 4495,
+    "endedAt": 1789117978389
+  },
+  {
+    "id": 40,
+    "url": "/canteen/assets/ingredient-form-B9LgQhIA.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978390,
+    "status": 200,
+    "bytes": 23484,
+    "endedAt": 1789117978391
+  },
+  {
+    "id": 41,
+    "url": "/canteen/assets/ingredient-draft-Deh7p9eG.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978392,
+    "status": 200,
+    "bytes": 3442,
+    "endedAt": 1789117978392
+  },
+  {
+    "id": 42,
+    "url": "/canteen/assets/index-vTzPNk6Y.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978394,
+    "status": 200,
+    "bytes": 66671,
+    "endedAt": 1789117978394
+  },
+  {
+    "id": 43,
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978396,
+    "status": 200,
+    "bytes": 8779,
+    "endedAt": 1789117978396
+  },
+  {
+    "id": 44,
+    "url": "/canteen/assets/import-DavkaiKj.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978397,
+    "status": 200,
+    "bytes": 5333,
+    "endedAt": 1789117978397
+  },
+  {
+    "id": 45,
+    "url": "/canteen/assets/import-BpEQoW3r.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978398,
+    "status": 200,
+    "bytes": 29210,
+    "endedAt": 1789117978399
+  },
+  {
+    "id": 46,
+    "url": "/canteen/assets/home-Bw8HMtwR.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978400,
+    "status": 200,
+    "bytes": 2279,
+    "endedAt": 1789117978401
+  },
+  {
+    "id": 47,
+    "url": "/canteen/assets/home-BA5jI7iB.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978402,
+    "status": 200,
+    "bytes": 10814,
+    "endedAt": 1789117978403
+  },
+  {
+    "id": 48,
+    "url": "/canteen/assets/editor-image-B408a5BL.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978411,
+    "status": 200,
+    "bytes": 1101,
+    "endedAt": 1789117978412
+  },
+  {
+    "id": 49,
+    "url": "/canteen/assets/edit-session--Qq806Of.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978414,
+    "status": 200,
+    "bytes": 6509,
+    "endedAt": 1789117978415
+  },
+  {
+    "id": 50,
+    "url": "/canteen/assets/dish-new-DK3WVt9P.css",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978417,
+    "status": 200,
+    "bytes": 7081,
+    "endedAt": 1789117978418
+  },
+  {
+    "id": 51,
+    "url": "/canteen/assets/dish-new-ByQnx3wD.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978419,
+    "status": 200,
+    "bytes": 68383,
+    "endedAt": 1789117978420
+  },
+  {
+    "id": 52,
+    "url": "/canteen/assets/client-MzYSCKZV.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789117978421,
+    "status": 200,
+    "selected": true,
+    "initialMode": "hold",
+    "bytes": 32224,
+    "endedAt": 1789118005133
+  },
+  {
+    "id": 53,
+    "url": "/canteen/assets/ingredient-form-CT2dSWut.css",
+    "method": "GET",
+    "destination": "style",
+    "startedAt": 1789117984582,
+    "status": 200,
+    "bytes": 4495,
+    "endedAt": 1789117984582
+  },
+  {
+    "id": 54,
+    "url": "/canteen/assets/ingredient-form-B9LgQhIA.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789117984582,
+    "status": 200,
+    "bytes": 23484,
+    "endedAt": 1789117984583
+  },
+  {
+    "id": 55,
+    "url": "/canteen/assets/client-MzYSCKZV.js",
+    "method": "GET",
+    "destination": "script",
+    "startedAt": 1789118004624,
+    "status": 200,
+    "selected": true,
+    "initialMode": "hold",
+    "bytes": 32224,
+    "endedAt": 1789118005159
+  },
+  {
+    "id": 56,
+    "url": "/canteen/assets/admin-Bd2EkJ4A.js",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789118005135,
+    "status": 200,
+    "bytes": 3635,
+    "endedAt": 1789118005135
+  },
+  {
+    "id": 57,
+    "url": "/canteen/data/build.json",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789118005137,
+    "status": 200,
+    "bytes": 193,
+    "endedAt": 1789118005137
+  },
+  {
+    "id": 58,
+    "url": "/canteen/data/team-meals/week-41.json",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789118005139,
+    "status": 200,
+    "bytes": 28554,
+    "endedAt": 1789118005139
+  },
+  {
+    "id": 59,
+    "url": "/canteen/manifest.webmanifest",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789118005141,
+    "status": 200,
+    "bytes": 777,
+    "endedAt": 1789118005141
+  },
+  {
+    "id": 60,
+    "url": "/canteen/data/build.json?__publication=1789118005146-1-1",
+    "method": "GET",
+    "destination": "empty",
+    "startedAt": 1789118005147,
+    "status": 200,
+    "bytes": 193,
+    "endedAt": 1789118005147
+  }
+]

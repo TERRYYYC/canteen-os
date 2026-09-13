@@ -1,0 +1,48 @@
+✔ new dish omits unknown servings instead of defaulting to 50 (0.597416ms)
+✔ v3 unknown qty remains omitted and all source metadata survives an edit (0.434667ms)
+✔ v2 true quantities, to-taste and servings survive explicit v3 edit (0.093ms)
+✔ draft action submits exact draft body under source lock through C1 (0.740292ms)
+✔ late save and language refresh preserve later form edits (0.248584ms)
+✔ unknown result survives detach/return and recovery force-reads pinned source twice (0.305625ms)
+✔ legal to-taste source value survives an unrelated edit (0.313125ms)
+✔ new dish creates with if-none-match and optional fields remain absent (0.224084ms)
+✔ conflict retains edited draft and explicit adoption is required before a new write (0.378125ms)
+✔ late read cannot open a different dish after detaching (0.120958ms)
+✔ review: add-another on an existing dish must not orphan an unresolved new dish (0.301416ms)
+✔ review: pending image still requires dirty warning after language refresh (0.149833ms)
+✔ review: upload ownership survives refresh and submits its original snapshot without erasing later edits (0.380542ms)
+✔ review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution (0.210375ms)
+✔ review: detached photo completion stays with its original dish and does not upload again on return (0.222875ms)
+✔ review: raw inline ingredient and auxiliary ownership survive refresh and navigation (0.1275ms)
+✔ review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes (0.246792ms)
+✔ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (33.232708ms)
+✔ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (34.887375ms)
+✔ late source cannot paint an old language into a reused connected mount (14.185375ms)
+✔ late previous-session source cannot overwrite the current session (14.254042ms)
+✔ raw buffer and unload protection survive leaving the ingredient route (5.657958ms)
+✔ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (47.370708ms)
+✔ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (44.916208ms)
+✔ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (26.054708ms)
+✔ unknown upload remains protected because a source read cannot prove the upload result (24.788375ms)
+✔ shared form keeps default translation behavior and an explicit declined task sends nothing (23.271542ms)
+✔ translation owner survives language and ignores a result after newer raw name edits (24.772541ms)
+✔ photo decode is busy before a preview exists and its result survives language/navigation (16.453375ms)
+✔ photo decode failure releases busy while keeping prior photo and raw edits (15.22325ms)
+✔ successful translation from an old language view updates the current view without repeating (14.706583ms)
+✔ malformed successful save responses stay unknown and cannot discard the pending attempt (14.657917ms)
+✔ unrecognized write rejection cannot be assumed safe to retry (13.954ms)
+✔ field validation survives language and does not steal focus on every later keystroke (15.064708ms)
+✔ ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient (42.740083ms)
+✔ ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw (33.282625ms)
+✔ ING-R1 pending and later edits keep the first new identity across return and acknowledgement (44.050542ms)
+✔ ING-R1 unknown new creation never retires its target or permits another write on return (33.721042ms)
+✔ ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison (25.922417ms)
+✔ ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison (58.339125ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 676.061583

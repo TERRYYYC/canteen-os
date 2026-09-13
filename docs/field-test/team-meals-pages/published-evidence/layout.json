@@ -1,0 +1,22 @@
+{
+  "narrow": {
+    "documentOverflow": 0,
+    "height": 852,
+    "lang": "uk",
+    "mainOverflow": 0,
+    "width": 393
+  },
+  "wide": {
+    "closeHeight": 44,
+    "dialog": true,
+    "dialogBody": {
+      "height": 796,
+      "overflow": "auto",
+      "scrollHeight": 4631
+    },
+    "documentOverflow": 0,
+    "height": 900,
+    "steps": 3,
+    "width": 1440
+  }
+}

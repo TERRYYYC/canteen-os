@@ -1,0 +1,29 @@
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-IJdYuE/a/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-IJdYuE/a-time/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-IJdYuE/b/test/application-review.ts, dynamic import will not move module into another chunk.
+
+node:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EPERM: operation not permitted 127.0.0.1:4281
+    at Server.setupListenHandle [as _listen2] (node:net:1886:21)
+    at listenInCluster (node:net:1965:12)
+    at doListen (node:net:2139:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1944:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '127.0.0.1',
+  port: 4281
+}
+
+Node.js v20.20.2
