@@ -109,15 +109,29 @@ for (const workflow of ['ci.yml', 'build-deploy.yml']) {
     const bin = path.join(root, 'bin');
     mkdirSync(bin);
     writeFileSync(path.join(bin, 'pnpm'), '#!/bin/sh\nexit 23\n', {mode: 0o755});
-    writeFileSync(path.join(bin, 'node'), '#!/bin/sh\nprintf "PREPARATION_MUST_NOT_RUN"\n', {mode: 0o755});
+    const marker = path.join(root, 'preparation-called');
+    writeFileSync(path.join(bin, 'node'), `#!${process.execPath}
+const {spawnSync} = require('node:child_process');
+if (process.argv[2] === 'scripts/prepare-team-image-tools.mjs') {
+  require('node:fs').writeFileSync(process.env.PREPARATION_MARKER, 'called');
+} else {
+  const result = spawnSync(process.execPath, process.argv.slice(2), {stdio: 'inherit'});
+  process.exit(result.status ?? 99);
+}
+`, {mode: 0o755});
     const yaml = readFileSync(new URL(`../.github/workflows/${workflow}`, import.meta.url), 'utf8');
     const install = yaml.slice(yaml.indexOf('- name: Install workspace dependencies'));
     const match = install.match(/\n        run: \|\n((?:          [^\n]*\n)+)/);
     assert.ok(match, 'expected the actual dependency-install run block');
     const script = match[1].split('\n').map(line => line.slice(10)).join('\n');
     // Execute the actual block without relying on the runner's implicit -e.
-    const result = spawnSync('/bin/bash', ['-c', script], {encoding: 'utf8', env: {...process.env, PATH: `${bin}:/usr/bin:/bin`}});
+    const result = spawnSync('/bin/bash', ['-c', script], {encoding: 'utf8', env: {...process.env,
+      PATH: `${bin}:/usr/bin:/bin`, PREPARATION_MARKER: marker,
+      WORKER_URL_INPUT: 'https://canteen.unit-fixture.workers.dev',
+      GITHUB_ENV: path.join(root, 'job-env'), GITHUB_STEP_SUMMARY: path.join(root, 'summary'),
+    }});
     assert.equal(result.status, 23);
     assert.equal(result.stdout, '');
+    assert.equal(existsSync(marker), false, 'failed installation must never prepare tools');
   });
 }
