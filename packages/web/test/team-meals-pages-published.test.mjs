@@ -10,7 +10,7 @@ const require=createRequire(import.meta.url),esbuild=await import(pathToFileURL(
 const temp=await mkdtemp(join(tmpdir(),'d-public-pages-'));
 const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 await writeFile(join(temp,'pages.mjs'),bundle.outputFiles[0].text);const mod=await import(pathToFileURL(join(temp,'pages.mjs')));
-const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b'].map(n=>[n,publishedFixture(n)]));
+const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b'].map(n=>[n,publishedFixture(n)]));
 after(()=>{Object.values(fixtures).forEach(f=>f.cleanup());return rm(temp,{recursive:true,force:true});});
 class Element {
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.parentNode=null;this.text=text;this.style={};this.listeners={};this.open=false;this.classList={toggle:()=>{}};}
@@ -65,6 +65,27 @@ test('publication notices are understandable without opening technical details',
  const visible=n=>n.hidden?'':n.tagName==='DETAILS'&&!n.open?(n.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):n.text+n.children.map(visible).join(' ');
  assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
  assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
+});
+
+test('Menu keeps selected-meal notices by its dishes and full-publication notices in the secondary record without mixing their counts',async()=>{
+ const s=setup('menu-notices'),el=mount();await mod.menu(el,await context(s,'menu','','zh'));
+ const publication=nodes(el,'[data-publication-issues]')[0],info=nodes(el,'.menu-publication-info')[0],mealNotices=nodes(el,'[data-source-issue]');
+ assert(publication);assert(mealNotices.length>0);assert(descendants(info).includes(publication),'whole-publication notices do not form a second warning block above the dates');
+ assert.equal(nodes(publication,'[data-publication-issue]').length,fixtures['menu-notices'].projection.issues.length);
+ const date=nodes(el,'[data-date]').find(n=>n.getAttribute('aria-current')==='date').getAttribute('data-date');
+ const meal=nodes(el,'[data-meal]').find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-meal');
+ assert.equal(mealNotices.length,fixtures['menu-notices'].projection.collection.issues.filter(issue=>(issue.mealType===undefined||issue.mealType===meal)&&(issue.date===undefined||issue.date===date)).length);
+ assert(mealNotices.some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));el.remove();
+});
+test('Menu recipe keeps the image next to its name and preserves the full license, author and source in its record',async()=>{
+ for(const lang of ['zh','en','uk']){
+  const s=setup('menu-image'),meal=fixtures['menu-image'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,lang));await tick();
+  const hero=nodes(el,'.menu-recipe-hero')[0],record=nodes(el,'.menu-recipe-provenance')[0];assert(nodes(hero,'img').length);
+  assert.equal(nodes(hero,'figcaption').length,0,'license controls do not separate the hero and dish name');
+  assert.match(record.textContent,/CC0/);assert.match(record.textContent,/Recorded fixture author/);
+  assert(nodes(record,'a').some(a=>a.getAttribute('href')==='https://example.org/fixture-source'));
+  assert(nodes(el,'.dish-head').length);assert.equal(nodes(el,'[data-menu-recipe-tab]').length,3);el.remove();
+ }
 });
 
 test('Prep entry prioritizes its selected dish and materials, with date/meal controls retained and publication metadata secondary',async()=>{

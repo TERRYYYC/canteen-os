@@ -7,7 +7,7 @@
  * 页面里不写任何站点 URL——码与明文 URL 都来自 index.json；换域名只改构建配置（SITE_URL / package.json.homepage）。
  *
  * 布局：A4 竖版一页三块（@page 在 qr.css），每块 = 码 60mm + 大标题（页名三语）+ 给谁 + 一句用法（三语并列，
- * 帮厨 / 采购员 / 顾客各自看得懂）+ URL 明文（扫不开时手输）。屏幕上多一个「打印」按钮（window.print），打印时隐藏。
+ * 帮厨 / 采购员 / 团队成员各自看得懂）+ URL 明文（扫不开时手输）。屏幕上多一个「打印」按钮（window.print），打印时隐藏。
  * 当前语言排第一并加粗；语言下拉切换时壳层会重新 render（ctx.lang 变了）。
  * 不进抽屉（shell.ts NAV 不加）：这页是给师傅打印用的，从后台或链接 #/qr 进。
  */
@@ -56,9 +56,9 @@ const COPY: Record<string, { title: L10n; who: L10n; where: L10n; how: L10n }> =
   },
   menu: {
     title: { uk: "Меню", zh: "菜单", en: "Menu" },
-    who: { uk: "для гостей", zh: "顾客", en: "for guests" },
-    where: { uk: "на стійці · на столах", zh: "档口 · 桌上", en: "counter · tables" },
-    how: { uk: "Скануйте, щоб побачити меню", zh: "扫码看菜单", en: "Scan to see the menu" },
+    who: { uk: "для команди", zh: "团队成员", en: "for the team" },
+    where: { uk: "у зоні команди", zh: "团队公告处", en: "team notice area" },
+    how: { uk: "Скануйте, щоб переглянути меню команди", zh: "扫码查看团队餐食安排", en: "Scan to view the team meal plan" },
   },
 };
 
@@ -66,9 +66,9 @@ const COPY: Record<string, { title: L10n; who: L10n; where: L10n; how: L10n }> =
 const UI = {
   print: { uk: "Друкувати", zh: "打印", en: "Print" },
   hint: {
-    uk: "A4, вертикально — три коди на одному аркуші. Роздрукуйте й повісьте: кухня / закупівельник / стійка.",
-    zh: "A4 竖版，一页三张码。打印后贴：厨房墙上 / 发给采购员 / 档口桌上。",
-    en: "A4 portrait, three codes on one sheet. Print and post: kitchen / buyer / counter.",
+    uk: "A4, вертикально — три коди на одному аркуші. Роздрукуйте й повісьте: кухня / закупівельник / команда.",
+    zh: "A4 竖版，一页三张码。打印后贴：厨房墙上 / 发给采购员 / 团队公告处。",
+    en: "A4 portrait, three codes on one sheet. Print and post: kitchen / buyer / team notice area.",
   },
   headline: { uk: "Роздрукуйте і повісьте", zh: "打印贴墙", en: "Print and post" },
   generated: { uk: "Згенеровано", zh: "生成于", en: "Generated" },

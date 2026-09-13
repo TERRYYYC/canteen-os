@@ -37,7 +37,7 @@ const reasons:Record<string,readonly[string,string,string]>={
 };
 export function reasonText(code:string,lang:Lang):string{return reasons[code]?.[lang==='zh'?0:lang==='en'?1:2]??code;}
 export interface CandidatesOptions {
- lang:Lang;collection:IngredientCollection;estimate:ShoppingEstimate;ingredients:Record<string,Ingredient>;dishes:Record<string,AnyDish>;
+ compact?:boolean;lang:Lang;collection:IngredientCollection;estimate:ShoppingEstimate;ingredients:Record<string,Ingredient>;dishes:Record<string,AnyDish>;
  href?:(kind:'ingredient'|'dish',id:string)=>string;
  controls?:(id:string)=>HTMLElement;
 }
@@ -50,11 +50,14 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  for(const item of collection.items){
   const ingredient=lookup(ingredients,item.ingredientRef),estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
-  const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},h('h3',{},ref('ingredient',item.ingredientRef)),h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing')));
+  const heading=h('h3',{},ref('ingredient',item.ingredientRef)),role=h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing'));
+  const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},...(options.compact?[h('div',{class:'tm-material-heading'},heading,role)]:[heading,role]));
+  const reference=options.compact?h('details',{class:'tm-material-reference'},h('summary',{},word(lang,'来源与数量参考','Sources and quantity reference','Джерела й кількісні орієнтири'),` · ${item.sources.length}`)):null;
   if(options.controls)card.append(options.controls(item.ingredientRef));
-  card.append(h('details',{},h('summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${quantityText(s.qty,lang)}`,supportDetails(lang,s.menuPlanRef))))));
-  if(estimateItem?.status==='complete')card.append(h('details',{},h('summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
-  else if(estimateItem)card.append(h('details',{class:'muted'},h('summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));
+  (reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${quantityText(s.qty,lang)}`,supportDetails(lang,s.menuPlanRef))))));
+  if(estimateItem?.status==='complete')(reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
+  else if(estimateItem)(reference??card).append(h(options.compact?'section':'details',{class:'muted'},h(options.compact?'h4':'summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));
+  if(reference)card.append(reference);
   result.append(card);
  }
  result.append(h('p',{class:'muted'},t('budget')));return result;

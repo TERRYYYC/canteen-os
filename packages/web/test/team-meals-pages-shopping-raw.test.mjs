@@ -200,3 +200,8 @@ test('unfinished, unknown and subsequently edited lists keep their original new-
   el=await f.mount(route);assert.ok(walk(el).some(n=>n.tagName==='A'&&n.textContent==='Open list'&&n.attrs.href==='#/purchase/'+id),state);assert.equal(walk(el).some(n=>n.tagName==='BUTTON'&&n.textContent==='Create list to check'),false);assert.equal(f.snapshot().reason,state==='unknown'?'unknown':'dirty');
  }finally{f.cleanup();}}
 });
+
+
+test('shopping content leads while source versions and per-item references remain expandable',async()=>{
+ const f=await setup({existing:true,mode:'real'});try{const el=await f.mount('team-shop'),nodes=walk(el),row=cls(el,'tm-material')[0];assert.ok(row);const versions=cls(el,'tm-purchase-record')[0];assert.ok(versions,'one secondary list/source record');assert(nodes.indexOf(versions)>nodes.indexOf(row),'material decisions lead source metadata');assert.match(versions.textContent,/team-shop/);assert.match(versions.textContent,new RegExp(A));const refs=row.children.filter(n=>n.tagName==='DETAILS');assert.equal(refs.length,1,'one expandable source and quantity reference per material');assert.match(refs[0].textContent,/Used in/);assert.match(refs[0].textContent,/Complete estimate unavailable|Calculated reference/);assert.equal(btn(el,'Save list').disabled,true);assert.equal(f.writes.length,0);}finally{f.cleanup();}
+});

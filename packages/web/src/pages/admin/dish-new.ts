@@ -53,7 +53,6 @@ const T = {
   "dish.missing.none": { uk: "Усе на місці", zh: "什么都不缺", en: "Nothing missing" },
   "dish.missing.components": { uk: "Ще немає інгредієнтів", zh: "还没有配料", en: "No ingredients yet" },
   "dish.missing.steps": { uk: "Ще немає кроків", zh: "还没有步骤", en: "No steps yet" },
-  "dish.missing.baseServings": { uk: "Не вказано, на скільки порцій", zh: "还没写按几份", en: "Servings not set" },
   "dish.missing.prep": { uk: "{name}: не вказано, як нарізати", zh: "{name} 还没写怎么切", en: "{name}: how to cut not set" },
   "dish.missing.qty": { uk: "{name}: не вказано кількість", zh: "{name} 还没写用量", en: "{name}: quantity not set" },
   "dish.missing.ingredient": { uk: "{name} немає в базі інгредієнтів", zh: "食材库里没有 {name}", en: "{name} isn't in the ingredient library" },
@@ -229,6 +228,7 @@ const EDIT_COPY = {
   mock: { zh: "模拟演示 · 未写入真实仓库", en: "Mock demonstration · no real repository write", uk: "Демонстрація · реальний репозиторій не змінено" },
   real: { zh: "已配置保存服务", en: "Save service configured", uk: "Сервіс збереження налаштовано" },
   clean: { zh: "已读取 · 未修改", en: "Loaded · unchanged", uk: "Завантажено · без змін" },
+  empty: { zh: "尚未填写", en: "Ready to fill in", uk: "Ще не заповнено" },
   dirty: { zh: "有未保存改动", en: "Unsaved changes", uk: "Є незбережені зміни" },
   saving: { zh: "正在保存 · 后续编辑会保留", en: "Saving · later edits are retained", uk: "Збереження · подальші зміни зберігаються у чернетці" },
   "saved-but-unpublished": { zh: "已保存 · 尚未发布", en: "Saved · not published", uk: "Збережено · не опубліковано" },
@@ -701,7 +701,10 @@ export function createDishForm(api: TeamMealsApi) {
     record.rawGeneration++;
     record.detachedChanges = record !== active;
     record.draft.dirty = true;
-    if (record === active) session.edit(draftToDish(record.draft), context);
+    if (record === active) {
+      if (!record.state) context = session.open({ kind: "dish", id: record.identity }, draftToDish(record.draft));
+      else session.edit(draftToDish(record.draft), context);
+    }
     record.draft.dirty = !!record.state?.dirty || rawPending(record);
     notify(record);
   }
@@ -731,6 +734,7 @@ export function createDishForm(api: TeamMealsApi) {
     get draft() { return active?.draft ?? null; },
     get key() { return currentKey; },
     get context() { return context; },
+    get pristine() { return !!active && !active.state && valid(); },
     get busy() { return !!active?.auxiliary.size; },
     get processing() { return !!active && [...active.auxiliary.values()].includes("processing"); },
     get auxiliaryError() { return active?.auxiliaryError; },
@@ -761,7 +765,13 @@ export function createDishForm(api: TeamMealsApi) {
         record.source = source; record.initialized = true; record.rawGeneration++;
       }
       active = record; currentKey = key;
-      context = session.open({ kind: "dish", id: record.identity }, record.source?.content ?? draftToDish(record.draft), record.source);
+      // An untouched blank form has no document to save yet. C1 opens synchronously
+      // on its first edit; a handed-off name is already user input and opens now.
+      if (record.state || record.source || record.draft.name.zh) {
+        context = session.open({ kind: "dish", id: record.identity }, record.source?.content ?? draftToDish(record.draft), record.source);
+      } else {
+        session.invalidate(); context = session.getState().contextId;
+      }
       if (record.detachedChanges) changed(record.draft);
       return record.draft;
     },
@@ -1152,8 +1162,6 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
         return L("dish.missing.components");
       case "steps":
         return L("dish.missing.steps");
-      case "baseServings":
-        return L("dish.missing.baseServings");
       case "prep":
         return L("dish.missing.prep", { name });
       case "qty":
@@ -1172,7 +1180,6 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
     const keys: string[] = [];
     if (!d.components.length) keys.push("components");
     if (!d.steps.length) keys.push("steps");
-    if (!d.baseServings.trim()) keys.push("baseServings");
     for (const c of d.components) {
       if (!c.toTaste && !c.qty.trim()) keys.push(`qty:${c.ingredientRef}`);
       if (catalog && !catalog.ingredients[c.ingredientRef]) keys.push(`ingredient:${c.ingredientRef}`);
@@ -2040,11 +2047,11 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
   function syncNet(): void {
     const online = navigator.onLine;
     offline.hidden = online;
-    const state = owner.session.getState();
-    const blocked = !online || owner.busy || owner.auxiliaryUnknown || state.mode === "unconfigured" || !!state.operationId || state.phase === "conflict" || state.phase === "closed";
+    const state = owner.pristine ? null : owner.session.getState();
+    const blocked = !online || owner.busy || owner.auxiliaryUnknown || teamApi.mode === "unconfigured" || !!state?.operationId || state?.phase === "conflict" || state?.phase === "closed";
     draftBtn.disabled = blocked;
     activeBtn.disabled = blocked;
-    idInput.readOnly = !!state.source || owner.busy || !!state.operationId;
+    idInput.readOnly = !!state?.source || owner.busy || !!state?.operationId;
     cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real" || blocked || imageModuleUnavailable();
     for (const control of formEl.querySelectorAll<HTMLButtonElement>(".adm-dish-translate")) control.disabled = teamApi.mode !== "real" || blocked || legacyModuleUnavailable();
     for (const syncInline of inlineBusyViews) syncInline();
@@ -2056,12 +2063,13 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLEle
   }
   function syncStatus(): void {
     if (!alive()) return;
-    const state = owner.session.getState();
-    const phase = owner.busy ? owner.processing ? "processing" : "saving" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
-    editStatus.replaceChildren(h("p", {}, statusText(state.mode, lang)), h("p", {}, statusText(phase, lang)));
+    const state = owner.pristine ? null : owner.session.getState();
+    const phase = owner.busy ? owner.processing ? "processing" : "saving" : !state ? "empty" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
+    editStatus.replaceChildren(h("p", {}, statusText(teamApi.mode, lang)), h("p", {}, statusText(phase, lang)));
     if (!owner.auxiliaryError && (legacyModuleUnavailable() || imageModuleUnavailable())) editStatus.append(h("p", {}, moduleUnavailableMessage(lang)));
     if (owner.auxiliaryUnknown) editStatus.append(h("p", {}, statusText("auxUnknown", lang)));
     if (owner.auxiliaryError) editStatus.append(h("p", {}, owner.auxiliaryError instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(owner.auxiliaryError, lang)));
+    if (!state) { syncNet(); return; }
     if (state.source) editStatus.append(h("details", { class: "muted" }, h("summary", {}, state.source.commit.slice(0,8)), h("code", {}, state.source.commit)));
     if (state.error) {
       const e = state.error;

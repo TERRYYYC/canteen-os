@@ -67,16 +67,16 @@ const T = {
   "ing.photo.camera": { uk: "Зробити фото", zh: "拍一张", en: "Take a photo" },
   "ing.photo.pick": { uk: "Вибрати файл", zh: "选一张", en: "Choose a file" },
   "ing.photo.wikidata": { uk: "З Wikidata", zh: "从 Wikidata 取", en: "From Wikidata" },
-  "ing.photo.video": { uk: "З відео (2-й етап)", zh: "从视频截（第二轮）", en: "From video (round 2)" },
+  "ing.photo.video": { uk: "Кадри з відео недоступні", zh: "视频截图暂不可用", en: "Video capture unavailable" },
   "ing.photo.wikidata.hint": {
     uk: "У цьому етапі Wikidata недоступна (mock без мережі; запрацює після #27). Поки що вкажіть ID Wikidata нижче, а фото додайте через «Зробити фото» або «Вибрати файл».",
     zh: "这一轮还连不上 Wikidata（mock 不通外网，#27 接线后可用）。先在下面填 Wikidata 编号，图片用「拍一张」或「选一张」。",
     en: "Wikidata isn't reachable in this round (the mock has no network; it works once #27 wires the worker). Fill in the Wikidata ID below and use “Take a photo” or “Choose a file” for now.",
   },
   "ing.photo.video.hint": {
-    uk: "Кадри з відео — на 2-му етапі; поки що Terry імпортує їх з командного рядка",
-    zh: "从视频截帧第二轮上线；现在由 Terry 用命令行导入",
-    en: "Video frames arrive in round 2; for now Terry imports them from the command line",
+    uk: "Тут не можна отримати кадр із відео. Щоб додати фото, натисніть «Зробити фото» або «Вибрати файл».",
+    zh: "此处暂不支持从视频截图。可用「拍一张」或「选一张」添加照片。",
+    en: "Video capture isn't available here. Use “Take a photo” or “Choose a file” to add a photo.",
   },
   "ing.photo.license": { uk: "Ліцензія", zh: "许可", en: "License" },
   "ing.photo.license.hint": {

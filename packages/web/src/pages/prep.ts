@@ -351,6 +351,8 @@ export type FrozenImageResult = RevisionAsset | PublishedAsset;
 export interface FrozenMealRenderOptions {
   /** Compact task hierarchy for the public Prep entry; other recipe consumers keep their layout. */
   layout?: "cooking";
+  /** Publication-owned UI choices only; no recipe data is stored here. */
+  disclosureState?: Map<string, boolean>;
   ingredientRef?: string;
   timing?: string;
   onShowAllTimings?: () => void;
@@ -497,19 +499,30 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   };
   const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message, " ",
     h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
-  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>): HTMLElement {
+  function originalNote(text: string, key: string): HTMLElement {
+    const letters=Array.from(text),limit=lang==="zh"?48:96;
+    if(letters.length<=limit)return fact(t("note"),text);
+    const details=h("details",{class:"prep-original-note","data-prep-note":key},h("summary",{},
+      h("span",{class:"prep-note-label"},word(lang,"原备注 · 查看全文","Original note · View full note","Вихідна примітка · Переглянути повний текст")),
+      h("span",{class:"prep-note-excerpt"},`${letters.slice(0,Math.floor(limit*2/3)).join("")}…`)),h("p",{class:"prep-note-full"},text));
+    details.open=options.disclosureState?.get(key)??false;
+    details.addEventListener("toggle",()=>{if(live&&el.isConnected&&details.isConnected)options.disclosureState?.set(key,details.open);});
+    return details;
+  }
+  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>, support?: HTMLElement): HTMLElement {
     const box = h("figure", {});
     const load = read ?? (options.asset ? () => options.asset!({ revision: projection.sourceRevision, owner, pointer }) : undefined);
     const state = h("p", { class: "muted", role: "status" }, t(!ref ? "imageUnrecorded" : load ? "imageLoading" : "imageMissing"));
     box.append(state);
     if (!ref) { box.setAttribute("data-asset-state", "not-recorded"); return box; }
-    box.append(h("figcaption", { class: "muted" }, h("details", {}, h("summary", {}, word(lang,"图片来源与许可","Image source and license","Джерело зображення й ліцензія")), `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, word(lang,"查看来源","View source","Переглянути джерело")))));
+    const caption=h("details", {}, h("summary", {}, word(lang,"图片来源与许可","Image source and license","Джерело зображення й ліцензія")), `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, word(lang,"查看来源","View source","Переглянути джерело")));
+    if(support)support.append(h("div",{class:"prep-image-record"},caption));else box.append(h("figcaption", { class: "muted" },caption));
     if (load) {
       void Promise.resolve().then(load).then(result => {
         if (!live || !el.isConnected) return;
         if ("kind" in result && result.kind === "not-recorded") { box.setAttribute("data-asset-state", "not-recorded"); state.textContent = t("imageUnrecorded"); return; }
         if (result.sourceRevision !== projection.sourceRevision) throw new Error("revision_mismatch");
-        if ("kind" in result && result.kind === "external-unpinned") { box.setAttribute("data-asset-state", result.kind); state.textContent = t("externalImage"); box.append(external(result.source.src, result.source.src)); return; }
+        if ("kind" in result && result.kind === "external-unpinned") { box.setAttribute("data-asset-state", result.kind); state.textContent = t("externalImage"); (support??box).append(external(result.source.src, result.source.src)); return; }
         box.setAttribute("data-asset-state", "available");
         const url = URL.createObjectURL(result.bytes); urls.add(url);
         const img = h("img", { src: url, alt: "", loading: "lazy" });
@@ -523,10 +536,12 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     }
     return box;
   }
-  function technique(ref: string | undefined, dishRef?: string): HTMLElement {
+  function technique(ref: string | undefined, dishRef?: string, support?: HTMLElement, key=""): HTMLElement {
     const record = ref ? projection.techniques.find(item => item.id === ref) : undefined;
-    const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? t("missingRecord") : undefined), record ? names(record.name) : null, record?.note ? fact(t("note"), pick(record.note, lang)) : null);
-    if (record?.image) result.append(image(record.image, "", "", options.techniqueAsset ? () => options.techniqueAsset!(record.id) : async () => { throw new Error("technique_asset_unavailable"); }));
+    const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? t("missingRecord") : undefined));
+    if(record)(support??result).append(names(record.name));
+    if(record?.note)result.append(cooking?originalNote(pick(record.note,lang),`${key}/technique-note`):fact(t("note"),pick(record.note,lang)));
+    if (record?.image) result.append(image(record.image, "", "", options.techniqueAsset ? () => options.techniqueAsset!(record.id) : async () => { throw new Error("technique_asset_unavailable"); },support));
     if (cooking && ref && !record && dishRef) result.append(attention(word(lang,"技法资料未找到，无法确认这项操作，请向配方提供者核对。","Technique information is unavailable; check this operation with the recipe author.","Дані техніки недоступні; уточніть цю дію в автора рецепта."), "dish", dishRef));
     return result;
   }
@@ -549,6 +564,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     }
   for (const row of rows) {
     const { meal, dish, menuPlanRef, mealIndex } = row;
+    const rowKey=JSON.stringify([menuPlanRef,mealIndex,meal.date,meal.mealType]);
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
     const context = h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
     section.append(h("div", { class: "dish-head" }, h("div", {}, h(cooking ? "h1" : "h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), cooking ? null : context)));
@@ -580,11 +596,11 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
       (cooking ? ingredientRecord : card).append(purchase);
       if (prep) {
-        (cooking && !prep.techniqueRef ? ingredientRecord : card).append(technique(prep.techniqueRef, meal.dishRef));
+        (cooking && !prep.techniqueRef ? ingredientRecord : card).append(technique(prep.techniqueRef, meal.dishRef, cooking?ingredientRecord:undefined,`${rowKey}/components/${componentIndex}`));
         (cooking && !prep.size ? ingredientRecord : card).append(fact(t("size"), prep.size));
         (cooking && !prep.timing ? ingredientRecord : card).append(fact(t("timing"), recordValue(prep.timing, lang)));
-        (cooking && !prep.note ? ingredientRecord : card).append(fact(t("note"), prep.note ? pick(prep.note, lang) : undefined));
-        (cooking && !prep.image ? ingredientRecord : card).append(image(prep.image, owner, `/components/${componentIndex}/prep/image`));
+        (cooking && !prep.note ? ingredientRecord : card).append(cooking&&prep.note?originalNote(pick(prep.note,lang),`${rowKey}/components/${componentIndex}/prep-note`):fact(t("note"), prep.note ? pick(prep.note, lang) : undefined));
+        (cooking && !prep.image ? ingredientRecord : card).append(image(prep.image, owner, `/components/${componentIndex}/prep/image`,undefined,cooking?ingredientRecord:undefined));
       }
       if (cooking) card.append(ingredientRecord);
       section.append(card);
@@ -595,8 +611,8 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)));
       const stepRecord = h("details", { class: "prep-step-record" }, h("summary", {}, word(lang,"步骤资料","Step record","Дані кроку")), names(step.text));
       if (!cooking) body.append(names(step.text));
-      (cooking && !step.techniqueRef ? stepRecord : body).append(technique(step.techniqueRef, meal.dishRef));
-      (cooking && !step.image ? stepRecord : body).append(image(step.image, owner, `/steps/${stepIndex}/image`));
+      (cooking && !step.techniqueRef ? stepRecord : body).append(technique(step.techniqueRef, meal.dishRef,cooking?stepRecord:undefined,`${rowKey}/steps/${stepIndex}`));
+      (cooking && !step.image ? stepRecord : body).append(image(step.image, owner, `/steps/${stepIndex}/image`,undefined,cooking?stepRecord:undefined));
       if (step.clip) body.append(h("p", {}, `${t("clip")}: ${step.clip.start}s–${step.clip.end}s · `, external(step.clip.videoUrl, word(lang,"查看原视频","View original video","Переглянути вихідне відео"))));
       if (cooking) body.append(stepRecord);
       section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
