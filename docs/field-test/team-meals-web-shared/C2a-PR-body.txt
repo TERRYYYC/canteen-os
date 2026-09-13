@@ -1,0 +1,9 @@
+Pages need one fixed set of team-meal sources for ingredient candidates, estimates and shopping-list review. This adds a shared view-model that loads revision-pinned plans/catalog through the C1 API and calls the approved core algorithms. Original optional values and source metadata stay intact; draft previews have no saved basis, and frozen saved handles remain tied to one authenticated reader lifetime.
+
+Creation, manual decisions and rebase results remain whole list bodies for the C1 editor. The browser example first saves an all-check list, then separately saves a manual decision with the acknowledged lock; it rejects an illegal confirmed first create. The view-model never writes or automatically saves a review.
+
+Validation: Web 102/102, core 87/87, Q 64/64, Web typecheck, existing data generation and Web build. Three independent Q numerical oracles pass through the actual browser core import. The mock browser flow covers legal conditional creation/update, old/new source separation, previous bought state and cancelled-item removal. Exact implementation 531aa266ab0368257c7522867a5cdcb6b477fc5d received non-author APPROVE with no open P1/P2; fixed-range whitespace check passes.
+
+This is the C2a shared-layer delivery. Pages are not integrated by this change, and B2 HTTP/deployed Worker/GitHub history/L2 are not claimed. Approved A2 ad1f427 and Q afc3289 are preserved in local dependency merge f443298. B2 32e674c with documentation head a75250c is approved separately but not consumed here; new build integration remains separate.
+
+Local payload only: remote push/PR operations are paused. The remote feature branch remains at the older C1 5975ba4 candidate. Intended PR title: feat(web): compose fixed-revision team meal views. Dispatch controls eventual publication/base selection.

@@ -1,0 +1,123 @@
+{
+  "summary": "11/11",
+  "sourceHash": "83cd2af83d6a24c7eddc99523461f763ef57a858b3e93a224d27c23927ad0605",
+  "checks": [
+    {
+      "name": "initial changes read registers before awaiting",
+      "pass": true
+    },
+    {
+      "name": "unfinished old initialization remains anonymous and protected",
+      "pass": true
+    },
+    {
+      "name": "actual old read finally releases only original coverage",
+      "pass": true
+    },
+    {
+      "name": "strict matching terminal clears registered write",
+      "pass": true
+    },
+    {
+      "name": "cancelled build does not claim successful publication",
+      "pass": true
+    },
+    {
+      "name": "two original in-flight runs remain protected after auth",
+      "pass": true
+    },
+    {
+      "name": "first original terminal cannot settle second original write",
+      "pass": true
+    },
+    {
+      "name": "second exact terminal retires only remaining old owner",
+      "pass": true
+    },
+    {
+      "name": "real HttpAdminApi hidden old rollback ACK stays unknown",
+      "pass": true
+    },
+    {
+      "name": "old rollback cannot fill current-language success UI",
+      "pass": true
+    },
+    {
+      "name": "fixture never guesses latest-run ownership",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/publish",
+      "method": "POST"
+    },
+    {
+      "path": "/publish/11",
+      "method": "GET"
+    },
+    {
+      "path": "/publish",
+      "method": "POST"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/publish",
+      "method": "POST"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    },
+    {
+      "path": "/rollback/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "method": "POST"
+    },
+    {
+      "path": "/changes",
+      "method": "GET"
+    }
+  ],
+  "snapshot": {
+    "reason": "unknown",
+    "records": [
+      {
+        "ownerId": "auxiliary-4",
+        "kind": "unknown",
+        "id": "previous-session-operation",
+        "generation": 6,
+        "dirty": false,
+        "phase": "unknown"
+      },
+      {
+        "ownerId": "auxiliary-5",
+        "kind": "publish",
+        "id": "publish",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 2
+      }
+    ],
+    "stamp": "[52,4,[[\"page:admin/publish\",\"tracked\"]],[{\"ownerId\":\"auxiliary-4\",\"kind\":\"unknown\",\"id\":\"previous-session-operation\",\"generation\":6,\"dirty\":false,\"phase\":\"unknown\"},{\"ownerId\":\"auxiliary-5\",\"kind\":\"publish\",\"id\":\"publish\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\",\"operation\":2}]]"
+  }
+}

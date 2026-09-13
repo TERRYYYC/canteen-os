@@ -1,0 +1,27 @@
+file:///private/tmp/canteen-public-entry-review-d316611/source/scripts/build-data.mjs:383
+    if (!checked.valid) throw new Error(`invalid_source: ${file}: ${checked.errors.map(e=>`${e.instancePath} ${e.keyword}`).join(', ')}`);
+                              ^
+
+Error: invalid_source: data/dishes/tomato-egg-stir-fry.json: /components/1/prep required
+    at loadCommittedInputs (file:///private/tmp/canteen-public-entry-review-d316611/source/scripts/build-data.mjs:383:31)
+    at runTeamBuild (file:///private/tmp/canteen-public-entry-review-d316611/source/scripts/build-data.mjs:443:16)
+    at runBuild (file:///private/tmp/canteen-public-entry-review-d316611/source/scripts/build-data.mjs:209:39)
+    at richFixture (file:///private/tmp/canteen-public-entry-review-d316611/source/packages/web/test/review-public-fixture.mjs:13:401)
+    at file:///private/tmp/canteen-public-entry-review-d316611/source/packages/web/test/review-public-extra.test.mjs:15:15
+
+Node.js v24.18.0
+✖ packages/web/test/review-public-extra.test.mjs (2855.082292ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2857.992458
+
+✖ failing tests:
+
+test at packages/web/test/review-public-extra.test.mjs:1:1
+✖ packages/web/test/review-public-extra.test.mjs (2855.082292ms)
+  'test failed'

@@ -1,0 +1,41 @@
+✔ B1 required precondition existing=false (10.632459ms)
+✔ B1 required precondition existing=true (0.731916ms)
+✔ B1 reject malformed precondition {"If-Match":"*"} (0.884959ms)
+✔ B1 reject malformed precondition {"If-Match":"W/\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""} (0.489292ms)
+✔ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\""} (0.400125ms)
+✔ B1 reject malformed precondition {"If-Match":""} (0.316791ms)
+✔ B1 reject malformed precondition {"If-Match":"\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} (0.255416ms)
+✔ B1 reject malformed precondition {"If-None-Match":"abc"} (0.261334ms)
+✔ B1 reject malformed precondition {"If-Match":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","If-None-Match":"*"} (0.301709ms)
+✔ B1 quoted current lock accepted, stale lock checked before idempotence (1.620625ms)
+✔ B1 simultaneous create has one winner and does not overwrite it (1.029041ms)
+✔ B1 mandatory lock on /dish/test (0.837ms)
+✔ B1 mandatory lock on /dish/test/draft (0.196875ms)
+✖ B1 write semantic reads use the attempt head, never mutable branch (2.168958ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.992667
+
+✖ failing tests:
+
+test at packages/worker/test/team-write.test.mjs:40:1
+✖ B1 write semantic reads use the attempt head, never mutable branch (2.168958ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(trees.every(c=>c.path.endsWith('/'+head)))
+
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/team-write.test.mjs:45:36)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

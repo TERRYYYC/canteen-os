@@ -7,13 +7,13 @@
  * 页面里不写任何站点 URL——码与明文 URL 都来自 index.json；换域名只改构建配置（SITE_URL / package.json.homepage）。
  *
  * 布局：A4 竖版一页三块（@page 在 qr.css），每块 = 码 60mm + 大标题（页名三语）+ 给谁 + 一句用法（三语并列，
- * 帮厨 / 采购员 / 顾客各自看得懂）+ URL 明文（扫不开时手输）。屏幕上多一个「打印」按钮（window.print），打印时隐藏。
+ * 帮厨 / 采购员 / 团队成员各自看得懂）+ URL 明文（扫不开时手输）。屏幕上多一个「打印」按钮（window.print），打印时隐藏。
  * 当前语言排第一并加粗；语言下拉切换时壳层会重新 render（ctx.lang 变了）。
  * 不进抽屉（shell.ts NAV 不加）：这页是给师傅打印用的，从后台或链接 #/qr 进。
  */
 import "./qr.css";
 
-import { h } from "../dom";
+import { h,replace } from "../dom";
 import { LANGS, type Lang } from "../i18n";
 import type { PageCtx } from "../types";
 
@@ -56,9 +56,9 @@ const COPY: Record<string, { title: L10n; who: L10n; where: L10n; how: L10n }> =
   },
   menu: {
     title: { uk: "Меню", zh: "菜单", en: "Menu" },
-    who: { uk: "для гостей", zh: "顾客", en: "for guests" },
-    where: { uk: "на стійці · на столах", zh: "档口 · 桌上", en: "counter · tables" },
-    how: { uk: "Скануйте, щоб побачити меню", zh: "扫码看菜单", en: "Scan to see the menu" },
+    who: { uk: "для команди", zh: "团队成员", en: "for the team" },
+    where: { uk: "у зоні команди", zh: "团队公告处", en: "team notice area" },
+    how: { uk: "Скануйте, щоб переглянути меню команди", zh: "扫码查看团队餐食安排", en: "Scan to view the team meal plan" },
   },
 };
 
@@ -66,12 +66,14 @@ const COPY: Record<string, { title: L10n; who: L10n; where: L10n; how: L10n }> =
 const UI = {
   print: { uk: "Друкувати", zh: "打印", en: "Print" },
   hint: {
-    uk: "A4, вертикально — три коди на одному аркуші. Роздрукуйте й повісьте: кухня / закупівельник / стійка.",
-    zh: "A4 竖版，一页三张码。打印后贴：厨房墙上 / 发给采购员 / 档口桌上。",
-    en: "A4 portrait, three codes on one sheet. Print and post: kitchen / buyer / counter.",
+    uk: "A4, вертикально — три коди на одному аркуші. Роздрукуйте й повісьте: кухня / закупівельник / команда.",
+    zh: "A4 竖版，一页三张码。打印后贴：厨房墙上 / 发给采购员 / 团队公告处。",
+    en: "A4 portrait, three codes on one sheet. Print and post: kitchen / buyer / team notice area.",
   },
   headline: { uk: "Роздрукуйте і повісьте", zh: "打印贴墙", en: "Print and post" },
   generated: { uk: "Згенеровано", zh: "生成于", en: "Generated" },
+  unavailable:{zh:'当前无法打印：二维码资料或图片尚未就绪。请重试；仍失败时请管理员重新生成二维码。',en:'Print is unavailable: QR data or images are not ready. Retry; if this persists, ask an administrator to regenerate the codes.',uk:'Друк недоступний: дані або зображення QR-кодів не готові. Спробуйте ще раз; якщо помилка повториться, попросіть адміністратора створити коди заново.'},
+  retry:{zh:'重新加载二维码',en:'Reload QR codes',uk:'Завантажити QR-коди знову'},
 } as const satisfies Record<string, L10n>;
 
 function isItem(v: unknown): v is QrItem {
@@ -82,7 +84,7 @@ function isItem(v: unknown): v is QrItem {
 function isIndex(v: unknown): v is QrIndex {
   if (!v || typeof v !== "object") return false;
   const o = v as Record<string, unknown>;
-  return typeof o["siteUrl"] === "string" && typeof o["generatedAt"] === "string" && Array.isArray(o["items"]) && o["items"].every(isItem);
+  return typeof o["siteUrl"] === "string" && typeof o["generatedAt"] === "string" && Array.isArray(o["items"]) && o["items"].length===3 && o["items"].every(isItem)&&['prep','purchase','menu'].every(route=>(o['items'] as QrItem[]).some(item=>item.route===route));
 }
 
 /** 当前语言排第一，其余按 LANGS 顺序 */
@@ -140,14 +142,21 @@ function renderItem(item: QrItem, ctx: PageCtx): HTMLElement {
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   const lang = ctx.lang;
   const printBtn = h("button", { type: "button", class: "chip solid qr-print" }, UI.print[lang]);
+  printBtn.disabled=true;
   printBtn.addEventListener("click", () => {
-    if (typeof window.print === "function") window.print();
+    if (!printBtn.disabled&&typeof window.print === "function") window.print();
   });
   const toolbar = h("div", { class: "qr-toolbar" }, h("p", { class: "muted" }, UI.hint[lang]), printBtn);
   const status = h("p", { class: "muted qr-status" }, ctx.t("data.loading"));
-  const page = h("div", { class: "qr-page" }, toolbar, status);
+  const content=h('div',{}),retry=h('button',{type:'button',class:'chip qr-retry'},UI.retry[lang]);retry.hidden=true;
+  const page = h("div", { class: "qr-page" }, toolbar, status,retry,content);
   el.append(page);
-
+  ctx.setReloadCoverage?.('read-only');
+  let generation=0;
+  retry.addEventListener('click',()=>void load());
+  async function load(){
+  const ticket=++generation;printBtn.disabled=true;retry.hidden=true;status.textContent=ctx.t('data.loading');replace(content);
+  const failed=()=>{if(ticket!==generation||!el.isConnected)return;printBtn.disabled=true;retry.hidden=false;status.textContent=UI.unavailable[lang];};
   let index: QrIndex;
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}qr/index.json`);
@@ -156,16 +165,22 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     if (!isIndex(json)) throw new Error("qr/index.json: unexpected shape");
     index = json;
   } catch (err) {
-    console.error(err);
-    status.textContent = ctx.t("data.notReady");
+    failed();
     return;
   }
-
+  if(ticket!==generation||!el.isConnected)return;
   const head = h(
     "header",
     { class: "qr-head" },
     h("h2", {}, `${ctx.t("app.name")} · ${UI.headline[lang]}`),
     h("p", { class: "muted" }, `${index.siteUrl} · ${UI.generated[lang]} ${formatWhen(index.generatedAt, lang)}`),
   );
-  status.replaceWith(head, ...index.items.map((item) => renderItem(item, ctx)));
+  const ready=new Set<string>(),broken=new Set<string>();
+  const cards=index.items.map(item=>{const card=renderItem(item,ctx),image=card.querySelector('img')!;
+   image.addEventListener('load',()=>{if(ticket!==generation||!el.isConnected)return;broken.delete(item.route);ready.add(item.route);if(ready.size===3&&!broken.size){printBtn.disabled=false;retry.hidden=true;status.textContent='';}});
+   image.addEventListener('error',()=>{ready.delete(item.route);broken.add(item.route);failed();});return card;
+  });
+  replace(content,head,...cards);
+  }
+  await load();
 }

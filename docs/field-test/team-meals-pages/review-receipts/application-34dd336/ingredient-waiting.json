@@ -1,0 +1,235 @@
+{
+  "head": "34dd3364ad9397cac3ded4b8ee5460dac09fc879",
+  "boot": 1,
+  "summary": "6/6",
+  "checks": [
+    {
+      "name": "minimal clean actual Home control does not cancel beforeunload",
+      "pass": true,
+      "detail": {
+        "defaultPrevented": false,
+        "returnValue": true
+      }
+    },
+    {
+      "name": "minimal actual Ingredient raw enters dirty registry",
+      "pass": true
+    },
+    {
+      "name": "auth retires pure local Ingredient raw from shared registry",
+      "pass": true
+    },
+    {
+      "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+      "pass": true,
+      "detail": {
+        "defaultPrevented": false,
+        "returnValue": true
+      }
+    },
+    {
+      "name": "actual Ingredient raw is dirty before any update",
+      "pass": true
+    },
+    {
+      "name": "new generated service worker waits without reload or activation",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/ingredient/salt",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "auxiliary-4",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 7,
+        "dirty": true,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[41,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"auxiliary-4\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":7,\"dirty\":true,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENNew version availableReload←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [
+    {
+      "id": "adm-ing-name-zh",
+      "value": "未保存食材"
+    },
+    {
+      "id": "adm-ing-name-en",
+      "value": "Salt"
+    },
+    {
+      "id": "adm-ing-name-uk",
+      "value": "Сіль"
+    },
+    {
+      "id": "adm-ing-id",
+      "value": "salt"
+    },
+    {
+      "id": "adm-ing-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-externalId",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-baseUnit",
+      "value": "g"
+    },
+    {
+      "id": "",
+      "value": "ml"
+    },
+    {
+      "id": "",
+      "value": "pcs"
+    },
+    {
+      "id": "adm-ing-pcsToGram",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-yield",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-role",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-supplier",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-packSize",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-minPacks",
+      "value": "1"
+    },
+    {
+      "id": "adm-ing-lastPrice",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-trackStock",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-onHand",
+      "value": ""
+    }
+  ],
+  "unloadDiagnostic": {
+    "clean": {
+      "defaultPrevented": false,
+      "returnValue": true
+    },
+    "retired": {
+      "defaultPrevented": false,
+      "returnValue": true
+    }
+  },
+  "nativeSW": {
+    "active": "activated",
+    "controller": "activated"
+  }
+}

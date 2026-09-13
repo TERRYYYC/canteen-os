@@ -1,0 +1,49 @@
+{
+  "reviewerIdentity": "/root/plan_review",
+  "scope": "Top-level current reviewer verification tools, JSON/log outputs, REVIEW.md and COMMANDS.md. Author frozen browser heads remain 734 by production continuity. Historical source/receipt references are not current-target declarations.",
+  "staleValueOccurrences": [
+    {
+      "path": "reviewer-assertions.mjs",
+      "line": 3,
+      "classification": "intentional historical baseline/reference",
+      "text": "const repo='/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages',base='df992aad3807638c2ef1a092cdb38d01b9d60f6d',head='7920496e06996eedac6e08e862fa097453ed9462';"
+    },
+    {
+      "path": "reviewer-budget-default.json",
+      "line": 2,
+      "classification": "original attribution error, retained and superseded",
+      "text": "  \"reviewedHeadSha\": \"df992aad3807638c2ef1a092cdb38d01b9d60f6d\","
+    },
+    {
+      "path": "reviewer-budget-http.json",
+      "line": 2,
+      "classification": "original attribution error, retained and superseded",
+      "text": "  \"reviewedHeadSha\": \"df992aad3807638c2ef1a092cdb38d01b9d60f6d\","
+    },
+    {
+      "path": "reviewer-graph.mjs",
+      "line": 32,
+      "classification": "original attribution error, retained and superseded",
+      "text": "const report={reviewedHeadSha:'df992aad3807638c2ef1a092cdb38d01b9d60f6d',node:process.version,execPath:process.execPath,routes,staticDynamicGraphs:files.size,preloadGroups:preloads,allAppJS:total([...files.keys()].sort()),precache,missingPrecache:missing,worker:{swGzip:gzipSync(swBytes).length,runtimeGzip:gzipSync(runtimeBytes).length},moduleGraphs:Object.fromEntries(files)};"
+    },
+    {
+      "path": "reviewer-integrity.py",
+      "line": 3,
+      "classification": "intentional historical baseline/reference",
+      "text": "p=Path.cwd();repo='/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages';head='7920496e06996eedac6e08e862fa097453ed9462';base='df992aad3807638c2ef1a092cdb38d01b9d60f6d';prod='734e295edbfa03b360e0052a782f8b5c6f0c980c';source='docs/design/team-meals-pages/APP-BUNDLE-D1-contract.md';accepted='b5ccc0abad0bc07fd783b40e880321372c44b384'"
+    }
+  ],
+  "metadataDefectLocations": [
+    "reviewer-graph.mjs:32",
+    "reviewer-budget-default.json:2",
+    "reviewer-budget-http.json:2"
+  ],
+  "otherCurrentVerificationFields": {
+    "REVIEW.md.reviewedHeadSha": "7920496e06996eedac6e08e862fa097453ed9462",
+    "reviewer-integrity.json.head": "7920496e06996eedac6e08e862fa097453ed9462",
+    "reviewer-native-custody.json.native[*].head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+    "runtime.cwd": "/private/tmp/canteen-bundle-d1-repair-review-7920496",
+    "acceptedRevision": "b5ccc0abad0bc07fd783b40e880321372c44b384"
+  },
+  "otherUnresolvedCurrentTargetDefects": []
+}

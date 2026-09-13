@@ -1,0 +1,35 @@
+{
+  "summary": "4/4",
+  "checks": [
+    {
+      "name": "locked navigation completes as readonly",
+      "pass": true
+    },
+    {
+      "name": "not-found navigation completes as readonly",
+      "pass": true
+    },
+    {
+      "name": "abandoned dynamic screen import finishes only original coverage",
+      "pass": true
+    },
+    {
+      "name": "navigation evidence does not expose synthetic login string",
+      "pass": true
+    }
+  ],
+  "snapshot": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 0,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[7,3,[],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":0,\"dirty\":false,\"phase\":\"idle\"}]]"
+  }
+}

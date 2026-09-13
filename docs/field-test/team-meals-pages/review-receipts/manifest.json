@@ -1,0 +1,50 @@
+[
+  {
+    "file": "plan-34ae813.md",
+    "originalReport": "/private/tmp/canteen-pages-aux-review-3812d70/plan-review/REVIEW.md",
+    "sha256": "b9390b390655538529ac5d1db679f48a748add1f46ee7d3091a456be82912243",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "import-ingredient-3812d70.md",
+    "originalReport": "/private/tmp/canteen-pages-aux-review-3812d70/import-ingredient-review/REVIEW.md",
+    "sha256": "452e05d0120ba7961d0a9870e52de3b99a813cebdf04a36bd28f70a60982dd12",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "purchase-213e2ce.md",
+    "originalReport": "/private/tmp/canteen-purchase-raw-review-213e2ce/REVIEW.md",
+    "sha256": "801dcd986de4b3e78e196b5dce2895f1a9c4aa4d3885e9f5e9fcad38da0b3238",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "publish-3eac746-changes-requested.md",
+    "originalReport": "/private/tmp/canteen-publish-aux-review-3eac746/REVIEW.md",
+    "sha256": "ed91c8a7ea192f78a4da4124ba269b456d4e765c7394457df38271e2cecbf2e9",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "publish-76b498a-approved.md",
+    "originalReport": "/private/tmp/canteen-publish-aux-review-76b498a/REVIEW.md",
+    "sha256": "72cf9a20b740dddc5cd5230393fddad882b2bb92d72ab35351315a01b02a4643",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "dish-8a026a7.md",
+    "originalReport": "/private/tmp/canteen-dish-aux-review-8a026a7/REVIEW.md",
+    "sha256": "604d48c91f09488b336e11919de9ab1c3dbf046125d616cfa999dbf327a4747e",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "home-admin-c2158e4.md",
+    "originalReport": "/private/tmp/canteen-home-admin-review-c2158e4/REVIEW.md",
+    "sha256": "6d2fcbf956dcd65bd5b3f12c72a25957474149c3d370ca80368c24aa54faccc5",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  },
+  {
+    "file": "application-3eb2f35-changes-requested.md",
+    "originalReport": "/private/tmp/canteen-application-review-3eb2f35/REVIEW.md",
+    "sha256": "2324b0fa793baef112ac14e07c59fae6d0780c2ee0b1e4e8cf3f1c2224e8e2d7",
+    "custody": "Exact original report bytes; root read complete report before consumption."
+  }
+]

@@ -1,0 +1,35 @@
+✔ real core parsed missing servings stay blank rather than receiving a page default (2.851375ms)
+✔ explicit preview clear overrides parsed original, while untouched preview keeps it (0.706583ms)
+✔ preview rejects fractional, nonpositive and nonfinite values without rounding or fallback (0.422791ms)
+✔ import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count (0.4995ms)
+✔ only an explicit clear removes matched known count; duplicate rows and service window survive (0.112042ms)
+✔ new unknown plan is v3 and known incoming count updates first matching occurrence only (0.092334ms)
+✔ actual import renderer reads v3 via C1 and hands the whole preserved plan to shared store without a POST (11.734208ms)
+✔ actual preview explicit clear survives language repaint and invalid entry can be corrected (1.697667ms)
+✔ late saved-plan read cannot import over a newer preview or an auth lifetime (0.944792ms)
+✔ unconfigured import shows honest unavailable state without fallback mock reads (0.328625ms)
+✖ an initially blank preview has an explicit clear action to remove a matched saved count (0.556583ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.0895
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-import.test.mjs:83:1
+✖ an initially blank preview has an explicit clear action to remove a matched saved count (0.556583ms)
+  AssertionError [ERR_ASSERTION]: already blank rows still need an explicit clear action
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-import.test.mjs:84:98)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,134 @@
+{
+  "head": "3eb2f351755b73122b26f2a2cee5a523dee49aaa",
+  "boot": 1,
+  "summary": "3/4",
+  "checks": [
+    {
+      "name": "minimal clean actual Home control does not cancel beforeunload",
+      "pass": true,
+      "detail": {
+        "defaultPrevented": false,
+        "returnValue": true
+      }
+    },
+    {
+      "name": "minimal actual Ingredient raw enters dirty registry",
+      "pass": true
+    },
+    {
+      "name": "auth retires pure local Ingredient raw from shared registry",
+      "pass": true
+    },
+    {
+      "name": "retired local Ingredient raw must not cancel a clean current-session unload",
+      "pass": false,
+      "detail": {
+        "defaultPrevented": true,
+        "returnValue": false
+      }
+    }
+  ],
+  "route": "#/admin",
+  "safety": {
+    "reason": "clear",
+    "records": [
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "home",
+        "id": "home",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 6
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[34,3,[[\"page:admin/not-a-screen\",\"read-only\"],[\"page:admin/\",\"tracked\"]],[{\"ownerId\":\"auxiliary-3\",\"kind\":\"home\",\"id\":\"home\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-37",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENSaved for offline useBack office1 changes not published yetLast published Sep 10, 2026, 3:00 AMPublishPlan the menuWeek 37 · 1 meals planned this weekAdd a dishType it in by hand11 pendingTo confirm1 draft dishesIngredients1 ingredients · 20 common seasonings still missingTranslations to review0 machine-translatedReview screen comes in a later roundQR codesPrint and pin up: prep / purchasing / menuPublish historyYou can go back to the previous versionCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMenufor guests · 顾客计Menu plan · 菜单计划for the chef · 师傅2-й етапThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "inputs": [],
+  "unloadDiagnostic": {
+    "clean": {
+      "defaultPrevented": false,
+      "returnValue": true
+    },
+    "retired": {
+      "defaultPrevented": true,
+      "returnValue": false
+    }
+  },
+  "nativeSW": {
+    "active": "activated",
+    "controller": "activated"
+  }
+}

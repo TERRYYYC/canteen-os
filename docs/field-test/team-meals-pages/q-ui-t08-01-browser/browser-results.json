@@ -1,0 +1,142 @@
+{
+  "reviewedCodeSha": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "packagesTree": "b0407a1b761561f03aa07d66a5c6b003687458c8",
+  "runtime": "v20.20.2",
+  "nativeClipboardLanguages": [
+    "zh",
+    "en",
+    "uk"
+  ],
+  "checks": [
+    {
+      "name": "zh native clipboard equals rejected clipboard textarea byte-for-byte",
+      "pass": true
+    },
+    {
+      "name": "zh selected list scope and full original basis",
+      "pass": true
+    },
+    {
+      "name": "zh four current decision groups",
+      "pass": true
+    },
+    {
+      "name": "zh same-name IDs remain distinct current items",
+      "pass": true
+    },
+    {
+      "name": "zh all six supplied source occurrences",
+      "pass": true
+    },
+    {
+      "name": "zh raw known and unknown tomato sources plus seasoning",
+      "pass": true
+    },
+    {
+      "name": "zh concrete issues and original no-component dish locator",
+      "pass": true
+    },
+    {
+      "name": "zh unknown quantities do not become zero",
+      "pass": true
+    },
+    {
+      "name": "en native clipboard equals rejected clipboard textarea byte-for-byte",
+      "pass": true
+    },
+    {
+      "name": "en selected list scope and full original basis",
+      "pass": true
+    },
+    {
+      "name": "en four current decision groups",
+      "pass": true
+    },
+    {
+      "name": "en same-name IDs remain distinct current items",
+      "pass": true
+    },
+    {
+      "name": "en all six supplied source occurrences",
+      "pass": true
+    },
+    {
+      "name": "en raw known and unknown tomato sources plus seasoning",
+      "pass": true
+    },
+    {
+      "name": "en concrete issues and original no-component dish locator",
+      "pass": true
+    },
+    {
+      "name": "en unknown quantities do not become zero",
+      "pass": true
+    },
+    {
+      "name": "uk native clipboard equals rejected clipboard textarea byte-for-byte",
+      "pass": true
+    },
+    {
+      "name": "uk selected list scope and full original basis",
+      "pass": true
+    },
+    {
+      "name": "uk four current decision groups",
+      "pass": true
+    },
+    {
+      "name": "uk same-name IDs remain distinct current items",
+      "pass": true
+    },
+    {
+      "name": "uk all six supplied source occurrences",
+      "pass": true
+    },
+    {
+      "name": "uk raw known and unknown tomato sources plus seasoning",
+      "pass": true
+    },
+    {
+      "name": "uk concrete issues and original no-component dish locator",
+      "pass": true
+    },
+    {
+      "name": "uk unknown quantities do not become zero",
+      "pass": true
+    },
+    {
+      "name": "latest B read leaves bound A clipboard unchanged",
+      "pass": true
+    },
+    {
+      "name": "page simultaneously shows bound A and unapplied latest B",
+      "pass": true
+    },
+    {
+      "name": "late old-language rejection leaves new textarea hidden with no stale feedback",
+      "pass": true
+    },
+    {
+      "name": "late detached-route rejection leaves Plan untouched",
+      "pass": true
+    },
+    {
+      "name": "only initial list creation and explicit manual decision save write through Worker",
+      "pass": true
+    },
+    {
+      "name": "original create and acknowledged update preconditions retained",
+      "pass": true
+    },
+    {
+      "name": "saved decisions unchanged during copy and language journeys",
+      "pass": true
+    },
+    {
+      "name": "all 57 production Web sources match fixed Git candidate",
+      "pass": true
+    }
+  ],
+  "summary": "32/32",
+  "boundary": "D author browser: actual main, C and Worker; fixed Q FakeRepo ad54d4f; native clipboard with explicit failure/hold controls; no live publish or rollback"
+}

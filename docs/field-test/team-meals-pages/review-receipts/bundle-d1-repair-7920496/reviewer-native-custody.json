@@ -1,0 +1,168 @@
+{
+  "originalReviewerR1BodiesEqual": true,
+  "originalR1BodySha256": "2a9b69f0a138f2fb376cf3669e1df69aa6d4797e2327de2c0c719986abff225e",
+  "authorR1BodySha256": "2a9b69f0a138f2fb376cf3669e1df69aa6d4797e2327de2c0c719986abff225e",
+  "native": [
+    {
+      "file": "ingredient-before.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "1/1",
+      "allChecksPass": true,
+      "reason": "saving",
+      "posts": []
+    },
+    {
+      "file": "ingredient-away.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "2/2",
+      "allChecksPass": true,
+      "reason": "saving",
+      "posts": []
+    },
+    {
+      "file": "ingredient-late.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "4/4",
+      "allChecksPass": true,
+      "reason": "dirty",
+      "posts": []
+    },
+    {
+      "file": "dish-before.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "1/1",
+      "allChecksPass": true,
+      "reason": "saving",
+      "posts": []
+    },
+    {
+      "file": "dish-away.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "2/2",
+      "allChecksPass": true,
+      "reason": "saving",
+      "posts": []
+    },
+    {
+      "file": "dish-late.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "4/4",
+      "allChecksPass": true,
+      "reason": "dirty",
+      "posts": []
+    },
+    {
+      "file": "inline-language-held.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "3/3",
+      "allChecksPass": true,
+      "reason": "saving",
+      "posts": []
+    },
+    {
+      "file": "inline-language-completed.json",
+      "head": "734e295edbfa03b360e0052a782f8b5c6f0c980c",
+      "summary": "5/5",
+      "allChecksPass": true,
+      "reason": "dirty",
+      "posts": [
+        {
+          "method": "POST",
+          "path": "/ingredient/language-owner",
+          "revision": null,
+          "ifMatch": null,
+          "ifNoneMatch": null
+        }
+      ]
+    }
+  ],
+  "journals": [
+    {
+      "case": "ingredient",
+      "selected": [
+        {
+          "id": 52,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "empty",
+          "startedAt": 1789117937562,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005133
+        },
+        {
+          "id": 62,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "script",
+          "startedAt": 1789117962945,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005133
+        }
+      ]
+    },
+    {
+      "case": "dish",
+      "selected": [
+        {
+          "id": 52,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "empty",
+          "startedAt": 1789117959660,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005165
+        },
+        {
+          "id": 61,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "script",
+          "startedAt": 1789117983917,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005165
+        }
+      ]
+    },
+    {
+      "case": "inline-language",
+      "selected": [
+        {
+          "id": 52,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "empty",
+          "startedAt": 1789117978421,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005133
+        },
+        {
+          "id": 55,
+          "url": "/canteen/assets/client-MzYSCKZV.js",
+          "method": "GET",
+          "destination": "script",
+          "startedAt": 1789118004624,
+          "status": 200,
+          "selected": true,
+          "initialMode": "hold",
+          "bytes": 32224,
+          "endedAt": 1789118005159
+        }
+      ]
+    }
+  ]
+}

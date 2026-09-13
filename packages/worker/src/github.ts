@@ -149,10 +149,14 @@ export class GitHubClient {
       Authorization: `Bearer ${this.token}`,
     };
     if (init.body !== undefined && init.body !== null) headers["Content-Type"] = "application/json";
-    return this.doFetch(`${this.apiBase}${path}`, {
-      ...init,
-      headers: { ...headers, ...((init.headers as Record<string, string>) ?? {}) },
-    });
+    try {
+      return await this.doFetch(`${this.apiBase}${path}`, {
+        ...init,
+        headers: { ...headers, ...((init.headers as Record<string, string>) ?? {}) },
+      });
+    } catch {
+      throw new UpstreamError(502, "GitHub request failed");
+    }
   }
 
   /** 非 2xx 一律抛 UpstreamError（路由层转成 502 upstream_error）。 */
@@ -162,7 +166,12 @@ export class GitHubClient {
       throw new UpstreamError(res.status, `GitHub ${init.method ?? "GET"} ${path} -> ${res.status}`);
     }
     if (res.status === 204) return undefined as T;
-    return (await res.json()) as T;
+    return await this.decodeJson<T>(res);
+  }
+
+  private async decodeJson<T = unknown>(res: Response): Promise<T> {
+    try { return await res.json() as T; }
+    catch { throw new UpstreamError(502, "GitHub response is not JSON"); }
   }
 
   private repoPath(suffix: string): string {
@@ -193,21 +202,39 @@ export class GitHubClient {
     );
     if (res.status === 404) return null;
     if (!res.ok) throw new UpstreamError(res.status, `GitHub GET contents ${path} -> ${res.status}`);
-    const body = (await res.json()) as { sha: string; content?: string; encoding?: string };
-    return { sha: body.sha, text: body.content ? base64ToText(body.content) : "" };
+    const body = (await this.decodeJson(res)) as { sha: string; content?: string; encoding?: string };
+    if (body.encoding !== "base64" || typeof body.content !== "string" || typeof body.sha !== "string") {
+      throw new UpstreamError(502, "GitHub file content unavailable");
+    }
+    return { sha: body.sha, text: base64ToText(body.content) };
   }
 
   async getTree(sha: string, recursive: boolean): Promise<TreeEntry[]> {
     const suffix = recursive ? "?recursive=1" : "";
-    const body = await this.json<{ tree: TreeEntry[] }>(this.repoPath(`/git/trees/${sha}${suffix}`));
-    return body.tree ?? [];
+    const body = await this.json<{ tree: TreeEntry[]; truncated?: boolean }>(this.repoPath(`/git/trees/${sha}${suffix}`));
+    if (body.truncated || !Array.isArray(body.tree)) throw new UpstreamError(502, "GitHub tree is incomplete");
+    return body.tree;
+  }
+
+  async getBlobBytes(sha: string): Promise<Uint8Array> {
+    const body = await this.json<{ content: string; encoding: string }>(this.repoPath(`/git/blobs/${sha}`));
+    if (body.encoding !== "base64" || typeof body.content !== "string") throw new UpstreamError(502, "GitHub blob unavailable");
+    return base64ToBytes(body.content);
   }
 
   async getBlobText(sha: string): Promise<string> {
-    const body = await this.json<{ content: string; encoding: string }>(
-      this.repoPath(`/git/blobs/${sha}`),
-    );
-    return body.encoding === "base64" ? base64ToText(body.content) : body.content;
+    return new TextDecoder().decode(await this.getBlobBytes(sha));
+  }
+
+  async isAncestor(base: string, head: string): Promise<boolean> {
+    const res = await this.request(this.repoPath(`/compare/${base}...${head}`));
+    if (res.status === 404 || res.status === 422) return false;
+    if (!res.ok) throw new UpstreamError(res.status, "GitHub ancestry check failed");
+    const body = await this.decodeJson(res) as { status?: string; merge_base_commit?: { sha?: string } };
+    if (!body.status || !["ahead", "behind", "diverged", "identical"].includes(body.status) || !body.merge_base_commit?.sha) {
+      throw new UpstreamError(502, "GitHub comparison is incomplete");
+    }
+    return (body.status === "ahead" || body.status === "identical") && body.merge_base_commit.sha === base;
   }
 
   /** 短 sha → 全长 sha；不存在返回 null（契约 §1.6：解析不到 → 404 not_found）。 */
@@ -215,7 +242,7 @@ export class GitHubClient {
     const res = await this.request(this.repoPath(`/commits/${encodeURIComponent(shaish)}`));
     if (res.status === 404 || res.status === 422) return null;
     if (!res.ok) throw new UpstreamError(res.status, `GitHub GET commit ${shaish} -> ${res.status}`);
-    const body = (await res.json()) as {
+    const body = (await this.decodeJson(res)) as {
       sha: string;
       commit: { message: string; author: { date: string } };
     };
@@ -307,7 +334,7 @@ export class GitHubClient {
     const res = await this.request(this.repoPath(`/actions/runs/${runId}`));
     if (res.status === 404) return null;
     if (!res.ok) throw new UpstreamError(res.status, `GitHub GET run -> ${res.status}`);
-    return toRun((await res.json()) as RawRun);
+    return toRun((await this.decodeJson(res)) as RawRun);
   }
 
   async listRunJobs(runId: number): Promise<WorkflowJob[]> {

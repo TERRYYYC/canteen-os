@@ -1,0 +1,17 @@
+✔ review: actual router decodes a fresh second-dish material link and ambiguous sources remain explicit (12.467125ms)
+✔ review: repeated Menu occurrence carries original row through ingredient and back without changing count (1.735792ms)
+✔ review: original branded plan plus exact dish/component/step/technique pointers survive timing filter (46.50525ms)
+✔ review: material filter preserves unknown quantity, original step order and each projection image index (1.347666ms)
+✔ review: menu invalid projection bytes and stale handle never become empty or legacy (0.79425ms)
+✔ review: prep invalid projection bytes and stale handle never become empty or legacy (0.404125ms)
+✔ review: menu late A rejection cannot replace B's nonempty source (68.708166ms)
+✔ review: prep late A rejection cannot replace B's nonempty source (68.297875ms)
+✔ review: available URLs are revoked on explicit same-host repaint; missing/external state fetches no raw src (45.558041ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3580.512583

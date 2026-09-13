@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: zh: two plans preserve colliding row/component indices and exact duplicate quantities
+ok 1 - zh: two plans preserve colliding row/component indices and exact duplicate quantities
+  ---
+  duration_ms: 5.846292
+  ...
+# Subtest: en: two plans preserve colliding row/component indices and exact duplicate quantities
+ok 2 - en: two plans preserve colliding row/component indices and exact duplicate quantities
+  ---
+  duration_ms: 0.294
+  ...
+# Subtest: uk: two plans preserve colliding row/component indices and exact duplicate quantities
+ok 3 - uk: two plans preserve colliding row/component indices and exact duplicate quantities
+  ---
+  duration_ms: 0.227208
+  ...
+# Subtest: rebase exports only new scope current decisions and B names, excluding removed and old bought records
+ok 4 - rebase exports only new scope current decisions and B names, excluding removed and old bought records
+  ---
+  duration_ms: 0.856875
+  ...
+# Subtest: prototype-named unresolved reference stays an ID and keeps its real issue
+ok 5 - prototype-named unresolved reference stays an ID and keeps its real issue
+  ---
+  duration_ms: 0.186708
+  ...
+# Subtest: zero known price is copied from a complete supplied line and is never omitted as unknown
+ok 6 - zero known price is copied from a complete supplied line and is never omitted as unknown
+  ---
+  duration_ms: 0.171834
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 59.116833

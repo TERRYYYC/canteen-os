@@ -20,7 +20,9 @@
  *   - 空行跳过；lineNo 仍按原文行号（1-based）。
  *   - 全角标点 / 全角数字 / 多余空格：先 NFKC 归一再解析。
  *   - 时间段（12:00 / 12:00-14:00）直接忽略，不当份数。
- *   - 没写份数 → status 仍按菜名判定，plannedServings 缺省（界面自行给默认值）。
+ *   - 没写份数（或兼容旧写法 0份）→ status 仍按菜名判定，plannedServings 缺省，不补默认值。
+ *   - 非整数或超出安全整数范围的份数 → unparsed + reason；2.0 按整数 2 接受。
+ *   - 份数带单位 / x、点号数字跟在菜名后或作为同行共享数字时，不能先当月.日取走。
  *
  * 状态优先级（一行只有一个 status）：unparsed > unknown-dish > draft-dish > next-week > ok。
  *   - 日期落在下周（weekStart+7 ~ +13）→ next-week（标注，仍可导入）；
@@ -55,7 +57,7 @@ export type ParsedLineStatus =
 export interface ParsedLine {
   /** 原文行号，1-based；一行拆成多道菜时共用同一个 lineNo */
   lineNo: number;
-  /** 这条结果对应的原文（NFKC 归一、去首尾空白；一行多道菜时是那一段） */
+  /** 原文（NFKC 归一、压缩空白）；多菜通常为分段，份数错误保留整行以包含共享数字 */
   raw: string;
   status: ParsedLineStatus;
   /** ISO date */
@@ -291,6 +293,7 @@ interface SegTokens {
   weekShift?: number;
   meal?: MealType;
   servings?: number;
+  servingsError?: string;
   /** 有没有出现份数写法（哪怕是 0） */
   hasServings: boolean;
   /** 去掉日期 / 餐次 / 份数之后剩下的（应是菜名），已去首尾标点 */
@@ -318,12 +321,12 @@ const RE_TIME = /(^|[^\d])\d{1,2}:\d{2}(\s*[-~]\s*\d{1,2}:\d{2})?/g;
 const RE_WEEK_NEXT = /(^|\s)(下周|下星期|下礼拜|下禮拜|下週|next\s+week|наступного\s+тижня)(?=$|\s)/i;
 const RE_WEEK_THIS = /(^|\s)(本周|这周|這周|本星期|本礼拜|本週|this\s+week|цього\s+тижня)(?=$|\s)/i;
 
-const RE_SERV_UNIT = /(?:(^|[^a-z])[x×*]\s*)?(\d+(?:\.\d+)?)\s*(?:人份|份|人|位|servings?|serves|порці[а-яіїєґ]*|порц\.?)(?![a-z])/i;
+const RE_SERV_UNIT = /(?:(^|[^a-z])[x×*]\s*)?(\d+(?:\.\d+)?|\.\d+)\s*(?:人份|份|人|位|servings?|serves|порці[а-яіїєґ]*|порц\.?)(?![a-z])/i;
 const RE_SERV_CN_UNIT = new RegExp(`(${CN_NUM_CLASS}+)\\s*(?:人份|份|人|位)`);
-const RE_SERV_X = /(^|[^a-z])[x×*]\s*(\d+(?:\.\d+)?)/i;
-const RE_SERV_TRAIL = /(^|[^\d.])(\d+(?:\.\d+)?)\s*$/;
-const RE_SERV_LEAD = /^(\d+(?:\.\d+)?)(?=\s|$)/;
-const RE_SERV_ALONE = /(^|\s)(\d+(?:\.\d+)?)(?=\s|$)/g;
+const RE_SERV_X = /(^|[^a-z])[x×*]\s*(\d+(?:\.\d+)?|\.\d+)/i;
+const RE_SERV_TRAIL = /(^|[^\d.])(\d+(?:\.\d+)?|\.\d+)\s*$/;
+const RE_SERV_LEAD = /^(\d+(?:\.\d+)?|\.\d+)(?=\s|$)/;
+const RE_SERV_ALONE = /(^|\s)(\d+(?:\.\d+)?|\.\d+)(?=\s|$)/g;
 const RE_SERV_CN_ALONE = new RegExp(`(^|\\s)(${CN_NUM_CLASS}+)(?=\\s|$)`);
 const RE_SERV_CN_TRAIL = new RegExp(`(${CN_NUM_CLASS}{2,})$`);
 
@@ -363,7 +366,7 @@ function weekdayOffset(re: RegExp, table: Record<string, number>, keyGroup: numb
 }
 
 /** 从一段里摘出日期（返回 ISO 与要剔除的区间）；weekStart 用来把星期落成日期，月.日用 weekStart 的年 */
-function takeDate(s: string, weekStart: Date): { iso: string; index: number; len: number; weekdayBased?: boolean } | null {
+function takeDate(s: string, weekStart: Date, preferBareServings: boolean, followedByMealAndDish: boolean): { iso: string; index: number; len: number; weekdayBased?: boolean } | null {
   const full = RE_DATE_FULL.exec(s);
   if (full) {
     const d = makeUtcDate(Number(full[1]), Number(full[2]), Number(full[3]));
@@ -373,6 +376,31 @@ function takeDate(s: string, weekStart: Date): { iso: string; index: number; len
     const m = re.exec(s);
     if (!m) continue;
     const lead = (m[1] ?? "").length;
+    if (re === RE_DATE_MD && m[0].includes(".")) {
+      const start = m.index + lead;
+      const end = m.index + m[0].length;
+      // 单位 / x 已明确是份数；裸小数在菜名后或共享数字段也是份数。
+      // 段首的 10.05（含独立日期标题）仍按月.日，餐次在日期前也兼容。
+      const explicit = [RE_SERV_UNIT.exec(s), RE_SERV_X.exec(s)].some((hit) => hit && hit.index < end && hit.index + hit[0].length > start);
+      let prefix = s.slice(0, start);
+      const sharedMarker = /(?:各|共|约|大约)\s*$/.test(prefix);
+      const meal = takeMeal(prefix);
+      if (meal) prefix = cut(prefix, meal.index, meal.len);
+      prefix = prefix.replace(RE_WEEK_NEXT, " ").replace(RE_WEEK_THIS, " ");
+      let remainder = cut(s, start, end - start);
+      let hasOtherNumbers = false;
+      // 「2.5 20份」同样是数字共享段；先排除全部数字，不能把第二个数当菜名依据。
+      for (let extra = takeServings(remainder); extra; extra = takeServings(remainder)) {
+        hasOtherNumbers = true;
+        remainder = squash(cut(remainder, extra.index, extra.len));
+      }
+      const remainderMeal = takeMeal(remainder);
+      if (remainderMeal) remainder = cut(remainder, remainderMeal.index, remainderMeal.len);
+      remainder = remainder.replace(RE_WEEK_NEXT, " ").replace(RE_WEEK_THIS, " ");
+      const onlyNumbers = !cleanRest(remainder);
+      const sharedNumbers = preferBareServings && onlyNumbers && (hasOtherNumbers || !followedByMealAndDish);
+      if (explicit || sharedMarker || sharedNumbers || cleanRest(prefix)) continue;
+    }
     const mo = Number(m[2]);
     const day = Number(m[3]);
     let d = makeUtcDate(weekStart.getUTCFullYear(), mo, day);
@@ -408,33 +436,48 @@ function takeMeal(s: string): { meal: MealType; index: number; len: number } | n
   return null;
 }
 
-function takeServings(s: string): { value: number | undefined; index: number; len: number } | null {
-  const num = (raw: string): number | undefined => {
-    const n = Math.round(Number(raw));
-    return Number.isFinite(n) && n >= 1 ? n : undefined;
+interface ServingsValue {
+  value?: number;
+  error?: string;
+}
+
+const REASON_FRACTIONAL_SERVINGS = "份数必须是大于等于 1 的整数，请确认原文，不能自动取整";
+const REASON_UNSAFE_SERVINGS = "份数超出可精确表示的整数范围，请填写不超过 9007199254740991 的整数";
+
+function takeServings(s: string): (ServingsValue & { index: number; len: number }) | null {
+  const checked = (n: number | null): ServingsValue => {
+    if (n === null || !Number.isSafeInteger(n)) return { error: REASON_UNSAFE_SERVINGS };
+    // 保留原有 0份 → 未填写的兼容约定。
+    return n >= 1 ? { value: n } : {};
+  };
+  const num = (raw: string): ServingsValue => {
+    // 必须先检查原始小数位：Number("2.0000000000000001") 已经会变成 2。
+    const fraction = raw.split(".")[1];
+    if (raw.startsWith(".") || (fraction && /[1-9]/.test(fraction))) return { error: REASON_FRACTIONAL_SERVINGS };
+    return checked(Number(raw));
   };
   let m = RE_SERV_UNIT.exec(s);
   if (m) {
     const lead = (m[1] ?? "").length;
-    return { value: num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
+    return { ...num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
   }
   m = RE_SERV_CN_UNIT.exec(s);
   if (m) {
     const n = parseChineseNumber(m[1] ?? "");
-    return { value: n !== null && n >= 1 ? n : undefined, index: m.index, len: m[0].length };
+    return { ...checked(n), index: m.index, len: m[0].length };
   }
   m = RE_SERV_X.exec(s);
   if (m) {
     const lead = (m[1] ?? "").length;
-    return { value: num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
+    return { ...num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
   }
   m = RE_SERV_TRAIL.exec(s);
   if (m) {
     const lead = (m[1] ?? "").length;
-    return { value: num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
+    return { ...num(m[2] ?? ""), index: m.index + lead, len: m[0].length - lead };
   }
   m = RE_SERV_LEAD.exec(s);
-  if (m) return { value: num(m[1] ?? ""), index: 0, len: m[0].length };
+  if (m) return { ...num(m[1] ?? ""), index: 0, len: m[0].length };
   let last: RegExpExecArray | null = null;
   RE_SERV_ALONE.lastIndex = 0;
   for (let hit = RE_SERV_ALONE.exec(s); hit; hit = RE_SERV_ALONE.exec(s)) {
@@ -443,18 +486,18 @@ function takeServings(s: string): { value: number | undefined; index: number; le
   }
   if (last) {
     const lead = (last[1] ?? "").length;
-    return { value: num(last[2] ?? ""), index: last.index + lead, len: last[0].length - lead };
+    return { ...num(last[2] ?? ""), index: last.index + lead, len: last[0].length - lead };
   }
   m = RE_SERV_CN_ALONE.exec(s);
   if (m) {
     const lead = (m[1] ?? "").length;
     const n = parseChineseNumber(m[2] ?? "");
-    if (n !== null) return { value: n >= 1 ? n : undefined, index: m.index + lead, len: m[0].length - lead };
+    if (n !== null) return { ...checked(n), index: m.index + lead, len: m[0].length - lead };
   }
   m = RE_SERV_CN_TRAIL.exec(s);
   if (m) {
     const n = parseChineseNumber(m[1] ?? "");
-    if (n !== null) return { value: n >= 1 ? n : undefined, index: m.index, len: m[0].length };
+    if (n !== null) return { ...checked(n), index: m.index, len: m[0].length };
   }
   return null;
 }
@@ -470,10 +513,10 @@ function cleanRest(s: string): string {
 }
 
 /** 一段（一行，或一行里被 、，； 分开的一段）→ 日期 / 餐次 / 份数 / 菜名 */
-function tokenize(seg: string, weekStart: Date): SegTokens {
+function tokenize(seg: string, weekStart: Date, preferBareServings: boolean, followedByMealAndDish = false): SegTokens {
   let s = squash(seg);
   const out: SegTokens = { hasServings: false, rest: "" };
-  const date = takeDate(s, weekStart);
+  const date = takeDate(s, weekStart, preferBareServings, followedByMealAndDish);
   if (date) {
     out.date = date.iso;
     if (date.weekdayBased) out.weekdayBased = true;
@@ -496,7 +539,19 @@ function tokenize(seg: string, weekStart: Date): SegTokens {
   if (serv) {
     out.hasServings = true;
     if (serv.value !== undefined) out.servings = serv.value;
+    if (serv.error) out.servingsError = serv.error;
     s = squash(cut(s, serv.index, serv.len));
+    // 仍只采用原来选中的份数，但必须检查剩余数字，不能让模糊菜名匹配吞掉小数。
+    let remaining = s;
+    for (let extra = takeServings(remaining); extra; extra = takeServings(remaining)) {
+      if (extra.error) {
+        out.servingsError = extra.error;
+        delete out.servings;
+      }
+      remaining = squash(cut(remaining, extra.index, extra.len));
+    }
+    // 错误段中的其他数字也不充当菜名；纯数字段继续走共享份数传播。
+    if (out.servingsError) s = remaining;
   }
   out.rest = cleanRest(s);
   return out;
@@ -539,6 +594,7 @@ interface Entry {
   date?: string;
   meal?: MealType;
   servings?: number;
+  servingsError?: string;
   name: string;
 }
 
@@ -568,6 +624,7 @@ function resolveEntry(lineNo: number, e: Entry, weekStart: Date, dishes: Readonl
     line.reason = reason;
     return line;
   };
+  if (e.servingsError) return fail(e.servingsError);
   if (!e.date) return fail(REASON_NO_DATE);
   if (!e.meal) return fail(REASON_NO_MEAL);
   if (!e.name) return fail(REASON_NO_DISH);
@@ -625,12 +682,28 @@ export function parsePlanText(input: ParsePlanInput): { lines: ParsedLine[] } {
       const entries: Entry[] = [];
       let lineDate: string | undefined;
       let lineMeal: MealType | undefined;
-      let pending: { raw: string; servings: number | undefined } | null = null;
+      let pending: Entry | null = null;
+      const orphanErrors: Entry[] = [];
       let sawHeader = false;
       const multi = segments.length > 1;
 
-      for (const seg of segments) {
-        const tok = tokenize(seg, weekStart);
+      for (const [segIndex, seg] of segments.entries()) {
+        // 分段器会把「10.06 晚 菜名」拆开；餐次及菜名一起确认新的日期位置。
+        // 只有孤立餐次时（「A、B，2.5 晚」）仍须把 2.5 当共享份数。
+        const nextMeal = takeMeal(segments[segIndex + 1] ?? "");
+        let followedByMealAndDish = false;
+        if (nextMeal?.index === 0) {
+          // 「晚：菜名 30」「晚 30份 菜名」会继续拆段，要越过餐次/纯数字段。
+          for (const following of segments.slice(segIndex + 1)) {
+            const tokens = tokenize(following, weekStart, true);
+            if (tokens.date || tokens.weekShift !== undefined) break;
+            if (tokens.rest) {
+              followedByMealAndDish = true;
+              break;
+            }
+          }
+        }
+        const tok = tokenize(seg, weekStart, entries.length > 0 || lineDate !== undefined, followedByMealAndDish);
         if (tok.weekShift !== undefined) {
           ctxWeekShift = tok.weekShift;
           sawHeader = true;
@@ -650,8 +723,10 @@ export function parsePlanText(input: ParsePlanInput): { lines: ParsedLine[] } {
           if (date) entry.date = date;
           if (meal) entry.meal = meal;
           if (tok.servings !== undefined) entry.servings = tok.servings;
-          else if (pending && pending.servings !== undefined) {
-            entry.servings = pending.servings;
+          else if (tok.servingsError) entry.servingsError = tok.servingsError;
+          else if (pending && (pending.servings !== undefined || pending.servingsError)) {
+            if (pending.servings !== undefined) entry.servings = pending.servings;
+            if (pending.servingsError) entry.servingsError = pending.servingsError;
             pending = null;
           }
           entries.push(entry);
@@ -661,16 +736,29 @@ export function parsePlanText(input: ParsePlanInput): { lines: ParsedLine[] } {
           // 只有数字的一段：补给前面还没份数的菜；前面没有菜就先记着给下一道
           let applied = false;
           for (const e of entries) {
-            if (e.servings === undefined && tok.servings !== undefined) {
-              e.servings = tok.servings;
+            if (e.servings === undefined && !e.servingsError && (tok.servings !== undefined || tok.servingsError)) {
+              if (tok.servings !== undefined) e.servings = tok.servings;
+              if (tok.servingsError) e.servingsError = tok.servingsError;
               applied = true;
             }
           }
-          if (!applied) pending = { raw: multi ? seg : normalized, servings: tok.servings };
+          if (!applied) {
+            if (pending?.servingsError) orphanErrors.push(pending);
+            pending = { raw: multi ? seg : normalized, name: "" };
+            if (tok.servings !== undefined) pending.servings = tok.servings;
+            if (tok.servingsError) pending.servingsError = tok.servingsError;
+          }
           continue;
         }
         if (segDate || tok.meal) sawHeader = true;
       }
+
+      // 未能补给任何菜的错误数字也要可见，不能像标题或未填写一样丢掉。
+      if (pending?.servingsError) {
+        orphanErrors.push(pending);
+        pending = null;
+      }
+      for (const e of orphanErrors) entries.push(e);
 
       if (entries.length === 0) {
         if (pending) {
@@ -700,11 +788,17 @@ export function parsePlanText(input: ParsePlanInput): { lines: ParsedLine[] } {
       for (let k = entries.length - 2; k >= 0; k--) {
         const cur = entries[k];
         const next = entries[k + 1];
-        if (cur && cur.servings === undefined && next?.servings !== undefined) cur.servings = next.servings;
+        if (cur && cur.servings === undefined && !cur.servingsError && next?.name) {
+          if (next.servings !== undefined) cur.servings = next.servings;
+          if (next.servingsError) cur.servingsError = next.servingsError;
+        }
       }
       if (entries.length === 1 && entries[0]) entries[0].raw = normalized;
 
-      for (const e of entries) lines.push(resolveEntry(lineNo, e, weekStart, dishes, maxDistance));
+      for (const e of entries) {
+        if (e.servingsError) e.raw = normalized;
+        lines.push(resolveEntry(lineNo, e, weekStart, dishes, maxDistance));
+      }
       const lastEntry = entries[entries.length - 1];
       if (lastEntry?.date && inWindow(lastEntry.date, weekStart)) ctxDate = lastEntry.date;
       if (lastEntry?.meal) ctxMeal = lastEntry.meal;

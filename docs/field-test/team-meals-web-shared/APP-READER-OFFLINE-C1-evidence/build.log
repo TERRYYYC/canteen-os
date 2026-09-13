@@ -1,0 +1,48 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 66 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../../../../../../private/tmp/reader-offline-c1-build/manifest.webmanifest                         0.75 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/index.html                                   1.94 kB │ gzip:  1.13 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/bundle-attribution.json                     17.74 kB │ gzip:  1.55 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/qr-95YfxYR1.css                       2.25 kB │ gzip:  0.87 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/home-Bw8HMtwR.css                     2.28 kB │ gzip:  0.71 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/purchase-list-CRLPFa5o.css            3.06 kB │ gzip:  1.02 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/team-ui-hHF0cNTc.css                  3.73 kB │ gzip:  1.04 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/ingredient-new-CT2dSWut.css           4.50 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/publish-DvJfnWK2.css                  5.17 kB │ gzip:  1.40 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/import-DavkaiKj.css                   5.33 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/menu-AiJcRmZo.css                     5.74 kB │ gzip:  1.62 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/purchase-StWw7liZ.css                 6.00 kB │ gzip:  1.71 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/prep-CZU-3gXe.css                     6.80 kB │ gzip:  1.96 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/dish-new-DK3WVt9P.css                 7.08 kB │ gzip:  1.74 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/index-_eYw8u9e.css                    8.78 kB │ gzip:  2.56 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/servings-input-DNG9trXJ.js            0.49 kB │ gzip:  0.32 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/store-26RzompG.js                     2.02 kB │ gzip:  0.92 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/admin-D5ruR1up.js                     3.42 kB │ gzip:  1.61 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/qr-DBgq3MQC.js                        3.50 kB │ gzip:  2.13 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/workbox-window.prod.es5-BqEJf4Xk.js   5.71 kB │ gzip:  2.34 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/edit-session-D5147czm.js              6.51 kB │ gzip:  2.51 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/home-BpAIL5fJ.js                      9.98 kB │ gzip:  4.66 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/parse-plan-text-DBZQVSv5.js          12.32 kB │ gzip:  5.77 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/plan-C9uUOYb3.js                     12.68 kB │ gzip:  5.69 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/menu-BVIJfmvT.js                     12.94 kB │ gzip:  6.13 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/purchase-BdsXr1W0.js                 16.54 kB │ gzip:  6.29 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/team-ui-7cfHvL5h.js                  23.90 kB │ gzip: 11.12 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/import-bViZBSW8.js                   26.71 kB │ gzip: 11.77 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/publish-A-81FILF.js                  26.73 kB │ gzip: 11.49 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/purchase-list-6e7VEo7d.js            29.07 kB │ gzip: 12.38 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/client-DICfvOwo.js                   29.83 kB │ gzip: 12.71 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/prep-uqTKfTlC.js                     33.95 kB │ gzip: 13.53 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/ingredient-new-DU8RKqIh.js           36.49 kB │ gzip: 15.48 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/index-CkwtYEx2.js                    40.18 kB │ gzip: 16.30 kB
+../../../../../../../../../private/tmp/reader-offline-c1-build/assets/dish-new-IXk1TnRd.js                 59.95 kB │ gzip: 22.75 kB
+✓ built in 361ms
+
+PWA v1.3.0
+mode      generateSW
+precache  48 entries (539.67 KiB)
+files generated
+  ../../../../../../../../../private/tmp/reader-offline-c1-build/sw.js
+  ../../../../../../../../../private/tmp/reader-offline-c1-build/workbox-4e9e9954.js

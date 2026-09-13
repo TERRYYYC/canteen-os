@@ -1,0 +1,46 @@
+{
+  "reviewedHeadSha": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "baselineHeadSha": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "configurations": {
+    "default": {
+      "routeModuleDelta": {
+        "plan": {
+          "addedModules": [
+            "<ARCHIVE>/packages/web/src/pages/admin/plan-import.ts"
+          ],
+          "removedModules": []
+        },
+        "import": {
+          "addedModules": [
+            "<ARCHIVE>/packages/web/src/pages/admin/plan-import.ts"
+          ],
+          "removedModules": []
+        }
+      },
+      "preexistingParserChunk": "assets/parse-plan-text-DBZQVSv5.js",
+      "parserChunkByteIdentical": true,
+      "parserChunkSha256": "3ec90be07feaf1b63802d229cdbac8ba78820fb6791ef81e72355d41c84a5c98",
+      "helperChunk": "assets/plan-import-RSLHW7vM.js"
+    },
+    "http": {
+      "routeModuleDelta": {
+        "plan": {
+          "addedModules": [
+            "<ARCHIVE>/packages/web/src/pages/admin/plan-import.ts"
+          ],
+          "removedModules": []
+        },
+        "import": {
+          "addedModules": [
+            "<ARCHIVE>/packages/web/src/pages/admin/plan-import.ts"
+          ],
+          "removedModules": []
+        }
+      },
+      "preexistingParserChunk": "assets/parse-plan-text-DBZQVSv5.js",
+      "parserChunkByteIdentical": true,
+      "parserChunkSha256": "3ec90be07feaf1b63802d229cdbac8ba78820fb6791ef81e72355d41c84a5c98",
+      "helperChunk": "assets/plan-import-RSLHW7vM.js"
+    }
+  }
+}

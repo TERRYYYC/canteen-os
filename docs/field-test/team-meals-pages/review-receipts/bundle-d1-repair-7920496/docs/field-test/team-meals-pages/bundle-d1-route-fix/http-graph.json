@@ -1,0 +1,627 @@
+[
+  {
+    "file": "assets/index-CEOjeHkX.js",
+    "isEntry": true,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/index.html",
+    "imports": [],
+    "dynamicImports": [
+      "assets/workbox-window.prod.es5-BqEJf4Xk.js",
+      "assets/prep-C3aA2ER0.js",
+      "assets/purchase-HOwrg1DM.js",
+      "assets/menu-BiSbgiC5.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/qr-DioS3CPK.js"
+    ],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/view-models/published.ts",
+        "renderedLength": 17018
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/view-models/reload-safety.ts",
+        "renderedLength": 9740
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/shell.ts",
+        "renderedLength": 8692
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pwa.ts",
+        "renderedLength": 8314
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/i18n.ts",
+        "renderedLength": 7275
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/main.ts",
+        "renderedLength": 4053
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/admin/token.ts",
+        "renderedLength": 3369
+      },
+      {
+        "id": "/@vite-plugin-pwa/virtual:pwa-register",
+        "renderedLength": 2339
+      },
+      {
+        "id": "\u0000vite/preload-helper.js",
+        "renderedLength": 2294
+      },
+      {
+        "id": "\u0000vite/modulepreload-polyfill.js",
+        "renderedLength": 1280
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/router.ts",
+        "renderedLength": 1237
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/theme.ts",
+        "renderedLength": 848
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/dom.ts",
+        "renderedLength": 589
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/data.ts",
+        "renderedLength": 263
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/tokens.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/styles.css",
+        "renderedLength": 0
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/index.html",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 42331,
+    "finalGzipBytes": 16320
+  },
+  {
+    "file": "assets/purchase-HOwrg1DM.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/purchase.ts",
+    "imports": [
+      "assets/purchase-list-DniTE4nk.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/team-ui-B1SXJqTV.js",
+      "assets/edit-session-BXTHBwSc.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/purchase.ts",
+        "renderedLength": 21146
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/purchase-form.ts",
+        "renderedLength": 9244
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/purchase.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 16680,
+    "finalGzipBytes": 6298
+  },
+  {
+    "file": "assets/menu-BiSbgiC5.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/menu.ts",
+    "imports": [
+      "assets/prep-C3aA2ER0.js",
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/menu.ts",
+        "renderedLength": 19989
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/menu.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 14042,
+    "finalGzipBytes": 6129
+  },
+  {
+    "file": "assets/prep-C3aA2ER0.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/prep.ts",
+        "renderedLength": 35886
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/published-meals.ts",
+        "renderedLength": 14556
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/prep.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 37046,
+    "finalGzipBytes": 13531
+  },
+  {
+    "file": "assets/admin-CuXiVS6c.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin.ts",
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [
+      "assets/home-eWdMDkYC.js",
+      "assets/plan-BKiWArKD.js",
+      "assets/import-CvuXJ6uF.js",
+      "assets/ingredient-new-DtQ366wQ.js",
+      "assets/dish-new-Cn5vFuWE.js",
+      "assets/publish-BY-MN401.js"
+    ],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin.ts",
+        "renderedLength": 3739
+      }
+    ],
+    "finalUtf8Bytes": 3635,
+    "finalGzipBytes": 1667
+  },
+  {
+    "file": "assets/qr-DioS3CPK.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/qr.ts",
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/qr.ts",
+        "renderedLength": 4812
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/qr.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 4075,
+    "finalGzipBytes": 2132
+  },
+  {
+    "file": "assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+        "renderedLength": 5763
+      }
+    ],
+    "finalUtf8Bytes": 5706,
+    "finalGzipBytes": 2343
+  },
+  {
+    "file": "assets/home-eWdMDkYC.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/home.ts",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/client-B6sGAgUw.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/team-ui-B1SXJqTV.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/home.ts",
+        "renderedLength": 14940
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/home.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 10814,
+    "finalGzipBytes": 4680
+  },
+  {
+    "file": "assets/plan-BKiWArKD.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/plan.ts",
+    "imports": [
+      "assets/purchase-list-DniTE4nk.js",
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/store-tGqJv_yw.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/team-ui-B1SXJqTV.js",
+      "assets/edit-session-BXTHBwSc.js",
+      "assets/servings-input-DNG9trXJ.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/plan.ts",
+        "renderedLength": 17621
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/plan-form.ts",
+        "renderedLength": 4171
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/formats.ts",
+        "renderedLength": 159
+      }
+    ],
+    "finalUtf8Bytes": 13109,
+    "finalGzipBytes": 5703
+  },
+  {
+    "file": "assets/purchase-list-DniTE4nk.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/team-ui-B1SXJqTV.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/team-meals.ts",
+        "renderedLength": 14410
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/team-details.ts",
+        "renderedLength": 9855
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/purchase-list.ts",
+        "renderedLength": 7868
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/procurement/engine.ts",
+        "renderedLength": 7365
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/view-models/team-meals.ts",
+        "renderedLength": 5033
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/plan.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 32567,
+    "finalGzipBytes": 12390
+  },
+  {
+    "file": "assets/import-CvuXJ6uF.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/import.ts",
+    "imports": [
+      "assets/parse-plan-text-DBZQVSv5.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/store-tGqJv_yw.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/servings-input-DNG9trXJ.js",
+      "assets/team-ui-B1SXJqTV.js",
+      "assets/admin-CuXiVS6c.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/import.ts",
+        "renderedLength": 41743
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/import.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 29210,
+    "finalGzipBytes": 11784
+  },
+  {
+    "file": "assets/servings-input-DNG9trXJ.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/servings-input.ts",
+        "renderedLength": 842
+      }
+    ],
+    "finalUtf8Bytes": 492,
+    "finalGzipBytes": 317
+  },
+  {
+    "file": "assets/parse-plan-text-DBZQVSv5.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/core/src/import/parse-plan-text.ts",
+        "renderedLength": 23252
+      }
+    ],
+    "finalUtf8Bytes": 13248,
+    "finalGzipBytes": 5767
+  },
+  {
+    "file": "assets/ingredient-new-DtQ366wQ.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.ts",
+    "imports": [
+      "assets/ingredient-draft-BB4EFDDx.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/team-ui-B1SXJqTV.js",
+      "assets/store-tGqJv_yw.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/ingredient-form-CteQW91d.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.ts",
+        "renderedLength": 23874
+      }
+    ],
+    "finalUtf8Bytes": 14584,
+    "finalGzipBytes": 5963
+  },
+  {
+    "file": "assets/dish-new-Cn5vFuWE.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.ts",
+    "imports": [
+      "assets/index-CEOjeHkX.js",
+      "assets/ingredient-draft-BB4EFDDx.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/edit-session-BXTHBwSc.js",
+      "assets/store-tGqJv_yw.js",
+      "assets/admin-CuXiVS6c.js"
+    ],
+    "dynamicImports": [
+      "assets/ingredient-form-CteQW91d.js"
+    ],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.ts",
+        "renderedLength": 96524
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/dish-new.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 68383,
+    "finalGzipBytes": 23696
+  },
+  {
+    "file": "assets/edit-session-BXTHBwSc.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/view-models/edit-session.ts",
+        "renderedLength": 15014
+      }
+    ],
+    "finalUtf8Bytes": 6509,
+    "finalGzipBytes": 2510
+  },
+  {
+    "file": "assets/ingredient-draft-BB4EFDDx.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [
+      "assets/client-B6sGAgUw.js",
+      "assets/editor-image-B408a5BL.js"
+    ],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-draft.ts",
+        "renderedLength": 3125
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-actions.ts",
+        "renderedLength": 1316
+      }
+    ],
+    "finalUtf8Bytes": 3442,
+    "finalGzipBytes": 1681
+  },
+  {
+    "file": "assets/store-tGqJv_yw.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/admin/store.ts",
+        "renderedLength": 3705
+      }
+    ],
+    "finalUtf8Bytes": 2012,
+    "finalGzipBytes": 917
+  },
+  {
+    "file": "assets/publish-BY-MN401.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/publish.ts",
+    "imports": [
+      "assets/kit-Du7o3AXa.js",
+      "assets/client-B6sGAgUw.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/admin-CuXiVS6c.js",
+      "assets/team-ui-B1SXJqTV.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/publish.ts",
+        "renderedLength": 41104
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/publish.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 29872,
+    "finalGzipBytes": 11515
+  },
+  {
+    "file": "assets/team-ui-B1SXJqTV.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/team-ui.ts",
+        "renderedLength": 4778
+      }
+    ],
+    "finalUtf8Bytes": 5577,
+    "finalGzipBytes": 2897
+  },
+  {
+    "file": "assets/kit-Du7o3AXa.js",
+    "isEntry": false,
+    "facade": null,
+    "imports": [
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/admin/kit.ts",
+        "renderedLength": 15762
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/transport.ts",
+        "renderedLength": 6529
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/team-meals.ts",
+        "renderedLength": 5084
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/types.ts",
+        "renderedLength": 1232
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/admin.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 22293,
+    "finalGzipBytes": 8859
+  },
+  {
+    "file": "assets/client-B6sGAgUw.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/client.ts",
+    "imports": [
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/mock.ts",
+        "renderedLength": 38742
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/api/client.ts",
+        "renderedLength": 8991
+      }
+    ],
+    "finalUtf8Bytes": 32224,
+    "finalGzipBytes": 12765
+  },
+  {
+    "file": "assets/editor-image-B408a5BL.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-image.ts",
+    "imports": [],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/editor-image.ts",
+        "renderedLength": 1791
+      }
+    ],
+    "finalUtf8Bytes": 1101,
+    "finalGzipBytes": 622
+  },
+  {
+    "file": "assets/ingredient-form-CteQW91d.js",
+    "isEntry": false,
+    "facade": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-form.ts",
+    "imports": [
+      "assets/ingredient-draft-BB4EFDDx.js",
+      "assets/kit-Du7o3AXa.js",
+      "assets/index-CEOjeHkX.js",
+      "assets/admin-CuXiVS6c.js"
+    ],
+    "dynamicImports": [],
+    "modules": [
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-form.ts",
+        "renderedLength": 29184
+      },
+      {
+        "id": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/src/pages/admin/ingredient-new.css",
+        "renderedLength": 0
+      }
+    ],
+    "finalUtf8Bytes": 23484,
+    "finalGzipBytes": 9530
+  }
+]

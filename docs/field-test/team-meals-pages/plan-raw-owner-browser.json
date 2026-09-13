@@ -1,0 +1,176 @@
+{
+  "fixture": "Explicit synthetic records; actual page/C1; no shared coverage registration",
+  "owners": [
+    {
+      "ownerId": "plan-buffer/week-a",
+      "identity": {
+        "kind": "plan",
+        "id": "week-a"
+      },
+      "generation": 4,
+      "dirty": true,
+      "phase": "idle"
+    },
+    null
+  ],
+  "checks": [
+    {
+      "name": "remove earlier row preserves exact original row raw value and blocks save",
+      "pass": true
+    },
+    {
+      "name": "language repaint retains remapped invalid raw",
+      "pass": true
+    },
+    {
+      "name": "another plan does not consume original raw owner",
+      "pass": true
+    },
+    {
+      "name": "return keeps original identity and generation",
+      "pass": true
+    },
+    {
+      "name": "read-only range/date filters do not mark raw dirty",
+      "pass": true
+    },
+    {
+      "name": "Add choices retain date meal and dish across language",
+      "pass": true
+    },
+    {
+      "name": "unapplied choices do not present the page as unchanged",
+      "pass": true
+    },
+    {
+      "name": "unapplied Add survives cross-plan return",
+      "pass": true
+    },
+    {
+      "name": "failed incomplete Add does not consume pending",
+      "pass": true
+    },
+    {
+      "name": "successful Add consumes auxiliary pending and appends exactly one C1 row",
+      "pass": true
+    },
+    {
+      "name": "Save serializes full plan only through C1",
+      "pass": true
+    },
+    {
+      "name": "unknown JSON save does not consume unapplied Add",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/source/plan/week-a",
+      "revision": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-b",
+      "revision": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-a",
+      "revision": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-b",
+      "revision": null
+    },
+    {
+      "method": "POST",
+      "path": "/plan/week-a",
+      "body": {
+        "schemaVersion": "3",
+        "margin": 1.13,
+        "meals": [
+          {
+            "date": "2026-09-14",
+            "mealType": "lunch",
+            "dishRef": "soup",
+            "plannedServings": 8
+          },
+          {
+            "date": "2026-09-15",
+            "mealType": "dinner",
+            "dishRef": "stew",
+            "plannedServings": 12,
+            "serviceWindow": "18:00-19:00"
+          },
+          {
+            "date": "2026-09-16",
+            "mealType": "lunch",
+            "dishRef": "soup"
+          },
+          {
+            "date": "2026-10-03",
+            "mealType": "dinner",
+            "dishRef": "stew"
+          }
+        ]
+      },
+      "ifMatch": "before"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-a",
+      "revision": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "method": "POST",
+      "path": "/plan/week-a",
+      "body": {
+        "schemaVersion": "3",
+        "margin": 1.13,
+        "meals": [
+          {
+            "date": "2026-09-14",
+            "mealType": "lunch",
+            "dishRef": "soup",
+            "plannedServings": 9
+          },
+          {
+            "date": "2026-09-15",
+            "mealType": "dinner",
+            "dishRef": "stew",
+            "plannedServings": 12,
+            "serviceWindow": "18:00-19:00"
+          },
+          {
+            "date": "2026-09-16",
+            "mealType": "lunch",
+            "dishRef": "soup"
+          }
+        ]
+      },
+      "ifMatch": "before"
+    }
+  ]
+}

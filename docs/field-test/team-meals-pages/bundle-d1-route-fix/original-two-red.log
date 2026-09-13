@@ -1,0 +1,155 @@
+TAP version 13
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 1 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.490416
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 2 - D1: dish initial Source/catalog/form does not instantiate optional legacy API # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.033625
+  ...
+# Subtest: D1: no-image Dish save uses sole C1 without loading legacy or optional form/image
+ok 3 - D1: no-image Dish save uses sole C1 without loading legacy or optional form/image # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.025
+  ...
+# Subtest: D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation
+ok 4 - D1: inline intent owns dirty/busy before await; current repaint hands directly to one automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.023416
+  ...
+# Subtest: D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry
+ok 5 - D1: actual inline import boundary rejection retains raw, ends only read, exposes cancel without a fake retry # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.064208
+  ...
+# Subtest: D1: inline late module completion cannot install into auth
+ok 6 - D1: inline late module completion cannot install into auth # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.021125
+  ...
+# Subtest: D1: inline late module completion cannot install into remove
+ok 7 - D1: inline late module completion cannot install into remove # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.020458
+  ...
+# Subtest: D1: inline late module completion cannot install into replace
+ok 8 - D1: inline late module completion cannot install into replace # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.029625
+  ...
+# Subtest: D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write
+ok 9 - D1: ingredient legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.063333
+  ...
+# Subtest: D1: dish legacy module held/rejected is read-only, preserves raw and sends no write
+ok 10 - D1: dish legacy module held/rejected is read-only, preserves raw and sends no write # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.064292
+  ...
+# Subtest: D1: ingredient old auth cannot use a late legacy module
+ok 11 - D1: ingredient old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.028958
+  ...
+# Subtest: D1: dish old auth cannot use a late legacy module
+ok 12 - D1: dish old auth cannot use a late legacy module # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.027209
+  ...
+# Subtest: D1: ingredient image module admission is protected and late auth prevents decoding
+ok 13 - D1: ingredient image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.02125
+  ...
+# Subtest: D1: dish image module admission is protected and late auth prevents decoding
+ok 14 - D1: dish image module admission is protected and late auth prevents decoding # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.053042
+  ...
+# Subtest: D1: loaded translation transport rejection can really retry without repeating inline automatic translation
+ok 15 - D1: loaded translation transport rejection can really retry without repeating inline automatic translation # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.023875
+  ...
+# Subtest: D1: ingredient image module unavailable survives language; no-image save remains usable
+ok 16 - D1: ingredient image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.070541
+  ...
+# Subtest: D1: dish image module unavailable survives language; no-image save remains usable
+ok 17 - D1: dish image module unavailable survives language; no-image save remains usable # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.026959
+  ...
+# Subtest: D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+not ok 18 - D1-R1 reproduction: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 64.246958
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:93:43'
+  failureType: 'testCodeFailure'
+  error: |-
+    A deferred module must not begin transport after its page leaves (INV-B5)
+    + actual - expected
+    
+    + [
+    +   [
+    +     'ingredient',
+    +     'salt'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'ingredient'
+      1: 'salt'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:105:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+not ok 19 - D1-R1 reproduction: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 50.320791
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:93:43'
+  failureType: 'testCodeFailure'
+  error: |-
+    A deferred module must not begin transport after its page leaves (INV-B5)
+    + actual - expected
+    
+    + [
+    +   [
+    +     'upload',
+    +     'soup'
+    +   ]
+    + ]
+    - []
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      0: 'upload'
+      1: 'soup'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-bundle.test.mjs:105:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 17
+# todo 0
+# duration_ms 176.7845

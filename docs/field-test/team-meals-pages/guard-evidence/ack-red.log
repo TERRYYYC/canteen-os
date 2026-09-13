@@ -1,0 +1,88 @@
+✖ ingredient: actual Http current-auth array ACK cannot prove completion (53.229792ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (39.206416ms)
+✖ ingredient: available old-auth array ACK cannot prove completion (40.0575ms)
+✔ ingredient: available old-auth string ACK settles only its write (38.881833ms)
+✖ dish: actual Http current-auth array ACK cannot prove completion (47.364833ms)
+✔ dish: actual Http current-auth string ACK settles only its write (46.684042ms)
+✖ dish: available old-auth array ACK cannot prove completion (45.987708ms)
+✔ dish: available old-auth string ACK settles only its write (44.175708ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (41.433125ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (46.243084ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 6
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 497.534667
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-ack.test.mjs:4:103
+✖ ingredient: actual Http current-auth array ACK cannot prove completion (53.229792ms)
+  AssertionError [ERR_ASSERTION]: {"reason":"clear","records":[{"ownerId":"auxiliary-1","kind":"ingredient","id":"salt","generation":12,"dirty":false,"phase":"idle","operation":6},{"ownerId":"draft-store","kind":"store","id":"draft-store","generation":2,"dirty":false,"phase":"idle"}],"stamp":"[10,0,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":12,\"dirty\":false,\"phase\":\"idle\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"}
+  
+  'clear' !== 'unknown'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ack.test.mjs:7:47)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'clear',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ack.test.mjs:4:103
+✖ ingredient: available old-auth array ACK cannot prove completion (40.0575ms)
+  AssertionError [ERR_ASSERTION]: {"reason":"clear","records":[{"ownerId":"draft-store","kind":"store","id":"draft-store","generation":3,"dirty":false,"phase":"idle"}],"stamp":"[13,1,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"}
+  
+  'clear' !== 'unknown'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ack.test.mjs:7:47)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'clear',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ack.test.mjs:4:103
+✖ dish: actual Http current-auth array ACK cannot prove completion (47.364833ms)
+  AssertionError [ERR_ASSERTION]: {"reason":"dirty","records":[{"ownerId":"auxiliary-1","kind":"dish","id":"soup","generation":17,"dirty":false,"phase":"idle","operation":8},{"ownerId":"draft-store","kind":"store","id":"draft-store","generation":2,"dirty":false,"phase":"idle"},{"ownerId":"editor-1","kind":"dish","id":"soup","generation":2,"dirty":true,"phase":"dirty","pending":false,"recovering":false,"context":2,"operation":0}],"stamp":"[13,0,[[\"page:admin/dish/soup\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":17,\"dirty\":false,\"phase\":\"idle\",\"operation\":8},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":2,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0}]]"}
+  
+  'dirty' !== 'unknown'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ack.test.mjs:7:47)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'dirty',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-ack.test.mjs:4:103
+✖ dish: available old-auth array ACK cannot prove completion (45.987708ms)
+  AssertionError [ERR_ASSERTION]: {"reason":"clear","records":[{"ownerId":"draft-store","kind":"store","id":"draft-store","generation":3,"dirty":false,"phase":"idle"}],"stamp":"[15,2,[[\"page:admin/\",\"read-only\"]],[{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"}]]"}
+  
+  'clear' !== 'unknown'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ack.test.mjs:7:47)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'clear',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

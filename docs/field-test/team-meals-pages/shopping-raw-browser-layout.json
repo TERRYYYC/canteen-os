@@ -1,0 +1,44 @@
+[
+  {
+    "lang": "zh",
+    "notice": "清单名称或范围选择尚未应用。",
+    "raw": "review-this-raw",
+    "scroll": 393,
+    "width": 393
+  },
+  {
+    "lang": "en",
+    "notice": "The list ID or scope choices have not been applied.",
+    "raw": "review-this-raw",
+    "scroll": 393,
+    "width": 393
+  },
+  {
+    "lang": "uk",
+    "notice": "Назву списку або вибір діапазону ще не застосовано.",
+    "raw": "review-this-raw",
+    "scroll": 393,
+    "width": 393
+  },
+  {
+    "lang": "zh",
+    "notice": "清单名称或范围选择尚未应用。",
+    "raw": "review-this-raw",
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "lang": "en",
+    "notice": "The list ID or scope choices have not been applied.",
+    "raw": "review-this-raw",
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "lang": "uk",
+    "notice": "Назву списку або вибір діапазону ще не застосовано.",
+    "raw": "review-this-raw",
+    "scroll": 1440,
+    "width": 1440
+  }
+]

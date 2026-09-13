@@ -1,0 +1,398 @@
+{
+  "head": "df992aad3807638c2ef1a092cdb38d01b9d60f6d",
+  "boot": 1,
+  "summary": "11/11",
+  "checks": [
+    {
+      "name": "initial Dish Source/catalog/form ready without legacy client execution",
+      "pass": true
+    },
+    {
+      "name": "inline intent and real loading operation exist synchronously after click",
+      "pass": true
+    },
+    {
+      "name": "held optional code disables Dish save without any external write",
+      "pass": true
+    },
+    {
+      "name": "language retains exact loading raw",
+      "pass": true
+    },
+    {
+      "name": "inline module operation remains protected offscreen",
+      "pass": true
+    },
+    {
+      "name": "return restores inline raw and original operation",
+      "pass": true
+    },
+    {
+      "name": "loading handoff starts one automatic translation",
+      "pass": true
+    },
+    {
+      "name": "form installed for retained current-language buffer",
+      "pass": true
+    },
+    {
+      "name": "automatic translation retained its original seed and result",
+      "pass": true
+    },
+    {
+      "name": "loaded translation API failure is visible and retains input",
+      "pass": true
+    },
+    {
+      "name": "already-loaded action retry sends another real simulated HTTP request and succeeds",
+      "pass": true
+    }
+  ],
+  "route": "#/admin/ingredient/salt",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 21,
+        "dirty": true,
+        "phase": "idle",
+        "operation": 12
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "plan",
+        "id": "d1-away",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 15,
+        "dirty": true,
+        "phase": "idle",
+        "operation": 8
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 4,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 6,
+        "operation": 0
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "d1-away",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[42,1,[[\"page:admin/dish/soup\",\"tracked\"],[\"page:admin/plan/d1-away\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":21,\"dirty\":true,\"phase\":\"idle\",\"operation\":12},{\"ownerId\":\"auxiliary-2\",\"kind\":\"plan\",\"id\":\"d1-away\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-3\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":15,\"dirty\":true,\"phase\":\"idle\",\"operation\":8},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":4,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":6,\"operation\":0},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"d1-away\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/d1-away",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/translate",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENЗбережено для роботи без мережі←Edit ingredientUnsaved changesChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”SaveCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/index-Bc-O-R8w.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55091/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/admin-BavRcNuW.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/dish-new-Ca4F7OSi.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-draft-DfkuZ2qw.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/dish-new-DK3WVt9P.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/kit-RXdzz6Yk.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/edit-session-9rkTAC9v.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/store-Dcmu5kJ2.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-form-1JCVb91m.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/plan-BXxiUM0o.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/purchase-list-DCYUac1p.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/purchase-list-CRLPFa5o.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/team-ui-Bnwr_EJG.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/parse-plan-text-DBZQVSv5.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/servings-input-DNG9trXJ.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/client-C6VYsiFN.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/data/build.json?__publication=1789117497902-1-1",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55091/canteen/assets/ingredient-new-BJhNmZlu.js",
+      "initiatorType": "script"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "adm-ing-name-zh",
+      "value": "盐"
+    },
+    {
+      "id": "adm-ing-name-en",
+      "value": "Translated salt"
+    },
+    {
+      "id": "adm-ing-name-uk",
+      "value": "Переклад"
+    },
+    {
+      "id": "adm-ing-id",
+      "value": "salt"
+    },
+    {
+      "id": "adm-ing-photo",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-photo-pick",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-externalId",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-baseUnit",
+      "value": "g"
+    },
+    {
+      "id": "",
+      "value": "ml"
+    },
+    {
+      "id": "",
+      "value": "pcs"
+    },
+    {
+      "id": "adm-ing-pcsToGram",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-yield",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-role",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-supplier",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-packSize",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-minPacks",
+      "value": "1"
+    },
+    {
+      "id": "adm-ing-lastPrice",
+      "value": ""
+    },
+    {
+      "id": "adm-ing-trackStock",
+      "value": "on"
+    },
+    {
+      "id": "adm-ing-onHand",
+      "value": ""
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}

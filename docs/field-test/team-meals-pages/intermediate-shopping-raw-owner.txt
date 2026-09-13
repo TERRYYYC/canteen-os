@@ -1,0 +1,133 @@
+✖ raw list ID, plan IDs and selections have stable dirty generations across language and route return (9.015208ms)
+✔ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (11.930375ms)
+✔ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (3.38ms)
+✖ initialization is registered before async and original auth settlement cannot clear the next auth read (3.1415ms)
+✖ held reads retain a guard through language; each overlapping initialization settles only its own ticket (4.057875ms)
+✔ create consumes only its captured inputs and routes to captured ID while later raw survives (5.16825ms)
+✖ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (4.711416ms)
+✖ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (8.527542ms)
+✖ unconfigured and malformed routes finish read-only coverage without fake transport (2.38125ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 3
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.313708
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:56:1
+✖ raw list ID, plan IDs and selections have stable dirty generations across language and route return (9.015208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'dirty'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:57:666)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'dirty',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:65:1
+✖ initialization is registered before async and original auth settlement cannot clear the next auth read (3.1415ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'unknown'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:66:453)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unknown',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:68:1
+✖ held reads retain a guard through language; each overlapping initialization settles only its own ticket (4.057875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'saving'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:69:259)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'saving',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:74:1
+✖ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (4.711416ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'dirty'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:75:364)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'dirty',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:77:1
+✖ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (8.527542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:78:585)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-shopping-raw.test.mjs:80:1
+✖ unconfigured and malformed routes finish read-only coverage without fake transport (2.38125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'untracked'
+  - 'clear'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-shopping-raw.test.mjs:81:72)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'untracked',
+    expected: 'clear',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

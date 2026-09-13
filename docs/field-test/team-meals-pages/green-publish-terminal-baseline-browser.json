@@ -1,0 +1,151 @@
+{
+  "sourceHash": "9a9f307f74978e8200f2768e2695946d596772cfe29dfaa709c4ef5c122798f4",
+  "fixture": "Synthetic local data; no historical or deployed outcome claim",
+  "auxiliary": {
+    "identity": null,
+    "generation": 84,
+    "dirty": false,
+    "phase": "idle"
+  },
+  "checks": [
+    {
+      "message": "rollback pending blocks both actions across language/route",
+      "pass": true
+    },
+    {
+      "message": "rollback is not repeated",
+      "pass": true
+    },
+    {
+      "message": "acknowledgement paints current language",
+      "pass": true
+    },
+    {
+      "message": "lost acknowledgement remains blocked after return",
+      "pass": true
+    },
+    {
+      "message": "no latest build is claimed",
+      "pass": true
+    },
+    {
+      "message": "accepted dispatch without ID remains unknown",
+      "pass": true
+    },
+    {
+      "message": "timeout does not unlock another write",
+      "pass": true
+    },
+    {
+      "message": "same run read resolves without another POST",
+      "pass": true
+    },
+    {
+      "message": "auth change removes private content immediately",
+      "pass": true
+    },
+    {
+      "message": "late prior-session acknowledgement cannot claim new session success",
+      "pass": true
+    },
+    {
+      "message": "unconfigured zh has no legacy read/write entry",
+      "pass": true
+    },
+    {
+      "message": "unconfigured en has no legacy read/write entry",
+      "pass": true
+    },
+    {
+      "message": "unconfigured uk has no legacy read/write entry",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "hold"
+    },
+    {
+      "method": "POST",
+      "path": "/rollback/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scenario": "hold"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "hold"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "hold"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "lost"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "lost"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "lost"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "no-id"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "no-id"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "timeout"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "timeout"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "timeout"
+    },
+    {
+      "method": "GET",
+      "path": "/publish/11",
+      "scenario": "timeout"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "timeout"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "hold"
+    },
+    {
+      "method": "POST",
+      "path": "/publish",
+      "scenario": "hold"
+    },
+    {
+      "method": "GET",
+      "path": "/changes",
+      "scenario": "hold"
+    }
+  ]
+}

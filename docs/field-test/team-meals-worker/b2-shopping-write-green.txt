@@ -1,0 +1,37 @@
+✔ shopping create persists all candidates as check, including unknown seasoning and duplicate recipe sources (22.555958ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy"} (1.606917ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"buy","bought":true} (0.810125ms)
+✔ shopping create rejects first-write judgment {"ingredientRef":"salt","decision":"available"} (0.746833ms)
+✔ shopping create rejects missing candidate with a field path (0.727583ms)
+✔ shopping create rejects extra candidate with a field path (1.540917ms)
+✔ shopping create rejects duplicate candidate with a field path (0.65875ms)
+✔ shopping create cannot invent schema-valid previous judgment (0.81625ms)
+✔ shopping same-basis explicit manual check clears previous and leaves knowledge unchanged (2.216166ms)
+✔ shopping same-basis update cannot rewrite an existing previous judgment (1.069417ms)
+✔ shopping same-basis candidate equality is checked before accepting manual decisions (0.892166ms)
+✔ shopping changed basis requires saved check+previous before a separately locked bought decision (5.102791ms)
+✔ shopping basis-only revision change cannot use empty reviewRequired as permission to change a decision (0.84ms)
+✔ shopping unavailable stored previous cannot be bypassed by clear previous (0.631959ms)
+✔ shopping unavailable stored previous cannot be bypassed by remove item by switching to empty plan (1.067333ms)
+✔ shopping unresolved ingredient stays check while other ingredients can be decided (4.495792ms)
+✔ B2 shopping create permission chef and only list bytes change (16.086917ms)
+✔ B2 shopping create permission buyer and only list bytes change (1.128875ms)
+✔ B2 shopping create permission admin and only list bytes change (1.691167ms)
+✔ B2 shopping lock precondition_required {} (0.456041ms)
+✔ B2 shopping lock invalid_precondition {"If-Match":"*"} (0.406875ms)
+✔ B2 shopping lock invalid_precondition {"If-Match":"0000000000000000000000000000000000000000","If-None-Match":"*"} (0.309834ms)
+✔ B2 shopping lock conflict {"If-Match":"0000000000000000000000000000000000000000"} (0.443666ms)
+✔ B2 shopping auth precedes bad body and all source reads (0.191083ms)
+✔ B2 shopping ID mismatch occurs after lock and points at ID (0.553875ms)
+✔ B2 shopping duplicate create and stale idempotent retry cannot overwrite (4.074792ms)
+✔ B2 shopping concurrent creators produce one winner (0.844166ms)
+✔ B2 retry repeats basis ancestry against the new captured head (1.747709ms)
+✔ B2 shopping upstream error is not a missing basis (0.492791ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92.72025

@@ -1,0 +1,352 @@
+PASS 15/15 · actual purchase renderer + C1/C2 + formal registry/coverage, explicit mock only. Browser fixture injects the real coverage callback; this does not certify main-shell integration.
+[
+  {
+    "event": "reset",
+    "fixtureManifest": "Q afc3289",
+    "scope": "Pure core with explicit local input objects; no Git history, Worker admission, asset bytes or real save verified.",
+    "revisionCaveat": "These existing SHAs are format tokens only. The explicitly injected fixture objects are not their production data trees; no test asserts Git reachability, ancestry or authentic historical previous state."
+  },
+  {
+    "assertion": "initial owner and original ctx coverage are clear",
+    "result": "pass"
+  },
+  {
+    "assertion": "raw list ID protects update",
+    "result": "pass"
+  },
+  {
+    "assertion": "raw input survives Ukrainian render",
+    "result": "pass"
+  },
+  {
+    "assertion": "raw input survives route return",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Read latest saved plans",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "action enabled: Read latest saved plans",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "reread preserves an explicitly unchecked meal",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Read latest saved plans",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "late read retains later plan IDs and cannot apply the earlier scope",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Create list to check",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "creation consumes captured ID and keeps later raw dirty",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Save list",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/raw-shop",
+    "scenario": "success",
+    "ifMatch": null,
+    "ifNoneMatch": "*",
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "raw-shop",
+      "basis": {
+        "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-15",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "actual C1 creation saves an all-check body",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Buy",
+    "result": "pass"
+  },
+  {
+    "assertion": "buy reveals bought checkbox",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Save list",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/raw-shop",
+    "scenario": "lost",
+    "ifMatch": "mock-list-1",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "raw-shop",
+      "basis": {
+        "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-15",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "buy",
+          "bought": true
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "C1 unknown is protected",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Verify save outcome",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/raw-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/raw-shop",
+    "revision": "0000000000000000000000000000000000000002",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "recovery issues no repeated write",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Available",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Save list",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/raw-shop",
+    "scenario": "conflict",
+    "ifMatch": "mock-list-2",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "raw-shop",
+      "basis": {
+        "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-15",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "available"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "action enabled: Read remote and compare",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/raw-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "action enabled: Use remote content",
+    "result": "pass"
+  },
+  {
+    "assertion": "adopting a different source refreshes untouched scope and its real baseline",
+    "result": "pass"
+  },
+  {
+    "assertion": "A initialization registers before its read",
+    "result": "pass"
+  },
+  {
+    "assertion": "A pending operation remains protected after auth changes",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/auth-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "old A callback leaves B ticket busy",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/auth-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "B completion finishes its own coverage and no old private marker survives",
+    "result": "pass"
+  }
+]

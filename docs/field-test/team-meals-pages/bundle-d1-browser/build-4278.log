@@ -1,0 +1,23 @@
+file:///private/tmp/canteen-d1-author-4278/scripts/build-data.mjs:46
+    throw new Error(
+          ^
+
+Error: 找不到 /private/tmp/canteen-d1-author-4278/packages/core/dist/index.js：先构建核心包（npm --prefix packages/core run build）再跑 build-data.mjs
+    at file:///private/tmp/canteen-d1-author-4278/scripts/build-data.mjs:46:11 {
+  [cause]: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/canteen-d1-author-4278/packages/core/dist/index.js' imported from /private/tmp/canteen-d1-author-4278/scripts/build-data.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+      at moduleResolve (node:internal/modules/esm/resolve:952:10)
+      at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+      at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+      at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+      at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+      at ModuleLoader.import (node:internal/modules/esm/loader:605:34)
+      at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:221:31)
+      at importModuleDynamicallyCallback (node:internal/modules/esm/utils:260:12) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///private/tmp/canteen-d1-author-4278/packages/core/dist/index.js'
+  }
+}
+
+Node.js v20.20.2

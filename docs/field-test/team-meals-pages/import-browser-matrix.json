@@ -1,0 +1,50 @@
+[
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "zh",
+    "scrollWidth": 393,
+    "value": "",
+    "width": 393
+  },
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "en",
+    "scrollWidth": 393,
+    "value": "",
+    "width": 393
+  },
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "uk",
+    "scrollWidth": 393,
+    "value": "",
+    "width": 393
+  },
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "zh",
+    "scrollWidth": 1440,
+    "value": "",
+    "width": 1440
+  },
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "en",
+    "scrollWidth": 1440,
+    "value": "",
+    "width": 1440
+  },
+  {
+    "buttonEnabled": true,
+    "invalid": "false",
+    "lang": "uk",
+    "scrollWidth": 1440,
+    "value": "",
+    "width": 1440
+  }
+]

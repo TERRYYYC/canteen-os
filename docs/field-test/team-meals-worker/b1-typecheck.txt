@@ -1,0 +1,9 @@
+
+> @canteenos/worker@0.0.3 typecheck
+> npm run gen:validators && tsc --noEmit
+
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+generated 4 validators → packages/worker/generated/validators.js (133971 bytes, schema-digest f7942836457e)

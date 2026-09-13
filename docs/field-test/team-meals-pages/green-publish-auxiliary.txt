@@ -1,0 +1,30 @@
+✔ unconfigured and explicit simulation never enter the default legacy mock publish flow (7.868625ms)
+✔ rollback remains one pending operation across language, close and route return, blocking publish too (19.0065ms)
+✔ lost publish acknowledgement stays unknown across navigation and cannot be retried as a write (4.421083ms)
+✔ accepted publish without run ID cannot claim an unrelated latest run or permit another write (3.768958ms)
+✔ known-run timeout/unmapped remain protected and terminal reads are tied to the returned run ID (7.714292ms)
+✔ unknown rollback never becomes success merely after changes refresh or repaint (4.086458ms)
+✔ auth replacement immediately removes private state and late publish response cannot bind new session (3.794542ms)
+✔ same run ID can be verified read-only after timeout and only confirmed success releases both actions (6.366166ms)
+✔ a failed step is not proof that the Worker workflow has stopped, while wrong-run success is refused (7.167166ms)
+✔ known pre-write rejection releases protection; upstream ambiguity keeps it (16.159ms)
+✔ publish pending blocks rollback immediately, survives language and protects unload until confirmed completion (4.83125ms)
+✔ unknown or malformed rollback acknowledgement is protected and cannot display a success for a different target (7.151792ms)
+✔ late prior-session rollback response cannot fill new session, and dialog rebind restores body (4.406208ms)
+✔ late prior-session changes cannot replace the new-session list (3.3385ms)
+✔ late known-run progress from a prior session cannot claim success or clear new-operation protection (4.555792ms)
+✔ legacy success and false or malformed completion never release a known run or claim it is live (14.049958ms)
+✔ matching completed runs release operation regardless of legacy status while conclusion alone determines result (140.217041ms)
+✔ completed evidence for another run is not ownership, and a failed step before completion stays unknown (6.453667ms)
+✔ Publish initial read registers before awaiting and finishes original coverage after an auth replacement (4.841ms)
+✔ real HTTP hidden old rollback ACK keeps an anonymous unknown write after new owner reads finish (7.798959ms)
+✔ each original run read can end only its matching old write; another old run remains unknown (4.408541ms)
+✔ known terminal proof clears registry while legacy failure and ambiguous dispatch protect it (6.967959ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 338.935541

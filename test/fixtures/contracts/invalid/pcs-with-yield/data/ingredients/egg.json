@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "鸡蛋",
+    "en": "Chicken egg",
+    "uk": "Яйця курячі"
+  },
+  "externalId": "Q15260613",
+  "baseUnit": "pcs",
+  "role": "main",
+  "pcsToGram": 55,
+  "purchase": {
+    "supplier": "绿源农产品配送",
+    "packSize": 180,
+    "packUnit": "pcs",
+    "minPacks": 1,
+    "lastPrice": {
+      "amount": 150,
+      "currency": "CNY"
+    }
+  },
+  "trackStock": false,
+  "yield": 0.9
+}

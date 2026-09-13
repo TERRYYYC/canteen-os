@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "固定样本菜单",
+    "en": "Fixed test menu",
+    "uk": "Фіксоване тестове меню"
+  },
+  "dateRange": {
+    "start": "2026-09-14",
+    "end": "2026-09-15"
+  },
+  "meals": []
+}

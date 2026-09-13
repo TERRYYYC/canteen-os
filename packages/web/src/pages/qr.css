@@ -42,7 +42,7 @@
 @page { size: A4; margin: 12mm; }
 
 @media print {
-  .appbar, .scrim, .drawer, .qr-toolbar { display: none !important; }
+  .appbar, .core-nav, .update-bar, .ios-hint, .scrim, .drawer, .qr-toolbar { display: none !important; }
   html, body { background: #fff !important; color: #171B19 !important; }
   #app { min-height: 0; display: block; }
   .outlet { max-width: none; padding: 0; gap: 0; display: block; }

@@ -1,0 +1,48 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 66 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/manifest.webmanifest                         0.75 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/index.html                                   1.94 kB │ gzip:  1.13 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/bundle-attribution.json                     17.74 kB │ gzip:  1.56 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/qr-95YfxYR1.css                       2.25 kB │ gzip:  0.87 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/home-Bw8HMtwR.css                     2.28 kB │ gzip:  0.71 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/purchase-list-CRLPFa5o.css            3.06 kB │ gzip:  1.02 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/team-ui-hHF0cNTc.css                  3.73 kB │ gzip:  1.04 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/ingredient-new-CT2dSWut.css           4.50 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/publish-DvJfnWK2.css                  5.17 kB │ gzip:  1.40 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/import-DavkaiKj.css                   5.33 kB │ gzip:  1.30 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/menu-AiJcRmZo.css                     5.74 kB │ gzip:  1.62 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/purchase-StWw7liZ.css                 6.00 kB │ gzip:  1.71 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/prep-CZU-3gXe.css                     6.80 kB │ gzip:  1.96 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/dish-new-DK3WVt9P.css                 7.08 kB │ gzip:  1.74 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/index-_eYw8u9e.css                    8.78 kB │ gzip:  2.56 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/servings-input-DNG9trXJ.js            0.49 kB │ gzip:  0.32 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/store-BD8aoJZ3.js                     2.02 kB │ gzip:  0.92 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/admin-D4Apfy_z.js                     3.42 kB │ gzip:  1.61 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/qr-DaOBBS2A.js                        3.50 kB │ gzip:  2.13 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/workbox-window.prod.es5-BqEJf4Xk.js   5.71 kB │ gzip:  2.34 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/edit-session-C17Dr6_y.js              6.51 kB │ gzip:  2.51 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/home-BMrOFzg9.js                      9.98 kB │ gzip:  4.66 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/parse-plan-text-DBZQVSv5.js          12.32 kB │ gzip:  5.77 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/plan-DbjBuTJv.js                     12.68 kB │ gzip:  5.69 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/menu-sR2Y6i5D.js                     12.94 kB │ gzip:  6.13 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/purchase-C-QVb134.js                 16.54 kB │ gzip:  6.29 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/team-ui-r85FyT5t.js                  23.90 kB │ gzip: 11.12 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/import-DcnMkmg2.js                   26.71 kB │ gzip: 11.77 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/publish-CPZPCkQm.js                  26.73 kB │ gzip: 11.49 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/purchase-list-BXamA5ny.js            29.07 kB │ gzip: 12.37 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/client--Noh024H.js                   29.83 kB │ gzip: 12.71 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/prep-KXP_kfAT.js                     33.95 kB │ gzip: 13.53 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/ingredient-new-BTXEryo5.js           36.49 kB │ gzip: 15.48 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/index-CaRCLBXf.js                    39.99 kB │ gzip: 16.23 kB
+../../../../../../../../../private/tmp/app-bundle-c1-build-configured/assets/dish-new-GsZs5TzO.js                 59.95 kB │ gzip: 22.76 kB
+✓ built in 337ms
+
+PWA v1.3.0
+mode      generateSW
+precache  48 entries (539.49 KiB)
+files generated
+  ../../../../../../../../../private/tmp/app-bundle-c1-build-configured/sw.js
+  ../../../../../../../../../private/tmp/app-bundle-c1-build-configured/workbox-4e9e9954.js

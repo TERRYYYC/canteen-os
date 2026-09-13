@@ -1,0 +1,25 @@
+✔ standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes (32.309416ms)
+✔ unconfigured renderer makes no legacy mock call or write form; simulation is explicit (34.409375ms)
+✔ late source cannot paint an old language into a reused connected mount (14.127833ms)
+✔ late previous-session source cannot overwrite the current session (14.101916ms)
+✔ raw buffer and unload protection survive leaving the ingredient route (5.360625ms)
+✔ upload belongs to record across language and navigation; no repeated upload and current raw edits survive (46.873125ms)
+✔ save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save (43.729709ms)
+✔ unknown save does not resend across navigation; force read verifies exact body and retains newer raw input (24.864792ms)
+✔ unknown upload remains protected because a source read cannot prove the upload result (22.797125ms)
+✔ shared form keeps default translation behavior and an explicit declined task sends nothing (21.87875ms)
+✔ translation owner survives language and ignores a result after newer raw name edits (24.764167ms)
+✔ photo decode is busy before a preview exists and its result survives language/navigation (15.914334ms)
+✔ photo decode failure releases busy while keeping prior photo and raw edits (14.61375ms)
+✔ successful translation from an old language view updates the current view without repeating (14.201ms)
+✔ malformed successful save responses stay unknown and cannot discard the pending attempt (14.0545ms)
+✔ unrecognized write rejection cannot be assumed safe to retry (13.312417ms)
+✔ field validation survives language and does not steal focus on every later keystroke (15.7855ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 421.893833

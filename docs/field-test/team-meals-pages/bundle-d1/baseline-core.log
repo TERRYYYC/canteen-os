@@ -1,0 +1,4 @@
+
+> @canteenos/core@0.0.3 build
+> tsc -p tsconfig.build.json
+

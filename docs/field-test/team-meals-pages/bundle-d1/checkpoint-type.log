@@ -1,0 +1,6 @@
+
+> @canteenos/web@0.0.3 typecheck
+> tsc --noEmit
+
+src/pages/admin/ingredient-form.ts(186,28): error TS2304: Cannot find name 'Currency'.
+src/pages/admin/ingredient-form.ts(699,25): error TS2304: Cannot find name 'Currency'.

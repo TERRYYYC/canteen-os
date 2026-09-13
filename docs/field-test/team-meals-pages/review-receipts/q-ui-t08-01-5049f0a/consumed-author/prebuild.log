@@ -1,0 +1,13 @@
+
+> @canteenos/web@0.0.3 prebuild
+> node scripts/gen-icons.mjs && node scripts/gen-qr.mjs
+
+已写入 public/icons/icon-192.png  192×192  2137 bytes
+已写入 public/icons/icon-512.png  512×512  6325 bytes
+已写入 public/icons/icon-maskable-192.png  192×192  1429 bytes
+已写入 public/icons/icon-maskable-512.png  512×512  4477 bytes
+已写入 public/icons/apple-touch-icon.png  180×180  1255 bytes
+已写入 public/qr/prep.png  ←  https://terryyyc.github.io/canteen-os/#/prep
+已写入 public/qr/purchase.png  ←  https://terryyyc.github.io/canteen-os/#/purchase
+已写入 public/qr/menu.png  ←  https://terryyyc.github.io/canteen-os/#/menu
+已写入 public/qr/index.json  （站点 URL 来自 package.json "homepage"）

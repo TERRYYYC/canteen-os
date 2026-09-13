@@ -1,0 +1,180 @@
+TAP version 13
+# Subtest: formal team publication has team navigation and its real protected plan link (zh)
+ok 1 - formal team publication has team navigation and its real protected plan link (zh)
+  ---
+  duration_ms: 26.56625
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (zh)
+ok 2 - empty and failed publication do not invent or retain an editable target (zh)
+  ---
+  duration_ms: 5.147375
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (zh)
+ok 3 - legacy keeps reader meaning and opens only the listed plan (zh)
+  ---
+  duration_ms: 4.971292
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (en)
+ok 4 - formal team publication has team navigation and its real protected plan link (en)
+  ---
+  duration_ms: 4.280125
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (en)
+ok 5 - empty and failed publication do not invent or retain an editable target (en)
+  ---
+  duration_ms: 5.152167
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (en)
+ok 6 - legacy keeps reader meaning and opens only the listed plan (en)
+  ---
+  duration_ms: 4.793416
+  ...
+# Subtest: formal team publication has team navigation and its real protected plan link (uk)
+ok 7 - formal team publication has team navigation and its real protected plan link (uk)
+  ---
+  duration_ms: 7.652417
+  ...
+# Subtest: empty and failed publication do not invent or retain an editable target (uk)
+ok 8 - empty and failed publication do not invent or retain an editable target (uk)
+  ---
+  duration_ms: 5.192417
+  ...
+# Subtest: legacy keeps reader meaning and opens only the listed plan (uk)
+ok 9 - legacy keeps reader meaning and opens only the listed plan (uk)
+  ---
+  duration_ms: 4.311583
+  ...
+# Subtest: open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+ok 10 - open drawer keeps equivalent focus across language and publication changes, and closes on the plan link
+  ---
+  duration_ms: 8.408541
+  ...
+# Subtest: navigation publication refresh leaves the existing editor outlet and pending save untouched
+ok 11 - navigation publication refresh leaves the existing editor outlet and pending save untouched
+  ---
+  duration_ms: 6.418416
+  ...
+# Subtest: core navigation remains visible, uses verified plan, and preserves current route after refresh
+ok 12 - core navigation remains visible, uses verified plan, and preserves current route after refresh
+  ---
+  duration_ms: 4.234666
+  ...
+# Subtest: deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+ok 13 - deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save
+  ---
+  duration_ms: 58.526583
+  ...
+# Subtest: raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+ok 14 - raw metadata is stable per document through language/plan return; read-only filters do not dirty it
+  ---
+  duration_ms: 18.240458
+  ...
+# Subtest: unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+ok 15 - unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending
+  ---
+  duration_ms: 29.39675
+  ...
+# Subtest: removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+ok 16 - removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row
+  ---
+  duration_ms: 19.843625
+  ...
+# Subtest: unrelated later row removal never consumes an earlier invalid raw value
+ok 17 - unrelated later row removal never consumes an earlier invalid raw value
+  ---
+  duration_ms: 13.772667
+  ...
+# Subtest: stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+ok 18 - stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans
+  ---
+  duration_ms: 19.456834
+  ...
+# Subtest: saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+ok 19 - saving existing JSON does not consume unapplied Add choices, including unknown result and route return
+  ---
+  duration_ms: 20.385041
+  ...
+# Subtest: acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+ok 20 - acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1
+  ---
+  duration_ms: 21.661083
+  ...
+# Subtest: Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+ok 21 - Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag
+  ---
+  duration_ms: 13.245709
+  ...
+# Subtest: clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+ok 22 - clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document
+  ---
+  duration_ms: 11.627416
+  ...
+# Subtest: registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+ok 23 - registered raw Plan input protects offscreen updates while C1 stays the only JSON owner
+  ---
+  duration_ms: 14.911167
+  ...
+# Subtest: initial Source and catalog reads each register before awaiting and finish their original coverage
+ok 24 - initial Source and catalog reads each register before awaiting and finish their original coverage
+  ---
+  duration_ms: 11.675042
+  ...
+# Subtest: old initialization result closes only old scope while B same-page read remains protected
+ok 25 - old initialization result closes only old scope while B same-page read remains protected
+  ---
+  duration_ms: 9.734208
+  ...
+# Subtest: a known Source error releases its read and page coverage without clearing existing raw input
+ok 26 - a known Source error releases its read and page coverage without clearing existing raw input
+  ---
+  duration_ms: 12.489083
+  ...
+# Subtest: compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing
+ok 27 - compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing
+  ---
+  duration_ms: 10.462667
+  ...
+# Subtest: controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page
+ok 28 - controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page
+  ---
+  duration_ms: 10.78275
+  ...
+# Subtest: same-revision thumbnails survive a language rebind without overwriting raw counts or duplicating HTTP reads
+ok 29 - same-revision thumbnails survive a language rebind without overwriting raw counts or duplicating HTTP reads
+  ---
+  duration_ms: 17.154583
+  ...
+# Subtest: unavailable: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+ok 30 - unavailable: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+  ---
+  duration_ms: 16.398083
+  ...
+# Subtest: wrong-revision: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+ok 31 - wrong-revision: a thumbnail failure is visible and releases its read without disabling ordinary Plan editing
+  ---
+  duration_ms: 17.55925
+  ...
+# Subtest: selecting another day moves a clean Add default to that day before directly adding a dish
+ok 32 - selecting another day moves a clean Add default to that day before directly adding a dish
+  ---
+  duration_ms: 16.237208
+  ...
+# Subtest: selecting another day preserves pending Add inputs and visibly identifies their destination
+ok 33 - selecting another day preserves pending Add inputs and visibly identifies their destination
+  ---
+  duration_ms: 13.465833
+  ...
+# Subtest: retired-auth image completion settles its own ticket while the new identity image read stays busy
+ok 34 - retired-auth image completion settles its own ticket while the new identity image read stays busy
+  ---
+  duration_ms: 13.510875
+  ...
+1..34
+# tests 34
+# suites 0
+# pass 34
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1284.914666

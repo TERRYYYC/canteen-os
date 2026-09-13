@@ -1,0 +1,602 @@
+[
+  {
+    "event": "reset",
+    "fixtureManifest": "Q afc3289",
+    "scope": "Pure core with explicit local input objects; no Git history, Worker admission, asset bytes or real save verified.",
+    "revisionCaveat": "These existing SHAs are format tokens only. The explicitly injected fixture objects are not their production data trees; no test asserts Git reachability, ancestry or authentic historical previous state."
+  },
+  {
+    "assertion": "action enabled: 读取最新已保存计划",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "action enabled: 生成待核对清单",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "creation displays four real collected all-check candidates",
+    "result": "pass"
+  },
+  {
+    "assertion": "creation decisions blocked before acknowledgement",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: 保存清单",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "success",
+    "ifMatch": null,
+    "ifNoneMatch": "*",
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "creation uses If-None-Match *",
+    "result": "pass"
+  },
+  {
+    "assertion": "creation writes exact all-check body",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: 待买",
+    "result": "pass"
+  },
+  {
+    "assertion": "buy reveals bought checkbox",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: 待买",
+    "result": "pass"
+  },
+  {
+    "assertion": "buy reveals bought checkbox",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: 保存清单",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "success",
+    "ifMatch": "mock-list-1",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "salt",
+          "decision": "buy",
+          "bought": true
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "buy",
+          "bought": true
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "manual decision save uses acknowledged If-Match",
+    "result": "pass"
+  },
+  {
+    "assertion": "manual bought decisions are separate from creation",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/team-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "saved decisions loaded in Ukrainian",
+    "result": "pass"
+  },
+  {
+    "assertion": "ingredient detail retains original A metadata while latest is B",
+    "result": "pass"
+  },
+  {
+    "assertion": "ingredient links to original source dish",
+    "result": "pass"
+  },
+  {
+    "assertion": "dish original quantity and version stay at A",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Копіювати список",
+    "result": "pass"
+  },
+  {
+    "assertion": "clipboard fallback includes basis and explicit decisions",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Прочитати останні збережені плани",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "new scope can be selected",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Застосувати діапазон і перевірити знову",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "rebase current list is entirely check",
+    "result": "pass"
+  },
+  {
+    "assertion": "removed salt retains old bought warning separately",
+    "result": "pass"
+  },
+  {
+    "assertion": "rebase requires acknowledgement before decisions",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Зберегти список",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "success",
+    "ifMatch": "mock-list-2",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-16",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "check",
+          "previous": {
+            "basis": {
+              "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+              "selection": [
+                {
+                  "menuPlanRef": "team-week",
+                  "date": "2026-09-14",
+                  "mealType": "lunch"
+                }
+              ]
+            },
+            "decision": "buy",
+            "bought": true
+          }
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "rebase saves actual B source and selected expanded scope",
+    "result": "pass"
+  },
+  {
+    "assertion": "rebase acknowledgement keeps all current candidates check",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Є в наявності",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Зберегти список",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "success",
+    "ifMatch": "mock-list-3",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-16",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "available"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "new confirmation is a later conditional write",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Купити",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Зберегти список",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "hold",
+    "ifMatch": "mock-list-4",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-16",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "buy"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "event": "response-held"
+  },
+  {
+    "assertion": "in-flight write disables manual decisions",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Available",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Save list",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "lost",
+    "ifMatch": "mock-list-5",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-16",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "available"
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "action enabled: Verify save outcome",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/team-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/team-shop",
+    "revision": "0000000000000000000000000000000000000006",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "recovery reads current then exact commit without another write",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Buy",
+    "result": "pass"
+  },
+  {
+    "assertion": "buy reveals bought checkbox",
+    "result": "pass"
+  },
+  {
+    "assertion": "action enabled: Save list",
+    "result": "pass"
+  },
+  {
+    "method": "POST",
+    "path": "/shopping-list/team-shop",
+    "scenario": "conflict",
+    "ifMatch": "mock-list-6",
+    "ifNoneMatch": null,
+    "body": {
+      "shoppingListVersion": "1",
+      "id": "team-shop",
+      "basis": {
+        "sourceRevision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+        "selection": [
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-14",
+            "mealType": "lunch"
+          },
+          {
+            "menuPlanRef": "team-week",
+            "date": "2026-09-16",
+            "mealType": "dinner"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "cooking-oil",
+          "decision": "check"
+        },
+        {
+          "ingredientRef": "tomato",
+          "decision": "buy",
+          "bought": true
+        },
+        {
+          "ingredientRef": "tomato-other",
+          "decision": "check"
+        }
+      ]
+    }
+  },
+  {
+    "assertion": "action enabled: Read remote and compare",
+    "result": "pass"
+  },
+  {
+    "method": "GET",
+    "path": "/source/shopping-list/team-shop",
+    "revision": null,
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "4878a8679b00baade5468fb2df4907fecb2a4f0a",
+    "owner": null,
+    "pointer": null
+  },
+  {
+    "assertion": "action enabled: Use remote content",
+    "result": "pass"
+  },
+  {
+    "assertion": "remote decision adopted through real controller",
+    "result": "pass"
+  },
+  {
+    "assertion": "every subsequent save uses If-Match",
+    "result": "pass"
+  }
+]

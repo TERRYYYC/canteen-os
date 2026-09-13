@@ -1,0 +1,103 @@
+[
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+      "packages/core/node_modules/typescript/bin/tsc",
+      "-p",
+      "packages/core/tsconfig.json"
+    ],
+    "log": "reviewer-core-typecheck-node20.log",
+    "exitCode": 0,
+    "note": "Initial setup accidentally uses no-emit config"
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434/packages/web",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --test test/*.test.mjs",
+    "log": "reviewer-node20-full-before-core-build.log",
+    "exitCode": 1,
+    "note": "Missing generated core/dist; 379/382, three module-load failures"
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+      "packages/core/node_modules/typescript/bin/tsc",
+      "-p",
+      "packages/core/tsconfig.build.json"
+    ],
+    "log": "reviewer-core-build-node20.log",
+    "exitCode": 0
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434/packages/web",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --test test/*.test.mjs",
+    "log": "reviewer-node20-full.log",
+    "exitCode": 0,
+    "tests": 419
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+      "packages/web/node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "-p",
+      "packages/web/tsconfig.json"
+    ],
+    "log": "reviewer-node20-typecheck.log",
+    "exitCode": 0
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+      "--import",
+      "./docs/field-test/team-meals-pages/node20-harness/restore-check.mjs",
+      "--test",
+      "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+      "packages/web/test/team-meals-pages-ack.test.mjs",
+      "packages/web/test/team-meals-pages-unload.test.mjs",
+      "packages/web/test/reviewer-ack-sweep.mjs"
+    ],
+    "log": "reviewer-node20-selected53.log",
+    "exitCode": 0,
+    "tests": 53
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node",
+      "reviewer-environment-probe.mjs"
+    ],
+    "log": "reviewer-node20-environment.log",
+    "exitCode": 0,
+    "scope": "environment probe; zero business tests added"
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/Users/terry/.nvm/versions/node/v24.18.0/bin/node",
+      "--import",
+      "./docs/field-test/team-meals-pages/node20-harness/restore-check.mjs",
+      "--test",
+      "packages/web/test/team-meals-pages-shopping-raw.test.mjs",
+      "packages/web/test/team-meals-pages-ack.test.mjs",
+      "packages/web/test/team-meals-pages-unload.test.mjs",
+      "packages/web/test/reviewer-ack-sweep.mjs"
+    ],
+    "log": "reviewer-node24-selected53.log",
+    "exitCode": 0,
+    "tests": 53
+  },
+  {
+    "cwd": "/private/tmp/canteen-node20-harness-review-b1c8434",
+    "command": [
+      "/Users/terry/.nvm/versions/node/v24.18.0/bin/node",
+      "reviewer-environment-probe.mjs"
+    ],
+    "log": "reviewer-node24-environment.log",
+    "exitCode": 0,
+    "scope": "environment probe; zero business tests added"
+  }
+]

@@ -1,11 +1,7 @@
-/**
- * 应用壳：左上角目录角标 + 抽屉、顶栏标题、右上角语言下拉、主内容容器（outlet）。
- * 结构与文案照 docs/design/screens-v2.html「抽屉打开态」那一屏：
- *   抽屉 = 品牌行 + 备料 / 采购 / 菜单 三项 + 菜单计划占位（标 "2-й етап"）+ 主题三态 + 底部（builtAt + 在线/离线副本/离线）。
- * 可访问性：角标 aria-label / aria-expanded / aria-controls；抽屉 role="dialog" aria-modal，Esc 关闭、Tab 圈在抽屉内、
- * 关闭后焦点回到角标；打开时主内容 inert；语言下拉是原生 <select>。
- */
+/** Reference v3 application chrome. Core routes remain ordinary protected links;
+ * the existing drawer retains utilities, theme and keyboard/focus behavior. */
 import type { BuildManifest } from "@canteenos/core";
+import type { Publication } from "./data";
 import { h, replace } from "./dom";
 import { LANGS, LANG_CHIP, LANG_NAME, LANG_TAG, getLang, setLang, t, type Lang } from "./i18n";
 import { hrefOf, type Route } from "./router";
@@ -15,9 +11,9 @@ export interface Shell {
   /** 换一个全新的空 outlet 挂到主区域（旧的摘掉），返回给页面 render 用 */
   newOutlet(): HTMLElement;
   setTitle(text: string): void;
-  setActive(route: Route): void;
-  /** build.json 读到后喂进来（null = 读失败，底部显示「未知」） */
-  setBuild(build: BuildManifest | null): void;
+  setActive(route: Route, rest?: string): void;
+  /** Same validated publication as main; old one-argument callers retain legacy semantics. null clears unavailable navigation. */
+  setBuild(build: BuildManifest | null, kind?: Publication["kind"]): void;
   /** 语言变了 / SW 接管了本页（src/pwa.ts）：重画壳层全部文案与抽屉底部状态 */
   refresh(): void;
   openDrawer(): void;
@@ -59,7 +55,9 @@ export function netState(): NetState {
 
 export function mountShell(root: HTMLElement): Shell {
   let active: Route = "prep";
+  let activeRest = "";
   let build: BuildManifest | null = null;
+  let publicationKind: Publication["kind"] | null = null;
   let open = false;
 
   // ---- 顶栏 ----
@@ -68,7 +66,8 @@ export function mountShell(root: HTMLElement): Shell {
   const select = h("select", { id: "lang" });
   const langLabel = h("span", { class: "sr-only" });
   const dd = h("label", { class: "dd", for: "lang" }, langLabel, select);
-  const appbar = h("header", { class: "appbar" }, corner, title, dd);
+  const planImport = h("a", { class: "plan-import", hidden: true });
+  const appbar = h("header", { class: "appbar" }, corner, title, planImport, dd);
 
   // ---- 主内容 ----
   const main = h("main", { id: "main" });
@@ -77,7 +76,8 @@ export function mountShell(root: HTMLElement): Shell {
   const scrim = h("div", { class: "scrim", hidden: true });
   const drawer = h("div", { id: "drawer", class: "drawer", role: "dialog", "aria-modal": "true", hidden: true });
 
-  root.replaceChildren(appbar, main, scrim, drawer);
+  const coreNav = h("nav", {class:"core-nav"});
+  root.replaceChildren(appbar, main, coreNav, scrim, drawer);
 
   // ---- 语言下拉 ----
   for (const l of LANGS) select.append(h("option", { value: l, title: LANG_NAME[l] }, LANG_CHIP[l]));
@@ -87,22 +87,64 @@ export function mountShell(root: HTMLElement): Shell {
   });
 
   // ---- 抽屉内容 ----
+  function isCurrent(href: string): boolean {
+    const path = active === 'admin' ? `${hrefOf('admin')}/${activeRest.split('/').filter(Boolean).map(encodeURIComponent).join('/')}` : hrefOf(active);
+    return href === path;
+  }
+  const localized=(zh:string,en:string,uk:string)=>({zh,en,uk})[getLang()];
+  const iconPaths = {
+    prep:'M4 8h16M6 8v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M9 4h6M3 12h3m12 0h3',
+    menu:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h8m-8 4h5',
+    purchase:'M3 4h2l3 12h10l3-9H6M9 20h.01M18 20h.01',
+    plan:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h2m4 0h2m-8 4h2m4 0h2',
+  };
+  function renderCoreNav():void {
+    const onPlan = active === 'admin' && /^plan\/[^/]+$/.test(activeRest);
+    planImport.hidden = !onPlan;
+    if (onPlan) planImport.setAttribute('href',`${hrefOf('admin')}/${activeRest.split('/').map(encodeURIComponent).join('/')}/import`);
+    else planImport.removeAttribute('href');
+    planImport.textContent = localized('导入','Import','Імпорт');
+    planImport.setAttribute('aria-label',localized('粘贴导入','Paste import','Імпорт зі вставленого тексту'));
+    coreNav.setAttribute('aria-label',localized('主导航','Main navigation','Основна навігація'));
+    const planId=build?.plans[0];
+    const items=[
+      {key:'prep',href:hrefOf('prep'),label:localized('备料','Prep','Підготовка')},
+      {key:'menu',href:hrefOf('menu'),label:localized('菜单','Menu','Меню')},
+      {key:'purchase',href:hrefOf('purchase'),label:localized('采购','Shopping','Закупівлі')},
+      {key:'plan',href:planId?`${hrefOf('admin')}/plan/${encodeURIComponent(planId)}`:null,label:localized('菜单计划','Plan','План')},
+    ] as const;
+    replace(coreNav,...items.map(item=>{
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPaths[item.key]}"/></svg>`;
+      const glyph=h('span',{class:'nav-glyph','aria-hidden':'true',style:`--nav-icon:url("data:image/svg+xml,${encodeURIComponent(svg)}")`});
+      return h(item.href?'a':'span',{href:item.href,'aria-disabled':item.href?null:'true','aria-current':item.href&&isCurrent(item.href)?'page':null},glyph,h('span',{},item.label));
+    }));
+  }
   function renderDrawer(): void {
+    const focused = open && drawer.contains(document.activeElement) ? document.activeElement : null;
+    const focusedHref = focused?.getAttribute('href');
+    const focusedTheme = focused?.getAttribute('data-theme-value');
     const lang = getLang();
+    const team = publicationKind === 'team-meals';
     const items: HTMLElement[] = NAV.map(({ route, icon, l1, l2 }) =>
       h(
         "a",
         { class: "di", href: hrefOf(route), "aria-current": route === active ? "page" : null },
         h("span", { class: "ic", "aria-hidden": "true" }, icon),
-        h("span", { class: "tx" }, h("span", { class: "l1" }, t(l1)), h("span", { class: "l2" }, t(l2))),
+        h("span", { class: "tx" },
+          h("span", { class: "l1" }, t(route === 'menu' && team ? 'page.teamMenu' : l1)),
+          h("span", { class: "l2" }, t(route === 'menu' ? (team ? 'drawer.teamMenu.role' : publicationKind === 'legacy' ? l2 : 'drawer.menu.view') : l2))),
       ),
     );
-    const soon = h(
-      "div",
-      { class: "di soon", "aria-disabled": "true" },
+    const planId = build?.plans[0];
+    const planHref = planId ? `${hrefOf('admin')}/plan/${encodeURIComponent(planId)}` : null;
+    const plan = h(
+      planHref ? "a" : "div",
+      { class: planHref ? "di" : "di soon", href: planHref, "aria-disabled": planHref ? null : "true",
+        "aria-current": planHref && isCurrent(planHref) ? "page" : null },
       h("span", { class: "ic", "aria-hidden": "true" }, "计"),
-      h("span", { class: "tx" }, h("span", { class: "l1" }, t("drawer.plan")), h("span", { class: "l2" }, t("drawer.plan.role"))),
-      h("span", { class: "later" }, t("drawer.plan.later")),
+      h("span", { class: "tx" },
+        h("span", { class: "l1" }, t(team ? "drawer.teamPlan" : "drawer.plan")),
+        h("span", { class: "l2" }, t(planHref ? "drawer.plan.role" : build ? "drawer.plan.empty" : "drawer.plan.unavailable"))),
     );
 
     const themeLabel = h("span", { class: "label", id: "theme-label" }, t("theme.label"));
@@ -141,10 +183,16 @@ export function mountShell(root: HTMLElement): Shell {
         h("span", { class: "corner", "aria-hidden": "true" }, ...cornerGlyph()),
         h("div", {}, h("div", { class: "n" }, t("app.name")), h("div", { class: "s" }, t("app.tagline"))),
       ),
-      h("nav", { "aria-label": t("drawer.title") }, ...items, soon),
+      h("nav", { "aria-label": t("drawer.title") }, ...items, plan),
       h("div", { class: "theme" }, themeLabel, toggle),
       foot,
     );
+    renderCoreNav();
+    if (focused) {
+      const equivalent = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)].find(el =>
+        (focusedHref && el.getAttribute('href') === focusedHref) || (focusedTheme && el.getAttribute('data-theme-value') === focusedTheme));
+      (equivalent ?? drawer.querySelector<HTMLElement>('a[aria-current="page"]') ?? drawer.querySelector<HTMLElement>(FOCUSABLE))?.focus();
+    }
   }
 
   function renderChrome(): void {
@@ -164,6 +212,7 @@ export function mountShell(root: HTMLElement): Shell {
     scrim.hidden = false;
     drawer.hidden = false;
     main.setAttribute("inert", "");
+    coreNav.setAttribute("inert", "");
     corner.setAttribute("aria-expanded", "true");
     corner.setAttribute("aria-label", t("drawer.close"));
     corner.classList.add("open");
@@ -176,6 +225,7 @@ export function mountShell(root: HTMLElement): Shell {
     scrim.hidden = true;
     drawer.hidden = true;
     main.removeAttribute("inert");
+    coreNav.removeAttribute("inert");
     corner.setAttribute("aria-expanded", "false");
     corner.setAttribute("aria-label", t("drawer.open"));
     corner.classList.remove("open");
@@ -220,19 +270,23 @@ export function mountShell(root: HTMLElement): Shell {
       return el;
     },
     setTitle(text) {
+      if(active==='admin'&&/^plan\/[^/]+$/.test(activeRest))text=localized('菜单计划','Meal plan','План меню');
       title.textContent = text;
       document.title = text ? `${text} · ${t("app.name")}` : t("app.name");
     },
-    setActive(route) {
+    setActive(route, rest = "") {
       active = route;
+      activeRest = rest;
+      renderCoreNav();
       for (const a of drawer.querySelectorAll<HTMLAnchorElement>("a.di")) {
-        const isActive = a.getAttribute("href") === hrefOf(route);
+        const isActive = isCurrent(a.getAttribute("href") ?? "");
         if (isActive) a.setAttribute("aria-current", "page");
         else a.removeAttribute("aria-current");
       }
     },
-    setBuild(b) {
+    setBuild(b, kind = "legacy") {
       build = b;
+      publicationKind = b ? kind : null;
       renderDrawer();
     },
     refresh: renderChrome,

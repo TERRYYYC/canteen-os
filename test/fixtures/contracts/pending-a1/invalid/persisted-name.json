@@ -1,0 +1,35 @@
+{
+  "shoppingListVersion": "1",
+  "id": "team-shop",
+  "basis": {
+    "sourceRevision": "3d9f2aac7fb3f76225d315e34ec5aad7d00dcf96",
+    "selection": [
+      {
+        "menuPlanRef": "team-week",
+        "date": "2026-09-14",
+        "mealType": "lunch"
+      }
+    ]
+  },
+  "items": [
+    {
+      "ingredientRef": "cooking-oil",
+      "decision": "check",
+      "name": {
+        "zh": "油"
+      }
+    },
+    {
+      "ingredientRef": "salt",
+      "decision": "check"
+    },
+    {
+      "ingredientRef": "tomato",
+      "decision": "check"
+    },
+    {
+      "ingredientRef": "tomato-other",
+      "decision": "check"
+    }
+  ]
+}

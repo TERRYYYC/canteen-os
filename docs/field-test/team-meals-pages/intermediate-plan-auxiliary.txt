@@ -1,0 +1,50 @@
+✔ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (17.392125ms)
+✔ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (4.701542ms)
+✔ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (6.871084ms)
+✔ removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row (4.603166ms)
+✔ unrelated later row removal never consumes an earlier invalid raw value (3.32625ms)
+✔ stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans (4.612625ms)
+✔ saving existing JSON does not consume unapplied Add choices, including unknown result and route return (5.046083ms)
+✖ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (6.224375ms)
+✔ Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag (3.741583ms)
+✔ clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document (2.939625ms)
+✔ registered raw Plan input protects offscreen updates while C1 stays the only JSON owner (3.741042ms)
+✔ initial Source and catalog reads each register before awaiting and finish their original coverage (3.405292ms)
+✔ old initialization result closes only old scope while B same-page read remains protected (3.316875ms)
+✔ a known Source error releases its read and page coverage without clearing existing raw input (3.805875ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.487833
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-plan-raw.test.mjs:58:1
+✖ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (6.224375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      dirty: true,
+  +   generation: 9,
+  -   generation: 7,
+      identity: {
+        id: 'week-a',
+        kind: 'plan'
+      },
+      ownerId: 'plan-buffer/week-a',
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-plan-raw.test.mjs:59:389)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { ownerId: 'plan-buffer/week-a', identity: { kind: 'plan', id: 'week-a' }, generation: 9, dirty: true, phase: 'idle' },
+    expected: { ownerId: 'plan-buffer/week-a', identity: { kind: 'plan', id: 'week-a' }, generation: 7, dirty: true, phase: 'idle' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

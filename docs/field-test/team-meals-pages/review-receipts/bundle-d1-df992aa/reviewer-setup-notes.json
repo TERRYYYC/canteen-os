@@ -1,0 +1,9 @@
+{
+  "scope": "Temporary reviewer tooling only, no production change",
+  "uncapturedSetupAttempt": {
+    "operation": "Initial manifest verifier assumed a list for both groups",
+    "observedError": "TypeError: string indices must be integers",
+    "cause": "bundle-d1/manifest.json is a path-keyed object while bundle-d1-browser/manifest.json is an array",
+    "disposition": "Corrected reviewer-integrity.py branches on the manifest shape; reviewer-integrity.log and reviewer-source-evidence.json record successful 50/50 + 59/59. This note is a reconstruction of the tool result, not an original process log."
+  }
+}

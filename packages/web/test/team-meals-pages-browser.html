@@ -1,0 +1,72 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Team meal pages — explicit mock verification</title></head><body>
+<aside style="padding:12px;border-bottom:1px solid #777"><strong>页面交互验证 · MOCK ONLY · afc3289 fixtures</strong>
+<label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<label>保存响应 <select id="scenario"><option value="success">success</option><option value="delayed">delayed</option><option value="lost">lost response</option><option value="conflict">conflict</option></select></label>
+<button id="finish">完成待处理响应</button><button id="away">离开/返回</button><button id="run">运行计划页主流程</button><output id="result"></output></aside>
+<main id="app" style="padding:20px"></main><details><summary>Mock request ledger (no credentials)</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {createPlanRenderer} from '../src/pages/admin/plan.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import planSeed from '../../../test/fixtures/contracts/pending-a1/valid/menu-plan-v3.json';
+const files=import.meta.glob('../../../test/fixtures/contracts/valid/boundaries/data/**/*.json',{eager:true,import:'default'});
+const catalog={commit:'a'.repeat(40),dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+for(const [path,value] of Object.entries(files)){
+ const m=path.match(/data\/(dishes|ingredients)\/([^/]+)\.json$/);if(m)catalog[m[1]][m[2]]=value;
+ if(path.endsWith('/techniques.json'))catalog.techniques=value;
+}
+let content=structuredClone(planSeed),revision='a'.repeat(40),blob='blob-a',counter=10,hold=null;
+const snapshots=new Map([[revision,{content:structuredClone(content),commit:revision,blobSha:blob}]]),ledger=[];
+function log(entry){ledger.push(entry);document.querySelector('#ledger').textContent=JSON.stringify(ledger,null,2);}
+const response=value=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
+const fetchMock=async(url,init)=>{
+ const u=new URL(String(url)),method=init.method??'GET';
+ if(method==='GET'){
+  log({method,path:u.pathname,revision:u.searchParams.get('revision')});
+  if(u.pathname==='/catalog')return response({...catalog,commit:u.searchParams.get('revision')??revision});
+  if(u.pathname==='/source/plan/team-week')return response(u.searchParams.has('revision')?snapshots.get(u.searchParams.get('revision')):{content,commit:revision,blobSha:blob});
+  return new Response(JSON.stringify({code:'not_found'}),{status:404});
+ }
+ const body=JSON.parse(init.body),headers=new Headers(init.headers);
+ log({method,path:u.pathname,body,ifMatch:headers.get('If-Match'),ifNoneMatch:headers.get('If-None-Match')});
+ const mode=document.querySelector('#scenario').value;
+ if(mode==='conflict')return new Response(JSON.stringify({code:'conflict',message:''}),{status:409});
+ content=body;revision=(++counter).toString(16).padStart(40,'0');blob=`blob-${counter}`;snapshots.set(revision,{content:structuredClone(content),commit:revision,blobSha:blob});
+ const result={commit:revision,blobSha:blob,unchanged:false,warnings:[]};
+ if(mode==='delayed')await new Promise(resolve=>{hold=resolve;});
+ if(mode==='lost')throw new TypeError('simulated response loss');return response(result);
+};
+const api=createTeamMealsApi('https://explicit-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'mock-only-not-a-credential',identity:()=>1});
+const render=createPlanRenderer(api);let away=false;
+async function paint(){
+ document.documentElement.lang=document.querySelector('#lang').value;
+ const outlet=document.createElement('section');document.querySelector('#app').replaceChildren(outlet);
+ if(away){outlet.textContent='页面已离开 / Page detached';return;}
+ await render(outlet,{lang:document.querySelector('#lang').value,planId:'team-week',rest:'team-week',route:'admin',data:{},t:key=>key},'team-week');
+}
+document.querySelector('#lang').onchange=paint;document.querySelector('#finish').onclick=()=>{hold?.();hold=null;};document.querySelector('#away').onclick=()=>{away=!away;void paint();};
+const tick=()=>new Promise(r=>setTimeout(r,30));
+function assert(ok,message){if(!ok)throw new Error(message);}
+function set(selector,value){const el=document.querySelector(selector);assert(el,selector);el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));}
+document.querySelector('#run').onclick=async()=>{
+ const out=document.querySelector('#result');try{
+  assert(document.querySelectorAll('[data-meal-index]').length===3,'3 fixture meals');
+  assert(document.querySelector('[data-focus="servings-0"]').value==='','optional count empty');
+  set('[data-focus="servings-0"]','5');document.querySelector('#scenario').value='delayed';document.querySelector('.tm-actions button').click();await tick();
+  document.querySelector('#lang').value='uk';await paint();set('[data-focus="servings-0"]','6');hold();hold=null;await tick();
+  assert(document.querySelector('[data-phase="dirty"]'),'new edit stays dirty after old ack');
+  assert(document.querySelector('[data-focus="servings-0"]').value==='6','language preserves edit');
+  document.querySelector('#scenario').value='lost';document.querySelector('.tm-actions button').click();await tick();
+  assert(document.querySelector('[data-phase="outcome-unknown"]'),'lost response stays unknown');away=true;await paint();await tick();away=false;await paint();
+  assert(document.querySelector('[data-phase="outcome-unknown"]'),'unknown resumes after return');
+  const writes=ledger.filter(x=>x.method==='POST').length,reads=ledger.filter(x=>x.method==='GET'&&x.path==='/source/plan/team-week').length;
+  [...document.querySelectorAll('button')].find(x=>x.textContent==='Перевірити результат збереження').click();await tick();
+  assert(document.querySelector('[data-phase="saved-but-unpublished"]'),'verified saved result');
+  assert(ledger.filter(x=>x.method==='POST').length===writes,'no duplicate writes');assert(ledger.filter(x=>x.method==='GET'&&x.path==='/source/plan/team-week').length-reads===2,'two recovery reads');
+  assert(ledger.filter(x=>x.method==='POST').every(x=>x.body.meals.length===3&&x.body.schemaVersion==='3'&&x.ifMatch),'full plan and lock');
+  out.textContent=' PASS — real page + C1, mock network only';
+ }catch(error){out.textContent=` FAIL — ${error.message}`;}
+};
+const params=new URLSearchParams(location.search);if(params.has('capture'))document.querySelector('aside').hidden=true;if(params.has('lang'))document.querySelector('#lang').value=params.get('lang');
+await paint();
+</script></body></html>

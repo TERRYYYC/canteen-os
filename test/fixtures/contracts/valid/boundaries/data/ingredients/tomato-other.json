@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "番茄",
+    "en": "Tomato",
+    "uk": "Помідор"
+  },
+  "baseUnit": "g",
+  "role": "main",
+  "trackStock": false
+}

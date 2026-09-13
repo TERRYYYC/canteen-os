@@ -1,0 +1,10 @@
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-ctAl4h/a/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-ctAl4h/a-time/test/application-review.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /private/tmp/canteen-final-composition-review-9480260/node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.es5.mjs is dynamically imported by /@vite-plugin-pwa/virtual:pwa-register but also statically imported by /private/tmp/c2b-real-sw-ctAl4h/b/test/application-review.ts, dynamic import will not move module into another chunk.
+
+{"url":"http://127.0.0.1:4280/canteen/","entry":"application","stateFile":"/private/tmp/c2b-real-sw-ctAl4h/state.json","snapshots":{"a":{"root":"/private/tmp/c2b-real-sw-ctAl4h/a/dist","revision":"73df4c559f76309d7f464025a8405e7724a43d7a"},"a-time":{"root":"/private/tmp/c2b-real-sw-ctAl4h/a-time/dist","revision":"73df4c559f76309d7f464025a8405e7724a43d7a"},"b":{"root":"/private/tmp/c2b-real-sw-ctAl4h/b/dist","revision":"0378322b11716d38d9829a0af1cc0bcdbe6e87d8"}}}

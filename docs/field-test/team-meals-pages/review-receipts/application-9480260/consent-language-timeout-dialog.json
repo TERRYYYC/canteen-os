@@ -1,0 +1,12 @@
+{
+  "dialogs": [
+    {
+      "open": true,
+      "text": "Оновлення застосункуОновлення не завершено. Вашу сторінку збережено; спробуйте ще раз.plan: sw-planПродовжити роботу"
+    }
+  ],
+  "height": 720,
+  "language": "uk",
+  "location": "http://127.0.0.1:4280/canteen/#/admin/plan/sw-plan",
+  "width": 1280
+}

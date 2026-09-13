@@ -1,0 +1,18 @@
+✔ deleting row 0 preserves the precise invalid raw text on original row 1 as remaining row 0 and blocks save (16.526542ms)
+✔ raw metadata is stable per document through language/plan return; read-only filters do not dirty it (4.185792ms)
+✔ unapplied Add date/meal/dish survive language and plan return, and only a successful Add consumes pending (6.30825ms)
+✔ removal shifts only later raw indices, preserves earlier ones, and consumes only the explicitly removed row (4.336291ms)
+✔ unrelated later row removal never consumes an earlier invalid raw value (3.055959ms)
+✔ stale Add/Remove handlers cannot consume the prior document raw buffer after changing plans (3.206167ms)
+✔ saving existing JSON does not consume unapplied Add choices, including unknown result and route return (4.113167ms)
+✔ acknowledging an earlier save does not erase newer invalid input; correcting it serializes only through C1 (5.022ms)
+✔ Add defaults are clean, reverting an input makes it clean with newer generation, and successful Add does not leave a false pending flag (3.670917ms)
+✔ clean C1 JSON with pending raw input is visibly unsaved without changing the C1 phase or document (2.88075ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.247916

@@ -1,3 +1,5 @@
+import {recordValue,translations,supportDetails,word} from './record-display';
+import {renderRecordNotice} from './record-notices';
 /**
  * /prep 备料单（issue #9）：A 版列表为主视图，点配料行进 B 版详情，C 版的时间分组做成筛选 chip。
  * UI 事实源 docs/design/screens-v2.html「备料单」三版；契约见 src/types.ts：render(el, ctx)。
@@ -14,8 +16,13 @@
  * 这里没有任何技法词。图片 src 以 http 开头直接用，否则相对 BASE_URL。
  */
 import "./prep.css";
+import { renderPublishedMeals } from "./published-meals";
+import type { PublishedAsset } from "../data";
 
 import type {
+  AnyDish,
+  AnyMenuPlan,
+  ImageRef,
   I18nString,
   MealType,
   PrepGroup,
@@ -28,7 +35,10 @@ import type {
   SheetIssue,
   SheetIssueCode,
   Unit,
+  TeamMealsProjection,
+  ReferenceIssue,
 } from "@canteenos/core";
+import type { RevisionAsset } from "../api/team-meals";
 import { append, h, replace } from "../dom";
 import { LANG_TAG, pick, type Lang } from "../i18n";
 import { hrefOf } from "../router";
@@ -269,6 +279,7 @@ function resolve(sheet: PrepSheet, rest: string): Sel | null {
 // ---------------------------------------------------------------------------
 
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
+  if (await renderPublishedMeals(el, ctx, "prep", renderFrozenPrep, renderFrozenPrep, selectFrozenMealRows)) return;
   const { lang } = ctx;
   const status = h("p", { class: "muted" }, ctx.t("data.loading"));
   el.append(status);
@@ -284,11 +295,13 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     return;
   }
   status.remove();
+  if (!el.isConnected) return;
 
   const days = [...sheet.days].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const sel = resolve({ ...sheet, days }, ctx.rest);
   const root = h("div", { class: "prep" });
   el.append(root);
+  root.append(h("p", { class: "muted", role: "status" }, RAW_COPY.legacy[lang]));
 
   if (sheet.issues.length > 0) {
     root.append(
@@ -316,6 +329,301 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
     return;
   }
   renderList(root, ctx, days, sel.day, sel.meal);
+}
+
+/**
+ * Raw team-meal presentation boundary. C2a can supply its original frozen SavedView;
+ * a future published loader must supply its own verified, deeply frozen projection.
+ * Neither entry below fetches current information nor claims that the source is published.
+ */
+export interface FrozenMealSource {
+  readonly mode: "real" | "mock";
+  readonly projection: TeamMealsProjection;
+}
+export interface FrozenMealSelection {
+  menuPlanRef?: string;
+  date?: string;
+  mealType?: MealType;
+  /** Position in this fixed plan only; never a persistent menu-row ID. */
+  mealIndex?: number;
+}
+export type FrozenImageResult = RevisionAsset | PublishedAsset;
+export interface FrozenMealRenderOptions {
+  /** Compact task hierarchy for the public Prep entry; other recipe consumers keep their layout. */
+  layout?: "cooking";
+  /** Publication-owned UI choices only; no recipe data is stored here. */
+  disclosureState?: Map<string, boolean>;
+  ingredientRef?: string;
+  timing?: string;
+  onShowAllTimings?: () => void;
+  recipeHref?: (row: FrozenMealRow) => string;
+  onReference?: (kind: "ingredient" | "dish", id: string) => void;
+  lang: Lang;
+  selection?: FrozenMealSelection;
+  asset?: (query: { revision: string; owner: string; pointer: string }) => Promise<FrozenImageResult>;
+  /** The owner resolves the ID in its original catalog or branded publication. */
+  techniqueAsset?: (techniqueRef: string) => Promise<FrozenImageResult>;
+  href?: (kind: "ingredient" | "dish", id: string) => string;
+}
+export interface FrozenMealRow {
+  readonly menuPlanRef: string;
+  readonly mealIndex: number;
+  readonly meal: AnyMenuPlan["meals"][number];
+  readonly dish: AnyDish | undefined;
+}
+const RAW_COPY = {
+  selectedComponents: { zh: "所选材料与调料", en: "Selected ingredients and seasonings", uk: "Вибрані інгредієнти й приправи" },
+  imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Зображення не записано" },
+  externalImage: { zh: "外链图片未固定到此版本", en: "External image is not pinned to this version", uk: "Зовнішнє зображення не закріплено за цією версією" },
+  title: { zh: "原配方与备料资料", en: "Recipes and preparation", uk: "Рецепти й підготовка" },
+  issues: { zh: "需要核对的资料", en: "Information to review", uk: "Дані для перевірки" },
+  "missing-plan": { zh: "排菜计划未找到", en: "Meal plan unavailable", uk: "План харчування недоступний" },
+  "empty-selection": { zh: "所选餐次没有排菜", en: "No dishes in the selected meal", uk: "У вибраному прийомі їжі немає страв" },
+  "missing-dish": { zh: "菜谱未找到", en: "Recipe unavailable", uk: "Рецепт недоступний" },
+  "missing-ingredient": { zh: "食材资料未找到", en: "Ingredient information unavailable", uk: "Дані інгредієнта недоступні" },
+  "components-unrecorded": { zh: "尚未录入配料", en: "Ingredients not recorded", uk: "Інгредієнти не записано" },
+  "dish-not-active": { zh: "菜谱待完善", en: "Recipe needs review", uk: "Рецепт потребує перевірки" },
+  "missing-technique": { zh: "技法资料未找到", en: "Technique information unavailable", uk: "Дані техніки недоступні" },
+  source: { zh: "资料版本", en: "Source version", uk: "Версія даних" },
+  mock: { zh: "模拟资料，未证明真实保存或发布", en: "Simulation; no real save or publication verified", uk: "Симуляція; реальне збереження й публікацію не підтверджено" },
+  legacy: { zh: "此页为按份数生成的备料单，可能未显示缺基准份数的菜谱。完整原配方视图暂不可用。", en: "This is a servings-based prep sheet; recipes without a base count may be absent. The full original-recipe view is not available here yet.", uk: "Це лист підготовки за порціями; рецепти без базової кількості можуть бути відсутні. Перегляд повних оригінальних рецептів тут ще недоступний." },
+  original: { zh: "原配方用量，未缩放", en: "Original recipe quantities, unscaled", uk: "Кількості оригінального рецепта, без масштабування" },
+  quantityMissing: { zh: "用量未录", en: "Quantity not recorded", uk: "Кількість не записано" },
+  taste: { zh: "适量", en: "To taste", uk: "За смаком" },
+  missing: { zh: "未录", en: "Not recorded", uk: "Не записано" },
+  missingRecord: { zh: "资料未找到，原引用保留", en: "Record unavailable; original reference retained", uk: "Дані недоступні; вихідне посилання збережено" },
+  planned: { zh: "计划份数", en: "Planned servings", uk: "Заплановані порції" },
+  base: { zh: "原配方基准份数", en: "Original recipe servings", uk: "Базові порції рецепта" },
+  status: { zh: "记录状态", en: "Recorded status", uk: "Записаний стан" },
+  role: { zh: "材料角色", en: "Ingredient role", uk: "Роль інгредієнта" },
+  main: { zh: "主料", en: "Main ingredient", uk: "Основний інгредієнт" },
+  seasoning: { zh: "调料", en: "Seasoning", uk: "Приправа" },
+  package: { zh: "包装规格", en: "Package size", uk: "Розмір пакування" },
+  supplier: { zh: "供应商", en: "Supplier", uk: "Постачальник" },
+  technique: { zh: "技法", en: "Technique", uk: "Техніка" },
+  size: { zh: "切配规格", en: "Prep size", uk: "Розмір підготовки" },
+  timing: { zh: "准备时机", en: "Prep timing", uk: "Час підготовки" },
+  note: { zh: "原备注", en: "Original note", uk: "Вихідна примітка" },
+  components: { zh: "全部已录食材与调料", en: "All recorded ingredients and seasonings", uk: "Усі записані інгредієнти й приправи" },
+  steps: { zh: "完整已录步骤", en: "All recorded steps", uk: "Усі записані кроки" },
+  imageLoading: { zh: "正在读取同版图片", en: "Loading same-version image", uk: "Завантаження зображення цієї версії" },
+  imageMissing: { zh: "同版图片不可用", en: "Same-version image unavailable", uk: "Зображення цієї версії недоступне" },
+  license: { zh: "许可", en: "License", uk: "Ліцензія" },
+  author: { zh: "作者", en: "Author", uk: "Автор" },
+  provenance: { zh: "配方来源", en: "Recipe source", uk: "Джерело рецепта" },
+  clip: { zh: "原视频片段", en: "Source video clip", uk: "Фрагмент оригінального відео" },
+  coverage: { zh: "这里只展示已录资料；配方完整性仍需人工核对。", en: "Only recorded information is shown; recipe completeness still needs human review.", uk: "Показано лише записані дані; повноту рецепта має перевірити людина." },
+  empty: { zh: "所选范围没有已录餐食", en: "No recorded meals in this selection", uk: "У цьому виборі немає записаних страв" },
+} as const;
+type RawKey = keyof typeof RAW_COPY;
+const rawText = (lang: Lang, key: RawKey): string => RAW_COPY[key][lang];
+const ownRecord = <T>(map: Record<string, T>, id: string): T | undefined => Object.hasOwn(map, id) ? map[id] : undefined;
+function deeplyFrozen(value: unknown, seen = new WeakSet<object>()): boolean {
+  if (value === null || typeof value !== "object" || seen.has(value)) return true;
+  if (!Object.isFrozen(value)) return false;
+  seen.add(value);
+  return Object.values(value).every(child => deeplyFrozen(child, seen));
+}
+/** Presentation selection only; core remains the owner of ingredient collection and estimates. */
+export function selectFrozenMealRows(source: FrozenMealSource, selection: FrozenMealSelection = {}): readonly FrozenMealRow[] {
+  const projection = source.projection;
+  if (!/^[0-9a-f]{40}$/.test(projection.sourceRevision)) throw new Error("Invalid source revision");
+  if (projection.projectionVersion !== "1" || !["real", "mock"].includes(source.mode)) throw new Error("Unsupported source format");
+  if (!deeplyFrozen(projection)) throw new Error("A deeply frozen source projection is required");
+  const rows: FrozenMealRow[] = [];
+  for (const [menuPlanRef, plan] of Object.entries(projection.menuPlans)) {
+    if (selection.menuPlanRef !== undefined && selection.menuPlanRef !== menuPlanRef) continue;
+    for (const [mealIndex, meal] of plan.meals.entries()) {
+      if (!projection.selection.some(slot => slot.menuPlanRef === menuPlanRef && slot.date === meal.date && slot.mealType === meal.mealType)) continue;
+      if (selection.date !== undefined && selection.date !== meal.date) continue;
+      if (selection.mealType !== undefined && selection.mealType !== meal.mealType) continue;
+      if (selection.mealIndex !== undefined && selection.mealIndex !== mealIndex) continue;
+      rows.push(Object.freeze({ menuPlanRef, mealIndex, meal, dish: ownRecord(projection.dishes, meal.dishRef) }));
+    }
+  }
+  return Object.freeze(rows);
+}
+export function rawQuantityText(qty: Quantity | undefined, lang: Lang): string {
+  if (!qty) return rawText(lang, "quantityMissing");
+  if (qty.unit === "to-taste") return rawText(lang, "taste");
+  return qty.value === undefined ? rawText(lang, "quantityMissing") : `${qty.value} ${qty.unit}`;
+}
+function rawSafeLink(value: string | undefined): string | null {
+  if (!value || !/^https?:\/\//i.test(value)) return null;
+  try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) ? url.href : null; } catch { return null; }
+}
+const frozenPrepDisposers = new WeakMap<HTMLElement, () => void>();
+export function selectFrozenIssues(issues: readonly ReferenceIssue[], selection: FrozenMealSelection = {}): readonly ReferenceIssue[] {
+  return issues.filter(issue => (Object.keys(selection) as Array<keyof FrozenMealSelection>).every(key => selection[key] === undefined || issue[key] === undefined || issue[key] === selection[key]));
+}
+/** Empty-view copy only; the core's whole-projection coverage stays unchanged. */
+export function hasFrozenSourceGap(issues: readonly ReferenceIssue[]): boolean {
+  return issues.some(issue => issue.code === "missing-plan" || issue.code === "missing-dish" || issue.code === "components-unrecorded");
+}
+export function renderFrozenIssues(issues: readonly ReferenceIssue[], lang: Lang, selection: FrozenMealSelection = {}, projection?: TeamMealsProjection): HTMLElement | null {
+  const selected = selectFrozenIssues(issues, selection);
+  if (!selected.length) return null;
+  return h("details", { class: "raw-issues" }, h("summary", {}, `${rawText(lang, "issues")} · ${selected.length}`), ...selected.map(issue => renderRecordNotice(issue, lang, projection)));
+}
+/** No IO other than the explicitly injected fixed-version asset reader. */
+export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions): () => void {
+  const rows = selectFrozenMealRows(source, options.selection);
+  frozenPrepDisposers.get(el)?.();
+  const { projection } = source, { lang } = options, t = (key: RawKey): string => rawText(lang, key), cooking = options.layout === "cooking";
+  let live = true;
+  const urls = new Set<string>();
+  const dispose = (): void => {
+    if (!live) return;
+    live = false; observer.disconnect();
+    for (const url of urls) URL.revokeObjectURL(url);
+    urls.clear();
+    if (frozenPrepDisposers.get(el) === dispose) frozenPrepDisposers.delete(el);
+  };
+  const observer = new MutationObserver(() => { if (!el.isConnected) dispose(); });
+  observer.observe(document.body, { childList: true, subtree: true });
+  frozenPrepDisposers.set(el, dispose);
+  const root = h("div", { class: cooking ? "prep prep-cooking" : "prep", "data-frozen-prep": "", "data-source-revision": projection.sourceRevision });
+  el.replaceChildren(root);
+  const fact = (label: string, value: string | number | undefined): HTMLElement => h("p", {}, h("b", {}, `${label}: `), value === undefined ? t("missing") : String(value));
+  const names = (name: I18nString | undefined): HTMLElement => translations(name, lang);
+  const external = (url: string | undefined, label: string): HTMLElement => {
+    const safe = rawSafeLink(url);
+    return safe ? h("a", { href: safe, target: "_blank", rel: "noopener noreferrer" }, label) : h("span", {}, label, `: ${t("missing")}`);
+  };
+  const reference = (kind: "dish" | "ingredient", id: string, name: string): HTMLElement => {
+    const href = options.href?.(kind, id);
+    if (!href?.startsWith("#/")) return h("span", {}, name);
+    const link = h("a", { href }, name);
+    link.addEventListener("click", () => options.onReference?.(kind, id));
+    return link;
+  };
+  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message, " ",
+    h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
+  function originalNote(text: string, key: string): HTMLElement {
+    const letters=Array.from(text),limit=lang==="zh"?32:80;
+    if(letters.length<=limit)return fact(t("note"),text);
+    const details=h("details",{class:"prep-original-note","data-prep-note":key},h("summary",{},
+      h("span",{class:"prep-note-label"},word(lang,"原备注 · 查看全文","Note · Full text","Примітка · Повний текст")),
+      h("span",{class:"prep-note-excerpt"},`${letters.slice(0,Math.floor(limit*2/3)).join("")}…`)),h("p",{class:"prep-note-full"},text));
+    details.open=options.disclosureState?.get(key)??false;
+    details.addEventListener("toggle",()=>{if(live&&el.isConnected&&details.isConnected)options.disclosureState?.set(key,details.open);});
+    return details;
+  }
+  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>, support?: HTMLElement): HTMLElement {
+    const box = h("figure", {});
+    const load = read ?? (options.asset ? () => options.asset!({ revision: projection.sourceRevision, owner, pointer }) : undefined);
+    const state = h("p", { class: "muted", role: "status" }, t(!ref ? "imageUnrecorded" : load ? "imageLoading" : "imageMissing"));
+    box.append(state);
+    if (!ref) { box.setAttribute("data-asset-state", "not-recorded"); return box; }
+    const caption=h("details", {}, h("summary", {}, word(lang,"图片来源与许可","Image source and license","Джерело зображення й ліцензія")), `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, word(lang,"查看来源","View source","Переглянути джерело")));
+    if(support)support.append(h("div",{class:"prep-image-record"},caption));else box.append(h("figcaption", { class: "muted" },caption));
+    if (load) {
+      void Promise.resolve().then(load).then(result => {
+        if (!live || !el.isConnected) return;
+        if ("kind" in result && result.kind === "not-recorded") { box.setAttribute("data-asset-state", "not-recorded"); state.textContent = t("imageUnrecorded"); return; }
+        if (result.sourceRevision !== projection.sourceRevision) throw new Error("revision_mismatch");
+        if ("kind" in result && result.kind === "external-unpinned") { box.setAttribute("data-asset-state", result.kind); state.textContent = t("externalImage"); (support??box).append(external(result.source.src, result.source.src)); return; }
+        box.setAttribute("data-asset-state", "available");
+        const url = URL.createObjectURL(result.bytes); urls.add(url);
+        const img = h("img", { src: url, alt: "", loading: "lazy" });
+        img.style.maxWidth = "100%"; img.style.height = "auto";
+        img.addEventListener("error", () => {
+          img.remove(); URL.revokeObjectURL(url); urls.delete(url);
+          if (live) { box.setAttribute("data-asset-state", "unavailable"); state.textContent = t("imageMissing"); }
+        });
+        state.textContent = ""; box.prepend(img);
+      }).catch(() => { if (live && el.isConnected) { box.setAttribute("data-asset-state", "unavailable"); state.textContent = t("imageMissing"); } });
+    }
+    return box;
+  }
+  function technique(ref: string | undefined, dishRef?: string, support?: HTMLElement, key=""): HTMLElement {
+    const record = ref ? projection.techniques.find(item => item.id === ref) : undefined;
+    const result = h("div", {}, fact(t("technique"), record ? pick(record.name, lang) : ref ? t("missingRecord") : undefined));
+    if(record)(support??result).append(names(record.name));
+    if(record?.note)result.append(cooking?originalNote(pick(record.note,lang),`${key}/technique-note`):fact(t("note"),pick(record.note,lang)));
+    if (record?.image) result.append(image(record.image, "", "", options.techniqueAsset ? () => options.techniqueAsset!(record.id) : async () => { throw new Error("technique_asset_unavailable"); },support));
+    if (cooking && ref && !record && dishRef) result.append(attention(word(lang,"技法资料未找到，无法确认这项操作，请向配方提供者核对。","Technique information is unavailable; check this operation with the recipe author.","Дані техніки недоступні; уточніть цю дію в автора рецепта."), "dish", dishRef));
+    return result;
+  }
+  const sourceInfo = h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision));
+  if (!cooking) root.append(h("h1", {}, t("title")), sourceInfo);
+  if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
+  const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
+  const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
+  if (issuePanel && !cooking) root.append(issuePanel);
+  if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
+  const timedComponents = rows.flatMap(row => row.dish?.components ?? []);
+  const matching = timedComponents.filter(component => (!options.ingredientRef || component.ingredientRef === options.ingredientRef) && (!options.timing || options.timing === "all" || component.prep?.timing === options.timing));
+  if (options.timing && options.timing !== "all") {
+      const unknown = timedComponents.filter(component => !component.prep?.timing).length;
+      const hint = h("div", {class:"prep-filter-result", role:"status"});
+      if (!matching.length) hint.append(h("p", {}, word(lang,"这个时机没有已录的准备任务。","No preparation tasks recorded for this time.","На цей час не записано завдань підготовки.")));
+      if (unknown) hint.append(h("p", {}, `${unknown} ${word(lang,"项准备时机未录，请查看全部后核对。","items have no preparation time; view all to check.","позицій без часу підготовки; перегляньте всі для перевірки.")}`));
+      if (options.onShowAllTimings && (!matching.length || unknown)) {const button=h("button",{type:"button",class:"chip"},word(lang,"查看全部","View all","Переглянути всі"));button.addEventListener("click",()=>{if(live)options.onShowAllTimings?.();});hint.append(button);}
+      if (!matching.length || unknown) { hint.append(h("p", {}, word(lang,"下方保留完整做法，不受时机筛选影响。","The full method below is not filtered by preparation time.","Повний спосіб приготування нижче не фільтрується за часом."))); root.append(hint); }
+    }
+  for (const row of rows) {
+    const { meal, dish, menuPlanRef, mealIndex } = row;
+    const rowKey=JSON.stringify([menuPlanRef,mealIndex,meal.date,meal.mealType]);
+    const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
+    const context = h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
+    section.append(h("div", { class: "dish-head" }, h("div", {}, h(cooking ? "h1" : "h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), cooking ? null : context)));
+    if (!cooking) section.append(fact(t("planned"), meal.plannedServings));
+    root.append(section);
+    if (!dish) { section.append(cooking ? attention(word(lang,"菜谱未找到，备料和做法可能漏项。","Recipe unavailable; preparation and steps may be incomplete.","Рецепт недоступний; підготовка й кроки можуть бути неповними."), "dish", meal.dishRef) : h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,meal.dishRef))); continue; }
+    const owner = `data/dishes/${meal.dishRef}.json`;
+    const recipeRecord = h("details", { class: "prep-recipe-record" }, h("summary", {}, word(lang,"配方资料与来源","Recipe record and source","Дані й джерело рецепта")));
+    if (cooking) recipeRecord.append(context, fact(t("planned"), meal.plannedServings));
+    (cooking ? recipeRecord : section).append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"));
+    section.append(h("h3", { class: "section-label" }, cooking && options.ingredientRef ? t("selectedComponents") : t("components")), h("p", { class: "muted prep-quantity-basis" }, t("original")));
+    if (cooking && dish.baseServings === undefined) recipeRecord.append(attention(word(lang,"配方基准份数未录，暂不能按计划份数换算；请人工核对本次用量。","Recipe servings are not recorded; quantities cannot be scaled to the plan. Check this meal’s amounts manually.","Базові порції рецепта не записано; кількості не можна перерахувати за планом. Перевірте потрібну кількість вручну."), "dish", meal.dishRef));
+    if (cooking && meal.plannedServings === undefined) recipeRecord.append(attention(word(lang,"计划份数未录，无法确认本次用量；此页仍为原配方用量。","Planned servings are not recorded; this meal’s amounts cannot be confirmed. This page shows original quantities.","Порції в плані не записано; потрібну кількість не можна підтвердити. На цій сторінці наведено вихідні кількості."), "plan", menuPlanRef));
+    if (cooking && dish.status !== "active") section.append(attention(word(lang,"菜谱待完善，请核对材料和做法后再使用。","Recipe needs review; check ingredients and steps before use.","Рецепт потребує перевірки; перевірте інгредієнти й кроки перед використанням."), "dish", meal.dishRef));
+    if (!dish.components?.length) section.append(cooking ? attention(word(lang,"尚未录入配料，备料清单可能不完整。","Ingredients are not recorded; preparation may be incomplete.","Інгредієнти не записано; підготовка може бути неповною."), "dish", meal.dishRef) : h("p", { class: "muted", role: "status" }, t("missing")));
+    if (options.ingredientRef && !dish.components?.some(component => component.ingredientRef === options.ingredientRef)) section.append(h("div", { role: "status" }, t("missingRecord"), supportDetails(lang,options.ingredientRef)));
+    for (const [componentIndex, component] of (dish.components ?? []).entries()) {
+      if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
+      if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
+      const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
+      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang));
+      const card = h("section", { class: "card", "data-component-index": componentIndex });
+      const ingredientRecord = h("details", { class: "prep-ingredient-record" }, h("summary", {}, word(lang,"材料与采购资料","Ingredient and purchase record","Дані інгредієнта й закупівлі")));
+      if (cooking) { card.append(h("div", { class: "prep-ingredient-heading" }, label, quantity)); ingredientRecord.append(names(ingredient?.name), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined)); }
+      else card.append(label, names(ingredient?.name), quantity, fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
+      if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
+      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
+      const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
+      (cooking ? ingredientRecord : card).append(purchase);
+      if (prep) {
+        (cooking && !prep.techniqueRef ? ingredientRecord : card).append(technique(prep.techniqueRef, meal.dishRef, cooking?ingredientRecord:undefined,`${rowKey}/components/${componentIndex}`));
+        (cooking && !prep.size ? ingredientRecord : card).append(fact(t("size"), prep.size));
+        (cooking && !prep.timing ? ingredientRecord : card).append(fact(t("timing"), recordValue(prep.timing, lang)));
+        (cooking && !prep.note ? ingredientRecord : card).append(cooking&&prep.note?originalNote(pick(prep.note,lang),`${rowKey}/components/${componentIndex}/prep-note`):fact(t("note"), prep.note ? pick(prep.note, lang) : undefined));
+        (cooking && !prep.image ? ingredientRecord : card).append(image(prep.image, owner, `/components/${componentIndex}/prep/image`,undefined,cooking?ingredientRecord:undefined));
+      }
+      if (cooking) card.append(ingredientRecord);
+      section.append(card);
+    }
+    section.append(h("h3", { class: "section-label" }, t("steps")));
+    if (!dish.steps?.length) section.append(cooking ? attention(word(lang,"做法尚未录入，无法按记录完成制作。","Method not recorded; the recipe cannot be followed from this record.","Спосіб приготування не записано; за цим записом неможливо приготувати страву."), "dish", meal.dishRef) : h("p", { class: "muted", role: "status" }, t("missing")));
+    for (const [stepIndex, step] of (dish.steps ?? []).entries()) {
+      const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)));
+      const stepRecord = h("details", { class: "prep-step-record" }, h("summary", {}, word(lang,"步骤资料","Step record","Дані кроку")), names(step.text));
+      if (!cooking) body.append(names(step.text));
+      (cooking && !step.techniqueRef ? stepRecord : body).append(technique(step.techniqueRef, meal.dishRef,cooking?stepRecord:undefined,`${rowKey}/steps/${stepIndex}`));
+      (cooking && !step.image ? stepRecord : body).append(image(step.image, owner, `/steps/${stepIndex}/image`,undefined,cooking?stepRecord:undefined));
+      if (step.clip) body.append(h("p", {}, `${t("clip")}: ${step.clip.start}s–${step.clip.end}s · `, external(step.clip.videoUrl, word(lang,"查看原视频","View original video","Переглянути вихідне відео"))));
+      if (cooking) body.append(stepRecord);
+      section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
+    }
+    (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
+    if (dish.provenance?.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
+    if (cooking) section.append(recipeRecord);
+  }
+  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }
+  root.append(h("p", { class: "muted" }, t("coverage")));
+  return dispose;
 }
 
 // ---------- 顶部 chip 行 ----------

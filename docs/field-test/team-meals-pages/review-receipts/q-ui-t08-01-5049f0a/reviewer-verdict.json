@@ -1,0 +1,16 @@
+{
+  "reviewerIdentity": "Codex /root/plan_review (original nonauthor)",
+  "authorIdentity": "page_inventory",
+  "reviewSource": "local_cat",
+  "engagement": "iterative",
+  "reviewedHeadSha": "5049f0a47c76c4149a91a288a6a9b6edf279b1ea",
+  "reviewSubjectRef": "task:01a08db7-43f3-7952-adb5-75106389e557/Q-UI-T08-01",
+  "acceptedSourceRef": "docs/field-test/team-meals-pages/Q-UI-T08-01-contract.md",
+  "acceptedRevision": "71fd5663ffddc2161ad2c48f1987e9ea2957147a",
+  "acceptedSourceLastContentChangeAtEvidenceHead": "71fd5663ffddc2161ad2c48f1987e9ea2957147a",
+  "verdict": "APPROVE",
+  "localReviewVerdict": "approved",
+  "findings": [],
+  "openP1P2": 0,
+  "boundary": "Q-UI-T08-01 Purchase export repair and affected build graph only; not full Q acceptance, Import, L2 or deployment."
+}

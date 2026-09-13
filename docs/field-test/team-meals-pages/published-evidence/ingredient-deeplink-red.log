@@ -1,0 +1,76 @@
+✔ menu public entry reads approved team output and exposes original recipe via existing route (9.37275ms)
+✔ menu distinguishes empty manifest, empty plan, missing file and invalid target (0.835708ms)
+✔ menu late A read cannot overwrite B in reused outlet (22.98475ms)
+✔ menu legacy remains an explicit branch (0.310458ms)
+✔ prep public entry reads approved team output and exposes original recipe via existing route (1.117542ms)
+✔ prep distinguishes empty manifest, empty plan, missing file and invalid target (0.43425ms)
+✔ prep late A read cannot overwrite B in reused outlet (22.747708ms)
+✔ prep legacy remains an explicit branch (0.308833ms)
+✔ prep published ingredient and technique images use original bytes; external and missing assets remain distinct (70.119042ms)
+✔ absent optional image is visibly not recorded, distinct from a failed original image read (0.923167ms)
+✔ menu clicking a repeated dish retains the exact original row across its existing deep link and language (1.084375ms)
+✔ prep dish selection survives language, ingredient deep link and date return without losing duplicate rows (1.71725ms)
+✖ fresh prep ingredient deep link resolves a unique ingredient in the second dish (0.94625ms)
+✖ menu second-dish ingredient link carries its actual source row into prep for a shared ingredient (0.9105ms)
+✖ fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources (3.107708ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 12
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2624.1875
+
+✖ failing tests:
+
+test at packages/web/test/team-meals-pages-published.test.mjs:50:1
+✖ fresh prep ingredient deep link resolves a unique ingredient in the second dish (0.94625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '0' !== '1'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:50:222)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:51:1
+✖ menu second-dish ingredient link carries its actual source row into prep for a shared ingredient (0.9105ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '0' !== '1'
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:51:440)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at packages/web/test/team-meals-pages-published.test.mjs:52:1
+✖ fresh shared-ingredient deep link asks for the original dish instead of silently mixing sources (3.107708ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(nodes(el,'[data-ingredient-source-choice]').length)
+  
+      at TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-published.test.mjs:52:230)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

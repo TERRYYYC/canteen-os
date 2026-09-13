@@ -1,0 +1,32 @@
+{
+  "shoppingListVersion": "1",
+  "id": "team-shop",
+  "basis": {
+    "sourceRevision": "main",
+    "selection": [
+      {
+        "menuPlanRef": "team-week",
+        "date": "2026-09-14",
+        "mealType": "lunch"
+      }
+    ]
+  },
+  "items": [
+    {
+      "ingredientRef": "cooking-oil",
+      "decision": "check"
+    },
+    {
+      "ingredientRef": "salt",
+      "decision": "check"
+    },
+    {
+      "ingredientRef": "tomato",
+      "decision": "check"
+    },
+    {
+      "ingredientRef": "tomato-other",
+      "decision": "check"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "original": "/private/tmp/reader-offline-c1-red.log",
+    "file": "red.log",
+    "sha256": "91d7de3491db623431f26bbd874d1ffa0b5403524ed3f6af55e7e6a0926443c7"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-target.log",
+    "file": "target.log",
+    "sha256": "cd09feb635574b27d06a82108f09437e311a6d80cf2f6008cb083959c18a8aa4"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-web.log",
+    "file": "web.log",
+    "sha256": "001fea761926c79ccbffcb037f662d0f2ec8d8987f1f406e0b3ca6d559f0d5f0"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-typecheck.log",
+    "file": "typecheck.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-build.log",
+    "file": "build.log",
+    "sha256": "66d5365eb5edc87e481bdc93ffb9d6f266ac630ea527b6c5fdcd8b1de7e86586"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-build-default.log",
+    "file": "build-default.log",
+    "sha256": "d051c6ef853454d72236539c64f8a167aa425052fb1258213b55649ec1c6b13b"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-default-totals.json",
+    "file": "default-totals.json",
+    "sha256": "8adb92c33b5d1edb3a3799d63f962395604344fbdbf37aa232ba72dbf36ee95f"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-configured-totals.json",
+    "file": "configured-totals.json",
+    "sha256": "dc1c76c16a3be0f19e58cab90af53b7d0cccce78d9899e0509e801ed2b23e1ca"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-build/bundle-attribution-final.json",
+    "file": "configured-graph.json",
+    "sha256": "9049034a88d2e6e3572abbbe4c33458b13fd724248fda3d4a3cd772c56b81e62"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-build-default/bundle-attribution-final.json",
+    "file": "default-graph.json",
+    "sha256": "a14d14ab3ea3498fc24c5e3f545ec916325f86e114eb36a49a5d81b6566f4a27"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native.mjs",
+    "file": "native-server.mjs",
+    "sha256": "de84d69aaa1c2ba8cb533d9bf637063a176f71dc691984691eb187d9d71231bd"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/01-inspect.json",
+    "file": "native/01-inspect.json",
+    "sha256": "47b48cabbf3324587b5ba6fe8dfe95f6e6f63be6c30d22d0f5f83a0e3d3c84b9"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/02-offline.json",
+    "file": "native/02-offline.json",
+    "sha256": "3f22eb36f7998f2a93545d3b9e5e5160d25ab252e74cbce9701b03a0119d1bc6"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/03-inspect.json",
+    "file": "native/03-inspect.json",
+    "sha256": "14d87fd41142ba7a12e2a2dfa4cc890eacabeb47cd514393aa3c8ca11920b713"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/04-online-a.json",
+    "file": "native/04-online-a.json",
+    "sha256": "b83dcc0c8f615b370f1e7ef78341c19b66462d19854fe34af4b09e520885ef44"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/05-inspect.json",
+    "file": "native/05-inspect.json",
+    "sha256": "24de9c7509131d8bfd67667f07c1cdf0a06ff78fd71c8319f58691d4628e336d"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/06-online-b.json",
+    "file": "native/06-online-b.json",
+    "sha256": "6d17ffcf0cb8d88170c87a3ebbe0dd86e1852a3b5fd07dac96032ac3c0d3c122"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/07-update-requested.json",
+    "file": "native/07-update-requested.json",
+    "sha256": "d0bac1089befcb6fa01eb9c0137654940355f4ab5b21f072f05078dca6ce74a9"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/08-inspect.json",
+    "file": "native/08-inspect.json",
+    "sha256": "561610068a49258ce0883ebe0bf39a1a7cf13e9f4f77502288ca4b29af1e9379"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/09-inspect.json",
+    "file": "native/09-inspect.json",
+    "sha256": "99742fc33bf3f069ef5056ec30d2b2c8f4e2f8cf2ba738d940b67e0b138ece94"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/10-inspect.json",
+    "file": "native/10-inspect.json",
+    "sha256": "fbd3a731e8b9b319a5a933127d44ff6aa5679f579f41e5bebe1d2fb386fa1822"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/11-offline.json",
+    "file": "native/11-offline.json",
+    "sha256": "611a7767a466c3cffb80517af39c34565df6e8924ded995b35c7076d206925de"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/12-inspect.json",
+    "file": "native/12-inspect.json",
+    "sha256": "1f3d5b0026507549d6045dac543ac2360077102d35d7c2b16ae4596a40eb28ec"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/13-inspect.json",
+    "file": "native/13-inspect.json",
+    "sha256": "876d618602374ee2b86df0f6e92e1b36dda77afbd59c4889e8552def6678ad80"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/14-inspect.json",
+    "file": "native/14-inspect.json",
+    "sha256": "60bb7c9bb28fc2723d9cd53c98fa8297ead47ef587684bf404b6875a1f23b1fd"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/requests.json",
+    "file": "native/requests.json",
+    "sha256": "09f6e34e8ca5c58caf99ffb86fb9710218234ead9c72292d5aea28fa5d21a13a"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/snapshots.json",
+    "file": "native/snapshots.json",
+    "sha256": "201eeebfc425794bdee992de213d2331fd582a048a895096bf5393836a3716e1"
+  },
+  {
+    "original": "/private/tmp/reader-offline-c1-native/source-integrity.json",
+    "file": "native/source-integrity.json",
+    "sha256": "c74e4fb1bd8a5b98f2bc09f77cc534cb8bf3ed2c9de361030a427ba98bc9f1e6"
+  }
+]

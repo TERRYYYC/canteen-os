@@ -1,0 +1,8 @@
+build-data.mjs [write] data/：食材 9 · 菜品 1（排除示例菜 0）· 技法 32 · 菜单计划 1
+  week-41：备料 3 天 3 餐次 · 采购 2 单 5 行（待补全 0）· 菜单 3 天 · issues 0
+build.json：builtAt 2026-09-11T05:18:07.915Z · commit fd8edf111444cb538f5c269544c9a882fb217149 · plans [week-41] · readiness 1 道菜
+issues 0
+已写入 packages/web/public/data/prep/week-41.json
+已写入 packages/web/public/data/purchase/week-41.json
+已写入 packages/web/public/data/menu/week-41.json
+已写入 packages/web/public/data/build.json

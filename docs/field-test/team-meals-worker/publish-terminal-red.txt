@@ -1,0 +1,430 @@
+TAP version 13
+# Subtest: a failed step does not prove an in-progress run completed
+not ok 1 - a failed step does not prove an in-progress run completed
+  ---
+  duration_ms: 11.471041
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:34:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:40:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves "success" independently of job progress
+not ok 2 - completed run preserves "success" independently of job progress
+  ---
+  duration_ms: 1.049583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves "failure" independently of job progress
+not ok 3 - completed run preserves "failure" independently of job progress
+  ---
+  duration_ms: 0.891125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves "cancelled" independently of job progress
+not ok 4 - completed run preserves "cancelled" independently of job progress
+  ---
+  duration_ms: 0.786708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves "timed_out" independently of job progress
+not ok 5 - completed run preserves "timed_out" independently of job progress
+  ---
+  duration_ms: 0.776291
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves null independently of job progress
+not ok 6 - completed run preserves null independently of job progress
+  ---
+  duration_ms: 0.685833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: completed run preserves "future-conclusion" independently of job progress
+not ok 7 - completed run preserves "future-conclusion" independently of job progress
+  ---
+  duration_ms: 0.898208
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:47:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: missing upstream conclusion stays null when a run has completed
+not ok 8 - missing upstream conclusion stays null when a run has completed
+  ---
+  duration_ms: 0.765291
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:54:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:58:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: upstream status queued is not completion even with a conclusion
+not ok 9 - upstream status queued is not completion even with a conclusion
+  ---
+  duration_ms: 0.711708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:64:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:69:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: upstream status waiting is not completion even with a conclusion
+not ok 10 - upstream status waiting is not completion even with a conclusion
+  ---
+  duration_ms: 0.585208
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:64:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:69:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: upstream status null is not completion even with a conclusion
+not ok 11 - upstream status null is not completion even with a conclusion
+  ---
+  duration_ms: 0.541167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:64:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:69:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: upstream status undefined is not completion even with a conclusion
+not ok 12 - upstream status undefined is not completion even with a conclusion
+  ---
+  duration_ms: 0.423292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:64:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:69:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: wall-clock timeout is independent of overall run completion
+not ok 13 - wall-clock timeout is independent of overall run completion
+  ---
+  duration_ms: 0.400292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:75:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:79:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: slow progress does not manufacture completion or a conclusion
+not ok 14 - slow progress does not manufacture completion or a conclusion
+  ---
+  duration_ms: 0.421625
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:83:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:87:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unmapped progress remains independent from in_progress terminal evidence
+not ok 15 - unmapped progress remains independent from in_progress terminal evidence
+  ---
+  duration_ms: 0.6925
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:92:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - false
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:96:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unmapped progress remains independent from completed terminal evidence
+not ok 16 - unmapped progress remains independent from completed terminal evidence
+  ---
+  duration_ms: 0.431333
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:92:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:96:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: known run ID is read directly for chef even when a newer run exists
+not ok 17 - known run ID is read directly for chef even when a newer run exists
+  ---
+  duration_ms: 0.429833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:102:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:106:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: known run ID is read directly for buyer even when a newer run exists
+not ok 18 - known run ID is read directly for buyer even when a newer run exists
+  ---
+  duration_ms: 0.430625
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:102:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:106:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: known run ID is read directly for admin even when a newer run exists
+not ok 19 - known run ID is read directly for admin even when a newer run exists
+  ---
+  duration_ms: 0.344375
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:102:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:106:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: latest uses the shared evidence fields without changing POST claim behavior
+not ok 20 - latest uses the shared evidence fields without changing POST claim behavior
+  ---
+  duration_ms: 0.494
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:113:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - true
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-worker/packages/worker/test/publish-terminal.test.mjs:115:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 0
+# fail 20
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 62.139167

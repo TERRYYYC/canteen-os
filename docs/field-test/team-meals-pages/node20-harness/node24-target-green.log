@@ -1,0 +1,48 @@
+✔ ingredient: actual Http current-auth array ACK cannot prove completion (137.379875ms)
+✔ ingredient: actual Http current-auth string ACK settles only its write (55.133917ms)
+✔ ingredient: available old-auth array ACK cannot prove completion (49.175792ms)
+✔ ingredient: available old-auth string ACK settles only its write (42.580541ms)
+✔ dish: actual Http current-auth array ACK cannot prove completion (49.902666ms)
+✔ dish: actual Http current-auth string ACK settles only its write (47.339042ms)
+✔ dish: available old-auth array ACK cannot prove completion (46.923458ms)
+✔ dish: available old-auth string ACK settles only its write (47.27325ms)
+✔ ingredient: real Http old-auth hides even a valid ACK and its unknown write remains protected (41.616167ms)
+✔ dish: real Http old-auth hides even a valid ACK and its unknown write remains protected (46.562958ms)
+✔ ingredient: valid available old ACK settles A only while B still owns its write (69.453583ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ dish: valid available old ACK settles A only while B still owns its write (79.996584ms)
+✔ raw list ID, plan IDs and selections have stable dirty generations across language and route return (11.345542ms)
+✔ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (58.570833ms)
+✔ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (5.117375ms)
+✔ initialization is registered before async and original auth settlement cannot clear the next auth read (26.509541ms)
+✔ held initialization stays guarded through language even when the real API coalesces identical GETs (19.309667ms)
+✔ create consumes only its captured inputs and routes to captured ID while later raw survives (20.853709ms)
+✔ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (8.69575ms)
+✔ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (19.1295ms)
+✔ unconfigured and malformed routes finish read-only coverage without fake transport (3.629ms)
+✔ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (50.867125ms)
+✔ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (22.784917ms)
+✔ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (11.159292ms)
+✔ two distinct simultaneous initialization reads remain protected until both original tickets finish (7.306ms)
+✔ late input events from the prior language/auth cannot change the active raw owner (3.251834ms)
+✔ an old discard proposal is invalidated by another raw edit through the real reload coordinator (3.558375ms)
+✔ concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback (11.241458ms)
+✔ adopting a different remote basis refreshes untouched scope inputs and their real baseline (15.466459ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ remote adoption does not consume a later raw edit after its C1 replacement notification (16.179667ms)
+✔ ingredient: unified guard protects dirty raw and approved discard reaches unload without a second veto (125.008667ms)
+✔ dish: unified guard protects dirty raw and approved discard reaches unload without a second veto (49.608125ms)
+✔ paste: unified guard protects dirty raw and approved discard reaches unload without a second veto (44.21925ms)
+✔ Ingredient old-auth local raw cannot veto a shared-clear unload or clean update (37.141333ms)
+✔ ingredient: actual pending and unknown operation still veto manual and application reload (67.211959ms)
+✔ dish: actual pending and unknown operation still veto manual and application reload (65.700917ms)
+BROWSER_GLOBAL_DESCRIPTORS_RESTORED v24.18.0: 13 globals; native Event.prototype unchanged
+✔ publish: actual pending and unknown operation still veto manual and application reload (62.539917ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 833.295792

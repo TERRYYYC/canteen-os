@@ -1,0 +1,43 @@
+{
+  "fixture": "Explicit local network mocks, generated 2×2 image; no real uploads or repository writes",
+  "workspace": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+  "url": "http://127.0.0.1:4195/test/team-meals-pages-dish-browser.html",
+  "browser": "CUA Chrome; stable local preview with HMR disabled",
+  "action": "Run dish review probes",
+  "results": [
+    {
+      "name": "unresolved new dish after add-another from saved existing dish",
+      "passed": true,
+      "before": "Mock demonstration · no real repository writeSave outcome unknown · verify before another writeCan't reach the back officeVerify save outcome",
+      "after": "Mock demonstration · no real repository writeSave outcome unknown · verify before another writeCan't reach the back officeVerify save outcome",
+      "id": "new-soup",
+      "draftName": "尚未核实的新汤"
+    },
+    {
+      "name": "photo dirty state across language",
+      "passed": true,
+      "dirtyBefore": true,
+      "dirtyAfter": true,
+      "previewStillPresent": true,
+      "status": "Сервіс збереження налаштованоЄ незбережені зміниaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "upload ownership across language",
+      "passed": true,
+      "uploads": 1,
+      "disabledBefore": true,
+      "disabledAfter": true,
+      "status": "Save service configuredSaving · later edits are retainedaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "inline auxiliary ownership across language",
+      "passed": true,
+      "writes": 1,
+      "disabledAfter": true,
+      "inputDisabled": true,
+      "dirtyAfter": true,
+      "inlineStillPresent": false,
+      "savedRef": "review-ingredient"
+    }
+  ]
+}

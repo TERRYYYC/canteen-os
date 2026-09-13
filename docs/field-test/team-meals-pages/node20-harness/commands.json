@@ -1,0 +1,65 @@
+[
+  {
+    "log": "node20-full-red.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --test test/*.test.mjs",
+    "exitCode": 1,
+    "tests": 419,
+    "pass": 411,
+    "fail": 3,
+    "cancelled": 5,
+    "phase": "before modification"
+  },
+  {
+    "log": "node24-target-baseline.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+    "command": "/Users/terry/.nvm/versions/node/v24.18.0/bin/node --test packages/web/test/team-meals-pages-shopping-raw.test.mjs packages/web/test/team-meals-pages-ack.test.mjs packages/web/test/team-meals-pages-unload.test.mjs",
+    "exitCode": 0,
+    "tests": 37,
+    "pass": 37,
+    "phase": "before modification"
+  },
+  {
+    "log": "node20-target-green.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --test packages/web/test/team-meals-pages-shopping-raw.test.mjs packages/web/test/team-meals-pages-ack.test.mjs packages/web/test/team-meals-pages-unload.test.mjs",
+    "exitCode": 0,
+    "tests": 37,
+    "pass": 37,
+    "phase": "after modification"
+  },
+  {
+    "log": "node20-full-green.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --test test/*.test.mjs",
+    "exitCode": 0,
+    "tests": 419,
+    "pass": 419,
+    "phase": "after modification"
+  },
+  {
+    "log": "node20-typecheck.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node packages/web/node_modules/typescript/bin/tsc --noEmit -p packages/web/tsconfig.json",
+    "exitCode": 0,
+    "phase": "after modification"
+  },
+  {
+    "log": "node24-target-green.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+    "command": "/Users/terry/.nvm/versions/node/v24.18.0/bin/node --import ./docs/field-test/team-meals-pages/node20-harness/restore-check.mjs --test packages/web/test/team-meals-pages-shopping-raw.test.mjs packages/web/test/team-meals-pages-ack.test.mjs packages/web/test/team-meals-pages-unload.test.mjs",
+    "exitCode": 0,
+    "tests": 37,
+    "pass": 37,
+    "phase": "after modification, restoration assertions"
+  },
+  {
+    "log": "node20-target-restoration.log",
+    "cwd": "/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages",
+    "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node --import ./docs/field-test/team-meals-pages/node20-harness/restore-check.mjs --test packages/web/test/team-meals-pages-shopping-raw.test.mjs packages/web/test/team-meals-pages-ack.test.mjs packages/web/test/team-meals-pages-unload.test.mjs",
+    "exitCode": 0,
+    "tests": 37,
+    "pass": 37,
+    "phase": "after modification, restoration assertions"
+  }
+]

@@ -1,0 +1,80 @@
+Back
+This shopping list
+Plan meals
+List saved
+Source version: 5bf75b0c
+Ingredient and menu version: ab3f5846
+Dates and meals for this list
+
+2026-09-14 · Lunch · team-week
+
+2026-09-15 · Dinner · team-week
+
+Save list
+
+Recorded ingredient candidates; recipe completeness needs human review.
+
+Recipe is not active · team-week / 2026-09-14 / Lunch / second-dish
+
+Recipe is not active · team-week / 2026-09-15 / Dinner / name-only
+
+Ingredients not recorded · team-week / 2026-09-15 / Dinner / name-only
+
+Oil
+
+Seasoning
+
+Check
+Buy
+Available
+Bought
+Used in · 1
+
+Complete estimate unavailable: Ingredients not recorded · Purchase specification missing · Planned servings missing
+
+Salt
+
+Seasoning
+
+Check
+Buy
+Available
+Used in · 2
+
+Complete estimate unavailable: Ingredients not recorded · Purchase specification missing · Planned servings missing · To taste · Recipe servings missing · Recipe is not active
+
+Tomato
+
+Main ingredient
+
+Check
+Buy
+Available
+Bought
+Used in · 2
+
+Complete estimate unavailable: Ingredients not recorded · Planned servings missing · Recipe servings missing · Recipe is not active · Recipe quantity missing
+
+Tomato
+
+Main ingredient
+
+Check
+Buy
+Available
+Used in · 1
+
+Complete estimate unavailable: Ingredients not recorded · Purchase specification missing · Planned servings missing · Recipe servings missing · Recipe is not active
+
+Calculable amounts are references, not a complete budget.
+
+Apply scope and review again
+Plan IDs, separated by commas
+Read latest saved plans
+Ingredient and menu version: ab3f5846
+2026-09-14 · Lunch · team-week
+2026-09-15 · Dinner · team-week
+Apply scope and review again
+Copy list
+
+Copied

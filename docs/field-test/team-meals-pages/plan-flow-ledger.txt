@@ -1,0 +1,97 @@
+ PASS — real page + C1, mock network only
+[
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null
+  },
+  {
+    "method": "GET",
+    "path": "/catalog",
+    "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "method": "POST",
+    "path": "/plan/team-week",
+    "body": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "固定样本菜单",
+        "en": "Fixed test menu",
+        "uk": "Фіксоване тестове меню"
+      },
+      "dateRange": {
+        "start": "2026-09-14",
+        "end": "2026-09-15"
+      },
+      "meals": [
+        {
+          "date": "2026-09-14",
+          "mealType": "lunch",
+          "dishRef": "first-dish",
+          "plannedServings": 5
+        },
+        {
+          "date": "2026-09-14",
+          "mealType": "lunch",
+          "dishRef": "second-dish"
+        },
+        {
+          "date": "2026-09-15",
+          "mealType": "dinner",
+          "dishRef": "name-only",
+          "plannedServings": 2
+        }
+      ]
+    },
+    "ifMatch": "blob-a",
+    "ifNoneMatch": null
+  },
+  {
+    "method": "POST",
+    "path": "/plan/team-week",
+    "body": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "固定样本菜单",
+        "en": "Fixed test menu",
+        "uk": "Фіксоване тестове меню"
+      },
+      "dateRange": {
+        "start": "2026-09-14",
+        "end": "2026-09-15"
+      },
+      "meals": [
+        {
+          "date": "2026-09-14",
+          "mealType": "lunch",
+          "dishRef": "first-dish",
+          "plannedServings": 6
+        },
+        {
+          "date": "2026-09-14",
+          "mealType": "lunch",
+          "dishRef": "second-dish"
+        },
+        {
+          "date": "2026-09-15",
+          "mealType": "dinner",
+          "dishRef": "name-only",
+          "plannedServings": 2
+        }
+      ]
+    },
+    "ifMatch": "blob-11",
+    "ifNoneMatch": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": null
+  },
+  {
+    "method": "GET",
+    "path": "/source/plan/team-week",
+    "revision": "000000000000000000000000000000000000000c"
+  }
+]

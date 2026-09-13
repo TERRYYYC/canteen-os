@@ -1,0 +1,47 @@
+{
+  "height": 720,
+  "links": [
+    {
+      "current": null,
+      "href": "#/admin",
+      "text": "Back"
+    },
+    {
+      "current": null,
+      "href": "#/admin/plan/week-41/import",
+      "text": "Paste import"
+    },
+    {
+      "current": null,
+      "href": "#/purchase/new%2Fweek-41",
+      "text": "Create shopping list from saved plan"
+    },
+    {
+      "current": null,
+      "href": "#/admin/publish",
+      "text": "Go to publish"
+    },
+    {
+      "current": null,
+      "href": "#/prep",
+      "text": "ПPrepfor the prep cook · 帮厨"
+    },
+    {
+      "current": null,
+      "href": "#/purchase",
+      "text": "采Purchasing · 采购单for the buyer · 采购员"
+    },
+    {
+      "current": null,
+      "href": "#/menu",
+      "text": "МMealsFor the team"
+    },
+    {
+      "current": "page",
+      "href": "#/admin/plan/week-41",
+      "text": "计Plan mealsfor the chef · 师傅"
+    }
+  ],
+  "text": "Back officeLanguageUA中ENNew version availableReloadBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 12, 2026, 3:00 AMOnline",
+  "width": 1280
+}

@@ -1,0 +1,498 @@
+[
+  {
+    "url": "/canteen/",
+    "at": 1789103628052,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/index-hhIUz8y0.js",
+    "at": 1789103628067,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "at": 1789103628067,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "at": 1789103628197,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "at": 1789103628198,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/admin-ChVjJYtH.js",
+    "at": 1789103628217,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/favicon.ico",
+    "at": 1789103628217,
+    "version": "a",
+    "available": true,
+    "status": 404
+  },
+  {
+    "url": "/canteen/sw.js",
+    "at": 1789103628237,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "at": 1789103628240,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/index.html",
+    "at": 1789103628245,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/qr/purchase.png",
+    "at": 1789103628248,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/qr/prep.png",
+    "at": 1789103628250,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/qr/menu.png",
+    "at": 1789103628252,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon.svg",
+    "at": 1789103628254,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon-maskable.svg",
+    "at": 1789103628255,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon-maskable-512.png",
+    "at": 1789103628256,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon-maskable-192.png",
+    "at": 1789103628257,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon-512.png",
+    "at": 1789103628258,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/icon-192.png",
+    "at": 1789103628259,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/icons/apple-touch-icon.png",
+    "at": 1789103628260,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/workbox-window.prod.es5-BqEJf4Xk.js",
+    "at": 1789103628262,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/team-ui-hHF0cNTc.css",
+    "at": 1789103628263,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/team-ui-DZxu7_wO.js",
+    "at": 1789103628264,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/store-B-EvPGB7.js",
+    "at": 1789103628265,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/servings-input-DNG9trXJ.js",
+    "at": 1789103628266,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/qr-Cn-wR5H0.js",
+    "at": 1789103628267,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/qr-95YfxYR1.css",
+    "at": 1789103628268,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/purchase-list-su3WJJwp.js",
+    "at": 1789103628269,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/purchase-list-CRLPFa5o.css",
+    "at": 1789103628271,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/purchase-StWw7liZ.css",
+    "at": 1789103628272,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/purchase-DoG7w5bM.js",
+    "at": 1789103628272,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/publish-DvJfnWK2.css",
+    "at": 1789103628273,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/publish-CWyX-73W.js",
+    "at": 1789103628274,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/prep-CxKoX0xe.js",
+    "at": 1789103628275,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/prep-CZU-3gXe.css",
+    "at": 1789103628276,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/plan-DWgAw1GH.js",
+    "at": 1789103628277,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/parse-plan-text-DBZQVSv5.js",
+    "at": 1789103628279,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/menu-BCAHUdnn.js",
+    "at": 1789103628280,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/menu-AiJcRmZo.css",
+    "at": 1789103628281,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/ingredient-new-DN0edtyi.js",
+    "at": 1789103628282,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/ingredient-new-CT2dSWut.css",
+    "at": 1789103628283,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/index-hhIUz8y0.js",
+    "at": 1789103628284,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/index-_eYw8u9e.css",
+    "at": 1789103628285,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/import-DavkaiKj.css",
+    "at": 1789103628286,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/import-CqvMvoP_.js",
+    "at": 1789103628287,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/home-Dqdzwsjy.js",
+    "at": 1789103628288,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/home-Bw8HMtwR.css",
+    "at": 1789103628289,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/edit-session-CXYlOObM.js",
+    "at": 1789103628290,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/dish-new-o_W9SASF.js",
+    "at": 1789103628291,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/dish-new-DK3WVt9P.css",
+    "at": 1789103628292,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/client-CY0qhQrV.js",
+    "at": 1789103628293,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/assets/admin-ChVjJYtH.js",
+    "at": 1789103628294,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "at": 1789103628295,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json",
+    "at": 1789103628296,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/manifest.webmanifest",
+    "at": 1789103628297,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/build.json?__publication=1789103628298-1-1",
+    "at": 1789103628299,
+    "version": "a",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json?__publication=1789103628298-1-1",
+    "at": 1789103658174,
+    "version": "a",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/sw.js",
+    "at": 1789103713047,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "at": 1789103713051,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/build.json",
+    "at": 1789103713059,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json",
+    "at": 1789103713061,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/sw.js",
+    "at": 1789103725818,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/workbox-4e9e9954.js",
+    "at": 1789103725822,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/build.json?__publication=1789103736206-1-1",
+    "at": 1789103736207,
+    "version": "b",
+    "available": true,
+    "status": 200
+  },
+  {
+    "url": "/canteen/data/team-meals/week-41.json?__publication=1789103736206-1-1",
+    "at": 1789103765665,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/data/assets/d3b6dd2b72a1fa845634f160fa93921a919bcb20/data/images/A%20%252F%3F%23%20%E9%9B%AA.png",
+    "at": 1789103791643,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/data/assets/d3b6dd2b72a1fa845634f160fa93921a919bcb20/data/images/Unseen.png",
+    "at": 1789103791643,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/data/assets/d3b6dd2b72a1fa845634f160fa93921a919bcb20/data/images/A%20%252F%3F%23%20%E9%9B%AA.png",
+    "at": 1789103809168,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/data/assets/d3b6dd2b72a1fa845634f160fa93921a919bcb20/data/images/Unseen.png",
+    "at": 1789103809169,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/sw.js",
+    "at": 1789103810701,
+    "version": "b",
+    "available": false,
+    "outcome": "network-disabled"
+  },
+  {
+    "url": "/canteen/sw.js",
+    "at": 1789103810702,
+    "version": "b",
+    "available": false
+  }
+]

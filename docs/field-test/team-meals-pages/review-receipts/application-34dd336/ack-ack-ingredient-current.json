@@ -1,0 +1,53 @@
+{
+  "scenario": "ack-ingredient-current",
+  "boot": 1,
+  "previous": {},
+  "sourceHashes": {
+    "../src/pages/admin/ingredient-new.ts": "da6db29938429f73e687f408888ad468dbcded9b0306e62fa1f39cd3b0b0dc73",
+    "../src/pages/admin/dish-new.ts": "df0b283cb0fcd6cdf5b91db491bc8bbaedd2fca564d409eaaae63167a4e7fd32",
+    "../src/pages/admin/import.ts": "7b8ad24755a32a618f7d088a2eaa40c79556aec1589e4688a368d3c1d52bc324",
+    "../src/pages/admin/publish.ts": "64f633ae74c86c2ea8e61c9c7c127e5646207c9c61f532c9405e60d3d670cd29",
+    "../src/pwa.ts": "6299441c4ce5591d09f0a117889370ebb52c3822038bd82b37b8c0d088f95c94",
+    "../src/view-models/reload-safety.ts": "50ea7bf0702885b7a4dd87915a6cce1e40b7a03e7d766cb834613077b59e8b03",
+    "./team-meals-pages-guard-browser.html": "a9f4283904800ec5565a9f45dd240a24b6800f8998ec0c8abf57d20058f56a75"
+  },
+  "events": [
+    {
+      "type": "probe",
+      "defaultPrevented": true,
+      "reason": "saving"
+    },
+    {
+      "type": "probe",
+      "defaultPrevented": true,
+      "reason": "unknown"
+    }
+  ],
+  "writes": 1,
+  "safety": {
+    "reason": "unknown",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 11,
+        "dirty": true,
+        "phase": "unknown",
+        "operation": 6
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 2,
+        "dirty": false,
+        "phase": "idle"
+      }
+    ],
+    "stamp": "[10,0,[[\"page:admin/ingredient/salt\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":11,\"dirty\":true,\"phase\":\"unknown\",\"operation\":6},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":2,\"dirty\":false,\"phase\":\"idle\"}]]"
+  },
+  "prepared": true,
+  "inlinePresent": false,
+  "saveDisabled": true
+}

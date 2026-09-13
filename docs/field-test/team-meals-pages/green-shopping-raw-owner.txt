@@ -1,0 +1,43 @@
+✔ copy explicitly includes all current decisions without promoting old bought references (0.484167ms)
+✔ copy preserves raw unresolved reference and meal scope in each language (0.1105ms)
+✔ raw list ID, plan IDs and selections have stable dirty generations across language and route return (9.441416ms)
+✔ scope selection itself dirties owner; rereading preserves user selection instead of restoring all options (12.742208ms)
+✔ later plan-ID raw invalidates a held scope result without overwriting it or clearing dirty (3.56975ms)
+✔ initialization is registered before async and original auth settlement cannot clear the next auth read (5.956917ms)
+✔ held initialization stays guarded through language even when the real API coalesces identical GETs (6.231666ms)
+✔ create consumes only its captured inputs and routes to captured ID while later raw survives (5.026125ms)
+✔ successful create consumes matching raw and leaves JSON dirty only in C1; failed create consumes nothing (5.420667ms)
+✔ C1 unknown save and its recovery do not acquire a duplicate auxiliary operation (10.6245ms)
+✔ unconfigured and malformed routes finish read-only coverage without fake transport (2.361875ms)
+✔ existing scope read and rebase consume only their captured source; later plan IDs survive rebase and save ACK (9.950416ms)
+✔ successful rebase clears matching raw baseline; latest-plan input cannot apply an older loaded scope (9.911917ms)
+✔ scope selection remains dirty and unchanged after readonly create is invalidated by leaving (4.964041ms)
+✔ two distinct simultaneous initialization reads remain protected until both original tickets finish (5.122166ms)
+✔ late input events from the prior language/auth cannot change the active raw owner (2.756792ms)
+✔ an old discard proposal is invalidated by another raw edit through the real reload coordinator (2.574875ms)
+✔ concurrent clipboard operations each keep an original ticket and the final rejection shows readable fallback (8.520375ms)
+✔ adopting a different remote basis refreshes untouched scope inputs and their real baseline (8.989666ms)
+✔ remote adoption does not consume a later raw edit after its C1 replacement notification (9.153541ms)
+✔ creation must acknowledge exact all-check body before a separate conditional manual save (16.8645ms)
+✔ creation in flight and unknown recovery keep decision barrier; source commit differs from basis (1.616125ms)
+✔ rebase rejects dirty old document, then saves formal whole reset before manual reconfirmation (2.53225ms)
+✔ removed bought materials stay in review notice outside current empty list and survive return (2.083208ms)
+✔ save in flight survives language refresh while later same-basis decisions remain dirty (1.219292ms)
+✔ unknown rebase does not permit confirmations until pinned reconciliation confirms reset body (1.772292ms)
+✔ same-basis conflict preserves local draft and adopts only the compared remote source lock (1.543541ms)
+✔ fixed basis assets do not use list storage commit; auth changes invalidate handle and late loads (1.267333ms)
+✔ different-basis conflict keeps desired scope but re-reviews remote decisions before any new confirmation (2.583625ms)
+✔ unknown rebase with original source intact unlocks only retrying its reset, not manual decisions (1.753208ms)
+✔ comparison payload cannot substitute another source lock or cloned basis, and adopting remote clears local decisions (1.299292ms)
+✔ unresolved offscreen write prevents disposal and retains its recovery handle (0.773583ms)
+✔ a fresh controller loads acknowledged list storage and original basis separately (1.140917ms)
+✔ later decisions invalidate a pending rebase and retain the original matching basis (1.360166ms)
+✔ a detached pending load cannot reopen a list after the user leaves (1.074958ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.442042

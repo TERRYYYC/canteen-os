@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: reviewer: ingredient deferred legacy load must not dispatch a new write after leaving
+ok 1 - reviewer: ingredient deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 58.950875
+  ...
+# Subtest: reviewer: dish deferred legacy load must not dispatch a new write after leaving
+ok 2 - reviewer: dish deferred legacy load must not dispatch a new write after leaving
+  ---
+  duration_ms: 49.587792
+  ...
+# Subtest: reviewer: inline cancellation before code arrival settles original read and does not translate
+ok 3 - reviewer: inline cancellation before code arrival settles original read and does not translate
+  ---
+  duration_ms: 43.029584
+  ...
+# Subtest: reviewer: loading buffer can be removed and restored before arrival with one current translation
+ok 4 - reviewer: loading buffer can be removed and restored before arrival with one current translation
+  ---
+  duration_ms: 45.04975
+  ...
+# Subtest: reviewer: Ingredient concurrent image and legacy tasks retain independent old-auth tickets
+ok 5 - reviewer: Ingredient concurrent image and legacy tasks retain independent old-auth tickets
+  ---
+  duration_ms: 73.868083
+  ...
+# Subtest: reviewer: Ingredient late input stays separate from the pre-load save snapshot
+ok 6 - reviewer: Ingredient late input stays separate from the pre-load save snapshot
+  ---
+  duration_ms: 47.200334
+  ...
+# Subtest: reviewer: Dish pending image source and metadata snapshots survive later edits during code loading
+ok 7 - reviewer: Dish pending image source and metadata snapshots survive later edits during code loading
+  ---
+  duration_ms: 50.134625
+  ...
+# Subtest: reviewer: inline save awaiting legacy code survives a same-owner language repaint
+ok 8 - reviewer: inline save awaiting legacy code survives a same-owner language repaint
+  ---
+  duration_ms: 72.949
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 502.801875

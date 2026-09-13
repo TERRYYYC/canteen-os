@@ -1,0 +1,2 @@
+[{'group': 'bundle-d1', 'count': 50, 'failures': []}, {'group': 'bundle-d1-browser', 'count': 59, 'failures': []}]
+sources 56 allEqual True

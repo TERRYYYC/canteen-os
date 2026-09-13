@@ -1,59 +1,26 @@
-/**
- * /admin/dish/new · /admin/dish/<id> —— 手动加菜 / 改菜 / 补全草稿（#24；docs/specs/v03-admin-frontend-contract.md §4.5）。
- *
- * 两个标签页：「手动输入」（本 PR 的全部内容）与「从视频」（只放占位：第二轮上线，现在由 Terry 用命令行导入，链接到
- * skills/video-recipe-ingest/SKILL.md；§4.5 屏上有什么第 7 条）。
- *
- * 手动输入分支：
- *   - 顶部 readiness 三 chip（能教 / 能排 / 能采）：@canteenos/core 的 readiness() 喂当前表单值 + catalog 的食材，随输入实时变化，
- *     BuildReadiness.missing 的机器键（prep:<ref> / components / steps / baseServings / qty:<ref> / ingredient:<ref> / purchase:<ref>）翻成人话；
- *   - 三语名：zh 必填，en / uk 由 api.translate 即时填充并标「机翻，可改」，用户改过就不再自动覆盖；一句话简介同法；
- *   - 英文短名 = 实体 id = 文件名（D-04 / §9 矛盾 6）：默认由 name.en slug 化，可改；catalog.dishes 查重（id 撞名阻止 + 「去改它」）；存过一次锁定；
- *   - 基准份数 baseServings：kit.stepper，默认 50（§9 矛盾 10：本轮常量）；
- *   - 配料 components[]：从 api.getCatalog().ingredients 搜索添加；每条 = 用量（数量 + 单位，或「适量」= to-taste，value 不写）/
- *     怎么切（techniqueRef，只能从 catalog.techniques 闭集选，词表读不到则禁用）/ 切多大 / 提前多久 / 备注（三语）；
- *     食材库里没有 → 行内内联 #23 的食材表单件（buildIngredientForm / submitIngredientForm），存成功后该行直接引用新 id；
- *     上移 / 下移按钮（§7 第 8 条：不做拖拽）；删掉可撤销；收起时只显示「食材名 · 用量」；
- *   - 步骤 steps[]：文本（三语，可机翻）+ 可选技法；上移 / 下移 / 删掉；
- *   - 成品图 image：拍一张 / 选一张 → compressImage（#23 的 canvas 压图）→ 保存时 api.uploadImage("dishes", id, …)；license 必填；
- *   - provenance：手输分支写死 { source: "manual" }；改菜时原样保留源文件的 provenance（视频导入的菜仍是 video）；绝不写 example；
- *   - 「存草稿」→ api.saveDishDraft（worker 无条件 draft；warnings 含 status-forced 时照实说）；
- *     「入库」→ api.saveDish(…, status: "active")（决议追加第 1 条：不置灰，schema 校验是唯一闸门）；
- *   - 改菜 / 补全草稿：api.getDish(id) 载入，保存带 ifMatch = blobSha；409 → 「有人刚改过」+ 重新读取；
- *   - 字段错误：worker / mock 的 errors[] 交给 kit.applyFieldErrors 按 JSON Pointer 标黄（/components/2/qty/value …），message 原样；
- *     标黄前先把命中的配料 / 步骤卡展开；本地只查 API 看不见的：id 形状 / 撞名、待上传照片缺许可、还没选食材的行、没存的内联新食材；
- *   - 从 #22 的导入屏跳来（store.takeHandoff）：菜名预填 newDishName，保存成功后回 returnTo；
- *   - 推论 A：整份表单的未提交值（含 components / steps 数组、内联食材表单的草稿）都在模块级 `draft` 里，切语言 = 重新 render 时回填；
- *     离开本屏（hashchange 到别处）即丢弃；有未保存改动时 beforeunload 拦一下；返回键先二次确认；
- *   - 文案：私有字典 T（前缀 dish.，三语齐全）；共用文案走 kit 的 adm()；
- *   - 样式：同目录 dish-new.css，每条选择器以 .adm-dish 开头；不改 kit.ts / store.ts / api/* / ingredient-new.ts（§3.4 规则 0）。
- *
- * 字段映射（schemas/dish.schema.json 逐条；见 draftToDish）：schemaVersion 写死 "2"；name / description 只写非空语言；
- * image 只在有图时写；baseServings 整数 ≥ 1；components / steps 为空时整个不写（minItems 1）；qty unit=to-taste 时不写 value；
- * prep 只在任一子字段非空时写（给了 prep 就得有 techniqueRef，缺了让校验按 pointer 标黄）；confidence / prep.image / steps[].image /
- * steps[].clip 表单不编辑，载入什么写回什么（改视频导入的菜不丢字段）；status 由按钮决定。
- */
+/** AnyDish editor: optional original quantities, C1 conditional saves; see dish-editor.md. */
 import "./dish-new.css";
 
-import { readiness, type DishComponent, type DishPrep, type DishProvenance, type DishStatus, type DishStep, type I18nString, type PrepTiming, type Technique, type Unit } from "@canteenos/core";
+import { type AnyDish, type DishV3, type DishComponentV3, type DishComponent, type DishPrep, type DishProvenance, type DishStatus, type DishStep, type I18nString, type PrepTiming, type Technique, type Unit } from "@canteenos/core";
 
-import { getApi, type AdminApi } from "../../api/client";
-import { isApiError, type Catalog, type Dish, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
-import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, stepper, topBar } from "../../admin/kit";
-import { takeHandoff } from "../../admin/store";
+import type { AdminApi } from "../../api/client";
+import { loadLegacyApi, EditorModuleUnavailable, legacyModuleUnavailable, imageModuleUnavailable, loadEditorImage, moduleUnavailableMessage } from "./editor-actions";
+import { ApiError, FIELD_ERROR_CODES, isApiError, type Source, type FieldError, type ImageMeta, type ImageRef } from "../../api/types";
+import { adm, apiMessage, applyFieldErrors, busy, button, clearFieldErrors, errorCard, fieldRow, notice, sessionExpired, topBar } from "../../admin/kit";
+import { getTeamMealsApi, type TeamCatalog, type TeamMealsApi } from "../../api/team-meals";
+import { createEditSession, type EditState } from "../../view-models/edit-session";
+import { bindDraftStore } from "../../admin/store";
+import { registerAuxiliaryEdits, type AuxiliaryEditHandle, type AuxiliaryOperation } from "../../view-models/reload-safety";
 import { append, h } from "../../dom";
 import { pick, type Lang } from "../../i18n";
 import type { PageCtx } from "../../types";
 import { adminHref } from "../admin";
-import {
-  buildIngredientForm,
-  compressImage,
-  createIngredientDraft,
-  slugify,
-  submitIngredientForm,
-  type CompressedImage,
-  type IngredientDraft,
-} from "./ingredient-new";
+import { createIngredientDraft, slugify, type IngredientDraft } from "./ingredient-draft";
+import type { CompressedImage } from "./editor-image";
+
+type InlineModule = typeof import("./ingredient-form");
+let inlineModule: InlineModule | null = null;
+const inlineLoading = new WeakMap<IngredientDraft, { phase: "loading" | "failed"; error?: unknown }>();
 
 // ---------------------------------------------------------------------------
 // 文案（§5.2：点分小写，前缀 dish.，三语缺一即编译错误；§5.4 的最小集 + 本屏自用）
@@ -66,9 +33,9 @@ const T = {
   "dish.tab.manual": { uk: "Ввести вручну", zh: "手动输入", en: "Enter by hand" },
   "dish.tab.video": { uk: "З відео", zh: "从视频", en: "From video" },
   "dish.video.later": {
-    uk: "З'явиться на 2-му етапі; поки що Terry імпортує відео з командного рядка",
-    zh: "第二轮上线；现在由 Terry 用命令行导入",
-    en: "Coming in round 2; for now Terry imports videos from the command line",
+    uk: "Імпорт відео тут недоступний. Виберіть ручне введення, щоб записати інгредієнти та кроки.",
+    zh: "此处暂不支持视频导入。可切回手动输入，记录配料和步骤。",
+    en: "Video import is unavailable here. Choose manual entry to record ingredients and steps.",
   },
   "dish.video.link": { uk: "Інструкція для командного рядка", zh: "看命令行说明", en: "See the command-line guide" },
 
@@ -86,7 +53,6 @@ const T = {
   "dish.missing.none": { uk: "Усе на місці", zh: "什么都不缺", en: "Nothing missing" },
   "dish.missing.components": { uk: "Ще немає інгредієнтів", zh: "还没有配料", en: "No ingredients yet" },
   "dish.missing.steps": { uk: "Ще немає кроків", zh: "还没有步骤", en: "No steps yet" },
-  "dish.missing.baseServings": { uk: "Не вказано, на скільки порцій", zh: "还没写按几份", en: "Servings not set" },
   "dish.missing.prep": { uk: "{name}: не вказано, як нарізати", zh: "{name} 还没写怎么切", en: "{name}: how to cut not set" },
   "dish.missing.qty": { uk: "{name}: не вказано кількість", zh: "{name} 还没写用量", en: "{name}: quantity not set" },
   "dish.missing.ingredient": { uk: "{name} немає в базі інгредієнтів", zh: "食材库里没有 {name}", en: "{name} isn't in the ingredient library" },
@@ -120,11 +86,11 @@ const T = {
   "dish.slug.taken": { uk: "Така страва вже є — хочете змінити її?", zh: "已有同名的菜，是要改它吗？", en: "There's already a dish with this name — did you mean to edit it?" },
   "dish.slug.goEdit": { uk: "Перейти до неї", zh: "去改它", en: "Edit it instead" },
 
-  "dish.description": { uk: "Один рядок опису (для гостей у меню)", zh: "一句话介绍（菜单上给顾客看）", en: "One-line description (shown to guests on the menu)" },
+  "dish.description": { uk: "Короткий опис страви", zh: "一句话介绍", en: "Short dish description" },
   "dish.description.en": { uk: "Опис англійською", zh: "介绍 · 英文", en: "Description in English" },
   "dish.description.uk": { uk: "Опис українською", zh: "介绍 · 乌克兰语", en: "Description in Ukrainian" },
   "dish.baseServings": { uk: "На скільки порцій написано рецепт", zh: "这个配方按几份写的", en: "How many servings this recipe is written for" },
-  "dish.baseServings.hint": { uk: "Їдальня рахує за 50; закупівля масштабує від цього числа", zh: "食堂按 50 份写；采购按这个数缩放", en: "The canteen writes for 50; purchasing scales from this number" },
+  "dish.baseServings.hint": { uk: "Необов’язково. Залиште порожнім, якщо невідомо", zh: "可不填；不知道就留空，已有真实份数会保留", en: "Optional. Leave blank if unknown; keep known recipe servings" },
 
   "dish.photo": { uk: "Фото готової страви", zh: "成品图", en: "Photo of the finished dish" },
   "dish.photo.camera": { uk: "Зробити фото", zh: "拍一张", en: "Take a photo" },
@@ -170,8 +136,8 @@ const T = {
   "dish.qty": { uk: "Кількість", zh: "用量", en: "Quantity" },
   "dish.qty.unit": { uk: "Одиниця", zh: "单位", en: "Unit" },
   "dish.qty.toTaste": { uk: "За смаком", zh: "适量", en: "To taste" },
-  "dish.qty.toTaste.hint": { uk: "Без кількості: закупівля пропускає цей рядок", zh: "不写数量：采购跳过这一行", en: "No amount: purchasing skips this row" },
-  "dish.qty.required": { uk: "Вкажіть кількість або поставте «за смаком»", zh: "填个数量，或者勾「适量」", en: "Enter an amount or tick “to taste”" },
+  "dish.qty.toTaste.hint": { uk: "Позначайте лише коли в рецепті написано «за смаком». Невідому кількість залиште порожньою", zh: "只有原配方写了适量才勾选；未知用量请留空，材料仍会列入清单", en: "Select only if the recipe says to taste. Leave unknown amounts blank; ingredients remain on the list" },
+  "dish.qty.required": { uk: "Вкажіть додатне число або залиште порожнім", zh: "填大于零的数字，未知则留空", en: "Enter a positive number or leave unknown amounts blank" },
   "dish.prep.technique": { uk: "Як нарізати", zh: "怎么切", en: "How to cut" },
   "dish.prep.technique.none": { uk: "— не потрібно —", zh: "— 不用切 —", en: "— not needed —" },
   "dish.prep.technique.required": { uk: "Виберіть, як нарізати (або очистіть решту полів)", zh: "选一个切法（或把下面几格清空）", en: "Pick how to cut (or clear the fields below)" },
@@ -223,9 +189,9 @@ const T = {
   "dish.activate.return": { uk: "Додати в базу й повернутися", zh: "入库，回到导入", en: "Add to library and go back" },
   "dish.activated": { uk: "Додано в базу · ще не опубліковано", zh: "已入库 · 还没发布", en: "Added to the library · not published yet" },
   "dish.activate.hint": {
-    uk: "«Додати в базу» ≠ «можна планувати»: чи потрапить страва в меню, вирішують три позначки вгорі",
-    zh: "「入库」不等于「能排」：能不能排看上面三个关卡",
-    en: "“Add to library” isn't “plannable”: the three chips at the top decide whether it can go on a menu",
+    uk: "Збереження та додавання в базу не публікують зміни. Перевірте всі записані інгредієнти",
+    zh: "存草稿和入库都不会自动发布；请核对已录配料是否齐全",
+    en: "Saving or adding to the library does not publish. Check whether all recipe ingredients are recorded",
   },
   "dish.statusForced": {
     uk: "Кабінет зберіг це як чернетку (статус «у базі» не застосовано)",
@@ -256,6 +222,30 @@ const T = {
 type Key = keyof typeof T;
 type Params = Record<string, string | number>;
 
+const EDIT_COPY = {
+  processing: { zh: "正在处理照片或翻译", en: "Working on a photo or translation", uk: "Обробляється фото або переклад" },
+  unconfigured: { zh: "未连接保存服务 · 草稿仅在本页内存中", en: "Save service is not connected · draft stays in memory", uk: "Сервіс збереження не підключено · чернетка лише в пам’яті" },
+  mock: { zh: "模拟演示 · 未写入真实仓库", en: "Mock demonstration · no real repository write", uk: "Демонстрація · реальний репозиторій не змінено" },
+  real: { zh: "已配置保存服务", en: "Save service configured", uk: "Сервіс збереження налаштовано" },
+  clean: { zh: "已读取 · 未修改", en: "Loaded · unchanged", uk: "Завантажено · без змін" },
+  empty: { zh: "尚未填写", en: "Ready to fill in", uk: "Ще не заповнено" },
+  dirty: { zh: "有未保存改动", en: "Unsaved changes", uk: "Є незбережені зміни" },
+  saving: { zh: "正在保存 · 后续编辑会保留", en: "Saving · later edits are retained", uk: "Збереження · подальші зміни зберігаються у чернетці" },
+  "saved-but-unpublished": { zh: "已保存 · 尚未发布", en: "Saved · not published", uk: "Збережено · не опубліковано" },
+  conflict: { zh: "来源已改变 · 本地草稿已保留，请比较后选择", en: "Source changed · local draft retained; compare before choosing", uk: "Джерело змінилося · чернетку збережено; порівняйте версії" },
+  "outcome-unknown": { zh: "保存结果未知 · 核实之前不会再次写入", en: "Save outcome unknown · verify before another write", uk: "Результат невідомий · перевірте перед повторним записом" },
+  error: { zh: "未保存 · 请检查错误", en: "Not saved · check the error", uk: "Не збережено · перевірте помилку" },
+  closed: { zh: "编辑已关闭", en: "Editor closed", uk: "Редактор закрито" },
+  verify: { zh: "核实保存结果", en: "Verify save outcome", uk: "Перевірити результат" },
+  compare: { zh: "读取远端并比较", en: "Read remote and compare", uk: "Прочитати й порівняти" },
+  local: { zh: "保留本地稿并采用新基线", en: "Keep local draft with the new baseline", uk: "Залишити чернетку з новою базою" },
+  remote: { zh: "采用远端内容", en: "Use remote content", uk: "Прийняти віддалений вміст" },
+  returnTo: { zh: "回到导入", en: "Return to import", uk: "Повернутися до імпорту" },
+  auxUnavailable: { zh: "图片上传、机翻和新建食材需要连接真实保存服务", en: "Images, translation and new ingredients require a real connected save service", uk: "Фото, переклад і нові інгредієнти потребують підключення до реального сервісу" },
+  auxUnknown: { zh: "图片或食材保存结果未知，资料已保留；请先核实后台结果", en: "Image or ingredient save outcome unknown. Local information is retained; verify the backend outcome first", uk: "Результат збереження фото або інгредієнта невідомий. Локальні дані збережено; спочатку перевірте результат на сервері" },
+} as const;
+function statusText(key: keyof typeof EDIT_COPY, lang: Lang): string { return EDIT_COPY[key][lang]; }
+
 function tt(lang: Lang, key: Key, params?: Params): string {
   let s: string = T[key][lang];
   if (params) for (const [k, v] of Object.entries(params)) s = s.split(`{${k}}`).join(String(v));
@@ -269,8 +259,6 @@ function tt(lang: Lang, key: Key, params?: Params): string {
 const ID_PREFIX = "adm-dish";
 /** schemas/common.schema.json#/$defs/Id */
 const ID_RE = /^[a-z][a-z0-9-]*$/;
-/** §9 矛盾 10：「全局设置」没有存放处，本轮是常量 */
-const DEFAULT_BASE_SERVINGS = 50;
 /** 用量单位下拉（to-taste 走「适量」开关，不进下拉） */
 const QTY_UNITS: readonly Unit[] = ["g", "kg", "ml", "l", "pcs", "pack", "tbsp", "tsp", "pinch"];
 const TIMINGS: readonly PrepTiming[] = ["day-before", "morning", "before-service"];
@@ -289,8 +277,6 @@ const UNIT_KEY: Record<Unit, Key> = {
 };
 const KIND_ORDER: readonly Technique["kind"][] = ["cut", "pretreat", "heat"];
 const KIND_KEY: Record<Technique["kind"], Key> = { cut: "dish.kind.cut", pretreat: "dish.kind.pretreat", heat: "dish.kind.heat" };
-/** §4.5 屏上有什么第 7 条：视频分支占位链接到 skills/video-recipe-ingest/SKILL.md */
-const VIDEO_SKILL_URL = "https://github.com/TERRYYYC/canteen-os/blob/main/skills/video-recipe-ingest/SKILL.md";
 /** 搜索结果最多列几条 */
 const SEARCH_LIMIT = 8;
 
@@ -326,6 +312,10 @@ export interface PendingImage {
   sourceUrl: string;
 }
 
+type InlineIngredientFeedback = { kind: "local" } | { kind: "failure"; stage: "upload" | "save"; error: unknown };
+// Feedback follows the real inline buffer across paints; it never enters saved JSON.
+const inlineIngredientFeedback = new WeakMap<IngredientDraft, InlineIngredientFeedback>();
+
 export interface ComponentDraft {
   /** DOM key（新增时递增），与数组下标无关 */
   key: number;
@@ -333,6 +323,8 @@ export interface ComponentDraft {
   /** 还没选食材时搜索框里的字 */
   search: string;
   toTaste: boolean;
+  /** Legacy schema permits a positive value alongside to-taste; retain that recorded fact. */
+  originalToTasteValue?: number;
   /** 原始输入串；"" = 没填 */
   qty: string;
   /** toTaste 时保留上次选的单位，取消「适量」时回来 */
@@ -367,7 +359,8 @@ export interface DishDraft {
   /** 英文短名 = 实体 id = 文件名 */
   id: string;
   idTouched: boolean;
-  baseServings: number;
+  baseServings: string;
+  loaded: boolean;
   image: ImageRef | null;
   pending: PendingImage | null;
   components: ComponentDraft[];
@@ -414,7 +407,8 @@ export function createDishDraft(seed: { zh?: string } = {}): DishDraft {
     description: makeTri(),
     id: "",
     idTouched: false,
-    baseServings: DEFAULT_BASE_SERVINGS,
+    baseServings: "",
+    loaded: false,
     image: null,
     pending: null,
     components: [],
@@ -451,19 +445,21 @@ function newStep(d: DishDraft): StepDraft {
 }
 
 /** 既有菜 → 草稿（api.getDish 的 content + blobSha）；表单不编辑的字段（confidence / prep.image / steps[].image / clip / provenance）原样带着 */
-export function draftFromDish(dish: Dish, id: string, blobSha: string | null): DishDraft {
+export function draftFromDish(dish: AnyDish, id: string, blobSha: string | null): DishDraft {
   const d = createDishDraft();
   d.name = makeTri(dish.name);
   d.description = makeTri(dish.description);
   d.id = id;
   d.idTouched = true;
-  d.baseServings = typeof dish.baseServings === "number" && dish.baseServings >= 1 ? Math.round(dish.baseServings) : DEFAULT_BASE_SERVINGS;
+  d.loaded = true;
+  d.baseServings = dish.baseServings === undefined ? "" : String(dish.baseServings);
   d.image = dish.image ? { ...dish.image } : null;
   for (const c of dish.components ?? []) {
     const row = newComponent(d, { ingredientRef: c.ingredientRef });
-    row.toTaste = c.qty.unit === "to-taste";
-    row.qty = c.qty.value !== undefined ? String(c.qty.value) : "";
-    if (!row.toTaste) row.unit = c.qty.unit;
+    row.toTaste = c.qty?.unit === "to-taste";
+    if (row.toTaste && c.qty?.value !== undefined) row.originalToTasteValue = c.qty.value;
+    row.qty = c.qty?.value !== undefined ? String(c.qty.value) : "";
+    if (c.qty && !row.toTaste) row.unit = c.qty.unit;
     if (c.prep) {
       row.techniqueRef = c.prep.techniqueRef ?? "";
       row.size = c.prep.size ?? "";
@@ -511,20 +507,22 @@ function prepOf(c: ComponentDraft): DishPrep | null {
 
 /**
  * 草稿 → 实体 JSON（字段映射逐条对 schemas/dish.schema.json，键序照 data/dishes/*.json）：
- *   schemaVersion "2" · name / description 只写非空语言（description 全空不写）· image 有图才写 · baseServings 整数
- *   · components / steps 为空整个不写（minItems 1）· qty: to-taste 时只写 { unit }，否则 { value, unit }（value 空 → NaN → null → 标黄）
- *   · prep 只在任一子字段非空时写 · confidence / prep.image / steps[].image / clip 原样写回 · provenance 缺省 { source: "manual" }
+ *   schemaVersion "3" · name / description 只写非空语言（description 全空不写）· image 有图才写 · baseServings 可空
+ *   · components / steps 为空整个不写（minItems 1）· 未知 qty 省略；已有 to-taste.value 也保留
+ *   · prep 只在任一子字段非空时写 · confidence / prep.image / steps[].image / clip 原样写回 · 新菜 provenance 为 manual
  *   · status 只在有值时写（「入库」由调用方置 active）。
  */
-export function draftToDish(d: DishDraft): Dish {
-  const dish: Dish = { schemaVersion: "2", name: triToI18n(d.name) ?? {} };
+export function draftToDish(d: DishDraft): DishV3 {
+  const dish: DishV3 = { schemaVersion: "3", name: triToI18n(d.name) ?? {} };
   const desc = triToI18n(d.description);
   if (desc) dish.description = desc;
   if (d.image) dish.image = { ...d.image };
-  dish.baseServings = d.baseServings;
+  if (d.baseServings.trim()) dish.baseServings = num(d.baseServings);
   if (d.components.length > 0) {
     dish.components = d.components.map((c) => {
-      const out: DishComponent = { ingredientRef: c.ingredientRef.trim(), qty: c.toTaste ? { unit: "to-taste" } : { value: num(c.qty), unit: c.unit } };
+      const out: DishComponentV3 = { ingredientRef: c.ingredientRef.trim() };
+      if (c.toTaste) out.qty = { unit: "to-taste", ...(c.originalToTasteValue !== undefined ? { value: c.originalToTasteValue } : {}) };
+      else if (c.qty.trim()) out.qty = { value: num(c.qty), unit: c.unit };
       const prep = prepOf(c);
       if (prep) out.prep = prep;
       if (c.confidence) out.confidence = { ...c.confidence };
@@ -540,7 +538,8 @@ export function draftToDish(d: DishDraft): Dish {
       return out;
     });
   }
-  dish.provenance = d.provenance ? { ...d.provenance } : { source: "manual" };
+  if (d.provenance) dish.provenance = { ...d.provenance };
+  else if (!d.loaded) dish.provenance = { source: "manual" };
   if (d.status) dish.status = d.status;
   return dish;
 }
@@ -552,12 +551,12 @@ function imgSrc(src: string): string {
 }
 
 /** 食材名（按界面语言，回退链 pick）；catalog 没到或没这个食材 → 直接给 id */
-function ingredientName(catalog: Catalog | null, ref: string, lang: Lang): string {
+function ingredientName(catalog: TeamCatalog | null, ref: string, lang: Lang): string {
   const ing = catalog?.ingredients[ref];
   return (ing ? pick(ing.name, lang) : "") || ref;
 }
 
-function techniqueName(catalog: Catalog | null, ref: string, lang: Lang): string {
+function techniqueName(catalog: TeamCatalog | null, ref: string, lang: Lang): string {
   const t = catalog?.techniques.find((x) => x.id === ref);
   return (t ? pick(t.name, lang) : "") || ref;
 }
@@ -568,111 +567,358 @@ function formatQty(c: ComponentDraft, lang: Lang): string {
   return v ? `${v} ${tt(lang, UNIT_KEY[c.unit])}` : "";
 }
 
+/** Only an explicit Worker rejection proves that an auxiliary write was refused. */
+function dishAuxiliaryWriteRejected(error: unknown): boolean {
+  if (!isApiError(error)) return false;
+  if (error.status === 400 && (FIELD_ERROR_CODES.has(error.code) || ["bad_id", "bad_path", "bad_json", "bad_image"].includes(error.code))) return true;
+  return ({ unauthorized: 401, forbidden: 403, not_found: 404, conflict: 409, too_large: 413, rate_limited: 429, not_configured: 503, worker_unconfigured: 0 } as { [key: string]: number })[error.code] === error.status;
+}
+
+/** Page adapter owns raw form inputs; C1 owns conditional writes and their unresolved outcome. */
+export function createDishForm(api: TeamMealsApi) {
+  type Record = {
+    reload: AuxiliaryEditHandle;
+    operations: Map<AuxiliaryOperation, { kind: "read" | "write"; unknown: boolean }>;
+    initialized: boolean;
+    draft: DishDraft;
+    source: Source<AnyDish> | null;
+    identity: string;
+    target: string;
+    state: EditState<AnyDish> | null;
+    detachedChanges: boolean;
+    auxiliary: Map<string, "saving" | "processing">;
+    auxiliaryError: unknown;
+    auxiliaryUnknown: boolean;
+    rawGeneration: number;
+  };
+  const records = new Map<string, Record>();
+  const identities = new Map<string, Record>();
+  let active: Record | null = null;
+  let currentKey = "";
+  let sequence = 0;
+  let loadGeneration = 0;
+  let context = 0;
+  const auth = api.sessionKey();
+  const listeners = new Set<(contentChanged: boolean) => void>();
+  function notify(record: Record, contentChanged = false): void {
+    if (active !== record || !valid()) return;
+    for (const listener of listeners) { try { listener(contentChanged); } catch { /* Presentation cannot change a write outcome. */ } }
+  }
+  function rawPending(record: Record): boolean {
+    return !!record.draft.pending || record.draft.components.some(c => c.newIngredient !== null) || record.detachedChanges;
+  }
+  function metadata(record: Record) {
+    return { generation: record.rawGeneration, dirty: rawPending(record),
+      phase: [...record.operations.values()].some(operation => operation.unknown) ? "unknown" as const : record.operations.size ? "busy" as const : "idle" as const };
+  }
+  function prepare(key: string, seed: { zh?: string } = {}): Record {
+    let record = records.get(key);
+    if (!record) {
+      const local: Omit<Record, "reload"> = {
+        draft: createDishDraft(seed), source: null, identity: key === "new" ? `$new-${++sequence}` : key,
+        target: key === "new" ? "" : key, state: null, initialized: key === "new", detachedChanges: false,
+        auxiliary: new Map(), auxiliaryError: null, auxiliaryUnknown: false, rawGeneration: 0, operations: new Map(),
+      };
+      const owner: Record = Object.assign(local, { reload: registerAuxiliaryEdits({
+        ownerId: `dish-input/${key}`, identity: { kind: "dish", id: key }, boundary: api,
+        operationTracking: "tickets", read: () => metadata(owner),
+      }) });
+      records.set(key, owner); identities.set(owner.identity, owner); record = owner;
+    }
+    return record;
+  }
+  function start(record: Record, kind: "read" | "write"): AuxiliaryOperation {
+    const ticket = record.reload.beginOperation(kind);
+    record.operations.set(ticket, { kind, unknown: false }); record.rawGeneration++;
+    return ticket;
+  }
+  function finish(record: Record, ticket: AuxiliaryOperation, outcome: "completed" | "failed"): void {
+    record.operations.delete(ticket); record.rawGeneration++;
+    record.reload.settleOperation(ticket, outcome);
+  }
+  function fail(record: Record, ticket: AuxiliaryOperation, error: unknown): void {
+    const operation = record.operations.get(ticket);
+    if (!operation) return;
+    if (operation.kind === "read" || dishAuxiliaryWriteRejected(error)) finish(record, ticket, "failed");
+    else {
+      operation.unknown = true; record.auxiliaryUnknown = true; record.rawGeneration++;
+      record.reload.markUnknown(ticket);
+    }
+  }
+  async function read<T>(record: Record, work: () => Promise<T>): Promise<T> {
+    if (!valid()) throw new ApiError(0, "session_changed", "");
+    const ticket = start(record, "read");
+    let outcome: "completed" | "failed" = "completed";
+    try { return await work(); }
+    catch (error) { outcome = "failed"; throw error; }
+    finally { finish(record, ticket, outcome); }
+  }
+  function auxiliaryApi(legacy: AdminApi, record = active): AdminApi {
+    if (!record) throw new Error("Missing dish owner");
+    const owner = record;
+    async function write<T>(work: () => Promise<T>, accepted: (value: T) => boolean): Promise<T> {
+      // Check before dispatch. A session_changed thrown after dispatch may hide
+      // an actual Worker ACK and must keep this original write unknown.
+      if (!valid() || identities.get(owner.identity) !== owner) throw new ApiError(0, "session_changed", "");
+      const ticket = start(owner, "write");
+      try {
+        const value = await work();
+        if (!accepted(value)) throw new ApiError(502, "bad_response", "");
+        finish(owner, ticket, "completed"); return value;
+      } catch (error) { fail(owner, ticket, error); throw error; }
+    }
+    const scoped = Object.create(legacy) as AdminApi;
+    scoped.uploadImage = (...args) => write(() => legacy.uploadImage(...args), value => !!value && typeof value.src === "string" && !!value.src && typeof value.license === "string" && !!value.license);
+    scoped.saveIngredient = (...args) => write(() => legacy.saveIngredient(...args), value => !!value && typeof value.commit === "string" && /^[0-9a-f]{40}$/.test(value.commit) && typeof value.blobSha === "string" && !!value.blobSha && typeof value.unchanged === "boolean" && Array.isArray(value.warnings) && value.warnings.every(w => typeof w === "string"));
+    return scoped;
+  }
+  function imageMeta(pending: PendingImage): ImageMeta {
+    return { license: pending.license.trim(), ...(pending.author.trim() ? { author: pending.author.trim() } : {}), ...(pending.sourceUrl.trim() ? { sourceUrl: pending.sourceUrl.trim() } : {}) };
+  }
+  const session = createEditSession<AnyDish>({
+    mode: () => api.mode,
+    authSession: () => api.sessionKey(),
+    peekAuthSession: () => api.peekSessionKey?.(),
+    save: (identity, body, condition) => {
+      const id = identities.get(identity.id)?.target;
+      if (!id) throw new Error("Missing dish identity");
+      return body.status === "draft" ? api.saveDishDraft(id, body, condition) : api.saveDish(id, body, condition);
+    },
+    read: (identity, options) => api.getDish(identities.get(identity.id)?.target ?? identity.id, options),
+  });
+  function valid(): boolean { return api.sessionKey() === auth; }
+  session.subscribe(state => {
+    const record = state.identity ? identities.get(state.identity.id) : null;
+    if (!record || state.phase === "closed") return;
+    record.state = state;
+    record.draft.blobSha = state.source?.blobSha ?? null;
+    record.draft.dirty = state.dirty || rawPending(record);
+    record.source = state.source;
+  });
+  function changed(form = active?.draft): void {
+    const record = [...records.values()].find(item => item.draft === form);
+    if (!record || !valid()) return;
+    record.rawGeneration++;
+    record.detachedChanges = record !== active;
+    record.draft.dirty = true;
+    if (record === active) {
+      if (!record.state) context = session.open({ kind: "dish", id: record.identity }, draftToDish(record.draft));
+      else session.edit(draftToDish(record.draft), context);
+    }
+    record.draft.dirty = !!record.state?.dirty || rawPending(record);
+    notify(record);
+  }
+  /** Auxiliary writes belong to a document, never to one rendering of its form. */
+  function beginAuxiliary(key: string, activity: "saving" | "processing" = "saving", tracking: "read" | "write" | "none" = activity === "processing" ? "read" : "write") {
+    const record = active;
+    if (!record || !valid() || record.auxiliary.size || record.auxiliaryUnknown || session.getState().operationId) return null;
+    const ticket = tracking === "none" ? null : start(record, tracking);
+    record.rawGeneration++;
+    record.auxiliary.set(key, activity); record.auxiliaryError = null; notify(record);
+    return {
+      valid: () => valid() && identities.get(record.identity) === record,
+      current: () => valid() && active === record,
+      fail(error: unknown) {
+        record.auxiliaryError = error;
+        if (ticket) fail(record, ticket, error);
+      },
+      finish(contentChanged = false) {
+        record.rawGeneration++; record.auxiliary.delete(key);
+        if (ticket && record.operations.has(ticket) && !record.operations.get(ticket)?.unknown) finish(record, ticket, "completed");
+        notify(record, contentChanged);
+      },
+    };
+  }
+  return {
+    session,
+    get draft() { return active?.draft ?? null; },
+    get key() { return currentKey; },
+    get context() { return context; },
+    get pristine() { return !!active && !active.state && valid(); },
+    get busy() { return !!active?.auxiliary.size; },
+    get processing() { return !!active && [...active.auxiliary.values()].includes("processing"); },
+    get auxiliaryError() { return active?.auxiliaryError; },
+    get auxiliaryUnknown() { return active?.auxiliaryUnknown ?? false; },
+    /** Pure raw metadata; actual asynchronous operations are tracked per document. */
+    readAuxiliary(key = currentKey) {
+      const record = records.get(key);
+      return record ? metadata(record) : null;
+    },
+    subscribe(listener: (contentChanged: boolean) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    beginAuxiliary,
+    auxiliaryApi,
+    prepare,
+    read<T>(work: () => Promise<T>): Promise<T> {
+      if (!active) return Promise.reject(new Error("Missing dish owner"));
+      return read(active, work);
+    },
+    retireAuxiliary() { for (const record of records.values()) record.reload.dispose(); },
+    async load(key: string, seed: { zh?: string } = {}): Promise<DishDraft | null> {
+      const generation = ++loadGeneration;
+      if (!valid()) return null;
+      const record = prepare(key, seed);
+      if (!record.initialized) {
+        const source = await read(record, () => api.getDish(key));
+        if (!valid() || generation !== loadGeneration) return null;
+        if (!source) return null;
+        record.draft = draftFromDish(source.content, key, source.blobSha);
+        record.source = source; record.initialized = true; record.rawGeneration++;
+      }
+      active = record; currentKey = key;
+      // An untouched blank form has no document to save yet. C1 opens synchronously
+      // on its first edit; a handed-off name is already user input and opens now.
+      if (record.state || record.source || record.draft.name.zh) {
+        context = session.open({ kind: "dish", id: record.identity }, record.source?.content ?? draftToDish(record.draft), record.source);
+      } else {
+        session.invalidate(); context = session.getState().contextId;
+      }
+      if (record.detachedChanges) changed(record.draft);
+      return record.draft;
+    },
+    changed,
+    refresh() { ++loadGeneration; context = session.refreshView(); return context; },
+    detach() { ++loadGeneration; session.invalidate(); active = null; currentKey = ""; },
+    /** Only an explicit add-another action discards a resolved new form. */
+    newDocument(): boolean {
+      if (!valid() || active?.draft.dirty || active?.auxiliary.size || active?.auxiliaryUnknown || session.getState().operationId) return false;
+      const previous = records.get("new");
+      if (previous && previous !== active && (previous.draft.dirty || previous.auxiliary.size || previous.auxiliaryUnknown || previous.state?.operationId || previous.state?.phase === "conflict")) return true;
+      if (previous && !previous.reload.dispose()) return false;
+      if (previous) { previous.rawGeneration++; identities.delete(previous.identity); }
+      records.delete("new"); return true;
+    },
+    async save(status: "draft" | "active", auxiliary?: Pick<AdminApi, "uploadImage"> | (() => Promise<AdminApi>)) {
+      if (!active || !valid()) return null;
+      const state = session.getState();
+      if (state.operationId || state.phase === "conflict" || active.auxiliary.size || active.auxiliaryUnknown) return null;
+      const record = active, form = record.draft;
+      record.target = record.source ? record.target : form.id.trim();
+      form.status = status;
+      changed();
+      const body = draftToDish(form), pending = form.pending;
+      const meta = pending ? imageMeta(pending) : null;
+      const operation = beginAuxiliary("dish-save", "saving", "none");
+      if (!operation) return null;
+      try {
+        if (pending && meta) {
+          if (api.mode !== "real" || !auxiliary) throw new ApiError(0, "unconfigured", "");
+          const legacy = typeof auxiliary === "function" ? await read(record, auxiliary) : auxiliary;
+          if (!operation.current()) return null;
+          const ref = await auxiliaryApi(legacy as AdminApi, record).uploadImage("dishes", record.target, pending.blob, meta);
+          if (!operation.valid()) return null;
+          body.image = { ...ref };
+          if (form.pending === pending && JSON.stringify(imageMeta(pending)) === JSON.stringify(meta)) {
+            URL.revokeObjectURL(pending.previewUrl);
+            form.pending = null; form.image = { ...ref }; changed(form);
+          }
+        }
+        // A detached document retains its uploaded image and unsaved draft; do not switch C1's active document.
+        if (!operation.current()) return null;
+        session.edit(body, context);
+        const saving = session.save(context);
+        session.edit(draftToDish(form), context); // Later edits remain a separate generation from the submitted snapshot.
+        return await saving;
+      } catch (error) { operation.fail(error); throw error; }
+      finally { operation.finish(true); }
+    },
+    adopt(source: Source<AnyDish>, keepLocal: boolean): boolean {
+      if (!active || !valid() || active.auxiliary.size || active.auxiliaryUnknown) return false;
+      const body = keepLocal ? draftToDish(active.draft) : source.content;
+      if (!session.replace(body, source, context)) return false;
+      context = session.getState().contextId;
+      if (!keepLocal) active.draft = draftFromDish(source.content, active.target, source.blobSha);
+      active.rawGeneration++;
+      active.source = source;
+      active.draft.blobSha = source.blobSha;
+      active.draft.dirty = session.getState().dirty || rawPending(active);
+      return true;
+    },
+  };
+}
+
 // ---------------------------------------------------------------------------
 // 屏：模块级草稿（推论 A）+ 离开即丢弃
 // ---------------------------------------------------------------------------
 
 let draft: DishDraft | null = null;
-/** 草稿对应的 rest（"new" | "<id>"）；切语言重画时 rest 没变 → 回填 */
 let draftKey: string | null = null;
-/** #22 带来的「保存后回哪」（store.takeHandoff 读一次即清空，所以记在这） */
 let returnTo: string | null = null;
 let unwatch: (() => void) | null = null;
 let disposePaint: (() => void) | null = null;
+let formOwner: ReturnType<typeof createDishForm> | null = null;
+let formAuth: number | null = null;
+let formApi: TeamMealsApi | null = null;
+let renderGeneration = 0;
+let paintGeneration = 0;
 
 function discardDraft(): void {
-  if (draft) {
-    if (draft.pending) URL.revokeObjectURL(draft.pending.previewUrl);
-    for (const c of draft.components) if (c.newIngredient?.pending) URL.revokeObjectURL(c.newIngredient.pending.previewUrl);
+  // Detach only: C1 retains dirty and unresolved records for a later return.
+  if (draft?.pending) { URL.revokeObjectURL(draft.pending.previewUrl); draft.pending.previewUrl = ""; }
+  for (const c of draft?.components ?? []) {
+    if (c.newIngredient?.pending) { URL.revokeObjectURL(c.newIngredient.pending.previewUrl); c.newIngredient.pending.previewUrl = ""; }
   }
-  draft = null;
-  draftKey = null;
-  returnTo = null;
-  unwatch?.();
-  unwatch = null;
-  disposePaint?.();
-  disposePaint = null;
+  ++renderGeneration;
+  ++paintGeneration;
+  formOwner?.detach();
+  draft = null; draftKey = null; returnTo = null;
+  unwatch?.(); unwatch = null;
+  disposePaint?.(); disposePaint = null;
 }
-
 function isMyHash(hash: string, key: string): boolean {
   const m = /^#[/]?admin[/]dish[/]([^/?#]+)[/]?$/.exec(hash);
-  if (!m?.[1]) return false;
-  try {
-    return decodeURIComponent(m[1]) === key;
-  } catch {
-    return false;
-  }
+  try { return !!m?.[1] && decodeURIComponent(m[1]) === key; } catch { return false; }
 }
-
-/** 离开本屏（hashchange 到别处）= 丢弃草稿（§4.0）；刷新 / 关页有未保存改动时 beforeunload 拦一下 */
 function watchLeave(key: string): void {
-  if (unwatch) return;
-  const onHash = (): void => {
-    if (!isMyHash(location.hash, key)) discardDraft();
-  };
-  const onUnload = (ev: BeforeUnloadEvent): void => {
-    if (!draft?.dirty) return;
-    ev.preventDefault();
-    ev.returnValue = true;
-  };
+  unwatch?.();
+  const onHash = (): void => { if (!isMyHash(location.hash, key)) discardDraft(); };
   window.addEventListener("hashchange", onHash);
-  window.addEventListener("beforeunload", onUnload);
-  unwatch = () => {
-    window.removeEventListener("hashchange", onHash);
-    window.removeEventListener("beforeunload", onUnload);
-  };
+  unwatch = () => { window.removeEventListener("hashchange", onHash); };
 }
-
-export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promise<void> {
+export async function render(el: HTMLElement, ctx: PageCtx, rest: string, teamApi: TeamMealsApi = getTeamMealsApi()): Promise<void> {
+  const drafts = bindDraftStore(teamApi);
   const lang = ctx.lang;
-  const api = getApi();
-  const isNew = rest === "new";
-
-  if (draftKey !== rest) {
+  const auth = teamApi.sessionKey();
+  if (!formOwner || formAuth !== auth || formApi !== teamApi) {
     discardDraft();
-    draftKey = rest;
-    const hand = takeHandoff();
-    returnTo = hand.returnTo ?? null;
-    if (isNew) draft = createDishDraft(hand.newDishName ? { zh: hand.newDishName } : {});
+    formOwner?.retireAuxiliary();
+    formOwner = createDishForm(teamApi); formAuth = auth; formApi = teamApi;
   }
-  watchLeave(rest);
-
-  if (!draft) {
-    // 改菜 / 补全草稿：先读源文件（content + blobSha）
-    const bar = (): HTMLElement => topBar({ back: adminHref(), title: tt(lang, "dish.title.edit") });
+  const owner = formOwner;
+  if (draftKey !== rest) {
+    discardDraft(); draftKey = rest;
+    const hand = drafts.takeHandoff(); returnTo = hand.returnTo ?? null;
+    owner.prepare(rest, hand.newDishName ? { zh: hand.newDishName } : {});
+    ctx.setReloadCoverage?.("tracked");
+    const load = ++renderGeneration;
+    const bar = (): HTMLElement => topBar({ back: adminHref(), title: tt(lang, rest === "new" ? "dish.title.new" : "dish.title.edit") });
     const root = h("div", { class: "adm adm-dish" }, bar(), h("p", { class: "muted" }, adm("adm.loading", undefined, lang)));
     el.append(root);
-    let src: Awaited<ReturnType<AdminApi["getDish"]>>;
+    watchLeave(rest);
     try {
-      src = await api.getDish(rest);
+      const loaded = await owner.load(rest, hand.newDishName ? { zh: hand.newDishName } : {});
+      if (!el.isConnected || load !== renderGeneration || auth !== teamApi.sessionKey()) return;
+      if (!loaded) { root.replaceChildren(bar(), h("p", { role: "status" }, tt(lang, "dish.notFound"))); draftKey = null; return; }
+      draft = loaded;
     } catch (err) {
-      if (!el.isConnected) return;
-      if (isApiError(err) && err.status === 401) {
-        discardDraft();
-        sessionExpired(el, lang);
-        return;
-      }
-      root.replaceChildren(
-        bar(),
-        errorCard(apiMessage(err, lang), () => {
-          el.replaceChildren();
-          void render(el, ctx, rest);
-        }),
-      );
+      if (!el.isConnected || load !== renderGeneration || auth !== teamApi.sessionKey()) return;
+      draftKey = null;
+      root.replaceChildren(bar(), errorCard(apiMessage(err, lang), () => { el.replaceChildren(); void render(el, ctx, rest, teamApi); }));
       return;
-    }
-    if (!el.isConnected) return; // 语言 / 路由已变：下一次 render 会再读
-    if (!src) {
-      root.replaceChildren(
-        bar(),
-        h("div", { class: "card adm-dish-notfound", role: "status" }, h("p", {}, tt(lang, "dish.notFound")), h("a", { class: "adm-btn", href: adminHref() }, adm("adm.back.home", undefined, lang))),
-      );
-      return;
-    }
-    draft = draftFromDish(src.content, rest, src.blobSha);
+    } finally { ctx.setReloadCoverage?.("tracked"); }
     el.replaceChildren();
+  } else if (!draft) {
+    // A second language render supersedes any pending first read.
+    draftKey = null; el.replaceChildren(); return render(el, ctx, rest, teamApi);
+  } else {
+    owner.refresh();
   }
-  paintScreen(el, ctx, rest, api, []);
+  if (draft?.pending && !draft.pending.previewUrl) draft.pending.previewUrl = URL.createObjectURL(draft.pending.blob);
+  for (const c of draft?.components ?? []) {
+    if (c.newIngredient?.pending && !c.newIngredient.pending.previewUrl) c.newIngredient.pending.previewUrl = URL.createObjectURL(c.newIngredient.pending.blob);
+  }
+  ctx.setReloadCoverage?.("tracked");
+  watchLeave(rest);
+  paintScreen(el, ctx, rest, []);
 }
 
 // ---------------------------------------------------------------------------
@@ -682,18 +928,23 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
 /** 待撤销的一次删除 */
 type Removed = { kind: "component"; index: number; item: ComponentDraft } | { kind: "step"; index: number; item: StepDraft };
 
-function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi, flash: HTMLElement[]): void {
+function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, flash: HTMLElement[]): void {
   const lang = ctx.lang;
   if (!draft) return;
   const d: DishDraft = draft;
+  const owner = formOwner!;
+  const teamApi = formApi!;
+  const auth = teamApi.sessionKey();
+  const paint = ++paintGeneration;
+  const alive = (): boolean => el.isConnected && paint === paintGeneration && auth === teamApi.sessionKey();
   disposePaint?.();
   const L = (key: Key, params?: Params): string => tt(lang, key, params);
   /** 存过一次（blobSha 已有）就按「改菜」画：id 锁定、不查重、带 If-Match */
   const editing = d.blobSha !== null;
   const title = L(editing || rest !== "new" ? "dish.title.edit" : "dish.title.new");
-  let catalog: Catalog | null = null;
+  let catalog: TeamCatalog | null = null;
   let catalogFailed = false;
-  let saving = false;
+  const inlineBusyViews: Array<() => void> = [];
 
   // ---- 顶部：通知条 -------------------------------------------------------------
   const notices = h("div", { class: "adm-dish-notices" }, ...flash);
@@ -710,8 +961,11 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   /** 配料 / 步骤卡收起时的一行摘要：随输入实时刷新（不重建卡） */
   const summaries: Array<() => void> = [];
   const stepSummaries: Array<() => void> = [];
+  const triViews: Array<() => void> = [];
   function changed(): void {
+    if (!alive()) return;
     d.dirty = true;
+    owner.changed();
     for (const f of summaries) f();
     for (const f of stepSummaries) f();
     paintReadiness();
@@ -837,6 +1091,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     const ukRow = row(`${o.name}-uk`, `${o.pointer}/uk`, o.labels.uk, ukInput);
     const machineChip = h("span", { class: "chip adm-dish-chip", hidden: true }, adm("adm.machineTranslated", undefined, lang));
     const translateBtn = button({ label: L("dish.translate"), kind: "ghost", class: "adm-dish-translate", onClick: () => void translate(true) });
+    translateBtn.disabled = teamApi.mode !== "real";
     const hint = h("p", { class: "adm-dish-hint adm-dish-warn", role: "status", hidden: true });
     const sub = h("div", { class: "adm-dish-sub" }, h("span", { class: "adm-dish-sub-title" }, L("dish.names.other")), machineChip, translateBtn);
     function paintMachine(): void {
@@ -847,13 +1102,20 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     /** manual = 点了「机翻」：两个都覆盖；自动（zh 改完）：只填用户没改过的 */
     async function translate(manual: boolean): Promise<void> {
       const zh = t.zh.trim();
-      if (!zh || translating) return;
+      if (!alive() || teamApi.mode !== "real" || !zh || translating) return;
       if (!manual && (zh === t.translatedFrom || (t.enTouched && t.ukTouched))) return;
+      const operation = owner.beginAuxiliary(`translate-${o.name}`, "processing");
+      if (!operation) return;
+      const names = JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched]);
+      const stillOwned = (): boolean => operation.valid() && (t === d.name || t === d.description || d.components.some(c => c.note === t) || d.steps.some(s => s.text === t));
       translating = true;
       const done = busy(translateBtn, L("dish.translating"));
       hint.hidden = true;
       try {
-        const r = await api.translate(zh, ["en", "uk"]);
+        const legacy = await loadLegacyApi();
+        if (!stillOwned() || names !== JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched])) return;
+        const r = await legacy.translate(zh, ["en", "uk"]);
+        if (!stillOwned() || names !== JSON.stringify([t.zh, t.en, t.uk, t.enTouched, t.ukTouched])) return;
         t.translatedFrom = zh;
         if (r.en && (manual || !t.enTouched)) {
           t.en = r.en;
@@ -873,17 +1135,19 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         }
         paintMachine();
         o.onTranslated?.();
-        changed();
-      } catch {
+        owner.changed(d);
+      } catch (error) {
+        if (error instanceof EditorModuleUnavailable) operation.fail(error);
         // 不阻塞保存（I18nString 只要求至少一种语言）；401 留给保存那一步去锁屏
-        hint.textContent = L("dish.translateFailed");
-        hint.hidden = false;
+        if (alive()) { hint.textContent = error instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : L("dish.translateFailed"); hint.hidden = false; }
       } finally {
         done();
         translating = false;
+        operation.finish(true);
       }
     }
     const el = h("div", { class: "adm-dish-tri" }, zhRow, sub, h("div", { class: "adm-dish-grid2" }, enRow, ukRow), hint);
+    triViews.push(() => { if (el.isConnected) { zhInput.value = t.zh; enInput.value = t.en; ukInput.value = t.uk; paintMachine(); } });
     return { el, zhInput, translate };
   }
 
@@ -898,8 +1162,6 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         return L("dish.missing.components");
       case "steps":
         return L("dish.missing.steps");
-      case "baseServings":
-        return L("dish.missing.baseServings");
       case "prep":
         return L("dish.missing.prep", { name });
       case "qty":
@@ -913,30 +1175,30 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     }
   }
   function paintReadiness(): void {
-    const r = readiness(draftToDish(d), catalog?.ingredients ?? {});
-    const chip = (ok: boolean | null, label: string): HTMLElement =>
-      h("span", { class: `chip ${ok === null ? "" : ok ? "ok" : "warn"} adm-dish-ready-chip` }, `${label} ${ok === null ? "…" : L(ok ? "dish.ready.ok" : "dish.ready.no")}`);
-    // catalog 没到：能采说不准（食材存不存在 / 有没有采购规格都要看库），先画「…」，缺项也不列 ingredient: / purchase:
-    const procure = catalog ? r.canProcure : null;
-    readyChips.replaceChildren(chip(r.canTeach, L("dish.ready.teach")), chip(r.canPlan, L("dish.ready.plan")), chip(procure, L("dish.ready.procure")));
-    const keys = [...new Set(r.missingKeys)].filter((k) => catalog || !(k.startsWith("ingredient:") || k.startsWith("purchase:")));
-    missingBox.replaceChildren();
-    if (keys.length === 0) {
-      missingBox.append(h("p", { class: "muted adm-dish-missing-none" }, catalog ? L("dish.missing.none") : L("dish.ready.unknown")));
-      return;
+    // This is a factual field inventory, not numeric procurement/readiness.
+    readyChips.replaceChildren(h("span", { class: "chip" }, L("dish.components.count", { n: d.components.length })));
+    const keys: string[] = [];
+    if (!d.components.length) keys.push("components");
+    if (!d.steps.length) keys.push("steps");
+    for (const c of d.components) {
+      if (!c.toTaste && !c.qty.trim()) keys.push(`qty:${c.ingredientRef}`);
+      if (catalog && !catalog.ingredients[c.ingredientRef]) keys.push(`ingredient:${c.ingredientRef}`);
     }
-    missingBox.append(h("ul", { class: "adm-dish-missing-list" }, ...keys.map((k) => h("li", {}, missingText(k)))));
+    missingBox.replaceChildren(h("ul", { class: "adm-dish-missing-list" }, ...keys.map(k => h("li", {}, missingText(k)))));
+
   }
 
   // ---- 标签页 ---------------------------------------------------------------------
   const tabManual = h("button", { type: "button", role: "tab", class: "adm-dish-tab", id: `${ID_PREFIX}-tab-manual`, "aria-controls": `${ID_PREFIX}-pane-manual` }, L("dish.tab.manual"));
   const tabVideo = h("button", { type: "button", role: "tab", class: "adm-dish-tab", id: `${ID_PREFIX}-tab-video`, "aria-controls": `${ID_PREFIX}-pane-video` }, L("dish.tab.video"));
   const tabs = h("div", { class: "adm-dish-tabs", role: "tablist" }, tabManual, tabVideo);
+  const enterManually=h('button',{type:'button',class:'adm-btn'},L('dish.tab.manual'));
+  enterManually.addEventListener('click',()=>{d.tab='manual';paintTabs();tabManual.focus();});
   const paneVideo = h(
     "div",
     { class: "card adm-dish-video", role: "tabpanel", id: `${ID_PREFIX}-pane-video`, "aria-labelledby": tabVideo.id },
     h("p", {}, L("dish.video.later")),
-    h("p", {}, h("a", { class: "adm-btn", href: VIDEO_SKILL_URL, target: "_blank", rel: "noopener" }, L("dish.video.link"))),
+    h("p", {}, enterManually),
   );
   function paintTabs(): void {
     const manual = d.tab === "manual";
@@ -980,14 +1242,14 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   idRow.append(dupBox);
 
   function syncSlug(): void {
-    if (editing || d.idTouched) return;
+    if (d.blobSha || owner.session.getState().operationId || d.idTouched) return;
     d.id = slugify(d.name.en);
     idInput.value = d.id;
     refreshDup();
   }
   let dup: { id: string; name: string } | null = null;
   function findDup(): { id: string; name: string } | null {
-    if (!catalog || editing) return null;
+    if (!catalog || d.blobSha) return null;
     const entries = catalog.dishes;
     const hit = (k: string): { id: string; name: string } | null => {
       const v = entries[k];
@@ -1036,23 +1298,14 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     "baseServings",
     "/baseServings",
     L("dish.baseServings"),
-    stepper({
-      value: d.baseServings,
-      min: 1,
-      step: 10,
-      bigStep: 50,
-      label: L("dish.baseServings"),
-      onChange: (v) => {
-        d.baseServings = v;
-        changed();
-      },
-    }),
+    text(d.baseServings, { type: "number", min: "1", step: "1", inputmode: "numeric" }, (v) => { d.baseServings = v; }),
     L("dish.baseServings.hint"),
   );
 
   // ---- 成品图（#23 的压图 + 保存时 uploadImage("dishes", …)） --------------------------------
   const cameraInput = h("input", { type: "file", accept: "image/*", capture: "environment", class: "sr-only adm-dish-file" });
   const pickInput = h("input", { type: "file", accept: "image/*", class: "sr-only adm-dish-file", id: `${ID_PREFIX}-photo-pick` });
+  cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real";
   for (const input of [cameraInput, pickInput]) {
     input.addEventListener("change", () => {
       const file = input.files?.[0];
@@ -1073,24 +1326,31 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     d.pending = null;
   }
   async function takePhoto(file: File): Promise<void> {
+    if (!alive() || teamApi.mode !== "real") return;
+    const operation = owner.beginAuxiliary("dish-photo", "processing");
+    if (!operation) return;
     setPhotoMsg(L("dish.photo.compressing"));
-    let out: CompressedImage | null;
     try {
-      out = await compressImage(file);
-    } catch {
-      setPhotoMsg(L("dish.photo.unreadable"));
-      return;
+      let out: CompressedImage | null;
+      try {
+        const image = await loadEditorImage();
+        if (!operation.valid()) return;
+        out = await image.compressImage(file);
+      }
+      catch (error) {
+        if (operation.valid()) operation.fail(error instanceof EditorModuleUnavailable ? error : new ApiError(400, "image_decode", L("dish.photo.unreadable")));
+        return;
+      }
+      if (!operation.valid()) return;
+      if (!out) { operation.fail(new ApiError(400, "image_size", L("dish.photo.tooBig"))); return; }
+      dropPending();
+      d.pending = { blob: out.blob, width: out.width, height: out.height, previewUrl: URL.createObjectURL(out.blob), license: "own", author: "", sourceUrl: "" };
+      d.image = null;
+      owner.changed(d);
+    } finally {
+      if (alive()) setPhotoMsg("");
+      operation.finish(true);
     }
-    if (!out) {
-      setPhotoMsg(L("dish.photo.tooBig"));
-      return;
-    }
-    dropPending();
-    d.pending = { blob: out.blob, width: out.width, height: out.height, previewUrl: URL.createObjectURL(out.blob), license: "own", author: "", sourceUrl: "" };
-    d.image = null;
-    setPhotoMsg("");
-    changed();
-    paintPhoto();
   }
   function paintPhoto(): void {
     photoView.replaceChildren();
@@ -1163,6 +1423,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
         h("label", { class: "adm-dish-tile", for: pickInput.id }, h("b", { "aria-hidden": "true" }, "…"), L("dish.photo.pick")),
       ),
     );
+    if (teamApi.mode !== "real") photoView.append(h("p", { class: "muted" }, statusText("auxUnavailable", lang)));
   }
   paintPhoto();
 
@@ -1235,6 +1496,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
 
   function paintComponents(): void {
     summaries.length = 0;
+    inlineBusyViews.length = 0;
     componentsList.replaceChildren();
     componentsCount.textContent = d.components.length ? L("dish.components.count", { n: d.components.length }) : "";
     d.components.forEach((c, i) => componentsList.append(componentCard(c, i)));
@@ -1328,10 +1590,16 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           label: c.search.trim() ? `${L("dish.components.newIngredient")}：${c.search.trim()}` : L("dish.components.newIngredient"),
           class: "adm-dish-result adm-dish-result-new",
           onClick: () => {
-            c.newIngredient = createIngredientDraft(c.search.trim() ? { zh: c.search.trim() } : {});
+            if (!alive() || owner.busy || owner.auxiliaryUnknown || owner.session.getState().operationId || c.newIngredient) return;
+            // Intent is raw-owned synchronously, before module loading or any other await.
+            const buffer = createIngredientDraft(c.search.trim() ? { zh: c.search.trim() } : {});
+            c.newIngredient = buffer;
+            changed();
+            void loadInline(c, buffer);
             paintComponents();
           },
         });
+        create.disabled = teamApi.mode !== "real";
         results.append(create);
       }
       paintResults();
@@ -1424,19 +1692,72 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     return h("li", { class: "card adm-dish-card", "aria-label": nth, "data-key": String(c.key) }, head, body);
   }
 
+  async function loadInline(c: ComponentDraft, buffer: IngredientDraft): Promise<void> {
+    if (inlineModule || inlineLoading.has(buffer) || c.newIngredient !== buffer || !d.components.includes(c)) return;
+    const operation = owner.beginAuxiliary(`ingredient-${c.key}-module`, "processing");
+    if (!operation) return;
+    inlineLoading.set(buffer, { phase: "loading" });
+    try {
+      const module = await import("./ingredient-form");
+      if (!operation.valid() || c.newIngredient !== buffer || !d.components.includes(c)) return;
+      inlineModule = module;
+      inlineLoading.delete(buffer);
+    } catch (error) {
+      operation.fail(error);
+      if (operation.valid() && c.newIngredient === buffer && d.components.includes(c)) inlineLoading.set(buffer, { phase: "failed", error });
+    } finally {
+      // A removed/replaced buffer may return through undo; it must not retain a
+      // completed operation's loading marker.
+      if (inlineLoading.get(buffer)?.phase === "loading") inlineLoading.delete(buffer);
+      // finish notifies the current subscriber synchronously. Publish readiness first;
+      // its one repaint can start auto-translation after the loading ticket is removed.
+      operation.finish(true);
+    }
+  }
+
   /** 「食材库里没有 · 新建」：就地内联 #23 的表单件；存成功 → 本行引用新 id，catalog 重取 */
   function inlineIngredient(c: ComponentDraft): HTMLElement {
-    const ingDraft = c.newIngredient;
-    if (!ingDraft) return h("div");
+    const buffer = c.newIngredient;
+    if (teamApi.mode !== "real") return h("p", { role: "status" }, statusText("auxUnavailable", lang));
+    if (!buffer) return h("div");
+    const ingDraft: IngredientDraft = buffer;
+    if (!inlineModule) {
+      if (!inlineLoading.has(buffer)) void loadInline(c, buffer);
+      const state = inlineLoading.get(buffer);
+      const message = state?.phase === "failed"
+        ? ({ zh: "食材表单模块未能加载。输入仍保留；可以继续编辑菜品，或取消这次新建。", en: "The ingredient form module could not load. Your input is retained; continue editing the dish or cancel this new ingredient.", uk: "Модуль форми інгредієнта не завантажився. Введені дані збережено; редагуйте страву далі або скасуйте створення інгредієнта." })[lang]
+        : adm("adm.loading", undefined, lang);
+      const seed = text(buffer.zh, { lang: "zh", "aria-label": L("dish.name.zh") }, value => { buffer.zh = value; });
+      const cancel = button({ label: adm("adm.cancel", undefined, lang), onClick: () => {
+        if (!alive() || c.newIngredient !== buffer) return;
+        c.newIngredient = null; changed(); paintComponents();
+      } });
+      return h("div", { class: "adm-dish-inline-loading", "data-state": state?.phase ?? "waiting" }, h("p", { role: "status" }, message), seed, cancel);
+    }
+    const { buildIngredientForm, submitIngredientForm } = inlineModule;
+    let taskResultAccepted = false, taskContentChanged = false;
     const form = buildIngredientForm({
       lang,
-      api,
+      api: loadLegacyApi,
       draft: ingDraft,
-      editing: false,
+      editing: !!ingDraft.blobSha,
       catalog,
       idPrefix: `${ID_PREFIX}-c${c.key}-ing`,
       onChange: () => {
-        d.dirty = true;
+        if (taskResultAccepted) taskContentChanged = true;
+        owner.changed(d);
+      },
+      onTaskStart: kind => {
+        if (!alive() || owner.draft !== d || c.newIngredient !== ingDraft || !d.components.includes(c)) return null;
+        const operation = owner.beginAuxiliary(`ingredient-${c.key}-${kind}`, "processing");
+        if (!operation) return null;
+        taskResultAccepted = false; taskContentChanged = false;
+        const names = JSON.stringify([ingDraft.zh, ingDraft.en, ingDraft.uk, ingDraft.enTouched, ingDraft.ukTouched]);
+        return {
+          valid: () => taskResultAccepted = operation.valid() && c.newIngredient === ingDraft && d.components.includes(c)
+            && (kind !== "translation" || names === JSON.stringify([ingDraft.zh, ingDraft.en, ingDraft.uk, ingDraft.enTouched, ingDraft.ukTouched])),
+          finish: () => { operation.finish(taskContentChanged); taskResultAccepted = false; },
+        };
       },
       onGoEdit: (id) => {
         // 库里已有：直接用它，不再新建
@@ -1455,44 +1776,97 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       onClick: () => {
         if (ingDraft.pending) URL.revokeObjectURL(ingDraft.pending.previewUrl);
         c.newIngredient = null;
+        changed();
         paintComponents();
       },
     });
-    let busyNow = false;
+    const operationKey = `ingredient-${c.key}`;
+    const syncInline = (): void => {
+      const blocked = owner.busy || owner.auxiliaryUnknown || !!owner.session.getState().operationId;
+      for (const control of form.el.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea")) control.disabled = blocked || (control.matches(".adm-ing-translate") && legacyModuleUnavailable()) || (control.matches('input[type="file"]') && imageModuleUnavailable());
+      for (const control of msg.querySelectorAll<HTMLButtonElement>("button")) control.disabled = blocked || (control.matches(".adm-ing-translate") && legacyModuleUnavailable()) || (control.matches('input[type="file"]') && imageModuleUnavailable());
+      saveBtn.disabled = blocked || legacyModuleUnavailable(); cancelBtn.disabled = blocked;
+    };
+    inlineBusyViews.push(syncInline); syncInline();
     saveBtn.addEventListener("click", () => void saveInline());
+    function paintFeedback(): void {
+      const feedback = inlineIngredientFeedback.get(ingDraft);
+      form.clearErrors(); msg.replaceChildren();
+      if (!feedback) return;
+      if (feedback.kind === "local") { form.showErrors(form.localErrors()); return; }
+      const err = feedback.error;
+      if (feedback.stage === "upload") {
+        form.showErrors(isApiError(err) && err.hasFieldErrors ? err.errors : [{ path: "/image", code: isApiError(err) ? err.code : "network", message: L("dish.photo.uploadFailed", { msg: apiMessage(err, lang) }) }]);
+      } else if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
+        form.showErrors(err.errors);
+      } else {
+        msg.append(errorCard(err instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(err, lang), owner.auxiliaryUnknown || err instanceof EditorModuleUnavailable ? undefined : () => void saveInline()));
+        syncInline();
+      }
+    }
+    paintFeedback();
     async function saveInline(): Promise<void> {
-      if (busyNow) return;
+      if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode !== "real") return;
+      const operation = owner.beginAuxiliary(operationKey, "saving", "none");
+      if (!operation) return;
+      inlineIngredientFeedback.delete(ingDraft);
       form.clearErrors();
       msg.replaceChildren();
-      if (!catalog) {
-        try {
-          catalog = await api.getCatalog();
-          if (!el.isConnected) return;
-          form.setCatalog(catalog);
-        } catch {
-          /* 查不了重也让存 */
-        }
-      }
-      const local = form.localErrors();
-      if (local.length > 0) {
-        form.showErrors(local);
-        return;
-      }
-      busyNow = true;
-      const done = busy(saveBtn, adm("adm.saving", undefined, lang));
       try {
-        const out = await submitIngredientForm(api, form);
-        if (!el.isConnected) return;
-        if (out.ok) {
-          const id = form.id();
-          c.newIngredient = null;
-          c.ingredientRef = id;
+        if (!catalog) {
           try {
-            catalog = await api.getCatalog(); // 写入成功后 api 层已失效缓存（§3.5）：这里拿到的就带新食材
+            catalog = await owner.read(() => teamApi.getCatalog());
+            if (!alive()) return;
+            form.setCatalog(catalog);
+          } catch {
+            /* 查不了重也让存 */
+          }
+        }
+        // A failed preflight read may have ended after a route/auth change.
+        // Only this original inline owner can proceed to the external writes.
+        if (!operation.valid() || !alive()) return;
+        const local = form.localErrors();
+        if (local.length > 0) {
+          inlineIngredientFeedback.set(ingDraft, { kind: "local" });
+          form.showErrors(local);
+          return;
+        }
+        const id = form.id(), body = structuredClone(form.toIngredient()), pending = form.pendingImage();
+        const submitted = {
+          ...form, id: () => id, toIngredient: () => structuredClone(body), pendingImage: () => pending,
+          setImage(ref: ImageRef | null) {
+            if (ref) body.image = { ...ref }; else delete body.image;
+            const current = form.pendingImage();
+            if (operation.valid() && current?.blob === pending?.blob && JSON.stringify(current?.meta) === JSON.stringify(pending?.meta)) form.setImage(ref);
+          },
+        };
+        let legacy: AdminApi;
+        try { legacy = await owner.read(loadLegacyApi); }
+        catch (error) {
+          operation.fail(error);
+          inlineIngredientFeedback.set(ingDraft, { kind: "failure", stage: "save", error });
+          if (alive()) paintFeedback();
+          return;
+        }
+        if (!operation.current() || c.newIngredient !== ingDraft || !d.components.includes(c)) return;
+        const out = await submitIngredientForm(owner.auxiliaryApi(legacy), submitted, ingDraft.blobSha ? { ifMatch: ingDraft.blobSha } : {});
+        if (!operation.valid()) return;
+        if (out.ok) {
+          if (c.newIngredient === ingDraft && d.components.includes(c)) {
+            ingDraft.blobSha = out.result.blobSha;
+            if (form.id() === id && !form.pendingImage() && JSON.stringify(form.toIngredient()) === JSON.stringify(body)) {
+              c.newIngredient = null;
+              c.ingredientRef = id;
+            }
+            owner.changed(d);
+          }
+          if (!alive()) return;
+          try {
+            catalog = await owner.read(() => teamApi.getCatalog()); // 写入成功后 api 层已失效缓存（§3.5）：这里拿到的就带新食材
           } catch {
             /* 名字先用 id 顶着 */
           }
-          if (!el.isConnected) return;
+          if (!alive()) return;
           changed();
           paintComponents();
           paintSteps();
@@ -1501,23 +1875,19 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
           return;
         }
         const err = out.error;
+        operation.fail(err);
+        inlineIngredientFeedback.set(ingDraft, { kind: "failure", stage: out.stage, error: err });
+        if (!alive()) return;
         if (isApiError(err) && err.status === 401) {
           discardDraft();
           sessionExpired(el, lang);
           return;
         }
-        if (out.stage === "upload") {
-          form.showErrors(isApiError(err) && err.hasFieldErrors ? err.errors : [{ path: "/image", code: isApiError(err) ? err.code : "network", message: L("dish.photo.uploadFailed", { msg: apiMessage(err, lang) }) }]);
-          return;
-        }
-        if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
-          form.showErrors(err.errors);
-          return;
-        }
-        msg.append(errorCard(apiMessage(err, lang), () => void saveInline()));
+        paintFeedback();
       } finally {
-        done();
-        busyNow = false;
+        // Keep the live form and its focused validation error. A new paint uses
+        // the same buffer's feedback when an operation outlives its old form.
+        operation.finish(!alive() || !form.el.isConnected);
       }
     }
     return h(
@@ -1644,8 +2014,8 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
   );
   const stepsSection = h("div", { class: "adm-dish-block" }, h("p", { class: "section-label adm-dish-label" }, L("dish.steps"), " ", stepsCount), stepsList, h("div", { class: "adm-dish-add-row" }, addStep));
 
-  const draftBtn = button({ label: L(returnTo ? "dish.saveDraft.return" : "dish.saveDraft"), class: "adm-dish-save-draft", onClick: () => void save("draft") });
-  const activeBtn = button({ label: L(returnTo ? "dish.activate.return" : "dish.activate"), kind: "primary", class: "adm-dish-save-active", onClick: () => void save("active") });
+  const draftBtn = button({ label: L("dish.saveDraft"), class: "adm-dish-save-draft", onClick: () => void save("draft") });
+  const activeBtn = button({ label: L("dish.activate"), kind: "primary", class: "adm-dish-save-active", onClick: () => void save("active") });
   const bottom = h("div", { class: "adm-dish-bottom" }, h("p", { class: "muted adm-dish-bottom-hint" }, L("dish.activate.hint")), h("div", { class: "adm-dish-bottom-btns" }, draftBtn, activeBtn));
 
   const formEl = h("form", { class: "adm-dish-form", novalidate: true, role: "tabpanel", id: `${ID_PREFIX}-pane-manual`, "aria-labelledby": tabManual.id }, h("div", { class: "card adm-dish-readycard" }, readyChips, h("p", { class: "adm-dish-missing-title" }, L("dish.missing.title")), missingBox), basic, componentsSection, stepsSection, bottom);
@@ -1671,26 +2041,110 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
 
   // 没网：只能看不能存（§7 排除 2、3）
   const offline = notice({ kind: "info", text: adm("adm.offline", undefined, lang) });
-  notices.append(offline);
+  const editStatus = h("div", { class: "card adm-dish-edit-state", role: "status", "aria-live": "polite" });
+  const compareBox = h("div", { class: "adm-dish-compare" });
+  notices.append(offline, editStatus, compareBox);
   function syncNet(): void {
     const online = navigator.onLine;
     offline.hidden = online;
-    draftBtn.disabled = !online;
-    activeBtn.disabled = !online;
+    const state = owner.pristine ? null : owner.session.getState();
+    const blocked = !online || owner.busy || owner.auxiliaryUnknown || teamApi.mode === "unconfigured" || !!state?.operationId || state?.phase === "conflict" || state?.phase === "closed";
+    draftBtn.disabled = blocked;
+    activeBtn.disabled = blocked;
+    idInput.readOnly = !!state?.source || owner.busy || !!state?.operationId;
+    cameraInput.disabled = pickInput.disabled = teamApi.mode !== "real" || blocked || imageModuleUnavailable();
+    for (const control of formEl.querySelectorAll<HTMLButtonElement>(".adm-dish-translate")) control.disabled = teamApi.mode !== "real" || blocked || legacyModuleUnavailable();
+    for (const syncInline of inlineBusyViews) syncInline();
+  }
+  function compareDish(value:AnyDish,label:string):HTMLElement {
+    return h('section',{},h('h3',{},label),h('p',{},pick(value.name,lang)),h('p',{},`${L('dish.baseServings')}: ${value.baseServings??(lang==='zh'?'未录':lang==='en'?'Not recorded':'Не записано')}`),
+      h('p',{},`${value.components?.length??'—'} · ${L('dish.components')} / ${value.steps?.length??'—'} · ${L('dish.steps')}`),
+      h('details',{},h('summary',{},lang==='zh'?'完整原始内容':lang==='en'?'Full raw content':'Повні вихідні дані'),h('pre',{class:'adm-dish-json'},JSON.stringify(value,null,2))));
+  }
+  function syncStatus(): void {
+    if (!alive()) return;
+    const state = owner.pristine ? null : owner.session.getState();
+    const phase = owner.busy ? owner.processing ? "processing" : "saving" : !state ? "empty" : d.dirty && (state.phase === "clean" || state.phase === "saved-but-unpublished") ? "dirty" : state.phase;
+    editStatus.replaceChildren(h("p", {}, statusText(teamApi.mode, lang)), h("p", {}, statusText(phase, lang)));
+    if (!owner.auxiliaryError && (legacyModuleUnavailable() || imageModuleUnavailable())) editStatus.append(h("p", {}, moduleUnavailableMessage(lang)));
+    if (owner.auxiliaryUnknown) editStatus.append(h("p", {}, statusText("auxUnknown", lang)));
+    if (owner.auxiliaryError) editStatus.append(h("p", {}, owner.auxiliaryError instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(owner.auxiliaryError, lang)));
+    if (!state) { syncNet(); return; }
+    if (state.source) editStatus.append(h("details", { class: "muted" }, h("summary", {}, state.source.commit.slice(0,8)), h("code", {}, state.source.commit)));
+    if (state.error) {
+      const e = state.error;
+      editStatus.append(h("p", {}, apiMessage(new ApiError(e.status, e.code, e.message, e.errors, e.retryAfter), lang)));
+    }
+    if (state.phase === "outcome-unknown") {
+      const verify = button({ label: statusText("verify", lang), onClick: () => void owner.session.reconcileUnknown(owner.context) });
+      verify.disabled = state.recovering;
+      editStatus.append(verify);
+    }
+    if (state.phase === "conflict") editStatus.append(button({ label: statusText("compare", lang), onClick: () => void compareRemote() }));
+    if (state.lastSave && !d.dirty && !owner.busy && !owner.auxiliaryUnknown && !state.operationId) {
+      editStatus.append(button({ label: L("dish.addAnother"), onClick: () => {
+        if (!owner.newDocument()) return;
+        discardDraft();
+        if (rest !== "new") { location.hash = adminHref("dish", "new"); return; }
+        el.replaceChildren(); void render(el, ctx, "new", teamApi);
+      } }));
+      if (returnTo) editStatus.append(h("a", { class: "adm-btn", href: returnTo }, statusText("returnTo", lang)));
+    }
+    syncNet();
+  }
+  async function compareRemote(): Promise<void> {
+    const before = owner.session.getState();
+    if (!alive() || before.phase !== "conflict") return;
+    try {
+      const current = await owner.read(() => teamApi.getDish(d.id.trim(), { force: true }));
+      if (!alive()) return;
+      if (!current) { compareBox.replaceChildren(h("p", {}, L("dish.notFound"))); return; }
+      const remote = await owner.read(() => teamApi.getDish(d.id.trim(), { revision: current.commit, force: true }));
+      if (!alive() || owner.session.getState().phase !== "conflict") return;
+      if (!remote || remote.commit !== current.commit || remote.blobSha !== current.blobSha) throw new ApiError(422, "invalid_source", "");
+      const adopt = (keepLocal: boolean): void => {
+        if (!alive() || !owner.adopt(remote, keepLocal)) return;
+        draft = owner.draft; el.replaceChildren(); paintScreen(el, ctx, rest, []);
+      };
+      compareBox.replaceChildren(
+        compareDish(draftToDish(d), lang === 'zh' ? '本地修改' : lang === 'en' ? 'Local changes' : 'Локальні зміни'),
+        compareDish(remote.content, lang === 'zh' ? '远端内容' : lang === 'en' ? 'Remote content' : 'Віддалені дані'),
+        button({ label: statusText("local", lang), onClick: () => adopt(true) }),
+        button({ label: statusText("remote", lang), onClick: () => adopt(false) }),
+      );
+    } catch (err) { if (alive()) compareBox.replaceChildren(errorCard(apiMessage(err, lang))); }
   }
   syncNet();
+  const unsubscribeState = owner.session.subscribe(() => {
+    if (auth !== teamApi.sessionKey() && el.isConnected) { el.replaceChildren(); sessionExpired(el, lang); return; }
+    syncStatus();
+  });
+  const unsubscribeAuxiliary = owner.subscribe(contentChanged => {
+    if (!alive()) return;
+    if (contentChanged) {
+      paintPhoto(); paintComponents(); paintSteps(); paintReadiness();
+      for (const sync of triViews) sync();
+      // Retained translation callbacks may have updated the original view's slug.
+      // Show the owned target and recompute this view's local duplicate guard too.
+      idInput.value = d.id;
+      refreshDup();
+    }
+    syncStatus();
+  });
   window.addEventListener("online", syncNet);
   window.addEventListener("offline", syncNet);
   disposePaint = () => {
+    unsubscribeState();
+    unsubscribeAuxiliary();
     window.removeEventListener("online", syncNet);
     window.removeEventListener("offline", syncNet);
   };
 
-  // catalog：食材搜索 / 技法闭集 / 查重 / readiness 的能采；晚到就晚到，不阻塞（§4.5 空态）
-  void api
-    .getCatalog()
+  // Dual-format catalog supplies ingredient search and technique choices.
+  void owner
+    .read(() => teamApi.getCatalog())
     .then((c) => {
-      if (!el.isConnected) return;
+      if (!alive()) return;
       catalog = c;
       refreshDup();
       paintComponents();
@@ -1698,19 +2152,17 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       paintReadiness();
     })
     .catch(() => {
-      if (!el.isConnected) return;
+      if (!alive()) return;
       catalogFailed = true;
       paintComponents();
       paintSteps();
-    });
-  // handoff 带来的菜名（#22「新建」）：一进来就机翻一次；切语言重画时 translatedFrom 已等于 zh，不会重复调
-  if (d.name.zh.trim() && !editing) void nameTri.translate(false);
-
+    })
+    .finally(() => ctx.setReloadCoverage?.("tracked"));
   // ---- 保存 ------------------------------------------------------------------------
-  /** 本地只查 API 看不见的：id 形状 / 撞名、待上传照片缺许可、还没选食材的行、没存的内联新食材、空数量、给了 prep 没选切法、空步骤 */
+  /** Blank optional quantities are valid; reject invalid entered numbers and incomplete form controls. */
   function localErrors(): FieldError[] {
     const errs: FieldError[] = [];
-    if (!editing) {
+    if (!d.blobSha) {
       const id = d.id.trim();
       if (!id) errs.push({ path: "/id", code: "required", message: L("dish.slug.required") });
       else if (!ID_RE.test(id)) errs.push({ path: "/id", code: "pattern", message: L("dish.slug.bad") });
@@ -1721,7 +2173,7 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
       const P = `/components/${i}`;
       if (c.newIngredient) errs.push({ path: `${P}/ingredientRef`, code: "required", message: L("dish.newIngredient.unsaved") });
       else if (!c.ingredientRef.trim()) errs.push({ path: `${P}/ingredientRef`, code: "required", message: L("dish.components.pickFirst") });
-      if (!c.toTaste && !(num(c.qty) > 0)) errs.push({ path: `${P}/qty/value`, code: "required", message: L("dish.qty.required") });
+      if (!c.toTaste && c.qty.trim() && !(num(c.qty) > 0)) errs.push({ path: `${P}/qty/value`, code: "required", message: L("dish.qty.required") });
       if (prepOf(c) && !c.techniqueRef) errs.push({ path: `${P}/prep/techniqueRef`, code: "required", message: L("dish.prep.technique.required") });
     });
     d.steps.forEach((s, i) => {
@@ -1756,148 +2208,21 @@ function paintScreen(el: HTMLElement, ctx: PageCtx, rest: string, api: AdminApi,
     applyFieldErrors(formEl, errors.map(remapError));
   }
 
-  function reload(): void {
-    // 409：丢掉本地改动，按线上版本重读。新建后第一次撞上时 rest 还是 "new"，跳到 /dish/<id> 重进
-    const id = d.id.trim();
-    discardDraft();
-    if (rest === "new" && id) {
-      location.hash = adminHref("dish", id);
-      return;
-    }
-    el.replaceChildren();
-    void render(el, ctx, rest);
-  }
-
-  /** 保存后顶部那条：绿条 + 「再加一道」/「去排菜单」 */
-  function savedBar(text: string): HTMLElement {
-    const again = button({
-      label: L("dish.addAnother"),
-      kind: "ghost",
-      class: "adm-notice-action",
-      onClick: () => {
-        // 同一个 hash（#/admin/dish/new）再进一次不会触发 hashchange：手动丢弃 + 重画
-        discardDraft();
-        if (location.hash !== adminHref("dish", "new")) {
-          location.hash = adminHref("dish", "new");
-          return;
-        }
-        el.replaceChildren();
-        void render(el, ctx, "new");
-      },
-    });
-    const plan = h("a", { class: "adm-notice-action", href: adminHref("plan") }, L("dish.goPlan"));
-    return h("div", { class: "adm-notice adm-ok adm-dish-saved", role: "status" }, h("p", {}, text), again, plan);
-  }
-
-  /** 悬空引用（worker 只给 "dangling-ref" 一个词，具体是哪些自己对着 catalog 算） */
-  function danglingRefs(): string[] {
-    if (!catalog) return [];
-    const out = new Set<string>();
-    const known = new Set(catalog.techniques.map((t) => t.id));
-    for (const c of d.components) {
-      if (c.ingredientRef && !catalog.ingredients[c.ingredientRef]) out.add(c.ingredientRef);
-      if (c.techniqueRef && !known.has(c.techniqueRef)) out.add(c.techniqueRef);
-    }
-    for (const s of d.steps) if (s.techniqueRef && !known.has(s.techniqueRef)) out.add(s.techniqueRef);
-    return [...out];
-  }
-
   async function save(mode: "draft" | "active"): Promise<void> {
-    if (saving) return;
-    if (!navigator.onLine) {
-      syncNet();
-      return;
-    }
-    clearFieldErrors(formEl);
-    clearTransient();
-    // 新建时 catalog 还没到 → 先等它一次再查重，免得静默覆盖同名文件（worker 不带 If-Match 会直接写）
-    if (!editing && !catalog) {
-      try {
-        catalog = await api.getCatalog();
-        if (!el.isConnected) return;
-        refreshDup();
-      } catch {
-        /* 查不了重也让存 */
-      }
-    }
+    if (owner.busy || owner.auxiliaryUnknown || !alive() || teamApi.mode === "unconfigured" || owner.session.getState().operationId) return;
+    if (!navigator.onLine) { syncNet(); return; }
+    clearFieldErrors(formEl); clearTransient();
     const local = localErrors();
-    if (local.length > 0) {
-      showErrors(local);
-      return;
-    }
-    saving = true;
-    const btn = mode === "draft" ? draftBtn : activeBtn;
-    const other = mode === "draft" ? activeBtn : draftBtn;
-    const done = busy(btn, adm("adm.saving", undefined, lang));
-    const doneOther = busy(other);
-    const id = d.id.trim();
+    if (d.baseServings.trim() && (!Number.isInteger(num(d.baseServings)) || num(d.baseServings) < 1)) local.push({ path: "/baseServings", code: "minimum", message: L("dish.qty.required") });
+    if (local.length) { showErrors(local); return; }
     try {
-      // 1. 待上传的成品图先传（失败只在照片区显示错误，表单其它内容原样；§4.4 同款）
-      if (d.pending) {
-        const meta: ImageMeta = { license: d.pending.license.trim() };
-        if (d.pending.author.trim()) meta.author = d.pending.author.trim();
-        if (d.pending.sourceUrl.trim()) meta.sourceUrl = d.pending.sourceUrl.trim();
-        try {
-          const ref = await api.uploadImage("dishes", id, d.pending.blob, meta);
-          if (!el.isConnected) return;
-          dropPending();
-          d.image = { ...ref };
-          paintPhoto();
-        } catch (err) {
-          if (!el.isConnected) return;
-          if (isApiError(err) && err.status === 401) {
-            discardDraft();
-            sessionExpired(el, lang);
-            return;
-          }
-          showErrors(isApiError(err) && err.hasFieldErrors ? err.errors : [{ path: "/image", code: isApiError(err) ? err.code : "network", message: L("dish.photo.uploadFailed", { msg: apiMessage(err, lang) }) }]);
-          return;
-        }
-      }
-      // 2. 存草稿 → POST /dish/:id/draft（worker 无条件 draft）；入库 → POST /dish/:id + status: "active"（决议追加第 1 条）
-      const dish = draftToDish(d);
-      if (mode === "active") dish.status = "active";
-      const opts = d.blobSha ? { ifMatch: d.blobSha } : undefined;
-      const result = mode === "draft" ? await api.saveDishDraft(id, dish, opts) : await api.saveDish(id, dish, opts);
-      d.blobSha = result.blobSha;
-      d.dirty = false;
-      const forced = result.warnings.includes("status-forced");
-      d.status = mode === "active" && !forced ? "active" : "draft";
-      if (returnTo) {
-        location.hash = returnTo; // 从导入屏跳来的：保存成功后回去，#22 重新匹配菜名（hashchange → 丢弃已保存的草稿）
-        return;
-      }
-      if (!el.isConnected) return;
-      const bars: HTMLElement[] = [];
-      if (result.unchanged) bars.push(savedBar(adm("adm.saved.unchanged", undefined, lang)));
-      else bars.push(savedBar(L(d.status === "active" ? "dish.activated" : "dish.savedDraft")));
-      if (mode === "active" && forced) bars.push(notice({ kind: "warn", text: L("dish.statusForced") }));
-      if (result.warnings.includes("dangling-ref")) bars.push(notice({ kind: "warn", text: L("dish.warn.dangling", { list: danglingRefs().join(", ") || "dangling-ref" }) }));
-      const rest2 = result.warnings.filter((w) => w !== "no-if-match" && w !== "status-forced" && w !== "dangling-ref");
-      if (rest2.length > 0) bars.push(notice({ kind: "warn", text: L("dish.warnings", { list: rest2.join(", ") }) }));
-      // 留在本屏，重画成「改菜」（id 锁定、以后带 If-Match）
-      el.replaceChildren();
-      paintScreen(el, ctx, rest, api, bars);
+      await owner.save(mode, loadLegacyApi);
+      if (!alive()) return;
+      const state = owner.session.getState();
+      if (state.error?.errors.some(error => error.path)) showErrors(state.error.errors.filter(error => error.path));
+      // Retain the form, including any later edits. Publication remains a separate action.
     } catch (err) {
-      if (!el.isConnected) return;
-      if (isApiError(err) && err.status === 401) {
-        discardDraft();
-        sessionExpired(el, lang);
-        return;
-      }
-      if (isApiError(err) && (err.hasFieldErrors || err.status === 400)) {
-        showErrors(err.errors); // message 原样，按 JSON Pointer 标黄，焦点移到第一个出错控件（kit）
-        return;
-      }
-      if (isApiError(err) && err.status === 409) {
-        addTransient(errorCard(apiMessage(err, lang), reload)); // 「有人刚改过，刷新后重试」+ 重新读取
-        return;
-      }
-      addTransient(errorCard(apiMessage(err, lang), () => void save(mode))); // 403 / 413 / 429 / 502 / 503 / 断网：原样 + 重试
-    } finally {
-      done();
-      doneOther();
-      saving = false;
-    }
+      if (alive()) addTransient(errorCard(err instanceof EditorModuleUnavailable ? moduleUnavailableMessage(lang) : apiMessage(err, lang)));
+    } finally { if (alive()) syncNet(); }
   }
 }

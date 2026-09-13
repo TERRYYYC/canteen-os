@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Import and Ingredient operation ownership · local fixture</title>
+<style>body{margin:0}#controls{padding:12px;background:#ffeac5}#controls button{min-height:44px}#app{max-width:760px;margin:auto}#results{white-space:pre-wrap;margin:16px}</style>
+<div id="controls"><strong>Local simulated transport · no real repository writes</strong><button id="run">Run auxiliary browser probes</button></div><div id="app"></div><pre id="results" aria-live="polite"></pre>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {render as importPage} from '../src/pages/admin/import.ts';
+import {render as ingredientPage} from '../src/pages/admin/ingredient-new.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {getApi,HttpAdminApi} from '../src/api/client.ts';
+import {clearToken} from '../src/admin/token.ts';
+import {ApiError} from '../src/api/types.ts';
+import {inspectReloadSafety,createPageReloadCoverage} from '../src/view-models/reload-safety.ts';
+const A='a'.repeat(40),B='b'.repeat(40),app=document.querySelector('#app'),out=document.querySelector('#results'),results=[],coverage=createPageReloadCoverage();
+const tick=()=>new Promise(r=>setTimeout(r,30));
+const pending=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
+const assert=(value,message)=>{if(!value)throw new Error(message);};
+const snapshot=()=>inspectReloadSafety();const reason=expected=>assert(snapshot().reason===expected,`Expected ${expected}: ${JSON.stringify(snapshot())}`);
+const $=selector=>app.querySelector(selector);
+const input=(selector,value)=>{const field=$(selector);assert(field,selector);field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));};
+const submit=()=>$('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+const button=text=>[...app.querySelectorAll('button')].find(b=>b.textContent===text);
+const ingredient={schemaVersion:'2',name:{zh:'盐',en:'Salt',uk:'Сіль'},baseUnit:'g',trackStock:false};
+const catalog={commit:A,dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Soup'},status:'active',components:[{ingredientRef:'salt'}]}},ingredients:{salt:ingredient},suppliers:[],techniques:[],translations:{machine:0,human:0,stale:0}};
+let active;
+function setup(){
+ clearToken();active?.api.dispose();let identity=0;const holds={},calls=[],writes=[],legacy=getApi();let current={content:ingredient,commit:A,blobSha:'salt-a'};
+ const api=createTeamMealsApi('https://auxiliary.local.invalid',{mode:'real',identity:()=>identity,token:()=> 'explicit-local-fixture',fetch:async(url,init)=>{const path=new URL(url).pathname;calls.push({path,method:init.method});if(holds[path])await holds[path].promise;return Response.json(path==='/catalog'?catalog:path.startsWith('/source/ingredient/')?current:{content:{schemaVersion:'3',meals:[]},blobSha:'plan-a',commit:A});}});
+ legacy.translate=async()=>({});legacy.uploadImage=async()=>({src:'data/ingredients/salt/images/local.png',license:'own'});legacy.saveIngredient=async(id,body,condition)=>{writes.push({id,body,condition});current={content:structuredClone(body),commit:B,blobSha:'salt-b'};return{commit:B,blobSha:'salt-b',unchanged:false,warnings:[]};};
+ active={api,legacy,holds,calls,writes,auth(){identity++;clearToken();}};return active;
+}
+function draw(s,page='ingredient',rest='salt',lang='en'){
+ const path=page==='ingredient'?`ingredient/${rest}`:`plan/${rest}/import`;location.hash='#/admin/'+path;const el=document.createElement('section');app.replaceChildren(el);
+ const ctx={lang,route:'admin',rest:path,planId:'week-38',data:{},t:k=>k,setReloadCoverage:coverage.beginRender('admin',path)};
+ return(page==='ingredient'?ingredientPage:importPage)(el,ctx,rest,s.api);
+}
+async function ready(s,page='ingredient',rest='salt',lang='en'){await draw(s,page,rest,lang);await tick();}
+async function leave(){location.hash='#/admin';app.replaceChildren(document.createTextNode('Other page'));await tick();}
+function parse(raw){input('#adm-import-text',raw);$('.adm-import-parse').click();}
+function fileRead(name){const gate=pending(),file=new File(['date,meal,dish,servings\nMon,lunch,原汤,8'],name,{type:'text/csv'});file.arrayBuffer=()=>gate.promise;const dt=new DataTransfer();dt.items.add(file);$('#adm-import-file').files=dt.files;$('#adm-import-file').dispatchEvent(new Event('change',{bubbles:true}));return{finish(){gate.resolve(new TextEncoder().encode('date,meal,dish,servings\nMon,lunch,原汤,8').buffer);}};}
+async function photo(){const canvas=document.createElement('canvas');canvas.width=2;canvas.height=2;canvas.getContext('2d').fillRect(0,0,2,2);const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));const dt=new DataTransfer();dt.items.add(new File([blob],'local.png',{type:'image/png'}));$('#adm-ing-photo-pick').files=dt.files;$('#adm-ing-photo-pick').dispatchEvent(new Event('change',{bubbles:true}));reason('saving');for(let n=0;n<40&&!$('.adm-ing-preview');n++)await tick();assert($('.adm-ing-preview'),'Decoded photo preview');reason('dirty');}
+async function run(name,work){try{await work();results.push({name,passed:true});}catch(error){results.push({name,passed:false,error:String(error.stack??error)});}out.textContent=JSON.stringify({summary:`${results.filter(r=>r.passed).length}/${results.length}`,results,snapshot:snapshot()},null,2);}
+document.querySelector('#run').onclick=async()=>{
+ document.querySelector('#run').disabled=true;results.length=0;
+ await run('Import CSV read survives language and clear until actual completion',async()=>{const s=setup();await ready(s,'import','week-38');parse('unparsed private raw');reason('dirty');const file=fileRead('selected-private.csv');reason('saving');await ready(s,'import','week-38','uk');reason('saving');$('.adm-import-clear').click();reason('saving');file.finish();await tick();reason('clear');assert($('#adm-import-text').value==='','clear retained');});
+ await run('two old Import reads settle separately and keep B raw private',async()=>{const s=setup();await ready(s,'import','week-38');parse('周一午 原汤 8');const source=s.holds['/source/plan/week-38']=pending();$('.adm-import-submit').click();await tick();const file=fileRead('private-A.csv');reason('saving');s.auth();await ready(s,'import','week-38','uk');reason('unknown');assert(!JSON.stringify(snapshot()).includes('private-A.csv'),'old filename never in snapshot');input('#adm-import-text','B current raw');source.resolve();await tick();reason('unknown');file.finish();await tick();reason('dirty');assert($('#adm-import-text').value==='B current raw','B preserved');});
+ await run('Import canceled catalog initialization finishes original coverage',async()=>{const s=setup(),gate=s.holds['/catalog']=pending();const a=draw(s,'import','week-38');reason('saving');delete s.holds['/catalog'];s.auth();await ready(s,'import','week-38','uk');reason('unknown');gate.resolve();await a;await tick();reason('clear');assert(!snapshot().records.some(r=>r.id==='previous-session-page'),'old coverage finished');});
+ await run('Ingredient canceled Source initialization finishes original coverage',async()=>{const s=setup(),gate=s.holds['/source/ingredient/salt']=pending();const a=draw(s);reason('saving');delete s.holds['/source/ingredient/salt'];s.auth();await ready(s,'ingredient','salt','uk');input('#adm-ing-name-zh','B source input');reason('unknown');gate.resolve();await a;await tick();reason('dirty');assert($('#adm-ing-name-zh').value==='B source input','B source preserved');});
+ await run('Ingredient translation survives navigation; later raw remains through save',async()=>{const s=setup(),gate=pending();await ready(s);s.legacy.translate=()=>gate.promise;$('.adm-ing-translate').click();reason('saving');await leave();await ready(s,'ingredient','salt','uk');reason('saving');gate.resolve({en:'Translated',uk:'Переклад'});await tick();reason('dirty');const save=pending(),normal=s.legacy.saveIngredient;s.legacy.saveIngredient=async(...args)=>{const response=await normal(...args);await save.promise;return response;};submit();await tick();reason('saving');input('#adm-ing-name-zh','Later raw');await leave();save.resolve();await tick();reason('dirty');await ready(s);assert($('#adm-ing-name-zh').value==='Later raw','later raw preserved');});
+ await run('Ingredient actual photo decode and recognized upload 409 remain retryable',async()=>{const s=setup();await ready(s);await photo();s.legacy.uploadImage=async()=>{throw new ApiError(409,'conflict','known rejection');};submit();await tick();reason('dirty');assert($('.adm-ing-owner-state').dataset.phase==='error'&&!$('.adm-ing-save').disabled,'known rejected upload can retry');});
+ await run('two Ingredient writes from A settle one by one while B stays dirty',async()=>{const s=setup(),one=pending(),two=pending();let calls=0;s.legacy.saveIngredient=async()=>{const n=++calls;await(n===1?one.promise:two.promise);if(n===2)throw new ApiError(409,'conflict','known rejection');return{commit:B,blobSha:'accepted',unchanged:false,warnings:[]};};await ready(s);input('#adm-ing-name-zh','A salt');submit();await tick();await leave();await ready(s,'ingredient','new');input('#adm-ing-name-zh','A new');input('#adm-ing-id','a-new');submit();await tick();assert(calls===2,'two writes dispatched');reason('saving');s.auth();await ready(s,'ingredient','new','uk');input('#adm-ing-name-zh','B new raw');reason('unknown');one.resolve();await tick();reason('unknown');two.resolve();await tick();reason('dirty');assert($('#adm-ing-name-zh').value==='B new raw','B preserved');});
+ await run('unknown document save resolves only after matching Source read',async()=>{const s=setup(),normal=s.legacy.saveIngredient;await ready(s);s.legacy.saveIngredient=async(...args)=>{await normal(...args);throw new TypeError('lost ACK');};input('#adm-ing-name-zh','submitted');submit();await tick();reason('unknown');input('#adm-ing-name-zh','later');button('Verify save outcome').click();await tick();reason('dirty');assert($('#adm-ing-name-zh').value==='later','later raw preserved');});
+ await run('real HttpAdminApi hidden old upload ACK remains unknown after auth',async()=>{const s=setup(),gate=pending(),http=new HttpAdminApi('https://auxiliary-http.local.invalid',{token:()=> 'explicit-local-fixture',fetch:async()=>{await gate.promise;return Response.json({src:'data/ingredients/salt/images/accepted.png',license:'own'});}});await ready(s);await photo();s.legacy.uploadImage=http.uploadImage.bind(http);submit();await tick();reason('saving');s.auth();await ready(s,'ingredient','salt','uk');reason('unknown');gate.resolve();await tick();reason('unknown');assert(s.writes.length===0,'no document write under B');assert(snapshot().records.some(r=>r.id==='previous-session-operation'),'old operation is anonymous and retained');http.dispose();});
+ document.querySelector('#run').disabled=false;
+};
+</script></html>

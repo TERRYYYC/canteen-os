@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "第一道样本菜",
+    "en": "First test dish",
+    "uk": "Перша тестова страва"
+  },
+  "baseServings": 2,
+  "status": "active",
+  "provenance": {
+    "source": "example"
+  },
+  "components": [
+    {
+      "ingredientRef": "tomato",
+      "qty": {
+        "value": 300,
+        "unit": "g"
+      }
+    },
+    {
+      "ingredientRef": "salt",
+      "qty": {
+        "unit": "to-taste"
+      }
+    },
+    {
+      "ingredientRef": "cooking-oil",
+      "qty": {
+        "value": 20,
+        "unit": "ml"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "text": {
+        "zh": "片段顺序测试"
+      },
+      "clip": {
+        "videoUrl": "https://example.invalid/clip",
+        "start": 20,
+        "end": 10
+      }
+    }
+  ]
+}

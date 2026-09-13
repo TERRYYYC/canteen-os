@@ -1,0 +1,245 @@
+{
+  "summary": "9/23",
+  "checks": [
+    {
+      "name": "import rejects raw 2.0000000000000001",
+      "pass": false,
+      "detail": {
+        "value": "2.0000000000000001"
+      }
+    },
+    {
+      "name": "import preserves invalid raw 2.0000000000000001",
+      "pass": false,
+      "detail": {
+        "value": "2"
+      }
+    },
+    {
+      "name": "plan rejects raw 2.0000000000000001",
+      "pass": false,
+      "detail": {
+        "value": "2"
+      }
+    },
+    {
+      "name": "plan preserves invalid raw 2.0000000000000001",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "import rejects raw 9007199254740993",
+      "pass": true,
+      "detail": {
+        "value": "9007199254740993"
+      }
+    },
+    {
+      "name": "import preserves invalid raw 9007199254740993",
+      "pass": false,
+      "detail": {
+        "value": "9007199254740992"
+      }
+    },
+    {
+      "name": "plan rejects raw 9007199254740993",
+      "pass": false,
+      "detail": {
+        "value": "9007199254740992"
+      }
+    },
+    {
+      "name": "plan preserves invalid raw 9007199254740993",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "import rejects raw 9007199254740992",
+      "pass": true,
+      "detail": {
+        "value": "9007199254740992"
+      }
+    },
+    {
+      "name": "import preserves invalid raw 9007199254740992",
+      "pass": true,
+      "detail": {
+        "value": "9007199254740992"
+      }
+    },
+    {
+      "name": "plan rejects raw 9007199254740992",
+      "pass": false,
+      "detail": {
+        "value": "9007199254740992"
+      }
+    },
+    {
+      "name": "plan preserves invalid raw 9007199254740992",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "import rejects raw 2.0000000000000001e1",
+      "pass": false,
+      "detail": {
+        "value": "2.0000000000000001e1"
+      }
+    },
+    {
+      "name": "import preserves invalid raw 2.0000000000000001e1",
+      "pass": false,
+      "detail": {
+        "value": "20"
+      }
+    },
+    {
+      "name": "plan rejects raw 2.0000000000000001e1",
+      "pass": false,
+      "detail": {
+        "value": "20"
+      }
+    },
+    {
+      "name": "plan preserves invalid raw 2.0000000000000001e1",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "name": "canceled import action follows current 1.5",
+      "pass": false,
+      "detail": {
+        "disabled": false,
+        "label": "Import 1, skip 0"
+      }
+    },
+    {
+      "name": "canceled import action follows current clear",
+      "pass": true,
+      "detail": {
+        "disabled": false,
+        "label": "Import 1, skip 0"
+      }
+    },
+    {
+      "name": "canceled import action follows current 6",
+      "pass": true,
+      "detail": {
+        "disabled": false,
+        "label": "Import 1, skip 0"
+      }
+    },
+    {
+      "name": "core errors remain visible: 周一午 原汤 2.5份",
+      "pass": true,
+      "detail": {
+        "page": "←Paste to importWeek starting 2026-09-14Simulation; no real repository writePaste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the library周一午 原汤 2.5份✕Mon 09.14 lunch · 原汤Couldn't read this line · 份数必须是大于等于 1 的整数，请确认原文，不能自动取整周一午 原汤 2.5份Nothing to import"
+      }
+    },
+    {
+      "name": "core errors remain visible: 周一午 原汤 2.0000000000000001份",
+      "pass": true,
+      "detail": {
+        "page": "←Paste to importWeek starting 2026-09-14Simulation; no real repository writePaste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the library周一午 原汤 2.0000000000000001份✕Mon 09.14 lunch · 原汤Couldn't read this line · 份数必须是大于等于 1 的整数，请确认原文，不能自动取整周一午 原汤 2.0000000000000001份Nothing to import"
+      }
+    },
+    {
+      "name": "core errors remain visible: 周一午 原汤 9007199254740993份",
+      "pass": true,
+      "detail": {
+        "page": "←Paste to importWeek starting 2026-09-14Simulation; no real repository writePaste the WeChat message hereAny format: weekday or date · breakfast / lunch / dinner · dish · servings. Unrecognised lines get flagged, not rejected as a batch.ParseClearOr upload a tableCSV, four columnsDate · meal · dish · servings — any column names, detected automaticallyChoose fileExcel: use “Save as CSV” firstRecognised · 1 linesText without servings keeps a matching row’s known count. Use Clear servings to remove it.Nothing was recognisedMost common cause: dish names don't match the library周一午 原汤 9007199254740993份✕Mon 09.14 lunch · 原汤Couldn't read this line · 份数超出可精确表示的整数范围，请填写不超过 9007199254740991 的整数周一午 原汤 9007199254740993份Nothing to import"
+      }
+    },
+    {
+      "name": "all requests remain read-only",
+      "pass": true,
+      "detail": {}
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/week-38"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/catalog"
+    }
+  ]
+}

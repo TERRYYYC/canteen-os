@@ -1,0 +1,22 @@
+node:internal/modules/cjs/loader:1207
+  const err = new Error(message);
+              ^
+
+Error: Cannot find module 'rollup/parseAst'
+Require stack:
+- /private/tmp/canteen-bundle-d1-review-df992aa/packages/web/package.json
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    at Module._load (node:internal/modules/cjs/loader:1038:27)
+    at Module.require (node:internal/modules/cjs/loader:1289:19)
+    at require (node:internal/modules/helpers:182:18)
+    at file:///private/tmp/canteen-bundle-d1-review-df992aa/reviewer-assertions.mjs:2:101
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/private/tmp/canteen-bundle-d1-review-df992aa/packages/web/package.json'
+  ]
+}
+
+Node.js v20.20.2

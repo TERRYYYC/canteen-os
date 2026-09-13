@@ -1,0 +1,308 @@
+{
+  "head": "df992aad3807638c2ef1a092cdb38d01b9d60f6d",
+  "boot": 1,
+  "summary": "2/4",
+  "checks": [
+    {
+      "name": "legacy loading owns read protection before any Ingredient write",
+      "pass": true
+    },
+    {
+      "name": "different editor is current while old module read remains protected",
+      "pass": true
+    },
+    {
+      "name": "deferred module completion must not begin a write after the original page left",
+      "pass": false,
+      "detail": {
+        "before": 0,
+        "posts": [
+          {
+            "method": "POST",
+            "path": "/ingredient/salt",
+            "revision": null,
+            "ifMatch": "ingredient-salt-original",
+            "ifNoneMatch": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Reviewer verify no late transport after departure",
+      "pass": false,
+      "error": "Error: deferred module completion must not begin a write after the original page left\n    at Z (http://127.0.0.1:55075/canteen/assets/index-Bc-O-R8w.js:3:23684)\n    at x (http://127.0.0.1:55075/canteen/assets/index-Bc-O-R8w.js:3:24610)\n    at http://127.0.0.1:55075/canteen/assets/index-Bc-O-R8w.js:3:34866\n    at async V.n.onclick (http://127.0.0.1:55075/canteen/assets/index-Bc-O-R8w.js:3:25566)"
+    }
+  ],
+  "route": "#/admin/plan/reviewer-away",
+  "safety": {
+    "reason": "dirty",
+    "records": [
+      {
+        "ownerId": "auxiliary-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 5,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "auxiliary-2",
+        "kind": "ingredient",
+        "id": "salt",
+        "generation": 15,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 8
+      },
+      {
+        "ownerId": "auxiliary-3",
+        "kind": "plan",
+        "id": "reviewer-away",
+        "generation": 6,
+        "dirty": false,
+        "phase": "idle",
+        "operation": 4
+      },
+      {
+        "ownerId": "draft-store",
+        "kind": "store",
+        "id": "draft-store",
+        "generation": 3,
+        "dirty": false,
+        "phase": "idle"
+      },
+      {
+        "ownerId": "editor-1",
+        "kind": "dish",
+        "id": "soup",
+        "generation": 0,
+        "dirty": false,
+        "phase": "clean",
+        "pending": false,
+        "recovering": false,
+        "context": 2,
+        "operation": 0
+      },
+      {
+        "ownerId": "editor-2",
+        "kind": "plan",
+        "id": "reviewer-away",
+        "generation": 1,
+        "dirty": true,
+        "phase": "dirty",
+        "pending": false,
+        "recovering": false,
+        "context": 1,
+        "operation": 0
+      }
+    ],
+    "stamp": "[28,1,[[\"page:admin/dish/soup\",\"tracked\"],[\"page:admin/ingredient/salt\",\"tracked\"],[\"page:admin/plan/reviewer-away\",\"tracked\"]],[{\"ownerId\":\"auxiliary-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":5,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"auxiliary-2\",\"kind\":\"ingredient\",\"id\":\"salt\",\"generation\":15,\"dirty\":false,\"phase\":\"idle\",\"operation\":8},{\"ownerId\":\"auxiliary-3\",\"kind\":\"plan\",\"id\":\"reviewer-away\",\"generation\":6,\"dirty\":false,\"phase\":\"idle\",\"operation\":4},{\"ownerId\":\"draft-store\",\"kind\":\"store\",\"id\":\"draft-store\",\"generation\":3,\"dirty\":false,\"phase\":\"idle\"},{\"ownerId\":\"editor-1\",\"kind\":\"dish\",\"id\":\"soup\",\"generation\":0,\"dirty\":false,\"phase\":\"clean\",\"pending\":false,\"recovering\":false,\"context\":2,\"operation\":0},{\"ownerId\":\"editor-2\",\"kind\":\"plan\",\"id\":\"reviewer-away\",\"generation\":1,\"dirty\":true,\"phase\":\"dirty\",\"pending\":false,\"recovering\":false,\"context\":1,\"operation\":0}]]"
+  },
+  "controller": true,
+  "pending": [],
+  "ledger": [
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": false
+    },
+    {
+      "method": "GET",
+      "path": "/source/dish/soup",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/ingredient/salt",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/source/plan/reviewer-away",
+      "revision": null,
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "GET",
+      "path": "/catalog",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ifMatch": null,
+      "ifNoneMatch": null
+    },
+    {
+      "method": "POST",
+      "path": "/ingredient/salt",
+      "revision": null,
+      "ifMatch": "ingredient-salt-original",
+      "ifNoneMatch": null
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "installed",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activating",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": false
+    },
+    {
+      "method": "GET",
+      "path": "/canteen/data/build.json",
+      "probe": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "controlling",
+      "isUpdate": false,
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    },
+    {
+      "kind": "workbox-event",
+      "path": "",
+      "type": "activated",
+      "isExternal": false,
+      "controllerAtProbeStart": false,
+      "controllerNow": true
+    }
+  ],
+  "viewText": "Back officeLanguageUA中ENSaved for offline useBackPlan mealsPaste importUnsaved changesSource version: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishSoup · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishSoup · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publishCanteenOSKitchen · 1 siteПPrepfor the prep cook · 帮厨采Purchasing · 采购单for the buyer · 采购员МMealsFor the team计Plan mealsfor the chef · 师傅ThemeSystemLightDarkData updated Sep 11, 2026, 3:00 AMOnline",
+  "resources": [
+    {
+      "name": "https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600&family=Bitter:wght@600;700&family=Noto+Sans+SC:wght@400;600&display=swap",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/index-_eYw8u9e.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/index-Bc-O-R8w.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/data/build.json",
+      "initiatorType": "fetch"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/admin-BavRcNuW.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/favicon.ico",
+      "initiatorType": "other"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/ingredient-draft-DfkuZ2qw.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/kit-RXdzz6Yk.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/dish-new-Ca4F7OSi.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/kit-hHF0cNTc.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/dish-new-DK3WVt9P.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/edit-session-9rkTAC9v.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/store-Dcmu5kJ2.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/team-ui-Bnwr_EJG.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/ingredient-new-BJhNmZlu.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/ingredient-form-CT2dSWut.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/ingredient-form-1JCVb91m.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/client-C6VYsiFN.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/plan-BXxiUM0o.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/purchase-list-DCYUac1p.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/purchase-list-CRLPFa5o.css",
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/parse-plan-text-DBZQVSv5.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/assets/servings-input-DNG9trXJ.js",
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://127.0.0.1:55075/canteen/data/build.json?__publication=1789117497883-1-1",
+      "initiatorType": "fetch"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "",
+      "focus": "filter-date",
+      "value": "2026-09-14"
+    },
+    {
+      "id": "",
+      "focus": "servings-0",
+      "value": "13"
+    },
+    {
+      "id": "",
+      "focus": "add-date",
+      "value": "2026-09-14"
+    }
+  ],
+  "fixture": "D1 author, production main/pages, simulated private API, externally gated emitted chunks"
+}

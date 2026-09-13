@@ -1,0 +1,686 @@
+[
+  {
+    "page": "plan",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "zh",
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "返回排每天的菜粘贴导入已保存；发布状态请到发布页查看模拟演示，未写入真实仓库资料版本: 00000000000000000000000000000000000000000000000c份数可以留空；保存会保留整份计划，使用新格式。查看范围全部日期一天一周日期2026-09-14 · 午餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除2026-09-15 · 晚餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除日期餐次早餐午餐晚餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft加一道菜查看材料候选从已保存计划建立采购清单保存计划去发布",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "plan",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "en",
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "BackPlan mealsPaste importSaved; check publication on the publish pageSimulation; no real repository writeSource version: 00000000000000000000000000000000000000000000000cCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)RemoveDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)Remove2026-09-15 · DinnerDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publish",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "plan",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "uk",
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "НазадПланувати стравиІмпорт текстуЗбережено; стан публікації на сторінці публікаціїСимуляція; без запису в справжнє сховищеВерсія даних: 00000000000000000000000000000000000000000000000cКількість можна не вказувати. Зберігається весь план у новому форматі.Діапазон переглядуУсі датиДеньТижденьДата2026-09-14 · ОбідСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)ПрибратиСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)Прибрати2026-09-15 · ВечеряСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)ПрибратиДатаПрийом їжіСніданокОбідВечеряСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftДодати стравуПереглянути інгредієнтиСтворити список покупок зі збереженого плануЗберегти планДо публікації",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "plan",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "zh",
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "返回排每天的菜粘贴导入已保存；发布状态请到发布页查看模拟演示，未写入真实仓库资料版本: 00000000000000000000000000000000000000000000000c份数可以留空；保存会保留整份计划，使用新格式。查看范围全部日期一天一周日期2026-09-14 · 午餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除2026-09-15 · 晚餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft份数（选填）移除日期餐次早餐午餐晚餐菜品选择菜品第一道样本菜未录成分样本 · draft第二道样本菜 · draft加一道菜查看材料候选从已保存计划建立采购清单保存计划去发布",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "page": "plan",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "en",
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "BackPlan mealsPaste importSaved; check publication on the publish pageSimulation; no real repository writeSource version: 00000000000000000000000000000000000000000000000cCounts may stay blank. Saving keeps the whole plan in the new format.View rangeAll datesDayWeekDate2026-09-14 · LunchDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)RemoveDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)Remove2026-09-15 · DinnerDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftServings (optional)RemoveDateMealBreakfastLunchDinnerDishChoose a dishFirst test dishNo components recorded · draftSecond test dish · draftAdd a dishPreview ingredientsCreate shopping list from saved planSave planGo to publish",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "page": "plan",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "uk",
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "6"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "2"
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      }
+    ],
+    "mainText": "НазадПланувати стравиІмпорт текстуЗбережено; стан публікації на сторінці публікаціїСимуляція; без запису в справжнє сховищеВерсія даних: 00000000000000000000000000000000000000000000000cКількість можна не вказувати. Зберігається весь план у новому форматі.Діапазон переглядуУсі датиДеньТижденьДата2026-09-14 · ОбідСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)ПрибратиСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)Прибрати2026-09-15 · ВечеряСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftПорції (необов’язково)ПрибратиДатаПрийом їжіСніданокОбідВечеряСтраваВиберіть стравуПерша тестова страваІнгредієнти не записані · draftДруга тестова страва · draftДодати стравуПереглянути інгредієнтиСтворити список покупок зі збереженого плануЗберегти планДо публікації",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "zh",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "true",
+        "text": "已有"
+      },
+      {
+        "pressed": "false",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "true",
+        "text": "已有"
+      },
+      {
+        "pressed": "true",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "false",
+        "text": "已有"
+      }
+    ],
+    "headings": [
+      "本次采购",
+      "本次日期和餐次",
+      "油",
+      "场景 B 番茄",
+      "番茄",
+      "应用新范围并重新核对"
+    ],
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "返回本次采购排每天的菜模拟演示，未写入真实仓库已读取，尚未修改模拟演示，未写入真实仓库资料版本: 000000000000000000000000000000000000000000000007材料和菜单资料版本: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a本次日期和餐次2026-09-14 · 午餐 · team-week2026-09-16 · 晚餐 · team-week保存清单已录材料候选；配方完整性仍需人工核对。菜谱待完善 · team-week / 2026-09-14 / 午餐 / second-dish油调料待核对待买已有使用来源 · 22026-09-14 · 午餐 · 第一道样本菜 · 2 · 20 ml · team-week2026-09-16 · 晚餐 · 第一道样本菜 · 份数未录 · 20 ml · team-week无法完整计算: 采购规格未录 · 计划份数未录场景 B 番茄主料待核对待买已有使用来源 · 32026-09-14 · 午餐 · 第一道样本菜 · 2 · 301 g · team-week2026-09-14 · 午餐 · 第二道样本菜 · 2 · 100 g · team-week2026-09-16 · 晚餐 · 第一道样本菜 · 份数未录 · 301 g · team-week无法完整计算: 配方基准份数未录 · 菜谱待完善 · 计划份数未录番茄主料待核对待买已有使用来源 · 12026-09-14 · 午餐 · 第二道样本菜 · 2 · 200 g · team-week无法完整计算: 采购规格未录 · 配方基准份数未录 · 菜谱待完善金额只按可计算项参考，不代表完整预算。应用新范围并重新核对计划名称，多个用逗号分隔读取最新已保存计划材料和菜单资料版本: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · 午餐 · team-week2026-09-16 · 晚餐 · team-week应用新范围并重新核对复制清单",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "en",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "true",
+        "text": "Available"
+      },
+      {
+        "pressed": "false",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "true",
+        "text": "Available"
+      },
+      {
+        "pressed": "true",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "false",
+        "text": "Available"
+      }
+    ],
+    "headings": [
+      "This shopping list",
+      "Dates and meals for this list",
+      "Oil",
+      "Scenario B tomato",
+      "Tomato",
+      "Apply scope and review again"
+    ],
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "BackThis shopping listPlan mealsSimulation; no real repository writeLoaded; unchangedSimulation; no real repository writeSource version: 000000000000000000000000000000000000000000000007Ingredient and menu version: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0aDates and meals for this list2026-09-14 · Lunch · team-week2026-09-16 · Dinner · team-weekSave listRecorded ingredient candidates; recipe completeness needs human review.Recipe is not active · team-week / 2026-09-14 / Lunch / second-dishOilSeasoningCheckBuyAvailableUsed in · 22026-09-14 · Lunch · First test dish · 2 · 20 ml · team-week2026-09-16 · Dinner · First test dish · Servings unspecified · 20 ml · team-weekComplete estimate unavailable: Purchase specification missing · Planned servings missingScenario B tomatoMain ingredientCheckBuyAvailableUsed in · 32026-09-14 · Lunch · First test dish · 2 · 301 g · team-week2026-09-14 · Lunch · Second test dish · 2 · 100 g · team-week2026-09-16 · Dinner · First test dish · Servings unspecified · 301 g · team-weekComplete estimate unavailable: Recipe servings missing · Recipe is not active · Planned servings missingTomatoMain ingredientCheckBuyAvailableUsed in · 12026-09-14 · Lunch · Second test dish · 2 · 200 g · team-weekComplete estimate unavailable: Purchase specification missing · Recipe servings missing · Recipe is not activeCalculable amounts are references, not a complete budget.Apply scope and review againPlan IDs, separated by commasRead latest saved plansIngredient and menu version: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · Lunch · team-week2026-09-16 · Dinner · team-weekApply scope and review againCopy list",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 393,
+      "height": 852
+    },
+    "language": "uk",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "true",
+        "text": "Є в наявності"
+      },
+      {
+        "pressed": "false",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "true",
+        "text": "Є в наявності"
+      },
+      {
+        "pressed": "true",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "false",
+        "text": "Є в наявності"
+      }
+    ],
+    "headings": [
+      "Цей список покупок",
+      "Дати й прийоми їжі цього списку",
+      "Олія",
+      "Помідор сценарію B",
+      "Помідор",
+      "Застосувати діапазон і перевірити знову"
+    ],
+    "height": 852,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "НазадЦей список покупокПланувати стравиСимуляція; без запису в справжнє сховищеЗавантажено; без змінСимуляція; без запису в справжнє сховищеВерсія даних: 000000000000000000000000000000000000000000000007Версія інгредієнтів і меню: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0aДати й прийоми їжі цього списку2026-09-14 · Обід · team-week2026-09-16 · Вечеря · team-weekЗберегти списокЗаписані інгредієнти; повноту рецепта має перевірити людина.Рецепт ще не активний · team-week / 2026-09-14 / Обід / second-dishОліяПриправаПеревіритиКупитиЄ в наявностіВикористовується в · 22026-09-14 · Обід · Перша тестова страва · 2 · 20 ml · team-week2026-09-16 · Вечеря · Перша тестова страва · Порції не вказано · 20 ml · team-weekПовний розрахунок недоступний: Закупівельні параметри не записано · Порції в плані не вказаноПомідор сценарію BОсновний інгредієнтПеревіритиКупитиЄ в наявностіВикористовується в · 32026-09-14 · Обід · Перша тестова страва · 2 · 301 g · team-week2026-09-14 · Обід · Друга тестова страва · 2 · 100 g · team-week2026-09-16 · Вечеря · Перша тестова страва · Порції не вказано · 301 g · team-weekПовний розрахунок недоступний: Порції рецепта не вказано · Рецепт ще не активний · Порції в плані не вказаноПомідорОсновний інгредієнтПеревіритиКупитиЄ в наявностіВикористовується в · 12026-09-14 · Обід · Друга тестова страва · 2 · 200 g · team-weekПовний розрахунок недоступний: Закупівельні параметри не записано · Порції рецепта не вказано · Рецепт ще не активнийРозраховані суми є орієнтирами, а не повним бюджетом.Застосувати діапазон і перевірити зновуНазви планів через комуПрочитати останні збережені планиВерсія інгредієнтів і меню: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · Обід · team-week2026-09-16 · Вечеря · team-weekЗастосувати діапазон і перевірити зновуКопіювати список",
+    "scrollWidth": 393,
+    "width": 393
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "zh",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "true",
+        "text": "已有"
+      },
+      {
+        "pressed": "false",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "true",
+        "text": "已有"
+      },
+      {
+        "pressed": "true",
+        "text": "待核对"
+      },
+      {
+        "pressed": "false",
+        "text": "待买"
+      },
+      {
+        "pressed": "false",
+        "text": "已有"
+      }
+    ],
+    "headings": [
+      "本次采购",
+      "本次日期和餐次",
+      "油",
+      "场景 B 番茄",
+      "番茄",
+      "应用新范围并重新核对"
+    ],
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "返回本次采购排每天的菜模拟演示，未写入真实仓库已读取，尚未修改模拟演示，未写入真实仓库资料版本: 000000000000000000000000000000000000000000000007材料和菜单资料版本: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a本次日期和餐次2026-09-14 · 午餐 · team-week2026-09-16 · 晚餐 · team-week保存清单已录材料候选；配方完整性仍需人工核对。菜谱待完善 · team-week / 2026-09-14 / 午餐 / second-dish油调料待核对待买已有使用来源 · 22026-09-14 · 午餐 · 第一道样本菜 · 2 · 20 ml · team-week2026-09-16 · 晚餐 · 第一道样本菜 · 份数未录 · 20 ml · team-week无法完整计算: 采购规格未录 · 计划份数未录场景 B 番茄主料待核对待买已有使用来源 · 32026-09-14 · 午餐 · 第一道样本菜 · 2 · 301 g · team-week2026-09-14 · 午餐 · 第二道样本菜 · 2 · 100 g · team-week2026-09-16 · 晚餐 · 第一道样本菜 · 份数未录 · 301 g · team-week无法完整计算: 配方基准份数未录 · 菜谱待完善 · 计划份数未录番茄主料待核对待买已有使用来源 · 12026-09-14 · 午餐 · 第二道样本菜 · 2 · 200 g · team-week无法完整计算: 采购规格未录 · 配方基准份数未录 · 菜谱待完善金额只按可计算项参考，不代表完整预算。应用新范围并重新核对计划名称，多个用逗号分隔读取最新已保存计划材料和菜单资料版本: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · 午餐 · team-week2026-09-16 · 晚餐 · team-week应用新范围并重新核对复制清单",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "en",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "true",
+        "text": "Available"
+      },
+      {
+        "pressed": "false",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "true",
+        "text": "Available"
+      },
+      {
+        "pressed": "true",
+        "text": "Check"
+      },
+      {
+        "pressed": "false",
+        "text": "Buy"
+      },
+      {
+        "pressed": "false",
+        "text": "Available"
+      }
+    ],
+    "headings": [
+      "This shopping list",
+      "Dates and meals for this list",
+      "Oil",
+      "Scenario B tomato",
+      "Tomato",
+      "Apply scope and review again"
+    ],
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "BackThis shopping listPlan mealsSimulation; no real repository writeLoaded; unchangedSimulation; no real repository writeSource version: 000000000000000000000000000000000000000000000007Ingredient and menu version: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0aDates and meals for this list2026-09-14 · Lunch · team-week2026-09-16 · Dinner · team-weekSave listRecorded ingredient candidates; recipe completeness needs human review.Recipe is not active · team-week / 2026-09-14 / Lunch / second-dishOilSeasoningCheckBuyAvailableUsed in · 22026-09-14 · Lunch · First test dish · 2 · 20 ml · team-week2026-09-16 · Dinner · First test dish · Servings unspecified · 20 ml · team-weekComplete estimate unavailable: Purchase specification missing · Planned servings missingScenario B tomatoMain ingredientCheckBuyAvailableUsed in · 32026-09-14 · Lunch · First test dish · 2 · 301 g · team-week2026-09-14 · Lunch · Second test dish · 2 · 100 g · team-week2026-09-16 · Dinner · First test dish · Servings unspecified · 301 g · team-weekComplete estimate unavailable: Recipe servings missing · Recipe is not active · Planned servings missingTomatoMain ingredientCheckBuyAvailableUsed in · 12026-09-14 · Lunch · Second test dish · 2 · 200 g · team-weekComplete estimate unavailable: Purchase specification missing · Recipe servings missing · Recipe is not activeCalculable amounts are references, not a complete budget.Apply scope and review againPlan IDs, separated by commasRead latest saved plansIngredient and menu version: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · Lunch · team-week2026-09-16 · Dinner · team-weekApply scope and review againCopy list",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "page": "shopping",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "language": "uk",
+    "decisions": [
+      {
+        "pressed": "false",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "true",
+        "text": "Є в наявності"
+      },
+      {
+        "pressed": "false",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "true",
+        "text": "Є в наявності"
+      },
+      {
+        "pressed": "true",
+        "text": "Перевірити"
+      },
+      {
+        "pressed": "false",
+        "text": "Купити"
+      },
+      {
+        "pressed": "false",
+        "text": "Є в наявності"
+      }
+    ],
+    "headings": [
+      "Цей список покупок",
+      "Дати й прийоми їжі цього списку",
+      "Олія",
+      "Помідор сценарію B",
+      "Помідор",
+      "Застосувати діапазон і перевірити знову"
+    ],
+    "height": 900,
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "mainText": "НазадЦей список покупокПланувати стравиСимуляція; без запису в справжнє сховищеЗавантажено; без змінСимуляція; без запису в справжнє сховищеВерсія даних: 000000000000000000000000000000000000000000000007Версія інгредієнтів і меню: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0aДати й прийоми їжі цього списку2026-09-14 · Обід · team-week2026-09-16 · Вечеря · team-weekЗберегти списокЗаписані інгредієнти; повноту рецепта має перевірити людина.Рецепт ще не активний · team-week / 2026-09-14 / Обід / second-dishОліяПриправаПеревіритиКупитиЄ в наявностіВикористовується в · 22026-09-14 · Обід · Перша тестова страва · 2 · 20 ml · team-week2026-09-16 · Вечеря · Перша тестова страва · Порції не вказано · 20 ml · team-weekПовний розрахунок недоступний: Закупівельні параметри не записано · Порції в плані не вказаноПомідор сценарію BОсновний інгредієнтПеревіритиКупитиЄ в наявностіВикористовується в · 32026-09-14 · Обід · Перша тестова страва · 2 · 301 g · team-week2026-09-14 · Обід · Друга тестова страва · 2 · 100 g · team-week2026-09-16 · Вечеря · Перша тестова страва · Порції не вказано · 301 g · team-weekПовний розрахунок недоступний: Порції рецепта не вказано · Рецепт ще не активний · Порції в плані не вказаноПомідорОсновний інгредієнтПеревіритиКупитиЄ в наявностіВикористовується в · 12026-09-14 · Обід · Друга тестова страва · 2 · 200 g · team-weekПовний розрахунок недоступний: Закупівельні параметри не записано · Порції рецепта не вказано · Рецепт ще не активнийРозраховані суми є орієнтирами, а не повним бюджетом.Застосувати діапазон і перевірити зновуНазви планів через комуПрочитати останні збережені планиВерсія інгредієнтів і меню: 4878a8674878a8679b00baade5468fb2df4907fecb2a4f0a2026-09-14 · Обід · team-week2026-09-16 · Вечеря · team-weekЗастосувати діапазон і перевірити зновуКопіювати список",
+    "scrollWidth": 1440,
+    "width": 1440
+  }
+]

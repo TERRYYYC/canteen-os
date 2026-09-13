@@ -1,0 +1,30 @@
+// Author browser fixture: fixed Git source, original Vite config and formal producer.
+import {execFileSync} from 'node:child_process';
+import {readFile,writeFile,mkdir,symlink} from 'node:fs/promises';
+import {join,resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+import {createRequire} from 'node:module';
+const [repoArg,head,rootArg]=process.argv.slice(2);
+if(!repoArg||!head||!rootArg)throw Error('repo fixed-head new-output-root required');
+const repo=resolve(repoArg),root=resolve(rootArg),web=join(root,'packages/web');
+await mkdir(root,{recursive:false});
+const archive=execFileSync('git',['archive',head],{cwd:repo,maxBuffer:60*1024*1024});
+execFileSync('tar',['-x','-C',root],{input:archive,maxBuffer:1024*1024});
+for(const path of ['node_modules','packages/web/node_modules','packages/core/node_modules'])await symlink(join(repo,path),join(root,path),'dir');
+const fixturePath=join(web,'test/application-d1.ts');
+await writeFile(fixturePath,await readFile('/private/tmp/canteen-d1-route-fix-author/application-d1.ts'));
+const html=await readFile(join(web,'index.html'),'utf8');
+await writeFile(join(web,'index.html'),html.replace('<script type="module" src="/src/main.ts"></script>','<script type="module" src="/test/application-d1.ts"></script><script type="module" src="/src/main.ts"></script>'));
+const actualHead=execFileSync('git',['rev-parse',head],{cwd:repo,encoding:'utf8'}).trim();
+const sourcePaths=execFileSync('git',['ls-tree','-r','--name-only',actualHead,'packages/web/src'],{cwd:repo,encoding:'utf8'}).trim().split('\n');
+const sourceIntegrity=[];
+for(const path of sourcePaths){const expected=execFileSync('git',['show',`${actualHead}:${path}`],{cwd:repo});const actual=await readFile(join(root,path));if(!expected.equals(actual))throw Error(`Source mismatch ${path}`);sourceIntegrity.push({path,bytes:actual.length,sha256:createHash('sha256').update(actual).digest('hex')});}
+await writeFile(join(root,'source-integrity.json'),JSON.stringify({head:actualHead,src:sourceIntegrity,html:{original:createHash('sha256').update(html).digest('hex'),instrumented:createHash('sha256').update(await readFile(join(web,'index.html'))).digest('hex')},fixtureSha256:createHash('sha256').update(await readFile(fixturePath)).digest('hex')},null,2));
+execFileSync('npm',['--prefix',join(root,'packages/core'),'run','build'],{cwd:root,stdio:'inherit'});
+const {publishedFixture}=await import(join(web,'test/published-fixture.mjs'));
+const fixture=publishedFixture('image-a');fixture.publish(join(web,'public/data'));process.env.VITE_D1_PHOTO_URL='./data/assets/'+fixture.revision+'/data/images/'+encodeURIComponent('A %2F?# 雪.png');fixture.cleanup();
+const require=createRequire(join(web,'package.json'));
+const {build}=await import(require.resolve('vite/package.json').replace('package.json','dist/node/index.js'));
+process.env.VITE_WORKER_URL='https://application-api.local.invalid';process.env.VITE_REVIEW_HEAD_SHA=actualHead;
+await build({root:web,configFile:join(web,'vite.config.ts'),plugins:[{name:'author-observe-final-module-graph',generateBundle(_options,bundle){this.emitFile({type:'asset',fileName:'author-module-graph.json',source:JSON.stringify(Object.values(bundle).filter(x=>x.type==='chunk').map(x=>({file:x.fileName,imports:x.imports,dynamicImports:x.dynamicImports,modules:Object.keys(x.modules)})),null,2)});}}],build:{outDir:join(web,'dist'),emptyOutDir:true}});
+process.stdout.write(JSON.stringify({head:actualHead,root,dist:join(web,'dist'),sourceIntegrity:join(root,'source-integrity.json')})+'\n');

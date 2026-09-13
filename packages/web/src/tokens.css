@@ -1,22 +1,13 @@
-/*
- * 设计 token —— 逐字来自 docs/design/screens-v2.html 的 :root / dark 三态（UI 事实源；改 token 先改稿再改这里）。
- *
- * 三态主题（src/theme.ts 负责写 <html data-theme>）：
- *   system（默认，无 data-theme）：跟 prefers-color-scheme；
- *   <html data-theme="light">：强制浅色（把系统深色媒体查询排除在外）；
- *   <html data-theme="dark"> ：强制深色。
- *
- * 字体栈：--font-ui（正文/UI）与 --font-display（标题）；--sans / --slab 是设计稿里的同名别名，
- * 方便 #9–#11 从 screens-v2.html 直接搬 CSS。Google Fonts 加载失败时落到系统字体。
- */
+/* Current visual source: green Reference v3 @2f890d8; team-meal adaptation.
+   Existing explicit/system dark theme preference remains supported. */
 :root {
-  --bg: #F2F4F1;
+  --bg: #F5F7F3;
   --surface: #FFFFFF;
-  --surface-2: #E9ECE8;
-  --ink: #171B19;
-  --muted: #67716C;
-  --line: #DCE1DD;
-  --accent: #C9401C;
+  --surface-2: #F0F3ED;
+  --ink: #15251F;
+  --muted: #66756C;
+  --line: #E6EBE4;
+  --accent: #397A46;
   --accent-ink: #FFFFFF;
   --warn: #9C6A12;
   --warn-bg: #F6EAD1;
@@ -26,8 +17,8 @@
   --scrim: rgba(23, 27, 25, .45);
   --shadow: 0 18px 40px rgba(20, 28, 24, .18);
 
-  --font-ui: "Golos Text", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Bitter", "Noto Serif SC", "Noto Sans SC", Georgia, serif;
+  --font-ui: "Avenir Next", "Helvetica Neue", "PingFang SC", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-ui);
   --sans: var(--font-ui);
   --slab: var(--font-display);
 
@@ -42,7 +33,7 @@
     --ink: #ECEFEA;
     --muted: #98A29C;
     --line: #2E3532;
-    --accent: #E5623C;
+    --accent: #80BD89;
     --accent-ink: #1A1D1C;
     --warn: #D9A441;
     --warn-bg: #3A2F17;
@@ -63,7 +54,7 @@
   --ink: #ECEFEA;
   --muted: #98A29C;
   --line: #2E3532;
-  --accent: #E5623C;
+  --accent: #80BD89;
   --accent-ink: #1A1D1C;
   --warn: #D9A441;
   --warn-bg: #3A2F17;

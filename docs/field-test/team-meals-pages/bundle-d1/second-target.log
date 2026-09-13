@@ -1,0 +1,647 @@
+TAP version 13
+# Subtest: D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+ok 1 - D1: ingredient initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 31.640875
+  ...
+# Subtest: D1: dish initial Source/catalog/form does not instantiate optional legacy API
+ok 2 - D1: dish initial Source/catalog/form does not instantiate optional legacy API
+  ---
+  duration_ms: 22.170375
+  ...
+# Subtest: new dish omits unknown servings instead of defaulting to 50
+ok 3 - new dish omits unknown servings instead of defaulting to 50
+  ---
+  duration_ms: 0.544917
+  ...
+# Subtest: v3 unknown qty remains omitted and all source metadata survives an edit
+ok 4 - v3 unknown qty remains omitted and all source metadata survives an edit
+  ---
+  duration_ms: 1.233458
+  ...
+# Subtest: v2 true quantities, to-taste and servings survive explicit v3 edit
+ok 5 - v2 true quantities, to-taste and servings survive explicit v3 edit
+  ---
+  duration_ms: 0.196583
+  ...
+# Subtest: draft action submits exact draft body under source lock through C1
+ok 6 - draft action submits exact draft body under source lock through C1
+  ---
+  duration_ms: 1.105125
+  ...
+# Subtest: late save and language refresh preserve later form edits
+ok 7 - late save and language refresh preserve later form edits
+  ---
+  duration_ms: 0.452416
+  ...
+# Subtest: unknown result survives detach/return and recovery force-reads pinned source twice
+ok 8 - unknown result survives detach/return and recovery force-reads pinned source twice
+  ---
+  duration_ms: 0.633667
+  ...
+# Subtest: legal to-taste source value survives an unrelated edit
+ok 9 - legal to-taste source value survives an unrelated edit
+  ---
+  duration_ms: 0.093834
+  ...
+# Subtest: new dish creates with if-none-match and optional fields remain absent
+ok 10 - new dish creates with if-none-match and optional fields remain absent
+  ---
+  duration_ms: 0.226958
+  ...
+# Subtest: conflict retains edited draft and explicit adoption is required before a new write
+ok 11 - conflict retains edited draft and explicit adoption is required before a new write
+  ---
+  duration_ms: 0.934208
+  ...
+# Subtest: late read cannot open a different dish after detaching
+ok 12 - late read cannot open a different dish after detaching
+  ---
+  duration_ms: 0.315917
+  ...
+# Subtest: review: add-another on an existing dish must not orphan an unresolved new dish
+ok 13 - review: add-another on an existing dish must not orphan an unresolved new dish
+  ---
+  duration_ms: 0.8215
+  ...
+# Subtest: review: pending image still requires dirty warning after language refresh
+ok 14 - review: pending image still requires dirty warning after language refresh
+  ---
+  duration_ms: 0.373542
+  ...
+# Subtest: review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+ok 15 - review: upload ownership survives refresh and submits its original snapshot without erasing later edits
+  ---
+  duration_ms: 0.698833
+  ...
+# Subtest: review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+ok 16 - review: photo metadata changed during upload remains a pending edit instead of adopting stale attribution
+  ---
+  duration_ms: 0.76525
+  ...
+# Subtest: review: detached photo completion stays with its original dish and does not upload again on return
+ok 17 - review: detached photo completion stays with its original dish and does not upload again on return
+  ---
+  duration_ms: 0.390875
+  ...
+# Subtest: review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+ok 18 - review: raw inline ingredient and auxiliary ownership survive refresh and navigation
+  ---
+  duration_ms: 0.238458
+  ...
+# Subtest: review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+ok 19 - review: unknown auxiliary outcomes remain protected across route changes and reject duplicate writes
+  ---
+  duration_ms: 0.430166
+  ...
+# Subtest: Dish source loading is registered before its first await and canceled read ends only its own ticket
+ok 20 - Dish source loading is registered before its first await and canceled read ends only its own ticket
+  ---
+  duration_ms: 18.28875
+  ...
+# Subtest: Dish raw and processing owners remain registered across detach and return
+ok 21 - Dish raw and processing owners remain registered across detach and return
+  ---
+  duration_ms: 4.776334
+  ...
+# Subtest: Dish C1 save is protected once and does not create an auxiliary write ticket
+ok 22 - Dish C1 save is protected once and does not create an auxiliary write ticket
+  ---
+  duration_ms: 5.207375
+  ...
+# Subtest: Dish unknown upload remains an original anonymous operation after auth and cannot save B
+ok 23 - Dish unknown upload remains an original anonymous operation after auth and cannot save B
+  ---
+  duration_ms: 4.726333
+  ...
+# Subtest: Dish parallel old read tasks remain anonymous until both actual results finish
+ok 24 - Dish parallel old read tasks remain anonymous until both actual results finish
+  ---
+  duration_ms: 4.642334
+  ...
+# Subtest: Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+ok 25 - Dish overlapping cached Source tasks share one registered owner and finish both render responsibilities
+  ---
+  duration_ms: 3.722792
+  ...
+# Subtest: Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+ok 26 - Dish upload recognized rejection ends its ticket but malformed or unrecognized responses remain unknown
+  ---
+  duration_ms: 12.444875
+  ...
+# Subtest: inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+ok 27 - inline Ingredient upload and save wrappers use separate tickets and exact result evidence
+  ---
+  duration_ms: 3.828917
+  ...
+# Subtest: inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+ok 28 - inline unknown write cannot be cleared by ending its UI task or by an unrelated read
+  ---
+  duration_ms: 3.584584
+  ...
+# Subtest: captured inline API cannot dispatch a save after an old visible upload ACK under B
+ok 29 - captured inline API cannot dispatch a save after an old visible upload ACK under B
+  ---
+  duration_ms: 3.744541
+  ...
+# Subtest: old and new raw registration snapshots never observe credentials or return private old IDs
+ok 30 - old and new raw registration snapshots never observe credentials or return private old IDs
+  ---
+  duration_ms: 4.114167
+  ...
+# Subtest: standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+ok 31 - standalone real renderer accepts suppliers and duplicate names from catalog containing v3 dishes
+  ---
+  duration_ms: 40.492
+  ...
+# Subtest: unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+ok 32 - unconfigured renderer makes no legacy mock call or write form; simulation is explicit
+  ---
+  duration_ms: 41.346083
+  ...
+# Subtest: late source cannot paint an old language into a reused connected mount
+ok 33 - late source cannot paint an old language into a reused connected mount
+  ---
+  duration_ms: 17.22375
+  ...
+# Subtest: late previous-session source cannot overwrite the current session
+ok 34 - late previous-session source cannot overwrite the current session
+  ---
+  duration_ms: 16.421666
+  ...
+# Subtest: raw buffer and registry protection survive leaving the ingredient route
+ok 35 - raw buffer and registry protection survive leaving the ingredient route
+  ---
+  duration_ms: 12.09525
+  ...
+# Subtest: upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+not ok 36 - upload belongs to record across language and navigation; no repeated upload and current raw edits survive
+  ---
+  duration_ms: 28.925292
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:76:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:76:685)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+not ok 37 - save pending survives rebind, acknowledges snapshot only and uses its returned blob for next save
+  ---
+  duration_ms: 29.572167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:77:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:77:594)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+not ok 38 - unknown save does not resend across navigation; force read verifies exact body and retains newer raw input
+  ---
+  duration_ms: 19.471167
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:78:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /outcome unknown/. Input:
+    
+    "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:78:481)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unknown upload remains protected because a source read cannot prove the upload result
+not ok 39 - unknown upload remains protected because a source read cannot prove the upload result
+  ---
+  duration_ms: 27.972583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:79:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:79:564)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: shared form keeps default translation behavior and an explicit declined task sends nothing
+ok 40 - shared form keeps default translation behavior and an explicit declined task sends nothing
+  ---
+  duration_ms: 24.329291
+  ...
+# Subtest: translation owner survives language and ignores a result after newer raw name edits
+not ok 41 - translation owner survives language and ignores a result after newer raw name edits
+  ---
+  duration_ms: 28.300375
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:82:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:82:694)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: photo decode is busy before a preview exists and its result survives language/navigation
+not ok 42 - photo decode is busy before a preview exists and its result survives language/navigation
+  ---
+  duration_ms: 7.454708
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:83:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:83:442)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: photo decode failure releases busy while keeping prior photo and raw edits
+not ok 43 - photo decode failure releases busy while keeping prior photo and raw edits
+  ---
+  duration_ms: 7.52175
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:84:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'onerror')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:84:505)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: successful translation from an old language view updates the current view without repeating
+not ok 44 - successful translation from an old language view updates the current view without repeating
+  ---
+  duration_ms: 16.677583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:85:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'Salt'
+    - 'Updated English'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Updated English'
+  actual: 'Salt'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:85:453)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: malformed successful save responses stay unknown and cannot discard the pending attempt
+not ok 45 - malformed successful save responses stay unknown and cannot discard the pending attempt
+  ---
+  duration_ms: 17.399
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:86:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /outcome unknown/. Input:
+    
+    "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:86:252)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: unrecognized write rejection cannot be assumed safe to retry
+not ok 46 - unrecognized write rejection cannot be assumed safe to retry
+  ---
+  duration_ms: 16.341583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:87:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /outcome unknown/. Input:
+    
+    "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: "←Edit ingredientWorking; you can keep editingChinese nameRequired. English and Ukrainian can be machine-translatedEnglish · UkrainianMachine-translated, editableTranslateEnglish nameUkrainian nameShort English name (used as the file name)The file name can't change once savedPhoto+Take a photo…Choose a fileWFrom Wikidata▶From video (round 2)Wikidata IDLike Q23501; optionalCounted byby weight (g)by volume (ml)by countGrams per piecegPrep and purchasing use this to turn pieces into gramsHow much is left from 100 g%What's left after peeling and trimming; leave empty if unsure (counts as 100%)Seasoning · “to taste” is fineRecipes may say “to taste”; the prep sheet won't ask how to cut itHow to buyPackaging details inform optional quantity references. If left blank, you can still check this ingredient manually in the shopping list.SupplierPick an existing one or type a new supplierPack sizeUnitgkgmllpcspackMinimum packs−+Last price per packCurrencyCNYUSDUAHEURKeeps well · track stockOn for oil, salt, rice; off for fresh produce bought per menuOn hand nowIn the unit chosen under “Counted by”Save"
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:87:272)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: field validation survives language and does not steal focus on every later keystroke
+not ok 47 - field validation survives language and does not steal focus on every later keystroke
+  ---
+  duration_ms: 18.790583
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:88:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /Server requires a name/. Input:
+    
+    "←Змінити інгредієнтОбробляється; можна редагувати даліНазва китайськоюОбов'язково. Англійську та українську можна перекласти автоматичноАнглійська · українськаМашинний переклад, можна змінитиПерекластиНазва англійськоюНазва українськоюКоротка англійська назва (ім'я файлу)Після збереження ім'я файлу змінити не можнаФото+Зробити фото…Вибрати файлWЗ Wikidata▶З відео (2-й етап)ID у WikidataНапр. Q23501; необов'язковоОдиниця облікуза вагою (г)за об'ємом (мл)поштучноГрамів на штукугТак підготовка й закупівля переводять штуки в грамиСкільки залишається зі 100 г%Що лишається після чищення; не впевнені — залиште порожнім (рахується як 100%)Приправа · «за смаком»У рецепті можна писати «за смаком»; лист підготовки не вимагатиме нарізкиЯк купуватиДані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель.ПостачальникВиберіть наявного або введіть новогоРозмір упаковкиОдиницягкгмллштуп.Мінімум упаковок−+Остання ціна за упаковкуВалютаCNYUSDUAHEURДовго зберігається · облік залишківУвімкнути для олії, солі, рису; вимкнути для свіжих продуктів — їх купують під менюЗараз у наявностіВ одиниці з «Одиниця обліку»Зберегти"
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: "←Змінити інгредієнтОбробляється; можна редагувати даліНазва китайськоюОбов'язково. Англійську та українську можна перекласти автоматичноАнглійська · українськаМашинний переклад, можна змінитиПерекластиНазва англійськоюНазва українськоюКоротка англійська назва (ім'я файлу)Після збереження ім'я файлу змінити не можнаФото+Зробити фото…Вибрати файлWЗ Wikidata▶З відео (2-й етап)ID у WikidataНапр. Q23501; необов'язковоОдиниця облікуза вагою (г)за об'ємом (мл)поштучноГрамів на штукугТак підготовка й закупівля переводять штуки в грамиСкільки залишається зі 100 г%Що лишається після чищення; не впевнені — залиште порожнім (рахується як 100%)Приправа · «за смаком»У рецепті можна писати «за смаком»; лист підготовки не вимагатиме нарізкиЯк купуватиДані про паковання впливають на довідкову кількість. Якщо їх не вказано, інгредієнт усе одно можна перевірити вручну у списку закупівель.ПостачальникВиберіть наявного або введіть новогоРозмір упаковкиОдиницягкгмллштуп.Мінімум упаковок−+Остання ціна за упаковкуВалютаCNYUSDUAHEURДовго зберігається · облік залишківУвімкнути для олії, солі, рису; вимкнути для свіжих продуктів — їх купують під менюЗараз у наявностіВ одиниці з «Одиниця обліку»Зберегти"
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:88:434)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+not ok 48 - ING-R1 completed new creation stays on language repaint but a real return creates a separate ingredient
+  ---
+  duration_ms: 39.867958
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:91:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'ingredient-a'
+    - ''
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ''
+  actual: 'ingredient-a'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:93:266)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+not ok 49 - ING-R1 new handoff is consumed after a completed creation without resetting unresolved raw
+  ---
+  duration_ms: 40.496959
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:96:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '第一种食材'
+    - '下一种食材'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '下一种食材'
+  actual: '第一种食材'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:97:371)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+not ok 50 - ING-R1 pending and later edits keep the first new identity across return and acknowledgement
+  ---
+  duration_ms: 48.785667
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:100:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'id')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:101:884)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R1 unknown new creation never retires its target or permits another write on return
+not ok 51 - ING-R1 unknown new creation never retires its target or permits another write on return
+  ---
+  duration_ms: 39.011709
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:104:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:105:518)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+not ok 52 - ING-R2 recognized upload conflict permits explicit retry without a pointless source comparison
+  ---
+  duration_ms: 19.273333
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:108:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saving'
+    - 'error'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'error'
+  actual: 'saving'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:109:470)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+not ok 53 - ING-R2 unrecognized 409 upload stays unknown while a save-stage recognized conflict retains comparison
+  ---
+  duration_ms: 17.807666
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:112:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saving'
+    - 'unknown'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'unknown'
+  actual: 'saving'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:113:568)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: bound Ingredient handoff is taken from the same API once and cannot cross authentication
+ok 54 - bound Ingredient handoff is taken from the same API once and cannot cross authentication
+  ---
+  duration_ms: 28.623791
+  ...
+# Subtest: Ingredient auxiliary protects raw, translation and save with the real owner through language
+not ok 55 - Ingredient auxiliary protects raw, translation and save with the real owner through language
+  ---
+  duration_ms: 29.773875
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:122:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saving'
+    - 'dirty'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'dirty'
+  actual: 'saving'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:123:572)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+not ok 56 - Ingredient known rejected upload settles its write ticket while retained photo stays dirty
+  ---
+  duration_ms: 29.025125
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:126:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saving'
+    - 'dirty'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'dirty'
+  actual: 'saving'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:127:370)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+ok 57 - real AdminApi upload returning session_changed after transport ACK stays unknown across auth
+  ---
+  duration_ms: 49.113833
+  ...
+# Subtest: Ingredient canceled A initialization settles its original coverage and preserves B raw
+ok 58 - Ingredient canceled A initialization settles its original coverage and preserves B raw
+  ---
+  duration_ms: 28.425417
+  ...
+# Subtest: two old Ingredient writes settle independently while B same-page raw remains protected
+not ok 59 - two old Ingredient writes settle independently while B same-page raw remains protected
+  ---
+  duration_ms: 52.702459
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:140:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:142:329)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Ingredient unknown save remains registered until a matching source verifies that exact write
+not ok 60 - Ingredient unknown save remains registered until a matching source verifies that exact write
+  ---
+  duration_ms: 30.102833
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:144:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'saving'
+    - 'unknown'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'unknown'
+  actual: 'saving'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-pages/packages/web/test/team-meals-pages-ingredient.test.mjs:145:300)
+    runNextTicks (node:internal/process/task_queues:60:5)
+    process.processTimers (node:internal/timers:516:9)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Ingredient photo decode ticket ends after old auth failure without clearing B changes
+ok 61 - Ingredient photo decode ticket ends after old auth failure without clearing B changes
+  ---
+  duration_ms: 38.139875
+  ...
+1..61
+# tests 61
+# suites 0
+# pass 40
+# fail 21
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1095.953208

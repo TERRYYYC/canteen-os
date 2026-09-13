@@ -1,0 +1,140 @@
+TAP version 13
+# Subtest: actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+ok 1 - actual PWA timeout cancels consent; a late plugin reload is blocked until a new clean request
+  ---
+  duration_ms: 3.630584
+  ...
+# Subtest: actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+ok 2 - actual PWA prompt and external controller events preserve an offscreen pending and unknown save
+  ---
+  duration_ms: 1.154625
+  ...
+# Subtest: actual PWA keeps old-auth write protection without offering an inaccessible private editor
+ok 3 - actual PWA keeps old-auth write protection without offering an inaccessible private editor
+  ---
+  duration_ms: 0.334792
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+ok 4 - actual PWA completes one approved worker takeover (initial control=false, plugin first=false)
+  ---
+  duration_ms: 0.453
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+ok 5 - actual PWA completes one approved worker takeover (initial control=false, plugin first=true)
+  ---
+  duration_ms: 0.435584
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+ok 6 - actual PWA completes one approved worker takeover (initial control=true, plugin first=false)
+  ---
+  duration_ms: 0.292625
+  ...
+# Subtest: actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+ok 7 - actual PWA completes one approved worker takeover (initial control=true, plugin first=true)
+  ---
+  duration_ms: 0.291958
+  ...
+# Subtest: actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+ok 8 - actual PWA binds consent to the worker object, not a matching script URL or any plugin callback
+  ---
+  duration_ms: 0.153917
+  ...
+# Subtest: actual PWA rejects target activation after generation invalidates consent
+ok 9 - actual PWA rejects target activation after generation invalidates consent
+  ---
+  duration_ms: 0.706667
+  ...
+# Subtest: actual PWA rejects target activation after pending invalidates consent
+ok 10 - actual PWA rejects target activation after pending invalidates consent
+  ---
+  duration_ms: 0.278375
+  ...
+# Subtest: actual PWA rejects target activation after unknown invalidates consent
+ok 11 - actual PWA rejects target activation after unknown invalidates consent
+  ---
+  duration_ms: 0.193584
+  ...
+# Subtest: actual PWA rejects target activation after timeout invalidates consent
+ok 12 - actual PWA rejects target activation after timeout invalidates consent
+  ---
+  duration_ms: 0.286333
+  ...
+# Subtest: actual PWA rejects target activation after cancel invalidates consent
+ok 13 - actual PWA rejects target activation after cancel invalidates consent
+  ---
+  duration_ms: 0.207416
+  ...
+# Subtest: offscreen dirty documents block updates, with no disposal or hidden saves
+ok 14 - offscreen dirty documents block updates, with no disposal or hidden saves
+  ---
+  duration_ms: 5.701625
+  ...
+# Subtest: malformed URI fallback cannot retain an encoded credential in URL or page coverage
+ok 15 - malformed URI fallback cannot retain an encoded credential in URL or page coverage
+  ---
+  duration_ms: 0.858
+  ...
+# Subtest: pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+ok 16 - pending and unknown offscreen writes cannot be bypassed by discard, timeout or plugin reload
+  ---
+  duration_ms: 0.557208
+  ...
+# Subtest: reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+ok 17 - reconciliation still unknown blocks; known miss becomes dirty and requires explicit choice
+  ---
+  duration_ms: 0.324209
+  ...
+# Subtest: discard consent expires with new input or newly started writes
+ok 18 - discard consent expires with new input or newly started writes
+  ---
+  duration_ms: 0.333458
+  ...
+# Subtest: clean or exact explicit discard reload once; externally reported control changes never authorize reload
+ok 19 - clean or exact explicit discard reload once; externally reported control changes never authorize reload
+  ---
+  duration_ms: 0.222084
+  ...
+# Subtest: new edits after SW activation block eventual plugin reload; timeout never forces a reload
+ok 20 - new edits after SW activation block eventual plugin reload; timeout never forces a reload
+  ---
+  duration_ms: 0.182125
+  ...
+# Subtest: legacy draft store preserves v3/clone/undo and participates in global reload checks
+ok 21 - legacy draft store preserves v3/clone/undo and participates in global reload checks
+  ---
+  duration_ms: 0.196458
+  ...
+# Subtest: untracked editing surface fails closed and safety inspection is read-only
+ok 22 - untracked editing surface fails closed and safety inspection is read-only
+  ---
+  duration_ms: 0.184375
+  ...
+# Subtest: auxiliary raw input and pre-save work survive navigation and stay metadata-only
+ok 23 - auxiliary raw input and pre-save work survive navigation and stay metadata-only
+  ---
+  duration_ms: 0.390875
+  ...
+# Subtest: provider read failures block and cannot be silently disposed
+ok 24 - provider read failures block and cannot be silently disposed
+  ---
+  duration_ms: 0.139958
+  ...
+# Subtest: purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+ok 25 - purchase requires explicit coverage; leaving a loading page and replacing its render have different lifetimes
+  ---
+  duration_ms: 0.1915
+  ...
+# Subtest: synthetic login links and stale contexts never enter page identity, snapshots or stamps
+ok 26 - synthetic login links and stale contexts never enter page identity, snapshots or stamps
+  ---
+  duration_ms: 0.349167
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60.700791

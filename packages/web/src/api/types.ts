@@ -6,7 +6,10 @@
  * 错误一律 `throw new ApiError(...)`，不返回 `{ ok: false }` —— 调用方 try/catch 之后把 `err.errors`
  * 直接喂给 kit.applyFieldErrors。
  */
-import type { Dish, Ingredient, MenuPlan, Technique } from "@canteenos/core";
+import type { Dish, Id, Ingredient, MenuPlan, Technique } from "@canteenos/core";
+
+export type ApiMode = "real" | "mock" | "unconfigured";
+export type WriteCondition = { ifMatch: string; ifNoneMatch?: never } | { ifNoneMatch: "*"; ifMatch?: never };
 
 export type { Dish, ImageRef, Ingredient, MenuPlan, Technique } from "@canteenos/core";
 
@@ -48,14 +51,17 @@ export class ApiError extends Error {
   readonly errors: FieldError[];
   /** 429 时的秒数 */
   readonly retryAfter?: number;
+  /** Structured server result, never inferred from the human-readable message. */
+  readonly reviewRequired?: Id[];
 
-  constructor(status: number, code: string, message: string, errors?: FieldError[], retryAfter?: number) {
+  constructor(status: number, code: string, message: string, errors?: FieldError[], retryAfter?: number, reviewRequired?: Id[]) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.errors = errors && errors.length > 0 ? errors : [{ path: "", code, message }];
     if (retryAfter !== undefined) this.retryAfter = retryAfter;
+    if (reviewRequired !== undefined) this.reviewRequired = [...reviewRequired];
   }
 
   /** 是否含可按 JSON Pointer 标黄的字段级错误（§4.0 的分流依据） */
@@ -105,6 +111,10 @@ export interface PublishStep {
 
 export interface PublishProgress {
   runId: number | null;
+  /** Only boolean true for the already-known matching runId proves completion; older Workers omit it. */
+  runCompleted?: boolean;
+  /** Same run's raw outcome. Null/unknown values are not success; completion is separate. */
+  runConclusion?: string | null;
   status: "queued" | "in_progress" | "success" | "failure" | "timeout" | "unmapped";
   htmlUrl: string;
   steps: PublishStep[];

@@ -1,0 +1,30 @@
+## 改了什么
+
+C1 introduces shared conditional requests and editing state for the team-meals flow. New plan/dish/list writes require a creation lock or the current blob lock. TeamMealsApi reads v2/v3 and ShoppingList sources at an explicit revision, fetches authenticated image bytes from the same revision, and isolates private caches by auth lifetime. The legacy numeric API keeps its strict types and rejects unsupported new formats instead of inventing portions or quantities.
+
+The editor retains each document's draft and unresolved operation across language redraws and navigation. Returning to an unknown save result cannot issue another write until current-then-pinned reads establish its outcome. Logout clears credentials before notifying observers, and successful writes invalidate both new and legacy facade caches at the same Worker endpoint.
+
+Implementation HEAD: `1575f2b4768938c0efcc8a9c5db7c9c25096c738`.
+Authored Web delta: `1baa09a..1575f2b` (13 RC-C-owned files).
+Prerequisites: independently approved A1 `c9131559b8c703a3a8f3b823bc93c2acb3dd879c`, including Q v2 golden fixtures, and reviewed CI `11e761f` / `15d117d` retained with original authorship as `2c34fe8` / `1baa09a`. No unreviewed A2/B2 implementation is included. The full PR against main therefore also contains these prerequisite commits.
+
+Page-facing contracts, ownership and limits are in `docs/field-test/team-meals-web-shared/C1-handoff.md`.
+
+## 怎么验证的
+
+- Web tests: 82/82 pass (33 legacy API, 17 new API, 32 editor); initial behavior failures and review regression failures are recorded.
+- Web typecheck and production build: exit 0; entry JavaScript 22.00 KB gzip.
+- Unchanged core build and static data generation: exit 0, followed by a successful Web/PWA build.
+- In-app browser at this worktree's temporary local port 4181: clicked Run shared flow in `test/team-meals-browser.html` and observed PASS — mock only. It checks strong creation, unknown servings, edit-during-save and language rebinding, return-to-draft, same-revision source/asset bytes, stale callbacks, unconfigured writes, and unknown-result recovery after navigation with exactly two reads and no duplicate write.
+- `git diff --check c913155..HEAD`: exit 0. No production data, page, CSS, schema or dependency changes were authored in C1.
+- Non-author review rejected the initial `5975ba4` candidate with three P2 findings. The local revision closes each with regression evidence. Non-author reviewer /root/c1_review independently APPROVED exact implementation HEAD 1575f2b4768938c0efcc8a9c5db7c9c25096c738 after rerunning Web82/82, typecheck, build, diff-check, the original failing probes and Chrome CUA browser smoke. No open P1/P2 remain in C1.
+
+## 没做什么
+
+C1 supplies shared modules, not T01–T09 page completion. Existing plan/dish page-owned save handlers still require RC-D integration. Shopping/detail pages, core collection/reconciliation wiring after reviewed A2/B2, three-language/two-size product acceptance, real isolated Worker/GitHub persistence, publication and deployment remain unverified. Mock module tests are not real save evidence. No customer, orders, feedback, reporting, inventory or automatic purchase semantics are introduced.
+
+External status: the initial feature branch push completed at `5975ba4` under the original authorization before the later dispatch pause arrived. That candidate is not approved. The repaired implementation above remains local; no follow-up push, PR creation, main write or merge has occurred. This body is a local reviewable payload only until dispatch resolves external-action approval.
+
+## 涉及数字的手算算式
+
+Not applicable: procurement algorithms, formulae and golden values are unchanged in the authored C1 delta.

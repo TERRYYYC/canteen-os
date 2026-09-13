@@ -1,0 +1,33 @@
+
+> @canteenos/worker@0.0.3 build
+> npm --prefix ../core run build && npm run gen:validators && tsc -p tsconfig.build.json
+
+
+> @canteenos/core@0.0.3 build
+> tsc -p tsconfig.build.json
+
+
+> @canteenos/worker@0.0.3 gen:validators
+> node scripts/gen-validators.mjs
+
+generated 7 validators → packages/worker/generated/validators.js (242481 bytes, schema-digest 61cbb92f8d23)
+sh: tsc: command not found
+node:internal/errors:984
+  const err = new Error(message);
+              ^
+
+Error: Command failed: npm --prefix /private/tmp/canteen-q-t08-browser-setup-02/packages/worker run build
+    at genericNodeError (node:internal/errors:984:15)
+    at wrappedFn (node:internal/errors:538:14)
+    at checkExecSyncError (node:child_process:891:11)
+    at execFileSync (node:child_process:927:15)
+    at file:///private/tmp/canteen-q-t08-browser-author/prepare.mjs:23:1 {
+  status: 127,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 52760,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v20.20.2
