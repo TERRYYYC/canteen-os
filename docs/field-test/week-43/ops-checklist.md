@@ -48,11 +48,13 @@ created: 2026-09-13
 3. 在 Worker 的秘密配置中核对 `GITHUB_PAT`、`TOKEN_HASH_CHEF`、`TOKEN_HASH_BUYER`、`TOKEN_HASH_ADMIN` 和有效期/轮换安排（§1–2）。PAT 只授权目标仓的 Contents RW + Actions RW，无 Workflows；明文角色令牌不进入仓库、构建变量或截图。DeepL 为可选，不是完整餐食流程的前置服务。
 4. 由发布负责人把已核实 Worker 地址设置为上述**仓库 Secret**，再授权运行发布。确认 Actions 摘要的配置状态，确认真实浏览器请求送往该 Worker、CORS 放行正确 Pages origin；错误源被拒绝，无令牌 401，越权 403。仅 URL 格式通过不能勾选此项。
 5. 先在隔离环境走完真实链路：排菜/导入并保存 → 正式发布并核对 `data/build.json.commit` 与同版计划/图片 → 菜单/备料可读 → 人工确认采购并保存/重开同一清单；覆盖冲突或丢 ACK 后的核实，确认没有重复写入。buyer 可保存采购单但不能改计划/菜谱，admin 才可回退；回退应新增 data commit，确认后再次发布。记录 commit/run 与成功结果，不记录凭据。
-6. 正式切换后按授权做最小验收，确认发布进度对应真实终态，三种 QR 指向正式站点并能打开对应能力；菜单/备料同版资料可读，PWA 联网更新与离线已读资产通过。`packages/web` 已声明 `prebuild` 生成图标/QR，仍需检查**实际发布命令**确实调用并包含产物；本轮由 Q 检查，未拿到实际缺失证据前不改接线。以上缺项未关闭时，不能宣布完整可写上线。
+6. 正式切换后按授权做最小验收，确认发布进度对应真实终态，三种 QR 指向正式站点并能打开对应能力；菜单/备料同版资料可读，PWA 联网更新与离线已读资产通过。**实际发布命令生成 QR 已本地实测通过**（见下方 9/13 单点证据）；正式站点目标和扫码打开仍需在授权发布后验收。以上缺项未关闭时，不能宣布完整可写上线。
 
 **当前缺失项（2026-09-13，调度只读盘点；本任务未重新访问远端）：** Pages 地址已知为上述正式站点，远端 main `1503074` 于 9/11 部署成功；仓库变量/secret 名单均为空，仅有 `github-pages` 环境。尚无已核实的真实 Worker、隔离远端环境或配套凭据证明。因此当前不能交付一个已验收的完整可写线上版本。主调度负责真实环境盘点和最后外部动作；配置补丁、既有本地产品验收均不替代这些事实。
 
 **本轮本地证据：** 基于已审产品 `4b1e5e1` 与文档头 `7bbfe22`，实际 Node 20.20.2；旧流程的配置回归先出现 7 失败/3 通过，原非作者再指出未校验 Variables 会进入 runner 前置日志，新增日志边界测试复现失败。按官方源码的 Secret 预注册/日志遮罩模型修复后，配置 13 项与既有接线 21 项合计 **34/34**；模型不是一次真实 Actions 运行。发布映射 **16/16**，零跳过；core/Worker 前置编译通过。空值、公开 HTTPS 测试地址、本地 HTTP 地址三种实际 Vite 临时构建通过，后两者在产物中含各自配置值；输入载体修正未改 Vite 或产品代码，因此沿用该编译证据。这里只执行安全工作流片段和编译，未联系测试地址；临时 Vite 编译不证明 package prebuild/QR 被调用。证据保存在本机 `/private/tmp/canteen-ci-deploy-config-*.log` 与 `/private/tmp/canteen-ci-config-build-0q0vv264/validation.json`。未执行翻译提交、推送、上传或部署，也未重复全量产品验收；独立审查结论由原任务回传，沿用此入口，不另建交付包。
+
+**QR 原命令单点证据（2026-09-13）：** 源码 `563e08b00026542d04bcc06ee8fc4a970e5041e5`，独立临时副本复用既有依赖，仅清除副本旧 `public/qr` 与 `dist`；精确 pnpm **9.15.0**、Node **20.20.2**，执行从发布步骤提取的原命令 `pnpm -C packages/web build`，exit 0。日志实际出现 `prebuild`（图标与 QR）→ Vite；执行窗口为 `06:46:39.588979Z–06:46:42.104556Z`，新索引 `generatedAt=2026-09-13T06:46:40.209Z`，三条路由均使用本次唯一 `SITE_URL=https://qr-build-probe.invalid/canteen-qr-command-3j4_9d64-red/`。三张 PNG 均为 512×512，PNG 与索引共四组 `public/qr`、`dist/qr` SHA-256 完全一致。[pnpm 9 官方发布说明](https://github.com/orgs/pnpm/discussions/7932)也确认 pre/post scripts 默认启用；本次未添加配置或强制开启开关。证据在本机 `/private/tmp/canteen-qr-command-3j4_9d64/validation.json`、同目录 `red.log`（`red` 仅为初始探针标签，实际首次即 GREEN），复现实验脚本 `/private/tmp/canteen-qr-command-probe.py`。因此关闭原命令是否生成新 QR 的待证项，工作流保持不变；本项不是线上扫码、打印或真实 Actions 验收。
 
 ---
 
