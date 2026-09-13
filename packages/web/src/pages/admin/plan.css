@@ -54,3 +54,8 @@
 .tm-plan-secondary .tm-button{padding:4px 0;min-height:32px;border:0;background:transparent;color:var(--accent);font-size:11px}
 .tm-plan-secondary a{color:var(--muted)}
 @media(min-width:700px){.tm-plan-group{padding:0 18px}.tm-plan-row-main{grid-template-columns:56px minmax(0,1fr) 110px;min-height:86px}.tm-plan-photo{width:56px;height:56px}.tm-plan-dish-name b{font-size:16px}.tm-plan-row-main>.tm-field>span{font-size:11px}.tm-plan-edit>summary{right:130px;top:29px}.tm-plan .tm-status{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.tm-plan .tm-status p{margin:0}.tm-plan .tm-actions{margin-top:20px}.tm-plan .tm-add-form{grid-template-columns:minmax(0,1fr) auto minmax(240px,1fr);align-items:center}.tm-plan-add-extra{grid-column:auto}.tm-plan-add-extra>summary{margin:auto}.tm-plan-add-extra>div{grid-template-columns:1fr 1fr}}
+
+/* Quiet acknowledged state; exceptional states keep their existing emphasis. */
+.tm-plan .tm-status.clean{border:0;background:transparent;padding:2px 0;margin:0;color:var(--muted)}
+.tm-plan-version{font-size:11px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
+.tm-plan-version>summary{display:flex;align-items:center;min-height:44px;cursor:pointer}

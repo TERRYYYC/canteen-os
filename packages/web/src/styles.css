@@ -245,3 +245,7 @@ html{scroll-padding-bottom:calc(var(--core-nav-height) + 96px)}
 .record-translations,.record-support,.prep-purchase-details{font-size:14px;color:var(--muted)}
 .record-translations summary,.record-support summary,.prep-purchase-details summary{cursor:pointer;padding:8px 0;min-height:40px}
 .record-support pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;font-size:12px}
+
+/* Page-end return links have their own reachable touch target above navigation. */
+.outlet .tm-head>a{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:8px 10px;border-radius:8px}
+.outlet .tm-head>a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

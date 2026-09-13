@@ -81,6 +81,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(initialized&&!catalog&&requestedKey!==sourceKey()){requestedKey=sourceKey();void reloadCatalog(false);}
       const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;
       const documentStatus=status(s,lang),output:HTMLElement[]=[];
+      const version=documentStatus.querySelector('details');
+      if(version){version.remove();version.classList.add('tm-plan-version');}
       if(s.draft){selectPlan(api,id,s.draft.name);output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')),filters());}
       output.push(documentStatus);
       if(rawPending(view)){
@@ -125,6 +127,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
           }
         }
       }
+      if(version)output.push(version);
       replace(body,...output);
       if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
     }

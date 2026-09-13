@@ -32,7 +32,7 @@ const mealNames = {
 };
 const order: MealType[] = ['breakfast', 'lunch', 'dinner'];
 const stops = new WeakMap<HTMLElement, () => void>();
-const choices = new WeakMap<Publication, { meal: MealType | null; menuRow?: number; dishes: Map<string, number>; timing: string; timingOpen: boolean }>();
+const choices = new WeakMap<Publication, { meal: MealType | null; menuRow?: number; dishes: Map<string, number>; timing: string; timingOpen: boolean; disclosures: Map<string, boolean> }>();
 let openedByLink: string | null = null;
 let focusDish: string | null = null;
 const href = (page: string, ...parts: string[]) => `#/${page}${parts.length ? '/' + parts.map(encodeURIComponent).join('/') : ''}`;
@@ -72,11 +72,11 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':'prep-publication-info'},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
   if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
   else publicationInfo.append(h('p',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
-  if (plan.issues.length) (page==='menu'?root:publicationInfo).append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
+  if (plan.issues.length) publicationInfo.append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
     ...plan.issues.map(issue => renderRecordNotice(issue,lang,plan.projection,'data-publication-issue'))));
   if (!record.meals.length) { root.append(h('p', { class: 'card', role: 'status' }, t('empty')),publicationInfo); return true; }
   let memory = choices.get(publication);
-  if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all', timingOpen: false }; choices.set(publication, memory); }
+  if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all', timingOpen: false, disclosures: new Map() }; choices.set(publication, memory); }
   const all = selectRows(source, { menuPlanRef: plan.planId });
   const slots = plan.projection.selection.filter(slot => slot.menuPlanRef === plan.planId);
   const dates = [...new Set(slots.map(slot => slot.date))].sort();
@@ -95,7 +95,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
   function options(row?: FrozenMealRow): FrozenMealRenderOptions {
-    return { lang, selection: { menuPlanRef: plan.planId, date, mealType: selectedMeal, ...(row ? { mealIndex: row.mealIndex } : {}) },
+    return { lang, ...(page==='prep'?{disclosureState:memory!.disclosures}:{}), selection: { menuPlanRef: plan.planId, date, mealType: selectedMeal, ...(row ? { mealIndex: row.mealIndex } : {}) },
       asset: query => {
         if (query.revision !== plan.sourceRevision) return Promise.reject(new Error('revision_mismatch'));
         const owner = /^data\/(dishes|ingredients)\/([a-z][a-z0-9-]*)\.json$/.exec(query.owner);

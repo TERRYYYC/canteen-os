@@ -229,6 +229,24 @@ test('cooking missing quantities and source gaps explain the impact beside the a
  assert.match(ordinaryText(record),/基准份数未录.*不能.*换算/);assert.match(ordinaryText(record),/计划份数未录/);
  stop();el.remove();
 });
+test('Prep long notes have an explicit excerpt and full text while steps stay complete and support records stay secondary',()=>{
+ const data=JSON.parse(JSON.stringify(fixture())),state=new Map(),notes={zh:'保留原备注句首，逐项检查原料。'.repeat(8)+'句尾：出餐前再次核对。',en:'Keep the original instruction and check every ingredient. '.repeat(8)+'Final instruction: check before service.',uk:'Збережіть вихідну примітку та перевірте кожен інгредієнт. '.repeat(8)+'Остання вказівка: перевірте перед подачею.'};
+ data.projection.techniques[0].note=notes;data.projection.techniques[0].image=data.projection.dishes['dish-a'].image;
+ data.projection.dishes['dish-a'].components[0].prep.note=notes;
+ data.projection.dishes['dish-a'].steps[0].text=notes;
+ const source=freeze(data),before=JSON.stringify(source),el=mount();
+ for(const lang of ['zh','en','uk']){
+  const stop=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking',disclosureState:state});
+  const component=attr(el,'data-component-index','0')[0],note=attr(component,'data-prep-note')[0];assert(note,'long notes expose a native full-text control');
+  const summary=tag(note,'summary')[0];assert.match(summary.textContent,/全文|full note|повний текст/);assert(summary.textContent.endsWith('…'));
+  assert.match(note.textContent,new RegExp(notes[lang].slice(-20).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  assert.doesNotMatch(ordinaryText(component),/CC BY 4.0|Recorded author|图片来源与许可|Image source and license|Джерело зображення й ліцензія/);
+  const method=attr(el,'data-step-index','0')[0];assert(ordinaryText(method).includes(notes[lang]),'the actual method is never shortened');
+  note.open=true;note.dispatch('toggle');stop();
+  const next=prep.renderFrozenPrep(el,source,{...options(),lang,layout:'cooking',disclosureState:state});assert.equal(attr(attr(el,'data-component-index','0')[0],'data-prep-note')[0].open,true,'explicit note expansion survives repaint');next();
+ }
+ assert.equal(JSON.stringify(source),before);el.remove();
+});
 test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());
  const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1500 g/);

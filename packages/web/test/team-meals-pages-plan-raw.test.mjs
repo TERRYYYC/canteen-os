@@ -120,3 +120,8 @@ test('optional preview module failure releases only its read and keeps Save avai
  assert.ok(el.querySelector('[role="alert"]'));assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(focus(el,'servings-0').value,'9');assert.equal(save(el).disabled,false);assert.equal(f.writes.length,0);
  }finally{f.cleanup();}
 });
+
+
+test('plan retains its exact source in secondary content after editable meal rows',async()=>{
+ const f=await setup();try{const el=await f.mount(),nodes=walk(el),row=walk(el).find(n=>n.attrs['data-meal-index']!==undefined),version=cls(el,'tm-plan-version')[0];assert.ok(row);assert.ok(version,'source remains available after plan content');assert(nodes.indexOf(version)>nodes.indexOf(row));assert.match(version.textContent,new RegExp(A));assert.equal(cls(el,'tm-status')[0].children.some(n=>n.tagName==='DETAILS'),false);assert.equal(save(el).disabled,true);}finally{f.cleanup();}
+});

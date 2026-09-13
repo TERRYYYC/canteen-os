@@ -62,7 +62,10 @@ test('legal to-taste source value survives an unrelated edit',()=>{
  assert.deepEqual(draftToDish(draftFromDish(dish,'salt','blob-a')),dish);
 });
 test('new dish creates with if-none-match and optional fields remain absent',async()=>{
- const {form,writes}=setup();await form.load('new',{zh:'新汤'});form.draft.id='new-soup';await form.save('active');
+ const {form,writes}=setup();await form.load('new',{zh:'新汤'});
+ assert.equal(form.draft.dirty,true,'a handed-off name is real user input');assert.equal(form.session.getState().dirty,true);
+ form.detach();await form.load('new');assert.equal(form.draft.name.zh,'新汤');assert.equal(form.draft.dirty,true);
+ form.draft.id='new-soup';await form.save('active');
  assert.equal(writes[0][1],'new-soup');assert.equal(writes[0][2].status,'active');assert.equal(Object.hasOwn(writes[0][2],'baseServings'),false);assert.deepEqual(writes[0][3],{ifNoneMatch:'*'});
 });
 test('conflict retains edited draft and explicit adoption is required before a new write',async()=>{

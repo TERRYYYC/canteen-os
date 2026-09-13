@@ -110,9 +110,11 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     if(view.planIds===view.baseline.planIds)view.planIds=planIds;
     view.baseline.planIds=planIds;view.baseline.scope=scopeKey(view.scope);touch(view);
    }
-   const stateNode=status(s,lang);if(s.phase==='saved-but-unpublished'&&stateNode.firstChild)stateNode.firstChild.textContent=t('saved');if(s.phase==='saving'&&stateNode.firstChild)stateNode.firstChild.textContent=lang==='zh'?'正在保存清单…':lang==='en'?'Saving list…':'Збереження списку…';nodes.push(stateNode,listReference(list.id),sourceVersion(basis.sourceRevision));
+   const stateNode=status(s,lang);if(s.phase==='saved-but-unpublished'&&stateNode.firstChild)stateNode.firstChild.textContent=t('saved');if(s.phase==='saving'&&stateNode.firstChild)stateNode.firstChild.textContent=lang==='zh'?'正在保存清单…':lang==='en'?'Saving list…':'Збереження списку…';const savedVersion=stateNode.querySelector('details');savedVersion?.remove();nodes.push(stateNode);
+   const record=h('details',{class:'tm-purchase-record'},h('summary',{},w('清单与资料','List and source records','Список і вихідні дані')),listReference(list.id),savedVersion,sourceVersion(basis.sourceRevision));
    if(s.error)nodes.push(errorNode(new ApiError(s.error.status,s.error.code,s.error.message,s.error.errors,s.error.retryAfter,s.error.reviewRequired)));
    if(detail){
+    nodes.push(record);
     if(!detailsModule){nodes.push(h('p',{role:'status'},tr('loading')));if(!busy)nodes.push(action(tr('retry'),()=>void load()));replace(body,...nodes);return;}
     const holder=h('article',{});nodes.push(h('a',{href:hrefOf('purchase',list.id)},t('title')),holder);replace(body,...nodes);
     disposeDetail=detailsModule.renderTeamDetails(holder,{lang,projection:basis.projection,kind:detailKind as 'ingredient'|'dish',id:detailId,
@@ -125,8 +127,10 @@ export function createPurchaseRenderer(api:TeamMealsApi){
       return read(()=>form.getAsset('data/techniques.json',`/${index}/image`));
      },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:()=>{location.hash=adminHref(detailKind,detailId);}});return;
    }
-   nodes.push(h('section',{class:'tm-purchase-intro'},h('small',{},t('intro')),h('h2',{},t('headline')),
-    h('details',{class:'tm-purchase-scope'},h('summary',{},`${t('scope')} · ${list.basis.selection.length}`),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
+   const dates=[...new Set(list.basis.selection.map(slot=>slot.date))].sort(),meals=[...new Set(list.basis.selection.map(slot=>tr(slot.mealType)))];
+   const scopeTitle=`${dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??t('scope')} · ${meals.join(' / ')}`;
+   nodes.push(h('section',{class:'tm-purchase-intro tm-purchase-loaded'},h('h2',{},t('title')),
+    h('details',{class:'tm-purchase-scope'},h('summary',{},scopeTitle),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
    const counts=countDecisions(list);
    nodes.push(h('div',{class:'tm-purchase-metrics',role:'group','aria-label':t('summary')},...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('small',{},t(decision)),h('b',{'data-decision-count':decision},String(counts[decision]))))));
    if(s.phase==='outcome-unknown'){const recover=action(tr('recover'),()=>void run(()=>form.reconcileUnknown(s.contextId),'c1'));recover.disabled=s.recovering||busy;nodes.push(recover);}
@@ -136,9 +140,9 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,copyPanel(list)));
    const removed=form.review?.removed??[];
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
-   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,
+   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
-   nodes.push(h('details',{class:'tm-purchase-advanced'},h('summary',{},t('apply')),scopeForm(true)));replace(body,...nodes);
+   nodes.push(record,h('details',{class:'tm-purchase-advanced'},h('summary',{},t('apply')),scopeForm(true)));replace(body,...nodes);
   }
   function listReference(id:string){return h('p',{class:'tm-list-reference'},w('清单编号','List number','Номер списку'),' · ',h('code',{},id));}
   function savedLink(item:ShoppingListSummary,continuing=false){

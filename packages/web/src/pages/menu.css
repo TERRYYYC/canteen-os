@@ -168,6 +168,8 @@
 .menu-recipe-hero>img{display:block;width:100%;height:230px!important;object-fit:cover}
 .menu-recipe-hero>p:empty{display:none}.menu-recipe-hero>p{padding:20px;font-size:12px}
 .menu-recipe-hero figcaption{font-size:9px;padding:6px 20px;color:var(--muted);overflow-wrap:anywhere}
+.menu-recipe-image-record{margin:8px 0;overflow-wrap:anywhere}
+.menu-recipe-image-record summary{min-height:44px;padding:10px 0;cursor:pointer}
 .menu-recipe .dish-head{padding:0;border:0;margin:0 0 12px}.menu-recipe .dish-head .n{font:650 23px/1.35 var(--sans);margin:0}.menu-recipe .dish-head .n a{color:var(--ink);text-decoration:none}.menu-recipe .dish-head .s{font-size:11px;margin:6px 0 0}
 .menu-recipe-tabs{display:flex;border-bottom:1px solid var(--line);margin:8px 0 14px;gap:8px}
 .menu-recipe-tabs button{font:inherit;flex:1;padding:12px 0;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font-size:12px;cursor:pointer}

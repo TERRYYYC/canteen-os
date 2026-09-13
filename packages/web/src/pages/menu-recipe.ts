@@ -13,6 +13,9 @@ export function renderMenuRecipe(el:HTMLElement,source:FrozenMealSource,options:
     if(!hero||hero.tagName!=='FIGURE')continue; // Missing records keep the original explicit state.
     hero.setAttribute('class','menu-recipe-hero');
     const provenance=h('details',{class:'menu-recipe-provenance'},h('summary',{},word('记录、译名与来源','Record, translations & source','Запис, переклади й джерело')));
+    for(const caption of Array.from(hero.children).filter(node=>node.tagName==='FIGCAPTION')){
+      provenance.append(h('div',{class:'menu-recipe-image-record'},...Array.from(caption.children).map(node=>move(node)!)));caption.remove();
+    }
     for(const node of [planned,names,base,status])if(node)provenance.append(move(node)!);
     if(description&&!description.textContent?.trim())description.textContent=word('介绍尚未录入','Description not recorded','Опис ще не записано');
     const about=h('div',{'data-menu-recipe-panel':'about'},move(description));
