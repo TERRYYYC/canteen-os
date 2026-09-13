@@ -17,7 +17,7 @@
 
 **验证与边界**
 
-- 本轮整合继承各原候选的独立审查和本地验收；最终候选须通过原 CI 检查与新增版本展示审查后才合并。验收入口见 [团队调度状态](feature-specs/2026-09-11-team-meals-dispatch.md) 和 [发布检查表](docs/field-test/week-43/ops-checklist.md)。
+- 本版整合、版本展示及审查/CI 结果以对应 PR 和发布记录为准；已审候选与本地证据见 [团队调度状态](feature-specs/2026-09-11-team-meals-dispatch.md) 和 [发布检查表](docs/field-test/week-43/ops-checklist.md)。
 - 原 pnpm 9.15.0 发布命令已实测生成新 QR；这不代表真实 Actions、正式站点扫码或完整厨房流程已经验收。
 - 真实 Worker、隔离目标环境与配套凭据仍需核实；菜谱数量、真实厨房操作及语言质量仍待验。此版本不是完整可写生产上线，也未完成真实厨房周。
 
