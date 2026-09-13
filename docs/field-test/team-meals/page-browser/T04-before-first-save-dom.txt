@@ -1,0 +1,71 @@
+- banner:
+  - button "打开目录"
+  - heading "采购单" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - link "返回":
+    - /url: "#/purchase"
+  - heading "本次采购" [level=2]
+  - link "排每天的菜":
+    - /url: "#/admin/plan/team-week"
+  - status: 有未保存的修改
+  - 'generic "材料和菜单资料版本: 9d2e9348"'
+  - heading "本次日期和餐次" [level=3]
+  - paragraph: 2026-09-14 · 午餐 · team-week
+  - paragraph: 先保存这份待核对清单，再逐项判断。
+  - button "保存清单"
+  - paragraph: 已录材料候选；配方完整性仍需人工核对。
+  - status:
+    - paragraph: 菜谱待完善 · team-week / 2026-09-14 / 午餐 / second-dish
+  - heading "油" [level=3]:
+    - link "油":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+  - paragraph: 调料
+  - button "待核对" [disabled] [pressed]
+  - button "待买" [disabled]
+  - button "已有" [disabled]
+  - generic "使用来源 · 1"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录"
+  - heading "盐" [level=3]:
+    - link "盐":
+      - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+  - paragraph: 调料
+  - button "待核对" [disabled] [pressed]
+  - button "待买" [disabled]
+  - button "已有" [disabled]
+  - generic "使用来源 · 2"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录 · 适量 · 配方基准份数未录 · 菜谱待完善"
+  - heading "番茄" [level=3]:
+    - link "番茄":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+  - paragraph: 主料
+  - button "待核对" [disabled] [pressed]
+  - button "待买" [disabled]
+  - button "已有" [disabled]
+  - generic "使用来源 · 2"
+  - paragraph: "无法完整计算: 计划份数未录 · 配方基准份数未录 · 菜谱待完善 · 原用量未录"
+  - heading "番茄" [level=3]:
+    - link "番茄":
+      - /url: "#/purchase/page-shop%2Fingredient%2Ftomato-other"
+  - paragraph: 主料
+  - button "待核对" [disabled] [pressed]
+  - button "待买" [disabled]
+  - button "已有" [disabled]
+  - generic "使用来源 · 1"
+  - paragraph: "无法完整计算: 采购规格未录 · 计划份数未录 · 配方基准份数未录 · 菜谱待完善"
+  - paragraph: 金额只按可计算项参考，不代表完整预算。
+  - heading "应用新范围并重新核对" [level=3]
+  - generic: 计划名称，多个用逗号分隔
+  - textbox "计划名称，多个用逗号分隔": team-week
+  - button "读取最新已保存计划" [disabled]
+  - paragraph: 修改范围前，请先保存当前判断。
+  - 'generic "材料和菜单资料版本: 9d2e9348"'
+  - checkbox "2026-09-14 · 午餐 · team-week" [checked]
+  - generic: 2026-09-14 · 午餐 · team-week
+  - button "应用新范围并重新核对" [disabled]
+  - button "复制清单"
+  - status

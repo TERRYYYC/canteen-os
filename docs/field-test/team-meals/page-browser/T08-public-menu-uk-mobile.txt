@@ -1,0 +1,41 @@
+- banner:
+  - button "Відкрити меню розділів" [active]
+  - heading "Харчування" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - heading "Фіксоване тестове меню" [level=1]
+  - status: Опубліковані оригінальні рецепти
+  - generic "ab3f5846"
+  - generic "Зауваження до публікації"
+  - navigation "Дні":
+    - link "2026-09-14":
+      - /url: "#/menu/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/menu/2026-09-15"
+  - navigation "Прийоми їжі":
+    - button "Обід" [pressed]
+  - navigation "Страви"
+  - heading "План харчування" [level=1]
+  - 'generic "Версія даних: ab3f5846"'
+  - generic "Дані для перевірки · 1"
+  - heading "Перша тестова страва" [level=2]
+  - generic: 第一道样本菜
+  - generic: First test dish
+  - paragraph: 2026-09-14 · Обід
+  - paragraph: "Заплановані порції: Не записано"
+  - paragraph: "Усі записані інгредієнти й приправи: Помідор · Сіль · Олія"
+  - link "Прочитати повний оригінальний рецепт":
+    - /url: "#/menu/2026-09-14/first-dish"
+  - heading "Друга тестова страва" [level=2]
+  - generic: 第二道样本菜
+  - generic: Second test dish
+  - paragraph: 2026-09-14 · Обід
+  - paragraph: "Заплановані порції: Не записано"
+  - paragraph: "Усі записані інгредієнти й приправи: Помідор · Сіль · Помідор"
+  - link "Прочитати повний оригінальний рецепт":
+    - /url: "#/menu/2026-09-14/second-dish"
+  - paragraph: Показано лише записані дані; повноту рецепта має перевірити людина.

@@ -1,0 +1,99 @@
+- banner:
+  - button "打开目录"
+  - heading "采购单" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - link "返回":
+    - /url: "#/purchase"
+  - heading "本次采购" [level=2]
+  - link "排每天的菜":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: 清单已保存
+    - 'generic "资料版本: 4529ceca"'
+  - 'generic "材料和菜单资料版本: e1441c8d"'
+  - link "本次采购":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "资料版本: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "另看当前资料"
+    - heading "第一道样本菜" [level=2]
+    - paragraph: first-dish
+    - term: ZH
+    - definition: 第一道样本菜
+    - term: EN
+    - definition: First test dish
+    - term: UK
+    - definition: Перша тестова страва
+    - figure:
+      - paragraph: 同版图片不可用
+    - paragraph: 未录
+    - term: 原配方基准份数
+    - definition: "2"
+    - term: 配方来源
+    - definition: manual
+    - heading "食材与调料" [level=3]
+    - paragraph: 原配方用量，未缩放
+    - heading "番茄 B版" [level=4]:
+      - link "番茄 B版":
+        - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+    - paragraph: 300 g
+    - paragraph: "材料角色: 主料"
+    - paragraph: "技法: 滚刀块 · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: 边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。
+    - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "第一道样本菜"
+      - status
+      - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: 切配规格
+    - definition: 未录
+    - term: 准备时机
+    - definition: 未录
+    - term: 备注
+    - definition: 未录
+    - figure
+    - heading "盐" [level=4]:
+      - link "盐":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+    - paragraph: 适量
+    - paragraph: "材料角色: 调料"
+    - heading "油" [level=4]:
+      - link "油":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+    - paragraph: 20 ml
+    - paragraph: "材料角色: 调料"
+    - heading "完整做法" [level=3]
+    - heading "1" [level=4]
+    - paragraph: 按原始记录准备番茄。
+    - term: ZH
+    - definition: 按原始记录准备番茄。
+    - term: EN
+    - definition: Prepare tomatoes using the recorded instructions.
+    - term: UK
+    - definition: Підготуйте томати за записаними вказівками.
+    - paragraph: "技法: 滚刀块 · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: 边切边滚动原料，切成不规则多面块；适合番茄、萝卜、土豆等圆形/长圆形原料，受热面大易入味。
+    - 'figure "许可: CC0 · 作者: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "第一道样本菜"
+      - status
+      - text: "许可: CC0 · 作者: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - figure
+    - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

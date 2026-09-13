@@ -1,0 +1,85 @@
+- banner:
+  - button "Open sections menu" [active]
+  - heading "Back office" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - link "Back":
+    - /url: "#/admin"
+  - heading "Plan meals" [level=2]
+  - link "Paste import":
+    - /url: "#/admin/plan/team-week/import"
+  - status:
+    - text: Unsaved changes
+    - 'generic "Source version: 6f479b8a"'
+  - paragraph: Counts may stay blank. Saving keeps the whole plan in the new format.
+  - generic: View range
+  - combobox "View range":
+    - option "All dates"
+    - option "Day" [selected]
+    - option "Week"
+  - generic: Date
+  - textbox "Date": 2026-09-14
+  - heading "2026-09-14 · Lunch" [level=3]
+  - generic: Dish
+  - combobox "Dish":
+    - option "Choose a dish"
+    - option "First test dish" [selected]
+    - option "No components recorded · draft"
+    - option "Second test dish · draft"
+  - generic: Servings (optional)
+  - spinbutton "Servings (optional)": "9"
+  - button "Remove"
+  - generic: Dish
+  - combobox "Dish":
+    - option "Choose a dish"
+    - option "First test dish"
+    - option "No components recorded · draft"
+    - option "Second test dish · draft" [selected]
+  - generic: Servings (optional)
+  - spinbutton "Servings (optional)"
+  - button "Remove"
+  - generic: Date
+  - textbox "Date": 2026-09-15
+  - generic: Meal
+  - combobox "Meal":
+    - option "Breakfast" [selected]
+    - option "Lunch"
+    - option "Dinner"
+  - generic: Dish
+  - combobox "Dish":
+    - option "Choose a dish"
+    - option "First test dish" [selected]
+    - option "No components recorded · draft"
+    - option "Second test dish · draft"
+  - button "Add a dish"
+  - button "Preview ingredients"
+  - heading "Unsaved local preview" [level=3]
+  - paragraph: Recorded ingredient candidates; recipe completeness needs human review.
+  - status:
+    - paragraph: Recipe is not active · team-week / 2026-09-14 / Lunch / second-dish
+  - heading "Oil" [level=3]
+  - paragraph: Seasoning
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing"
+  - heading "Salt" [level=3]
+  - paragraph: Seasoning
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · To taste · Planned servings missing · Recipe servings missing · Recipe is not active"
+  - heading "Tomato revision B" [level=3]
+  - paragraph: Main ingredient
+  - generic "Used in · 2"
+  - paragraph: "Complete estimate unavailable: Planned servings missing · Recipe servings missing · Recipe is not active · Recipe quantity missing"
+  - heading "Tomato" [level=3]
+  - paragraph: Main ingredient
+  - generic "Used in · 1"
+  - paragraph: "Complete estimate unavailable: Purchase specification missing · Planned servings missing · Recipe servings missing · Recipe is not active"
+  - paragraph: Calculable amounts are references, not a complete budget.
+  - link "Create shopping list from saved plan":
+    - /url: "#/purchase/new%2Fteam-week"
+  - button "Save plan"
+  - link "Go to publish":
+    - /url: "#/admin/publish"

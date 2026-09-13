@@ -1,0 +1,50 @@
+- banner:
+  - button "打开目录"
+  - heading "备料" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - heading "固定样本菜单" [level=1]
+  - status: 已发布原配方
+  - generic "ab3f5846"
+  - generic "发布资料提示"
+  - navigation "日期":
+    - link "2026-09-14":
+      - /url: "#/prep/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/prep/2026-09-15"
+  - navigation "餐次":
+    - link "晚餐":
+      - /url: "#/prep/2026-09-15/dinner"
+  - navigation "菜品":
+    - button "未录成分样本" [pressed]
+  - button "全部时机" [pressed]
+  - button "当天早上"
+  - button "出餐前"
+  - button "前一天"
+  - heading "原配方与备料资料" [level=1]
+  - 'generic "资料版本: ab3f5846"'
+  - generic "需要核对的资料 · 2"
+  - heading "未录成分样本" [level=2]:
+    - link "未录成分样本":
+      - /url: "#/menu/2026-09-15/name-only"
+  - paragraph: 2026-09-15 · 晚餐
+  - paragraph: "计划份数: 2"
+  - paragraph: "ZH: 未录成分样本"
+  - paragraph: "EN: No components recorded"
+  - paragraph: "UK: Інгредієнти не записані"
+  - paragraph: "原配方基准份数: 未录"
+  - paragraph: "记录状态: draft"
+  - paragraph
+  - figure:
+    - status: 图片未录
+  - heading "全部已录食材与调料" [level=3]
+  - paragraph: 原配方用量，未缩放
+  - status: 未录
+  - heading "完整已录步骤" [level=3]
+  - status: 未录
+  - paragraph: "配方来源: manual"
+  - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

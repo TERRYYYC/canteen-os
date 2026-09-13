@@ -1,0 +1,86 @@
+{
+  "reviewedHeadSha": "4813ebb2cb57330554f793a60d9d7d7ea09fa405",
+  "purpose": "Integrity manifest for the post-verdict receipt. Excludes this manifest and SHA256SUMS to avoid self-reference.",
+  "files": [
+    {
+      "path": "FILE-LIST.txt",
+      "bytes": 461,
+      "sha256": "ca3fe1178600002f6cf3152121c811a3bcfe2646079b2f14d522a507d4e16d0a"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 2373,
+      "sha256": "199ad3430dab3b20dfc8b80ba894f92ac3b3df53671b57f5b1068fc68fc646ac"
+    },
+    {
+      "path": "inputs/EVIDENCE-SHA256-842.json",
+      "bytes": 24500,
+      "sha256": "8efd12d68a9f1505fa516e98a6440155c49331089ff793dd699f680adfacac58"
+    },
+    {
+      "path": "inputs/ledger-842-page-run.json",
+      "bytes": 251816,
+      "sha256": "35ce8d57a1ff6e24708d510fb22148fc5b9a0d6d911331042b4b39ed656efc5b"
+    },
+    {
+      "path": "inputs/responsive-metrics.json",
+      "bytes": 19506,
+      "sha256": "6c48890995cd328c488cbfbf73da718e7146169fa94812f3039c13ccf9901694"
+    },
+    {
+      "path": "inputs/source-integrity-842.json",
+      "bytes": 9167,
+      "sha256": "7b4e46b465266fefe4e17f9302acf9aceeb8cab767650a92da54f9abf7b7b156"
+    },
+    {
+      "path": "logs/01-worker-build.stdout.log",
+      "bytes": 371,
+      "sha256": "87c2f80820a6dfafac73e94299443152891e4c2562b11b6dac3ec800abfa0517"
+    },
+    {
+      "path": "logs/02-targeted-tests.stdout.log",
+      "bytes": 4827,
+      "sha256": "2bc2dd0c8c4875510106e056fb5245f3e5d656eddcfe4e31286823382df8306f"
+    },
+    {
+      "path": "logs/03-copy-repro.stdout-stderr.log",
+      "bytes": 1250,
+      "sha256": "c471feddf7846f26404be2513b467335855eca695387f623c6468c3dd1e6a8a2"
+    },
+    {
+      "path": "logs/04-import-capture-repro.stdout-stderr.log",
+      "bytes": 590,
+      "sha256": "740ce45f9f6e9897678e8234e2181b2ccccdd2d7e26516ce420b33faeda3217f"
+    },
+    {
+      "path": "logs/05-worker-replay.stdout.log",
+      "bytes": 305,
+      "sha256": "9bedc18f78f5c5c4742d7415455673b2f48d8a45c352dea672d1d44253e353f1"
+    },
+    {
+      "path": "logs/README.md",
+      "bytes": 971,
+      "sha256": "d45ab90f7f1277601741af9252db4cf6230729a61d459898ccb20b6d3c06f9a9"
+    },
+    {
+      "path": "report.md",
+      "bytes": 4970,
+      "sha256": "3e2bb18380b2003c770c084b49b9795ca3bc4ab9503b7624a2ff8247a06f99de"
+    },
+    {
+      "path": "review.json",
+      "bytes": 5749,
+      "sha256": "2dd102cdc281381c7d68d151a739a0309d968c9f2177d8e8fa8c0025cbaba106"
+    },
+    {
+      "path": "worker-replay-result.json",
+      "bytes": 37104,
+      "sha256": "2f4a0053e2c09d8b96647322b94899fef2544a2a7c3dd5a1761660f1a1551fe7"
+    },
+    {
+      "path": "worker-replay.original.mjs",
+      "bytes": 2955,
+      "sha256": "487c8a8aa85c96d1886d5c21f5c11ef31cf2674d20ea5528c23861410b58b068"
+    }
+  ]
+}

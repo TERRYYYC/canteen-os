@@ -1,0 +1,41 @@
+- banner:
+  - button "打开目录" [active]
+  - heading "用餐安排" [level=1]
+  - generic: 语言
+  - combobox "语言":
+    - option "UA"
+    - option "中" [selected]
+    - option "EN"
+- main:
+  - heading "固定样本菜单" [level=1]
+  - status: 已发布原配方
+  - generic "ab3f5846"
+  - generic "发布资料提示"
+  - navigation "日期":
+    - link "2026-09-14":
+      - /url: "#/menu/2026-09-14"
+    - link "2026-09-15":
+      - /url: "#/menu/2026-09-15"
+  - navigation "餐次":
+    - button "午餐" [pressed]
+  - navigation "菜品"
+  - heading "餐食安排" [level=1]
+  - 'generic "资料版本: ab3f5846"'
+  - generic "需要核对的资料 · 1"
+  - heading "第一道样本菜" [level=2]
+  - generic: Перша тестова страва
+  - generic: First test dish
+  - paragraph: 2026-09-14 · 午餐
+  - paragraph: "计划份数: 未录"
+  - paragraph: "全部已录食材与调料: 番茄 · 盐 · 油"
+  - link "查看完整原配方":
+    - /url: "#/menu/2026-09-14/first-dish"
+  - heading "第二道样本菜" [level=2]
+  - generic: Друга тестова страва
+  - generic: Second test dish
+  - paragraph: 2026-09-14 · 午餐
+  - paragraph: "计划份数: 未录"
+  - paragraph: "全部已录食材与调料: 番茄 · 盐 · 番茄"
+  - link "查看完整原配方":
+    - /url: "#/menu/2026-09-14/second-dish"
+  - paragraph: 这里只展示已录资料；配方完整性仍需人工核对。

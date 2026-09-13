@@ -1,0 +1,74 @@
+{
+  "reviewedHeadSha": "810df706519c92622d4706b03c69484ba2fb9911",
+  "excludes": [
+    "MANIFEST-SHA256.json",
+    "SHA256SUMS"
+  ],
+  "files": [
+    {
+      "path": "FILE-LIST.txt",
+      "bytes": 290,
+      "sha256": "b4b31497bd1c95cfcc1332da7f042c166437e48ccf7e27257ef44fd8e827e4ed"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 1191,
+      "sha256": "124d45b3d8bf2223232ef34ae9bb4592b5bedeba22a74f3439136b7f3af4aea0"
+    },
+    {
+      "path": "inputs/baseline-ledger-842.json",
+      "bytes": 251816,
+      "sha256": "35ce8d57a1ff6e24708d510fb22148fc5b9a0d6d911331042b4b39ed656efc5b"
+    },
+    {
+      "path": "inputs/copy-EVIDENCE-SHA256.json",
+      "bytes": 5597,
+      "sha256": "1a06f4f3261f990a2b257b9854dedeadda2397d90ea89ea4227d5de98c41cc78"
+    },
+    {
+      "path": "inputs/copy-ledger.json",
+      "bytes": 58222,
+      "sha256": "04d3cd49684828743e93ef2c9c2c7450ead3ff704e4ae4500ea55585f6f6259d"
+    },
+    {
+      "path": "inputs/week-handler-delta.json",
+      "bytes": 16675,
+      "sha256": "87db6e6274a61710b91640c47c785bc826497540d3b18a5467fe34be5a98c36e"
+    },
+    {
+      "path": "logs/build.log",
+      "bytes": 371,
+      "sha256": "87c2f80820a6dfafac73e94299443152891e4c2562b11b6dac3ec800abfa0517"
+    },
+    {
+      "path": "logs/replay.log",
+      "bytes": 855,
+      "sha256": "ebb4455479628c5ba6cd009bdd27e59b99b396dc00a8557598e408b6e0247430"
+    },
+    {
+      "path": "logs/targeted.log",
+      "bytes": 1087,
+      "sha256": "cc0ba5761055c0e055e44347dd61226d0191e0c86686375798530dfd4d5c053f"
+    },
+    {
+      "path": "replay-result.json",
+      "bytes": 24415,
+      "sha256": "c73f3e5f23b6643a2b589f0724dc55e22c58fdbb8e8f3ceb1750c6b4ae3d7847"
+    },
+    {
+      "path": "replay.original.mjs",
+      "bytes": 7117,
+      "sha256": "23992dee839a553b0af9ec2ec8f1940e94add1951e02ab970a011d11603b98c5"
+    },
+    {
+      "path": "report.md",
+      "bytes": 4327,
+      "sha256": "8b104840ba15de0e50c46c896787d42dcd2c93029556b3bd0c3a08366a1c387f"
+    },
+    {
+      "path": "review.json",
+      "bytes": 5971,
+      "sha256": "ee5bd183af75f1c36389d4ddcf71d05d430bc4b53d72c9a7ac03db9555a66533"
+    }
+  ]
+}

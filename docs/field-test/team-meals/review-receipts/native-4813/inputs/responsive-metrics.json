@@ -1,0 +1,877 @@
+[
+  {
+    "name": "T08-plan-zh-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-plan-en-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-plan-uk-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-plan-zh-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-plan-en-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-plan-uk-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-14"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": "9"
+      },
+      {
+        "checked": false,
+        "type": "number",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "type": "date",
+        "value": "2026-09-15"
+      }
+    ],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/admin/plan/team-week",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-purchase-zh-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-purchase-en-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-purchase-uk-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-purchase-zh-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-purchase-en-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-purchase-uk-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [
+      {
+        "checked": false,
+        "type": "text",
+        "value": "team-week"
+      },
+      {
+        "checked": true,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-ingredient-zh-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "番茄 B版",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/0d74d141-49fe-4f0e-8c39-d23969fcbdff",
+        "width": 1
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-ingredient-en-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "Tomato revision B",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/8e74636c-bddf-481d-91df-ad9988ef3c66",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-ingredient-uk-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "Томат версії B",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/0bfa50fd-2e9e-438c-9410-1e7b55945a13",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-ingredient-zh-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "番茄 B版",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/0ac3eef1-4cbb-4f60-8a60-7367b54bb35b",
+        "width": 1
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-ingredient-en-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "Tomato revision B",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/611b381c-b2d2-48a5-858e-5255014331e7",
+        "width": 1
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-ingredient-uk-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "Томат версії B",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/e7a48bac-3c06-4280-a07f-6d3328ee8869",
+        "width": 1
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fingredient%2Ftomato",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-dish-zh-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "第一道样本菜",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/e6b441e0-9d1e-4b0e-92c4-3072e1061d23",
+        "width": 1
+      },
+      {
+        "alt": "第一道样本菜",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/7a702f36-b8da-4088-96c6-8622d03cb23a",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-dish-en-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "First test dish",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/6df10324-fd3b-48da-b366-8ea6aca5a7d2",
+        "width": 1
+      },
+      {
+        "alt": "First test dish",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/01a3c97f-2c6b-41ed-ad08-a3ed90795f6d",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-dish-uk-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "Перша тестова страва",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/4207bbc8-4e75-4c9b-ae2f-6b6ff3225a37",
+        "width": 1
+      },
+      {
+        "alt": "Перша тестова страва",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/9bb0174d-282a-4f69-a64b-3b4c2a1cd8ba",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-dish-zh-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "第一道样本菜",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/a5d6bde4-3e0b-439f-bffe-e875f4b8869d",
+        "width": 1
+      },
+      {
+        "alt": "第一道样本菜",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/53060162-6f9e-424c-aab1-47ca4ea4fc37",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-dish-en-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "First test dish",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/9c054532-6544-42df-98ba-f11351930fc9",
+        "width": 1
+      },
+      {
+        "alt": "First test dish",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/cb697a1a-1192-4b35-ab55-6c4279569fa8",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-dish-uk-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "Перша тестова страва",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/67d64115-34cb-4aca-864a-976f0a848d9f",
+        "width": 1
+      },
+      {
+        "alt": "Перша тестова страва",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/4adf3b84-0252-4cad-8df3-14594b8b7d76",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/purchase/page-shop%2Fdish%2Ffirst-dish",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-public-menu-zh-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-public-menu-en-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-public-menu-uk-desktop",
+    "height": 900,
+    "images": [],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-public-menu-zh-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-public-menu-en-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-public-menu-uk-mobile",
+    "height": 852,
+    "images": [],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/menu",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-public-recipe-uk-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/ca37dda4-bd2d-44fe-acde-09adbdd2b6a3",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/0e118eb2-a981-4d66-853a-17ccb71c4bdc",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/2d19f7ca-31e4-4de9-96a3-c5e8ff3ef776",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/menu/2026-09-14/first-dish",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-prep-zh-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/94ff8ad5-2105-4a61-9c50-b566f71fcd19",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/06e24c71-141c-429c-bc5b-d204d6a4916a",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/be05f040-f830-4501-89c4-4ba5496df514",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-prep-en-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/51803ef9-548b-4a4c-a18a-86c3cc2f53c4",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/be3ce916-0929-4abe-bb9b-ddd48441aee7",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/2fe2a101-c1a3-406c-a18d-c1bc378c64ae",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-prep-uk-desktop",
+    "height": 900,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/2dacb986-7d89-4c3c-a5c1-65270a3e5cd3",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/51d1451a-fd55-4bd3-826d-900b9173ea7c",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/09a3b319-9c33-4649-9ea4-1d2e78380918",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 1440,
+    "width": 1440
+  },
+  {
+    "name": "T08-prep-zh-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/a5b63819-c4a4-4bc2-bfd8-fa072ddba24e",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/f4ac6dae-87c5-4b5c-82d2-9b53dd9fd6c6",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/c7c67e27-2f48-4b10-8bac-4d46dac7bdd5",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "zh-Hans",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-prep-en-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/5078db1c-d51a-4aa3-9fd6-8fee37bfaf72",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/e6132750-3942-4109-8df3-817068d78751",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/de5a49a5-f469-4255-95ec-ee8b5e4ad92c",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "en",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 393,
+    "width": 393
+  },
+  {
+    "name": "T08-prep-uk-mobile",
+    "height": 852,
+    "images": [
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/1f65889a-0fd3-4e54-adfa-4db5bcfb2574",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": true,
+        "src": "blob:http://127.0.0.1:4271/be9e77c9-5a56-431e-816c-5390b119e0e6",
+        "width": 1
+      },
+      {
+        "alt": "",
+        "complete": false,
+        "src": "blob:http://127.0.0.1:4271/aa54d057-ca75-45f3-b422-d001756db256",
+        "width": 0
+      }
+    ],
+    "inputs": [],
+    "lang": "uk",
+    "url": "http://127.0.0.1:4271/#/prep",
+    "viewport": 393,
+    "width": 393
+  }
+]

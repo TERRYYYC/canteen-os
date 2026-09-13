@@ -1,0 +1,66 @@
+- banner:
+  - button "Open sections menu"
+  - heading "Purchasing" [level=1]
+  - generic: Language
+  - combobox "Language":
+    - option "UA"
+    - option "中"
+    - option "EN" [selected]
+- main:
+  - link "Back":
+    - /url: "#/purchase"
+  - heading "This shopping list" [level=2]
+  - link "Plan meals":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: List saved
+    - 'generic "Source version: 4529ceca"'
+  - 'generic "Ingredient and menu version: e1441c8d"'
+  - link "This shopping list":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "Source version: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "View current information separately"
+    - heading "Tomato revision B" [level=2]
+    - paragraph: tomato
+    - term: ZH
+    - definition: 番茄 B版
+    - term: EN
+    - definition: Tomato revision B
+    - term: UK
+    - definition: Томат версії B
+    - 'figure "License: CC0 · Author: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "Tomato revision B"
+      - status
+      - text: "License: CC0 · Author: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: Ingredient role
+    - definition: Main ingredient
+    - term: Base unit
+    - definition: g
+    - term: Wikidata
+    - definition: Not recorded
+    - term: Supplier
+    - definition: Fixture supplier
+    - term: Package size
+    - definition: 1 kg
+    - term: Minimum packs
+    - definition: Not recorded
+    - term: Recorded price
+    - definition: 10 CNY
+    - term: Track stock
+    - definition: "false"
+    - term: Recorded on hand (separate from this list)
+    - definition: Not recorded
+    - heading "Recipes that use this ingredient" [level=3]
+    - paragraph:
+      - text: 2026-09-14 · Lunch ·
+      - link "First test dish":
+        - /url: "#/purchase/page-shop%2Fdish%2Ffirst-dish"
+      - text: · team-week / 0 / 0
+    - paragraph:
+      - text: 2026-09-14 · Lunch ·
+      - link "Second test dish":
+        - /url: "#/purchase/page-shop%2Fdish%2Fsecond-dish"
+      - text: · team-week / 1 / 0
+    - paragraph: Only recorded information is shown; recipe completeness still needs human review.

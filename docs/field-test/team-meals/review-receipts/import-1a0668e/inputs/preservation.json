@@ -1,0 +1,50 @@
+{
+  "priorQCut": "c7b403bfa8f906f6455655223ed53976b0207f13",
+  "newExecutionCut": "9084fcc64689ddb66ef925d97b0e2e4a40433233",
+  "preserved": [
+    {
+      "manifest": "docs/field-test/team-meals/page-browser/EVIDENCE-SHA256-842.json",
+      "entries": 150,
+      "sha256": "8efd12d68a9f1505fa516e98a6440155c49331089ff793dd699f680adfacac58",
+      "allMatch": true
+    },
+    {
+      "manifest": "docs/field-test/team-meals/page-repair-5049/EVIDENCE-SHA256.json",
+      "entries": 33,
+      "sha256": "1a06f4f3261f990a2b257b9854dedeadda2397d90ea89ea4227d5de98c41cc78",
+      "allMatch": true
+    },
+    {
+      "manifest": "docs/field-test/team-meals/review-receipts/native-4813/MANIFEST-SHA256.json",
+      "entries": 16,
+      "sha256": "649fe511aa3f34f275a8f89e41e0d0a88855e99ab9d8f7bf6a2d7ad0616b1d8c",
+      "allMatch": true
+    },
+    {
+      "manifest": "docs/field-test/team-meals/review-receipts/copy-810df70/MANIFEST-SHA256.json",
+      "entries": 13,
+      "sha256": "1262a5dd2ddc23dfb17c4d2614339b587ce152e78435949da24253d48c8f40af",
+      "allMatch": true
+    }
+  ],
+  "unchangedPaths": [
+    "packages/web/src/api",
+    "packages/web/src/view-models",
+    "packages/web/src/main.ts",
+    "packages/web/src/admin",
+    "packages/core",
+    "packages/worker",
+    "packages/shared",
+    "schemas",
+    "data",
+    "test/fixtures"
+  ],
+  "allUnchanged": true,
+  "cleanup": {
+    "ownedServerPort": 4273,
+    "serverStopped": true,
+    "ownedIabTab": "5",
+    "tabClosed": true,
+    "viewportOverrideAdded": false
+  }
+}

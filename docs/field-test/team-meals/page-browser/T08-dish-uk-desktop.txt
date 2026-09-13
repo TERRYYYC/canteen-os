@@ -1,0 +1,99 @@
+- banner:
+  - button "Відкрити меню розділів"
+  - heading "Закупівля" [level=1]
+  - generic: Мова
+  - combobox "Мова":
+    - option "UA" [selected]
+    - option "中"
+    - option "EN"
+- main:
+  - link "Назад":
+    - /url: "#/purchase"
+  - heading "Цей список покупок" [level=2]
+  - link "Планувати страви":
+    - /url: "#/admin/plan/team-week"
+  - status:
+    - text: Список збережено
+    - 'generic "Версія даних: 4529ceca"'
+  - 'generic "Версія інгредієнтів і меню: e1441c8d"'
+  - link "Цей список покупок":
+    - /url: "#/purchase/page-shop"
+  - article:
+    - paragraph: "Версія даних: e1441c8d36e94962cae1beab371ca9f0bc51c9ad"
+    - button "Окремо переглянути поточні дані"
+    - heading "Перша тестова страва" [level=2]
+    - paragraph: first-dish
+    - term: ZH
+    - definition: 第一道样本菜
+    - term: EN
+    - definition: First test dish
+    - term: UK
+    - definition: Перша тестова страва
+    - figure:
+      - paragraph: Зображення цієї версії недоступне
+    - paragraph: Не записано
+    - term: Порції вихідного рецепта
+    - definition: "2"
+    - term: Джерело рецепта
+    - definition: manual
+    - heading "Інгредієнти та приправи" [level=3]
+    - paragraph: Початкові кількості рецепта, без масштабування
+    - heading "Томат версії B" [level=4]:
+      - link "Томат версії B":
+        - /url: "#/purchase/page-shop%2Fingredient%2Ftomato"
+    - paragraph: 300 g
+    - paragraph: "Роль інгредієнта: Основний інгредієнт"
+    - paragraph: "Техніка: Шматки рулонним нарізанням · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі.
+    - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "Перша тестова страва"
+      - status
+      - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - term: Розмір підготовки
+    - definition: Не записано
+    - term: Час підготовки
+    - definition: Не записано
+    - term: Примітка
+    - definition: Не записано
+    - figure
+    - heading "Сіль" [level=4]:
+      - link "Сіль":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fsalt"
+    - paragraph: За смаком
+    - paragraph: "Роль інгредієнта: Приправа"
+    - heading "Олія" [level=4]:
+      - link "Олія":
+        - /url: "#/purchase/page-shop%2Fingredient%2Fcooking-oil"
+    - paragraph: 20 ml
+    - paragraph: "Роль інгредієнта: Приправа"
+    - heading "Повний спосіб приготування" [level=3]
+    - heading "1" [level=4]
+    - paragraph: Підготуйте томати за записаними вказівками.
+    - term: ZH
+    - definition: 按原始记录准备番茄。
+    - term: EN
+    - definition: Prepare tomatoes using the recorded instructions.
+    - term: UK
+    - definition: Підготуйте томати за записаними вказівками.
+    - paragraph: "Техніка: Шматки рулонним нарізанням · roll-cut-chunks"
+    - term: ZH
+    - definition: 滚刀块
+    - term: EN
+    - definition: Roll-cut chunks
+    - term: UK
+    - definition: Шматки рулонним нарізанням
+    - paragraph: Прокочуйте продукт між надрізами, нарізаючи неправильні шматки; підходить для томатів, редьки, картоплі.
+    - 'figure "Ліцензія: CC0 · Автор: CanteenOS fixture authors · data/ingredients/pattern.png: data/ingredients/pattern.png"':
+      - img "Перша тестова страва"
+      - status
+      - text: "Ліцензія: CC0 · Автор: CanteenOS fixture authors ·"
+      - generic: "data/ingredients/pattern.png: data/ingredients/pattern.png"
+    - figure
+    - paragraph: Показано лише записані дані; повноту рецепта має перевірити людина.

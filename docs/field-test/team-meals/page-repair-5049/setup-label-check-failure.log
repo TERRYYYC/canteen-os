@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: repair native custody binds approved production and exactly reproduces original lunch writes
+ok 1 - repair native custody binds approved production and exactly reproduces original lunch writes
+  ---
+  duration_ms: 887.234458
+  ...
+# Subtest: original lunch native success, readonly fallback and A-after-B copies agree in all three languages
+not ok 2 - original lunch native success, readonly fallback and A-after-B copies agree in all three languages
+  ---
+  duration_ms: 1.328542
+  location: '/Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/copy-native-evidence.test.mjs:43:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    zh:first-dish:1
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/copy-native-evidence.test.mjs:58:165)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: mobile copy evidence records business widths separately from overflowing test controls
+ok 3 - mobile copy evidence records business widths separately from overflowing test controls
+  ---
+  duration_ms: 0.580833
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 916.809333

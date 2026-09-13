@@ -1,0 +1,226 @@
+{
+  "sourceHead": "9084fcc64689ddb66ef925d97b0e2e4a40433233",
+  "approvedProduction": "6bb1ce916c9b4117b6e03db23a78a5d0b9724a10",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 7674,
+      "sha256": "2a68cfc24e6568aada7acf99563aab09ecce2eb5352d3e25df7ab90ab41efd97"
+    },
+    {
+      "file": "T01-add-remove-clear-before-import.txt",
+      "bytes": 3419,
+      "sha256": "fac16b44821ed08a0634a7bd12bb84853325d899b1e9cf45a490fed4e13034bc"
+    },
+    {
+      "file": "T01-earlier-active-date-preview.txt",
+      "bytes": 1565,
+      "sha256": "85c94103e0439e6f9d39cd5df4f52ef3d98cc0382e1ae274786431389fad4cf1"
+    },
+    {
+      "file": "T01-earlier-date-preview.txt",
+      "bytes": 1519,
+      "sha256": "4cd1683730ca8d3e880c1971fe20148828099dfc625e3539cfbcb91590d4d2df"
+    },
+    {
+      "file": "T01-explicit-blank-immediate.txt",
+      "bytes": 3332,
+      "sha256": "22a5c46b7d2be8f4120a8256a8f9bd397495519e57232cb4e0b1fb31a3fb7cc0"
+    },
+    {
+      "file": "T01-explicit-blank-keyboard.txt",
+      "bytes": 3327,
+      "sha256": "14c1c2e249d93538478a2547d0d399ab166d72e26073bb2bfedc9b25d5dfebf7"
+    },
+    {
+      "file": "T01-explicit-clear-applied.txt",
+      "bytes": 3313,
+      "sha256": "de212d120bba34a06d4fbe27865f93bfe9d95ec0713fc5a9e9c0c3d887c9ac68"
+    },
+    {
+      "file": "T01-explicit-clear-before.txt",
+      "bytes": 3423,
+      "sha256": "91136bb8f0113af2c0f2765688e83ca748499c765868970530b8887243fe8d10"
+    },
+    {
+      "file": "T01-explicit-clear-preview.txt",
+      "bytes": 1571,
+      "sha256": "ee6c855ae10384504e2c0a2d5341d52568dadb13ea726a1cb7d565a846267386"
+    },
+    {
+      "file": "T01-explicit-seven-keeps-other-edits.txt",
+      "bytes": 3323,
+      "sha256": "4e473e11522dbe5700f34c4a2b6c68731686bb70e5c5a01b6d6f950127706cae"
+    },
+    {
+      "file": "T01-explicit-seven-preview.txt",
+      "bytes": 1561,
+      "sha256": "c54c5dacd41b88aaa5fd72c7e129a52939a0c624ee80abc5811c23dedc68a15a"
+    },
+    {
+      "file": "T01-final-day-filter-before-save.txt",
+      "bytes": 1638,
+      "sha256": "fb2b320734af94eb617e92a48de12c3c75ff10bf530d62cc37f25305c8304d1d"
+    },
+    {
+      "file": "T01-final-day-filter-saved.txt",
+      "bytes": 1673,
+      "sha256": "8667ed54b2fd21a9235c400db6c8d5eedec16550ee03d3077157fb92d7b55514"
+    },
+    {
+      "file": "T01-final-source-reloaded.txt",
+      "bytes": 3662,
+      "sha256": "6d28e32139719fcf7df3e4b147a5cb96fa9cc7444aa5b69bedae5709b6744382"
+    },
+    {
+      "file": "T01-final-visible-rows.json",
+      "bytes": 485,
+      "sha256": "70a9a50bf2542123212894820e1f72b6901fdde069e5a824b8c35fcbe5fb10b2"
+    },
+    {
+      "file": "T01-import-unrelated-all-dates.txt",
+      "bytes": 2944,
+      "sha256": "6c72b45b01df83f70575e0f245ffb215359e305710d8ace0615f24db55a26616"
+    },
+    {
+      "file": "T01-import-unrelated-edit-before.txt",
+      "bytes": 1943,
+      "sha256": "e955355d50e03dd1473e3296a198650761e5fa26ccda11d86be763014e3bd37c"
+    },
+    {
+      "file": "T01-import-unrelated-edit-lost.txt",
+      "bytes": 1934,
+      "sha256": "911ea44df54fd09c35c95706644365dbe6c6014bf7bc76c7099649c166368b64"
+    },
+    {
+      "file": "T01-import-unrelated-input.txt",
+      "bytes": 1568,
+      "sha256": "7aa12ab564289e418ba451ab0805c5e3237636a8100ec1675bf158f664e1baea"
+    },
+    {
+      "file": "T01-import-unrelated-retained.png",
+      "bytes": 24409,
+      "sha256": "a1ee1ef14f1e3c183b6b7672c15ce57efd976bbbb4454c3fd5633e1b1a826c9b"
+    },
+    {
+      "file": "T01-initial-source.txt",
+      "bytes": 2282,
+      "sha256": "e5a1e4c3f9a46312eeb0e8485d4aeb6ec6f55c9c3cf828384c8bc30a9e0c242c"
+    },
+    {
+      "file": "T01-invalid-after-sort.txt",
+      "bytes": 3374,
+      "sha256": "e6b3532b3b0331b32ac53a7467b266b07a0a78ac985040107061f68e053a05a0"
+    },
+    {
+      "file": "T01-invalid-before-sort.txt",
+      "bytes": 3048,
+      "sha256": "f4c3e08eb5c0246392fd4ec9822a04e1bd56b3e4adfc398c277c8fdf7118de53"
+    },
+    {
+      "file": "T01-invalid-language-en.txt",
+      "bytes": 3375,
+      "sha256": "43e2f316ef4670208862abc0ead54b3d47cae7432cda3b8c6e28a6969ecd6438"
+    },
+    {
+      "file": "T01-invalid-language-uk.txt",
+      "bytes": 4932,
+      "sha256": "8fd2df1d709e44cbaadff601ac02cd0866c9952c2aacca6d53dde6a25b5b3686"
+    },
+    {
+      "file": "T01-matched-omitted-keeps-invalid.txt",
+      "bytes": 3374,
+      "sha256": "e6b3532b3b0331b32ac53a7467b266b07a0a78ac985040107061f68e053a05a0"
+    },
+    {
+      "file": "T01-matched-omitted-preview.txt",
+      "bytes": 1568,
+      "sha256": "4b0e5995b78535b7a7543d0a5180bc112f2f0d75cda1bd6fc380c90788cb066a"
+    },
+    {
+      "file": "T01-saved-eight.txt",
+      "bytes": 1968,
+      "sha256": "8d17d52ef3defc9961464df0065de4c44d0edd3fb4ee97dd92f8a7ea42ab2eb2"
+    },
+    {
+      "file": "T07-import-after-old-ack.png",
+      "bytes": 65969,
+      "sha256": "5c8c9bd6b31bed1fd2d39bf22d69aafc7a6edef913c3ad0fce17a2cb06ff2755"
+    },
+    {
+      "file": "T07-import-after-old-ack.txt",
+      "bytes": 3648,
+      "sha256": "afb955a9fe2d66cfa1200a98402c0a376ae6a407dbb239b9287f0db3c81cd417"
+    },
+    {
+      "file": "T07-import-before-old-ack.txt",
+      "bytes": 3668,
+      "sha256": "769e82610de4c5ae2f6fdac116b6d5df20eede32d7d6761d6fd6c538db7e5bd1"
+    },
+    {
+      "file": "T07-import-while-save-preview.txt",
+      "bytes": 1568,
+      "sha256": "3f69de4197ee939ac3349dcb50fcd7907f4f4d37bee47662894babb0f309e86c"
+    },
+    {
+      "file": "T07-save-held.txt",
+      "bytes": 3333,
+      "sha256": "3d5281c9ac01028bf2b9d93b2322f9fe604386c79cc40bfef66c5022c87d7dc1"
+    },
+    {
+      "file": "build-core-worker.log",
+      "bytes": 371,
+      "sha256": "87c2f80820a6dfafac73e94299443152891e4c2562b11b6dac3ec800abfa0517"
+    },
+    {
+      "file": "control-commands.json",
+      "bytes": 1594,
+      "sha256": "fee11805d03ea1b282f36027c0dec36944a52fcb43d3c53e07db2fa33ca4f80c"
+    },
+    {
+      "file": "final-viewport.json",
+      "bytes": 99,
+      "sha256": "5cd5ee87d0a25794c6d6bcb747649f3257fe56ed9568f3d5de7dd1f74e3874a9"
+    },
+    {
+      "file": "ledger-original-repro-checkpoint.json",
+      "bytes": 50526,
+      "sha256": "ac731659f78dfd218a06706afafb84ef9c04aa1e44b12e92e5e5bec022479057"
+    },
+    {
+      "file": "ledger.json",
+      "bytes": 84447,
+      "sha256": "23302295477a1760c40896ac57ef8a78596dad9e0cbd2931d63bea22e447ba4f"
+    },
+    {
+      "file": "native-evidence-checks.log",
+      "bytes": 1059,
+      "sha256": "0d6671c68205fc121a5a03a77a5886f9c0aa66c26369c165e9d94f44406106b0"
+    },
+    {
+      "file": "native-server.log",
+      "bytes": 12943,
+      "sha256": "9dee95141ce73aa68a02e928f956747c8259aa3d3e1b24504c4acf0f0a2d7471"
+    },
+    {
+      "file": "original-capture-assertion-green.log",
+      "bytes": 134,
+      "sha256": "02571b63e85c9a1e63c5c1fd1e2a6a5fb53b888553b5aeef7defd3e2cd1c2f72"
+    },
+    {
+      "file": "preservation.json",
+      "bytes": 1529,
+      "sha256": "96a72791f76a79d373842505848f54b5d282aba8ee5826f507afece8506ea341"
+    },
+    {
+      "file": "setup-draft-row-not-importable.txt",
+      "bytes": 1519,
+      "sha256": "4cd1683730ca8d3e880c1971fe20148828099dfc625e3539cfbcb91590d4d2df"
+    },
+    {
+      "file": "source-integrity.json",
+      "bytes": 9625,
+      "sha256": "6cb2c9075b3e71df35fd2293cf3e62942a02bc22a394e569b70f46011481cbd0"
+    }
+  ]
+}

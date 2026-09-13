@@ -1,0 +1,655 @@
+{
+  "reviewedHeadSha": "810df706519c92622d4706b03c69484ba2fb9911",
+  "layer": "real Worker replay and actual formatter comparison; not a new browser run",
+  "nativeFetch": "disabled",
+  "repair": {
+    "requests": [
+      {
+        "id": 1,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "ba194b82227463118ccd3a526ef85adec152378e943fd0544008a0e440038865",
+        "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 2,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "368518a831c2e89eeaddf9f7d5c97f17ece3a95a2949725b3cc2795a6cc76ffa",
+        "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 3,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "e073a93682324b1a462db304219d89971b85adfee6b713f35284b75b90795594",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 4,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "f4e934a202e8fd2226d0a660dc6fd4119fd4f0b7f8e4ff49f936e9e419940590",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 5,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "40c1359120c3a1dd6b35f274e3bbd6c27bd6bcaf343c65b6f2a578a6a11b0ab4",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 6,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "40c1359120c3a1dd6b35f274e3bbd6c27bd6bcaf343c65b6f2a578a6a11b0ab4",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 7,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "42c90754ccf9d47779a8dfabe0882d81db26eceb787fb6ebfd91257deb28c20b",
+        "head": "5a2118734d5fc2cff9628960da4369bea59d1153",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 8,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "1a9dbc9ad6b65069b2ec634306df73ea81d2af0fc63d454a82072507afcc135c",
+        "head": "7a65de840171464b540cb245e3a66cc7d848988c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 9,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "c54551a7d9eacaa78aacaf24c40e26083fa41a81ff93cc58cc0298c9a2055712",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      }
+    ],
+    "finalFiles": {
+      "data/dishes/first-dish.json": "2cdc2a4559f2276b17c5f3f5c3c504f2f7060c2a5b43d7dc03f3100e5ee91251",
+      "data/dishes/name-only.json": "9cdaadb43b9d7af6d59dd78b207934a75dbdd7613bf0331ba795df023a76e2bd",
+      "data/dishes/second-dish.json": "472830beddbbdf2dd1599589734da0ee12421a4de5eab911ddeeb9bc8d20344d",
+      "data/ingredients/cooking-oil.json": "1bc0e4a30601f07cf8fc393eabc3e1dc21a4ff03adae622754c9cdbfa246f8b4",
+      "data/ingredients/pattern.png": "fce481932ea5d07a91c7991c09fdadb4bf78f9b4cc8f927188384231f9d12679",
+      "data/ingredients/salt.json": "811411f5c4b86151b2df18759bf598f0bca097256255aa541df182db7a6e1c9a",
+      "data/ingredients/tomato-other.json": "3440300a0a980c3c52dedaf20c16ffa25eeb9b8679964658492c7f9ba77930ef",
+      "data/ingredients/tomato.json": "e822d4a8a4043f8ef45b66af8adb03cf1a0a396b73bea91dd081affca816b344",
+      "data/menu-plans/team-week.json": "df87b702f2f42386157712dbabed56b8d411747a46dccb65c2ae8d4ce1cb2613",
+      "data/purchase-orders/week-41-hongda.json": "a3e9cf2dfe300452be4e6414f9b0a250fb71fd064b6bc90acc4d16e96a941b36",
+      "data/shopping-lists/page-shop.json": "e5285cd46229d599199fe76a9114de88f569568dbe026361c2ec56a5eefbe5d2",
+      "data/techniques.json": "bbe322f7e66a3c1d6a250a1d948ffbbf36da95a1f6725019326d4c84054eec8e"
+    },
+    "finalHead": "c3d9f2299e7ca0a19899737063dcf727aa37ea27"
+  },
+  "week": {
+    "requests": [
+      {
+        "id": 1,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "ba194b82227463118ccd3a526ef85adec152378e943fd0544008a0e440038865",
+        "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 2,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "368518a831c2e89eeaddf9f7d5c97f17ece3a95a2949725b3cc2795a6cc76ffa",
+        "head": "ab3f584656e1c85cad51a0ac3f6193fa2ff5f21d",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 3,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "e073a93682324b1a462db304219d89971b85adfee6b713f35284b75b90795594",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 4,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "f4e934a202e8fd2226d0a660dc6fd4119fd4f0b7f8e4ff49f936e9e419940590",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 5,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "40c1359120c3a1dd6b35f274e3bbd6c27bd6bcaf343c65b6f2a578a6a11b0ab4",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 6,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "40c1359120c3a1dd6b35f274e3bbd6c27bd6bcaf343c65b6f2a578a6a11b0ab4",
+        "head": "9d2e93483b9d16ab6f2e66161b1bcb337c20cedc",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 7,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "42c90754ccf9d47779a8dfabe0882d81db26eceb787fb6ebfd91257deb28c20b",
+        "head": "5a2118734d5fc2cff9628960da4369bea59d1153",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 8,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "1a9dbc9ad6b65069b2ec634306df73ea81d2af0fc63d454a82072507afcc135c",
+        "head": "7a65de840171464b540cb245e3a66cc7d848988c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 9,
+        "method": "GET",
+        "path": "/asset",
+        "status": 200,
+        "responseSha256": "b1ff9c8ea3a780bad09b346c423d2d0e46815926879b18e841d928376a946640",
+        "head": "7a65de840171464b540cb245e3a66cc7d848988c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 10,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "f4e934a202e8fd2226d0a660dc6fd4119fd4f0b7f8e4ff49f936e9e419940590",
+        "head": "7a65de840171464b540cb245e3a66cc7d848988c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 11,
+        "method": "GET",
+        "path": "/asset",
+        "status": 200,
+        "responseSha256": "b1ff9c8ea3a780bad09b346c423d2d0e46815926879b18e841d928376a946640",
+        "head": "7a65de840171464b540cb245e3a66cc7d848988c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 12,
+        "method": "GET",
+        "path": "/source/ingredient/tomato",
+        "status": 200,
+        "responseSha256": "793dc19e6bd1484997c99aca959e45affaf07e6aabb57ef70fc0372071e99ca2",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 13,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1368da63069c78112ffbf65dc1f06b86a3306686ae41995fba45c21a1cfeb493",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 14,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "c54551a7d9eacaa78aacaf24c40e26083fa41a81ff93cc58cc0298c9a2055712",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 15,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1368da63069c78112ffbf65dc1f06b86a3306686ae41995fba45c21a1cfeb493",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 16,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "c54551a7d9eacaa78aacaf24c40e26083fa41a81ff93cc58cc0298c9a2055712",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 17,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "f4e934a202e8fd2226d0a660dc6fd4119fd4f0b7f8e4ff49f936e9e419940590",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 18,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "40c1359120c3a1dd6b35f274e3bbd6c27bd6bcaf343c65b6f2a578a6a11b0ab4",
+        "head": "c3d9f2299e7ca0a19899737063dcf727aa37ea27",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 19,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "7455ffd5fcce0ba5869536bf45e0cd8754b79bf4d759abbe84cb4d56abdd7d8b",
+        "head": "1a8ab2de75ae8fa8615ef12b1400786be22e5d93",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 20,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "680f5948ec4a0bc9eb2fa19c957585b68fbb8b3ccb00fb9a9b896e8fb913a96f",
+        "head": "1a8ab2de75ae8fa8615ef12b1400786be22e5d93",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 21,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "4852e39eb2db9d9c1448bebaeac1d57e6dd2bc6a0e93c76a6181fafe2abd5334",
+        "head": "1a8ab2de75ae8fa8615ef12b1400786be22e5d93",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 22,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "7acf037f8298205bad337c20dba5832e7c13f589897eabad85c0eb64f7098508",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 23,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "ba9d1375579fc2afeb6a1adaf03ab4728116d96e7f2469b785117b1fc0f8d83c",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 24,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 409,
+        "responseSha256": "7b0508643f61bb78efcdddb1f17eafded3f6f84d962788f6a8b1f22416e59316",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 25,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "b4012ee6fdff9f2dd8620eff00299fd211541b58f85e9b34c17c931008ffaa20",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 26,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "b4012ee6fdff9f2dd8620eff00299fd211541b58f85e9b34c17c931008ffaa20",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 27,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1368da63069c78112ffbf65dc1f06b86a3306686ae41995fba45c21a1cfeb493",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 28,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "c54551a7d9eacaa78aacaf24c40e26083fa41a81ff93cc58cc0298c9a2055712",
+        "head": "e1441c8d36e94962cae1beab371ca9f0bc51c9ad",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 29,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "849a9c94d5d55c31e0020947edf599fd558f5f8733a6b23c1454a4cd97203ef7",
+        "head": "f137b87cbabe40c2d1257f4f3e07a69a9ef2a0b9",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 30,
+        "method": "POST",
+        "path": "/shopping-list/page-shop",
+        "status": 200,
+        "responseSha256": "078a697d11cbfd5ea30de4ede90b2a129e61be4c15f06b63356d213c1da4beae",
+        "head": "4529ceca377cdce99981df6de637eef992b908a6",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 31,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "3e6be72b35fa8cf87bece720a239fb5211dbc02702e143d641e6bc8cb1685d05",
+        "head": "ab592e4294df1987dff8dedc05b174b052c1f154",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 32,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "4e721f933f61cdd2a6237bedeecd1e39fa2f6a23d6c63f27118cfa29d7f0ca4b",
+        "head": "ab592e4294df1987dff8dedc05b174b052c1f154",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 33,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "4e721f933f61cdd2a6237bedeecd1e39fa2f6a23d6c63f27118cfa29d7f0ca4b",
+        "head": "ab592e4294df1987dff8dedc05b174b052c1f154",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 34,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "0c798aa51aab0515fdd8787aadd571950fcb271a060a3f4479bf09369fb133d5",
+        "head": "ab592e4294df1987dff8dedc05b174b052c1f154",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 35,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "fbc210804c8b308354ce4028370d5a38986b5be311f314e5200ee9d429706771",
+        "head": "ee42ca0af8e8b4c4489b89b670fa77833e557ea5",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 36,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "0495bfef4c9db0105be074c275abe6122d1ac5a3f56d74f58c1f8a9a419aa631",
+        "head": "ee42ca0af8e8b4c4489b89b670fa77833e557ea5",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 37,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "0495bfef4c9db0105be074c275abe6122d1ac5a3f56d74f58c1f8a9a419aa631",
+        "head": "ee42ca0af8e8b4c4489b89b670fa77833e557ea5",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 38,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "5f19dbaf367ac433433a77a38e237102bbbfaee1c88ed8cb6d0a024813cb37b1",
+        "head": "ee42ca0af8e8b4c4489b89b670fa77833e557ea5",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 39,
+        "method": "POST",
+        "path": "/plan/team-week",
+        "status": 200,
+        "responseSha256": "9b6809c909a1d86ae19fde098bd02e696fb0839794d7025976a322d5618c633b",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 40,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1b642385bb4dda17d3f5600bdd912a666eb1b54b29fce3b7736825d426466959",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 41,
+        "method": "GET",
+        "path": "/asset",
+        "status": 200,
+        "responseSha256": "fce481932ea5d07a91c7991c09fdadb4bf78f9b4cc8f927188384231f9d12679",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 42,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "ba9d1375579fc2afeb6a1adaf03ab4728116d96e7f2469b785117b1fc0f8d83c",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 43,
+        "method": "GET",
+        "path": "/asset",
+        "status": 200,
+        "responseSha256": "fce481932ea5d07a91c7991c09fdadb4bf78f9b4cc8f927188384231f9d12679",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 44,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1b642385bb4dda17d3f5600bdd912a666eb1b54b29fce3b7736825d426466959",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 45,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "7d3d6e7ad8ff86b7657d9f25574945fd00d4e1df76287773b8896541eef20c10",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 46,
+        "method": "GET",
+        "path": "/source/plan/team-week",
+        "status": 200,
+        "responseSha256": "7d3d6e7ad8ff86b7657d9f25574945fd00d4e1df76287773b8896541eef20c10",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 47,
+        "method": "GET",
+        "path": "/source/plan/empty-check",
+        "status": 404,
+        "responseSha256": "89aa391f677ba75222f5de757c50e3d2a8284f991a15db59208d7b652ff014b4",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 48,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "1b642385bb4dda17d3f5600bdd912a666eb1b54b29fce3b7736825d426466959",
+        "head": "6f479b8acdd636a10796640833d0a0aafad267c1",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 49,
+        "method": "POST",
+        "path": "/plan/empty-check",
+        "status": 200,
+        "responseSha256": "9e71095ae374c055805f958eb800c83638ce7504f9df29979c7b5f3a6f175bb0",
+        "head": "1ea68909cae0498c834aaf825a049a6e5eee4c67",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 50,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "a435484e4f9cf8b14f7476fac939cfda8308259340823522f973116d6353884b",
+        "head": "1ea68909cae0498c834aaf825a049a6e5eee4c67",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 51,
+        "method": "GET",
+        "path": "/source/plan/empty-check",
+        "status": 200,
+        "responseSha256": "2c03526915fe26435a9676c5b6bad8c89a6e2ec708f0158980629e7875cc99ca",
+        "head": "1ea68909cae0498c834aaf825a049a6e5eee4c67",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 52,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "a435484e4f9cf8b14f7476fac939cfda8308259340823522f973116d6353884b",
+        "head": "1ea68909cae0498c834aaf825a049a6e5eee4c67",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 53,
+        "method": "POST",
+        "path": "/plan/empty-check",
+        "status": 200,
+        "responseSha256": "7c550e7b0934fc1bc356ec779538b7932add4c0520150de32df150f4f0f92ee1",
+        "head": "298d2ff6eaf42b8a6798fa9fee5cb21eebb81b7c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 54,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "90d7904cf38bf9ba61924c20a4aa60136fc64ffe875ad77dbb34f655f679907f",
+        "head": "298d2ff6eaf42b8a6798fa9fee5cb21eebb81b7c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 55,
+        "method": "GET",
+        "path": "/source/plan/empty-check",
+        "status": 200,
+        "responseSha256": "57c81fc5f4012b90d8c40bc8b7f71081bad142b0e88320962fdd2b2b5276791c",
+        "head": "298d2ff6eaf42b8a6798fa9fee5cb21eebb81b7c",
+        "statusHeadersAndBytes": "exact"
+      },
+      {
+        "id": 56,
+        "method": "GET",
+        "path": "/catalog",
+        "status": 200,
+        "responseSha256": "90d7904cf38bf9ba61924c20a4aa60136fc64ffe875ad77dbb34f655f679907f",
+        "head": "298d2ff6eaf42b8a6798fa9fee5cb21eebb81b7c",
+        "statusHeadersAndBytes": "exact"
+      }
+    ],
+    "changedFiles": [
+      "data/menu-plans/empty-check.json"
+    ],
+    "finalFiles": {
+      "data/dishes/first-dish.json": "2cdc2a4559f2276b17c5f3f5c3c504f2f7060c2a5b43d7dc03f3100e5ee91251",
+      "data/dishes/name-only.json": "9cdaadb43b9d7af6d59dd78b207934a75dbdd7613bf0331ba795df023a76e2bd",
+      "data/dishes/second-dish.json": "472830beddbbdf2dd1599589734da0ee12421a4de5eab911ddeeb9bc8d20344d",
+      "data/ingredients/cooking-oil.json": "1bc0e4a30601f07cf8fc393eabc3e1dc21a4ff03adae622754c9cdbfa246f8b4",
+      "data/ingredients/pattern.png": "fce481932ea5d07a91c7991c09fdadb4bf78f9b4cc8f927188384231f9d12679",
+      "data/ingredients/salt.json": "811411f5c4b86151b2df18759bf598f0bca097256255aa541df182db7a6e1c9a",
+      "data/ingredients/tomato-other.json": "3440300a0a980c3c52dedaf20c16ffa25eeb9b8679964658492c7f9ba77930ef",
+      "data/ingredients/tomato.json": "e822d4a8a4043f8ef45b66af8adb03cf1a0a396b73bea91dd081affca816b344",
+      "data/menu-plans/empty-check.json": "9d98683ba56ae3152d8ad6603b88bd771c93adc976ee1732945da2bbc1650f5f",
+      "data/menu-plans/team-week.json": "29534502267f8f593d552ee0ab4dcd15c9d1be52248bcec623578616532882d1",
+      "data/purchase-orders/week-41-hongda.json": "a3e9cf2dfe300452be4e6414f9b0a250fb71fd064b6bc90acc4d16e96a941b36",
+      "data/shopping-lists/page-shop.json": "206f84a6af4a7a83707c634ed61926f0f8925caa6ee77e7be9928329e4f74be4",
+      "data/techniques.json": "bbe322f7e66a3c1d6a250a1d948ffbbf36da95a1f6725019326d4c84054eec8e"
+    },
+    "finalHead": "298d2ff6eaf42b8a6798fa9fee5cb21eebb81b7c",
+    "originalPrefixRequests": 52,
+    "additionalRequests": 4,
+    "originalLedgerSha256": "35ce8d57a1ff6e24708d510fb22148fc5b9a0d6d911331042b4b39ed656efc5b"
+  },
+  "formattedLanguages": [
+    {
+      "lang": "zh",
+      "utf8Bytes": 4519,
+      "sha256": "a3f9a86744eea0c8f69ce07611e6e90a296016e14d4314bb767cd5a01f5c5b7a",
+      "nativeFallbackAndAAfterB": "exact actual-formatter match"
+    },
+    {
+      "lang": "en",
+      "utf8Bytes": 4889,
+      "sha256": "e7ac690ab7d2829c30f49dcefb442a2d48552cec49db057cd6d89e9c7f9c5c71",
+      "nativeFallbackAndAAfterB": "exact actual-formatter match"
+    },
+    {
+      "lang": "uk",
+      "utf8Bytes": 8252,
+      "sha256": "29bea45212aeac971f4a418505f5419aa4fb12506ebc0cdaff938f23f4addadd",
+      "nativeFallbackAndAAfterB": "exact actual-formatter match"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{"layer":"assertion over native DOM captures","before":"11","after":"8","expected":"11","input":"2026-09-15 午 第一道样本菜"}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Importing a different date must retain the prior unsaved eleven-serving edit
+
+'8' !== '11'
+
+    at file:///Users/terry/Desktop/coding/chief-master/chief-master/canteen-os-team-acceptance/packages/web/test/e2e/team-meals/import-draft-capture.repro.mjs:14:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '8',
+  expected: '11',
+  operator: 'strictEqual'
+}
+
+Node.js v20.20.2

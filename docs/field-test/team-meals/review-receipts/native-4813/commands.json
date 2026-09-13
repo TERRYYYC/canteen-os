@@ -1,0 +1,62 @@
+{
+  "cwd": "/private/tmp/rcq-review-native-4813-qr6b7sou",
+  "shell": "zsh",
+  "nodeVersion": "v20.20.2",
+  "captureProvenance": "Serialized after the completed review from actual exec_command/write_stdin tool-return text. Targeted test output joins the initial and completion chunks. The tools returned one combined output field, so stdout/stderr separation is unavailable. No commands were rerun while archiving these transcripts.",
+  "commands": [
+    {
+      "id": "build",
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH npm --prefix packages/worker run build",
+      "exitCode": 0,
+      "log": "logs/01-worker-build.stdout.log",
+      "toolChunks": [
+        "c8035d"
+      ]
+    },
+    {
+      "id": "targeted-tests",
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node --test packages/web/test/e2e/team-meals/reference-boundary.test.mjs packages/web/test/e2e/team-meals/page-ledger.test.mjs packages/web/test/e2e/team-meals/api-contract.test.mjs",
+      "exitCode": 0,
+      "log": "logs/02-targeted-tests.stdout.log",
+      "toolChunks": [
+        "15fc6b",
+        "91968d"
+      ],
+      "sessionId": 79169,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0
+    },
+    {
+      "id": "copy-repro",
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node packages/web/test/e2e/team-meals/copy-missing-info.repro.mjs",
+      "exitCode": 1,
+      "expectedFailure": true,
+      "log": "logs/03-copy-repro.stdout-stderr.log",
+      "toolChunks": [
+        "23ac8d"
+      ]
+    },
+    {
+      "id": "import-capture-repro",
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node packages/web/test/e2e/team-meals/import-draft-capture.repro.mjs",
+      "exitCode": 1,
+      "expectedFailure": true,
+      "log": "logs/04-import-capture-repro.stdout-stderr.log",
+      "toolChunks": [
+        "ae5f3a"
+      ]
+    },
+    {
+      "id": "worker-replay",
+      "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node /private/tmp/rcq-native-response-review-4813.mjs",
+      "exitCode": 0,
+      "log": "logs/05-worker-replay.stdout.log",
+      "toolChunks": [
+        "697711"
+      ],
+      "responses": 52,
+      "finalFiles": 13
+    }
+  ]
+}

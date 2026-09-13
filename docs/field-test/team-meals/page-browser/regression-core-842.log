@@ -1,0 +1,525 @@
+TAP version 13
+# Subtest: 黄金测试：expand 无 issue 无 pending，5 行齐备，meals trace 完整
+ok 1 - 黄金测试：expand 无 issue 无 pending，5 行齐备，meals trace 完整
+  ---
+  duration_ms: 0.779709
+  ...
+# Subtest: 黄金：番茄 19×5kg ¥541.50（÷0.85 ×1.1 = 93176.4706 g → 18.6353 → ceil 19）
+ok 2 - 黄金：番茄 19×5kg ¥541.50（÷0.85 ×1.1 = 93176.4706 g → 18.6353 → ceil 19）
+  ---
+  duration_ms: 0.191666
+  ...
+# Subtest: 黄金：鸡蛋 pcs 也乘 margin（720 ×1.1 = 792 pcs → 4.4 → ceil 5 箱 = 900 枚 ¥750.00）
+ok 3 - 黄金：鸡蛋 pcs 也乘 margin（720 ×1.1 = 792 pcs → 4.4 → ceil 5 箱 = 900 枚 ¥750.00）
+  ---
+  duration_ms: 0.057916
+  ...
+# Subtest: 黄金：食盐 minPacks 20 触发 + trackStock 扣 500 g（292 g → 0.584 → ceil 1 → 20 袋 ¥50.00）
+ok 4 - 黄金：食盐 minPacks 20 触发 + trackStock 扣 500 g（292 g → 0.584 → ceil 1 → 20 袋 ¥50.00）
+  ---
+  duration_ms: 0.0585
+  ...
+# Subtest: 黄金：食用油 minPacks 2 触发（4800 ml ×1.1 −1000 = 4280 ml → 0.856 → 2 桶 ¥136.00）
+ok 5 - 黄金：食用油 minPacks 2 触发（4800 ml ×1.1 −1000 = 4280 ml → 0.856 → 2 桶 ¥136.00）
+  ---
+  duration_ms: 0.061375
+  ...
+# Subtest: 黄金：小葱 ÷0.80 ×1.1（2400 g → 3300 g → 3.3 → ceil 4 件 ×1kg ¥48.00）
+ok 6 - 黄金：小葱 ÷0.80 ×1.1（2400 g → 3300 g → 3.3 → ceil 4 件 ×1kg ¥48.00）
+  ---
+  duration_ms: 0.129875
+  ...
+# Subtest: 黄金：renderPurchaseOrders 按供应商分单 + 合计金额
+ok 7 - 黄金：renderPurchaseOrders 按供应商分单 + 合计金额
+  ---
+  duration_ms: 0.203875
+  ...
+# Subtest: 边界：缺 purchase 的食材进「待补全」区（no-purchase-spec），不阻断其余行
+ok 8 - 边界：缺 purchase 的食材进「待补全」区（no-purchase-spec），不阻断其余行
+  ---
+  duration_ms: 0.295208
+  ...
+# Subtest: 边界：purchase.supplier 为空串 → 归「未指定供应商」组并排最后
+ok 9 - 边界：purchase.supplier 为空串 → 归「未指定供应商」组并排最后
+  ---
+  duration_ms: 0.151
+  ...
+# Subtest: 边界：需求单位与 baseUnit 不相容（l→g）→ unit-conversion-missing，整食材进待补全
+ok 10 - 边界：需求单位与 baseUnit 不相容（l→g）→ unit-conversion-missing，整食材进待补全
+  ---
+  duration_ms: 0.11425
+  ...
+# Subtest: 边界：packUnit 与 baseUnit 不相容（g 食材按 pcs 包装且无 pcsToGram）→ 待补全
+ok 11 - 边界：packUnit 与 baseUnit 不相容（g 食材按 pcs 包装且无 pcsToGram）→ 待补全
+  ---
+  duration_ms: 0.061416
+  ...
+# Subtest: 边界：pcs↔g 只靠 pcsToGram（番茄 2 pcs → 360 g 净需求）
+ok 12 - 边界：pcs↔g 只靠 pcsToGram（番茄 2 pcs → 360 g 净需求）
+  ---
+  duration_ms: 0.05775
+  ...
+# Subtest: 边界：convertQuantity 同量纲/跨量纲/无路径
+ok 13 - 边界：convertQuantity 同量纲/跨量纲/无路径
+  ---
+  duration_ms: 0.076875
+  ...
+# Subtest: 边界：missing-dish / dish-not-active / dish-incomplete 三类 issue
+ok 14 - 边界：missing-dish / dish-not-active / dish-incomplete 三类 issue
+  ---
+  duration_ms: 0.086583
+  ...
+# Subtest: readiness：番茄炒蛋 能教✗（egg/salt/cooking-oil 无 prep）能排✓ 能采✓
+ok 15 - readiness：番茄炒蛋 能教✗（egg/salt/cooking-oil 无 prep）能排✓ 能采✓
+  ---
+  duration_ms: 0.101334
+  ...
+# Subtest: readiness：只有名字的草稿菜 三关卡全不过；完整菜全过
+ok 16 - readiness：只有名字的草稿菜 三关卡全不过；完整菜全过
+  ---
+  duration_ms: 0.112667
+  ...
+# Subtest: renderMenu：zh/uk 取值与 fallback 链 zh→en→uk
+ok 17 - renderMenu：zh/uk 取值与 fallback 链 zh→en→uk
+  ---
+  duration_ms: 0.443625
+  ...
+# Subtest: renderPrepList：uk 输出按日期/餐次分组，含缩放净量与词表切法名
+ok 18 - renderPrepList：uk 输出按日期/餐次分组，含缩放净量与词表切法名
+  ---
+  duration_ms: 0.416958
+  ...
+# Subtest: 渲染噪音：uk 输出不含中文标点；seasoning 缺 prep 不提示，main 缺 prep 仍提示
+ok 19 - 渲染噪音：uk 输出不含中文标点；seasoning 缺 prep 不提示，main 缺 prep 仍提示
+  ---
+  duration_ms: 0.306833
+  ...
+# Subtest: G2：to-taste（适量）配料不进采购行/不进 pending，备料单保留显示
+ok 20 - G2：to-taste（适量）配料不进采购行/不进 pending，备料单保留显示
+  ---
+  duration_ms: 0.940125
+  ...
+# Subtest: 微信文本：scenario-f 排版（单头/分隔线/预估总价/缺价提示）
+ok 21 - 微信文本：scenario-f 排版（单头/分隔线/预估总价/缺价提示）
+  ---
+  duration_ms: 0.175708
+  ...
+# Subtest: 确定性：同输入必同输出（expand 两次 deepEqual）
+ok 22 - 确定性：同输入必同输出（expand 两次 deepEqual）
+  ---
+  duration_ms: 0.363208
+  ...
+# Subtest: 常量契约：DEFAULT_MARGIN = 1.1；UNSPECIFIED_SUPPLIER = 未指定供应商
+ok 23 - 常量契约：DEFAULT_MARGIN = 1.1；UNSPECIFIED_SUPPLIER = 未指定供应商
+  ---
+  duration_ms: 0.028
+  ...
+# Subtest: 星期：周一 / 星期二 / 礼拜三 / 週四 / 周5 / Mon / Friday / пн 都落到 weekStart 起的具体日期
+ok 24 - 星期：周一 / 星期二 / 礼拜三 / 週四 / 周5 / Mon / Friday / пн 都落到 weekStart 起的具体日期
+  ---
+  duration_ms: 5.065667
+  ...
+# Subtest: 日期：10.05 / 10/05 / 10月5日 / 2026-10-05 / 2026年10月5日 都认；月.日用 weekStart 的年
+ok 25 - 日期：10.05 / 10/05 / 10月5日 / 2026-10-05 / 2026年10月5日 都认；月.日用 weekStart 的年
+  ---
+  duration_ms: 1.031709
+  ...
+# Subtest: 月.日跨年：weekStart 在 12 月底时「1.4」落到下一年
+ok 26 - 月.日跨年：weekStart 在 12 月底时「1.4」落到下一年
+  ---
+  duration_ms: 0.195959
+  ...
+# Subtest: 餐次：早 / 早餐 / breakfast / сніданок → breakfast；午 / 中 / 午餐 / 中餐 / lunch / обід → lunch；晚 / 晚餐 / dinner / supper / вечеря → dinner
+ok 27 - 餐次：早 / 早餐 / breakfast / сніданок → breakfast；午 / 中 / 午餐 / 中餐 / lunch / обід → lunch；晚 / 晚餐 / dinner / supper / вечеря → dinner
+  ---
+  duration_ms: 0.572709
+  ...
+# Subtest: 餐次在菜名后面也认：「周一 番茄炒蛋 200 晚」
+ok 28 - 餐次在菜名后面也认：「周一 番茄炒蛋 200 晚」
+  ---
+  duration_ms: 0.459583
+  ...
+# Subtest: 份数：「五十份」「50份」「50」三种写法都是 50；「200人」「x200」「×200」「200 份」也认
+ok 29 - 份数：「五十份」「50份」「50」三种写法都是 50；「200人」「x200」「×200」「200 份」也认
+  ---
+  duration_ms: 0.761083
+  ...
+# Subtest: 中文数字：五十 / 两百 / 一百五（=150）/ 一百五十 / 二百零五 / 二零零 / 十五 / 三千 / 一千两百
+ok 30 - 中文数字：五十 / 两百 / 一百五（=150）/ 一百五十 / 二百零五 / 二零零 / 十五 / 三千 / 一千两百
+  ---
+  duration_ms: 0.299625
+  ...
+# Subtest: 菜名里的中文数字不当份数：「三杯鸡」整个是菜名
+ok 31 - 菜名里的中文数字不当份数：「三杯鸡」整个是菜名
+  ---
+  duration_ms: 0.09875
+  ...
+# Subtest: 没写份数：status 仍按菜名判定，plannedServings 缺省；「0份」同样缺省
+ok 32 - 没写份数：status 仍按菜名判定，plannedServings 缺省；「0份」同样缺省
+  ---
+  duration_ms: 0.180125
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 2.5份
+ok 33 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 2.5份
+  ---
+  duration_ms: 0.228958
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 x2.5
+ok 34 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 x2.5
+  ---
+  duration_ms: 0.08175
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 2.5
+ok 35 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 2.5
+  ---
+  duration_ms: 0.053375
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 25.5份
+ok 36 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 25.5份
+  ---
+  duration_ms: 0.043875
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 .5份
+ok 37 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 .5份
+  ---
+  duration_ms: 0.083125
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 x.5
+ok 38 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 x.5
+  ---
+  duration_ms: 0.043167
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 .5
+ok 39 - 小数份数明确拒绝，保留原文与日期餐次：周一午 番茄炒蛋 .5
+  ---
+  duration_ms: 0.070417
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：2026-10-05 午 番茄炒蛋 2.5份
+ok 40 - 小数份数明确拒绝，保留原文与日期餐次：2026-10-05 午 番茄炒蛋 2.5份
+  ---
+  duration_ms: 0.076708
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：10.05 午 番茄炒蛋 2.5
+ok 41 - 小数份数明确拒绝，保留原文与日期餐次：10.05 午 番茄炒蛋 2.5
+  ---
+  duration_ms: 0.149417
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午\\n番茄炒蛋 2.5份
+ok 42 - 小数份数明确拒绝，保留原文与日期餐次：周一午\\n番茄炒蛋 2.5份
+  ---
+  duration_ms: 0.073916
+  ...
+# Subtest: 小数份数明确拒绝，保留原文与日期餐次：周一午\\n番茄炒蛋 2.5
+ok 43 - 小数份数明确拒绝，保留原文与日期餐次：周一午\\n番茄炒蛋 2.5
+  ---
+  duration_ms: 0.085667
+  ...
+# Subtest: 共享的小数份数随实际补值路径报错，原文保留共享数字
+ok 44 - 共享的小数份数随实际补值路径报错，原文保留共享数字
+  ---
+  duration_ms: 0.382709
+  ...
+# Subtest: 错误份数不会被合法相邻值覆盖，也不污染已明确份数或下一行
+ok 45 - 错误份数不会被合法相邻值覆盖，也不污染已明确份数或下一行
+  ---
+  duration_ms: 0.758583
+  ...
+# Subtest: 同段剩余小数不能被已有整数或菜名模糊匹配掩盖
+ok 46 - 同段剩余小数不能被已有整数或菜名模糊匹配掩盖
+  ---
+  duration_ms: 0.207917
+  ...
+# Subtest: 不能经 Number 精度损失接受小数或大整数；阿拉伯和中文一致
+ok 47 - 不能经 Number 精度损失接受小数或大整数；阿拉伯和中文一致
+  ---
+  duration_ms: 0.185417
+  ...
+# Subtest: 精确的2.0仍是整数2；0和未填维持旧补值语义，日期标题仍可切换
+ok 48 - 精确的2.0仍是整数2；0和未填维持旧补值语义，日期标题仍可切换
+  ---
+  duration_ms: 0.4815
+  ...
+# Subtest: 模糊匹配：编辑距离 ≤ 2 命中（番茄炒鸡蛋 → tomato-egg-stir-fry，distance 1）；三语名都算
+ok 49 - 模糊匹配：编辑距离 ≤ 2 命中（番茄炒鸡蛋 → tomato-egg-stir-fry，distance 1）；三语名都算
+  ---
+  duration_ms: 0.124042
+  ...
+# Subtest: 认不出的菜名 → unknown-dish，带 dishNameRaw 供「新建」预填；距离 > 2 不算候选
+ok 50 - 认不出的菜名 → unknown-dish，带 dishNameRaw 供「新建」预填；距离 > 2 不算候选
+  ---
+  duration_ms: 0.058375
+  ...
+# Subtest: 候选按距离升序 ≤ 3 个，精确命中排第一；两个字的菜最多错一个字（米饭 → rice，炒饭是候选）
+ok 51 - 候选按距离升序 ≤ 3 个，精确命中排第一；两个字的菜最多错一个字（米饭 → rice，炒饭是候选）
+  ---
+  duration_ms: 0.169875
+  ...
+# Subtest: maxDistance 可调：设 0 时「番茄炒鸡蛋」就认不出了
+ok 52 - maxDistance 可调：设 0 时「番茄炒鸡蛋」就认不出了
+  ---
+  duration_ms: 0.0475
+  ...
+# Subtest: 草稿菜 → draft-dish（带 dishRef，供「去补全」）；archived 的菜当作不存在
+ok 53 - 草稿菜 → draft-dish（带 dishRef，供「去补全」）；archived 的菜当作不存在
+  ---
+  duration_ms: 0.058
+  ...
+# Subtest: editDistance：按码点、带上限提前返回
+ok 54 - editDistance：按码点、带上限提前返回
+  ---
+  duration_ms: 0.049791
+  ...
+# Subtest: 日期落在下周 → next-week（「下周一」与「10.14」两种写法），仍带 dishRef 可导入
+ok 55 - 日期落在下周 → next-week（「下周一」与「10.14」两种写法），仍带 dishRef 可导入
+  ---
+  duration_ms: 0.1155
+  ...
+# Subtest: 「下周」标题：之后的「周一」整体挪到下周；「本周」归零；「下周一」不重复挪
+ok 56 - 「下周」标题：之后的「周一」整体挪到下周；「本周」归零；「下周一」不重复挪
+  ---
+  duration_ms: 0.29775
+  ...
+# Subtest: 日期既不在本周也不在下周 → unparsed，reason 说明本周从哪天起；下下周同理
+ok 57 - 日期既不在本周也不在下周 → unparsed，reason 说明本周从哪天起；下下周同理
+  ---
+  duration_ms: 0.070833
+  ...
+# Subtest: 整行认不出 → unparsed + 人话 reason；缺日期 / 缺餐次 / 缺菜名各有各的原因
+ok 58 - 整行认不出 → unparsed + 人话 reason；缺日期 / 缺餐次 / 缺菜名各有各的原因
+  ---
+  duration_ms: 0.086791
+  ...
+# Subtest: 输入形状不对也不抛：text 不是字符串 → 空结果；weekStart 不合法 → 每行 unparsed 并说明
+ok 59 - 输入形状不对也不抛：text 不是字符串 → 空结果；weekStart 不合法 → 每行 unparsed 并说明
+  ---
+  duration_ms: 0.077375
+  ...
+# Subtest: 空行跳过，lineNo 按原文行号（1-based）；CRLF 也行
+ok 60 - 空行跳过，lineNo 按原文行号（1-based）；CRLF 也行
+  ---
+  duration_ms: 0.0675
+  ...
+# Subtest: 标题行沿用：「周一」一行只给日期，下面几行「午 A」「晚 B」沿用它；缺餐次的行沿用上一行的餐次
+ok 61 - 标题行沿用：「周一」一行只给日期，下面几行「午 A」「晚 B」沿用它；缺餐次的行沿用上一行的餐次
+  ---
+  duration_ms: 0.108208
+  ...
+# Subtest: 一行多道菜：「周一午：番茄炒蛋、土豆烧牛肉 各200」→ 两条，同一 lineNo，份数各 200；「A、B，200」同理
+ok 62 - 一行多道菜：「周一午：番茄炒蛋、土豆烧牛肉 各200」→ 两条，同一 lineNo，份数各 200；「A、B，200」同理
+  ---
+  duration_ms: 0.146542
+  ...
+# Subtest: 一行里「份数 空格 菜名」也拆：「周三 午 番茄炒蛋 200 土豆烧牛肉 180」→ 两条
+ok 63 - 一行里「份数 空格 菜名」也拆：「周三 午 番茄炒蛋 200 土豆烧牛肉 180」→ 两条
+  ---
+  duration_ms: 0.0975
+  ...
+# Subtest: 混排：中英乌日期 / 餐次 / 菜名混着写
+ok 64 - 混排：中英乌日期 / 餐次 / 菜名混着写
+  ---
+  duration_ms: 0.356417
+  ...
+# Subtest: 多余空格与全角标点 / 全角数字：「周一　午：　番茄炒蛋，２００份」= 周一午 番茄炒蛋 200
+ok 65 - 多余空格与全角标点 / 全角数字：「周一　午：　番茄炒蛋，２００份」= 周一午 番茄炒蛋 200
+  ---
+  duration_ms: 0.099667
+  ...
+# Subtest: 时间段不当份数：「周一午 番茄炒蛋 12:00-14:00 200」份数是 200
+ok 66 - 时间段不当份数：「周一午 番茄炒蛋 12:00-14:00 200」份数是 200
+  ---
+  duration_ms: 0.043666
+  ...
+# Subtest: 典型微信整段：结果按行序，一条 unknown-dish、一条 draft-dish、其余 ok
+ok 67 - 典型微信整段：结果按行序，一条 unknown-dish、一条 draft-dish、其余 ok
+  ---
+  duration_ms: 0.277209
+  ...
+# Subtest: ISO 周：2026-10-05 是第 41 周周一；第 43 周周一 = 2026-10-19（worker 契约 §0）
+ok 68 - ISO 周：2026-10-05 是第 41 周周一；第 43 周周一 = 2026-10-19（worker 契约 §0）
+  ---
+  duration_ms: 0.136875
+  ...
+# Subtest: planId → 周一：week-41 从 2026-09-09 看是 2026-10-05；年末看 week-1 落到下一年；形状不对 → null
+ok 69 - planId → 周一：week-41 从 2026-09-09 看是 2026-10-05；年末看 week-1 落到下一年；形状不对 → null
+  ---
+  duration_ms: 0.147167
+  ...
+# Subtest: formal validator import is silent and exposes reusable API without exiting
+ok 70 - formal validator import is silent and exposes reusable API without exiting
+  ---
+  duration_ms: 46.343792
+  ...
+# Subtest: formal validation uses explicit root/dataDir/schemaDir and reports malformed files
+ok 71 - formal validation uses explicit root/dataDir/schemaDir and reports malformed files
+  ---
+  duration_ms: 64.590167
+  ...
+# Subtest: explicit v3 accepts omitted servings and empty plans while v2 stays strict
+ok 72 - explicit v3 accepts omitted servings and empty plans while v2 stays strict
+  ---
+  duration_ms: 10.203167
+  ...
+# Subtest: only explicit Dish v3 preserves recorded references without invented qty
+ok 73 - only explicit Dish v3 preserves recorded references without invented qty
+  ---
+  duration_ms: 17.169833
+  ...
+# Subtest: ShoppingList v1 is strict, has independent decisions and constrained previous/bought fields
+ok 74 - ShoppingList v1 is strict, has independent decisions and constrained previous/bought fields
+  ---
+  duration_ms: 8.933709
+  ...
+# Subtest: Python subset enforces exclusive version branches rather than ignoring oneOf
+ok 75 - Python subset enforces exclusive version branches rather than ignoring oneOf
+  ---
+  duration_ms: 30.972625
+  ...
+# Subtest: explicit upgrades preserve quantities, omission and order without mutating inputs
+ok 76 - explicit upgrades preserve quantities, omission and order without mutating inputs
+  ---
+  duration_ms: 7.010459
+  ...
+# Subtest: buildMenuSheet：番茄炒蛋 approxGrams = 249（手算），成分句去调料按配料序，allergens []，serviceWindow 透传
+ok 77 - buildMenuSheet：番茄炒蛋 approxGrams = 249（手算），成分句去调料按配料序，allergens []，serviceWindow 透传
+  ---
+  duration_ms: 5.211625
+  ...
+# Subtest: buildMenuSheet：克重规则 g/kg/ml/l/pcs×pcsToGram、to-taste 跳过；无 pcsToGram 或 tbsp → approxGramsIncomplete；缺 baseServings → null
+ok 78 - buildMenuSheet：克重规则 g/kg/ml/l/pcs×pcsToGram、to-taste 跳过；无 pcsToGram 或 tbsp → approxGramsIncomplete；缺 baseServings → null
+  ---
+  duration_ms: 0.204333
+  ...
+# Subtest: buildMenuSheet：同日期同餐次多道菜合并为一个 meal；菜品缺失/未激活带 issue 不静默
+ok 79 - buildMenuSheet：同日期同餐次多道菜合并为一个 meal；菜品缺失/未激活带 issue 不静默
+  ---
+  duration_ms: 0.138625
+  ...
+# Subtest: buildPrepSheet：week-41 结构（3 天各 1 餐）、qty 按份数缩放、steps 编号与技法名、isSeasoning/group
+ok 80 - buildPrepSheet：week-41 结构（3 天各 1 餐）、qty 按份数缩放、steps 编号与技法名、isSeasoning/group
+  ---
+  duration_ms: 0.32025
+  ...
+# Subtest: buildPrepSheet：prep.timing 缺省 morning；day-before/before-service 透传；调料有 timing 仍归 at-hand；to-taste 视为调料
+ok 81 - buildPrepSheet：prep.timing 缺省 morning；day-before/before-service 透传；调料有 timing 仍归 at-hand；to-taste 视为调料
+  ---
+  duration_ms: 0.113041
+  ...
+# Subtest: buildPrepSheet：missing-dish / dish-not-active / dish-incomplete 逐餐次带 issue；missing-ingredient / missing-technique 按菜去重
+ok 82 - buildPrepSheet：missing-dish / dish-not-active / dish-incomplete 逐餐次带 issue；missing-ingredient / missing-technique 按菜去重
+  ---
+  duration_ms: 0.373125
+  ...
+# Subtest: renderPrepList：餐次内按 timing 分组（前一天 → 早上 → 开餐前 → 备在手边），调料归备在手边且无切配提示，三语组标题
+ok 83 - renderPrepList：餐次内按 timing 分组（前一天 → 早上 → 开餐前 → 备在手边），调料归备在手边且无切配提示，三语组标题
+  ---
+  duration_ms: 0.609041
+  ...
+# Subtest: 标点锁：en/uk 的 renderPrepList / renderMenu 输出不含全角标点 ，（）：（标题行外亦无【】）
+ok 84 - 标点锁：en/uk 的 renderPrepList / renderMenu 输出不含全角标点 ，（）：（标题行外亦无【】）
+  ---
+  duration_ms: 0.95
+  ...
+# Subtest: renderMenu：传 ingredients 追加成分句（去调料）+ 每份 ≈ 克重；不传时输出逐字不变
+ok 85 - renderMenu：传 ingredients 追加成分句（去调料）+ 每份 ≈ 克重；不传时输出逐字不变
+  ---
+  duration_ms: 0.400625
+  ...
+# Subtest: readiness：canTeach/canPlan/canProcure 与 teach/plan/buy 同值；missingKeys 机器键与 missing 同序
+ok 86 - readiness：canTeach/canPlan/canProcure 与 teach/plan/buy 同值；missingKeys 机器键与 missing 同序
+  ---
+  duration_ms: 0.205875
+  ...
+# Subtest: 确定性与 JSON 往返：两次 build deepEqual；序列化后无 undefined 键泄漏
+ok 87 - 确定性与 JSON 往返：两次 build deepEqual；序列化后无 undefined 键泄漏
+  ---
+  duration_ms: 0.463959
+  ...
+# Subtest: collect all recorded references without serving, qty, status or packaging filters
+ok 88 - collect all recorded references without serving, qty, status or packaging filters
+  ---
+  duration_ms: 6.577791
+  ...
+# Subtest: missing source or unrecorded recipe never becomes complete because other candidates exist
+ok 89 - missing source or unrecorded recipe never becomes complete because other candidates exist
+  ---
+  duration_ms: 0.532833
+  ...
+# Subtest: create, decision and reconcile keep decisions scoped, preserve old bought, and remove cancelled demand
+ok 90 - create, decision and reconcile keep decisions scoped, preserve old bought, and remove cancelled demand
+  ---
+  duration_ms: 1.026417
+  ...
+# Subtest: scope changes and repeated demand require review; presentation and equivalent metric units do not
+ok 91 - scope changes and repeated demand require review; presentation and equivalent metric units do not
+  ---
+  duration_ms: 1.138416
+  ...
+# Subtest: estimate guards every source then delegates complete golden quantities to original core
+ok 92 - estimate guards every source then delegates complete golden quantities to original core
+  ---
+  duration_ms: 1.529416
+  ...
+# Subtest: unknown qty, to-taste, missing packaging and unresolved recipes cannot yield false totals
+ok 93 - unknown qty, to-taste, missing packaging and unresolved recipes cannot yield false totals
+  ---
+  duration_ms: 1.2875
+  ...
+# Subtest: projection retains original metadata and all source references at supplied revision without mutation
+ok 94 - projection retains original metadata and all source references at supplied revision without mutation
+  ---
+  duration_ms: 0.495334
+  ...
+# Subtest: empty projection preserves only explicitly named, genuinely empty plans without inventing dates
+ok 95 - empty projection preserves only explicitly named, genuinely empty plans without inventing dates
+  ---
+  duration_ms: 0.4825
+  ...
+# Subtest: successive rebases keep the last human decision and never resurrect removed rows
+ok 96 - successive rebases keep the last human decision and never resurrect removed rows
+  ---
+  duration_ms: 0.906
+  ...
+# Subtest: numeric demand changes require review while names, packaging, prices and stock references do not
+ok 97 - numeric demand changes require review while names, packaging, prices and stock references do not
+  ---
+  duration_ms: 1.509042
+  ...
+# Subtest: golden estimate preserves 1525.50 and never calls missing prices or mixed currencies a complete budget
+ok 98 - golden estimate preserves 1525.50 and never calls missing prices or mixed currencies a complete budget
+  ---
+  duration_ms: 2.062667
+  ...
+# Subtest: prototype property names remain unresolved IDs rather than phantom records
+ok 99 - prototype property names remain unresolved IDs rather than phantom records
+  ---
+  duration_ms: 0.506916
+  ...
+# Subtest: opaque recipe quantity changes trigger conservative review of surviving known materials
+ok 100 - opaque recipe quantity changes trigger conservative review of surviving known materials
+  ---
+  duration_ms: 0.557167
+  ...
+# Subtest: decimal-equivalent quantities preserve decisions without rounding away real small changes
+ok 101 - decimal-equivalent quantities preserve decisions without rounding away real small changes
+  ---
+  duration_ms: 0.658042
+  ...
+# Subtest: schema-valid numeric overflow cannot become complete estimates with null quantities or prices
+ok 102 - schema-valid numeric overflow cannot become complete estimates with null quantities or prices
+  ---
+  duration_ms: 1.938625
+  ...
+# Subtest: explicit human check clears previous while pure same-basis reconciliation preserves it
+ok 103 - explicit human check clears previous while pure same-basis reconciliation preserves it
+  ---
+  duration_ms: 0.708125
+  ...
+1..103
+# tests 103
+# suites 0
+# pass 103
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 219.265917

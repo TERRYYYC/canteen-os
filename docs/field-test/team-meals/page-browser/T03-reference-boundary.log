@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: T03 missing dish: save warns, collection is unresolved, publication retains old bytes
+ok 1 - T03 missing dish: save warns, collection is unresolved, publication retains old bytes
+  ---
+  duration_ms: 623.096459
+  ...
+# {"layer":"real Worker + formal producer, isolated Git/FakeRepo","kind":"dish","revision":"c76a64cf602aabf94145b288c51361f2722a63d4","workerStatus":200,"warnings":["plan-id-shape","dangling-ref"],"blocking":[{"planId":"team-week","menuPlanRef":"team-week","date":"2026-09-14","mealType":"lunch","dishRef":"missing-dish","mealIndex":3,"code":"missing-dish","kind":"error"}]}
+# Subtest: T03 missing ingredient: save warns, collection is unresolved, publication retains old bytes
+ok 2 - T03 missing ingredient: save warns, collection is unresolved, publication retains old bytes
+  ---
+  duration_ms: 576.964916
+  ...
+# {"layer":"real Worker + formal producer, isolated Git/FakeRepo","kind":"ingredient","revision":"888a0a493601c5e809d34b9431094614e527bf47","workerStatus":200,"warnings":["dangling-ref"],"blocking":[{"planId":"team-week","menuPlanRef":"team-week","date":"2026-09-14","mealType":"lunch","dishRef":"first-dish","mealIndex":0,"componentIndex":0,"ingredientRef":"missing-ingredient","code":"missing-ingredient","kind":"error"}]}
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1253.598375

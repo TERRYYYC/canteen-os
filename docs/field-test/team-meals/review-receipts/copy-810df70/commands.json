@@ -1,0 +1,25 @@
+{
+  "cwd": "/private/tmp/rcq-review-copy-810df70-1q6ohxtf",
+  "node": "v20.20.2",
+  "capture": "These logs were captured by stdout/stderr redirection during independent command execution, before receipt assembly. No browser was launched.",
+  "commands": [
+    {
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH npm --prefix packages/worker run build > /private/tmp/rcq-copy-810df70-build.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/build.log",
+      "toolChunk": "1139e3"
+    },
+    {
+      "command": "env PATH=/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin:$PATH node --test packages/web/test/e2e/team-meals/copy-repair.test.mjs packages/web/test/e2e/team-meals/copy-native-evidence.test.mjs > /private/tmp/rcq-copy-810df70-targeted.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/targeted.log",
+      "toolChunk": "fa07e8"
+    },
+    {
+      "command": "/private/tmp/canteen-team-ci-tools/node-v20.20.2-darwin-arm64/bin/node /private/tmp/rcq-copy-810df70-replay.mjs > /private/tmp/rcq-copy-810df70-replay.log 2>&1",
+      "exitCode": 0,
+      "log": "logs/replay.log",
+      "toolChunk": "98b414"
+    }
+  ]
+}
