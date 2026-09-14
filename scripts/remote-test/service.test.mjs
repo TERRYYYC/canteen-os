@@ -22,6 +22,10 @@ test('HTTP auth, raw image metadata, conditional writes, SIGKILL restore, public
  const call=async(method,path,{body,headers={}}={})=>{const r=await fetch(origin+'/__q/worker'+path,{method,headers:{Authorization:`Bearer ${tokens.chef}`,...headers},body});const bytes=Buffer.from(await r.arrayBuffer());return {status:r.status,headers:r.headers,bytes,body:r.headers.get('content-type')?.includes('json')?JSON.parse(bytes):null};};
  child=launch();const initial=await ready();
  const publicBefore=await (await fetch(origin+'/canteen/data/team-meals/team-week.json')).text();
+ for(const path of ['/canteen/index.html/not-a-directory','/canteen/%00','/canteen/'+'a'.repeat(300),'/canteen/%broken']){
+  const r=await fetch(origin+path);assert.ok([400,404,414].includes(r.status),`${path}: ${r.status}`);
+  assert.equal((await (await fetch(origin+'/_test/status')).json()).bootId,initial.bootId);
+ }
  assert.equal((await fetch(origin+'/__q/worker/source/plan/team-week')).status,401);
  assert.equal((await fetch(origin+'/__q/worker/source/plan/team-week',{headers:{Authorization:'Bearer chef'+'A'.repeat(39)}})).status,401);
  assert.equal((await fetch(origin+'/_test/status',{headers:{Origin:'https://outside.invalid'}})).status,403);
@@ -49,7 +53,7 @@ test('HTTP auth, raw image metadata, conditional writes, SIGKILL restore, public
  const asset=await call('GET','/asset?owner=data%2Fdishes%2Ftomato-egg-stir-fry.json&pointer=%2Fimage');
  assert.equal(asset.status,200,JSON.stringify(asset.body));assert.deepEqual(asset.bytes,PNG_A);
  const published=await call('POST','/publish');assert.equal(published.status,200);
- await until(async()=>{const r=await call('GET',`/publish/${published.body.runId}`);if(r.body.runConclusion==='failure')throw new Error(JSON.stringify(r.body));return r.body.status==='success';});
+ await until(async()=>{const r=await call('GET',`/publish/${published.body.runId}`);if(r.body.runConclusion==='failure')throw new Error(JSON.stringify({workflow:r.body,jobs:JSON.parse(await readFile(join(storageRoot,'checkpoint.json'),'utf8')).jobs}));return r.body.status==='success';});
  await stop('SIGKILL');child=launch();const afterPublish=await ready();assert.equal(afterPublish.publicHead,saved.body.commit);
  // Simulate a filesystem failure at the sole checkpoint commit point.
  const checkpoint=join(storageRoot,'checkpoint.json'),backup=join(root,'checkpoint-backup.json');

@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 WorkingDirectory=%h/canteen-os-test/source
 Environment=CANTEEN_TEST_CONFIG=%h/canteen-os-test/runtime.json
-Environment=PATH=/usr/bin:/bin
-ExecStart=/usr/bin/node %h/canteen-os-test/source/scripts/remote-test/server.mjs
+Environment=PATH=%h/canteen-os-test/tools/node-v24.18.0-linux-x64/bin:/usr/bin:/bin
+ExecStart=%h/canteen-os-test/tools/node-v24.18.0-linux-x64/bin/node %h/canteen-os-test/source/scripts/remote-test/server.mjs
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=35

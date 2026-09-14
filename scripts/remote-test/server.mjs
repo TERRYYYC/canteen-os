@@ -71,9 +71,10 @@ async function handle(req,res,bytes){
  if(url.pathname==='/'&&req.method==='GET'){res.writeHead(302,{Location:'/canteen/'});res.end();return;}
  if(req.method!=='GET'||!url.pathname.startsWith('/canteen/')){json(res,{error:'not_found'},404);return;}
  let relative;try{relative=decodeURIComponent(url.pathname.slice('/canteen/'.length))||'index.html';}catch{json(res,{error:'invalid_path'},400);return;}
+ if(relative.includes('\0')){json(res,{error:'invalid_path'},400);return;}
  const root=f.active.dist,file=resolve(root,relative);
  if(!file.startsWith(root+'/')){json(res,{error:'not_found'},404);return;}
- let info;try{info=await stat(file);}catch(error){if(error.code!=='ENOENT')throw error;}
+ let info;try{info=await stat(file);}catch(error){if(!['ENOENT','ENOTDIR','ENAMETOOLONG'].includes(error.code))throw error;}
  if(!info?.isFile()){json(res,{error:'not_found'},404);return;}
  res.writeHead(200,{'Content-Type':mime[extname(file)]??'application/octet-stream','Cache-Control':'no-store'});res.end(await readFile(file));
 }

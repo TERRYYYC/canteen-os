@@ -46,7 +46,12 @@ stale-lock recovery serialized separately. A crash during lock recovery fails
 closed: verify no process owns the directory before removing `service.lock` and
 `service.lock.recovery`. Never run two instances against the same state.
 
-Install the supplied user unit only after adapting its Node path if necessary.
+The supplied user unit pins a separately installed Linux x64 Node 24.18.0 in
+its dedicated tools directory; system Node is untouched. Verify the official
+archive checksum before extracting it. Linux Node 22.23.2 failed the direct
+PNG decoder entry point in this deployment; Node 24.18.0 passed the same fixed
+PNG, JPEG and WebP checks. Product decoder source remains unchanged.
+Install the supplied user unit only after preparing this runtime.
 Enable linger for the service account and verify `Linger=yes`, then
 `systemctl --user enable --now canteen-os-test.service`. Verify actual survival
 through all SSH sessions ending, then reconnect independently and read/save data.
