@@ -8,6 +8,7 @@ import {FakeRepo,makeEnv,REPO} from '../../../../worker/test/helpers.mjs';
 import {CONTRACTS_ROOT} from '../../../../../scripts/validate-contract-fixtures.mjs';
 import {runBuild} from '../../../../../scripts/build-data.mjs';
 import {json,filesUnder} from './page-fixture.mjs';
+import {restoreRepo} from '../../../../../scripts/remote-test/state.mjs';
 
 const fixedAt='2026-09-12T00:00:00.000Z';
 const fixtureNotice={
@@ -23,6 +24,8 @@ class SavedGitRepo extends FakeRepo {
   constructor(root) {
     super();this.root=root;
     this.git(['init','--quiet','--initial-branch=main','--object-format=sha1']);
+    this.git(['config','core.fsync','all']);
+    this.git(['config','core.fsyncMethod','fsync']);
   }
   git(args,input,date=fixedAt) {
     return execFileSync('git',args,{cwd:this.root,input,stdio:['pipe','pipe','pipe'],env:{...process.env,
@@ -65,8 +68,8 @@ class SavedGitRepo extends FakeRepo {
   syncHead(){this.git(['update-ref','refs/heads/main',this.head]);}
 }
 
-export function createLocalPublicationFixture() {
-  const root=mkdtempSync(join(tmpdir(),'rcq-local-publication-'));
+export function createLocalPublicationFixture({root=mkdtempSync(join(tmpdir(),'rcq-local-publication-')),state}={}) {
+  mkdirSync(root,{recursive:true});
   const golden=join(CONTRACTS_ROOT,'valid/golden/data');
   const write=(file,bytes)=>{const dest=join(root,file);mkdirSync(join(dest,'..'),{recursive:true});writeFileSync(dest,bytes);};
   const recipe=JSON.parse(readFileSync(join(golden,'dishes/tomato-egg-stir-fry.json')));
@@ -76,6 +79,7 @@ export function createLocalPublicationFixture() {
   }
   // Preserve original components, steps, confidence, status and video provenance.
   // There is deliberately no unrelated dish photograph or human-review flag.
+  if(!state){
   write('data/dishes/tomato-egg-stir-fry.json',json(recipe));
   for(const ref of new Set(recipe.components.map(c=>c.ingredientRef)))write(`data/ingredients/${ref}.json`,readFileSync(join(golden,`ingredients/${ref}.json`)));
   write('data/techniques.json',readFileSync(join(golden,'techniques.json')));
@@ -86,9 +90,12 @@ export function createLocalPublicationFixture() {
       {date:'2026-09-12',mealType:'lunch',dishRef:'tomato-egg-stir-fry'},
       {date:'2026-09-12',mealType:'lunch',dishRef:'needs-details'},
     ]}));
-  const files=filesUnder(root),repo=new SavedGitRepo(root),revision=repo.commit(files,'Q local unverified tomato-and-egg demo');
+  }
+  const files=state?{}:filesUnder(root),repo=new SavedGitRepo(root);
+  if(state)restoreRepo(repo,state);
+  const revision=state?repo.head:repo.commit(files,'Q local unverified tomato-and-egg demo');
   const publicDir=join(root,'published');
-  const built=runBuild({root,outDir:publicDir,commit:revision,target:'team-meals',at:fixedAt,write:true});
+  const built=state?{build:state.buildJson,issues:[]}:runBuild({root,outDir:publicDir,commit:revision,target:'team-meals',at:fixedAt,write:true});
   assert.equal(built.issues.filter(i=>i.kind==='error').length,0,JSON.stringify(built.issues));
   const attempts=[];
   const publication={
