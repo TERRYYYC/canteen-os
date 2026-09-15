@@ -169,7 +169,9 @@ printf %s "$role_token" | openssl dgst -sha256 -r | cut -d' ' -f1
 - 代码回退**不经过 worker**（ADR-0007 §7：「只回退 `data/`。代码回退走正常的 git 流程」）。
 - 做法：GitHub 上找到那个 commit → Revert → 合进 `main` → CI 重新构建部署。
 - **注意**：Worker 的 PAT 无 Workflows 权限，不能用它修部署流程。流程可先在本地修复和审查，再由有相应仓库权限的发布负责人授权发布；本清单不授予外部修改权限。
-- 判断「到底换版了没有」：打开 `https://terryyyc.github.io/canteen-os/data/build.json`，看 `commit` 和 `builtAt` 变了没有。别只看页面刷没刷新。
+- 判断「到底换版了没有」：打开 `https://terryyyc.github.io/canteen-os/data/build.json?t=<随便一串数字>`，看 `commit` 和 `builtAt` 变了没有。别只看页面刷没刷新。
+  **`?t=` 不是可选的。** `data/build.json` 在 PWA 的 precache 里，装过这个应用的手机或浏览器会一直返回本地那份旧的——普通刷新、强制刷新都不管用，要等新的 Service Worker 接管才换。带上任意查询串即可绕过 precache 直接问服务器。
+  （2026-09-15 调度线实测：同一个浏览器里，不带查询串连读两次都是 `1fdaf7b` / `builtAt 2026-09-09T21:10`；带 `?t=` 读到的是线上真实的 `25f601a` / `builtAt 2026-09-13T20:25`，相差四天。当时 precache 中并存两份 `build.json`。这会让人把「部署没生效」误判成故障。）
 
 ### 3.2 数据不对（回退 `data/`）
 
@@ -213,7 +215,7 @@ printf %s "$role_token" | openssl dgst -sha256 -r | cut -d' ' -f1
 
 ## 5. 每天 3 分钟自检（师傅，早上）
 
-1. 打开 `https://terryyyc.github.io/canteen-os/data/build.json` → `builtAt` 是不是最后一次发布的时间？`plans` 里有本周的计划吗？
+1. 打开 `https://terryyyc.github.io/canteen-os/data/build.json?t=今天日期`（**`?t=` 必须带**，手机上加了主屏幕的那份尤其——不带会读到离线副本里的旧版本，见 §3.1）→ `builtAt` 是不是最后一次发布的时间？`plans` 里有本周的计划吗？
 2. `#/prep` 切到今天 → 菜、份数、配料对吗？
 3. `#/purchase` → 有「⚠ N 条问题」或「待补全」吗？
 4. 让帮厨手机联网开一次 → 刷新离线副本。
