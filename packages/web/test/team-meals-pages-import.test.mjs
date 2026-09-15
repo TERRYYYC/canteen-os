@@ -7,10 +7,10 @@ import {tmpdir} from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages/admin/import.ts'),source=await readFile(entry,'utf8');
-const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList, resolveWeek, addDaysIso }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
-const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
-const week='2026-09-14',catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,resolveWeek,addDaysIso,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
+const week=resolveWeek('week-38',{}).weekStart,day=n=>addDaysIso(week,n),catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
 const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
 const row={date:week,mealType:'lunch',dishRef:'soup'};
 test('real core parsed missing servings stay blank rather than receiving a page default',()=>{
@@ -27,9 +27,9 @@ test('preview rejects fractional, nonpositive and nonfinite values without round
  assert.equal(effective(parsed(),{servings:undefined},catalog,week).importable,true);
 });
 test('import upgrades whole Any plan while preserving untouched rows, top-level values and known matching count',()=>{
- const first={...row,plannedServings:8,serviceWindow:'12:00-13:00'},duplicate={...row,plannedServings:11,serviceWindow:'13:00-14:00'},outside={date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19};
- const base={schemaVersion:'2',name:{zh:'原计划',en:'Original'},margin:1.17,dateRange:{start:'2026-09-01',end:'2026-09-30'},meals:[first,duplicate,outside]},before=structuredClone(base);
- const result=mergePlan(base,[row,{date:'2026-09-15',mealType:'dinner',dishRef:'soup'}],'week-38',week);
+ const first={...row,plannedServings:8,serviceWindow:'12:00-13:00'},duplicate={...row,plannedServings:11,serviceWindow:'13:00-14:00'},outside={date:day(3),mealType:'dinner',dishRef:'other',plannedServings:19};
+ const base={schemaVersion:'2',name:{zh:'原计划',en:'Original'},margin:1.17,dateRange:{start:day(-13),end:day(16)},meals:[first,duplicate,outside]},before=structuredClone(base);
+ const result=mergePlan(base,[row,{date:day(1),mealType:'dinner',dishRef:'soup'}],'week-38',week);
  assert.equal(result.schemaVersion,'3');assert.equal(result.margin,1.17);assert.deepEqual(result.name,base.name);assert.deepEqual(result.dateRange,base.dateRange);
  assert.deepEqual(result.meals[0],first);assert.deepEqual(result.meals[1],duplicate);assert.deepEqual(result.meals.at(-1),outside);assert.equal(Object.hasOwn(result.meals[2],'plannedServings'),false);assert.deepEqual(base,before);
 });
@@ -60,7 +60,7 @@ globalThis.document=documentDouble;globalThis.window={addEventListener(){},confi
 const mount=()=>{const el=new Element('main');documentDouble.body.replaceChildren(el);return el;},tick=()=>new Promise(r=>setImmediate(r));
 const ctx=lang=>({lang,rest:'week-38',route:'admin',planId:'week-38',t:key=>key,data:{}});
 function setup({catalogRead}={}){
- const calls=[],base={schemaVersion:'3',margin:1.17,name:{zh:'完整原计划'},meals:[{...row,plannedServings:8,serviceWindow:'12:00-13:00'},{date:'2026-09-17',mealType:'dinner',dishRef:'other',plannedServings:19}]};let gate=null,principal=1;
+ const calls=[],base={schemaVersion:'3',margin:1.17,name:{zh:'完整原计划'},meals:[{...row,plannedServings:8,serviceWindow:'12:00-13:00'},{date:day(3),mealType:'dinner',dishRef:'other',plannedServings:19}]};let gate=null,principal=1;
  const api=createTeamMealsApi('https://import-fixture.invalid',{mode:'mock',token:()=>`explicit-fixture-${principal}`,identity:()=>principal,fetch:async(url,init)=>{const u=new URL(url);calls.push({path:u.pathname,method:init.method});assert.equal(init.method,'GET','import must not write remotely');if(u.pathname==='/catalog')return new Response(JSON.stringify(await(catalogRead?.()??catalog)));if(u.pathname==='/source/plan/week-38'){if(gate)await gate;return new Response(JSON.stringify({content:base,blobSha:'fixture-plan',commit:catalog.commit}));}throw new Error('unexpected fixture path');}});
  after(()=>api.dispose());return {api,drafts:bindDraftStore(api),base,calls,hold:()=>{let release;gate=new Promise(r=>release=r);return release;},changeAuth:()=>principal++};
 }
