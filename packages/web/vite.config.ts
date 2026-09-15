@@ -12,8 +12,8 @@ import { VitePWA } from "vite-plugin-pwa";
  * PWA（vite-plugin-pwa，MIT，内含 Workbox）：
  * - registerType "prompt" + injectRegister false：不自动刷新；src/pwa.ts 自己用 virtual:pwa-register 注册，
  *   有新 SW 在等待时页面顶部出「有新版本，点此刷新」，用户点了才 skipWaiting → reload；
- * - 预缓存 = 应用壳（js/css/html/webmanifest/图标）+ public/data/ 下全部 JSON（当前周三张单 + build.json）。
- *   build.json 每次构建 builtAt/commit 必变 → precache 清单必变 → 每次部署都会触发一次「有新版本」；
+ * - 预缓存 = 应用壳（js/css/html/webmanifest/图标）+ public/data/ 下全部 JSON（当前周三张单）。
+ *   build.json 不在其中：它是新鲜度探针，走下面的 NetworkFirst（issue #98）；
  * - 运行时：图片 CacheFirst（300 张 / 30 天，docs/research/v2/scenario-g §已知坑 4）；Google Fonts 的 css 与字体文件
  *   StaleWhileRevalidate（断网时用上次的字体，没有就按 tokens.css 回退栈走系统字体）；
  * - navigateFallback index.html：hash 路由只有一个入口，离线时任何导航都回到壳；
@@ -60,12 +60,34 @@ export default defineConfig({
         // manifest.webmanifest 由插件自己加进清单，不放进 glob（否则同一 URL 出现两次）
         globPatterns: ["**/*.{js,css,html,svg,png}", "data/**/*.json"],
         // 数据目录里将来的菜品/食材图片不进预缓存（只 precache 应用壳），走下面的运行时 CacheFirst
-        globIgnores: ["data/**/*.{png,svg,jpg,jpeg,webp,avif,gif}"],
+        // data/build.json 是「线上换版没有」的唯一探针（运维清单 §3.1/§5）：precache 走 cache-first，
+        // 装过应用的客户端会一直返回旧副本，探针永远失真 → 移出预缓存，改走下面的 NetworkFirst（issue #98）
+        globIgnores: ["data/**/*.{png,svg,jpg,jpeg,webp,avif,gif}", "data/build.json"],
         navigateFallback: "index.html",
         clientsClaim: true,
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // data/build.json：先走网络拿真值，3 秒超时或离线时回落到上次成功的响应，
+            // §4 第 1 条（断网能看上次打开的内容）不受影响。必须排在下面的规则之前（issue #98）。
+            urlPattern: ({ request, url, sameOrigin }) => {
+              if (request.method !== "GET" || !sameOrigin) return false;
+              // Scope-anchored like the published-assets rule: /other/data/build.json is a different file.
+              return url.pathname === new URL(
+                "data/build.json",
+                (self as unknown as { registration: { scope: string } }).registration.scope,
+              ).pathname;
+            },
+            method: "GET",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "publication-manifest",
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 4 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             // Published assets use fetch (empty destination). Workbox serializes this callback into the SW.
             urlPattern: ({ request, url, sameOrigin }) => {
