@@ -43,7 +43,7 @@ function inspectWorker(outDir, base) {
     createHandlerBoundToURL() { return () => {}; },
     registerRoute(capture, handler, method) { routes.push({capture, handler, method}); },
   };
-  for (const name of ['CacheFirst', 'StaleWhileRevalidate', 'ExpirationPlugin', 'CacheableResponsePlugin']) {
+  for (const name of ['CacheFirst', 'NetworkFirst', 'StaleWhileRevalidate', 'ExpirationPlugin', 'CacheableResponsePlugin']) {
     observed[name] = new Proxy(exports[name], {
       construct(target, args) {
         const instance = Reflect.construct(target, args);
@@ -151,10 +151,13 @@ for (const base of ['/', '/canteen-os/']) {
     assert.notEqual(route.handler.cacheName, 'images');
   });
 
-  test(`${base}: JSON precache and the prior image/font rules remain, without full asset precaching`, async () => {
+  test(`${base}: build.json stays out of precache and the prior image/font rules remain, without full asset precaching`, async () => {
     const deployment = deployments.get(base);
     const paths = deployment.precache.map(entry => new URL(entry.url, deployment.scope).pathname);
-    for (const suffix of ['data/build.json', 'data/team-meals/week.json', 'icons/probe.svg']) assert.ok(paths.includes(`${base}${suffix}`), suffix);
+    for (const suffix of ['data/team-meals/week.json', 'icons/probe.svg']) assert.ok(paths.includes(`${base}${suffix}`), suffix);
+    // issue #98: precache is cache-first, so a precached build.json makes the freshness probe
+    // (ops checklist §3.1/§5) read a stale commit forever on any client that installed the app.
+    assert.equal(paths.includes(`${base}data/build.json`), false, 'build.json must not be precached');
     assert.equal(paths.some(value => value.startsWith(`${base}data/assets/`)), false);
     const image = deployment.runtime.find(route => route.handler.cacheName === 'images');
     assert.ok(image.handler instanceof deployment.exports.CacheFirst);
@@ -166,5 +169,26 @@ for (const base of ['/', '/canteen-os/']) {
     for (const cacheName of ['google-fonts-css', 'google-fonts-files']) {
       assert.ok(deployment.runtime.find(route => route.handler.cacheName === cacheName).handler instanceof deployment.exports.StaleWhileRevalidate);
     }
+  });
+
+  test(`${base}: build.json is served NetworkFirst with a bounded timeout and an offline fallback`, () => {
+    const deployment = deployments.get(base);
+    const route = deployment.runtime.find(entry => entry.handler.cacheName === 'publication-manifest');
+    assert.ok(route, 'the freshness probe must have its own runtime route');
+    assert.ok(route.handler instanceof deployment.exports.NetworkFirst);
+    const options = deployment.constructorOptions.get(route.handler)?.options;
+    assert.equal(options.networkTimeoutSeconds, 3, 'a hung network must fall back to the cached copy');
+    assert.equal(route.method, 'GET');
+    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json`), true);
+    for (const href of [
+      `${deployment.origin}${base === '/' ? '/other/' : '/'}data/build.json`,
+      `https://external.example${base}data/build.json`,
+      `${deployment.scope}data/team-meals/week.json`,
+      `${deployment.scope}data/build.json.bak`,
+    ]) assert.equal(matches(deployment, route, href), false, href);
+    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json`, 'POST'), false);
+    // offline fallback lives in the cache this route writes; the expiration bound keeps it small
+    const expiration = route.handler.plugins.map(plugin => deployment.constructorOptions.get(plugin)).find(record => record?.name === 'ExpirationPlugin');
+    assert.equal(expiration.options.maxEntries, 4);
   });
 }
