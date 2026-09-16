@@ -80,7 +80,9 @@ test('tagged HTTP refusals, wrong revision and invalid JSON never retry through 
  for(const [reply,code] of answers) {
   const {api,state,calls}=setup();const fresh=await api.loadPublication({fresh:true});
   state.override=u=>u.pathname.includes('/team-meals/')?reply():undefined;
-  await assert.rejects(project(api,fresh),{code});assert.equal(projections(calls).length,1);assert.ok(projections(calls)[0].url.search);
+  await assert.rejects(project(api,fresh),{code});
+  // A wrong revision retries once pinned to the commit; every attempt still stays on a tagged URL.
+  assert.equal(projections(calls).length,code==='revision_mismatch'?2:1);assert.ok(projections(calls).every(c=>c.url.search));
  }
 });
 test('failed fresh manifest and offline probes cannot adopt the installed older publication',async()=>{
