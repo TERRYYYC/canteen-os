@@ -96,6 +96,8 @@ buyer 令牌在 v0.3 **不含任何写权限**——采购员只需要打开前�
 
 `errors[].path` 是 JSON Pointer，前端按它把对应输入框标黄（设计稿第 6 屏的行为），**原样显示 message，不二次编造文案**。HTTP 状态：200 成功 / 400 校验失败 / 401 令牌无效 / 403 角色越权 / 409 并发冲突 / 413 体积超限 / 429 限流 / 502 GitHub API 异常。
 
+> **例外（2026-09-16，见 #113）**：当 `errors[].code` 是契约已登记的 code 时，前端可显示该 code 的本地化文案，`message` 降为「没有 code 译文时的兜底」；未登记的 code 仍原样显示 message。字段级 code（`required` / `type` / `enum`）在译文之后拼接 message 中分隔符后的具体值。本例外只改「谁来措辞」，不改 `code` / `path` / HTTP 状态的语义，worker 仍必须为每条错误发出准确的 code。理由：worker 的 35 处 message 字面量全是中文，选 UA / EN 的用户一遇错误就掉回中文。
+
 提交前校验：worker 内置 `schemas/*.schema.json` 的预编译产物（ajv standalone，构建期生成，运行时零解析开销），校验不过就**不产生任何 commit**。
 
 限流：每个角色令牌写入 60 次/小时、发布 10 次/小时（Workers 限流绑定或 KV 计数器，#19 选其一）。超限返回 429。
