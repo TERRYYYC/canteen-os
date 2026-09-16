@@ -187,8 +187,19 @@ for (const base of ['/', '/canteen-os/']) {
       `${deployment.scope}data/build.json.bak`,
     ]) assert.equal(matches(deployment, route, href), false, href);
     assert.equal(matches(deployment, route, `${deployment.scope}data/build.json`, 'POST'), false);
-    // offline fallback lives in the cache this route writes; the expiration bound keeps it small
+    // issue #114: every probe URL is unique, so a query-bearing request must not take a slot
+    // in publication-manifest — the no-query entry is the only offline cold-start fallback.
+    for (const href of [
+      `${deployment.scope}data/build.json?__publication=probe-1758000000000-reader-1`,
+      `${deployment.scope}data/build.json?__publication=${sha}`,
+      `${deployment.scope}data/build.json?t=1758000000000`,
+    ]) assert.equal(matches(deployment, route, href), false, href);
+    // A bare trailing `?` is an *empty* query: `new URL('…build.json?').search` is '', so this is
+    // the very request the offline fallback is for and it still matches. Measured, not assumed.
+    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json?`), true);
+    // offline fallback lives in the cache this route writes; the expiration bound keeps it small.
+    // Since issue #114, only the no-query request lands in this cache, so two entries are plenty.
     const expiration = route.handler.plugins.map(plugin => deployment.constructorOptions.get(plugin)).find(record => record?.name === 'ExpirationPlugin');
-    assert.equal(expiration.options.maxEntries, 4);
+    assert.equal(expiration.options.maxEntries, 2);
   });
 }
