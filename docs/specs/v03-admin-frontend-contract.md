@@ -225,6 +225,8 @@ export function applyFieldErrors(root: HTMLElement, errors: readonly FieldError[
 
 `applyFieldErrors` 的行为照 ADR §5 与 worker 契约 §1.8 逐字：**原样显示 `message`，不二次编造文案**；`path` 为 `""` 的错误显示在表单顶部。
 
+> **例外（2026-09-16，见 #113）**：当 `errors[].code` 是契约已登记的 code 时，前端可显示该 code 的本地化文案，`message` 降为「没有 code 译文时的兜底」；未登记的 code 仍原样显示 message。字段级 code（`required` / `type` / `enum`）在译文之后拼接 message 中分隔符后的具体值。本例外只改「谁来措辞」，不改 `code` / `path` / HTTP 状态的语义，worker 仍必须为每条错误发出准确的 code。理由：worker 的 35 处 message 字面量全是中文，选 UA / EN 的用户一遇错误就掉回中文。
+
 ### 3.3 文件归属表（一个文件只有一个主人）
 
 | 文件 / 目录 | 归属 | 说明 |
