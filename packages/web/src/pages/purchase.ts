@@ -4,6 +4,7 @@ import './purchase.css';
 import {normalizeSelection,type AnyMenuPlan,type ShoppingSelection,type ShoppingList} from '@canteenos/core';
 import {getTeamMealsApi,type TeamMealsApi,type ShoppingListIndex,type ShoppingListSummary,type ShoppingDecisionCounts} from '../api/team-meals';
 import {ApiError,type Source} from '../api/types';
+import type {PublishedTeamPlan} from '../data';
 import {apiMessage} from '../admin/kit';
 import {h,replace} from '../dom';
 import type {PageCtx} from '../types';
@@ -54,7 +55,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const validRange=['all','day','week'].includes(range)&&(!rangeDate||/^\d{4}-\d{2}-\d{2}$/.test(rangeDate)&&Number.isFinite(Date.parse(`${rangeDate}T12:00:00Z`))&&new Date(`${rangeDate}T12:00:00Z`).toISOString().slice(0,10)===rangeDate);
   const detail=!creating&&(detailKind==='ingredient'||detailKind==='dish')&&validId(detailId);
   if((!creating&&!validId(routeId))||extra||(!creating&&(rangeDate||detailKind&&!detail))||(creating&&(!validRange||detailKind&&!validId(detailKind)||range!=='all'&&!rangeDate))){el.append(h('p',{role:'alert'},t('missing')));return;}
-  if(api.mode==='unconfigured'){el.append(h('p',{class:'tm-status',role:'status'},tr('unconfigured')));return;}
+  if(api.mode==='unconfigured'){await renderPublishedOnly(el,ctx);return;}
   const key=creating?`new/${detailKind}${detailId?`/${detailId}/${rangeDate}`:''}`:routeId;
   const previous=views.get(key);
   if(creating&&previous?.completed&&!rawPending(previous)&&!previous.active){previous.reload.dispose();views.delete(key);}
@@ -293,6 +294,39 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const view=views.get(key);if(!view)return null;
   return Object.freeze({ownerId:`purchase-buffer/${key}`,identity:Object.freeze({kind:'shopping-list' as const,id:key}),generation:view.generation,dirty:rawPending(view),phase:'idle' as const});
  }});
+}
+/**
+ * Demo and offline surface: the published projection is already approved and verified, so it is
+ * shown as an ordinary read-only shopping list. Every write control stays rendered and disabled,
+ * the same visible degradation as the dish editor, and no saved API source is read.
+ */
+async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx):Promise<void>{
+ const lang=ctx.lang,t=(key:ShoppingWord)=>shoppingText(lang,key),tr=(key:Parameters<typeof text>[1])=>text(lang,key);
+ el.classList.add('tm-page');el.classList.add('tm-purchase');
+ const body=h('div',{});
+ el.append(h('p',{class:'tm-status',role:'status','data-purchase-readonly':'published'},t('readonly')),
+  h('section',{class:'tm-purchase-intro'},h('small',{},t('intro')),h('h2',{},t('title'))),body);
+ const say=(state:string,message:string)=>replace(body,h('p',{class:'tm-card',role:'status','data-purchase-readonly-state':state},message));
+ const publication=ctx.publication;
+ if(ctx.publicationError){say('unavailable',t('readonlySource'));return;}
+ if(!publication){say('loading',tr('loading'));return;}
+ if(publication.kind!=='team-meals'||!publication.manifest.plans.length){say('no-plans',t('readonlySource'));return;}
+ say('loading',tr('loading'));
+ let plan:PublishedTeamPlan;
+ try{plan=await ctx.data.loadPublishedTeamPlan(publication,ctx.planId??'');}
+ catch{if(el.isConnected)say('unavailable',t('readonlySource'));return;}
+ if(!el.isConnected)return;
+ const blocked=(label:string)=>{const button=action(label,()=>{});button.disabled=true;return button;};
+ const decisions=()=>{
+  const group=h('div',{class:'tm-decisions','data-purchase-decisions':'blocked'});
+  for(const decision of ['check','buy','available'] as const){const button=blocked(t(decision));button.setAttribute('aria-pressed','false');group.append(button);}
+  const bought=h('input',{type:'checkbox'});bought.disabled=true;group.append(h('label',{class:'tm-slot'},bought,t('bought')));
+  return group;
+ };
+ replace(body,
+  h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
+  renderCandidates({lang,...plan.projection,estimate:plan.estimates,compact:true,controls:decisions}),
+  h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt)));
 }
 let renderer:ReturnType<typeof createPurchaseRenderer>|undefined;
 export function render(el:HTMLElement,ctx:PageCtx):Promise<void>{return(renderer??=createPurchaseRenderer(getTeamMealsApi()))(el,ctx);}

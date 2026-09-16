@@ -24,6 +24,9 @@ export const shoppingWords={
  budget:['金额只按可计算项参考，不代表完整预算。','Calculable amounts are references, not a complete budget.','Розраховані суми є орієнтирами, а не повним бюджетом.'],
  intro:['来自菜单计划','FROM YOUR MENU PLAN','З ПЛАНУ МЕНЮ'],headline:['这次买什么，逐项确认。','Decide what to buy.','Вирішіть, що купити.'],
  issues:['需要核对的资料','Information to check','Дані для перевірки'],summary:['本次材料判断','Current ingredient decisions','Поточні рішення щодо інгредієнтів'],
+ readonly:['未连接后台 · 这里是已发布版本的只读清单','Not connected · this is the published version, read only','Немає з’єднання · це опублікована версія лише для читання'],
+ readonlyWrites:['保存、判断和打勾都要连上后台。请用师傅链接打开。','Saving, decisions and ticks need a connected service. Open with the chef link.','Збереження, рішення та відмітки потребують з’єднання. Відкрийте за посиланням шефа.'],
+ readonlySource:['这一版已发布资料现在读不到。稍后再看。','This published version cannot be read right now. Check again later.','Зараз не вдається прочитати цю опубліковану версію. Перегляньте пізніше.'],
 } as const;
 export type ShoppingWord=keyof typeof shoppingWords;
 export const shoppingText=(lang:Lang,key:ShoppingWord)=>shoppingWords[key][lang==='zh'?0:lang==='en'?1:2];
