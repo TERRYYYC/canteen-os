@@ -226,6 +226,8 @@ X-CanteenOS-Endpoint: POST /plan/week-43
 
 `errors[].path` 是 **JSON Pointer**，前端按它把对应输入框标黄（设计稿第 6 屏），**原样显示 `message`，不二次编造文案**（ADR §5 逐字）。非字段级错误 `path` 为 `""`。
 
+> **例外（2026-09-16，见 #113）**：当 `errors[].code` 是契约已登记的 code 时，前端可显示该 code 的本地化文案，`message` 降为「没有 code 译文时的兜底」；未登记的 code 仍原样显示 message。字段级 code（`required` / `type` / `enum`）在译文之后拼接 message 中分隔符后的具体值。本例外只改「谁来措辞」，不改 `code` / `path` / HTTP 状态的语义，worker 仍必须为每条错误发出准确的 code。理由：worker 的 35 处 message 字面量全是中文，选 UA / EN 的用户一遇错误就掉回中文。
+
 HTTP 状态取值 ADR §5 已裁决：`200` / `400` / `401` / `403` / `409` / `413` / `429` / `502`。**下表的 `code` 与中文提示语是本文新增（D-02）** ——ADR 只给了 `type` 与 `conflict` 两个样例值。校验类 `code` 逐字用 ajv 的 keyword，前端不需要认全。
 
 | HTTP | `code` | 何时 | 给师傅看的 `message` |
