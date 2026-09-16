@@ -3,7 +3,7 @@
  *
  *   stepper(opts)                 ± 步进器：#21 的份数（±10，长按 ±50）与 #23/#24 的数字字段共用
  *   fieldRow(opts)                一行表单：<label for> + 控件 + 说明 + 错误位；id = `${idPrefix}-${name}`（§3.4 DOM id 规则）
- *   applyFieldErrors(root, errs)  把 worker 的 errors[] 按 JSON Pointer 标黄；未命中的集中显示在表单顶部；message 原样显示
+ *   applyFieldErrors(root, errs)  把 worker 的 errors[] 按 JSON Pointer 标黄；未命中的集中显示在表单顶部；已登记 code 显示本地化文案，未登记才原样显示 message（#113）
  *   clearFieldErrors(root)
  *   topBar(opts)                  页内第一行：左「←」回上一屏、中标题、右主操作（§4.0）
  *   emptyCard(text) / errorCard(text, onRetry?)
@@ -12,7 +12,7 @@
  * 顺带提供（非契约钉死，但六屏都要用，宁可这里一份也别各抄五份）：
  *   adm(key, params?, lang?)      §5.4 的 `adm.*` 共用文案（三语）
  *   button(opts) / notice(opts)   ≥ 44px 的按钮；顶部绿条 / 黄条 / 灰条
- *   apiMessage(err)               ApiError → 给师傅看的一句话（worker 的 message 原样；非 ApiError → 「连不上后台」）
+ *   apiMessage(err)               ApiError → 给师傅看的一句话（已登记 code 用本地化文案，未登记才原样用 message；非 ApiError → 「连不上后台」）
  *   sessionExpired(el, lang)      401：清令牌 + 回锁屏（§4.0）
  *
  * 文本一律 textContent（dom.ts 的 h()）；样式在 pages/admin/admin.css，全部 `.adm-` 前缀（§3.4）。
@@ -281,12 +281,13 @@ function resolveField(root: HTMLElement, err: FieldError): HTMLElement | null {
 }
 
 /**
- * 把 worker 的 errors[] 按 JSON Pointer 标黄（.adm-invalid + aria-invalid + 错误位显示 message 原样）；
+ * 把 worker 的 errors[] 按 JSON Pointer 标黄（.adm-invalid + aria-invalid + 错误位显示 fieldErrorText 的结果）；
  * 未命中 pointer 的错误（含 path 为 "" 的整单级错误）集中显示在 root 顶部（role="alert"）。
  * 之后把焦点移到第一个出错控件（没有就移到顶部汇总），并滚到可见（§4.2 / §4.4）。
  */
 export function applyFieldErrors(root: HTMLElement, errors: readonly FieldError[]): void {
   clearFieldErrors(root);
+  const lang = getLang();
   const unmatched: FieldError[] = [];
   let first: HTMLElement | null = null;
   for (const err of errors) {
@@ -298,7 +299,8 @@ export function applyFieldErrors(root: HTMLElement, errors: readonly FieldError[
     field.classList.add("adm-invalid");
     const slot = field.querySelector<HTMLElement>(".adm-field-error");
     if (slot) {
-      slot.textContent = slot.textContent ? `${slot.textContent} · ${err.message}` : err.message;
+      const text = fieldErrorText(err, lang);
+      slot.textContent = slot.textContent ? `${slot.textContent} · ${text}` : text;
       slot.hidden = false;
     }
     const control = field.querySelector<HTMLElement>(LABELABLE);
@@ -308,7 +310,7 @@ export function applyFieldErrors(root: HTMLElement, errors: readonly FieldError[
   if (unmatched.length > 0) {
     const list = h("ul", { class: "adm-form-errors-list" });
     for (const err of unmatched) {
-      list.append(h("li", {}, err.path ? h("code", {}, err.path) : null, err.path ? " " : "", err.message));
+      list.append(h("li", {}, err.path ? h("code", {}, err.path) : null, err.path ? " " : "", fieldErrorText(err, lang)));
     }
     const box = h("div", { class: "adm-form-errors", role: "alert", tabindex: "-1" }, h("p", { class: "adm-form-errors-title" }, adm("adm.errors.summary")), list);
     root.prepend(box);
@@ -468,8 +470,8 @@ export function stepper(opts: StepperOpts): HTMLElement {
 // ---------------------------------------------------------------------------
 
 /**
- * ApiError → 给师傅看的一句话（worker 的 message 原样，不二次编造；§4.0）；
- * 不是 ApiError（fetch 抛的 TypeError、动态分包加载失败…）→ 「连不上后台」。
+ * ApiError → 给师傅看的一句话：契约已登记的 code 用本文件的本地化文案，未登记的 code 才原样显示 worker 的 message
+ * （ADR-0007 §5 的例外，2026-09-16 / #113；§4.0）；不是 ApiError（fetch 抛的 TypeError、动态分包加载失败…）→ 「连不上后台」。
  */
 const CONTRACT_ERRORS: Record<string, Record<Lang, string>> = {
   conflict: { zh: "有人改过这份资料，本地草稿已保留，请先核对", en: "This document changed. Your draft is kept; review it before saving", uk: "Документ змінився. Чернетку збережено локально; перевірте зміни" },
@@ -492,7 +494,51 @@ const CONTRACT_ERRORS: Record<string, Record<Lang, string>> = {
   unresolved_ingredient: { zh: "这项材料的资料缺失，暂时只能标为待核对", en: "This ingredient's details are missing. Keep it marked for checking", uk: "Дані інгредієнта відсутні. Залиште його на перевірці" },
   invalid_selection: { zh: "清单范围或材料不一致，请重新选择并复核", en: "The list selection or ingredients do not match. Select and review again", uk: "Обсяг списку або інгредієнти не збігаються. Виберіть і перевірте знову" },
   invalid_decision: { zh: "只有待买材料可以标记购买进度", en: "Only items marked to buy can have purchase progress", uk: "Стан купівлі можна вказати лише для позицій, які потрібно купити" },
+  // #113 方案 B：以下 17 条覆盖 worker 能发出但前端原先没有译文的 code；zh 一列逐字取自 packages/worker/src/http.ts 的 MESSAGES（改了也算二次编造）
+  bad_id: { zh: "名称只能用小写字母、数字和短横线", en: "Names may use lowercase letters, digits and hyphens only", uk: "Назва може містити лише малі літери, цифри та дефіси" },
+  bad_path: { zh: "这个位置不允许写入", en: "Writing to this location is not allowed", uk: "Запис у це розташування заборонено" },
+  bad_json: { zh: "数据没发全，重试一次", en: "The data did not arrive complete. Try again", uk: "Дані надійшли неповністю. Спробуйте ще раз" },
+  bad_image: { zh: "这张图片打不开，换一张再试", en: "This image cannot be opened. Try another one", uk: "Це зображення не відкривається. Спробуйте інше" },
+  unauthorized: { zh: "链接失效了，找 Terry 要新的", en: "This link has expired. Ask Terry for a new one", uk: "Посилання недійсне. Попросіть у Террі нове" },
+  forbidden: { zh: "你这条链接不能做这件事", en: "Your link is not allowed to do this", uk: "Ваше посилання не дозволяє виконати цю дію" },
+  not_found: { zh: "没找到这个版本", en: "This version was not found", uk: "Цю версію не знайдено" },
+  too_large: { zh: "照片太大了，从后台页面正常上传", en: "The photo is too large. Upload it from the admin page", uk: "Фото завелике. Завантажте його зі сторінки адміністрування" },
+  rate_limited: { zh: "操作太频繁，等几分钟再试", en: "Too many requests. Wait a few minutes and try again", uk: "Забагато запитів. Зачекайте кілька хвилин і повторіть" },
+  upstream_error: { zh: "GitHub 那边出问题了，先看看 PAT 是不是到期了", en: "GitHub returned an error. Check whether the PAT has expired", uk: "GitHub повернув помилку. Перевірте, чи не минув термін дії PAT" },
+  dispatch_unavailable: { zh: "发布功能暂时关着", en: "Publishing is currently turned off", uk: "Публікацію наразі вимкнено" },
+  not_configured: { zh: "这项功能还没配好，找 Terry", en: "This feature is not configured yet. Ask Terry", uk: "Цю функцію ще не налаштовано. Зверніться до Террі" },
+  internal_error: { zh: "后台出了点问题，把这一步再试一次", en: "Something went wrong on the server. Try this step again", uk: "На сервері сталася помилка. Повторіть цей крок" },
+  unresolved_reference: { zh: "这个材料的资料不可用，暂时不能确认", en: "This ingredient's details are unavailable; it cannot be confirmed yet", uk: "Дані цього інгредієнта недоступні; підтвердити поки не можна" },
+  // 字段级三条：message 由调用点现写、带着前端拿不到的具体值，所以 fieldErrorText 在译文后拼上分隔符之后那一段
+  required: { zh: "这项必须填", en: "This field is required", uk: "Це поле обов'язкове" },
+  type: { zh: "这一项的格式不对", en: "This value has the wrong format", uk: "Некоректний формат значення" },
+  enum: { zh: "这一项只能从给定的几个选项里选", en: "Choose one of the allowed options", uk: "Виберіть один із дозволених варіантів" },
 };
+
+/** 字段级 code：message 是调用点现写的，带着具体值（「只能选：en / uk」），所以译文之后要把分隔符后那一段拼回来（#113） */
+const FIELD_DETAIL_CODES = new Set(["required", "type", "enum"]);
+
+/** 拼接用的分隔符按各语言自己的标点习惯：zh 全角，en / uk 半角 */
+const FIELD_DETAIL_SEP: Record<Lang, string> = { zh: "：", en: ": ", uk: ": " };
+
+/** message 里第一个 "：" / ":" 之后的具体值（「只能选：en / uk」→「en / uk」）；没有分隔符就没有可拼的部分 */
+function messageDetail(message: string): string {
+  const i = message.search(/[：:]/);
+  return i < 0 ? "" : message.slice(i + 1).trim();
+}
+
+/**
+ * 一条 errors[] 给师傅看的文字：code 有登记译文就用译文，message 降为「没有 code 译文时的兜底」；
+ * 未登记的 code 仍原样显示 message（ADR-0007 §5 的例外，2026-09-16 / #113）。
+ * required / type / enum 这三条字段级 code 在译文之后拼上 message 中分隔符后的具体值（有才拼）。
+ */
+export function fieldErrorText(err: FieldError, lang: Lang = getLang()): string {
+  const copy = CONTRACT_ERRORS[err.code]?.[lang];
+  if (!copy) return err.message;
+  if (!FIELD_DETAIL_CODES.has(err.code)) return copy;
+  const detail = messageDetail(err.message);
+  return detail ? `${copy}${FIELD_DETAIL_SEP[lang]}${detail}` : copy;
+}
 
 export function apiMessage(err: unknown, lang: Lang = getLang()): string {
   if (isApiError(err)) {
