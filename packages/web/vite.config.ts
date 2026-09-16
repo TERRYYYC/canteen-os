@@ -14,6 +14,8 @@ import { VitePWA } from "vite-plugin-pwa";
  *   有新 SW 在等待时页面顶部出「有新版本，点此刷新」，用户点了才 skipWaiting → reload；
  * - 预缓存 = 应用壳（js/css/html/webmanifest/图标）+ public/data/ 下全部 JSON（当前周三张单）。
  *   build.json 不在其中：它是新鲜度探针，走下面的 NetworkFirst（issue #98）；
+ *   该 NetworkFirst 只收「无查询串」的 build.json，带 `?__publication=` 的探针没有运行时路由、
+ *   即 NetworkOnly，不占那条路由的缓存格（issue #114）；
  * - 运行时：图片 CacheFirst（300 张 / 30 天，docs/research/v2/scenario-g §已知坑 4）；Google Fonts 的 css 与字体文件
  *   StaleWhileRevalidate（断网时用上次的字体，没有就按 tokens.css 回退栈走系统字体）；
  * - navigateFallback index.html：hash 路由只有一个入口，离线时任何导航都回到壳；
@@ -74,6 +76,12 @@ export default defineConfig({
             urlPattern: ({ request, url, sameOrigin }) => {
               if (request.method !== "GET" || !sameOrigin) return false;
               // Scope-anchored like the published-assets rule: /other/data/build.json is a different file.
+              // issue #114：路由按 pathname 匹配，查询串不参与判断，所以每个
+              // `?__publication=probe-…` 探针都会占掉一格 maxEntries；探针每次都是新 URL，
+              // 4 次（约 40 分钟）就把「无查询串」的那条挤出去，离线冷启动读不到清单 → 整屏错误页。
+              // 带查询串的请求（探针本身、运维清单 §3.1 的 ?t= 新鲜度检查）本来就要走网络拿真值，
+              // 没有运行时路由即 NetworkOnly，行为不变；离线时探针失败照旧在 pwa.ts 被 catch 忽略。
+              if (url.search !== "") return false;
               return url.pathname === new URL(
                 "data/build.json",
                 (self as unknown as { registration: { scope: string } }).registration.scope,
@@ -84,7 +92,8 @@ export default defineConfig({
             options: {
               cacheName: "publication-manifest",
               networkTimeoutSeconds: 3,
-              expiration: { maxEntries: 4 },
+              // 现在只有「无查询串」的那一条会写进来，2 格足够（另一格留给切 scope 的边缘情况）
+              expiration: { maxEntries: 2 },
               cacheableResponse: { statuses: [200] },
             },
           },
