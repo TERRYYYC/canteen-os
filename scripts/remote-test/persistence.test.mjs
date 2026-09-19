@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {createWorkflowPublicationFixture} from '../../packages/web/test/e2e/team-meals/workflow-publication-fixture.mjs';
 import {WORKER,call,bearer} from '../../packages/worker/test/helpers.mjs';
 const worker=(await import(WORKER)).default;
-const productionRevision='25f601a44e0f15c57d8456419c6706e2ef2ced89';
+const productionRevision=process.env.CANTEEN_TEST_REVISION??'25f601a44e0f15c57d8456419c6706e2ef2ced89';
 test('durable fixture restores private saves separately from the last published bytes and interrupted runs',async t=>{
  const storageRoot=await mkdtemp(join(tmpdir(),'canteen-persistence-test-'));
  t.after(()=>rm(storageRoot,{recursive:true,force:true}));

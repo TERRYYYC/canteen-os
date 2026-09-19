@@ -13,7 +13,7 @@ async function until(check){for(let i=0;i<300;i++){const r=await check();if(r)re
 test('HTTP auth, raw image metadata, conditional writes, SIGKILL restore, publication and checkpoint failure',async t=>{
  const root=await mkdtemp(join(tmpdir(),'canteen-service-test-')),storageRoot=join(root,'state'),configPath=join(root,'runtime.json');
  const tokens=Object.fromEntries(['chef','buyer','admin'].map(r=>[r,randomBytes(32).toString('base64url')]));
- await writeFile(configPath,JSON.stringify({port,storageRoot,tokens,productionRevision:'25f601a44e0f15c57d8456419c6706e2ef2ced89'}),{mode:0o600});
+ await writeFile(configPath,JSON.stringify({port,storageRoot,tokens,productionRevision:process.env.CANTEEN_TEST_REVISION??'25f601a44e0f15c57d8456419c6706e2ef2ced89'}),{mode:0o600});
  let child,logs='';
  const launch=()=>{const c=spawn(process.execPath,[server.pathname],{env:{...process.env,CANTEEN_TEST_CONFIG:configPath},stdio:['ignore','pipe','pipe']});c.stdout.on('data',d=>logs+=d);c.stderr.on('data',d=>logs+=d);return c;};
  const stop=async signal=>{const c=child;if(!c||c.exitCode!==null||c.signalCode!==null)return;const ended=once(c,'exit');c.kill(signal);await ended;};

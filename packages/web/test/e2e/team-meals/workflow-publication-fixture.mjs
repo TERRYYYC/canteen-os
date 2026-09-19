@@ -19,8 +19,9 @@ const sourceWeb=join(sourceRoot,'packages/web');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const json=value=>JSON.stringify(value,null,2)+'\n';
 
-export async function createWorkflowPublicationFixture({productionRevision,siteUrl,cacheDiagnostics=false,storageRoot}) {
+export async function createWorkflowPublicationFixture({productionRevision,siteUrl,cacheDiagnostics=false,storageRoot,applicationUpgradeFromRevision}) {
  assert.match(productionRevision,/^[a-f0-9]{40}$/);
+ if(applicationUpgradeFromRevision){assert.ok(storageRoot,'upgrades require existing persistent state');assert.match(applicationUpgradeFromRevision,/^[a-f0-9]{40}$/);assert.notEqual(applicationUpgradeFromRevision,productionRevision);}
  assert.ok(!(storageRoot&&cacheDiagnostics),'cache diagnostics are ephemeral-only');
  const site=new URL(siteUrl);assert.equal(site.hostname,'127.0.0.1');assert.equal(site.protocol,'http:');assert.equal(site.pathname,'/canteen/');
  let restored;
@@ -28,8 +29,9 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   storageRoot=resolve(storageRoot);await mkdir(storageRoot,{recursive:true});storageRoot=await realpath(storageRoot);
   try{restored=JSON.parse(await readFile(join(storageRoot,'checkpoint.json'),'utf8'));}
   catch(error){if(error.code!=='ENOENT')throw error;assert.deepEqual(await readdir(storageRoot),[],'missing checkpoint in nonempty state directory; refuse to reseed');}
-  if(restored){assert.equal(restored.schemaVersion,1);assert.equal(restored.productionRevision,productionRevision);assert.equal(restored.siteUrl,siteUrl);}
+  if(restored){assert.equal(restored.schemaVersion,1);assert.equal(restored.productionRevision,applicationUpgradeFromRevision??productionRevision);assert.equal(restored.siteUrl,siteUrl);}
  }
+ if(applicationUpgradeFromRevision)assert.ok(restored,'application upgrade must never seed state');
  const f=createLocalPublicationFixture(storageRoot?{root:join(storageRoot,'repository'),state:restored?.repo}:{});
  if(cacheDiagnostics){
   const files=currentFiles(f.repo),recipe=JSON.parse(files['data/dishes/tomato-egg-stir-fry.json']);
@@ -53,10 +55,10 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   for(const name of await readdir(buildRoot)){const m=/^snapshot-(\d+)$/.exec(name);if(m)sequence=Math.max(sequence,Number(m[1]));}
   for(const job of jobs){
    job.run=f.repo.runs.find(run=>run.id===job.id);assert.ok(job.run);
-   if(['queued','running'].includes(job.state)){job.state='failure';job.error='Service restarted before publication checkpoint';job.run.status='completed';job.run.conclusion='failure';}
+   if(!applicationUpgradeFromRevision&&['queued','running'].includes(job.state)){job.state='failure';job.error='Service restarted before publication checkpoint';job.run.status='completed';job.run.conclusion='failure';}
   }
  }
- async function snapshot(commit) {
+ async function snapshot(commit,{builtAt=new Date().toISOString()}={}) {
   const root=join(buildRoot,`snapshot-${++sequence}`);await mkdir(root);
   await cp(join(sourceWeb,'src'),join(root,'src'),{recursive:true});
   await cp(join(sourceWeb,'index.html'),join(root,'index.html'));
@@ -65,7 +67,7 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   await symlink(join(sourceWeb,'node_modules'),join(root,'node_modules'),'dir');
   await mkdir(join(root,'public'),{recursive:true});
   await cp(join(sourceWeb,'public/icons'),join(root,'public/icons'),{recursive:true});
-  const generated=runBuild({root:f.root,outDir:join(root,'public/data'),commit,target:'team-meals',at:new Date().toISOString(),write:true});
+  const generated=runBuild({root:f.root,outDir:join(root,'public/data'),commit,target:'team-meals',at:builtAt,write:true});
   assert.equal(generated.issues.filter(i=>i.kind==='error').length,0,JSON.stringify(generated.issues));
   const qr=await generateQr({env:{SITE_URL:siteUrl},outDir:join(root,'public/qr'),log:()=>{}});
   const previous=process.env.VITE_WORKER_URL;
@@ -78,6 +80,21 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
  }
  if(restored){active=restored.active;await validateActive(active,buildRoot,restored.activeFiles);assert.equal(f.repo.buildJson.commit,active.commit);}
  else {active=await snapshot(f.repo.head);snapshots.push(active);f.repo.buildJson=active.manifest;}
+ // Explicit offline preparation only: never publish a private save, mutate job state,
+ // or write the checkpoint. The CLI validates and commits config + checkpoint together.
+ let preparedCheckpoint;
+ if(applicationUpgradeFromRevision){
+  const previous=active;
+  active=await snapshot(previous.commit,{builtAt:previous.manifest.builtAt});
+  assert.deepEqual(await artifactFiles(join(active.dist,'data')),await artifactFiles(join(previous.dist,'data')),'application upgrade must preserve all published data bytes');
+  assert.deepEqual(active.manifest,previous.manifest);
+  assert.deepEqual(exportRepo(f.repo),restored.repo,'application upgrade must preserve repository and job state');
+  snapshots.push(active);
+  const activeFiles=await artifactFiles(active.dist,{sync:true});
+  await validateActive(active,buildRoot,activeFiles);
+  await syncDirectories([active.root,buildRoot,storageRoot]);
+  preparedCheckpoint={...restored,productionRevision,sequence,active,activeFiles,snapshots,jobs:jobs.map(({promise,run,...j})=>j)};
+ }
  const inheritedFetch=f.env.__fetch;
  f.env.__requestId=()=>`rcq-local-workflow-${++requestSequence}`;
  f.env.__fetch=async(input,init={})=>{
@@ -125,11 +142,14 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
  const record=()=>({kind:'Q local workflow model; actual Worker, formal producer, QR generator, Vite and generated SW; no remote execution',productionRevision,integrity,buildRoot,fixtureRoot:f.root,active,snapshots,controls,jobs:jobs.map(({promise,...job})=>job)});
  async function saveState(){
   assert.ok(storageRoot,'saveState requires persistent storage');
+  assert.ok(!applicationUpgradeFromRevision,'only the offline CLI may commit a prepared upgrade');
   const activeFiles=await artifactFiles(active.dist,{sync:true});
   await syncDirectories([active.root,buildRoot,storageRoot,dirname(storageRoot)]);
   await atomicJson(join(storageRoot,'checkpoint.json'),{schemaVersion:1,productionRevision,siteUrl,repo:exportRepo(f.repo),sequence,requestSequence,active,activeFiles,snapshots,jobs:jobs.map(({promise,run,...j})=>j)});
  }
- await writeFile(join(buildRoot,'source-integrity.json'),json({productionRevision,integrity}));
- if(storageRoot)await saveState();
- return {...f,buildRoot,integrity,get active(){return active;},jobs,complete,stageCacheUpdate,record,saveState};
+ if(!applicationUpgradeFromRevision){
+  await writeFile(join(buildRoot,'source-integrity.json'),json({productionRevision,integrity}));
+  if(storageRoot)await saveState();
+ }
+ return {...f,buildRoot,integrity,preparedCheckpoint,get active(){return active;},jobs,complete,stageCacheUpdate,record,saveState};
 }
