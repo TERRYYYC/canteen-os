@@ -67,9 +67,15 @@ export interface Env {
   PUBLISH_MODE?: string;
   PUBLISH_WORKFLOW?: string;
   PUBLISH_CLAIM_TIMEOUT_MS?: string;
+  /** Trusted loopback service origin; never accepted from request data. */
+  KNOWLEDGE_BASE_URL?: string;
+  /** 100–30000 ms; defaults to 10000, including response body reading. */
+  KNOWLEDGE_TIMEOUT_MS?: string;
 
   // —— 测试接缝（生产恒为 undefined）——
   __fetch?: typeof fetch;
+  /** Independent KB seam: never route SQLite requests through GitHub __fetch. */
+  __knowledgeFetch?: typeof fetch;
   __log?: (entry: LogEntry) => void;
   __now?: () => number;
   __sleep?: (ms: number) => Promise<void>;

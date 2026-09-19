@@ -20,6 +20,9 @@ import { handleRollback } from "./endpoints/rollback.js";
 import { handleShoppingList } from "./endpoints/shopping-list.js";
 import { handleShoppingIndex } from "./endpoints/shopping-index.js";
 import { handleTranslate } from "./endpoints/translate.js";
+import { handleKnowledge } from "./endpoints/knowledge.js";
+import { KNOWLEDGE_ROUTES, KNOWLEDGE_JSON_MAX_BYTES, KNOWLEDGE_UPLOAD_MAX_BYTES } from "./knowledge-routes.js";
+import { BodyTooLarge, boundedBytes } from "./bounded-body.js";
 import { UpstreamError } from "./github.js";
 import {
   corsHeaders,
@@ -49,6 +52,7 @@ interface Route {
   bucket: Bucket;
   /** true 时按二进制读请求体（POST /image）。 */
   binary?: boolean;
+  bodyLimit?: number;
 }
 
 function route(
@@ -57,6 +61,7 @@ function route(
   handler: Handler,
   bucket: Bucket,
   binary = false,
+  bodyLimit?: number,
 ): Route {
   return {
     method,
@@ -65,11 +70,17 @@ function route(
     handler,
     bucket,
     binary,
+    bodyLimit,
   };
 }
 
 /** 顺序有意义：字面量路由必须排在同长度的参数路由前面（/publish/latest 先于 /publish/:runId）。 */
 export const ROUTES: Route[] = [
+  ...KNOWLEDGE_ROUTES.map(([method, path]) => route(
+    method, path, handleKnowledge, method === "GET" ? "knowledge-read" : "knowledge-write",
+    path === "/knowledge/assets/upload",
+    path === "/knowledge/assets/upload" ? KNOWLEDGE_UPLOAD_MAX_BYTES : KNOWLEDGE_JSON_MAX_BYTES,
+  )),
   route("POST", "/plan/:planId", handlePlan, "write"),
   route("POST", "/ingredient/:id", handleIngredient, "write"),
   route("POST", "/dish/:id/draft", handleDishDraft, "write"),
@@ -140,13 +151,14 @@ function makeRuntime(env: Env): Runtime {
   };
 }
 
-async function readBody(request: Request, binary: boolean): Promise<{ raw: Uint8Array; json: unknown }> {
-  const limit = binary ? IMAGE_MAX_BYTES : JSON_MAX_BYTES;
+async function readBody(request: Request, binary: boolean, bodyLimit?: number): Promise<{ raw: Uint8Array; json: unknown }> {
+  const limit = bodyLimit ?? (binary ? IMAGE_MAX_BYTES : JSON_MAX_BYTES);
   const declared = request.headers.get("Content-Length");
   if (declared !== null && Number(declared) > limit) throw fail("too_large");
 
-  const buffer = new Uint8Array(await request.arrayBuffer());
-  if (buffer.length > limit) throw fail("too_large");
+  let buffer: Uint8Array;
+  try { buffer = await boundedBytes(request.body, limit); }
+  catch (error) { if (error instanceof BodyTooLarge) throw fail("too_large"); throw error; }
   if (binary) return { raw: buffer, json: undefined };
 
   const text = new TextDecoder().decode(buffer).trim();
@@ -202,8 +214,8 @@ export default {
 
       let body: unknown;
       let rawBody: Uint8Array | null = null;
-      if (request.method === "POST") {
-        const read = await readBody(request, match.route.binary === true);
+      if (request.method === "POST" || request.method === "PUT") {
+        const read = await readBody(request, match.route.binary === true, match.route.bodyLimit);
         body = read.json;
         rawBody = read.raw;
       }
