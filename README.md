@@ -5,6 +5,14 @@
 
 ---
 
+## SQLite 知识库接入分支（2026-09-19）
+
+本分支把日常菜谱管理接到独立 SQLite 知识库，入口为 `#/admin/knowledge`。同名菜谱各有独立身份，编辑保留历史版本；CanteenOS Worker 负责现有角色鉴权。`data/` 继续保存菜单、备料与采购使用的固定发布资料。两者的版本边界和下一阶段接入方式见 [ADR-0009](docs/adr/0009-sqlite-knowledge-base.md)。
+
+This integration branch adds a SQLite recipe library at `#/admin/knowledge`, behind the existing role-based gateway. Existing meal plans keep their fixed Git publication data; recipe edits do not silently change those plans.
+
+Ця гілка додає бібліотеку рецептів SQLite (`#/admin/knowledge`) з чинною перевіркою ролей. Плани харчування зберігають фіксовані опубліковані дані Git; редагування рецептів не змінює їх автоматично.
+
 ## 中文
 
 **CanteenOS** 把团队每天吃什么、厨房如何备料、采购员需要确认购买什么放在同一套资料里。师傅排菜或粘贴导入菜单，维护菜品和食材；团队查看用餐安排，帮厨查看备料，采购员人工确认并保存采购清单。`data/` 是 Git 中的知识库，允许不完整资料并明确显示缺项。
