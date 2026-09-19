@@ -104,7 +104,8 @@ test('unconfigured home keeps unknown numbers, three-language connection notice,
       assert.equal(s.legacyReads.length, 0, 'unconfigured home must never invoke default legacy getApi');
       assert.equal(s.calls.length, 0);
       assert.match(el.textContent, new RegExp(marker));
-      assert.equal(byClass(el, 'adm-home-tile').length, 7);
+      assert.equal(byClass(el, 'adm-home-tile').length, 8);
+      assert.equal(byClass(el, 'adm-home-tile-knowledge')[0].getAttribute('href'), '#/admin/knowledge');
       assert.match(byClass(el, 'adm-home-tile-plan')[0].textContent, /—/);
       assert.doesNotMatch(el.textContent, /都发布了|Everything is published|Усе опубліковано/);
       el.remove();

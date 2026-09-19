@@ -1,0 +1,132 @@
+import assert from 'node:assert/strict';
+import { test, after } from 'node:test';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+import { webcrypto } from 'node:crypto';
+import { Element } from './team-meals-pages-unload-dom.mjs';
+const here = dirname(fileURLToPath(import.meta.url)), require = createRequire(import.meta.url);
+const viteRequire = createRequire(require.resolve('vite/package.json'));
+const esbuild = await import(pathToFileURL(viteRequire.resolve('esbuild')));
+const dir = await mkdtemp(join(tmpdir(), 'knowledge-web-'));
+after(() => rm(dir, { recursive: true, force: true }));
+const output = join(dir, 'knowledge.mjs');
+const bundle = await esbuild.build({ stdin: { contents: `export {render} from './pages/admin/knowledge'; export * from './api/knowledge'; export * from './pages/admin/knowledge/model'; export {inspectReloadSafety} from './view-models/reload-safety';`, loader: 'ts', resolveDir: join(here, '../src') }, bundle: true, write: false, format: 'esm', platform: 'browser', loader: { '.css': 'empty' }, define: { 'import.meta.env.VITE_WORKER_URL': '"/worker"' }, logLevel: 'silent', plugins: [{ name: 'auth-boundary', setup(build) {
+  build.onResolve({ filter: /\/admin\/token$/ }, () => ({ path: 'token', namespace: 'test' }));
+  build.onResolve({ filter: /\/router$/ }, () => ({ path: 'router', namespace: 'test' }));
+  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
+} }] });
+await writeFile(output, bundle.outputFiles[0].text);
+const id = '10000000-0000-4000-8000-000000000001';
+const id2 = '10000000-0000-4000-8000-000000000002';
+const assetId = '20000000-0000-4000-8000-000000000001';
+const detail = (overrides = {}) => ({ id, version: 1, createdAt: '2026-09-19T00:00:00.000Z', recipe: { title: { zh: '红烧肉', en: 'Braised pork', uk: 'Тушкована свинина' }, ingredients: [{ id: id2, ingredientId: id2, name: { zh: '盐', en: 'Salt' }, amount: { kind: 'unknown', raw: '未写明' }, role: 'seasoning', preparation: { uk: 'Підготувати' } }], steps: [], sources: [], assets: [] }, media: [], sourceRecords: [], ...overrides });
+const json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', etag: '"v1"', ...headers } });
+const defer = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
+let serial = 0;
+async function setup(handler = () => json(detail())) {
+  globalThis.fixture = { token: 'test-only-token', auth: 1, authHooks: [], routeHooks: [], calls: [], handler };
+  Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
+  globalThis.window = { addEventListener() {}, confirm: () => true };
+  globalThis.location = { hash: '#/admin/knowledge' };
+  globalThis.document = { createElement: tag => new Element(tag), createTextNode: text => new Element('', String(text)), activeElement: null };
+  const body = new Element('body'), el = new Element('main'); body.append(el);
+  globalThis.fetch = async (url, init = {}) => { fixture.calls.push({ url: String(url), init }); return fixture.handler(String(url), init); };
+  const m = await import(pathToFileURL(output).href + `?run=${++serial}`);
+  const flush = async () => { for (let i=0;i<15;i++) await new Promise(resolve => setImmediate(resolve)); };
+  const mount = async (rest = id, lang = 'zh') => { await m.render(el, { lang, setReloadCoverage() {} }, rest); await flush(); };
+  const all = selector => el.querySelectorAll(selector);
+  const click = text => { const control = all('button').find(b => b.textContent === text); assert(control, `button ${text}`); control.click(); };
+  const field = (legend, language) => {
+    const container = all('fieldset').find(f => f.children[0]?.tagName === 'LEGEND' && f.children[0].textContent === legend);
+    assert(container, `fieldset ${legend}`);
+    const label = container.querySelectorAll('label').find(f => f.children[0]?.textContent === language);
+    return label.querySelector('input,textarea');
+  };
+  const set = (control, value) => { control.value=value; control.dispatchEvent({ type: 'input' }); };
+  return { m, el, body, flush, mount, all, click, field, set, leave() { el.replaceChildren(); location.hash='#/admin/plan'; fixture.routeHooks.forEach(fn=>fn()); } };
+}
+
+test('transport keeps ETag, replay header, new API errors and authenticated gateway path', async () => {
+  const h = await setup();
+  const api = h.m.createKnowledgeApi({ base: '/gateway', token: () => 'private', session: () => 1, fetch: async (url, init) => { assert.equal(url, '/gateway/knowledge/recipes'); assert.equal(new Headers(init.headers).get('authorization'), 'Bearer private'); assert.equal(init.redirect, 'error'); return json({items:[]}, 200, {etag:'"v7"','idempotency-replayed':'true'}); } });
+  const reply = await api.request('/recipes'); assert.equal(reply.etag, '"v7"'); assert.equal(reply.replayed, 'true');
+  const denied = h.m.createKnowledgeApi({ base: '/gateway', token: () => 'private', session: () => 1, fetch: async()=>json({error:{code:'FORBIDDEN',message:'denied',details:{role:'buyer'}}},403) });
+  await assert.rejects(denied.request('/recipes'), error=>error.status===403 && error.code==='FORBIDDEN' && error.details.role==='buyer');
+});
+test('transport refuses missing configuration/auth and discards a late prior-session body', async () => {
+  const h=await setup(); let calls=0;
+  await assert.rejects(h.m.createKnowledgeApi({base:'',fetch:async()=>{calls++;}}).request('/recipes'),e=>e.status===503);
+  await assert.rejects(h.m.createKnowledgeApi({base:'/w',token:()=>null,fetch:async()=>{calls++;}}).request('/recipes'),e=>e.status===401); assert.equal(calls,0);
+  const held=defer();let session=1;
+  const api=h.m.createKnowledgeApi({base:'/w',session:()=>session,token:()=> 'same',fetch:async()=>{await held.promise;return json(detail());}});
+  const request=api.request('/recipes');session=2;held.resolve();await assert.rejects(request,e=>e.code==='session_changed');
+});
+test('list search and cursor paging preserve same-name independent UUIDs', async () => {
+  const h=await setup(url=>json({items:[{id:url.includes('cursor=')?id2:id,title:{zh:'红烧肉'},version:1}],nextCursor:url.includes('cursor=')?null:'cursor-safe'}));
+  await h.mount(''); assert.equal(h.all('.kb-card').length,1);h.click('继续加载');await h.flush();assert.equal(h.all('.kb-card').length,2);
+  const search=h.all('input')[0];h.set(search,'红烧肉');h.click('搜索');await h.flush();assert(fixture.calls.at(-1).url.includes('q='));
+});
+test('save preserves untouched languages, UUIDs, ingredient references and unknown quantities', async () => {
+  let saved;
+  const h=await setup((url,init)=>{if(init.method==='PUT'){saved=JSON.parse(init.body);assert.equal(new Headers(init.headers).get('if-match'),'"v1"');assert(new Headers(init.headers).get('idempotency-key'));return json(detail({version:2,recipe:saved}),200,{etag:'"v2"'});}return json(detail());});
+  await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'红烧肉第二种');h.click('保存菜谱');await h.flush();
+  assert.equal(saved.title.en,'Braised pork');assert.equal(saved.title.uk,'Тушкована свинина');assert.equal(saved.ingredients[0].id,id2);assert.equal(saved.ingredients[0].ingredientId,id2);assert.deepEqual(saved.ingredients[0].amount,{kind:'unknown',raw:'未写明'});assert.equal(saved.ingredients[0].preparation.uk,'Підготувати');assert.match(h.el.textContent,/已保存，每次修改/);
+});
+test('conflict retains input, history is read-only and newest selection wins', async () => {
+  const a=defer(),b=defer();
+  const h=await setup((url,init)=>{if(init.method==='PUT')return json({error:{code:'VERSION_CONFLICT',message:'changed'}},409);if(url.endsWith('/revisions'))return json({items:[{version:1,createdAt:'old'},{version:2,createdAt:'new'}]});if(url.endsWith('/revisions/1'))return a.promise;if(url.endsWith('/revisions/2'))return b.promise;return json(detail());});
+  await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'保留草稿');h.click('保存菜谱');await h.flush();assert.equal(h.field('菜名（至少一种语言）','中文').value,'保留草稿');assert.match(h.el.textContent,/已有更新/);
+  h.click('历史版本');await h.flush();h.click('v1 · old');h.click('v2 · new');b.resolve(json(detail({version:2,recipe:{title:{zh:'latest-only'}}})));await h.flush();a.resolve(json(detail({recipe:{title:{zh:'stale-only'}}})));await h.flush();assert.match(h.el.textContent,/latest-only/);assert.doesNotMatch(h.el.textContent,/stale-only/);assert.equal(h.field('菜名（至少一种语言）','中文').value,'保留草稿');
+});
+test('unknown new-save retries exact request/key and does not create duplicate recipe', async () => {
+  let writes=0, first;
+  const h=await setup((url,init)=>{if(init.method==='POST'){writes++;if(writes===1){first=init;throw new TypeError('lost response');}assert.equal(init.body,first.body);assert.equal(new Headers(init.headers).get('idempotency-key'),new Headers(first.headers).get('idempotency-key'));return json(detail({recipe:JSON.parse(init.body)}),201);}return json(detail());});
+  await h.mount('new');h.set(h.field('菜名（至少一种语言）','中文'),'同名');h.click('保存菜谱');await h.flush();assert.match(h.el.textContent,/保存结果暂时无法确认/);assert.equal(h.m.inspectReloadSafety().reason,'unknown');h.click('核对保存结果');await h.flush();assert.equal(writes,2);assert.equal(location.hash,`#/admin/knowledge/${id}`);assert.equal(h.m.inspectReloadSafety().reason,'clear');
+  await h.mount('new');assert.equal(h.field('菜名（至少一种语言）','中文').value,'','another independent new draft is supported');
+});
+test('late create completion updates cached draft but does not navigate away from another task', async () => {
+  const held=defer();const h=await setup(()=>held.promise);await h.mount('new');h.set(h.field('菜名（至少一种语言）','中文'),'晚到');h.click('保存菜谱');await h.flush();h.leave();held.resolve(json(detail(),201));await h.flush();assert.equal(location.hash,'#/admin/plan');await h.mount(id);assert.equal(fixture.calls.length,1);assert.equal(h.field('菜名（至少一种语言）','中文').value,'红烧肉');
+});
+test('language change while saving preserves inputs and refreshes the current editor on completion',async()=>{
+  const held=defer();const h=await setup((url,init)=>init.method==='PUT'?held.promise:json(detail()));await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'语言切换草稿');h.click('保存菜谱');await h.flush();await h.mount(id,'en');assert.equal(h.field('Title (at least one language)','中文').value,'语言切换草稿');held.resolve(json(detail({version:2,recipe:{...detail().recipe,title:{zh:'语言切换草稿',en:'Braised pork',uk:'Тушкована свинина'}}}),200,{etag:'"v2"'}));await h.flush();assert.match(h.el.textContent,/Saved\. Each edit/);assert.equal(h.m.inspectReloadSafety().reason,'clear');
+});
+test('source/external image uploads are references and draft save omits top-level imported evidence',async()=>{
+  let saved;const h=await setup((url,init)=>{if(url.endsWith('/sources'))return json({id:id2,kind:'text',textContent:'original source'},201);if(url.endsWith('/assets/external'))return json({id:assetId,kind:'image',url:'https://example.invalid/picture.jpg',status:'ready'},201);if(init.method==='PUT'){saved=JSON.parse(init.body);return json(detail({recipe:saved}));}return json(detail({legacy:{rawText:'original protected'}}));});
+  await h.mount();const sourceLabel=h.all('label').find(l=>l.children[0]?.textContent==='来源原文');h.set(sourceLabel.querySelector('textarea'),'original source');h.click('添加这份资料');await h.flush();const assetLabel=h.all('label').find(l=>l.children[0]?.textContent==='外部素材网址');h.set(assetLabel.querySelector('input'),'https://example.invalid/picture.jpg');h.click('添加外链素材');await h.flush();h.click('保存菜谱');await h.flush();assert.deepEqual(saved.sources,[{sourceId:id2}]);assert.deepEqual(saved.assets,[{assetId,role:'reference'}]);assert(!('legacy' in saved));
+});
+test('authenticated image reads remap through gateway and object URLs are revoked on leaving', async()=>{
+  const revoked=[],created=[],originalCreate=URL.createObjectURL,originalRevoke=URL.revokeObjectURL;
+  URL.createObjectURL=()=>{created.push('blob:fixture');return 'blob:fixture';};URL.revokeObjectURL=url=>revoked.push(url);
+  try{const h=await setup(url=>url.includes('/assets/')?new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}}):json(detail({recipe:{...detail().recipe,assets:[{assetId,role:'cover'}]},media:[{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}]})));await h.mount();assert.equal(created.length,1);const call=fixture.calls.find(c=>c.url.includes('/assets/'));assert.equal(call.url,`/worker/knowledge/assets/${assetId}/content`);assert.equal(new Headers(call.init.headers).get('authorization'),'Bearer test-only-token');assert.equal(h.all('img')[0].getAttribute('src'),'blob:fixture');h.leave();assert(revoked.includes('blob:fixture'));}finally{URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;}
+});
+test('legacy evidence is displayed without entering editable recipe and unavailable errors are explicit',async()=>{
+  const h=await setup(url=>url.endsWith('/legacy')?json({recipeId:id,version:1,evidence:{rawText:'untouched original',warnings:[{message:'unverified'}]}}):json(detail()));await h.mount();h.click('导入原文');await h.flush();assert.match(h.el.textContent,/untouched original/);assert.match(h.el.textContent,/unverified/);
+  h.leave();fixture.handler=()=>json({error:{code:'KB_UNAVAILABLE',message:'offline'}},503);await h.mount(id2);assert.match(h.el.textContent,/菜谱知识库暂时无法连接/);
+});
+test('auth replacement immediately removes old private draft and its late read is discarded',async()=>{
+  const h=await setup();await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'private draft');fixture.auth++;fixture.authHooks.forEach(fn=>fn());assert.equal(h.el.textContent,'');await h.mount();assert.equal(h.field('菜名（至少一种语言）','中文').value,'红烧肉');
+});
+test('decimal precision stays textual and deleting a step converts links to references',async()=>{
+  const h=await setup();const recipe=detail().recipe;recipe.ingredients[0].amount={kind:'exact',value:'0.12345678901234567890123456789',unit:'g'};assert.equal(h.m.validate(recipe),null);assert.equal(h.m.editable(recipe).ingredients[0].amount.value,'0.12345678901234567890123456789');recipe.steps=[{id:id2,text:{zh:'切'}}];recipe.assets=[{assetId,role:'step',stepId:id2,clip:{start:0,end:2}}];h.m.removeStep(recipe,id2);assert.deepEqual(recipe.assets,[{assetId,role:'reference',clip:{start:0,end:2}}]);
+});
+test('a pre-save history list cannot cache an obsolete version after save succeeds', async()=>{
+  const oldList=defer();let listReads=0;
+  const h=await setup((url,init)=>{
+    if(url.endsWith('/revisions')){listReads++;return listReads===1?oldList.promise:json({items:[{version:1,createdAt:'old'},{version:2,createdAt:'new'}]});}
+    if(init.method==='PUT')return json(detail({version:2,recipe:JSON.parse(init.body)}),200,{etag:'"v2"'});
+    return json(detail());
+  });
+  await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'新版本');h.click('历史版本');await h.flush();h.click('保存菜谱');await h.flush();
+  oldList.resolve(json({items:[{version:1,createdAt:'old'}]}));await h.flush();h.click('历史版本');h.click('历史版本');await h.flush();
+  assert(listReads>=2,'saving must invalidate the older in-flight history list');assert(h.all('button').some(b=>b.textContent==='v2 · new'));
+});
+test('save completion invalidates history loaded by a newer language render',async()=>{
+  const write=defer();let version=1,listReads=0;
+  const h=await setup((url,init)=>{if(init.method==='PUT')return write.promise;if(url.endsWith('/revisions')){listReads++;return json({items:[{version,createdAt:version===1?'old':'new'}]});}return json(detail());});
+  await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'跨语言保存');h.click('保存菜谱');await h.flush();await h.mount(id,'en');h.click('Revision history');await h.flush();assert(h.all('button').some(b=>b.textContent==='v1 · old'));
+  version=2;write.resolve(json(detail({version:2}),200,{etag:'"v2"'}));await h.flush();
+  assert(listReads>=2,'the currently mounted language render must invalidate its cached history');assert(h.all('button').some(b=>b.textContent==='v2 · new'));assert(!h.all('button').some(b=>b.textContent==='v1 · old'));
+});
