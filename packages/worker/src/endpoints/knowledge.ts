@@ -22,6 +22,7 @@ function targetPath(ctx: Ctx): string {
   if (canonical !== ctx.url.pathname) throw fail("bad_path", { message: "知识库接口路径不正确" });
   const allowed = ctx.request.method !== "GET" ? new Map<string, number>()
     : canonical === "/knowledge/recipes" ? new Map([["q", 200], ["tag", 100], ["cursor", 2000], ["limit", 3]])
+      : canonical === "/knowledge/favorites/items" ? new Map([["folder", 200], ["state", 40], ["cursor", 1000], ["limit", 3]])
       : ["/knowledge/ingredients", "/knowledge/techniques"].includes(canonical)
         ? new Map([["q", 200], ["cursor", 1000], ["limit", 3]]) : new Map<string, number>();
   const seen = new Set<string>();

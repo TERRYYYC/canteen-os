@@ -43,12 +43,24 @@ test('all knowledge routes require Bearer; buyers read all routes but cannot wri
     for (const role of [null, 'buyer', 'chef', 'admin']) {
       const f = fixture();
       const response = await send(f, method, path, { ...request, role });
-      const expected = role === null ? 401 : role === 'buyer' && method !== 'GET' ? 403 : method === 'POST' ? 201 : 200;
+      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites')) ? 403 : method === 'POST' ? 201 : 200;
       assert.equal(response.status, expected, `${role} ${method} ${path}: ${await response.text()}`);
       assert.equal(f.seen.length, expected < 400 ? 1 : 0);
       assert.equal(f.gitCalls, 0);
     }
   }
+});
+
+test('favorites inbox has fixed routes, private access and bounded query forwarding', async () => {
+  const f = fixture();
+  const response = await send(f, 'GET', '/knowledge/favorites/items?folder=%E5%90%83%E7%9A%84&state=evidence_pending&limit=50');
+  assert.equal(response.status, 200);
+  assert.equal(f.seen[0].url, 'http://127.0.0.1:4390/api/v1/favorites/items?folder=%E5%90%83%E7%9A%84&state=evidence_pending&limit=50');
+  assert.equal((await send(fixture(), 'GET', '/knowledge/favorites/items', { role: 'buyer' })).status, 403);
+  assert.equal((await send(fixture(), 'GET', '/knowledge/favorites/items?sourceUrl=https://outside.invalid')).status, 400);
+  assert.equal((await send(fixture(), 'POST', `/knowledge/favorites/items/${id}/captures`, { body: {} })).status, 201);
+  assert.equal((await send(fixture(), 'POST', `/knowledge/favorites/items/${id}/candidates`, { body: {} })).status, 201);
+  assert.equal((await send(fixture(), 'POST', `/knowledge/favorites/candidates/${id}/review`, { body: {} })).status, 201);
 });
 
 test('PUT keeps raw decimal strings, preconditions and KB error bodies, and does not forward old credentials or ambient headers', async () => {

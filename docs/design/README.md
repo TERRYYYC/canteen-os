@@ -6,6 +6,7 @@
 |---|---|---|
 | [`screens-v2.html`](screens-v2.html) | 前台 5 屏：左上角目录角标 + 抽屉；备料单 `/prep` A 清单式 / B 图卡式 / C 按时间分组；采购单 `/purchase`；菜单 `/menu` 列表 + 详情（参照 Expirenza 骨架） | **定稿**（2026-09-07，Terry 接受） |
 | [`backoffice-v1.html`](backoffice-v1.html) | 后台 7 屏：工作台、排菜单周视图、粘贴导入、贴视频链接 + 进度、复核、新食材、发布 / 回退 / 二维码；页尾是写入通道架构 | **定稿**（2026-09-07） |
+| [`favorites-inbox-v1.html`](favorites-inbox-v1.html) | 菜谱知识库内的收藏收件箱：覆盖差额、CSV 入箱、来源证据和草稿审核 | **验证稿**（2026-09-27，待真人体验确认） |
 | [`screens-v1.html`](screens-v1.html) | 前台第一版（无目录角标，菜单未参照 Expirenza） | 已取代，仅供对照 |
 
 ## 实现时的取舍（已定）

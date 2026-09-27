@@ -43,6 +43,7 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
   replace(el, root); mounted = root;
   const t = words(ctx.lang), auth = getAuthSessionVersion();
   const active = () => root.isConnected && getAuthSessionVersion() === auth;
+  if (rest === 'inbox') { ctx.setReloadCoverage?.('read-only'); const { renderInbox } = await import('./knowledge/inbox.js'); if(active()) await renderInbox(root,ctx,active); return; }
   if (!rest) { ctx.setReloadCoverage?.('read-only'); await library(root, ctx, active); return; }
   if (rest !== 'new' && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(rest)) {
     root.append(status(t('无效的菜谱标识。', 'Invalid recipe ID.', 'Недійсний ідентифікатор рецепта.'), true)); ctx.setReloadCoverage?.('read-only'); return;
@@ -136,7 +137,7 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
   const tagInput = input('', value => { tag = value; });
   const form = h('form', { class: 'kb-panel' }, h('div', { class: 'kb-grid' }, field(t('搜索名称或内容', 'Search name or content', 'Пошук за назвою або вмістом'), search), field(t('标签', 'Tag', 'Мітка'), tagInput)), button(t('搜索', 'Search', 'Шукати'), () => void load(true), true));
   form.addEventListener('submit', event => { event.preventDefault(); void load(true); });
-  root.append(h('div', { class: 'kb-header' }, h('h2', {}, title), h('a', { class: 'kb-link', href: href('new') }, t('＋ 收藏新做法', '＋ New recipe', '＋ Новий рецепт'))),
+  root.append(h('div', { class: 'kb-header' }, h('h2', {}, title), h('a', { class: 'kb-link', href: href('inbox') }, t('收藏收件箱', 'Favorites inbox', 'Вхідні обраного')), h('a', { class: 'kb-link', href: href('new') }, t('＋ 收藏新做法', '＋ New recipe', '＋ Новий рецепт'))),
     h('p', { class: 'kb-muted' }, t('同一道菜可以收藏多款做法，每款独立保存。这里的修改不会自动替换已发布菜单中的版本。', 'Keep several versions of a dish as independent recipes. Edits here do not replace published menu versions.', 'Зберігайте різні способи приготування як окремі рецепти. Зміни тут не замінюють версії в опублікованому меню.')),
     form, info, results, more);
   let filter = { q: '', tag: '' }, seen = new Set<string>();

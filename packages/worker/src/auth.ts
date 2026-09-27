@@ -71,7 +71,7 @@ export async function resolveRole(env: Env, authorization: string | null): Promi
 /** 权限矩阵（契约 §1.0 / §2.5 + 2026-09-08 决议追加：POST /dish/:id 与两个只读端点）。 */
 export const PERMISSIONS: Record<string, readonly Role[]> = {
   ...Object.fromEntries(KNOWLEDGE_ROUTES.map(([method, path]) => [
-    `${method} ${path}`, method === "GET" ? ["chef", "buyer", "admin"] : ["chef", "admin"],
+    `${method} ${path}`, path.startsWith('/knowledge/favorites') ? ["chef", "admin"] : method === "GET" ? ["chef", "buyer", "admin"] : ["chef", "admin"],
   ])) as Record<string, readonly Role[]>,
   "POST /plan/:planId": ["chef", "admin"],
   "POST /ingredient/:id": ["chef", "admin"],

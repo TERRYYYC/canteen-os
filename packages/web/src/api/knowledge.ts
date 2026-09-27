@@ -17,7 +17,7 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
   const base = options.base.replace(/\/+$/, '');
   async function raw(path: string, init: RequestInit = {}): Promise<Response> {
     if (!base) throw new KnowledgeError('Knowledge service is not configured', 503, 'knowledge_unconfigured');
-    if (!/^\/(?:recipes|health|assets|sources|ingredients|techniques)(?:[/?]|$)/.test(path)) throw new KnowledgeError('Invalid knowledge path', 400);
+    if (!/^\/(?:recipes|health|assets|sources|ingredients|techniques|favorites)(?:[/?]|$)/.test(path)) throw new KnowledgeError('Invalid knowledge path', 400);
     const credential = token(), generation = session();
     if (!credential) throw new KnowledgeError('Access link required', 401, 'unauthorized');
     const controller = new AbortController();
