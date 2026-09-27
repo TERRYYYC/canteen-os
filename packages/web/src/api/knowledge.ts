@@ -17,7 +17,8 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
   const base = options.base.replace(/\/+$/, '');
   async function raw(path: string, init: RequestInit = {}): Promise<Response> {
     if (!base) throw new KnowledgeError('Knowledge service is not configured', 503, 'knowledge_unconfigured');
-    if (!/^\/(?:recipes|health|assets|sources|ingredients|techniques|favorites)(?:[/?]|$)/.test(path)) throw new KnowledgeError('Invalid knowledge path', 400);
+    const materialization=/^\/materializations\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(path);
+    if (!materialization && !/^\/(?:recipes|health|assets|sources|ingredients|techniques|favorites)(?:[/?]|$)/.test(path)) throw new KnowledgeError('Invalid knowledge path', 400);
     const credential = token(), generation = session();
     if (!credential) throw new KnowledgeError('Access link required', 401, 'unauthorized');
     const controller = new AbortController();
@@ -29,7 +30,7 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
     headers.set('Authorization', `Bearer ${credential}`);
     if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json');
     try {
-      const response = await fetcher(`${base}/knowledge${path}`, { ...init, headers, signal: controller.signal, cache: 'no-store', credentials: 'omit', redirect: 'error' });
+      const response = await fetcher(materialization?`${base}/knowledge-materializations/${path.slice('/materializations/'.length)}`:`${base}/knowledge${path}`, { ...init, headers, signal: controller.signal, cache: 'no-store', credentials: 'omit', redirect: 'error' });
       if (session() !== generation || token() !== credential) throw new KnowledgeError('Access session changed', 401, 'session_changed');
       const body = await response.arrayBuffer();
       if (session() !== generation || token() !== credential) throw new KnowledgeError('Access session changed', 401, 'session_changed');

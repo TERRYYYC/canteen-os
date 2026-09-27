@@ -552,7 +552,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
   if (issuePanel && !cooking) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
-  const timedComponents = rows.flatMap(row => row.dish?.components ?? []);
+  const timedComponents = rows.flatMap(row => (row.dish?.components ?? []) as Array<NonNullable<AnyDish['components']>[number]>);
   const matching = timedComponents.filter(component => (!options.ingredientRef || component.ingredientRef === options.ingredientRef) && (!options.timing || options.timing === "all" || component.prep?.timing === options.timing));
   if (options.timing && options.timing !== "all") {
       const unknown = timedComponents.filter(component => !component.prep?.timing).length;
@@ -585,7 +585,13 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
       if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
-      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang));
+      const source=projection.collection.items.find(item=>item.ingredientRef===component.ingredientRef)?.sources.find(value=>value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex);
+      const shown=source?.scaledQty;
+      const original=source?.originalAmount||rawQuantityText(component.qty,lang);
+      const quantityText=shown
+        ? `${word(lang,'本次','This meal','Цей прийом')}: ${rawQuantityText(shown,lang)} · ${word(lang,'原方','Original','Оригінал')}: ${original}`
+        : original;
+      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, quantityText);
       const card = h("section", { class: "card", "data-component-index": componentIndex });
       const ingredientRecord = h("details", { class: "prep-ingredient-record" }, h("summary", {}, word(lang,"材料与采购资料","Ingredient and purchase record","Дані інгредієнта й закупівлі")));
       if (cooking) { card.append(h("div", { class: "prep-ingredient-heading" }, label, quantity)); ingredientRecord.append(names(ingredient?.name), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined)); }
@@ -618,7 +624,12 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
     }
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
-    if (dish.provenance?.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
+    if(dish.provenance?.source==='knowledge'){
+      (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
+        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}`},word(lang,'打开来源菜谱','Open source recipe','Відкрити рецепт')));
+      if(dish.provenance.sourceUrl)(cooking ? recipeRecord : section).append(external(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
+    }
+    if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);
   }
   if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }

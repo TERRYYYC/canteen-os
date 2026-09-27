@@ -15,7 +15,8 @@ export interface TeamMealInputs {
 export interface IngredientSource {
   menuPlanRef: Id; date: string; mealType: MealType; dishRef: Id;
   mealIndex: number; componentIndex: number;
-  plannedServings?: number; baseServings?: number; qty?: Quantity;
+  plannedServings?: number; baseServings?: number; qty?: Quantity; scaledQty?: Quantity;
+  originalAmount?: string;
 }
 export type ReferenceIssueCode = 'missing-plan' | 'empty-selection' | 'missing-dish' |
   'missing-ingredient' | 'components-unrecorded' | 'dish-not-active' | 'missing-technique';
@@ -66,6 +67,13 @@ export function collectIngredientReferences(inputs: TeamMealInputs, selection: S
         if (meal.plannedServings !== undefined) source.plannedServings = meal.plannedServings;
         if (dish.baseServings !== undefined) source.baseServings = dish.baseServings;
         if (component.qty !== undefined) source.qty = clone(component.qty);
+        if (component.qty?.unit==='to-taste')source.scaledQty={unit:'to-taste'};
+        else if(component.qty?.value!==undefined&&meal.plannedServings!==undefined&&dish.baseServings!==undefined&&
+          Number.isFinite(component.qty.value)&&Number.isFinite(meal.plannedServings)&&Number.isFinite(dish.baseServings)&&dish.baseServings>0){
+          const value=component.qty.value*meal.plannedServings/dish.baseServings;
+          if(Number.isFinite(value)&&value>0)source.scaledQty={value:Number(value.toPrecision(12)),unit:component.qty.unit};
+        }
+        if ('originalAmount' in component && typeof component.originalAmount==='string')source.originalAmount=component.originalAmount;
         let item = candidates.get(ingredientRef);
         if (!item) { item = {ingredientRef,sources:[]}; candidates.set(ingredientRef,item); }
         item.sources.push(source);
@@ -122,7 +130,7 @@ export function normalizeDemand(inputs: TeamMealInputs, selection: ShoppingSelec
     const ingredient = lookup(inputs.ingredients,item.ingredientRef);
     const sources = ordered(item.sources.map(s=>[
       s.menuPlanRef,s.date,s.mealType,s.dishRef,s.plannedServings ?? null,s.baseServings ?? null,
-      normalizedQty(s.qty),lookup(inputs.menuPlans,s.menuPlanRef)?.margin ?? DEFAULT_MARGIN,
+      normalizedQty(s.qty),s.originalAmount??null,lookup(inputs.menuPlans,s.menuPlanRef)?.margin ?? DEFAULT_MARGIN,
       lookup(inputs.dishes,s.dishRef)?.status ?? 'draft',
     ]));
     ingredients[item.ingredientRef] = JSON.stringify({context,sources,ingredient:ingredient
@@ -230,7 +238,8 @@ export function estimateShoppingList(inputs: TeamMealInputs, selection: Shopping
     const dishes: Record<Id,Dish>={};
     for (const source of item.sources) {
       const dish=lookup(inputs.dishes,source.dishRef)!;
-      dishes[source.dishRef]={...clone(dish),schemaVersion:'2',components:(dish.components ?? [])
+      const {provenance:_provenance,...dishFields}=clone(dish);
+      dishes[source.dishRef]={...dishFields,schemaVersion:'2',components:(dish.components ?? [])
         .filter(c=>c.ingredientRef===item.ingredientRef).map(c=>({...clone(c),qty:clone(c.qty!)}))};
     }
     const result=expand(plan,dishes,inputs.ingredients);

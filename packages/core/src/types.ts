@@ -353,6 +353,17 @@ export interface DishComponentV3 {
   qty?: Quantity;
   prep?: DishPrep;
   confidence?: Confidence;
+  originalAmount?: string;
+  originalText?: string;
+  knowledgeIngredientId?: string;
+}
+export interface KnowledgeProvenance {
+  source: 'knowledge';
+  recipeId: string;
+  recipeVersion: number;
+  candidateId: string;
+  snapshotHash: string;
+  sourceUrl?: string;
 }
 export interface DishV3 {
   schemaVersion: "3";
@@ -362,7 +373,7 @@ export interface DishV3 {
   baseServings?: number;
   components?: DishComponentV3[];
   steps?: DishStep[];
-  provenance?: DishProvenance;
+  provenance?: DishProvenance | KnowledgeProvenance;
   status?: DishStatus;
 }
 export type AnyDish = Dish | DishV3;

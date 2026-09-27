@@ -73,6 +73,8 @@ export const MAPPING = [
   { schema: "menu-plan-v3.schema.json#/properties/meals/items", ts: "MenuPlanMealV3" },
   { schema: "dish-v3.schema.json#", ts: "DishV3" },
   { schema: "dish-v3.schema.json#/properties/components/items", ts: "DishComponentV3" },
+  { schema: "dish-v3.schema.json#/properties/provenance", ts: "DishV3.provenance" },
+  { schema: "dish-v3.schema.json#/properties/provenance/oneOf/1", ts: "KnowledgeProvenance" },
   { schema: "any-menu-plan.schema.json#", ts: "AnyMenuPlan" },
   { schema: "any-dish.schema.json#", ts: "AnyDish" },
   { schema: "shopping-list.schema.json#", ts: "ShoppingList" },

@@ -111,7 +111,9 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
       const imageInfo=captures.flatMap(c=>c.evidence.images??[]).map(i=>h('li',{},`${i.role} · ${i.licenseStatus} · `,h('a',{href:i.url,target:'_blank',rel:'noopener noreferrer'},i.url)));
       replace(body,link?h('a',{href:link,target:'_blank',rel:'noopener noreferrer'},t('打开原作品','Open original post','Відкрити оригінал')):h('span',{},item.url),
         h('details',{},h('summary',{},t('收藏卡片原文（未核验）','Saved card text (unverified)','Текст картки (неперевірено)')),h('pre',{},item.cardAlt),h('pre',{},item.displayText)),
-        item.lastError?h('p',{role:'alert'},item.lastError):h('p',{class:'kb-muted'},t('尚无自动取得的正文；失败和未知用量保持可见。','No retrieved post body. Failures and unknown amounts remain visible.','Текст допису ще не отримано.')),
+        item.lastError?h('p',{role:'alert'},item.lastError):h('p',{class:'kb-muted'},readyCapture
+          ?t('已有原作品正文证据；请核对下方逐项引句和未定量，再决定是否批准。','Source post text is saved. Check every quote and unknown amount before approval.','Текст оригіналу збережено. Перевірте цитати й невизначені кількості перед схваленням.')
+          :t('尚无原作品正文；失败和未知用量保持可见。','No source post text yet. Failures and unknown amounts remain visible.','Текст оригіналу ще не отримано.')),
         item.classification?h('p',{class:'kb-status'},`${t('非菜谱判定','Non-recipe decision','Не рецепт')}: ${item.classification.reason} · ${item.classification.reviewer}`):h('span'),
         h('div',{class:'kb-actions'},cardButton),field(t('作品正文或字幕','Post text or transcript','Текст або субтитри'),postText),
         h('div',{class:'kb-actions'},field(t('来源位置','Source location','Місце джерела'),locator),field(t('来源方式','Evidence type','Тип джерела'),method),captureButton),
@@ -165,7 +167,18 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         catch(error){if(active())replace(result,h('p',{role:'alert'},errorText(error)));}}
       const row=h('details',{class:'kb-inbox-candidate'},h('summary',{},`${candidate.recipe.title.zh??''} · ${candidate.status} · ${source?.status??''}`),
         h('pre',{},JSON.stringify({recipe:candidate.recipe,fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates},null,2)));
-      if(candidate.recipeId)row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`));
+      if(candidate.recipeId){
+        const materialNotice=h('div');
+        const material=button(t('固定此版本供菜单使用','Freeze this version for menus','Зафіксувати версію для меню'),()=>void materialize());
+        async function materialize(){material.disabled=true;try{
+          const {data}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unchanged:boolean;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:'{}'});
+          if(!active())return;
+          replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('原方用量待确认','Original amounts to confirm','Кількість потребує перевірки')} ${data.unresolvedCount}`),
+            h('a',{href:'#/admin/plan/team-week'},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
+        }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
+        row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
+          h('div',{class:'kb-actions'},material),materialNotice);
+      }
       else if(candidate.status==='needs_review')row.append(field(t('审核人','Reviewer','Рецензент'),reviewer),field(t('审核备注','Review note','Примітка'),note),
         h('div',{class:'kb-actions'},button(t('批准并保存独立菜谱','Approve and save recipe','Схвалити рецепт'),()=>void review('approve'),true),button(t('退回','Reject','Відхилити'),()=>void review('reject'))),
         source?.status==='card_only'?h('p',{role:'alert'},t('只有卡片线索，需先核对原帖才能批准。','Card only: check the original post before approval.','Лише картка: перевірте оригінал.')):h('span'),result);

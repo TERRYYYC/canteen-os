@@ -113,6 +113,7 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
 
 export async function handleIngredient(ctx: Ctx): Promise<WriteResponse> {
   const id = assertId(ctx.params.id ?? "");
+  if(id.startsWith('kbi-'))throw fail('bad_path',{message:'固定版本的食材资料不能原地修改'});
   const body = asObject(ctx.body);
 
   const result = validateEntity("ingredient", body);
@@ -139,6 +140,7 @@ export async function handleDish(ctx: Ctx): Promise<WriteResponse> {
 
 async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> {
   const id = assertId(ctx.params.id ?? "");
+  if(id.startsWith('kb-'))throw fail('bad_path',{message:'固定版本的菜谱不能原地修改'});
   const body = asObject(ctx.body);
 
   const result = validateEntity("dish", body);

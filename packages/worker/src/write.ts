@@ -92,3 +92,31 @@ export async function commitSingleFile(
 
   throw fail("conflict");
 }
+
+/** A materialized KB revision is one immutable tree change, never N separate saves. */
+export async function commitImmutableFiles(
+  gh: GitHubClient,
+  files: { path: string; bytes: Uint8Array }[],
+  { subject, role, endpoint }: { subject: string; role: Role; endpoint: string },
+): Promise<{ commit: string; unchanged: boolean }> {
+  if(!files.length||new Set(files.map(f=>f.path)).size!==files.length)throw fail('invalid_source');
+  const expected=await Promise.all(files.map(async f=>({ ...f, sha:await gitBlobSha(f.bytes) })));
+  for(let attempt=0;attempt<2;attempt++){
+    const head=await gh.getHeadSha();
+    const current=await Promise.all(expected.map(f=>gh.getFile(f.path,head)));
+    const present=current.filter(Boolean).length;
+    if(present){
+      if(present===expected.length&&current.every((file,index)=>file?.sha===expected[index]!.sha))return {commit:head,unchanged:true};
+      throw fail('conflict',{message:'此菜谱版本已写入不同内容，不能覆盖固定快照'});
+    }
+    const entries=[];
+    for(const file of expected){
+      entries.push({path:file.path,mode:'100644',type:'blob',sha:await gh.createBlob(bytesToBase64(file.bytes),'base64')});
+    }
+    const base=await gh.getCommit(head);
+    const tree=await gh.createTree(base.treeSha,entries);
+    const commit=await gh.createCommit(commitMessage(`${subject} ${SKIP_CI}`,role,endpoint),tree,[head]);
+    if(await gh.updateRef(commit))return {commit,unchanged:false};
+  }
+  throw fail('conflict');
+}

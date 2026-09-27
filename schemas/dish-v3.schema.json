@@ -38,7 +38,10 @@
           },
           "confidence": {
             "$ref": "dish.schema.json#/properties/components/items/properties/confidence"
-          }
+          },
+          "originalAmount": { "type": "string", "description": "经审核来源的原方用量；即使不能换算也必须保留" },
+          "originalText": { "type": "string", "description": "原方食材行文本" },
+          "knowledgeIngredientId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
         },
         "required": [
           "ingredientRef"
@@ -49,9 +52,17 @@
     "steps": {
       "$ref": "dish.schema.json#/properties/steps"
     },
-    "provenance": {
-      "$ref": "dish.schema.json#/properties/provenance"
-    },
+    "provenance": { "oneOf": [
+      { "$ref": "dish.schema.json#/properties/provenance" },
+      { "type": "object", "properties": {
+        "source": { "const": "knowledge" },
+        "recipeId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+        "recipeVersion": { "type": "integer", "minimum": 1 },
+        "candidateId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
+        "snapshotHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "sourceUrl": { "type": "string", "format": "uri" }
+      }, "required": ["source","recipeId","recipeVersion","candidateId","snapshotHash"], "additionalProperties": false }
+    ] },
     "status": {
       "$ref": "dish.schema.json#/properties/status"
     }

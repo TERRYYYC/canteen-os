@@ -73,6 +73,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
   ...Object.fromEntries(KNOWLEDGE_ROUTES.map(([method, path]) => [
     `${method} ${path}`, path.startsWith('/knowledge/favorites') ? ["chef", "admin"] : method === "GET" ? ["chef", "buyer", "admin"] : ["chef", "admin"],
   ])) as Record<string, readonly Role[]>,
+  "POST /knowledge-materializations/:id": ["chef", "admin"],
   "POST /plan/:planId": ["chef", "admin"],
   "POST /ingredient/:id": ["chef", "admin"],
   "POST /dish/:id/draft": ["chef", "admin"],

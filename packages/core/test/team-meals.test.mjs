@@ -189,3 +189,16 @@ test('explicit human check clears previous while pure same-basis reconciliation 
  assert.equal(decided.items.find(i=>i.ingredientRef==='salt').previous,undefined);
  assert.ok(retained.items.find(i=>i.ingredientRef==='salt').previous);
 });
+
+test('versioned KB dish keeps original amounts and computes only quantities with known servings',()=>{
+ const x={menuPlans:{'team-week':{schemaVersion:'3',meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'kb-recipe-v1',plannedServings:4}]}},
+  dishes:{'kb-recipe-v1':{schemaVersion:'3',name:{zh:'测试菜'},status:'active',baseServings:2,components:[
+   {ingredientRef:'meat',qty:{value:1000,unit:'g'},originalAmount:'1000 克'},
+   {ingredientRef:'sauce',originalAmount:'3 勺'}]}},
+  ingredients:{meat:{schemaVersion:'2',name:{zh:'肉'},baseUnit:'g',trackStock:false},sauce:{schemaVersion:'2',name:{zh:'酱油'},baseUnit:'g',trackStock:false}},techniques:[]};
+ const r=core.collectIngredientReferences(x,selection);
+ assert.deepEqual(r.items.find(i=>i.ingredientRef==='meat').sources[0].scaledQty,{value:2000,unit:'g'});
+ assert.equal(r.items.find(i=>i.ingredientRef==='sauce').sources[0].scaledQty,undefined);
+ assert.equal(r.items.find(i=>i.ingredientRef==='sauce').sources[0].originalAmount,'3 勺');
+ assert.equal(core.estimateShoppingList(x,selection,AT).items.find(i=>i.ingredientRef==='sauce').status,'unavailable');
+});

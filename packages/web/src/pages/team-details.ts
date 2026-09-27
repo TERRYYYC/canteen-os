@@ -83,12 +83,19 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   }else{
     const dish=lookup(projection.dishes,id)!;
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
-    if(dish.provenance?.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
+    if(dish.provenance?.source==='knowledge'){
+      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
+        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}`},word(lang,'打开来源菜谱','Open source recipe','Відкрити рецепт')));
+      if(dish.provenance.sourceUrl)el.append(link(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
+    }
+    if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
     el.append(h('h3',{},t('components')),h('p',{class:'muted'},t('recipe')));
     if(!dish.components?.length)el.append(h('p',{role:'status'},t('missing')));
     for(const [index,component] of (dish.components??[]).entries()){
       const ingredient=lookup(projection.ingredients,component.ingredientRef),prep=component.prep;
-      const card=h('section',{class:'tm-card','data-component-index':index},h('h4',{},h('a',{href:options.href('ingredient',component.ingredientRef)},ingredient?pick(ingredient.name,lang):component.ingredientRef)),h('p',{},quantityText(component.qty,lang)),h('p',{class:'muted'},`${t('role')}: ${ingredient?.role?t(ingredient.role):t('missing')}`));
+      const card=h('section',{class:'tm-card','data-component-index':index},h('h4',{},h('a',{href:options.href('ingredient',component.ingredientRef)},ingredient?pick(ingredient.name,lang):component.ingredientRef)),h('p',{},quantityText(component.qty,lang)),
+        'originalAmount' in component && component.originalAmount?h('p',{},`${word(lang,'原方','Original','Оригінал')}: ${component.originalAmount}`):null,
+        h('p',{class:'muted'},`${t('role')}: ${ingredient?.role?t(ingredient.role):t('missing')}`));
       if(prep)card.append(technique(prep.techniqueRef),h('dl',{class:'tm-facts'},fact(t('size'),prep.size),fact(t('timing'),recordValue(prep.timing,lang)),fact(t('note'),prep.note?pick(prep.note,lang):undefined)),image(prep.image,owner,`/components/${index}/prep/image`));
       if(component.confidence)card.append(supportDetails(lang,h('small',{},`${t('confidence')}: ${component.confidence.value} · ${component.confidence.source}`)));
       el.append(card);
