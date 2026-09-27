@@ -58,6 +58,16 @@ test('R3 catalog cache follows adopted source and acknowledged save revision',as
  const {form,api}=setup();const revisions=[];api.getCatalog=async options=>{revisions.push(options?.revision);return {commit:options?.revision??A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}};};
  await form.load('week-a');form.session.replace(plan,src(plan,B,'blob-b'));const catalog=await form.load('week-a');assert.equal(catalog.commit,B);assert.deepEqual(revisions,[A,B]);
 });
+test('a newly materialized dish is available to an existing plan without replacing its save baseline',async()=>{
+ const {form,api,writes}=setup();let head=A;
+ api.getCatalog=async options=>({commit:options?.revision??head,dishes:head===B&&options?.revision===undefined?{newDish:{name:{zh:'新菜'}}}:{},ingredients:{},techniques:[],suppliers:[],translations:{}});
+ await form.load('week-a');head=B;
+ const latest=await form.loadLatestCatalog();
+ assert.equal(latest.commit,B);assert(latest.dishes.newDish);
+ form.add('2026-10-07','lunch','newDish');await form.session.save();
+ assert.deepEqual(writes[0][2],{ifMatch:'blob-a'});
+ assert.equal(writes[0][1].meals.at(-1).dishRef,'newDish');
+});
 test('R5 language rebind joins pending exact revision catalog',async()=>{
  const {form,api}=setup();let release,calls=0;api.getCatalog=()=>{calls++;return new Promise(r=>release=r);};
  const first=form.load('week-a');await new Promise(r=>setTimeout(r,0));const second=form.load('week-a');

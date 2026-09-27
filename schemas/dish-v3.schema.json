@@ -41,6 +41,7 @@
           },
           "originalAmount": { "type": "string", "description": "经审核来源的原方用量；即使不能换算也必须保留" },
           "originalText": { "type": "string", "description": "原方食材行文本" },
+          "originalPreparation": { "$ref": "common.schema.json#/$defs/I18nString" },
           "knowledgeIngredientId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
         },
         "required": [
@@ -60,7 +61,11 @@
         "recipeVersion": { "type": "integer", "minimum": 1 },
         "candidateId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
         "snapshotHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-        "sourceUrl": { "type": "string", "format": "uri" }
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "evidence": { "type": "object", "properties": {
+          "sourceRecords": { "type": "array", "items": { "type": "object" } },
+          "sourceRefs": { "type": "array", "items": { "type": "object" } }
+        }, "required": ["sourceRecords", "sourceRefs"], "additionalProperties": false }
       }, "required": ["source","recipeId","recipeVersion","candidateId","snapshotHash"], "additionalProperties": false }
     ] },
     "status": {

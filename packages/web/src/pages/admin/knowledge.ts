@@ -44,6 +44,25 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
   const t = words(ctx.lang), auth = getAuthSessionVersion();
   const active = () => root.isConnected && getAuthSessionVersion() === auth;
   if (rest === 'inbox') { ctx.setReloadCoverage?.('read-only'); const { renderInbox } = await import('./knowledge/inbox.js'); if(active()) await renderInbox(root,ctx,active); return; }
+  const historical=/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/revisions\/([1-9][0-9]*)$/.exec(rest);
+  if(historical){
+    ctx.setReloadCoverage?.('read-only');
+    const [,recipeId,version]=historical;
+    root.append(status(t('正在读取固定菜谱版本…','Loading frozen recipe version…','Завантаження версії рецепта…')));
+    try{
+      const {data}=await getKnowledgeApi().request<RecipeDetail>(`/recipes/${recipeId}/revisions/${version}`);
+      if(!active())return;
+      const view:MediaView={t,current:active,changed(){},paint(){},error:error=>message(error,t),image(url,target){
+        void getKnowledgeApi().image(url).then(blob=>{
+          if(!active()||!target.isConnected)return;
+          const objectUrl=URL.createObjectURL(blob);urls.add(objectUrl);
+          target.prepend(h('img',{src:objectUrl,alt:t('菜谱图片','Recipe image','Зображення рецепта')}));
+        }).catch(error=>{if(active()&&target.isConnected)target.append(status(message(error,t),true));});
+      }};
+      replace(root,h('div',{class:'kb-header'},h('h2',{},`${t('菜谱固定版本','Frozen recipe version','Версія рецепта')} v${data.version}`),h('a',{href:href(recipeId)},t('打开当前菜谱','Open current recipe','Відкрити поточний рецепт'))),readonlyDetail(data,view));
+    }catch(error){if(active())replace(root,status(message(error,t),true),h('a',{href:href(recipeId)},t('返回菜谱','Back to recipe','Назад до рецепта')));}
+    return;
+  }
   if (!rest) { ctx.setReloadCoverage?.('read-only'); await library(root, ctx, active); return; }
   if (rest !== 'new' && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(rest)) {
     root.append(status(t('无效的菜谱标识。', 'Invalid recipe ID.', 'Недійсний ідентифікатор рецепта.'), true)); ctx.setReloadCoverage?.('read-only'); return;

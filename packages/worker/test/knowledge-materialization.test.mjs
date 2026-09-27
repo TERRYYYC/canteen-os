@@ -4,6 +4,7 @@ import {FakeRepo,makeEnv,bearer,call,WORKER} from './helpers.mjs';
 import {projectTeamMeals,estimateShoppingList} from '../../core/dist/index.js';
 
 const { materializationFiles } = await import('../dist/knowledge-materialization.js');
+const { validateEntity } = await import('../dist/validate.js');
 const recipeId = '3f4c6638-dcf8-4231-966c-1c5e2816c059';
 const candidateId = 'e2068014-7d9e-4e74-b24d-32f12554e7c4';
 const ingredientId = '70a8bc39-50d6-47cc-8b3e-0f788c602b6a';
@@ -40,6 +41,19 @@ test('precise recorded decimals remain numeric and missing raw text still has an
   const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
   assert.deepEqual(dish.components[0].qty,{value:0.33333,unit:'kg'});
   assert.equal(dish.components[0].originalAmount,'0.33333 kg');
+});
+
+test('approved preparation and original field evidence remain in immutable menu inputs',async()=>{
+  const changed=structuredClone(detail);
+  changed.recipe.ingredients[0].preparation={zh:'浸泡一夜'};
+  changed.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64),fieldEvidence:{title:{quote:'测试菜',locator:'post'},ingredients:[{quote:'肉 1000 克',locator:'post'}],steps:[{quote:'烤熟',locator:'post'}]}}}];
+  changed.sourceRecords=[{id:'source-1',kind:'web',title:'原贴',author:'作者',url:'https://example.org/post',textContent:'测试菜 肉 1000 克 烤熟'}];
+  const fixed=await materializationFiles(approved,changed);
+  const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
+  assert.deepEqual(dish.components[0].originalPreparation,{zh:'浸泡一夜'});
+  assert.equal(dish.provenance.evidence.sourceRecords[0].textContent,'测试菜 肉 1000 克 烤熟');
+  assert.equal(dish.provenance.evidence.sourceRefs[0].evidence.fieldEvidence.ingredients[0].quote,'肉 1000 克');
+  assert.equal(validateEntity('dish',dish).valid,true);
 });
 
 test('unapproved or mismatched candidate never becomes a menu dish', async () => {

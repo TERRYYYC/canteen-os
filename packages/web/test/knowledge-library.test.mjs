@@ -56,6 +56,17 @@ test('transport keeps ETag, replay header, new API errors and authenticated gate
   const denied = h.m.createKnowledgeApi({ base: '/gateway', token: () => 'private', session: () => 1, fetch: async()=>json({error:{code:'FORBIDDEN',message:'denied',details:{role:'buyer'}}},403) });
   await assert.rejects(denied.request('/recipes'), error=>error.status===403 && error.code==='FORBIDDEN' && error.details.role==='buyer');
 });
+test('a provenance link reads exactly the historical KB version without an editable draft',async()=>{
+ const h=await setup(url=>{
+   assert.match(url, new RegExp(`/recipes/${id}/revisions/1$`));
+   return json(detail({sourceRecords:[{id:'source-1',kind:'web',url:'https://example.org/post',textContent:'original v1'}]}));
+ });
+ await h.mount(`${id}/revisions/1`);
+ assert.match(h.el.textContent,/菜谱固定版本 v1/);
+ assert.match(h.el.textContent,/original v1/);
+ assert.equal(h.all('textarea').length,0);
+ assert.equal(fixture.calls.length,1);
+});
 test('transport refuses missing configuration/auth and discards a late prior-session body', async () => {
   const h=await setup(); let calls=0;
   await assert.rejects(h.m.createKnowledgeApi({base:'',fetch:async()=>{calls++;}}).request('/recipes'),e=>e.status===503);

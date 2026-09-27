@@ -4,10 +4,10 @@ import { stableSerialize } from './serialize.js';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 type Localized = { zh?: string; en?: string; uk?: string };
 type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; value?: string; unit?: string };
-type IngredientRow = { id: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: string };
+type IngredientRow = { id: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized };
 type StepRow = { id: string; text: Localized };
 type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string };
-type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[] }; media?: unknown[]; sourceRecords?: unknown[] };
+type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[] }; media?: unknown[]; sourceRecords?: unknown[] };
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs' }> = {
   g:{unit:'g',baseUnit:'g'}, 克:{unit:'g',baseUnit:'g'}, kg:{unit:'kg',baseUnit:'g'}, 千克:{unit:'kg',baseUnit:'g'}, 公斤:{unit:'kg',baseUnit:'g'},
@@ -52,14 +52,17 @@ export async function materializationFiles(candidate: Candidate, detail: Detail)
       ...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{}),trackStock:false};
     files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize(ingredient)});
     return {ingredientRef:ref,...(converted.qty?{qty:converted.qty}:{}),originalAmount:converted.originalAmount,
-      originalText:row.rawText??'',knowledgeIngredientId:row.id};
+      originalText:row.rawText??'',...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
   });
   const steps=detail.recipe.steps.map(row=>{if(!UUID.test(row.id)||!row.text)throw new Error('invalid_recipe_step');return {text:row.text};});
   const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.find(source=>typeof source?.url==='string')?.url;
+  const sourceRecords=detail.sourceRecords??[];
+  const sourceRefs=detail.recipe.sources??[];
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
     ...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
-      ...(typeof sourceUrl==='string'?{sourceUrl}:{})},status:'active'};
+      ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
+      ...(sourceRecords.length||sourceRefs.length?{evidence:{sourceRecords,sourceRefs}}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,unresolvedCount};
 }

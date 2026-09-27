@@ -596,6 +596,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       const ingredientRecord = h("details", { class: "prep-ingredient-record" }, h("summary", {}, word(lang,"材料与采购资料","Ingredient and purchase record","Дані інгредієнта й закупівлі")));
       if (cooking) { card.append(h("div", { class: "prep-ingredient-heading" }, label, quantity)); ingredientRecord.append(names(ingredient?.name), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined)); }
       else card.append(label, names(ingredient?.name), quantity, fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{'data-original-preparation':''},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
       if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
@@ -626,8 +627,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
     if(dish.provenance?.source==='knowledge'){
       (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}`},word(lang,'打开来源菜谱','Open source recipe','Відкрити рецепт')));
+        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
       if(dish.provenance.sourceUrl)(cooking ? recipeRecord : section).append(external(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
+      if(dish.provenance.evidence)(cooking ? recipeRecord : section).append(h('details',{class:'prep-source-evidence'},h('summary',{},word(lang,'审核时的来源与引句','Approved source and quotes','Джерела та цитати')),h('pre',{},JSON.stringify(dish.provenance.evidence,null,2))));
     }
     if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);

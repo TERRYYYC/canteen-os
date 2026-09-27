@@ -152,9 +152,27 @@ class TeamHttpApi implements TeamMealsApi {
   async getCatalog(opts: ReadOptions = {}): Promise<TeamCatalog> {
     const path = `/catalog${this.query(opts)}`;
     return this.cached(path, opts.force, async () => {
-      const body = await this.transport.request<TeamCatalog & {ok?: unknown}>({method:'GET',path});
-      checkRevision(body.commit, opts.revision);
-      const {ok: _ok, ...catalog} = body; return catalog;
+      let cursor: string | null = null;
+      const seen = new Set<string>();
+      let catalog: TeamCatalog | null = null;
+      do {
+        const pagePath: string = cursor ? `/catalog?cursor=${encodeURIComponent(cursor)}` : path;
+        const body: TeamCatalog & {ok?: unknown;nextCursor?: string | null} = await this.transport.request<TeamCatalog & {ok?: unknown;nextCursor?: string | null}>({method:'GET',path:pagePath});
+        checkRevision(body.commit, opts.revision ?? catalog?.commit);
+        if (!catalog) catalog={commit:body.commit,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+        Object.assign(catalog.dishes,body.dishes);
+        Object.assign(catalog.ingredients,body.ingredients);
+        catalog.techniques.push(...body.techniques);
+        catalog.suppliers.push(...body.suppliers);
+        for (const key of ['machine','human','stale'] as const) catalog.translations[key]+=body.translations[key];
+        cursor=body.nextCursor ?? null;
+        if (cursor) {
+          if (!new RegExp(`^v1\\.${catalog.commit}\\.[1-9][0-9]*$`).test(cursor) || seen.has(cursor)) throw new ApiError(502,'bad_response','');
+          seen.add(cursor);
+        }
+      } while (cursor);
+      catalog!.suppliers=[...new Set(catalog!.suppliers)].sort();
+      return catalog!;
     });
   }
   async getAsset(query: AssetQuery): Promise<RevisionAsset> {

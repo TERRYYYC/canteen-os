@@ -85,8 +85,9 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.source==='knowledge'){
       el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}`},word(lang,'打开来源菜谱','Open source recipe','Відкрити рецепт')));
+        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
       if(dish.provenance.sourceUrl)el.append(link(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
+      if(dish.provenance.evidence)el.append(h('details',{},h('summary',{},word(lang,'审核时的来源与引句','Approved source and quotes','Джерела та цитати')),h('pre',{},JSON.stringify(dish.provenance.evidence,null,2))));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
     el.append(h('h3',{},t('components')),h('p',{class:'muted'},t('recipe')));
@@ -97,6 +98,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
         'originalAmount' in component && component.originalAmount?h('p',{},`${word(lang,'原方','Original','Оригінал')}: ${component.originalAmount}`):null,
         h('p',{class:'muted'},`${t('role')}: ${ingredient?.role?t(ingredient.role):t('missing')}`));
       if(prep)card.append(technique(prep.techniqueRef),h('dl',{class:'tm-facts'},fact(t('size'),prep.size),fact(t('timing'),recordValue(prep.timing,lang)),fact(t('note'),prep.note?pick(prep.note,lang):undefined)),image(prep.image,owner,`/components/${index}/prep/image`));
+      if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if(component.confidence)card.append(supportDetails(lang,h('small',{},`${t('confidence')}: ${component.confidence.value} · ${component.confidence.source}`)));
       el.append(card);
     }

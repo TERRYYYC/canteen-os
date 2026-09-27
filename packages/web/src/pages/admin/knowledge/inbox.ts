@@ -174,9 +174,9 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           const {data}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unchanged:boolean;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:'{}'});
           if(!active())return;
           replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('原方用量待确认','Original amounts to confirm','Кількість потребує перевірки')} ${data.unresolvedCount}`),
-            h('a',{href:'#/admin/plan/team-week'},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
+            h('a',{href:`#/admin/plan/team-week/select/${encodeURIComponent(data.dishRef)}`},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
         }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
-        row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
+        row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
           h('div',{class:'kb-actions'},material),materialNotice);
       }
       else if(candidate.status==='needs_review')row.append(field(t('审核人','Reviewer','Рецензент'),reviewer),field(t('审核备注','Review note','Примітка'),note),

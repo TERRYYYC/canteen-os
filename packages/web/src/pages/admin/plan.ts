@@ -19,7 +19,7 @@ export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { preview?:boolean; editing?:number; addExpanded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
+interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalogCommit?:string; pendingSelection?:string; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
@@ -52,7 +52,9 @@ export function createPlanRenderer(api:TeamMealsApi) {
       views.clear();form=createForm();auth=api.sessionKey();
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
-    const id=rest||currentPlan(ctx,api).id||planIdOfDate(new Date().toISOString().slice(0,10))||'';
+    const [routeId,actionName,selectedDishRef]=rest.split('/');
+    const id=routeId||currentPlan(ctx,api).id||planIdOfDate(new Date().toISOString().slice(0,10))||'';
+    const selectedDish=actionName==='select'&&selectedDishRef&&/^kb-[0-9a-f]{32}-v[1-9][0-9]*$/.test(selectedDishRef)?selectedDishRef:null;
     if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
     el.classList.add('tm-page');el.classList.add('tm-plan');
     const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{class:'tm-plan-sr'},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
@@ -70,7 +72,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     if(!auxiliary.has(view))auxiliary.set(view,registerAuxiliaryEdits({ownerId:`plan-buffer/${id}`,identity:{kind:'plan',id},boundary:api,operationTracking:'tickets',
       read:()=>({generation:view.generation,dirty:rawPending(view),phase:view.reads?'busy':'idle'})}));
     const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
-    const sourceKey=()=>owner.session.getState().source?.commit??'current-unsaved';
+    const sourceKey=()=>view.catalogCommit??owner.session.getState().source?.commit??'current-unsaved';
     // Bind what actually arrived, never whichever source happens to be current after an await.
     const catalogKey=(value:TeamCatalog|null)=>sourceKey()==='current-unsaved'?'current-unsaved':value?.commit;
     function paint() {
@@ -101,6 +103,11 @@ export function createPlanRenderer(api:TeamMealsApi) {
       }
       if(s.phase==='conflict')output.push(conflict());
       if(s.draft){
+        if(view.pendingSelection)output.push(h('div',{class:'tm-card',role:'status'},
+          h('p',{},lang==='zh'?'添加栏已有尚未加入的选择；新菜暂未覆盖它。':lang==='en'?'The Add form has an unfinished choice; the new dish has not replaced it.':'У формі вже є незавершений вибір.'),
+          action(lang==='zh'?'改选新菜':lang==='en'?'Choose new dish':'Вибрати нову страву',()=>{
+            view.addDish=view.pendingSelection!;view.pendingSelection=undefined;touch(view);paint();
+          })));
         output.push(h('p',{class:'tm-plan-note'},lang==='zh'?'每道菜的份数可留空':lang==='en'?'Servings are optional for each dish':'Порції для кожної страви необов’язкові'));
         const plan=s.draft;
         const groups=new Map<string,number[]>();
@@ -195,7 +202,10 @@ export function createPlanRenderer(api:TeamMealsApi) {
     function dishSelect(value:string,key:string):HTMLSelectElement {
       const select=h('select',{'data-focus':key});select.append(h('option',{value:''},tr('choose')));
       if(value&&!Object.hasOwn(catalog?.dishes??{},value))select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
-      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`));
+      for(const [dishId,dish] of Object.entries(catalog?.dishes??{})){
+        const version=dish.provenance?.source==='knowledge'?` · KB v${dish.provenance.recipeVersion} · ${dish.provenance.recipeId.slice(0,8)}`:'';
+        select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${version}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`));
+      }
       select.value=value;return select;
     }
     function row(index:number):HTMLElement {
@@ -273,9 +283,10 @@ export function createPlanRenderer(api:TeamMealsApi) {
       try{
         const key=sourceKey();
         const result=state.identity?.id===id&&state.phase!=='closed'
-          ? await owner.loadCatalog(force)
+          ? force?await owner.loadLatestCatalog():await owner.loadCatalog(false)
           : await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
         if(isLive()&&owner.session.getState().identity?.id===id&&(state.identity?.id!==id||sourceKey()===key)){
+          if(force&&result)view.catalogCommit=result.commit;
           catalog=result;boundKey=catalogKey(result);requestedKey=boundKey;loadError=null;
         }
       }catch(error){if(isLive())loadError=error;}paint();
@@ -287,6 +298,15 @@ export function createPlanRenderer(api:TeamMealsApi) {
     try{
       catalog=await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
       if(!isLive())return;
+      if(selectedDish){
+        const latest=await owner.loadLatestCatalog();
+        if(!isLive())return;
+        catalog=latest;view.catalogCommit=latest.commit;
+        if(Object.hasOwn(latest.dishes,selectedDish)){
+          if(!addPending(view)||view.addDish===selectedDish){view.addDish=selectedDish;view.pendingSelection=undefined;touch(view);}
+          else view.pendingSelection=selectedDish;
+        }
+      }
       boundKey=catalogKey(catalog);
       const s=owner.session.getState();
       if(!view.initialized){

@@ -58,16 +58,18 @@ const LOADERS: Record<AdminScreen, () => Promise<{ render: ScreenRender }>> = {
 /** rest → 屏 + 交给屏的 rest；认不出 → null */
 function resolve(rest: string): { screen: AdminScreen; rest: string } | null {
   const segs = rest.split("/").filter(Boolean);
-  const [a, b, c] = segs;
+  const [a, b, c, d] = segs;
   if (segs.length === 0) return { screen: "home", rest: "" };
   switch (a) {
     case "plan":
       if (segs.length === 1) return { screen: "plan", rest: "" };
       if (segs.length === 2) return b === "import" ? { screen: "import", rest: "" } : { screen: "plan", rest: b ?? "" };
       if (segs.length === 3 && c === "import" && b !== "import") return { screen: "import", rest: b ?? "" };
+      if (segs.length === 4 && c === "select" && b && d) return { screen: "plan", rest: `${b}/select/${d}` };
       return null;
     case "knowledge":
-      return segs.length <= 2 ? { screen: "knowledge", rest: b ?? "" } : null;
+      if (segs.length <= 2) return { screen: "knowledge", rest: b ?? "" };
+      return segs.length === 4 && c === 'revisions' && b && d ? {screen:'knowledge',rest:`${b}/revisions/${d}`} : null;
     case "ingredient":
       return segs.length === 2 && b ? { screen: "ingredient-new", rest: b } : null;
     case "dish":

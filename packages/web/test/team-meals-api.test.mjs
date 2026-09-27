@@ -70,6 +70,19 @@ test('revision source/catalog cache is separate from current and deep cloned; mi
  await assert.rejects(bad.getPlan('p',{revision:A}),{code:'revision_mismatch'});assert.equal(badCalls.length,1);
  await assert.rejects(bad.getPlan('p',{revision:'main'}),{code:'invalid_revision'});assert.equal(badCalls.length,1);
 });
+test('catalog joins bounded pages at one revision before exposing dishes and ingredients',async()=>{
+ const cursor=`v1.${A}.40`;
+ const {api,calls}=setup(url=>new URL(url).searchParams.has('cursor')
+   ?json({ok:true,commit:A,dishes:{newDish:{schemaVersion:'3',name:{zh:'新菜'}}},ingredients:{newIngredient:{schemaVersion:'2',name:{zh:'肉'},baseUnit:'g',trackStock:false}},techniques:[],suppliers:['B'],translations:{machine:0,human:1,stale:0},nextCursor:null})
+   :json({ok:true,commit:A,dishes:{oldDish:{schemaVersion:'3',name:{zh:'旧菜'}}},ingredients:{},techniques:[],suppliers:['A'],translations:{machine:1,human:0,stale:0},nextCursor:cursor}));
+ const result=await api.getCatalog();
+ assert.deepEqual(Object.keys(result.dishes),['oldDish','newDish']);
+ assert.deepEqual(Object.keys(result.ingredients),['newIngredient']);
+ assert.deepEqual(result.suppliers,['A','B']);
+ assert.deepEqual(result.translations,{machine:1,human:1,stale:0});
+ assert.equal(calls.length,2);
+ assert.equal(new URL(calls[1].url).searchParams.get('cursor'),cursor);
+});
 test('revision errors are kept and shopping-list source uses own kind',async()=>{
  for(const [status,code] of [[422,'revision_unavailable'],[422,'basis_unavailable'],[422,'invalid_source'],[502,'upstream_error'],[404,'revision_unavailable']]) {
  const {api,calls}=setup(()=>error(status,code));await assert.rejects(api.getShoppingList('list',{revision:A}),{code});assert.equal(calls.length,1);assert.match(calls[0].url,/source\/shopping-list\/list/);

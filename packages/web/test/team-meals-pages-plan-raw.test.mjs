@@ -85,6 +85,22 @@ test('a known Source error releases its read and page coverage without clearing 
 test('compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing',async()=>{
  const f=await setup();try{const el=await f.mount();assert.equal(cls(el,'tm-plan').length,1);assert.equal(cls(el,'tm-plan-day').length,7);assert.equal(cls(el,'tm-plan-row-main').length,3);assert.equal(focus(el,'servings-2').value,'');assert.equal(cls(el,'tm-plan-edit').length,3);const nodes=walk(el);assert(nodes.indexOf(cls(el,'tm-actions')[0])<nodes.indexOf(cls(el,'tm-add-form')[0]));const before=f.render.readAuxiliary('week-a');cls(el,'tm-plan-day')[1].click();assert.equal(cls(el,'tm-plan-row-main').length,1);assert.equal(focus(el,'servings-1').value,'12');assert.deepEqual(f.render.readAuxiliary('week-a'),before);assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });
+test('inbox selection opens the newly frozen version in an already visited plan',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc',dishRef=`kb-${recipeId.replaceAll('-','')}-v2`;
+ const f=await setup({read:u=>u.pathname==='/catalog'?Response.json({commit:u.searchParams.has('revision')?A:B,
+   dishes:{soup:{schemaVersion:'3',name:{en:'Soup'},components:[]},...(u.searchParams.has('revision')?{}:{[dishRef]:{schemaVersion:'3',name:{en:'Soup'},components:[],provenance:{source:'knowledge',recipeId,recipeVersion:2,candidateId:recipeId,snapshotHash:'e'.repeat(64)}}})},
+   ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ try{
+   await f.mount();
+   document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   const rest=`week-a/select/${dishRef}`;
+   await f.render(el,{lang:'en',planId:'week-a',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-dish').value,dishRef);
+   assert.match(focus(el,'add-dish').textContent,/KB v2 · 12345678/);
+   cls(el,'tm-add-form')[0].dispatch('submit');save(el).click();await f.flush();
+   assert.equal(f.writes[0].body.meals.at(-1).dishRef,dishRef);
+ }finally{f.cleanup();}
+});
 test('controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page',async()=>{
  let release;const calls=[];const f=await setup({image:true,read:u=>{if(u.pathname==='/asset'){calls.push(u);return new Promise(r=>release=r);}}});try{const el=await f.mount();await f.flush();assert.equal(calls.length,1);assert.equal(calls[0].searchParams.get('revision'),A);assert.equal(calls[0].searchParams.get('owner'),'data/dishes/soup.json');assert.equal(calls[0].searchParams.get('pointer'),'/image');assert.equal(f.render.readAuxiliary('week-a').phase,'busy');document.body.replaceChildren();release(new Response('image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(el.querySelectorAll('img').length,0);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });

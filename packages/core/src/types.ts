@@ -355,7 +355,12 @@ export interface DishComponentV3 {
   confidence?: Confidence;
   originalAmount?: string;
   originalText?: string;
+  originalPreparation?: I18nString;
   knowledgeIngredientId?: string;
+}
+export interface KnowledgeEvidence {
+  sourceRecords: Record<string, unknown>[];
+  sourceRefs: Record<string, unknown>[];
 }
 export interface KnowledgeProvenance {
   source: 'knowledge';
@@ -364,6 +369,7 @@ export interface KnowledgeProvenance {
   candidateId: string;
   snapshotHash: string;
   sourceUrl?: string;
+  evidence?: KnowledgeEvidence;
 }
 export interface DishV3 {
   schemaVersion: "3";

@@ -49,6 +49,14 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
     }).finally(() => pending.delete(key));
     pending.set(key,request); return request;
   };
+  const loadLatestCatalog = async (): Promise<TeamCatalog> => {
+    const state=session.getState(),auth=api.sessionKey();
+    if(!state.identity)throw new Error('plan_not_open');
+    const catalog=await read(state.identity.id,()=>api.getCatalog({force:true}));
+    if(auth!==api.sessionKey())throw new Error('session_changed');
+    catalogs.set(catalog.commit,catalog);
+    return catalog;
+  };
   const mutate = (fn: (draft: MenuPlanV3) => void, contextId = session.getState().contextId) => {
     const state = session.getState();
     if (!state.draft || state.contextId !== contextId) return false;
@@ -78,7 +86,7 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
       const catalog = await loadCatalog();
       return live() ? catalog : null;
     },
-    loadCatalog,
+    loadCatalog,loadLatestCatalog,
     servings(index: number, raw: string, contextId?: number) {
       const parsed = parseServingsInput(raw);
       if (!parsed.valid) throw new Error('invalid_servings');

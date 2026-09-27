@@ -70,6 +70,29 @@ test("GET /catalog：全库索引 + 供应商去重 + 翻译计数", async () =>
   assert.equal(repo.writeCalls().length, 0);
 });
 
+test("GET /catalog paginates more than 200 Git files at one fixed revision", async () => {
+  const repo = new FakeRepo();
+  const files = Object.fromEntries(Array.from({ length: 201 }, (_, i) =>
+    [`data/ingredients/item-${String(i).padStart(3, '0')}.json`, TOMATO]));
+  repo.commit(files, "many ingredients");
+  const { env } = makeEnv(repo);
+  let cursor = null;
+  const found = new Set();
+  let pages = 0;
+  do {
+    const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const { status, body } = await call(worker, env, "GET", `/catalog${suffix}`, { headers: bearer("buyer") });
+    assert.equal(status, 200, JSON.stringify(body));
+    assert.equal(body.commit, repo.head);
+    for (const id of Object.keys(body.ingredients)) found.add(id);
+    cursor = body.nextCursor;
+    pages++;
+    assert(pages < 10, 'cursor must advance');
+  } while (cursor);
+  assert.equal(found.size, 201);
+  assert(pages > 1);
+});
+
 test("GET /changes：未发布 = 动过 data/ 的 commit，排除机翻回写与不动 data/ 的 commit（D-12）", async () => {
   const repo = seeded();
   const online = repo.head;
