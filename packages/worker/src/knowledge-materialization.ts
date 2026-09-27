@@ -6,8 +6,12 @@ type Localized = { zh?: string; en?: string; uk?: string };
 type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; value?: string; unit?: string };
 type IngredientRow = { id: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized };
 type StepRow = { id: string; text: Localized };
-type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string };
-type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[] }; media?: unknown[]; sourceRecords?: unknown[] };
+type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string;
+  review?: { reviewer: string; note: string; approvedCandidateVersion: number } };
+type AssetRef = { assetId: string; role: string; stepId?: string };
+type Media = { assetId: string; kind: string; status: string; url: string; role?: string; sha256?: string; rights?: { license: string; author?: string; sourceUrl?: string } };
+type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
+export type PinnedImage = { assetId: string; bytes: Uint8Array; ext: 'png'|'jpg'|'webp'; rights: { license: string; author?: string; sourceUrl?: string } };
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs' }> = {
   g:{unit:'g',baseUnit:'g'}, 克:{unit:'g',baseUnit:'g'}, kg:{unit:'kg',baseUnit:'g'}, 千克:{unit:'kg',baseUnit:'g'}, 公斤:{unit:'kg',baseUnit:'g'},
@@ -33,16 +37,24 @@ function quantity(amount: Amount): { qty?: { value?: number; unit: string }; bas
   return {baseUnit:'g',originalAmount};
 }
 
-export async function materializationFiles(candidate: Candidate, detail: Detail): Promise<{dishRef:string;snapshotHash:string;files:{path:string;text:string}[];unresolvedCount:number}> {
+export async function materializationFiles(candidate: Candidate, detail: Detail, pinnedImages: PinnedImage[]=[]): Promise<{dishRef:string;snapshotHash:string;files:{path:string;text:string}[];imageFiles:{path:string;bytes:Uint8Array}[];unresolvedCount:number}> {
   if(candidate.status!=='approved'||!UUID.test(candidate.id)||!UUID.test(candidate.recipeId??'')||
     !Number.isSafeInteger(candidate.recipeVersion)||candidate.recipeVersion!<=0||
     candidate.recipeId!==detail.id||candidate.recipeVersion!==detail.version||
     !Array.isArray(detail.recipe?.ingredients)||!detail.recipe.ingredients.length||detail.recipe.ingredients.length>100||
     !Array.isArray(detail.recipe.steps)||!detail.recipe.title||!candidate.reviewer)throw new Error('approved_revision_required');
   const dishRef=`kb-${detail.id.replaceAll('-','')}-v${detail.version}`;
-  const snapshotHash=await sha256({candidate:{id:candidate.id,recipeId:candidate.recipeId,recipeVersion:candidate.recipeVersion,reviewer:candidate.reviewer},detail});
+  const snapshotHash=await sha256({candidate:{id:candidate.id,recipeId:candidate.recipeId,recipeVersion:candidate.recipeVersion,reviewer:candidate.reviewer,review:candidate.review},detail});
   let unresolvedCount=0;
   const files:{path:string;text:string}[]=[];
+  const imageFiles:{path:string;bytes:Uint8Array}[]=[];
+  const imageMap=new Map(pinnedImages.map(image=>[image.assetId,image]));
+  function imageRef(assetId:string,name:string){
+    const image=imageMap.get(assetId);if(!image)return undefined;
+    const fileName=`${name}.${image.ext}`;
+    imageFiles.push({path:`data/dishes/${dishRef}/images/${fileName}`,bytes:image.bytes});
+    return {src:`${dishRef}/images/${fileName}`,...image.rights};
+  }
   const components=detail.recipe.ingredients.map((row,index)=>{
     if(!UUID.test(row.id)||!row.name||!row.amount)throw new Error('invalid_recipe_ingredient');
     const ref=`kbi-${detail.id.replaceAll('-','')}-v${detail.version}-${index+1}`;
@@ -54,15 +66,27 @@ export async function materializationFiles(candidate: Candidate, detail: Detail)
     return {ingredientRef:ref,...(converted.qty?{qty:converted.qty}:{}),originalAmount:converted.originalAmount,
       originalText:row.rawText??'',...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
   });
-  const steps=detail.recipe.steps.map(row=>{if(!UUID.test(row.id)||!row.text)throw new Error('invalid_recipe_step');return {text:row.text};});
+  const steps=detail.recipe.steps.map((row,index)=>{
+    if(!UUID.test(row.id)||!row.text)throw new Error('invalid_recipe_step');
+    const stepAsset=detail.recipe.assets?.find(asset=>asset.role==='step'&&asset.stepId===row.id);
+    return {text:row.text,...(stepAsset?{image:imageRef(stepAsset.assetId,`step-${index+1}`)}:{})};
+  }).map(row=>row.image?row:{text:row.text});
+  const cover=detail.recipe.assets?.find(asset=>asset.role==='cover');
+  const coverImage=cover?imageRef(cover.assetId,'cover'):undefined;
   const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.find(source=>typeof source?.url==='string')?.url;
   const sourceRecords=detail.sourceRecords??[];
   const sourceRefs=detail.recipe.sources??[];
+  const evidenceMedia=detail.media?.map(item=>{
+    const selected=detail.recipe.assets?.find(ref=>ref.assetId===item.assetId&&ref.role==='cover')
+      ??detail.recipe.assets?.find(ref=>ref.assetId===item.assetId);
+    return selected?{...item,selectedRole:selected.role}:item;
+  })??[];
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
-    ...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
+    ...(coverImage?{image:coverImage}:{}),...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
+      ...(candidate.review?{review:candidate.review}:{}),
       ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
-      ...(sourceRecords.length||sourceRefs.length?{evidence:{sourceRecords,sourceRefs}}:{})},status:'active'};
+      ...(sourceRecords.length||sourceRefs.length||evidenceMedia.length?{evidence:{sourceRecords,sourceRefs,media:evidenceMedia}}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
-  return {dishRef,snapshotHash,files,unresolvedCount};
+  return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};
 }

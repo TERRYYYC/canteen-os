@@ -168,16 +168,37 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
       const row=h('details',{class:'kb-inbox-candidate'},h('summary',{},`${candidate.recipe.title.zh??''} · ${candidate.status} · ${source?.status??''}`),
         h('pre',{},JSON.stringify({recipe:candidate.recipe,fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates},null,2)));
       if(candidate.recipeId){
-        const materialNotice=h('div');
+        const materialNotice=h('div'),newVersion=h('div');
         const material=button(t('固定此版本供菜单使用','Freeze this version for menus','Зафіксувати версію для меню'),()=>void materialize());
         async function materialize(){material.disabled=true;try{
           const {data}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unchanged:boolean;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:'{}'});
-          if(!active())return;
+          if(active())showFrozen(data);
+        }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
+        function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
           replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('原方用量待确认','Original amounts to confirm','Кількість потребує перевірки')} ${data.unresolvedCount}`),
             h('a',{href:`#/admin/plan/team-week/select/${encodeURIComponent(data.dishRef)}`},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
-        }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
+        }
+        const check=button(t('检查菜谱新版本','Check newer recipe version','Перевірити нову версію'),()=>void checkCurrent());
+        async function checkCurrent(){check.disabled=true;replace(newVersion,h('p',{role:'status'},t('正在读取最新版本…','Loading latest version…','Завантаження…')));
+          try{const {data}=await api.request<{id:string;version:number}>(`/recipes/${candidate.recipeId}`);
+            if(!active())return;
+            if(data.id!==candidate.recipeId||!Number.isSafeInteger(data.version))throw new Error('菜谱版本响应不完整');
+            if(data.version<=candidate.recipeVersion!){replace(newVersion,h('p',{role:'status'},t('目前没有比已审核版本更新的菜谱。','No newer recipe revision yet.','Нової версії ще немає.')));return;}
+            const version=data.version;
+            const newReviewer=h('input',{type:'text',placeholder:'新版本审核人'}) as HTMLInputElement;
+            const newNote=h('input',{type:'text',placeholder:'与原作品核对的变更说明'}) as HTMLInputElement;
+            const freeze=button(`${t('核对并固定','Check and freeze','Перевірити й зафіксувати')} v${version}`,()=>void freezeVersion(),true);
+            async function freezeVersion(){if(!newReviewer.value.trim()||!newNote.value.trim()){replace(materialNotice,h('p',{role:'alert'},t('请填写审核人和与原作品核对的变更说明。','Enter reviewer and source comparison note.','Вкажіть рецензента й пояснення.')));return;}
+              freeze.disabled=true;try{const {data:fixed}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:JSON.stringify({recipeVersion:version,reviewer:newReviewer.value.trim(),note:newNote.value.trim()})});
+                if(active())showFrozen(fixed);
+              }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{freeze.disabled=false;}}
+            replace(newVersion,h('p',{},t('请先查看这个只读版本并对照原作品，再确认用于菜单。','Inspect this frozen KB revision against the source before using it in a menu.','Звірте цю версію з оригіналом.')),
+              h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${version}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${version}`),
+              field(t('新版本审核人','Reviewer for new revision','Рецензент нової версії'),newReviewer),
+              field(t('与原作品核对的变更说明','Source comparison note','Пояснення змін'),newNote),freeze);
+          }catch(error){if(active())replace(newVersion,h('p',{role:'alert'},errorText(error)));}finally{check.disabled=false;}}
         row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
-          h('div',{class:'kb-actions'},material),materialNotice);
+          h('div',{class:'kb-actions'},material,check),newVersion,materialNotice);
       }
       else if(candidate.status==='needs_review')row.append(field(t('审核人','Reviewer','Рецензент'),reviewer),field(t('审核备注','Review note','Примітка'),note),
         h('div',{class:'kb-actions'},button(t('批准并保存独立菜谱','Approve and save recipe','Схвалити рецепт'),()=>void review('approve'),true),button(t('退回','Reject','Відхилити'),()=>void review('reject'))),

@@ -67,6 +67,36 @@ test('a provenance link reads exactly the historical KB version without an edita
  assert.equal(h.all('textarea').length,0);
  assert.equal(fixture.calls.length,1);
 });
+test('an approved source exposes a deliberate v2 chef check before freezing its new version',async()=>{
+  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
+  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
+  const captureId='2a132a7d-1835-484e-a270-2617fb124379';
+  const item={id:itemId,contentId:'7676372301671218289',kind:'note',url:'https://www.douyin.com/note/7676372301671218289',index:44,author:'test',cardAlt:'test card',displayText:'test card',state:'approved'};
+  const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test-chef'};
+  const h=await setup((url,init)=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[]});
+    if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
+    if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
+    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url,text:'测试菜 1 克'}}]});
+    if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
+    if(url.endsWith(`/recipes/${id}`))return json(detail({version:2}));
+    if(url.endsWith(`/knowledge-materializations/${candidateId}`))return json({dishRef:`kb-${id.replaceAll('-','')}-v2`,recipeVersion:2,commit:'a'.repeat(40),unresolvedCount:0,unchanged:false});
+    throw Error(`unexpected ${url} ${init?.method}`);
+  });
+  await h.mount('inbox');
+  const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  assert.match(h.el.textContent,/检查菜谱新版本/);
+  h.click('检查菜谱新版本');await h.flush();
+  assert.match(h.el.textContent,/v2/);
+  const name=h.all('input').find(input=>input.getAttribute('placeholder')==='新版本审核人');
+  const note=h.all('input').find(input=>input.getAttribute('placeholder')==='与原作品核对的变更说明');
+  assert(name&&note);h.set(name,'test-chef-2');h.set(note,'checked v2');
+  h.click('核对并固定 v2');await h.flush();
+  const write=fixture.calls.find(call=>call.url.endsWith(`/knowledge-materializations/${candidateId}`));
+  assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
+  assert.match(h.el.textContent,/已固定菜谱版本 v2/);
+  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
+});
 test('transport refuses missing configuration/auth and discards a late prior-session body', async () => {
   const h=await setup(); let calls=0;
   await assert.rejects(h.m.createKnowledgeApi({base:'',fetch:async()=>{calls++;}}).request('/recipes'),e=>e.status===503);
@@ -198,6 +228,22 @@ test('authenticated image reads remap through gateway and object URLs are revoke
   const revoked=[],created=[],originalCreate=URL.createObjectURL,originalRevoke=URL.revokeObjectURL;
   URL.createObjectURL=()=>{created.push('blob:fixture');return 'blob:fixture';};URL.revokeObjectURL=url=>revoked.push(url);
   try{const h=await setup(url=>url.includes('/assets/')?new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}}):json(detail({recipe:{...detail().recipe,assets:[{assetId,role:'cover'}]},media:[{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}]})));await h.mount();assert.equal(created.length,1);const call=fixture.calls.find(c=>c.url.includes('/assets/'));assert.equal(call.url,`/worker/knowledge/assets/${assetId}/content`);assert.equal(new Headers(call.init.headers).get('authorization'),'Bearer test-only-token');assert.equal(h.all('img')[0].getAttribute('src'),'blob:fixture');h.leave();assert(revoked.includes('blob:fixture'));}finally{URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;}
+});
+test('a local KB image requires an explicit rights record before the edited recipe is saved',async()=>{
+  let rightsBody;
+  const h=await setup((url,init)=>{
+    if(url.endsWith(`/assets/${assetId}/rights`)){rightsBody=JSON.parse(init.body);return json({id:assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready',rights:rightsBody});}
+    if(url.endsWith(`/assets/${assetId}/content`))return new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}});
+    return json(detail({recipe:{...detail().recipe,assets:[{assetId,role:'cover'}]},media:[{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}]}));
+  });
+  await h.mount();
+  assert.match(h.el.textContent,/确认图片使用许可/);
+  const license=h.all('input').find(input=>input.getAttribute('placeholder')==='own 或许可名称');
+  const author=h.all('input').find(input=>input.getAttribute('placeholder')==='图片作者');
+  assert(license&&author);h.set(license,'own');h.set(author,'test-chef');
+  h.click('确认图片使用许可');await h.flush();
+  assert.deepEqual(rightsBody,{license:'own',author:'test-chef'});
+  assert.match(h.el.textContent,/许可资料已固定.*保存菜谱/);
 });
 test('legacy evidence is displayed without entering editable recipe and unavailable errors are explicit',async()=>{
   const h=await setup(url=>url.endsWith('/legacy')?json({recipeId:id,version:1,evidence:{rawText:'untouched original',warnings:[{message:'unverified'}]}}):json(detail()));await h.mount();h.click('导入原文');await h.flush();assert.match(h.el.textContent,/untouched original/);assert.match(h.el.textContent,/unverified/);

@@ -361,6 +361,7 @@ export interface DishComponentV3 {
 export interface KnowledgeEvidence {
   sourceRecords: Record<string, unknown>[];
   sourceRefs: Record<string, unknown>[];
+  media?: Record<string, unknown>[];
 }
 export interface KnowledgeProvenance {
   source: 'knowledge';
@@ -368,6 +369,8 @@ export interface KnowledgeProvenance {
   recipeVersion: number;
   candidateId: string;
   snapshotHash: string;
+  /** Explicit chef check for a later edited KB revision. The Git commit records the action time. */
+  review?: { reviewer: string; note: string; approvedCandidateVersion: number };
   sourceUrl?: string;
   evidence?: KnowledgeEvidence;
 }

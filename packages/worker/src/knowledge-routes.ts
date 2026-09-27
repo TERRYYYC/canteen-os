@@ -14,6 +14,7 @@ export const KNOWLEDGE_ROUTES = [
   ["POST", "/knowledge/sources"],
   ["POST", "/knowledge/assets/external"],
   ["POST", "/knowledge/assets/upload"],
+  ["POST", "/knowledge/assets/:id/rights"],
   ["GET", "/knowledge/assets/:id/content"],
   ["GET", "/knowledge/ingredients"],
   ["GET", "/knowledge/techniques"],

@@ -61,10 +61,16 @@
         "recipeVersion": { "type": "integer", "minimum": 1 },
         "candidateId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" },
         "snapshotHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "review": { "type": "object", "properties": {
+          "reviewer": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "note": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "approvedCandidateVersion": { "type": "integer", "minimum": 1 }
+        }, "required": ["reviewer", "note", "approvedCandidateVersion"], "additionalProperties": false },
         "sourceUrl": { "type": "string", "format": "uri" },
         "evidence": { "type": "object", "properties": {
           "sourceRecords": { "type": "array", "items": { "type": "object" } },
-          "sourceRefs": { "type": "array", "items": { "type": "object" } }
+          "sourceRefs": { "type": "array", "items": { "type": "object" } },
+          "media": { "type": "array", "items": { "type": "object" } }
         }, "required": ["sourceRecords", "sourceRefs"], "additionalProperties": false }
       }, "required": ["source","recipeId","recipeVersion","candidateId","snapshotHash"], "additionalProperties": false }
     ] },

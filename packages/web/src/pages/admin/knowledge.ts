@@ -216,7 +216,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     // Shared across language/route renders: all lists and snapshots belong to this epoch.
     draft.historyEpoch++;
     draft.recipe = editable(detail.recipe); draft.baseline = JSON.stringify(draft.recipe); draft.detail = detail;
-    draft.etag = etag || undefined; draft.media = detail.media || []; draft.sources = detail.sourceRecords || detail.sources || []; draft.pending = {}; draft.generation++;
+    draft.etag = etag || undefined; draft.media = detail.media || []; draft.sources = detail.sourceRecords || detail.sources || []; draft.pending = {}; draft.rightsChanged = false; draft.generation++;
   }
   async function save(archive = false) {
     if (draft.busy || draft.detail?.archivedAt) return;

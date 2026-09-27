@@ -3,6 +3,7 @@ import type { AuxiliaryEditHandle, AuxiliaryOperation } from '../../../view-mode
 export interface Draft {
   key: string; recipe: Recipe; baseline: string; detail?: RecipeDetail; etag?: string;
   media: Media[]; sources: Source[]; pending: Record<string, string>; attempt?: Attempt;
+  rightsChanged?: boolean;
   busy: boolean; unknown: boolean; conflict: boolean; error: string; notice: string;
   historyEpoch: number; lang?: 'zh' | 'en' | 'uk'; mount?: HTMLElement; repaint?: () => void; generation: number; registration: AuxiliaryEditHandle; ticket?: AuxiliaryOperation;
 }
@@ -15,7 +16,7 @@ export function editable(recipe: Recipe): Recipe {
 }
 export function fresh(): Recipe { return newRecipe(); }
 export function pending(draft: Draft): boolean { return Object.entries(draft.pending).some(([key, value]) => key !== 'assetKind' && value.trim()); }
-export function dirty(draft: Draft): boolean { return JSON.stringify(draft.recipe) !== draft.baseline || pending(draft); }
+export function dirty(draft: Draft): boolean { return JSON.stringify(draft.recipe) !== draft.baseline || pending(draft) || !!draft.rightsChanged; }
 export function validate(recipe: Recipe): string | null {
   const named = (value: object | undefined) => Object.values(value || {}).some(v => typeof v === 'string' && v.trim());
   if (!named(recipe.title)) return 'title';

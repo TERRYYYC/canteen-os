@@ -6,6 +6,7 @@ import { h } from '../dom';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
 import {quantityText} from './quantity-text';
+import {knowledgeCoverState,type KnowledgeCoverState} from './knowledge-cover-status';
 export {quantityText} from './quantity-text';
 const copy={
  missing:['未录','Not recorded','Не записано'],qty:['用量未录','Quantity not recorded','Кількість не записано'],taste:['适量','To taste','За смаком'],
@@ -15,6 +16,7 @@ const copy={
  source:['资料版本','Source version','Версія даних'],current:['另看当前资料','View current information separately','Окремо переглянути поточні дані'],
  sources:['哪些菜用到它','Recipes that use this ingredient','У яких стравах використовується'],missingSource:['未找到资料，原引用已保留','Information missing; original reference retained','Даних немає; вихідне посилання збережено'],
  imageMissing:['同版图片不可用','Same-version image unavailable','Зображення цієї версії недоступне'],imageLoading:['正在读取同版图片','Loading same-version image','Завантаження зображення цієї версії'],license:['许可','License','Ліцензія'],author:['作者','Author','Автор'],
+ imageUnrecorded:['图片未录','Image not recorded','Зображення не записано'],imageNeedsImage:['待补图','Image needed','Потрібно додати зображення'],imageRightsPending:['图片使用许可待核实','Image rights need review','Права на зображення потребують перевірки'],imageExternal:['外部图片未固定','External image not pinned','Зовнішнє зображення не закріплено'],
  recipe:['原配方用量，未缩放','Original recipe quantities, unscaled','Початкові кількості рецепта, без масштабування'],baseServings:['原配方基准份数','Original recipe servings','Порції вихідного рецепта'],
  components:['食材与调料','Ingredients and seasonings','Інгредієнти та приправи'],steps:['完整做法','Full method','Повний спосіб приготування'],technique:['技法','Technique','Техніка'],
  provenance:['配方来源','Recipe source','Джерело рецепта'],confidence:['记录的置信度','Recorded confidence','Записана впевненість'],
@@ -45,9 +47,9 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   const fact=(label:string,value:string|number|boolean|undefined)=>h('div',{class:'tm-fact'},h('dt',{},label),h('dd',{},value===undefined?missing():typeof value==='boolean'?recordValue(value,lang)!:String(value)));
   const names=(name:I18nString)=>h('details',{class:'tm-detail-languages'},h('summary',{},t('languages')),h('dl',{class:'tm-facts'},...(['zh','en','uk'] as const).map(code=>fact(code.toUpperCase(),name[code]))));
   const link=(url:string|undefined,label:string):HTMLElement=>{const safe=safeLink(url);return safe?h('a',{href:safe,target:'_blank',rel:'noopener noreferrer'},label):h('span',{},label,': ',url??t('missing'));};
-  function image(ref:ImageRef|undefined,owner:string,pointer:string,placeholder=false,read?:()=>Promise<RevisionAsset>):HTMLElement {
+  function image(ref:ImageRef|undefined,owner:string,pointer:string,placeholder=false,read?:()=>Promise<RevisionAsset>,missingCover:KnowledgeCoverState='not-recorded'):HTMLElement {
     const box=h('figure',{class:'tm-detail-image'});
-    if(!ref){if(placeholder)box.append(h('p',{class:'muted'},t('imageMissing')));return box;}
+    if(!ref){if(placeholder){const key=missingCover==='needs-image'?'imageNeedsImage':missingCover==='rights-pending'?'imageRightsPending':missingCover==='external-unpinned'?'imageExternal':missingCover==='unavailable'?'imageMissing':'imageUnrecorded';box.setAttribute('data-asset-state',missingCover);box.append(h('p',{class:'muted'},t(key)));}return box;}
     const state=h('p',{class:'muted',role:'status'},t('imageLoading'));box.append(state,h('figcaption',{},h('details',{},h('summary',{},word(lang,'图片来源与许可','Image source and license','Джерело зображення й ліцензія')),`${t('license')}: ${ref.license} · ${t('author')}: ${ref.author??t('missing')} · `,link(ref.sourceUrl,word(lang,'查看来源','View source','Переглянути джерело')))));
     void (read?read():options.asset(owner,pointer)).then(result=>{
       if(!live||!el.isConnected)return;
@@ -73,7 +75,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
   el.append(h('h2',{},pick(record.name,lang)),supportDetails(lang,h('p',{class:'tm-detail-id'},id)));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
-  el.append(image(record.image,owner,'/image',true));
+  el.append(image(record.image,owner,'/image',true,undefined,kind==='dish'?knowledgeCoverState(lookup(projection.dishes,id)):'not-recorded'));
   el.append(names(record.name));
   if(kind==='ingredient'){
     const item=lookup(projection.ingredients,id)!,p=item.purchase;

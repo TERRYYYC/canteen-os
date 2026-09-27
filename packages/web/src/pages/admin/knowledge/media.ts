@@ -1,4 +1,4 @@
-import { h } from '../../../dom';
+import { h, replace } from '../../../dom';
 import { getKnowledgeApi, type Media, type Source, type RecipeDetail } from '../../../api/knowledge';
 import { button, field, input, select, section, safeExternal, jsonEvidence, type Words } from './ui';
 import type { Draft } from './model';
@@ -65,6 +65,30 @@ export function mediaEditor(draft: Draft, view: MediaView): HTMLElement[] {
   const materialRows = (recipe.assets || []).map((ref, index) => {
     const media = draft.media.find(m => m.assetId === ref.assetId);
     const controls = h('div', { class: 'kb-row' }, media ? showMedia([{ ...media, ...ref }], view) : h('p', {}, t('素材资料', 'Asset', 'Матеріал')));
+    if(media?.kind==='image'&&media.url?.startsWith('/api/v1/assets/')&&!media.rights){
+      const imageMedia=media;
+      const license=h('input',{type:'text',placeholder:'own 或许可名称'}) as HTMLInputElement;
+      const author=h('input',{type:'text',placeholder:'图片作者'}) as HTMLInputElement;
+      const sourceUrl=h('input',{type:'url',placeholder:'图片来源网址（非自有必填）'}) as HTMLInputElement;
+      const feedback=h('div');
+      const confirm=button(t('确认图片使用许可','Confirm image rights','Підтвердити права'),()=>void setRights());
+      async function setRights(){
+        const rights={license:license.value.trim(),author:author.value.trim(),...(sourceUrl.value.trim()?{sourceUrl:sourceUrl.value.trim()}:{})};
+        if(!rights.license||!rights.author||(rights.license.toLowerCase()!=='own'&&!rights.sourceUrl)){
+          replace(feedback,h('p',{role:'alert'},t('请填明确许可、作者；非自有图片还需来源网址。','Enter a license, author, and source URL for non-owned images.','Вкажіть ліцензію, автора та джерело.')));return;
+        }
+        const operation=draft.registration.beginOperation('write');confirm.disabled=true;draft.busy=true;
+        try{const {data}=await getKnowledgeApi().request<Media>(`/assets/${imageMedia.assetId}/rights`,{method:'POST',body:JSON.stringify(rights)});
+          if(!view.current())return;
+          imageMedia.rights=data.rights;draft.rightsChanged=true;draft.generation++;
+          draft.notice=t('许可资料已固定；请保存菜谱，让新版本记录此图片。','Rights recorded; save the recipe to snapshot the image in a new version.','Права збережено; збережіть нову версію рецепта.');
+          view.paint();
+        }catch(error){if(view.current())replace(feedback,h('p',{role:'alert'},view.error(error)));}
+        finally{draft.registration.settleOperation(operation,'completed');draft.busy=false;confirm.disabled=false;if(view.current())view.paint();}
+      }
+      controls.append(field(t('图片许可','Image license','Ліцензія зображення'),license),field(t('图片作者','Image author','Автор зображення'),author),field(t('图片来源网址','Image source URL','Джерело зображення'),sourceUrl),
+        h('p',{class:'kb-muted'},t('只有确认使用许可并保存新菜谱版本后，图片才能固定到菜单。','Confirm rights and save a new recipe revision before pinning this image to a menu.','Підтвердьте права й збережіть нову версію рецепта.')),confirm,feedback);
+    }
     controls.append(field(t('用途', 'Use', 'Призначення'), select(ref.role, [['cover', t('封面', 'Cover', 'Обкладинка')], ['reference', t('参考', 'Reference', 'Довідка')], ['step', t('步骤', 'Step', 'Крок')]], value => {
       ref.role = value as typeof ref.role;
       if (value !== 'step') delete ref.stepId; else ref.stepId = recipe.steps?.[0]?.id;

@@ -122,6 +122,24 @@ test('menu summary includes seasonings and repeated rows; opening a row shows th
   assert(el.textContent.includes('乙菜步骤'));assert(!el.textContent.includes('第一步原文'));
   stop();el.remove();
 });
+test('unpublished knowledge cover evidence is distinct from an absent image in menu and prep',()=>{
+  const cases=[
+    [{assetId:'a',kind:'image',role:'cover',url:'https://example.org/temporary.jpg',rights:{license:'CC BY 4.0',author:'artist'}},'外部图片未固定'],
+    [{assetId:'b',kind:'image',role:'cover',url:'/api/v1/assets/b/content',rights:{status:'pending'}},'图片使用许可待核实'],
+    [null,'待补图'],
+  ];
+  for(const [media,expected] of cases){
+    const data=JSON.parse(JSON.stringify(fixture())),dish=data.projection.dishes['dish-a'];
+    delete dish.image;
+    dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),evidence:{sourceRecords:[],sourceRefs:[],media:media?[media]:[]}};
+    for(const render of [menu.renderFrozenMenu,prep.renderFrozenPrep]){
+      const el=mount(),stop=render(el,freeze(data),options());
+      assert.match(el.textContent,new RegExp(expected));
+      assert(!tag(el,'img').length,'source evidence must not be presented as a published cover');
+      stop();el.remove();
+    }
+  }
+});
 test('an unresolved plan is shown as missing source, not silently represented as an empty menu',()=>{
   const data=JSON.parse(JSON.stringify(fixture()));
   data.projection.selection=[{menuPlanRef:'unresolved-plan',date:'2026-09-11',mealType:'lunch'}];
