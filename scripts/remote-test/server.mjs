@@ -9,6 +9,7 @@ import {hash} from './state.mjs';
 import {bodyOf,workerRequest,knowledgeBaseUrl} from './http-adapter.mjs';
 import {acquireServiceLock,assertNoApplicationTransaction} from './service-lock.mjs';
 const config=JSON.parse(await readFile(process.env.CANTEEN_TEST_CONFIG,'utf8'));
+const {version:appVersion}=JSON.parse(await readFile(new URL('../../package.json',import.meta.url),'utf8'));
 const {port,productionRevision,tokens}=config;
 assert.ok(Number.isInteger(port)&&port>1024&&port<65536&&!new Set([3003,3004,4275,6398,6399]).has(port));
 assert.match(productionRevision,/^[a-f0-9]{40}$/);
@@ -32,7 +33,7 @@ async function handle(req,res,bytes){
  let url;try{url=new URL(req.url,origin);}catch{json(res,{error:'invalid_url'},400);return;}
  if(req.headers.host!==new URL(origin).host||(req.headers.origin&&req.headers.origin!==origin)){json(res,{error:'local_origin_required'},403);return;}
  if(url.pathname==='/_test/status'&&req.method==='GET'){
-  json(res,{schemaVersion:1,version:'0.3.0-alpha.1',productionRevision,bootId,pid:process.pid,privateHead:f.repo.head,publicHead:f.active.commit,
+  json(res,{schemaVersion:1,version:appVersion,productionRevision,bootId,pid:process.pid,privateHead:f.repo.head,publicHead:f.active.commit,
    boundary:'Remote-hosted test model: actual Worker, formal producer and Vite production build; GitHub/Actions/Pages modeled, no live external writes',fixtureNotice:f.fixtureNotice});return;
  }
  if(url.pathname.startsWith('/__q/worker/')){

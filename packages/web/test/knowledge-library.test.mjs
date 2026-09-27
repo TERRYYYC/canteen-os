@@ -69,6 +69,92 @@ test('list search and cursor paging preserve same-name independent UUIDs', async
   await h.mount(''); assert.equal(h.all('.kb-card').length,1);h.click('继续加载');await h.flush();assert.equal(h.all('.kb-card').length,2);
   const search=h.all('input')[0];h.set(search,'红烧肉');h.click('搜索');await h.flush();assert(fixture.calls.at(-1).url.includes('q='));
 });
+test('recipe list shows an authenticated cover and an honest missing-image state', async () => {
+  const revoked=[], originalCreate=URL.createObjectURL, originalRevoke=URL.revokeObjectURL;
+  URL.createObjectURL=()=> 'blob:recipe-cover'; URL.revokeObjectURL=url=>revoked.push(url);
+  try {
+    const h=await setup(url=>url.includes('/assets/')
+      ? new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}})
+      : json({items:[
+        {id,title:{zh:'红烧肉'},version:2,cover:{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}},
+        {id:id2,title:{zh:'无图菜'},version:1},
+      ],nextCursor:null}));
+    await h.mount('');
+    assert.equal(h.all('.kb-card').length,2);
+    assert.equal(h.all('.kb-card')[0].querySelectorAll('img').length,1);
+    assert.equal(h.all('.kb-card')[0].querySelectorAll('img')[0].getAttribute('src'),'blob:recipe-cover');
+    assert.equal(h.all('.kb-card')[0].querySelector('.kb-card-cover').getAttribute('data-asset-state'),'loading');
+    h.all('.kb-card')[0].querySelector('img').dispatchEvent({type:'error'});
+    assert.match(h.all('.kb-card')[0].textContent,/图片未载入/);
+    assert.deepEqual(revoked,['blob:recipe-cover']);
+    assert.equal(h.all('.kb-card')[1].querySelectorAll('img').length,0);
+    assert.match(h.all('.kb-card')[1].textContent,/未录图片/);
+    assert.equal(fixture.calls.filter(c=>c.url.includes('/assets/')).length,1);
+    h.leave();assert.deepEqual(revoked,['blob:recipe-cover']);
+  } finally { URL.createObjectURL=originalCreate; URL.revokeObjectURL=originalRevoke; }
+});
+test('external image covers render with no referrer and local covers load only when visible, two at a time', async () => {
+  const previous=globalThis.IntersectionObserver, held=[], observers=[];
+  globalThis.IntersectionObserver=class { constructor(callback){this.callback=callback;observers.push(this);} observe(){} disconnect(){} };
+  try {
+    const h=await setup(url=>url.includes('/assets/') ? new Promise(resolve=>held.push(resolve)) : json({items:[
+      {id,title:{zh:'一'},version:1,cover:{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}},
+      {id:id2,title:{zh:'二'},version:1,cover:{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}},
+      {id:'10000000-0000-4000-8000-000000000003',title:{zh:'三'},version:1,cover:{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'}},
+      {id:'10000000-0000-4000-8000-000000000004',title:{zh:'四'},version:1,cover:{assetId,kind:'image',url:'https://example.test/cover.jpg',status:'ready'}},
+    ],nextCursor:null}));
+    await h.mount('');
+    assert.equal(held.length,0,'offscreen local image requests must not start');
+    const covers=h.all('.kb-card-cover');
+    assert.equal(covers[3].querySelector('img')?.getAttribute('referrerpolicy'),'no-referrer');
+    assert.equal(covers[3].querySelector('img')?.getAttribute('src'),'https://example.test/cover.jpg');
+    observers[0].callback(covers.slice(0,3).map(target=>({target,isIntersecting:true})));
+    await h.flush();assert.equal(held.length,2,'visible authenticated image requests are bounded');
+    held.shift()(new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}}));
+    await h.flush();assert.equal(held.length,2,'the third image starts after a slot is released');
+    covers[0].querySelector('img').dispatchEvent({type:'load'});
+    assert.equal(covers[0].getAttribute('data-asset-state'),'available');
+    observers[0].callback([{target:covers[0],isIntersecting:false}]);
+    assert.equal(covers[0].getAttribute('data-asset-state'),'deferred');
+    assert.equal(covers[0].querySelectorAll('img').length,0);
+    observers[0].callback([{target:covers[1],isIntersecting:false}]);
+    assert.equal(fixture.calls.filter(c=>c.url.includes('/assets/'))[1].init.signal.aborted,true,'offscreen image request is cancelled');
+    h.leave();
+    while(held.length)held.shift()(new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}}));
+    await h.flush();
+  } finally { if(previous===undefined)delete globalThis.IntersectionObserver;else globalThis.IntersectionObserver=previous; }
+});
+test('loading another page keeps earlier cover reads alive and releases slots for later covers', async () => {
+  const previous=globalThis.IntersectionObserver, held=[], observers=[];
+  globalThis.IntersectionObserver=class { constructor(callback){this.callback=callback;observers.push(this);} observe(){} disconnect(){} };
+  const card=(key,name)=>({id:key,title:{zh:name},version:1,cover:{assetId,kind:'image',url:`/api/v1/assets/${key}/content`,status:'ready'}});
+  const picture=()=>new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}});
+  try {
+    const h=await setup(url=>url.includes('/assets/') ? new Promise(resolve=>held.push(resolve)) : json(url.includes('cursor=')
+      ? {items:[card('10000000-0000-4000-8000-000000000003','三')],nextCursor:null}
+      : {items:[card(id,'一'),card(id2,'二')],nextCursor:'next-page'}));
+    await h.mount('');
+    let covers=h.all('.kb-card-cover');
+    observers[0].callback(covers.map(target=>({target,isIntersecting:true})));
+    await h.flush(); assert.equal(held.length,2);
+    h.click('继续加载'); await h.flush();
+    covers=h.all('.kb-card-cover'); assert.equal(covers.length,3);
+    observers[0].callback([{target:covers[2],isIntersecting:true}]);
+    await h.flush(); assert.equal(held.length,2,'third read waits for an active slot');
+    held.shift()(picture()); await h.flush();
+    assert.equal(covers[0].querySelectorAll('img').length,1,'first-page cover still renders');
+    assert.equal(held.length,2,'second-page cover starts when the first read completes');
+    const oldImage=covers[0].querySelector('img');
+    observers[0].callback([{target:covers[0],isIntersecting:false}]);
+    oldImage.dispatchEvent({type:'load'});
+    assert.equal(covers[0].getAttribute('data-asset-state'),'deferred','late image event cannot change offscreen state');
+    assert.equal(covers[0].querySelectorAll('img').length,0);
+    held.shift()(picture()); held.shift()(picture()); await h.flush();
+    observers[0].callback([{target:covers[0],isIntersecting:true}]);
+    await h.flush(); assert.equal(held.length,1,'offscreen cover fetches again after reentry');
+    h.leave(); held.shift()(picture()); await h.flush();
+  } finally { if(previous===undefined)delete globalThis.IntersectionObserver;else globalThis.IntersectionObserver=previous; }
+});
 test('save preserves untouched languages, UUIDs, ingredient references and unknown quantities', async () => {
   let saved;
   const h=await setup((url,init)=>{if(init.method==='PUT'){saved=JSON.parse(init.body);assert.equal(new Headers(init.headers).get('if-match'),'"v1"');assert(new Headers(init.headers).get('idempotency-key'));return json(detail({version:2,recipe:saved}),200,{etag:'"v2"'});}return json(detail());});

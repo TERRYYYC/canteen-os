@@ -54,9 +54,9 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
     const headers: Record<string, string> = { 'Idempotency-Key': attempt.key };
     if (attempt.etag) headers['If-Match'] = attempt.etag;
     return request<T>(attempt.path, { method: attempt.method, body: attempt.body, headers });
-  }, async image(url: string): Promise<Blob> {
+  }, async image(url: string, signal?: AbortSignal): Promise<Blob> {
     if (!/^\/api\/v1\/assets\/[0-9a-f-]{36}\/content$/.test(url)) throw new KnowledgeError('Invalid asset path', 400);
-    const response = await raw(url.slice('/api/v1'.length));
+    const response = await raw(url.slice('/api/v1'.length), { signal });
     if (!response.ok) throw new KnowledgeError(`HTTP ${response.status}`, response.status);
     if (!response.headers.get('Content-Type')?.startsWith('image/')) throw new KnowledgeError('Invalid image content', 422);
     return response.blob();

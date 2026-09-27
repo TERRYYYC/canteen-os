@@ -17,7 +17,7 @@ This integration branch adds a SQLite recipe library at `#/admin/knowledge`, beh
 
 **CanteenOS** 把团队每天吃什么、厨房如何备料、采购员需要确认购买什么放在同一套资料里。师傅排菜或粘贴导入菜单，维护菜品和食材；团队查看用餐安排，帮厨查看备料，采购员人工确认并保存采购清单。`data/` 是 Git 中的知识库，允许不完整资料并明确显示缺项。
 
-**当前源码版本：0.3.0-alpha.1（2026-09-13，预发布）。** 网页已实现菜单计划、备料、菜单、采购、菜品/食材编辑及发布入口；支持三语、PWA 和 QR。写入通过显式配置的 Cloudflare Worker，未配置时为只读，不能把本地测试用的模拟接口当成服务上线。应用版本在抽屉底部显示，资料更新时间单独显示。
+**当前源码版本：0.3.0-alpha.2（2026-09-27，预发布）。** 网页已实现菜单计划、备料、菜单、采购、菜品/食材编辑及发布入口；支持三语、PWA 和 QR。SQLite 菜谱库列表现在显示已登记的封面；图片进入固定菜单、备料与采购仍需版本接线和人工审查。写入通过显式配置的 Worker，未配置时为只读。应用版本在抽屉底部显示，资料更新时间单独显示。
 
 **上线边界：** 本地产品与接口已有独立审查、浏览器及构建证据；真实 Worker、隔离目标环境、配套凭据和真实菜谱/厨房流程仍待核实。此版本不宣称完整可写生产上线。当前验收与授权见 [团队调度状态](feature-specs/2026-09-11-team-meals-dispatch.md)、[发布检查表](docs/field-test/week-43/ops-checklist.md)，版本历史见 [CHANGELOG](CHANGELOG.md)。
 
@@ -97,7 +97,7 @@ node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
 
 **CanteenOS** keeps a team's meal plan, kitchen preparation and purchasing in one shared knowledge base. The chef plans meals or imports a menu, maintains dishes and ingredients, helpers read preparation instructions, and the buyer confirms and saves the shopping list. Incomplete recipes remain visible with explicit missing information; `data/` is stored in Git.
 
-**Current source version: 0.3.0-alpha.1 (2026-09-13, prerelease).** The web app includes planning, preparation, meals, purchasing, dish/ingredient editing and publishing, with Chinese/English/Ukrainian UI, PWA support and QR links. Writes require an explicitly configured Cloudflare Worker; an unconfigured build stays read-only. The drawer shows the application version separately from the publication timestamp.
+**Current source version: 0.3.0-alpha.2 (2026-09-27, prerelease).** The web app includes planning, preparation, meals, purchasing, dish/ingredient editing and publishing, with Chinese/English/Ukrainian UI, PWA support and QR links. The SQLite recipe library now previews recorded covers; carrying images into fixed menu, preparation and purchasing versions still needs integration and human review. Writes require an explicitly configured Worker; an unconfigured build stays read-only. The drawer shows the application version separately from the publication timestamp.
 
 **Release boundary:** local product, API, browser and build evidence is available. A real Worker, isolated target environment, credentials, recipes and kitchen operations still need verification. This is not an accepted fully writable production release. See the [current integration status](feature-specs/2026-09-11-team-meals-dispatch.md), [release checklist](docs/field-test/week-43/ops-checklist.md) and [version history](CHANGELOG.md).
 

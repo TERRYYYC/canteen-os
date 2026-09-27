@@ -5,11 +5,11 @@ doc_kind: project-summary
 created: 2026-09-13
 ---
 
-# CanteenOS 当前状态 — 0.3.0-alpha.1
+# CanteenOS 当前状态 — 0.3.0-alpha.2
 
-团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
+团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。SQLite 菜谱库列表可预览已登记封面；菜谱图片进入固定菜单、备料与采购的版本接线尚未完成。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
 
-**English.** Version 0.3.0-alpha.1 is a team-meals prerelease with planning/import, preparation, meal views, buyer-confirmed shopping, dish/ingredient editing and publishing. The drawer distinguishes the application version from the data publication time. Local evidence does not establish a fully writable production deployment.
+**English.** Version 0.3.0-alpha.2 is a team-meals prerelease with planning/import, preparation, meal views, buyer-confirmed shopping, dish/ingredient editing and publishing. The SQLite recipe library previews recorded covers; fixed menu/preparation image integration remains pending. The drawer distinguishes the application version from the data publication time. Local evidence does not establish a fully writable production deployment.
 
 | 当前范围 | 状态与入口 |
 |---|---|

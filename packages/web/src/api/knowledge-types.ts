@@ -9,7 +9,7 @@ export interface Recipe { title: I18n; description?: I18n; tags?: string[]; base
 export interface Media { rights?: {license: string; author?: string; sourceUrl?: string}; assetId: string; kind: string; url: string; status: string; role?: AssetRef['role']; stepId?: string; clip?: AssetRef['clip'] }
 export interface Source { id: string; kind: 'web' | 'video' | 'text' | 'file'; title?: string; author?: string; url?: string; textContent?: string; assetId?: string }
 export interface RecipeDetail { legacy?: unknown; id: string; version: number; recipe: Recipe; createdAt: string; updatedAt?: string; archivedAt?: string | null; media?: Media[]; sources?: Source[]; sourceRecords?: Source[] }
-export interface Summary { id: string; title: I18n; description?: I18n; tags?: string[]; version: number; updatedAt: string }
+export interface Summary { id: string; title: I18n; description?: I18n; tags?: string[]; version: number; updatedAt: string; cover?: Media }
 export interface RecipeList { items: Summary[]; nextCursor: string | null }
 export interface Revision { version: number; createdAt: string }
 export const label = (value?: I18n) => value?.zh || value?.en || value?.uk || '';

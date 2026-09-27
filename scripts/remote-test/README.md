@@ -7,7 +7,7 @@ created: 2026-09-14
 
 # Isolated remote test model
 
-This opt-in adapter serves the fixed 0.3.0-alpha.1 Web production build and actual
+This opt-in adapter serves the fixed 0.3.0-alpha.2 Web production build and actual
 Worker handler. GitHub API, Actions and Pages hosting are modeled using the
 existing workflow fixture. There is no real GitHub publication, Cloudflare write
 channel, translation credential or production data. It seeds the fixture once,

@@ -6,14 +6,16 @@ import { getAuthSessionVersion, onAuthSessionChange } from '../../admin/token';
 import { onRoute } from '../../router';
 import { getKnowledgeApi, KnowledgeError, createAttempt, type RecipeDetail, type RecipeList, type Revision } from '../../api/knowledge';
 import { registerAuxiliaryEdits } from '../../view-models/reload-safety';
-import { words, button, field, input, select, multilingual, section, order, jsonEvidence, type Words } from './knowledge/ui';
+import { words, button, field, input, select, multilingual, section, order, jsonEvidence, safeExternal, type Words } from './knowledge/ui';
 import { fresh, editable, dirty, pending, validate, removeStep, type Draft } from './knowledge/model';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
 
 const drafts = new Map<string, Draft>();
 let mounted: HTMLElement | null = null;
 const urls = new Set<string>();
-function releaseImages() { for (const url of urls) URL.revokeObjectURL(url); urls.clear(); }
+const coverControllers = new Set<AbortController>();
+let coverObserver: IntersectionObserver | null = null;
+function releaseImages() { coverObserver?.disconnect(); coverObserver = null; for (const controller of coverControllers) controller.abort(); coverControllers.clear(); for (const url of urls) URL.revokeObjectURL(url); urls.clear(); }
 onRoute(releaseImages, false);
 onAuthSessionChange(() => {
   for (const draft of drafts.values()) draft.registration.dispose();
@@ -69,7 +71,67 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
 async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
   const t = words(ctx.lang), title = t('菜谱知识库', 'Recipe library', 'Бібліотека рецептів');
   const results = h('div', { class: 'kb-grid' }), info = h('div'), more = button(t('继续加载', 'Load more', 'Завантажити ще'), () => void load(false));
-  let query = '', tag = '', cursor: string | null = null, generation = 0, loading = false;
+  let query = '', tag = '', cursor: string | null = null, generation = 0, listEpoch = 0, loading = false;
+  type CoverTask = { element: HTMLElement; url: string; name: string; listEpoch: number; visible: boolean; fetching: boolean; queued: boolean; failed: boolean; epoch: number; objectUrl?: string; controller?: AbortController };
+  const covers = new Map<Element, CoverTask>(), queue: CoverTask[] = [];
+  let imageReads = 0;
+  function showImage(element: HTMLElement, src: string, name: string, coverEpoch: number, objectUrl?: string) {
+    if (!active() || coverEpoch !== listEpoch || !element.isConnected) return;
+    const img = h('img', { alt: `${name} · ${t('封面', 'Cover', 'Обкладинка')}`, loading: 'lazy', ...(objectUrl ? {} : { referrerpolicy: 'no-referrer' }) });
+    img.addEventListener('load', () => { if (active() && coverEpoch === listEpoch && img.parentNode === element && img.isConnected) element.setAttribute('data-asset-state', 'available'); });
+    img.addEventListener('error', () => {
+      if (objectUrl) { URL.revokeObjectURL(objectUrl); urls.delete(objectUrl); }
+      if (active() && coverEpoch === listEpoch && img.parentNode === element && img.isConnected) {
+        element.setAttribute('data-asset-state', 'unavailable');
+        replace(element, h('span', {}, t('图片未载入', 'Image unavailable', 'Зображення недоступне')));
+      }
+    });
+    img.setAttribute('src', src);
+    replace(element, img);
+  }
+  function pumpImages() {
+    while (imageReads < 2 && queue.length) {
+      const task = queue.shift()!; task.queued = false;
+      if (!task.visible || task.fetching || task.failed || task.objectUrl || !active() || task.listEpoch !== listEpoch) continue;
+      task.fetching = true; imageReads++;
+      const epoch = task.epoch;
+      const controller = new AbortController(); task.controller = controller; coverControllers.add(controller);
+      void getKnowledgeApi().image(task.url, controller.signal).then(blob => {
+        if (!task.visible || task.epoch !== epoch || !active() || task.listEpoch !== listEpoch || !task.element.isConnected) return;
+        const objectUrl = URL.createObjectURL(blob); task.objectUrl = objectUrl; urls.add(objectUrl);
+        showImage(task.element, objectUrl, task.name, task.listEpoch, objectUrl);
+      }).catch(() => {
+        if (!task.visible || task.epoch !== epoch || !active() || task.listEpoch !== listEpoch || !task.element.isConnected) return;
+        task.failed = true; task.element.setAttribute('data-asset-state', 'unavailable');
+        replace(task.element, h('span', {}, t('图片未载入', 'Image unavailable', 'Зображення недоступне')));
+      }).finally(() => {
+        coverControllers.delete(controller); if (task.controller === controller) task.controller = undefined;
+        task.fetching = false; if (task.listEpoch === listEpoch) imageReads--;
+        if (task.visible && !task.failed && !task.objectUrl && task.listEpoch === listEpoch) enqueueImage(task);
+        pumpImages();
+      });
+    }
+  }
+  function enqueueImage(task: CoverTask) { if (!task.queued && !task.fetching && !task.failed && !task.objectUrl) { task.queued = true; queue.push(task); pumpImages(); } }
+  function observeImage(task: CoverTask) {
+    covers.set(task.element, task);
+    if (typeof IntersectionObserver === 'undefined') { task.visible = true; enqueueImage(task); return; }
+    if (!coverObserver) coverObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        const item = covers.get(entry.target); if (!item) continue;
+        item.visible = entry.isIntersecting;
+        if (item.visible) { item.element.setAttribute('data-asset-state', 'loading'); enqueueImage(item); }
+        else {
+          item.epoch++; item.failed = false;
+          item.controller?.abort();
+          if (item.objectUrl) { URL.revokeObjectURL(item.objectUrl); urls.delete(item.objectUrl); item.objectUrl = undefined; }
+          item.element.setAttribute('data-asset-state', 'deferred');
+          replace(item.element, h('span', {}, t('图片待显示', 'Image loads on view', 'Зображення завантажиться під час перегляду')));
+        }
+      }
+    }, { rootMargin: '160px 0px' });
+    coverObserver.observe(task.element);
+  }
   const search = input('', value => { query = value; }); search.setAttribute('type', 'search');
   const tagInput = input('', value => { tag = value; });
   const form = h('form', { class: 'kb-panel' }, h('div', { class: 'kb-grid' }, field(t('搜索名称或内容', 'Search name or content', 'Пошук за назвою або вмістом'), search), field(t('标签', 'Tag', 'Мітка'), tagInput)), button(t('搜索', 'Search', 'Шукати'), () => void load(true), true));
@@ -81,7 +143,7 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
   async function load(reset: boolean) {
     if (loading && !reset) return;
     const current = ++generation;
-    if (reset) { cursor = null; filter = { q: query.trim(), tag: tag.trim() }; seen = new Set(); replace(results); }
+    if (reset) { listEpoch++; cursor = null; filter = { q: query.trim(), tag: tag.trim() }; seen = new Set(); covers.clear(); queue.length = 0; imageReads = 0; releaseImages(); replace(results); }
     loading = true; more.disabled = true; replace(info, status(t('正在加载…', 'Loading…', 'Завантаження…')));
     const params = new URLSearchParams({ limit: '20' });
     if (filter.q) params.set('q', filter.q); if (filter.tag) params.set('tag', filter.tag); if (cursor) params.set('cursor', cursor);
@@ -90,8 +152,15 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
       if (!active() || current !== generation) return;
       for (const item of data.items) {
         if (seen.has(item.id)) continue; seen.add(item.id);
-        results.append(h('a', { class: 'kb-card', href: href(item.id), 'data-recipe-id': item.id }, h('h3', {}, label(item.title, ctx.lang)),
-          h('p', {}, label(item.description, ctx.lang)), h('small', {}, `${(item.tags || []).join(' · ')} · v${item.version}`), h('small', { class: 'kb-identity' }, item.updatedAt ? new Date(item.updatedAt).toLocaleDateString(ctx.lang) : '')));
+        const localCover = item.cover?.kind === 'image' && item.cover.url?.startsWith('/api/v1/assets/');
+        const externalCover = !localCover && item.cover?.kind === 'image' ? safeExternal(item.cover.url) : null;
+        const cover = h('div', { class: 'kb-card-cover', 'data-asset-state': localCover || externalCover ? 'loading' : item.cover ? 'unavailable' : 'not-recorded' },
+          h('span', {}, localCover || externalCover ? t('图片读取中', 'Loading image', 'Завантаження зображення') : item.cover ? t('图片未载入', 'Image unavailable', 'Зображення недоступне') : t('未录图片', 'No image recorded', 'Зображення не записано')));
+        results.append(h('a', { class: 'kb-card', href: href(item.id), 'data-recipe-id': item.id }, cover,
+          h('div', { class: 'kb-card-body' }, h('h3', {}, label(item.title, ctx.lang)), h('p', {}, label(item.description, ctx.lang)),
+            h('small', {}, `${(item.tags || []).join(' · ')} · v${item.version}`), h('small', { class: 'kb-identity' }, item.updatedAt ? new Date(item.updatedAt).toLocaleDateString(ctx.lang) : ''))));
+        if (localCover) observeImage({ element: cover, url: item.cover!.url, name: label(item.title, ctx.lang), listEpoch, visible: false, fetching: false, queued: false, failed: false, epoch: 0 });
+        else if (externalCover) showImage(cover, externalCover, label(item.title, ctx.lang), listEpoch);
       }
       cursor = data.nextCursor;
       replace(info, ...(!seen.size ? [status(t('还没有符合条件的菜谱，可以收藏一款新做法。', 'No matching recipes. You can add a new one.', 'Відповідних рецептів немає. Можна додати новий.'))] : []));
