@@ -245,6 +245,21 @@ test('a local KB image requires an explicit rights record before the edited reci
   assert.deepEqual(rightsBody,{license:'own',author:'test-chef'});
   assert.match(h.el.textContent,/许可资料已固定.*保存菜谱/);
 });
+test('a legacy local image with only a license can complete its missing author in the editor',async()=>{
+  let rightsBody;
+  const h=await setup((url,init)=>{
+    if(url.endsWith(`/assets/${assetId}/rights`)){rightsBody=JSON.parse(init.body);return json({id:assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready',rights:rightsBody});}
+    if(url.endsWith(`/assets/${assetId}/content`))return new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}});
+    return json(detail({recipe:{...detail().recipe,assets:[{assetId,role:'cover'}]},media:[{assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready',rights:{license:'own',sourceUrl:'images/old-photo.png'}}]}));
+  });
+  await h.mount();
+  const license=h.all('input').find(input=>input.getAttribute('placeholder')==='own 或许可名称');
+  const author=h.all('input').find(input=>input.getAttribute('placeholder')==='图片作者');
+  assert(license&&author,'incomplete legacy rights need an editable completion path');
+  assert.equal(license.value,'own');h.set(author,'legacy photographer');
+  h.click('确认图片使用许可');await h.flush();
+  assert.deepEqual(rightsBody,{license:'own',author:'legacy photographer',sourceUrl:'images/old-photo.png'});
+});
 test('legacy evidence is displayed without entering editable recipe and unavailable errors are explicit',async()=>{
   const h=await setup(url=>url.endsWith('/legacy')?json({recipeId:id,version:1,evidence:{rawText:'untouched original',warnings:[{message:'unverified'}]}}):json(detail()));await h.mount();h.click('导入原文');await h.flush();assert.match(h.el.textContent,/untouched original/);assert.match(h.el.textContent,/unverified/);
   h.leave();fixture.handler=()=>json({error:{code:'KB_UNAVAILABLE',message:'offline'}},503);await h.mount(id2);assert.match(h.el.textContent,/菜谱知识库暂时无法连接/);

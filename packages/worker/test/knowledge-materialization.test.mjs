@@ -173,6 +173,23 @@ test('external or rights-pending KB artwork remains evidence, not a published di
   assert.equal(seen.length,2,'external artwork was never fetched for Git publication');
 });
 
+test('a local image with a nonpublishable license remains evidence, not a Git image',async()=>{
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
+  const changed=structuredClone(detail);
+  changed.recipe.assets=[{assetId,role:'cover'}];
+  changed.media=[{assetId,kind:'image',role:'cover',status:'ready',url:`/api/v1/assets/${assetId}/content`,sha256:createHash('sha256').update(PNG_A).digest('hex'),rights:{license:'All rights reserved',author:'owner',sourceUrl:'https://example.org/photo'}}];
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>String(input).endsWith(`/assets/${assetId}/content`)
+    ?new Response(PNG_A,{headers:{'Content-Type':'image/png'}})
+    :new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:changed),{headers:{'Content-Type':'application/json'}})});
+  const response=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(response.status,200,JSON.stringify(response.body));
+  const dish=JSON.parse(repo.fileText(`data/dishes/${response.body.dishRef}.json`));
+  assert.equal(dish.image,undefined);
+  assert.equal(dish.provenance.evidence.media[0].rights.license,'All rights reserved');
+  assert.equal([...repo.trees.get(repo.commits.get(repo.head).tree).keys()].some(path=>path.endsWith('/images/cover.png')),false);
+});
+
 test('approved version survives menu save and publish as the exact prep and purchase source',async()=>{
   const repo=new FakeRepo();repo.commit({'data/techniques.json':'[]\n'});
   const {env}=makeEnv(repo,{PUBLISH_MODE:'push-trigger',PUBLISH_CLAIM_TIMEOUT_MS:'0',KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',

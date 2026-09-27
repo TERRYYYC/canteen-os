@@ -1,4 +1,4 @@
-import type { AnyDish } from '@canteenos/core';
+import { completeKnowledgeImageRights, type AnyDish } from '@canteenos/core';
 
 export type KnowledgeCoverState = 'not-recorded' | 'needs-image' | 'rights-pending' | 'external-unpinned' | 'unavailable';
 
@@ -8,6 +8,6 @@ export function knowledgeCoverState(dish: AnyDish | undefined): KnowledgeCoverSt
   const covers = dish.provenance.evidence?.media?.filter(item => item.kind === 'image' && (item.selectedRole === 'cover' || item.role === 'cover')) ?? [];
   if (!covers.length) return 'needs-image';
   if (covers.some(item => typeof item.url === 'string' && /^https?:\/\//i.test(item.url))) return 'external-unpinned';
-  if (covers.some(item => !item.rights || typeof item.rights !== 'object' || !('license' in item.rights))) return 'rights-pending';
+  if (covers.some(item => !completeKnowledgeImageRights(item.rights))) return 'rights-pending';
   return 'unavailable';
 }

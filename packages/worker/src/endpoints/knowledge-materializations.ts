@@ -6,6 +6,7 @@ import { materializationFiles, type PinnedImage } from '../knowledge-materializa
 import { inspectImage } from '../image-integrity.js';
 import { validateEntity } from '../validate.js';
 import { commitImmutableFiles } from '../write.js';
+import { completeKnowledgeImageRights } from '@canteenos/core';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KB_URL=/^http:\/\/127\.0\.0\.1:(?:4390|4391)\/?$/;
@@ -81,7 +82,7 @@ export async function handleKnowledgeMaterialization(ctx:Ctx){
   let imageBytes=0;
   for(const item of media){
     if(!used.has(item.assetId)||item.kind!=='image'||item.status!=='ready'||
-      !item.url?.startsWith('/api/v1/assets/')||!item.rights?.license||!item.rights.author)continue;
+      !item.url?.startsWith('/api/v1/assets/')||!completeKnowledgeImageRights(item.rights))continue;
     const match=/^\/api\/v1\/assets\/([0-9a-f-]{36})\/content$/.exec(item.url);
     if(!match||match[1]!==item.assetId||!/^[0-9a-f]{64}$/.test(item.sha256??''))throw fail('invalid_source',{message:'菜谱图片缺少可核对的素材哈希'});
     const image=await readKnowledgeImage(ctx,item.assetId,item.sha256!);

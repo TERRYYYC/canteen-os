@@ -50,7 +50,7 @@ try {
   }
   throw err;
 }
-const { buildMenuSheet, buildPrepSheet, expand, formatPurchaseOrderText, readiness, renderPurchaseOrders } = core;
+const { allowedImageLicense, buildMenuSheet, buildPrepSheet, expand, formatPurchaseOrderText, readiness, renderPurchaseOrders } = core;
 
 export const DATA_DIR = "data";
 export const DEFAULT_OUT_DIR = path.join("packages", "web", "public", "data");
@@ -408,7 +408,7 @@ function projectAssets(projection, source, revision, planId) {
     if(techniqueRef!==undefined) asset.techniqueRef=techniqueRef;
     assets.push(asset);
     const fail=(message)=>issues.push({planId,kind:'error',code:'asset-unavailable',ownerPath,jsonPointer,message});
-    if (!/^(own|CC0(?: 1\.0)?|Public domain|CC BY(?:-SA)?(?: [1-4]\.0)?)$/.test(image.license) ||
+    if (!allowedImageLicense(image.license) ||
       (/^CC BY/.test(image.license)&&(!image.author||!image.sourceUrl))) {
       asset.status='invalid';fail('Image license or attribution is incomplete');return;
     }
