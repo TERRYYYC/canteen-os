@@ -97,6 +97,34 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
   assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
 });
+
+test('video inbox presents the whole recipe and complete source video before technical evidence',async()=>{
+  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379';
+  const item={id:itemId,contentId:'7688143729379205275',kind:'video',url:'https://www.douyin.com/video/7688143729379205275',index:2,author:'test',cardAlt:'羊腩煲',displayText:'羊腩煲',state:'needs_review'};
+  const capture={id:captureId,status:'ready',method:'video_analysis',capturedAt:'2026-09-28',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url,
+    media:{sha256:'a'.repeat(64),durationMs:263848,byteCount:21000000,sourceMethod:'browser_playback'},segments:[{id:'one',kind:'subtitle',locator:'00:12',text:'羊腩5斤',startMs:12000,endMs:13000}]}};
+  const candidate={id:'e2068014-7d9e-4e74-b24d-32f12554e7c4',captureId,status:'needs_review',recipe:{title:{zh:'古法羊腩煲'},ingredients:[
+    {id:id2,name:{zh:'羊腩'},amount:{kind:'exact',value:'5',unit:'斤',raw:'5斤'},preparation:{zh:'带皮带骨'}},
+    {id:assetId,name:{zh:'高汤'},amount:{kind:'unknown'}}],steps:[{id,name:'',text:{zh:'炸至表面金黄'}},{id:id2,text:{zh:'放入煲锅煲熟'}}]},
+    fieldEvidence:{},imageCandidates:[],unresolved:['煲煮火力和时长未说明']};
+  const h=await setup(url=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[]});
+    if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
+    if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
+    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[capture]});
+    if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
+    throw Error(`unexpected ${url}`);
+  });
+  await h.mount('inbox');
+  const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  assert.equal(h.all('.kb-recipe-ingredient').length,2);
+  assert.equal(h.all('.kb-recipe-step').length,2);
+  assert.match(h.el.textContent,/煲煮火力和时长未说明/);
+  assert(h.all('a').some(link=>link.textContent.includes('完整原视频')&&link.getAttribute('href')===item.url));
+  assert(h.all('details').some(detail=>detail.textContent.includes('AI 提取依据')));
+  assert.equal(h.all('.kb-inbox-candidate')[0].getAttribute('open'),'');
+  assert(source.textContent.indexOf('完整做法')<source.textContent.indexOf('作品正文或字幕'));
+});
 test('transport refuses missing configuration/auth and discards a late prior-session body', async () => {
   const h=await setup(); let calls=0;
   await assert.rejects(h.m.createKnowledgeApi({base:'',fetch:async()=>{calls++;}}).request('/recipes'),e=>e.status===503);
