@@ -141,6 +141,18 @@ test('unpublished knowledge cover evidence is distinct from an absent image in m
     }
   }
 });
+test('prep shows source cooking gaps outside folded technical evidence',()=>{
+  const data=JSON.parse(JSON.stringify(fixture())),dish=data.projection.dishes['dish-a'];
+  dish.status='active';
+  dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),
+    evidence:{sourceRecords:[],sourceRefs:[],unresolved:['煲煮火力和时长未说明','粉的品种未说明']}};
+  const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options());
+  const questions=attr(el,'class','prep-source-questions');
+  assert.equal(questions.length,1);
+  assert.match(questions[0].textContent,/煲煮火力和时长未说明/);
+  assert.match(questions[0].textContent,/粉的品种未说明/);
+  stop();el.remove();
+});
 test('an unresolved plan is shown as missing source, not silently represented as an empty menu',()=>{
   const data=JSON.parse(JSON.stringify(fixture()));
   data.projection.selection=[{menuPlanRef:'unresolved-plan',date:'2026-09-11',mealType:'lunch'}];

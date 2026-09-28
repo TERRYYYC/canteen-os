@@ -362,6 +362,7 @@ export interface KnowledgeEvidence {
   sourceRecords: Record<string, unknown>[];
   sourceRefs: Record<string, unknown>[];
   media?: Record<string, unknown>[];
+  unresolved?: string[];
 }
 export interface KnowledgeProvenance {
   source: 'knowledge';

@@ -7,14 +7,15 @@ type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; v
 type IngredientRow = { id: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized };
 type StepRow = { id: string; text: Localized };
 type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string;
-  review?: { reviewer: string; note: string; approvedCandidateVersion: number } };
+  review?: { reviewer: string; note: string; approvedCandidateVersion: number }; unresolved?: string[] };
 type AssetRef = { assetId: string; role: string; stepId?: string };
 type Media = { assetId: string; kind: string; status: string; url: string; role?: string; sha256?: string; rights?: { license: string; author?: string; sourceUrl?: string } };
 type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
 export type PinnedImage = { assetId: string; bytes: Uint8Array; ext: 'png'|'jpg'|'webp'; rights: { license: string; author?: string; sourceUrl?: string } };
 
-const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs' }> = {
+const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?: number }> = {
   g:{unit:'g',baseUnit:'g'}, 克:{unit:'g',baseUnit:'g'}, kg:{unit:'kg',baseUnit:'g'}, 千克:{unit:'kg',baseUnit:'g'}, 公斤:{unit:'kg',baseUnit:'g'},
+  斤:{unit:'g',baseUnit:'g',factor:500},
   ml:{unit:'ml',baseUnit:'ml'}, 毫升:{unit:'ml',baseUnit:'ml'}, l:{unit:'l',baseUnit:'ml'}, 升:{unit:'l',baseUnit:'ml'},
   pcs:{unit:'pcs',baseUnit:'pcs'}, 个:{unit:'pcs',baseUnit:'pcs'}, 只:{unit:'pcs',baseUnit:'pcs'}, 片:{unit:'pcs',baseUnit:'pcs'},
 };
@@ -30,7 +31,8 @@ function quantity(amount: Amount): { qty?: { value?: number; unit: string }; bas
   if(amount.kind==='exact'&&typeof amount.unit==='string'&&typeof amount.value==='string'){
     const mapped=UNIT[amount.unit.trim().toLowerCase()] ?? UNIT[amount.unit.trim()];
     const value=Number(amount.value);
-    if(mapped&&Number.isFinite(value)&&value>0&&value<=Number.MAX_SAFE_INTEGER)return {qty:{value,unit:mapped.unit},baseUnit:mapped.baseUnit,originalAmount};
+    const converted=value*(mapped?.factor??1);
+    if(mapped&&Number.isFinite(converted)&&converted>0&&converted<=Number.MAX_SAFE_INTEGER)return {qty:{value:converted,unit:mapped.unit},baseUnit:mapped.baseUnit,originalAmount};
   }
   // A missing qty cannot enter arithmetic. The required baseUnit is only a
   // schema placeholder until a human records a usable unit and purchase spec.
@@ -43,9 +45,11 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
     candidate.recipeId!==detail.id||candidate.recipeVersion!==detail.version||
     !Array.isArray(detail.recipe?.ingredients)||!detail.recipe.ingredients.length||detail.recipe.ingredients.length>100||
     !Array.isArray(detail.recipe.steps)||!detail.recipe.title||!candidate.reviewer)throw new Error('approved_revision_required');
+  const sourceGaps=candidate.unresolved??[];
+  if(!Array.isArray(sourceGaps)||sourceGaps.length>100||sourceGaps.some(value=>typeof value!=='string'||!value.trim()||value.length>2000))throw new Error('invalid_source_gaps');
   const dishRef=`kb-${detail.id.replaceAll('-','')}-v${detail.version}`;
-  const snapshotHash=await sha256({candidate:{id:candidate.id,recipeId:candidate.recipeId,recipeVersion:candidate.recipeVersion,reviewer:candidate.reviewer,review:candidate.review},detail});
-  let unresolvedCount=0;
+  const snapshotHash=await sha256({candidate:{id:candidate.id,recipeId:candidate.recipeId,recipeVersion:candidate.recipeVersion,reviewer:candidate.reviewer,review:candidate.review,unresolved:sourceGaps},detail});
+  let unresolvedCount=sourceGaps.length;
   const files:{path:string;text:string}[]=[];
   const imageFiles:{path:string;bytes:Uint8Array}[]=[];
   const imageMap=new Map(pinnedImages.map(image=>[image.assetId,image]));
@@ -86,7 +90,7 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
       ...(candidate.review?{review:candidate.review}:{}),
       ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
-      ...(sourceRecords.length||sourceRefs.length||evidenceMedia.length?{evidence:{sourceRecords,sourceRefs,media:evidenceMedia}}:{})},status:'active'};
+      ...(sourceRecords.length||sourceRefs.length||evidenceMedia.length||sourceGaps.length?{evidence:{sourceRecords,sourceRefs,media:evidenceMedia,...(sourceGaps.length?{unresolved:sourceGaps}:{})}}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};
 }

@@ -191,8 +191,10 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
                 ingredient.preparation?h('small',{},ingredient.preparation.zh??ingredient.preparation.en??ingredient.preparation.uk??''):h('span'))))),
             h('section',{},h('h4',{},`${t('完整做法','Complete method','Повний спосіб')} · ${steps.length}`),
               h('ol',{class:'kb-recipe-steps'},...steps.map(step=>h('li',{class:'kb-recipe-step'},step.text.zh??step.text.en??step.text.uk??''))))),
-          unresolved.length?h('section',{class:'kb-recipe-unresolved'},h('h4',{},`${t('师傅需要补定的地方','Conditions for the cook to confirm','Потрібно уточнити')} · ${unresolved.length}`),
-            h('ul',{},...unresolved.map(value=>h('li',{},value)))):h('span'),
+          unresolved.length?h('section',{class:'kb-recipe-unresolved'},h('h4',{},`${t('来源仍需核实的事项','Questions left by the source','Питання щодо джерела')} · ${unresolved.length}`),
+            h('ul',{},...unresolved.slice(0,10).map(value=>h('li',{},value))),
+            unresolved.length>10?h('details',{},h('summary',{},`${t('更多逐字段核对点','More field questions','Більше питань')} · ${unresolved.length-10}`),
+              h('ul',{},...unresolved.slice(10).map(value=>h('li',{},value)))):null):h('span'),
           h('details',{class:'kb-recipe-technical'},h('summary',{},t('查看 AI 提取依据与媒体指纹','AI extraction evidence and media hash','Докази витягу та хеш відео')),
             h('pre',{},JSON.stringify({fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates,media:source?.evidence.media},null,2)))));
       if(candidate.recipeId){
@@ -203,7 +205,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           if(active())showFrozen(data);
         }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
         function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
-          replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('原方用量待确认','Original amounts to confirm','Кількість потребує перевірки')} ${data.unresolvedCount}`),
+          replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('来源与用量待确认项','Source and amount questions','Питання щодо джерела й кількості')} ${data.unresolvedCount}`),
             h('a',{href:`#/admin/plan/team-week/select/${encodeURIComponent(data.dishRef)}`},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
         }
         const check=button(t('检查菜谱新版本','Check newer recipe version','Перевірити нову версію'),()=>void checkCurrent());

@@ -70,7 +70,8 @@
         "evidence": { "type": "object", "properties": {
           "sourceRecords": { "type": "array", "items": { "type": "object" } },
           "sourceRefs": { "type": "array", "items": { "type": "object" } },
-          "media": { "type": "array", "items": { "type": "object" } }
+          "media": { "type": "array", "items": { "type": "object" } },
+          "unresolved": { "type": "array", "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 2000 } }
         }, "required": ["sourceRecords", "sourceRefs"], "additionalProperties": false }
       }, "required": ["source","recipeId","recipeVersion","candidateId","snapshotHash"], "additionalProperties": false }
     ] },

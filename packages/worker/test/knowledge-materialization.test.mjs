@@ -45,6 +45,19 @@ test('precise recorded decimals remain numeric and missing raw text still has an
   assert.equal(dish.components[0].originalAmount,'0.33333 kg');
 });
 
+test('video source gaps remain in the frozen dish and 斤 converts without losing its original wording',async()=>{
+  const changed=structuredClone(detail);
+  changed.recipe.ingredients[0].amount={kind:'exact',value:'5',unit:'斤',raw:'5斤'};
+  const video={...approved,unresolved:['煲煮火力和时长未说明','粉的品种未说明']};
+  const fixed=await materializationFiles(video,changed);
+  const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
+  assert.deepEqual(dish.components[0].qty,{value:2500,unit:'g'});
+  assert.equal(dish.components[0].originalAmount,'5斤');
+  assert.deepEqual(dish.provenance.evidence.unresolved,video.unresolved);
+  assert.equal(fixed.unresolvedCount,3,'two source gaps plus one unconvertible spoon quantity');
+  assert.equal(validateEntity('dish',dish).valid,true);
+});
+
 test('approved preparation and original field evidence remain in immutable menu inputs',async()=>{
   const changed=structuredClone(detail);
   changed.recipe.ingredients[0].preparation={zh:'浸泡一夜'};
