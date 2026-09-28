@@ -180,7 +180,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           h('div',{class:'kb-full-recipe-head'},h('h3',{},candidate.recipe.title.zh??candidate.recipe.title.en??''),
             h('p',{class:'kb-muted'},candidate.recipe.baseServings
               ?`${t('原方','Original yield','Оригінал')} ${candidate.recipe.baseServings} ${t('份','servings','порцій')}`
-              :t('原方份数未说明','Original serving count not stated','Кількість порцій не вказана')),
+              :t('原方份数待师傅核定','Original serving count awaits cook verification','Кількість порцій очікує перевірки кухаря')),
             completeVideo?h('a',{href:completeVideo,target:'_blank',rel:'noopener noreferrer',class:'kb-full-video'},t('▶ 观看完整原视频','▶ Watch the complete source video','▶ Переглянути повне відео')):h('span',{},item.url),
             source?.evidence.media?h('small',{},`${t('视频','Video','Відео')} ${duration(source.evidence.media.durationMs)} · ${source.evidence.segments?.length??0} ${t('条音画记录','timed observations','записів')}`):h('span')),
           h('div',{class:'kb-full-recipe-grid'},

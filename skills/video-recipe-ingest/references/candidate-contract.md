@@ -6,7 +6,7 @@
 - `evidence.json`：数组；每项有唯一 `id`、`kind=spoken|subtitle|visual`、整数 `startMs/endMs`、`text`、`extractor`，可加 `framePath`、`rawText` 与说明。时间在媒体时长内。平台摘要/收藏卡片可另存，但不得支持配料数量或步骤。
 - `candidate.json`：`status=needs_human_review`、`classification=recipe`、`sourceSha256`、`title`、`titleEvidenceIds`、`yield`、`ingredients[]`、`steps[]`、`unresolved[]`、`approvedForMenu=false`、`approvedForProcurement=false`。
 
-食材项：`name`、`rawQuantity`（原话或 null）、`quantityState=stated|stated_imprecise|not_stated|not_checked`、`prep`、`evidenceIds[]`、`uncertainty`。替代项写在原料的 `substitution: {name,rawQuantity,evidenceIds,uncertainty}` 内；不能同时成为独立采购行。步骤项：`order`（从 1 连续）、`action`、`startMs/endMs`、`evidenceIds[]`、`unknowns[]`。
+食材项：`name`、`rawQuantity`（原话或 null）、`quantityState=stated|stated_imprecise|not_stated|not_checked`、`prep`、`evidenceIds[]`、`uncertainty`。`stated_imprecise` 即使原话含数字也只保留文本，不可升格为可参与采购计算的精确量；`not_checked` 不得导入完整视频候选。AI `yield` 仅是待核对观察值，不能直接成为菜谱的 `baseServings`；须由师傅在 KB 菜谱修订中核定。替代项写在原料的 `substitution: {name,rawQuantity,evidenceIds,uncertainty}` 内；不能同时成为独立采购行。步骤项：`order`（从 1 连续）、`action`、`startMs/endMs`、`evidenceIds[]`、`unknowns[]`。
 
 每项食材和步骤必须引用有效的**音画证据**。`not_stated` 是整段核对后确实没说；`not_checked` 是覆盖不足。后者不得作为完整视频草稿提交。综合 `unresolved`、食材 `uncertainty` 和步骤 `unknowns` 均须传给 KB 候选，审核后随固定版本进入备料提示。`rawQuantity` 只可在无歧义时转换数值；“两勺”“来点”“八成油温”保留原话，不推算克数/温度。
 
