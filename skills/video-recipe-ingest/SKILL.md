@@ -31,9 +31,23 @@ description: >
 - 候选页先展示整份食材、做法、未知条件和**完整原视频**。时码/证据折叠保存，师傅无需逐字段回看片段。保留来源使用权状态；未确认许可的视频帧不能作为可发布菜图。
 - AI 不署名审批。师傅补齐厨房所需条件、审核保存 SQLite 菜谱版本后，CanteenOS 才能将 `recipeId + version` 固定为菜单快照。帮厨看该版本备料，采购读同版本、按真实份数和库存决策；未知量不生成精确采购数字。
 
+### 候选的必要原片说明图
+
+- 从完整原片选择必要的配料、操作/状态变化和成品帧，实际核对后缩放压缩；单图 **≤200000 bytes，最长边≤1280**。图片留在菜谱产物目录内。
+- 写 `illustrations.json`：顶层含原视频 `sourceMediaSha256`、原始 `sourceUrl`、`author`、`rightsState: "unknown"` 和 `images`；每图含 `path`、图片文件 `sha256`、实际 `frameMs`、`role: ingredient|step|finished`、从1开始的 `stepOrder` 和有来源依据的 `caption`。说明文字可为字符串或至少一语的 `I18nString`，不假造授权。
+- 候选导入后，从 KB checkout 调用 [`scripts/import-candidate-illustrations.mjs`](../../../knowledge-base/scripts/import-candidate-illustrations.mjs)。默认从产物目录的 `local-import-receipt.json` 读取 `candidateId` 或 `imported.candidateId`；也可明确传 `--candidate-id <UUID>`。脚本读取真实候选，把 `stepOrder` 映射到该候选的步骤 UUID。
+
+```bash
+node scripts/import-candidate-illustrations.mjs --artifact-dir /absolute/path/to/recipe-artifacts
+node scripts/import-candidate-illustrations.mjs --artifact-dir /absolute/path/to/recipe-artifacts --apply --output /absolute/path/to/recipe-artifacts/illustrations-import-receipt.json
+```
+
+- 默认 dry run 读取候选/采集记录并校验全部图片，不上传或写 KB。API 默认 `http://127.0.0.1:4390`；其他 loopback API 或已核定 SSH 隧道传 `--api-base`。`--apply` 才执行，`--output` 只指定报告文件；检查执行回执中的图片 ID 与 `replayed`。相同图片、说明、来源和步骤映射重试复用原事件。
+- 图片以内部候选事件追加，不修改不可变 capture/candidate，不进入可发布的 `recipe.assets`。师傅在完整菜谱的关联步骤旁看说明图，并可打开完整原视频；日常审核无需逐段回放，权利未知的图不随菜单公开。
+
 ## 完成证据
 
 1. 视频 hash、时长和音画覆盖记录；候选每项有证据 ID，所有未知问题列明。
-2. KB 返回 `captureId` 与 `candidateId`，重跑返回原 ID；收件箱能直接读完整菜谱并打开完整原视频。
+2. KB 返回 `captureId` 与 `candidateId`，重跑返回原 ID；有必要配图时保存追加回执并验证重复复用，收件箱能直接读完整菜谱、步骤旁图片并打开完整原视频。
 3. 师傅审核人与版本回执；固定菜单版在 KB 后续编辑后不漂移，备料/采购显示同一份食材与步骤。
 4. 至少另一条真实烹饪视频与非菜谱样本对照后，才扩至收藏批次。
