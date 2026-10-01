@@ -316,3 +316,65 @@ test('save completion invalidates history loaded by a newer language render',asy
   version=2;write.resolve(json(detail({version:2}),200,{etag:'"v2"'}));await h.flush();
   assert(listReads>=2,'the currently mounted language render must invalidate its cached history');assert(h.all('button').some(b=>b.textContent==='v2 · new'));assert(!h.all('button').some(b=>b.textContent==='v1 · old'));
 });
+
+function inboxPictureFixture(imageHandler){
+ const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379',stepId='49e04de3-bdc5-4b8b-9760-423dad360b5a';
+ const item={id:itemId,contentId:'7688940752160196770',kind:'video',url:'https://www.douyin.com/video/7688940752160196770',index:1,author:'原片作者',cardAlt:'原片',displayText:'原片',state:'needs_review'};
+ const illustration=role=>({id:role,assetId,url:`/api/v1/assets/${assetId}/content`,imageSha256:'b'.repeat(64),sourceMediaSha256:'a'.repeat(64),frameMs:1500,role,stepId,caption:{zh:`${role}原片图`,uk:`${role} оригінал`},sourceUrl:item.url,author:item.author,rightsState:'unknown'});
+ const candidate={id:'e2068014-7d9e-4e74-b24d-32f12554e7c4',captureId,status:'needs_review',recipe:{title:{zh:'陈皮排骨'},ingredients:[{id:id2,name:{zh:'排骨'},amount:{kind:'text',raw:'两斤'}}],steps:[{id:stepId,text:{zh:'煸排骨'}}]},fieldEvidence:{},imageCandidates:[],illustrations:['ingredient','step','finished'].map(illustration)};
+ return (url,init)=>{
+  if(url.endsWith('/favorites/imports'))return json({items:[]});
+  if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
+  if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
+  if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'video_analysis',capturedAt:'2026-10-01',sha256:'c'.repeat(64),evidence:{sourceUrl:item.url,media:{sha256:'a'.repeat(64),durationMs:10000,byteCount:10000,sourceMethod:'f2'},segments:[]}}]});
+  if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
+  if(url.endsWith(`/assets/${assetId}/content`))return imageHandler(url,init);
+  throw Error(`unexpected ${url}`);
+ };
+}
+async function openPictureInbox(h){await h.mount('inbox');const item=h.all('.kb-inbox-item')[0];item.open=true;item.dispatchEvent({type:'toggle'});await h.flush();}
+test('inbox shows source images by ingredient, actual step and final output; access change revokes blobs',async()=>{
+ const created=[],revoked=[];const oldCreate=URL.createObjectURL,oldRevoke=URL.revokeObjectURL;
+ URL.createObjectURL=()=>{const url=`blob:inbox-${created.length}`;created.push(url);return url;};URL.revokeObjectURL=url=>revoked.push(url);
+ try{
+  const h=await setup(inboxPictureFixture((url,init)=>{assert.equal(new Headers(init.headers).get('authorization'),'Bearer test-only-token');return new Response('image',{headers:{'Content-Type':'image/png'}});}));
+  await openPictureInbox(h);
+  assert.equal(h.all('.kb-reference-image').length,3);assert.equal(h.all('img').length,3);
+  assert.equal(h.all('.kb-recipe-ingredients').length,1);
+  const step=h.all('.kb-recipe-step')[0];assert.equal(step.querySelectorAll('.kb-reference-image').length,1);assert.equal(step.querySelectorAll('img').length,1);
+  assert.match(h.el.textContent,/原片参考图/);assert.match(h.el.textContent,/使用权待核实/);
+  fixture.auth++;fixture.authHooks.forEach(fn=>fn());assert.equal(revoked.length,3);
+ }finally{URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;}
+});
+test('inbox aborts pending source-image requests on route departure and discards late blobs',async()=>{
+ const pending=defer(),signals=[];let created=0;const oldCreate=URL.createObjectURL;URL.createObjectURL=()=>{created++;return 'blob:late';};
+ try{
+  const h=await setup(inboxPictureFixture((url,init)=>{signals.push(init.signal);return pending.promise;}));await openPictureInbox(h);assert.equal(signals.length,3);
+  h.leave();assert(signals.every(signal=>signal.aborted));pending.resolve(new Response('image',{headers:{'Content-Type':'image/png'}}));await h.flush();assert.equal(created,0);assert.equal(h.all('img').length,0);
+ }finally{URL.createObjectURL=oldCreate;}
+});
+test('inbox source-image failure offers a retry and decode failure releases its blob',async()=>{
+ let reads=0;const revoked=[];const oldRevoke=URL.revokeObjectURL;URL.revokeObjectURL=url=>revoked.push(url);
+ try{
+  const h=await setup(inboxPictureFixture(()=>{reads++;return reads<=3?json({error:{message:'failed'}},503):new Response('image',{headers:{'Content-Type':'image/png'}});}));
+  await openPictureInbox(h);assert.match(h.el.textContent,/图片未加载/);h.click('重试图片');await h.flush();assert.equal(h.all('img').length,1);
+  h.all('img')[0].dispatchEvent({type:'error'});assert.equal(revoked.length,1);assert.match(h.el.textContent,/图片未加载/);h.leave();
+ }finally{URL.revokeObjectURL=oldRevoke;}
+});
+
+test('inbox releases only refreshed item image blobs before replacing its detail',async()=>{
+ const created=[],revoked=[];const oldCreate=URL.createObjectURL,oldRevoke=URL.revokeObjectURL;
+ URL.createObjectURL=()=>{const url=`blob:refresh-${created.length}`;created.push(url);return url;};URL.revokeObjectURL=url=>revoked.push(url);
+ try{
+  const h=await setup(inboxPictureFixture(()=>new Response('image',{headers:{'Content-Type':'image/png'}})));await openPictureInbox(h);assert.equal(created.length,3);
+  h.click('记录卡片为待核验线索');await h.flush();assert.equal(created.length,6);assert.equal(h.all('img').length,3);assert.equal(revoked.length,3);h.leave();assert.equal(revoked.length,6);
+ }finally{URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;}
+});
+test('inbox detail refresh aborts old image reads while retaining new reads in the same route',async()=>{
+ const signals=[],ready=defer();let created=0;const oldCreate=URL.createObjectURL;URL.createObjectURL=()=>`blob:pending-refresh-${created++}`;
+ try{
+  const h=await setup(inboxPictureFixture((url,init)=>{signals.push(init.signal);return ready.promise.then(()=>new Response('image',{headers:{'Content-Type':'image/png'}}));}));await openPictureInbox(h);assert.equal(signals.length,3);
+  h.click('记录卡片为待核验线索');await h.flush();assert.equal(signals.length,6);assert(signals.slice(0,3).every(x=>x.aborted));assert(signals.slice(3).every(x=>!x.aborted));
+  ready.resolve();await h.flush();assert.equal(created,3);assert.equal(h.all('img').length,3);h.leave();
+ }finally{URL.createObjectURL=oldCreate;}
+});

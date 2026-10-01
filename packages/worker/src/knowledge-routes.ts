@@ -31,5 +31,6 @@ export const KNOWLEDGE_ROUTES = [
   ["POST", "/knowledge/favorites/items/:id/candidates"],
   ["GET", "/knowledge/favorites/candidates/:id"],
   ["POST", "/knowledge/favorites/candidates/:id/review"],
+  ["POST", "/knowledge/favorites/candidates/:id/illustrations"],
   ["POST", "/knowledge/favorites/items/:id/classify"],
 ] as const;

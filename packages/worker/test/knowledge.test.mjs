@@ -236,3 +236,11 @@ test('knowledge rates are isolated from old read/write budgets and OPTIONS permi
   assert.match(options.headers.get('access-control-allow-headers'), /Idempotency-Key/);
   assert.equal(options.headers.get('access-control-allow-credentials'), null);
 });
+
+test('candidate source-frame attachment is an explicit private write route',async()=>{
+ const path=`/knowledge/favorites/candidates/${id}/illustrations`;
+ const f=fixture();assert.equal((await send(f,'POST',path,{body:{rightsState:'unknown'}})).status,201);
+ assert.equal(f.seen[0].url,`http://127.0.0.1:4390/api/v1/favorites/candidates/${id}/illustrations`);
+ assert.equal((await send(fixture(),'POST',path,{role:'buyer',body:{}})).status,403);
+ assert.equal((await send(fixture(),'POST',path,{role:null,body:{}})).status,401);
+});

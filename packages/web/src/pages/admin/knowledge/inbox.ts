@@ -1,4 +1,6 @@
 import { h, replace } from '../../../dom';
+import { onRoute } from '../../../router';
+import { onAuthSessionChange } from '../../../admin/token';
 import type { PageCtx } from '../../../types';
 import { getKnowledgeApi, type Recipe } from '../../../api/knowledge';
 import { words, button, field, safeExternal } from './ui';
@@ -7,7 +9,13 @@ import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
 type Item = { id: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
 type Capture = { id: string; status: string; method: string; sha256: string; capturedAt: string; evidence: { sourceUrl: string; text?: string; media?: { sha256:string; durationMs:number; byteCount:number; sourceMethod:string }; segments?: { id?:string; kind: string; locator: string; text: string; startMs?:number; endMs?:number }[]; images?: { url: string; role: string; licenseStatus: string; sourceUrl: string; locator?: string }[] } };
-type Candidate = { id: string; captureId: string; status: string; recipe: Recipe; fieldEvidence: unknown; imageCandidates: unknown[]; unresolved?:string[]; recipeId?: string; recipeVersion?: number; reviewer?: string; reviewNote?: string };
+type Illustration = { id:string; assetId:string; url:string; sourceMediaSha256:string; frameMs:number; role:'ingredient'|'step'|'finished'; stepId:string; caption:{zh?:string;en?:string;uk?:string}; sourceUrl:string; author:string; rightsState:'unknown' };
+const imageControllers=new Set<AbortController>(), imageUrls=new Set<string>();
+let imageEpoch=0;
+function releaseInboxImages():void { imageEpoch++; for(const controller of imageControllers)controller.abort();imageControllers.clear();for(const url of imageUrls)URL.revokeObjectURL(url);imageUrls.clear(); }
+onRoute(releaseInboxImages,false);
+onAuthSessionChange(releaseInboxImages);
+type Candidate = { id: string; captureId: string; status: string; recipe: Recipe; fieldEvidence: unknown; imageCandidates: unknown[]; illustrations?:Illustration[]; unresolved?:string[]; recipeId?: string; recipeVersion?: number; reviewer?: string; reviewNote?: string };
 const stateName: Record<string, string> = { evidence_pending:'等待作品正文', evidence_ready:'已有作品证据', needs_review:'待审核草稿', approved:'菜谱已审核', blocked_auth:'访问受限', unavailable:'作品不可用', non_recipe:'非菜谱', rejected:'审核退回' };
 const errorText = (error: unknown) => error instanceof Error ? error.message : '请求未完成，请重试。';
 const lines = (value: string) => value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
@@ -42,6 +50,7 @@ function recipeProposal(title: string, titleQuote: string, ingredientsText: stri
 }
 
 export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () => boolean): Promise<void> {
+  releaseInboxImages();
   const t = words(ctx.lang), api = getKnowledgeApi();
   let csvRows: FavoriteCsvRow[] | null = null, prepared: Batch | null = null, loading = false, cursor: string | null = null;
   const info = h('div'), cards = h('div', { class:'kb-inbox-list' }), batchInfo = h('div');
@@ -82,7 +91,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   async function loadBatches(){try{const {data}=await api.request<{items:Batch[]}>('/favorites/imports');if(!active())return;
     const latest=data.items[0];replace(batchInfo,latest?h('p',{class:'kb-status'},`${t('最近批次','Latest batch','Остання партія')}: ${latest.validCount}/${latest.claimedCount} · ${t('差额','Gap','Різниця')} ${latest.coverageGap} · ${t('坏行','Rejected','Відхилено')} ${latest.rejectedCount}`):h('p',{class:'kb-muted'},t('尚未导入收藏。','No favorites imported yet.','Ще нічого не імпортовано.')));
   }catch(error){if(active())replace(batchInfo,h('p',{role:'alert'},errorText(error)));}}
-  async function loadItems(reset:boolean){if(reset){cursor=null;replace(cards);}const params=new URLSearchParams({limit:'50',folder:'吃的'});if(cursor)params.set('cursor',cursor);
+  async function loadItems(reset:boolean){if(reset){releaseInboxImages();cursor=null;replace(cards);}const params=new URLSearchParams({limit:'50',folder:'吃的'});if(cursor)params.set('cursor',cursor);
     try{const {data}=await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`);if(!active())return;
       for(const item of data.items)cards.append(renderItem(item));cursor=data.nextCursor;more.hidden=!cursor;
       if(reset&&!data.items.length)cards.append(h('p',{class:'kb-muted'},t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
@@ -90,8 +99,9 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   function renderItem(item:Item):HTMLElement{
     const body=h('div'), summary=h('summary',{},h('span',{class:'kb-inbox-badge'},stateName[item.state]??item.state),` #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`);
     const detail=h('details',{class:'kb-inbox-item'},summary,body);let loaded=false;
+    const detailImageDisposers=new Set<()=>void>();
     detail.addEventListener('toggle',()=>{if(detail.open&&!loaded){loaded=true;void loadDetail();}});
-    async function loadDetail(){replace(body,h('p',{},t('正在读取证据…','Loading evidence…','Завантаження…')));
+    async function loadDetail(){for(const dispose of detailImageDisposers)dispose();detailImageDisposers.clear();replace(body,h('p',{},t('正在读取证据…','Loading evidence…','Завантаження…')));
       try{const [current,captures,candidates]=await Promise.all([api.request<Item>(`/favorites/items/${item.id}`),api.request<{items:Capture[]}>(`/favorites/items/${item.id}/captures`),api.request<{items:Candidate[]}>(`/favorites/items/${item.id}/candidates`)]);
         if(!active()||!detail.isConnected)return;Object.assign(item,current.data);
         replace(summary,h('span',{class:'kb-inbox-badge'},stateName[item.state]??item.state),` #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`);
@@ -165,6 +175,31 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         field(t('菜名的原文引句','Title quote','Цитата назви'),titleQuote),field(t('食材：每行名称 | 原方用量 | 引句 | 位置','Ingredients: name | original amount | quote | locator','Інгредієнти'),ingredients),
         field(t('步骤：每行步骤 | 引句 | 位置','Steps: action | quote | locator','Кроки'),steps),create,feedback);
     }
+    function sourceFigure(image:Illustration):HTMLElement {
+      const caption=image.caption[ctx.lang]??image.caption.zh??image.caption.en??image.caption.uk??'';
+      const picture=h('div',{class:'kb-reference-picture'}), figure=h('figure',{class:'kb-reference-image','data-role':image.role,'data-step-id':image.stepId},picture,
+        h('figcaption',{},caption,h('small',{},`${image.author} · ${t('原片参考图','Source video frame','Кадр оригіналу')} · ${t('使用权待核实','Rights not verified','Права не перевірено')}`)));
+      let controller:AbortController|undefined,objectUrl:string|undefined,disposed=false;
+      function revoke(){if(objectUrl&&imageUrls.delete(objectUrl))URL.revokeObjectURL(objectUrl);objectUrl=undefined;}
+      detailImageDisposers.add(()=>{disposed=true;controller?.abort();if(controller)imageControllers.delete(controller);revoke();});
+      function failed(){revoke();if(active()&&figure.isConnected)replace(picture,h('p',{role:'alert'},t('图片未加载，可重试。','Image did not load. Retry.','Зображення не завантажено. Спробуйте знову.')),button(t('重试图片','Retry image','Повторити зображення'),()=>void load()));}
+      async function load(){
+        if(disposed||!active()||!figure.isConnected)return;
+        controller?.abort();revoke();const currentEpoch=imageEpoch,read=new AbortController();controller=read;imageControllers.add(read);
+        replace(picture,h('p',{role:'status'},t('正在加载原片图…','Loading source frame…','Завантаження кадру…')));
+        try{
+          const blob=await api.image(image.url,read.signal);
+          if(read.signal.aborted||currentEpoch!==imageEpoch||!active()||!figure.isConnected)return;
+          objectUrl=URL.createObjectURL(blob);imageUrls.add(objectUrl);
+          const img=h('img',{src:objectUrl,alt:caption,loading:'lazy'});
+          img.addEventListener('error',()=>{if(currentEpoch===imageEpoch&&!read.signal.aborted)failed();});
+          replace(picture,img);
+        }catch{if(!read.signal.aborted&&currentEpoch===imageEpoch)failed();}
+        finally{imageControllers.delete(read);}
+      }
+      queueMicrotask(()=>void load());
+      return figure;
+    }
     function candidateView(candidate:Candidate,captures:Capture[]):HTMLElement{
       const source=captures.find(c=>c.id===candidate.captureId);
       const reviewer=h('input',{type:'text',placeholder:t('审核人','Reviewer','Рецензент')}) as HTMLInputElement;
@@ -175,6 +210,8 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         catch(error){if(active())replace(result,h('p',{role:'alert'},errorText(error)));}}
       const completeVideo=safeExternal(item.url);
       const ingredients=candidate.recipe.ingredients??[],steps=candidate.recipe.steps??[],unresolved=candidate.unresolved??[];
+      const illustrations=candidate.illustrations??[];
+      const sourceImages=(role:Illustration['role'],stepId?:string)=>illustrations.filter(image=>image.role===role&&(!stepId||image.stepId===stepId)).map(sourceFigure);
       const row=h('details',{class:'kb-inbox-candidate',open:true},h('summary',{},`${candidate.recipe.title.zh??''} · ${candidate.status} · ${source?.status??''}`),
         h('div',{class:'kb-full-recipe'},
           h('div',{class:'kb-full-recipe-head'},h('h3',{},candidate.recipe.title.zh??candidate.recipe.title.en??''),
@@ -188,15 +225,15 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
               h('ul',{class:'kb-recipe-ingredients'},...ingredients.map(ingredient=>h('li',{class:'kb-recipe-ingredient'},
                 h('strong',{},ingredient.name.zh??ingredient.name.en??ingredient.name.uk??''),
                 h('span',{},amountLabel(ingredient.amount,t('用量未说明','Amount not stated','Кількість не вказана'))),
-                ingredient.preparation?h('small',{},ingredient.preparation.zh??ingredient.preparation.en??ingredient.preparation.uk??''):h('span'))))),
+                ingredient.preparation?h('small',{},ingredient.preparation.zh??ingredient.preparation.en??ingredient.preparation.uk??''):h('span')))),h('div',{class:'kb-reference-images'},...sourceImages('ingredient'))),
             h('section',{},h('h4',{},`${t('完整做法','Complete method','Повний спосіб')} · ${steps.length}`),
-              h('ol',{class:'kb-recipe-steps'},...steps.map(step=>h('li',{class:'kb-recipe-step'},step.text.zh??step.text.en??step.text.uk??''))))),
+              h('ol',{class:'kb-recipe-steps'},...steps.map(step=>h('li',{class:'kb-recipe-step','data-step-id':step.id},h('p',{},step.text.zh??step.text.en??step.text.uk??''),...sourceImages('step',step.id)))),h('div',{class:'kb-reference-images kb-reference-finished'},...sourceImages('finished')))),
           unresolved.length?h('section',{class:'kb-recipe-unresolved'},h('h4',{},`${t('来源仍需核实的事项','Questions left by the source','Питання щодо джерела')} · ${unresolved.length}`),
             h('ul',{},...unresolved.slice(0,10).map(value=>h('li',{},value))),
             unresolved.length>10?h('details',{},h('summary',{},`${t('更多逐字段核对点','More field questions','Більше питань')} · ${unresolved.length-10}`),
               h('ul',{},...unresolved.slice(10).map(value=>h('li',{},value)))):null):h('span'),
           h('details',{class:'kb-recipe-technical'},h('summary',{},t('查看 AI 提取依据与媒体指纹','AI extraction evidence and media hash','Докази витягу та хеш відео')),
-            h('pre',{},JSON.stringify({fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates,media:source?.evidence.media},null,2)))));
+            h('pre',{},JSON.stringify({fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates,illustrations:candidate.illustrations,media:source?.evidence.media},null,2)))));
       if(candidate.recipeId){
         const materialNotice=h('div'),newVersion=h('div');
         const material=button(t('固定此版本供菜单使用','Freeze this version for menus','Зафіксувати версію для меню'),()=>void materialize());
