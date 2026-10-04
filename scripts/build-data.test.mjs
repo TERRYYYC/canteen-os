@@ -334,7 +334,9 @@ test('public team JSON excludes private knowledge evidence from previously froze
    assert(!publicJson.includes(secret),`${secret} escaped into the public artifact`);
   const publicDish=JSON.parse(publicJson).dishes[DISH];
   assert.equal(publicDish.provenance.snapshotHash,dish.provenance.snapshotHash);
-  assert.deepEqual(publicDish.provenance.evidence.unresolved,['火力待核实','来源细节需在主厨后台核对']);
+  assert.equal(publicDish.provenance.evidence,undefined);
+  assert.equal(publicDish.provenance.sourceGapCount,2);
+  assert.equal(publicDish.provenance.coverState,'rights-pending');
   assert.deepEqual(publicDish.steps.map(step=>step.text),dish.steps.map(step=>step.text));
   assert.equal(publicDish.image,undefined);
   assert.equal(publicDish.components[0].prep.image,undefined);

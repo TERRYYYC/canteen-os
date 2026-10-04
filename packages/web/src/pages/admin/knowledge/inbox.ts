@@ -7,6 +7,8 @@ import type { PageCtx } from '../../../types';
 import { getKnowledgeApi, type I18n, type Recipe } from '../../../api/knowledge';
 import { words, button, field, safeExternal } from './ui';
 import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
+import { getTeamMealsApi } from '../../../api/team-meals';
+import { currentPlan } from '../plan-context';
 
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
 type CandidateSummary = { candidateId:string; title:I18n; status:string; ingredientCount:number; stepCount:number; illustrationCount:number; thumbnailAssetId?:string|null; unresolvedCount:number };

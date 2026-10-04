@@ -8,7 +8,7 @@
  * 为什么不让前端直读 GitHub：匿名 GitHub API 是 60 次/小时/IP，后台一屏就可能打光
  * （契约 §1.7）。
  */
-import type { ShoppingList } from "@canteenos/core";
+import { publicDish, type AnyDish, type ShoppingList } from "@canteenos/core";
 import { validateStoredList } from "../shopping-validation.js";
 import type { Ctx } from "../context.js";
 import { githubClient } from "../context.js";
@@ -37,7 +37,8 @@ export async function handleSource(ctx: Ctx): Promise<unknown> {
   const file = await gh.getFile(entityPath(kindRaw, idRaw), head);
   if (!file) throw fail("not_found");
 
-  const content = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
+  const stored = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
+  const content = kindRaw === 'dish' ? publicDish(stored as AnyDish,idRaw) : stored;
   if (kindRaw === "shopping-list") {
     const list = content as ShoppingList;
     await validateStoredList(gh, currentHead, list, idRaw);
@@ -81,7 +82,7 @@ export async function handleCatalog(ctx: Ctx): Promise<unknown> {
     } else {
       const id = entry.path.slice(entry.path.lastIndexOf("/") + 1, -".json".length);
       if (!ID_RE.test(id)) throw fail("invalid_source", { path: entry.path });
-      if (entry.path.startsWith("data/dishes/")) dishes[id] = parseSource(text, "dish", entry.path);
+      if (entry.path.startsWith("data/dishes/")) dishes[id] = publicDish(parseSource(text, "dish", entry.path) as AnyDish,id);
       else ingredients[id] = parseSource(text, "ingredient", entry.path);
     }
   }

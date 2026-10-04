@@ -579,13 +579,11 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const recipeRecord = h("details", { class: "prep-recipe-record" }, h("summary", {}, word(lang,"配方资料与来源","Recipe record and source","Дані й джерело рецепта")));
     if (cooking) recipeRecord.append(context, fact(t("planned"), meal.plannedServings));
     (cooking ? recipeRecord : section).append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image", undefined, undefined, knowledgeCoverState(dish)));
-    const sourceGaps=dish.provenance?.source==='knowledge' ? dish.provenance.evidence?.unresolved??[] : [];
-    if(sourceGaps.length){
-      const visible=sourceGaps.slice(0,10),extra=sourceGaps.slice(10);
+    const sourceGapCount=dish.provenance?.source==='knowledge' ? dish.provenance.sourceGapCount??0 : 0;
+    if(sourceGapCount){
       section.append(h('section',{class:'prep-source-questions',role:'alert'},
         h('h3',{},word(lang,'原视频仍需核对的条件','Conditions left unclear in the source video','Умови, не уточнені у відео')),
-        h('ul',{},...visible.map(value=>h('li',{},value))),
-        extra.length?h('details',{},h('summary',{},`${word(lang,'更多核对点','More source questions','Більше питань')} · ${extra.length}`),h('ul',{},...extra.map(value=>h('li',{},value)))):null));
+        h('p',{},`${sourceGapCount} · ${word(lang,'备料前请厨房负责人到固定菜谱版本核对。','Ask the chef to check the frozen recipe version before preparation.','Перед підготовкою попросіть шефа перевірити зафіксовану версію рецепта.')}`)));
     }
     section.append(h("h3", { class: "section-label" }, cooking && options.ingredientRef ? t("selectedComponents") : t("components")), h("p", { class: "muted prep-quantity-basis" }, t("original")));
     if (cooking && dish.baseServings === undefined) recipeRecord.append(attention(word(lang,"配方基准份数未录，暂不能按计划份数换算；请人工核对本次用量。","Recipe servings are not recorded; quantities cannot be scaled to the plan. Check this meal’s amounts manually.","Базові порції рецепта не записано; кількості не можна перерахувати за планом. Перевірте потрібну кількість вручну."), "dish", meal.dishRef));
@@ -640,8 +638,6 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     if(dish.provenance?.source==='knowledge'){
       (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
         h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
-      if(dish.provenance.sourceUrl)(cooking ? recipeRecord : section).append(external(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
-      if(dish.provenance.evidence)(cooking ? recipeRecord : section).append(h('details',{class:'prep-source-evidence'},h('summary',{},word(lang,'审核时的来源与引句','Approved source and quotes','Джерела та цитати')),h('pre',{},JSON.stringify(dish.provenance.evidence,null,2))));
     }
     if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);

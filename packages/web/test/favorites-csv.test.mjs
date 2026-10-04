@@ -1,6 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseFavoritesCsv } from '../src/pages/admin/knowledge/favorites-csv.ts';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+// CI runs Node 20, which cannot import TypeScript source directly. Use the same
+// Vite/esbuild test boundary as the other web source tests.
+const require = createRequire(import.meta.url);
+const viteRequire = createRequire(require.resolve('vite/package.json'));
+const esbuild = await import(pathToFileURL(viteRequire.resolve('esbuild')).href);
+const bundle = await esbuild.build({
+  entryPoints: [fileURLToPath(new URL('../src/pages/admin/knowledge/favorites-csv.ts', import.meta.url))],
+  bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'silent',
+});
+const dir = await mkdtemp(join(tmpdir(), 'canteenos-favorites-csv-'));
+test.after(() => rm(dir, { recursive: true, force: true }));
+const entry = join(dir, 'favorites-csv.mjs');
+await writeFile(entry, bundle.outputFiles[0].text);
+const { parseFavoritesCsv } = await import(pathToFileURL(entry).href);
 
 test('favorite CSV keeps quoted multiline card text and never treats it as verified post text', () => {
   const csv = '\ufeffindex,folder,kind,content_id,url,author,card_alt,display_text\r\n'

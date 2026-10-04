@@ -16,6 +16,18 @@ test('B2 v3 dish unknown qty saves unchanged; v2 still requires qty',async()=>{
  const read=await call(worker,env,'GET','/source/dish/soup',{headers:bearer('buyer')});assert.deepEqual(read.body.content,dish);
  assert.equal(validateEntity('dish',{...dish,schemaVersion:'2'}).valid,false);
 });
+test('generic dish writes cannot forge a frozen knowledge source or persist its private evidence',async()=>{
+ const {repo,env}=setup();const before=repo.head;
+ const dish={schemaVersion:'3',name:{zh:'汤'},provenance:{source:'knowledge',
+  recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+  candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+  evidence:{sourceRecords:[{text:'PRIVATE_TRANSCRIPT'}],sourceRefs:[]}}};
+ const result=await call(worker,env,'POST','/dish/forged-kb',{headers:{...bearer('chef'),'If-None-Match':'*'},body:dish});
+ assert.equal(result.status,400);
+ assert.equal(result.body.errors[0].path,'/provenance/source');
+ assert.equal(repo.head,before);
+ assert.equal(repo.writeCalls().length,0);
+});
 for(const [kind,current,next] of [['plan',v3(),planFixture()],['dish',{schemaVersion:'3',name:{zh:'汤'}},{name:{zh:'汤'}}],['dish',{schemaVersion:'3',name:{zh:'汤'}},{schemaVersion:'2',name:{zh:'汤'}}]])test(`B2 newest lock cannot downgrade ${kind} to ${next.schemaVersion}`,async()=>{
  const path=kind==='plan'?planPath:'data/dishes/soup.json';const {repo,env}=setup({[path]:JSON.stringify(current)});const sha=repo.trees.get(repo.commits.get(repo.head).tree).get(path);
  const r=await call(worker,env,'POST',kind==='plan'?'/plan/team':'/dish/soup',{headers:{...bearer('chef'),'If-Match':sha},body:next});assert.equal(r.status,409);assert.equal(r.body.errors[0].code,'format_downgrade');assert.equal(repo.writeCalls().length,0);

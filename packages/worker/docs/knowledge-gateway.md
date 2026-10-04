@@ -12,11 +12,13 @@ created: 2026-09-19
 ## 运行合同
 
 - `KNOWLEDGE_BASE_URL` 只接受 `http://127.0.0.1:4390` 或隔离恢复端口 `4391`（可有末尾 `/`）。它是可信服务配置，不来自请求或浏览器。
-- chef / buyer / admin 可读；chef / admin 可写。知识库读写采用独立角色限流桶，每小时 600 / 60；既有 Git 桶不受影响。与旧限流一样，计数是 isolate 内存级别，不宣称全局严格配额。
+- chef / admin 可读原始菜谱列表、明细、历史、收藏与图片字节；buyer 不可读这些来源资料。健康状态及标准食材、技法查询允许 chef / buyer / admin；写入仅 chef / admin。buyer 使用固定版本的公开 catalog 和采购投影。知识库读写采用独立角色限流桶，每小时 600 / 60；既有 Git 桶不受影响。与旧限流一样，计数是 isolate 内存级别，不宣称全局严格配额。
 - GET recipes 接受 q/tag/cursor/limit；GET ingredients/techniques 接受 q/cursor/limit。字典游标最多 1000 字符，其余格式由 KB 校验。其他路由无查询参数。UUID、小写路径、版本、重复参数、未知参数都在调用上游前检查。
 - 上游仅收到 Content-Type、If-Match、Idempotency-Key 白名单，以及服务端设置的 `X-KB-Client: web`；不转发旧 Bearer、Cookie、Origin、Host 或代理头。
 - 上游正常 JSON/错误响应不重塑，状态码、ETag、Idempotency-Replayed、Retry-After 保留；图片字节保持原样。网关强制 no-store / nosniff，不向浏览器返回 Set-Cookie、Location 等无关头。
 - CORS 增加 PUT、Idempotency-Key，并暴露 ETag / Idempotency-Replayed / Retry-After。沿用原指定 origin，无 Allow-Credentials。
+- 固定菜谱写入 Git 时，只写经审核的可操作配方、版本标识、来源条件待核验数量及缺图状态；来源原文、引句、媒体 URL 与审核备注保留在私有 SQLite 知识库。公开投影沿用同一数据边界。此权限收紧由后续 ADR-0010（叠加 PR #121）正式取代 ADR-0009 第 3 项；本 PR 仍须作为草稿与 #121 连续交付，不单独合入或部署。
+- 旧版已存的带原片证据 v3 菜谱继续可读取，但 `/catalog`、`/source/dish`、`/asset` 和静态团队菜单投影在返回前剔除私有来源字段、片段链接及未授权图片。通用 `/dish/:id` 写入不得伪装知识库定版；原始旧记录若在公开 Git 历史中已存在，应用层过滤不能抹去历史，公开部署前需单独核对数据迁移。
 
 ## 容量与失败
 

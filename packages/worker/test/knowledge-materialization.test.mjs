@@ -27,7 +27,7 @@ test('approved version becomes a deterministic immutable dish and preserves unco
   assert.equal(first.files.length,4);
   const dish=JSON.parse(first.files.find(x=>x.path===`data/dishes/${first.dishRef}.json`).text);
   assert.equal(dish.status,'active');
-  assert.deepEqual(dish.provenance,{source:'knowledge',recipeId,recipeVersion:1,candidateId,snapshotHash:first.snapshotHash});
+  assert.deepEqual(dish.provenance,{source:'knowledge',recipeId,recipeVersion:1,candidateId,snapshotHash:first.snapshotHash,coverState:'needs-image'});
   assert.equal(dish.components[0].qty.value,1000);
   assert.equal(dish.components[0].qty.unit,'g');
   assert.equal(dish.components[1].qty,undefined);
@@ -45,7 +45,7 @@ test('precise recorded decimals remain numeric and missing raw text still has an
   assert.equal(dish.components[0].originalAmount,'0.33333 kg');
 });
 
-test('video source gaps remain in the frozen dish and 斤 converts without losing its original wording',async()=>{
+test('video source gaps remain countable without publishing raw review notes; 斤 keeps its original amount',async()=>{
   const changed=structuredClone(detail);
   changed.recipe.ingredients[0].amount={kind:'exact',value:'5',unit:'斤',raw:'5斤'};
   const video={...approved,unresolved:['煲煮火力和时长未说明','粉的品种未说明']};
@@ -53,22 +53,27 @@ test('video source gaps remain in the frozen dish and 斤 converts without losin
   const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
   assert.deepEqual(dish.components[0].qty,{value:2500,unit:'g'});
   assert.equal(dish.components[0].originalAmount,'5斤');
-  assert.deepEqual(dish.provenance.evidence.unresolved,video.unresolved);
+  assert.equal(dish.provenance.sourceGapCount,2);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(JSON.stringify(dish).includes(video.unresolved[0]),false);
   assert.equal(fixed.unresolvedCount,3,'two source gaps plus one unconvertible spoon quantity');
   assert.equal(validateEntity('dish',dish).valid,true);
 });
 
-test('approved preparation remains in menu inputs while original field evidence stays in the KB revision',async()=>{
+test('approved preparation stays usable while raw source records and quotes remain private in KB',async()=>{
   const changed=structuredClone(detail);
   changed.recipe.ingredients[0].preparation={zh:'浸泡一夜'};
-  changed.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64),fieldEvidence:{title:{quote:'测试菜',locator:'post'},ingredients:[{quote:'肉 1000 克',locator:'post'}],steps:[{quote:'烤熟',locator:'post'}]}}}];
-  changed.sourceRecords=[{id:'source-1',kind:'web',title:'原贴',author:'作者',url:'https://example.org/post',textContent:'测试菜 肉 1000 克 烤熟'}];
+  changed.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64),fieldEvidence:{title:{quote:'PRIVATE_SOURCE_QUOTE',locator:'post'}}}}];
+  changed.sourceRecords=[{id:'source-1',kind:'web',title:'原贴',author:'作者',url:'https://example.org/PRIVATE_SOURCE_URL',textContent:'PRIVATE_TRANSCRIPT_SENTINEL'}];
+  changed.recipe.ingredients[0].rawText='PRIVATE_RAW_INGREDIENT_LINE';
   const fixed=await materializationFiles(approved,changed);
   const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
   assert.deepEqual(dish.components[0].originalPreparation,{zh:'浸泡一夜'});
+  assert.equal(dish.components[0].originalAmount,'1000 克');
+  assert.equal(dish.components[0].originalText,undefined);
   assert.equal(dish.provenance.evidence,undefined);
   assert.equal(dish.provenance.sourceUrl,undefined);
-  assert.notEqual(fixed.snapshotHash,(await materializationFiles(approved,detail)).snapshotHash,'full KB evidence affects the traceable revision hash');
+  assert.doesNotMatch(fixed.files.map(file=>file.text).join(''),/PRIVATE_/);
   assert.equal(validateEntity('dish',dish).valid,true);
 });
 
@@ -83,16 +88,19 @@ test('frozen menu input keeps a traceable hash without copying private OCR or me
     assert(!dishText.includes(secret),`${secret} escaped into immutable menu input`);
   const dish=JSON.parse(dishText);
   assert.equal(dish.provenance.snapshotHash,frozen.snapshotHash);
-  assert.deepEqual(dish.provenance.evidence.unresolved,['火力待核实','来源细节需在主厨后台核对']);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(dish.provenance.sourceGapCount,2);
+  assert.equal(dish.provenance.coverState,'needs-image');
   assert.equal(validateEntity('dish',dish).valid,true);
 });
 
-test('a public Douyin post citation is canonicalized without sharing private query parameters',async()=>{
+test('a Douyin post citation stays in private KB while its fingerprint remains traceable',async()=>{
   const changed=structuredClone(detail);
   changed.sourceRecords=[{url:'https://www.douyin.com/video/7688940752160196770?token=PRIVATE_QUERY_SENTINEL',textContent:'PRIVATE_OCR_SENTINEL'}];
   const frozen=await materializationFiles(approved,changed);
   const dish=JSON.parse(frozen.files.find(file=>file.path===`data/dishes/${frozen.dishRef}.json`).text);
-  assert.equal(dish.provenance.sourceUrl,'https://www.douyin.com/video/7688940752160196770');
+  assert.equal(dish.provenance.sourceUrl,undefined);
+  assert.notEqual(frozen.snapshotHash,(await materializationFiles(approved,detail)).snapshotHash);
   assert(!JSON.stringify(dish).includes('PRIVATE_QUERY_SENTINEL'));
   assert(!JSON.stringify(dish).includes('PRIVATE_OCR_SENTINEL'));
 });
@@ -220,11 +228,12 @@ test('external or rights-pending KB artwork remains evidence, not a published di
   assert.equal(fixed.status,200,JSON.stringify(fixed.body));
   const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
   assert.equal(dish.image,undefined);
-  assert.deepEqual(dish.provenance.evidence.media,[{kind:'image',role:'cover',publicationState:'external-unpinned'}]);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.doesNotMatch(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`),/temporary\.jpg/);
   assert.equal(seen.length,2,'external artwork was never fetched for Git publication');
 });
 
-test('a local image with a nonpublishable license remains evidence, not a Git image',async()=>{
+test('a local image with a nonpublishable license remains private, not a Git image or public metadata',async()=>{
   const repo=new FakeRepo();repo.commit({'README.md':'base'});
   const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
   const changed=structuredClone(detail);
@@ -237,7 +246,8 @@ test('a local image with a nonpublishable license remains evidence, not a Git im
   assert.equal(response.status,200,JSON.stringify(response.body));
   const dish=JSON.parse(repo.fileText(`data/dishes/${response.body.dishRef}.json`));
   assert.equal(dish.image,undefined);
-  assert.deepEqual(dish.provenance.evidence.media,[{kind:'image',role:'cover',publicationState:'rights-pending'}]);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.doesNotMatch(repo.fileText(`data/dishes/${response.body.dishRef}.json`),/All rights reserved/);
   assert.equal([...repo.trees.get(repo.commits.get(repo.head).tree).keys()].some(path=>path.endsWith('/images/cover.png')),false);
 });
 

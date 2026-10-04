@@ -88,8 +88,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     if(dish.provenance?.source==='knowledge'){
       el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
         h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
-      if(dish.provenance.sourceUrl)el.append(link(dish.provenance.sourceUrl,word(lang,'查看原作品','Open original post','Відкрити оригінал')));
-      if(dish.provenance.evidence)el.append(h('details',{},h('summary',{},word(lang,'审核时的来源与引句','Approved source and quotes','Джерела та цитати')),h('pre',{},JSON.stringify(dish.provenance.evidence,null,2))));
+      if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
     el.append(h('h3',{},t('components')),h('p',{class:'muted'},t('recipe')));

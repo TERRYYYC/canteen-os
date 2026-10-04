@@ -354,10 +354,12 @@ export interface DishComponentV3 {
   prep?: DishPrep;
   confidence?: Confidence;
   originalAmount?: string;
+  /** Legacy frozen records only; strip before any public projection. */
   originalText?: string;
   originalPreparation?: I18nString;
   knowledgeIngredientId?: string;
 }
+/** Legacy frozen evidence is accepted on read, never emitted by new materialization. */
 export interface KnowledgeEvidence {
   sourceRecords: Record<string, unknown>[];
   sourceRefs: Record<string, unknown>[];
@@ -370,10 +372,14 @@ export interface KnowledgeProvenance {
   recipeVersion: number;
   candidateId: string;
   snapshotHash: string;
-  /** Explicit chef check for a later edited KB revision. The Git commit records the action time. */
+  /** Legacy read compatibility only; never expose these fields in public responses. */
   review?: { reviewer: string; note: string; approvedCandidateVersion: number };
   sourceUrl?: string;
   evidence?: KnowledgeEvidence;
+  /** Raw sources and review notes remain in private KB; only their count is published. */
+  sourceGapCount?: number;
+  /** Publish-safe status; source media URLs and rights records remain private. */
+  coverState?: 'needs-image' | 'rights-pending' | 'external-unpinned' | 'unavailable';
 }
 export interface DishV3 {
   schemaVersion: "3";

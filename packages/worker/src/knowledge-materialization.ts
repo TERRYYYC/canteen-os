@@ -1,5 +1,6 @@
 /** Convert one human-approved SQLite revision into version-addressed Git inputs. */
 import { stableSerialize } from './serialize.js';
+import { completeKnowledgeImageRights } from '@canteenos/core';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 type Localized = { zh?: string; en?: string; uk?: string };
@@ -23,22 +24,6 @@ const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?
 async function sha256(value: unknown): Promise<string> {
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(stableSerialize(value)));
   return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
-}
-
-/** Only a canonical public post URL may cross from the private KB into Git inputs. */
-function publicPostUrl(value: unknown): string | undefined {
-  if(typeof value!=='string')return undefined;
-  try {const url=new URL(value);
-    if(url.protocol==='https:'&&url.hostname==='www.douyin.com'&&!url.username&&!url.password&&
-      /^\/(?:video|note)\/\d+\/?$/.test(url.pathname))return `${url.origin}${url.pathname.replace(/\/$/,'')}`;
-  }catch{/* An unparseable or private URL is not public provenance. */}
-  return undefined;
-}
-
-function publicGap(value:string):string {
-  const gap=value.trim();
-  return gap.length<=200&&!/(?:https?:\/\/|www\.|\/api\/|\b(?:token|cookie|authorization)=)/i.test(gap)
-    ?gap:'来源细节需在主厨后台核对';
 }
 
 function quantity(amount: Amount): { qty?: { value?: number; unit: string }; baseUnit:'g'|'ml'|'pcs'; originalAmount:string } {
@@ -93,19 +78,18 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
   }).map(row=>row.image?row:{text:row.text});
   const cover=detail.recipe.assets?.find(asset=>asset.role==='cover');
   const coverImage=cover?imageRef(cover.assetId,'cover'):undefined;
-  const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.map(source=>publicPostUrl(source?.url)).find(Boolean);
-  const coverRef=detail.recipe.assets?.find(ref=>ref.role==='cover');
-  const coverMedia=coverRef&&detail.media?.find(item=>item.assetId===coverRef.assetId&&item.kind==='image');
-  // A cover that was not pinned can explain its absence without exposing its URL,
-  // asset ID, rights record, or bytes to the public projection.
-  const evidenceMedia=coverMedia&&!imageMap.has(coverMedia.assetId)
-    ?[{kind:'image',role:'cover',publicationState:/^https?:\/\//i.test(coverMedia.url)?'external-unpinned':'rights-pending'}]:[];
-  const publicGaps=sourceGaps.map(publicGap);
+  const coverMedia=cover?detail.media?.find(media=>media.assetId===cover.assetId):undefined;
+  const coverState=coverImage?undefined:!cover?'needs-image':
+    !coverMedia?'unavailable':
+    /^https?:\/\//i.test(coverMedia.url)?'external-unpinned':
+    !completeKnowledgeImageRights(coverMedia.rights)?'rights-pending':'unavailable';
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
     ...(coverImage?{image:coverImage}:{}),...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
-      ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
-      ...(evidenceMedia.length||publicGaps.length?{evidence:{sourceRecords:[],sourceRefs:[],...(evidenceMedia.length?{media:evidenceMedia}:{}),...(publicGaps.length?{unresolved:publicGaps}:{})}}:{})},status:'active'};
+      // Git inputs and the buyer-facing catalog are public projections. Raw
+      // source records, quotes, media URLs and review notes stay in private KB.
+      ...(sourceGaps.length?{sourceGapCount:sourceGaps.length}:{}),
+      ...(coverState?{coverState}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};
 }
