@@ -1,9 +1,10 @@
 /** Pure reference collection and per-list manual decisions. See team-meals-contract.md. */
 import type {
-  AnyDish, AnyMenuPlan, Dish, DishV3, Id, Ingredient, MealType, MenuPlan, Quantity,
+  AnyDish, AnyMenuPlan, Dish, DishV3, Id, ImageRef, Ingredient, MealType, MenuPlan, Quantity,
   ShoppingBasis, ShoppingDecision, ShoppingItem, ShoppingList, ShoppingSelection, Technique,
 } from './types.js';
 import { DEFAULT_MARGIN, convertQuantity, expand } from './procurement/engine.js';
+import { completeKnowledgeImageRights } from './image-rights.js';
 import type { ProcurementLine } from './procurement/engine.js';
 
 export interface TeamMealInputs {
@@ -37,7 +38,16 @@ function publicKnowledgeUrl(value: unknown): string | undefined {
   const match=/^https:\/\/www\.douyin\.com\/(video|note)\/(\d+)\/?(?:[?#].*)?$/.exec(value);
   return match?`https://www.douyin.com/${match[1]}/${match[2]}`:undefined;
 }
-function publicKnowledgeDish(dish: AnyDish): AnyDish {
+function publicKnowledgeImage(image: ImageRef | undefined, dishRef: Id): ImageRef | undefined {
+  if(!image||!completeKnowledgeImageRights(image))return undefined;
+  // A publishable KB image must be a pinned file owned by this dish revision.
+  // External URLs, traversal and another dish's files stay private to the KB.
+  const prefix=`${dishRef}/images/`,absolutePrefix=`data/dishes/${prefix}`;
+  const name=image.src.startsWith(prefix)?image.src.slice(prefix.length)
+    :image.src.startsWith(absolutePrefix)?image.src.slice(absolutePrefix.length):'';
+  return /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:png|jpe?g|webp)$/i.test(name)?image:undefined;
+}
+function publicKnowledgeDish(dish: AnyDish, dishRef: Id): AnyDish {
   if(dish.provenance?.source!=='knowledge')return dish;
   const versioned=dish as DishV3;
   const {source,recipeId,recipeVersion,candidateId,snapshotHash,sourceUrl,evidence}=dish.provenance;
@@ -50,8 +60,10 @@ function publicKnowledgeDish(dish: AnyDish): AnyDish {
     cover.publicationState==='external-unpinned'||cover.publicationState==='rights-pending'||cover.publicationState==='unavailable'
       ?cover.publicationState:typeof cover.url==='string'&&/^https?:\/\//i.test(cover.url)?'external-unpinned':'rights-pending'}]:[];
   return {...versioned,
-    components:versioned.components?.map(({originalText:_originalText,...component})=>component),
-    steps:versioned.steps?.map(({clip:_clip,...step})=>step),
+    image:publicKnowledgeImage(versioned.image,dishRef),
+    components:versioned.components?.map(({originalText:_originalText,...component})=>({...component,
+      ...(component.prep?{prep:{...component.prep,image:publicKnowledgeImage(component.prep.image,dishRef)}}:{})})),
+    steps:versioned.steps?.map(({clip:_clip,...step})=>({...step,image:publicKnowledgeImage(step.image,dishRef)})),
     provenance:{source,recipeId,recipeVersion,candidateId,snapshotHash,...(safeUrl?{sourceUrl:safeUrl}:{}),
       ...(gaps.length||media.length?{evidence:{sourceRecords:[],sourceRefs:[],...(gaps.length?{unresolved:gaps}:{}),...(media.length?{media}:{})}}:{})}};
 }
@@ -303,7 +315,7 @@ export function projectTeamMeals(inputs: TeamMealInputs, basis: TeamProjectionCo
     menuPlans[slot.menuPlanRef]=plan;
     for (const meal of plan.meals.filter(m=>m.date===slot.date&&m.mealType===slot.mealType)) {
       const dish=lookup(inputs.dishes,meal.dishRef); if (!dish) continue;
-      dishes[meal.dishRef]=publicKnowledgeDish(dish);
+      dishes[meal.dishRef]=publicKnowledgeDish(dish,meal.dishRef);
       for (const component of dish.components ?? []) if (component.prep?.techniqueRef) techniqueIds.add(component.prep.techniqueRef);
       for (const step of dish.steps ?? []) if (step.techniqueRef) techniqueIds.add(step.techniqueRef);
     }
