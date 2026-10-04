@@ -23,6 +23,8 @@ interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalo
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
+const planRange=(plan:AnyMenuPlan|null|undefined)=>plan?.schemaVersion==='3'?plan.dateRange:undefined;
+const inPlanRange=(date:string,range:NonNullable<ReturnType<typeof planRange>>)=>range.start<=range.end&&date>=range.start&&date<=range.end;
 
 /** An injected API changes transport only; browser fixtures still execute this production page. */
 export function createPlanRenderer(api:TeamMealsApi) {
@@ -85,7 +87,13 @@ export function createPlanRenderer(api:TeamMealsApi) {
       const documentStatus=status(s,lang),output:HTMLElement[]=[];
       const version=documentStatus.querySelector('details');
       if(version){version.remove();version.classList.add('tm-plan-version');}
-      if(s.draft){selectPlan(api,id,s.draft.name);output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')),filters());}
+      if(s.draft){
+        selectPlan(api,id,s.draft.name);
+        const dateRange=planRange(s.draft);
+        output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')));
+        if(dateRange)output.push(h('p',{class:'tm-plan-note'},`${lang==='zh'?'计划日期':lang==='en'?'Plan dates':'Дати плану'}：${dateRange.start} — ${dateRange.end}`));
+        output.push(filters());
+      }
       output.push(documentStatus);
       if(rawPending(view)){
         // C1 may be unchanged while page-owned inputs are still unapplied.
@@ -122,7 +130,10 @@ export function createPlanRenderer(api:TeamMealsApi) {
         }
         if(groups.size===0)output.push(h('p',{class:'tm-card'},tr('empty')));
         const save=action(tr('save'),()=>void owner.session.save(s.contextId),true);
-        save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0;
+        const dateRange=planRange(plan);
+        const invalidPlanRange=!!dateRange&&(dateRange.start>dateRange.end||plan.meals.some(meal=>!inPlanRange(meal.date,dateRange)));
+        save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0||invalidPlanRange;
+        if(invalidPlanRange)output.push(h('p',{class:'tm-error',role:'alert'},lang==='zh'?'有菜品日期不在计划日期范围内，请先改正。':lang==='en'?'A dish is outside the plan dates. Correct it before saving.':'Страва поза датами плану. Виправте дату перед збереженням.'));
         output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}/${view.range}${view.range==='all'?'':`/${view.date}`}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
           h('p',{class:'tm-plan-note'},lang==='zh'?'采购清单使用已保存的计划':lang==='en'?'Shopping uses the saved plan':'Закупівлі використовують збережений план'));
         if(catalog){
@@ -238,7 +249,9 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     function addForm():HTMLElement {
       const s=owner.session.getState(),captured=s.contextId;
-      const date=h('input',{type:'date',value:view.addDate,required:true,'data-focus':'add-date'});
+      const dateRange=planRange(s.draft);
+      const invalidDate=!!dateRange&&!!view.addDate&&!inPlanRange(view.addDate,dateRange);
+      const date=h('input',{type:'date',value:view.addDate,required:true,min:dateRange?.start,max:dateRange?.end,'data-focus':'add-date','aria-invalid':invalidDate?'true':undefined});
       const meal=h('select',{'data-focus':'add-meal'});for(const key of meals)meal.append(h('option',{value:key,selected:key===view.addMeal},tr(key)));
       const dish=dishSelect(view.addDish,'add-dish');dish.required=true;
       const update=()=>{
@@ -249,10 +262,13 @@ export function createPlanRenderer(api:TeamMealsApi) {
       const add=h('button',{type:'submit',class:'tm-button'},tr('add'));
       const extra=h('details',{class:'tm-plan-add-extra',open:view.addExpanded||addPending(view)},h('summary',{},`${view.addDate.slice(5)} · ${tr(view.addMeal)}`),h('div',{},field(tr('date'),date),field(tr('meal'),meal)));
       extra.addEventListener('toggle',()=>{if(isLive()&&extra.isConnected)view.addExpanded=extra.open;});
-      const formEl=h('form',{class:'tm-card tm-add-form'},field(tr('dish'),dish),add,extra);
+      add.disabled=!view.addDate||invalidDate;
+      const formEl=h('form',{class:'tm-card tm-add-form'},field(tr('dish'),dish),add,extra,
+        dateRange&&dateRange.end<today?h('p',{class:'tm-plan-note',role:'status'},lang==='zh'?'此计划已过期；若要补排，请手动选择计划范围内的旧日期。':lang==='en'?'This plan has expired. To backfill it, explicitly choose a past date within its range.':'Цей план завершився. Для доповнення вручну виберіть минулу дату в його межах.'):null,
+        invalidDate?h('p',{class:'tm-error',role:'alert'},lang==='zh'?'日期超出计划范围，请选择范围内的日期。':lang==='en'?'Choose a date within the plan dates.':'Виберіть дату в межах плану.'):null);
       formEl.addEventListener('submit',event=>{
         event.preventDefault();if(!isLive()||owner.session.getState().contextId!==captured)return;
-        if(date.value&&dish.value&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
+        if(date.value&&dish.value&&(!dateRange||inPlanRange(date.value,dateRange))&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
           view.addBaseline=[view.addDate,view.addMeal,view.addDish];touch(view);paint();
         }
       });return formEl;
@@ -311,8 +327,19 @@ export function createPlanRenderer(api:TeamMealsApi) {
       const s=owner.session.getState();
       if(!view.initialized){
         const date=s.draft?.meals[0]?.date;
-        if(date&&view.date===defaultDate)view.date=date;
-        if(date&&!addPending(view)){view.addDate=date;view.addBaseline=[date,view.addMeal,view.addDish];}
+        const dateRange=planRange(s.draft);
+        if(dateRange){
+          const preferred=inPlanRange(defaultDate,dateRange)?defaultDate:date&&inPlanRange(date,dateRange)?date:dateRange.start;
+          if(view.date===defaultDate)view.date=preferred;
+          // A deep link may already have selected the dish. Its date is still an untouched default.
+          if(view.addDate===view.addBaseline[0]){
+            const addDate=dateRange.end<today?'':preferred;
+            view.addDate=addDate;view.addBaseline=[addDate,view.addBaseline[1],view.addBaseline[2]];
+          }
+        }else{
+          if(date&&view.date===defaultDate)view.date=date;
+          if(date&&!addPending(view)){view.addDate=date;view.addBaseline=[date,view.addMeal,view.addDish];}
+        }
         view.initialized=true;
       }
     }catch(error){if(isLive())loadError=error;}

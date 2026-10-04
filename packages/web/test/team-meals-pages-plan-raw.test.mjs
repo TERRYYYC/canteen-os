@@ -101,6 +101,26 @@ test('inbox selection opens the newly frozen version in an already visited plan'
    assert.equal(f.writes[0].body.meals.at(-1).dishRef,dishRef);
  }finally{f.cleanup();}
 });
+test('selected dish in an expired plan requires an explicit old date and cannot add an out-of-range meal',async()=>{
+ const dishRef=`kb-${'1'.repeat(32)}-v1`;
+ const f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({content:{schemaVersion:'3',dateRange:{start:'2026-09-12',end:'2026-09-13'},meals:[]},commit:A,blobSha:'before'}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ try{
+   const rest=`team-week/select/${dishRef}`;
+   document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'zh',planId:'team-week',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-dish').value,dishRef);
+   assert.match(el.textContent,/2026-09-12.*2026-09-13/);
+   const date=focus(el,'add-date');assert.equal(date.value,'','an expired plan must not silently schedule the dish in the past');
+   assert.equal(date.getAttribute('min'),'2026-09-12');assert.equal(date.getAttribute('max'),'2026-09-13');
+   assert.match(el.textContent,/已过期.*手动选择/);
+   input(el,'add-date','2026-10-04');cls(el,'tm-add-form')[0].dispatch('submit');
+   assert.equal(walk(el).filter(x=>x.attrs['data-meal-index']!==undefined).length,0);
+   assert.equal(f.writes.length,0);
+   input(el,'add-date','2026-09-13');cls(el,'tm-add-form')[0].dispatch('submit');
+   assert.equal(walk(el).filter(x=>x.attrs['data-meal-index']!==undefined).length,1);
+   save(el).click();await f.flush();assert.equal(f.writes[0].body.meals[0].date,'2026-09-13');
+ }finally{f.cleanup();}
+});
 test('controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page',async()=>{
  let release;const calls=[];const f=await setup({image:true,read:u=>{if(u.pathname==='/asset'){calls.push(u);return new Promise(r=>release=r);}}});try{const el=await f.mount();await f.flush();assert.equal(calls.length,1);assert.equal(calls[0].searchParams.get('revision'),A);assert.equal(calls[0].searchParams.get('owner'),'data/dishes/soup.json');assert.equal(calls[0].searchParams.get('pointer'),'/image');assert.equal(f.render.readAuxiliary('week-a').phase,'busy');document.body.replaceChildren();release(new Response('image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(el.querySelectorAll('img').length,0);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });
