@@ -1,9 +1,16 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [agent-workflow, current-scope, authority]
+doc_kind: agent-entry
+created: 2026-10-05
+---
+
 # AGENTS.md — AI Coding Agent 协作规范
 
 > 本文件是给 AI coding agent（Claude Code / Codex / Kimi / Cursor 等）的仓库协作契约。
 > 人类贡献者请读 [CONTRIBUTING.md](CONTRIBUTING.md)；两份文件冲突时以更严格的为准。
 >
-> **2026-09-07 起：开工前先读 [docs/execution-brief.md](docs/execution-brief.md)（第一轮执行简报：冻结事项、版本任务、工程规则、接口契约）。** 它在本文之上追加规则，不减少本文任何约束。
+> **当前开工顺序：先读 [docs/current-contract.md](docs/current-contract.md)、本次 issue 全文及其 schema/API/页面合同。** [第一轮执行简报](docs/execution-brief.md) 保留历史范围和兼容记录；其中旧视觉、无数据库、固定排期与 backlog 波次不覆盖后续已接受目标。本文的许可证、凭据保护、数据一致性和独立审查约束继续有效。
 
 ---
 
@@ -12,18 +19,19 @@
 | 路径 | 内容 | 变更影响面 |
 |---|---|---|
 | `schemas/` | JSON Schema draft 2020-12，**单一事实源**（5 实体，见 ADR-0006） | 牵动 types / data / docs / CI |
-| `data/` | 业务数据：`ingredients/`、`techniques.json`、`dishes/`、`menu-plans/`、`purchase-orders/`；一实体一文件、文件名即 ID | CI 直接校验 |
+| `data/` | Git 固定发布依赖、菜单/采购工作记录和旧数据；日常 Recipe/Candidate 位于独立 SQLite 知识库 | Git 数据由 CI 校验；两真源不自动双向同步 |
 | `packages/core/` | `@canteenos/core`：类型 + 采购引擎 + 三个渲染器 + readiness（已实现，23 测试） | 依赖 schemas 语义；改数字须手算 |
-| `packages/web/` | (v0.2) Vite 静态站：/prep /purchase /menu；(v0.3) /admin。UI 事实源 `docs/design/*.html` | 首屏 JS ≤ 60 KB gzip，无 UI/CSS 框架 |
-| `packages/worker/` | (v0.3) 写入通道云函数：后台表单 → GitHub API → 触发构建；只准写 `data/**` | 见 ADR-0007 |
-| `docs/design/` | 高保真设计稿（前台 5 屏 + 后台 7 屏），**UI 的事实源** | 改 UI 先改稿再改码 |
-| `docs/execution-brief.md` | 第一轮执行简报：冻结事项、版本任务、工程规则、接口契约 | 优先级高于本文以外的所有文档 |
-| `docs/plan-for-terry.md` | 节奏、三道门、铁律 | 日期与范围的事实源 |
+| `packages/web/` | Vite 页面及师傅后台；当前小团队视觉来源与专用页面合同见设计索引 | 首屏 JS ≤ 60 KB gzip，无 UI/CSS 框架 |
+| `packages/worker/` | Git 数据写入/发布及受控 SQLite 知识库网关；各通道权限和版本边界分开 | 见 ADR-0007/0009/0010 与对应 API 合同 |
+| `docs/design/` | 当前 Reference v3 小团队目标、专用页面合同与历史稿索引；PR #91 十画板仍为提案 | 按当前适用合同对照设计，不追认全部签收 |
+| `docs/current-contract.md` | 当前小团队目标、数据真源、设计来源和 #128 验收入口 | 新实施的范围入口 |
+| `docs/execution-brief.md` | 第一轮历史执行简报与兼容依据 | 旧范围不覆盖当前合同 |
+| `docs/plan-for-terry.md` | 第一轮排期、三道门和厨房验收的历史记录 | 当前日期/任务状态以实际对象和本次合同为准 |
 | `docs/field-test/` | 真人测试材料与日志 | 测试周只读代码、只写日志 |
-| `.github/backlog/round-1.json` | 第一轮 38 个 issue 的事实源；`scripts/create-issues.mjs` 同步到 GitHub，`scripts/backlog-waves.mjs` 算并行波次 | 改任务先改 JSON |
+| `.github/backlog/round-1.json` | 第一轮历史任务清单和波次工具输入 | 不代表当前全部 GitHub issue，不用于重建当前队列 |
 | `docs/operating-model.md` | 工作模式：调度 thread + 子 thread，派工 / 交接 / 审查 / 节拍 | 领任务、交付格式以此为准 |
-| `docs/prd.md` | 产品需求 | 需求级变更需 owner 评审 |
-| `docs/architecture.md` | 总体架构与路线图 | 架构变更须先写 ADR |
+| `docs/prd.md` | 第一轮历史产品需求；当前范围见 current-contract | 新需求取舍仍需 owner 评审 |
+| `docs/architecture.md` | 历史架构；当前 SQLite/Git 分工见 current-contract、ADR-0009/0010 | 新架构决策仍按 ADR 流程 |
 | `docs/i18n.md` | 内容级三语设计 | 涉及所有 I18nString |
 | `docs/modules/` | 模块文档（feedback 已 deferred，见 ADR-0006） | 模块行为的事实源 |
 | `docs/video-import.md` | 视频解析 skill 规范 | 与 skills/ 契约联动 |
@@ -38,9 +46,9 @@
 - **改任何实体字段** → 先读对应 `schemas/*.schema.json` + `docs/i18n.md` + `docs/modules/` 对应模块文档
 - **改采购逻辑** → `docs/modules/procurement.md` + `docs/adr/0005-procurement-engine-design.md` + `docs/adr/0006-scope-reduction-v2.md`
 - **改视频导入契约** → `docs/video-import.md` + `skills/video-recipe-ingest/SKILL.md` + `schemas/dish.schema.json`
-- **改任何页面** → 先读 `docs/design/README.md` + 对应设计稿 + `docs/execution-brief.md` §5 接口契约；实现与稿不一致先改稿
+- **改任何页面** → 先读 `docs/design/README.md` + 当前适用设计/页面/API 合同；小团队四页使用 Reference v3 目标和 D0 合同，旧稿只用于历史兼容
 - **改采购数字或 data/ 里的份数/包装/价格** → PR 必附手算算式（`docs/execution-brief.md` §4.2）
-- **领任务** → 从 GitHub issue 领（由 `.github/backlog/round-1.json` 生成），分支名用 issue 里给的；一个 package 同时只有一个 agent 在改
+- **领任务** → 读实际 GitHub issue 与 #128 依赖；按调度分工和本次明确文件范围实施，避免共享文件争用；旧 round-1 JSON 不作为当前队列真源
 - **提新架构决策** → `docs/adr/0001-adr-process.md`（流程与模板）；第一轮每版最多一篇新 ADR
 
 ## 3. 变更顺序（硬性）

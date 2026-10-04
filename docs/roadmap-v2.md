@@ -1,3 +1,18 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [historical-scope, roadmap]
+doc_kind: historical-roadmap
+created: 2026-09-07
+---
+
+# 历史记录与当前入口
+
+下方路线图及组件状态属于 2026-09-06/07，不是当前能力清单或恢复旧数量/日期范围的依据。当前完整退出条件维护在 #128。
+
+当前范围、设计来源、数据真源及验收入口统一见 [当前工作合同](current-contract.md)。下方原记录保留其当时的措辞、日期和状态；其中旧排期、无数据库限制、固定份数、旧视觉与 backlog 波次不作为当前任务的执行要求。许可证、凭据保护和独立审查等仍适用的约束继续遵守 [AGENTS](../AGENTS.md)。
+
+---
+
 # CanteenOS 目标对齐与演进计划（v2，2026-09-06）
 
 > 本文回答四个问题：设计有没有偏离目标；现在能不能开始出品；第一轮做到什么算完；之后每一轮怎么走。它取代 `architecture.md` §6 和 `project-summary.md` §8 的旧路线图。

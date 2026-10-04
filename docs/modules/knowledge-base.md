@@ -1,13 +1,32 @@
-# 模块一：菜品知识库（Knowledge Base）
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [sqlite, recipes, materialization, compatibility]
+doc_kind: module-contract-index
+created: 2026-10-05
+---
 
-> **English summary.** After the v2 scope reduction ([ADR-0006](../adr/0006-scope-reduction-v2.md)) the knowledge base is simply the `data/` directory — one file per entity, filename = ID — holding **3 of the 5 entities**: `ingredients/*.json` (trilingual name, baseUnit, optional `pcsToGram`/`yield`, `purchase` spec with a plain-string supplier, `trackStock`/`onHand`), `techniques.json` (a single-file controlled vocabulary of Chinese cutting/heating/pre-treatment techniques, closed set for the video skill), and `dishes/*.json` — where **incomplete dishes are allowed** (a name alone imports fine) and a `readiness` gate reports what each dish can do: *teach* (prep specs) / *plan* (quantities) / *buy* (purchase specs). Editing: from v0.3 the chef uses the `/admin` back office (plan the week, add ingredients/dishes, publish) which commits JSON through a cloud function (ADR-0007); direct JSON edits via PR remain available to Terry and agents, and a PR is still the review queue for video-imported drafts. Supplier/UnitConversion/DishPack entities are deleted (git history keeps them).
+# 菜谱知识库：日常写入与固定发布资料
 
-- schema：`schemas/ingredient.schema.json`、`techniques.schema.json`、`dish.schema.json`、`common.schema.json`
-- 数据：`data/ingredients/`、`data/techniques.json`、`data/dishes/`
+**当前真源：** 日常来源捕获、候选、Recipe 及不可变修订由独立 SQLite 知识库维护；Git 中的 `data/` 保存明确采用版本后的固定依赖与旧资料。日常编辑不需要 Git commit，合并工程 PR 不等于厨师批准菜谱。现行边界见 [当前工作合同](../current-contract.md)、[ADR-0009](../adr/0009-sqlite-knowledge-base.md) 和叠加候选的 [ADR-0010](../adr/0010-knowledge-source-access.md)。
+
+**English.** SQLite owns everyday recipe/candidate edits, immutable revisions and source evidence. Git owns explicitly frozen publication dependencies and legacy records. Engineering PR acceptance is separate from chef approval; editing a recipe does not silently update an old published menu.
+
+知识库源码、服务和数据库属于独立本地工程；CanteenOS PR #120/#121 提供接入和固定桥，不代表其包含完整配套源码或已经部署。发行的私有配套源码白名单包、manifest 与实际版本由发布负责人独立核对，具体边界见当前工作合同。
+
+## 当前使用合同与待完成通路
+
+- 菜谱身份和版本独立；同名菜不自动合并。来源原文、媒体 hash、原方与厨房修订可追溯。`needs_review` 候选须师傅阅读确认，不能由 agent 批量批准来生成正式菜单。
+- 正式采用以 `recipeId + version` 和完整依赖快照为核心；收藏来源、手工新建和旧导入应有等价核定/采用入口。当前集成仅有收藏候选特例，正式编辑器下一步与版本采用由 [#124](https://github.com/TERRYYYC/canteen-os/issues/124) 跟踪，不声明通用路径已完成。
+- 标准食材需显式映射，稳定身份与依赖快照版本分开；采购规格、必要换算、净料率和厨房技法/准备时机/切配规格需合法核定。当前转换存在身份/规格断点，由 [#125](https://github.com/TERRYYYC/canteen-os/issues/125) 跟踪；同名字符串不能代替材料身份。
+- 份数、用量、时间缺失继续未知；已录食材和调料全部进入人工采购判断。旧 readiness 的“能算”不能变成“能人工排菜”的门槛。
+- 已发布菜单固定旧 Recipe 版本和依赖；新 KB 修订不原地改变旧菜单。已有采购清单保留自己的 basis 和人工状态，来源变化由用户复核。
+- Recipe 列表、明细、历史、来源正文及原片参考图按 ADR-0010 的候选权限仅师傅/管理员可读；采购/帮厨使用已发布投影。参考图与公开菜照分开，使用权未确认不公开。
+
+当前工程/部署/厨师审批分别验收，整体入口为 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。下面保留第一轮 Git v2 模型与流程以供旧数据/数值引擎兼容；旧“PR 即审核”“Git 历史即 Recipe 版本”“目录即日常知识库”不再是 SQLite 日常工作规则。schema 具体字段始终以仓库 `schemas/` 为准。
 
 ---
 
-## 1. 数据模型表
+## 1. Git v2 历史模型与兼容参考
 
 ### Ingredient（食材/调料）——`data/ingredients/<id>.json`
 
@@ -50,7 +69,7 @@
 | provenance | object | | `{source: manual\|video\|example, videoUrl?}`；视频来源必填 videoUrl；`example`（v0.1 新增）= 设计稿/演示示例菜，构建时排除、不得当真实数据发布 |
 | status | enum | | `draft`（缺省）/ `active` / `archived`；只有 active 参与菜单与采购推导 |
 
-## 2. 允许不完整与 readiness 关卡
+## 2. 旧数值引擎的 readiness 关卡
 
 数据不拒绝不完整；按用途设关卡（research-brief-v2 §0），引擎侧 `readiness(dish)` 计算（见 [procurement.md](procurement.md) 与 `packages/core`）：
 
@@ -60,15 +79,15 @@
 | 能排（plan） | 能排进菜单算份数 | `baseServings` 与全部 `components[].qty` 齐备 |
 | 能采（buy） | 能算采购 | 所有 `ingredientRef` 指向的食材都有 `purchase` |
 
-缺什么在 PWA/PR 里显示成待办，不阻断入库。
+这些判据描述旧数值引擎能否计算，不是当前人工排菜/采购的必填门槛。缺量、适量和缺规格仍须保留在人工清单，具体合同见上方当前入口。
 
-## 3. 状态与编辑（v0.3 起师傅后台编辑；ADR-0006 §5 的“单人改 JSON”仅为过渡）
+## 3. 历史 Git 状态与编辑流程（2026-09-07）
 
 - 状态机收窄为 `draft → active → archived`：**git PR 即人工确认队列**——视频导入的菜一律 `draft`，师傅审 PR、合并即 `active`；无独立 review 状态、无 `version` 字段（git 历史即版本）。
 - 编辑入口（2026-09-07 更新）：**v0.3 起师傅用 `/admin` 后台**（排菜单、新食材、手动加菜、发布/回退），后台通过云函数把 JSON 提交进 `data/`（ADR-0007，只准写 `data/**`）；Terry 与 agent 仍可直接改 JSON 提 PR；`python3 scripts/local-validate.py` 与 CI 双闸兜底（schema 校验 + 跨文件引用检查）。视频导入的草稿第一轮仍走命令行 + PR。设计稿：`docs/design/backoffice-v1.html`。
 - 同步：线上 = git pull；线下/无网 = 拷贝整个 `data/` 文件夹。**不用 Git LFS**（与拷贝文件夹同步互斥，场景 G 已知坑 #1）；图片源头压缩 + 单图硬上限。
 
-## 4. 视频导入（skill 直出，无中间包）
+## 4. 历史 JSON 视频导入契约
 
 视频解析 skill **直接输出 `data/dishes/<dish>.json`（status=draft）+ `images/<dish>/` 目录**（契约见 [skills/video-recipe-ingest/SKILL.md](../../skills/video-recipe-ingest/SKILL.md)）：
 
@@ -90,7 +109,7 @@
 | 图片许可 | image 必须带 `license`（ImageRef；Commons 等外部图另填 `sourceUrl`，自摄/截帧 `own` 可省略）；CC BY-SA 图展示时按许可署名（ADR-0006） |
 | 多语言名称缺失 | I18nString anyOf 保证至少一语言；展示走 fallback 链（见 i18n.md）；翻译状态查 translations.lock.json |
 
-## 6. 开放问题（Open Questions）
+## 6. 第一轮开放问题（历史，不直接成为本轮任务）
 
 1. 半成品/子菜谱（递归 BOM，如高汤）是否引入 components 的 `dishRef` 分量类型？当前只支持 ingredientRef。
 2. 约 300 种食材的 Wikidata 种子拉取批次与师傅校对工作流（场景 A 脚本即改 QID 清单可复跑）。

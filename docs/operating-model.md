@@ -1,3 +1,26 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [dispatch, current-scope, historical-workflow]
+doc_kind: operating-model-index
+created: 2026-10-05
+---
+
+# 当前调度入口（2026-10-05）
+
+当前任务和范围统一见 [当前工作合同](current-contract.md) 与 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。调度负责合同、依赖、集成、证据核查和最终 review；实施与测试在独立任务中进行，每包一个实施责任人和非作者 reviewer。以实际 GitHub issue/PR、精确 HEAD 和验收记录交接，不把派工或创建 issue 当成修复完成。
+
+当前队列不是 `.github/backlog/round-1.json` 的全集；旧 `create-issues.mjs`/波次表只用于其历史第一轮，不为同步旧 JSON 重建或取消后来接受的任务。W0 统一基线；W1 所选计划与 W2/W3 采用/材料合同按依赖分工；W4 复用既有缺陷修复；W5 消费真实闭环证据。共享文件争用先协调，保留原 worktree、用户数据和未保存输入。
+
+交接说明 What / Why / Tradeoff / Open Questions / Next Action，并附实际变更、精确提交、验证结果及未完成边界。合并/推送/部署按当前用户已经明确的授权范围和仓库护栏执行，授权后的审查及测试要求继续有效；旧记录不能撤销后续明确授权，也不能扩大它。
+
+工程副本和本机持久模型、实际部署、真实厨师批准分别记录。不能以成功的工程测试或模拟 GitHub/Pages 代替真实部署，不能批准生产候选来填满闭环页面。对应完成证据和非作者审查覆盖最终 HEAD 后，调度再更新 issue 和发布记录。
+
+---
+
+## 第一轮工作模式（历史原文）
+
+以下保存 2026-09-07 的波次、固定日期、权限描述和首轮恢复步骤。其“改任务先改 JSON”、固定数量、旧冻结与合并权限措辞属于当时安排；当前入口以上方补充和本次实际授权为准，仍适用的安全/协作规则保留。
+
 # 工作模式：一个调度 thread 指挥多个子 thread 并行（2026-09-07）
 
 > 这份文件回答"多个 AI agent 怎么同时干活而不撞车、不跑偏、不漂移"。它是 `docs/execution-brief.md` 的配套：简报说做什么、什么算完；本文说谁在什么时候做、怎么交接、怎么验收。GitHub issue 是唯一的任务队列，分支和 PR 是唯一的交付物，仓库里的文件是唯一的记忆。

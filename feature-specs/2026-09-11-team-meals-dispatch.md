@@ -3,10 +3,12 @@ feature_ids: []
 topics: [canteen-os, team-meals, dispatch, contracts, acceptance]
 doc_kind: implementation-dispatch
 created: 2026-09-11
-status: active
+status: historical-dispatch
 ---
 
 # 小团队餐食改造调度
+
+> **当前入口（2026-10-05）：** 本文件保留 2026-09 的设计采用、授权和实测历史；下方“当前”“唯一状态入口”指各段当时的阶段。现在实施和验收统一读 [当前工作合同](../docs/current-contract.md) 与 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。绿色 Reference v3 的小团队视觉方向继续作为来源，旧模型/示例通过不代表今天真实菜谱闭环通过。
 
 **目标（2026-09-12 纠正）：** 将绿色 Reference v3 的视觉、导航和信息层级接入真实应用，服务小团队“每天吃什么 → 全部已录食材与调料 → 人工确认哪些需要买 → 查看同版材料和来源菜品”。份数可选。原始用户要求是“高保真 + 页面契约 + 标准数据 + 验收用例”；业务收缩没有撤销高保真目标。
 

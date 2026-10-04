@@ -1,3 +1,18 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [historical-scope, execution, compatibility]
+doc_kind: historical-execution-brief
+created: 2026-09-07
+---
+
+# 历史记录与当前入口
+
+本文件保存 2026-09-07 第一轮执行简报。后续小团队页面合同和 ADR-0009/0010 已改变日常知识库、来源权限及视觉来源；当前任务先读本合同入口和实际 issue，不按旧冻结清单恢复已取消范围。
+
+当前范围、设计来源、数据真源及验收入口统一见 [当前工作合同](current-contract.md)。下方原记录保留其当时的措辞、日期和状态；其中旧排期、无数据库限制、固定份数、旧视觉与 backlog 波次不作为当前任务的执行要求。许可证、凭据保护和独立审查等仍适用的约束继续遵守 [AGENTS](../AGENTS.md)。
+
+---
+
 # CanteenOS 第一轮执行简报（给 AI agent）
 
 > 2026-09-07 起生效。任何 agent 开工前读完本文。优先级：**本文 > `docs/plan-for-terry.md` > `docs/roadmap-v2.md` > ADR-0006 > 其他文档**；冲突以更前者为准。设计稿是 UI 的事实源：`docs/design/screens-v2.html`（前台）、`docs/design/backoffice-v1.html`（后台）。协作规范 `AGENTS.md` 继续有效，本文只增不减。**多 agent 并行的派工、交接、审查流程见 `docs/operating-model.md`**；任务队列是 GitHub issue（由 `.github/backlog/round-1.json` 生成），波次由 `node scripts/backlog-waves.mjs` 算出。

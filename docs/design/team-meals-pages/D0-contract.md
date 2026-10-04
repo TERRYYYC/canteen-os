@@ -8,6 +8,8 @@ status: proposed-for-review
 
 # D0 — 小团队页面实现契约
 
+> **当前合同入口（2026-10-05）：** 当前已接受的小团队业务、绿色视觉和验收范围已完整登记在 [当前工作合同](../../current-contract.md)，新 clone 不需要下方本机绝对路径或外部未提交附件才能读取这些要求。下方保留本页当时的实施合同和来源指针；旧 source SHA、阶段/权限说明及截图日期属于历史证据，稳定的未保存/同版/兼容约束仍按当前合同消费，不表示本轮闭环已通过。
+
 Goal: 排日期、餐次和菜品，份数可留空；看到全部已录材料与来源，以人工判断本次待买/已有，并查看同版资料。
 Acceptance: 设计工作区 STANDARD-DATA-AND-ACCEPTANCE.md T01–T09；C01–C12 为兼容依据。顾客/订单/反馈/报告、库存流水、永久菜单行 ID、完整归档平台不在范围。
 Architecture cell: RC-D pages。Map delta: none；仅消费 C 共享接线及 A core。前端验证: Yes，zh/en/uk × 393×852、1440×900。
