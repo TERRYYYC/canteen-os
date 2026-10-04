@@ -78,12 +78,13 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const apply = button(t('确认入箱','Add to inbox','Додати до вхідних'),()=>void importRows()); apply.disabled = true;
   const more = button(t('继续加载','Load more','Завантажити ще'),()=>void loadItems(false)); more.hidden = true;
   root.append(h('div',{class:'kb-header'},h('h2',{},t('抖音收藏收件箱','Douyin favorites inbox','Вхідні обраного Douyin')),h('a',{class:'kb-link',href:'#/admin/knowledge'},t('返回菜谱库','Back to recipe library','До бібліотеки рецептів'))),
-    h('p',{class:'kb-muted'},t('先保存作品线索；核对正文或字幕后再生成可审核草稿。保存菜谱不会自动发布菜单。','Save source links first. Check the post or transcript before proposing a recipe. Saving never publishes a menu.','Спочатку збережіть посилання. Перевірте допис або субтитри перед створенням рецепта. Збереження не публікує меню.')),
+    h('p',{class:'kb-muted'},t('先找菜、打开作品核对完整做法，再审核来源。保存菜谱不会自动发布菜单。','Find a recipe, inspect the full source, then review it. Saving never publishes a menu.','Знайдіть рецепт, перевірте джерело й лише тоді схвалюйте. Збереження не публікує меню.')),
     h('section',{class:'kb-panel'},h('h3',{},t('找一款做法','Find a recipe','Знайти рецепт')),searchForm,
       h('p',{class:'kb-muted'},t('列表显示原片参考图与做法摘要；图片使用权待核实。来源审核与厨房用量核定是两步。','The list shows source-frame previews and recipe summaries. Image rights still need review. Source approval and kitchen quantities are separate steps.','Список показує кадри оригіналу й короткий опис. Права на зображення ще не перевірено. Джерело і кухонні кількості перевіряються окремо.'))),
-    h('section',{class:'kb-panel'},h('h3',{},t('导入收藏 CSV','Import favorites CSV','Імпорт CSV')),h('div',{class:'kb-actions'},field(t('CSV 文件','CSV file','Файл CSV'),file),field(t('收藏夹页面计数','Collection count','Кількість у колекції'),claimed),inspect,apply),
-      h('p',{class:'kb-muted'},t('检查不会写库。卡片文字只作为线索，不能直接批准成菜谱。','Inspection does not write. Card text is a lead, not verified recipe evidence.','Перевірка не записує дані. Текст картки — лише підказка.')),info,batchInfo),
-    h('section',{class:'kb-panel'},h('h3',{},t('待处理作品','Source items','Джерела')),cards,more));
+    h('section',{class:'kb-panel'},h('h3',{},t('待处理作品','Source items','Джерела')),cards,more),
+    h('details',{class:'kb-panel kb-inbox-import'},h('summary',{},t('导入收藏 CSV（管理）','Import favorites CSV (administration)','Імпорт CSV (керування)')),
+      h('div',{class:'kb-inbox-import-body'},h('div',{class:'kb-actions'},field(t('CSV 文件','CSV file','Файл CSV'),file),field(t('收藏夹页面计数','Collection count','Кількість у колекції'),claimed),inspect,apply),
+        h('p',{class:'kb-muted'},t('检查不会写库。卡片文字只作为线索，不能直接批准成菜谱。','Inspection does not write. Card text is a lead, not verified recipe evidence.','Перевірка не записує дані. Текст картки — лише підказка.')),info,batchInfo)));
   file.addEventListener('change',async()=>{ prepared=null;apply.disabled=true;csvRows=null;replace(info);
     const selected=file.files?.[0];if(!selected)return;
     try { csvRows=parseFavoritesCsv(await selected.text()); replace(info,h('p',{role:'status'},`${selected.name} · ${csvRows.length} ${t('条卡片','cards','карток')}`)); }
@@ -147,7 +148,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         h('small',{},`${status} · #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`));
       if(!candidate)return [h('span',{class:'kb-inbox-badge'},status),label];
       label.append(h('small',{},`${candidate.ingredientCount} ${t('项食材','ingredients','інгредієнтів')} · ${candidate.stepCount} ${t('步做法','steps','кроків')} · ${candidate.illustrationCount} ${t('张原片参考图','source frames','кадрів оригіналу')}`));
-      if(candidate.status==='approved')label.append(h('small',{},t('厨房用量待核定','Kitchen quantities need checking','Кухонні кількості потребують перевірки')));
+      if(candidate.status==='approved')label.append(h('small',{},t('厨房条件请在正式菜谱中核对','Check kitchen conditions in the formal recipe','Перевірте кухонні умови в рецепті')));
       const assetId=candidate.thumbnailAssetId;
       if(assetId&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(assetId)){
         const preview=previewImage(assetId,title||t('菜谱','Recipe','Рецепт'));disposePreview=preview.dispose;
@@ -162,6 +163,15 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
     async function loadDetail(){for(const dispose of detailImageDisposers)dispose();detailImageDisposers.clear();replace(body,h('p',{},t('正在读取证据…','Loading evidence…','Завантаження…')));
       try{const [current,captures,candidates]=await Promise.all([api.request<Item>(`/favorites/items/${item.id}`),api.request<{items:Capture[]}>(`/favorites/items/${item.id}/captures`),api.request<{items:Candidate[]}>(`/favorites/items/${item.id}/candidates`)]);
         if(!active()||!detail.isConnected)return;Object.assign(item,current.data);
+        const previous=item.candidateSummary;
+        const selected=candidates.data.items.find(candidate=>candidate.id===previous?.candidateId)??candidates.data.items[0];
+        if(selected){
+          const illustrations=selected.illustrations??[];
+          item.candidateSummary={candidateId:selected.id,title:selected.recipe.title,status:selected.status,
+            ingredientCount:selected.recipe.ingredients?.length??0,stepCount:selected.recipe.steps?.length??0,
+            illustrationCount:illustrations.length,thumbnailAssetId:previous?.candidateId===selected.id?previous.thumbnailAssetId??null:null,
+            unresolvedCount:selected.unresolved?.length??0};
+        }else item.candidateSummary=null;
         disposePreview();disposePreview=()=>{};replace(summary,...summaryParts());
         paint(captures.data.items,candidates.data.items);
       }catch(error){if(active())replace(body,h('p',{role:'alert'},errorText(error)),button(t('重试','Retry','Повторити'),()=>void loadDetail()));}}
@@ -322,7 +332,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
               field(t('新版本审核人','Reviewer for new revision','Рецензент нової версії'),newReviewer),
               field(t('与原作品核对的变更说明','Source comparison note','Пояснення змін'),newNote),freeze);
           }catch(error){if(active())replace(newVersion,h('p',{role:'alert'},errorText(error)));}finally{check.disabled=false;}}
-        row.append(h('p',{class:'kb-status'},t('来源已审核；厨房用量待核定。请先在正式菜谱编辑器检查原方份数、未知用量和切配条件。','Source approved; kitchen quantities still need checking. Review servings, unknown amounts and preparation in the recipe editor.','Джерело схвалено; кухонні кількості ще треба перевірити.')),
+        row.append(h('p',{class:'kb-status'},t('来源已审核；厨房条件请在正式菜谱中核对。若要固定新版本，请检查原方份数、未知用量和切配条件。','Source approved; check kitchen conditions in the formal recipe. Before freezing a newer version, review servings, unknown amounts and preparation.','Джерело схвалено; перевірте кухонні умови в рецепті перед фіксацією нової версії.')),
           h('a',{href:`#/admin/knowledge/${candidate.recipeId}`},t('进入正式菜谱编辑器核定','Open recipe editor to verify quantities','Відкрити редактор рецепта для перевірки')),
           h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
           h('div',{class:'kb-actions'},material,check),newVersion,materialNotice);

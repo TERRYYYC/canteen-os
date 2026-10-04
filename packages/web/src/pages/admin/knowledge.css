@@ -15,6 +15,8 @@
 .kb-inbox-search{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
 .kb-inbox-search .kb-field{flex:1;min-width:220px}
 .kb-inbox-search button{margin-bottom:12px}
+.kb-inbox-import>summary{font-weight:600}
+.kb-inbox-import-body{padding-top:12px}
 .kb-inbox-item>summary{flex-wrap:nowrap}
 .kb-inbox-preview{width:72px;height:72px;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:4px;border-radius:9px;background:var(--surface-2);color:var(--muted);font-size:11px;text-align:center}
 .kb-inbox-preview img{width:100%;height:100%;max-height:none;object-fit:cover}

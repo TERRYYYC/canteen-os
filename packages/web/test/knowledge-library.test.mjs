@@ -67,6 +67,20 @@ test('a provenance link reads exactly the historical KB version without an edita
  assert.equal(h.all('textarea').length,0);
  assert.equal(fixture.calls.length,1);
 });
+test('formal recipe editor keeps a long source behind a short, expandable evidence summary',async()=>{
+  const original='00:01 羊腩五斤，油炸后入煲。\n'.repeat(120);
+  const recipe={...detail().recipe,sources:[{sourceId:id2}]};
+  const h=await setup(()=>json(detail({recipe,sourceRecords:[{id:id2,kind:'web',title:'原收藏视频',author:'原作者',url:'https://example.org/video',textContent:original}]})));
+  await h.mount();
+  const evidence=h.all('.kb-source-evidence')[0];
+  assert(evidence,'long source is placed behind a disclosure');
+  assert.equal(evidence.getAttribute('open'),null,'raw source starts collapsed');
+  assert.match(evidence.querySelector('summary').textContent,/展开查看原始证据/);
+  const excerpt=h.all('.kb-source-excerpt')[0];
+  assert(excerpt&&excerpt.textContent.length<140,'chef sees a short source preview');
+  assert.equal(evidence.querySelector('p').textContent,original,'full source is available unchanged on expansion');
+  assert.deepEqual(recipe.sources,[{sourceId:id2}],'presentation does not alter recipe source references');
+});
 test('an approved source exposes a deliberate v2 chef check before freezing its new version',async()=>{
   const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
   const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
@@ -87,7 +101,7 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
   assert(h.all('a').some(link=>link.textContent.includes('进入正式菜谱编辑器核定')&&link.getAttribute('href')===`#/admin/knowledge/${id}`));
   assert.match(source.textContent,/来源已审核/);
-  assert.match(source.textContent,/厨房用量待核定/);
+  assert.match(source.textContent,/厨房条件请在正式菜谱中核对/);
   assert.match(h.el.textContent,/检查菜谱新版本/);
   h.click('检查菜谱新版本');await h.flush();
   assert.match(h.el.textContent,/v2/);
@@ -98,6 +112,7 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   const write=fixture.calls.find(call=>call.url.endsWith(`/knowledge-materializations/${candidateId}`));
   assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
+  assert.doesNotMatch(source.textContent,/厨房用量待核定/);
   assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
 });
 
@@ -181,6 +196,43 @@ test('the inbox labels CSV coverage as source-card intake, not recipe-analysis p
   await h.mount('inbox');
   assert.match(h.el.textContent,/收藏卡片入箱/);
   assert.match(h.el.textContent,/不是已解析菜谱数/);
+});
+test('chef reading order is search, source list, then collapsed CSV administration',async()=>{
+  const h=await setup(url=>url.endsWith('/favorites/imports')?json({items:[]}):json({items:[],nextCursor:null}));
+  await h.mount('inbox');
+  const sections=h.all('.kb-panel');
+  const search=sections.find(section=>section.querySelector('.kb-inbox-search'));
+  const list=sections.find(section=>section.querySelector('.kb-inbox-list'));
+  const csv=h.all('.kb-inbox-import')[0];
+  assert(search&&list&&csv,'all three areas remain accessible');
+  assert(sections.indexOf(search)<sections.indexOf(list));
+  assert(sections.indexOf(list)<sections.indexOf(csv));
+  assert.equal(csv.getAttribute('open'),null,'management import starts closed');
+  assert.match(csv.querySelector('summary').textContent,/导入收藏 CSV/);
+  assert(csv.querySelectorAll('input').some(input=>input.getAttribute('type')==='file'),'CSV file control remains available after opening');
+});
+for(const decision of ['approve','reject'])test(`inbox summary reflects ${decision} immediately after source review`,async()=>{
+  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379',candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
+  let state='needs_review';
+  const recipe={title:{zh:'陈皮排骨'},ingredients:[{id:id2,name:{zh:'排骨'},amount:{kind:'unknown'}}],steps:[{id,text:{zh:'焖煮'}}]};
+  const candidate=()=>({id:candidateId,captureId,status:state,recipe,fieldEvidence:{},imageCandidates:[],illustrations:[],...(state==='approved'?{recipeId:id,recipeVersion:1}:{} )});
+  const item=()=>({id:itemId,contentId:'7688940752160196770',kind:'video',url:'https://www.douyin.com/video/7688940752160196770',index:1,author:'作者',cardAlt:'',displayText:'',state,candidateSummary:{candidateId,title:recipe.title,status:'needs_review',ingredientCount:1,stepCount:1,illustrationCount:0,thumbnailAssetId:null,unresolvedCount:0}});
+  const h=await setup((url,init)=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[]});
+    if(url.includes('/favorites/items?'))return json({items:[item()],nextCursor:null});
+    if(url.endsWith(`/favorites/items/${itemId}`))return json(item());
+    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item().url,text:'陈皮排骨'}}]});
+    if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate()]});
+    if(url.endsWith(`/favorites/candidates/${candidateId}/review`)&&init.method==='POST'){state=decision==='approve'?'approved':'rejected';return json(candidate());}
+    throw Error(`unexpected ${url}`);
+  });
+  await h.mount('inbox');const source=h.all('.kb-inbox-item')[0];
+  source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  assert.match(source.querySelector('summary').textContent,/来源待师傅审核/);
+  const reviewer=h.all('input').find(input=>input.getAttribute('placeholder')==='审核人');h.set(reviewer,'主厨');
+  h.click(decision==='approve'?'批准并保存独立菜谱':'退回');await h.flush();
+  assert.match(source.querySelector('summary').textContent,decision==='approve'?/来源已审核/:/审核退回/);
+  assert.doesNotMatch(source.querySelector('summary').textContent,/来源待师傅审核/);
 });
 test('an empty formal library points the chef to review existing source proposals',async()=>{
   const h=await setup(url=>{assert.match(url,/\/recipes\?limit=20$/);return json({items:[],nextCursor:null});});

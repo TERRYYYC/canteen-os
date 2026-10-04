@@ -118,9 +118,13 @@ export function mediaEditor(draft: Draft, view: MediaView): HTMLElement[] {
     field(t('上传图片（最多 8 MiB）', 'Upload image (up to 8 MiB)', 'Завантажити зображення (до 8 MiB)'), upload));
   const sourceRows = (recipe.sources || []).map((ref, index) => {
     const source = draft.sources.find(s => s.id === ref.sourceId), url = safeExternal(source?.url);
+    const sourceText=source?.textContent??'';
+    const preview=sourceText.replace(/\s+/g,' ').trim();
     return h('div', { class: 'kb-row' }, h('strong', {}, source?.title || source?.url || t('来源资料', 'Source', 'Джерело')), source?.author ? h('p', {}, source.author) : null,
       url ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url) : null,
-      source?.textContent ? h('p', { style: 'white-space:pre-wrap' }, source.textContent) : null,
+      sourceText ? h('p',{class:'kb-source-excerpt kb-muted'},`${t('原文摘要','Source preview','Короткий опис')}: ${preview.slice(0,96)}${preview.length>96?'…':''}`) : null,
+      sourceText ? h('details',{class:'kb-source-evidence'},h('summary',{},t('展开查看原始证据','Expand original evidence','Розгорнути оригінальні дані')),
+        h('p',{style:'white-space:pre-wrap'},sourceText)) : null,
       ref.evidence ? jsonEvidence(ref.evidence, t('引用原始证据', 'Reference evidence', 'Дані посилання')) : null,
       button(t('移除来源引用', 'Remove source reference', 'Вилучити посилання на джерело'), () => { recipe.sources!.splice(index, 1); view.changed(true); }));
   });
