@@ -26,7 +26,7 @@ export async function handleAsset(ctx: Ctx): Promise<Response> {
   const ownerEntry = entries.find(e => e.path === owner);
   if (!ownerEntry || ownerEntry.type !== 'blob' || ownerEntry.mode !== '100644') throw fail('asset_unavailable');
   const stored = parseSource(await gh.getBlobText(ownerEntry.sha), kind, owner);
-  let ref = kind === 'dish' ? publicDish(stored as AnyDish) : stored;
+  let ref = kind === 'dish' ? publicDish(stored as AnyDish,owner.slice('data/dishes/'.length,-'.json'.length)) : stored;
   for (const segment of pointer.slice(1).split('/')) {
     if (!ref || typeof ref !== 'object' || !Object.hasOwn(ref, segment)) throw fail('asset_unavailable');
     ref = (ref as Record<string, unknown>)[segment];

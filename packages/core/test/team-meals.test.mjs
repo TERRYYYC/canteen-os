@@ -42,6 +42,29 @@ test('legacy KB evidence is stripped from the same projection consumed by static
  assert.equal(JSON.stringify(x),before,'projection cannot mutate the private historical Git dish');
 });
 
+test('public KB cover, prep and step images stay bound to this frozen dish',()=>{
+ const id='kb-3f4c6638dcf84231966c1c5e2816c059-v1';
+ const image=name=>({src:`${id}/images/${name}.png`,license:'own',author:'chef'});
+ const dish={schemaVersion:'3',name:{zh:'汤'},image:image('cover'),
+  components:[{ingredientRef:'salt',prep:{techniqueRef:'dice',image:image('prep')}}],
+  steps:[{text:{zh:'煮熟'},image:image('step')}],
+  provenance:{source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64)}};
+ const valid=core.publicDish(dish,id);
+ assert.deepEqual(valid.image,dish.image);
+ assert.deepEqual(valid.components[0].prep.image,dish.components[0].prep.image);
+ assert.deepEqual(valid.steps[0].image,dish.steps[0].image);
+ const crossed=copy(dish);
+ crossed.image.src='another-dish/images/cover.png';
+ crossed.components[0].prep.image.src='another-dish/images/prep.png';
+ crossed.steps[0].image.src='another-dish/images/step.png';
+ const publicCopy=core.publicDish(crossed,id);
+ assert.equal(publicCopy.image,undefined);
+ assert.equal(publicCopy.components[0].prep.image,undefined);
+ assert.equal(publicCopy.steps[0].image,undefined);
+ assert.equal(publicCopy.provenance.coverState,'rights-pending');
+});
+
 test('collect all recorded references without serving, qty, status or packaging filters',()=>{
  const x=sample(),before=JSON.stringify(x);
  x.dishes['second-dish'].schemaVersion='3';delete x.dishes['second-dish'].baseServings;delete x.dishes['second-dish'].components[0].qty;

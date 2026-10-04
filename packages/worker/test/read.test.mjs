@@ -76,9 +76,11 @@ test("legacy frozen KB evidence remains readable but never reaches catalog or so
   const dishId = 'kb-3f4c6638dcf84231966c1c5e2816c059-v1';
   const legacy = {
     schemaVersion: '3', name: { zh: '测试菜' }, status: 'active',
-    components: [{ ingredientRef: 'tomato', originalAmount: '1 克', originalText: 'PRIVATE_RAW_LINE' }],
+    components: [{ ingredientRef: 'tomato', originalAmount: '1 克', originalText: 'PRIVATE_RAW_LINE',
+      prep: { techniqueRef: 'dice', image: { src: 'another-dish/images/prep.png', license: 'own', author: 'chef' } } }],
     image: { src: 'kb-cover.png', license: 'own', author: 'chef', sourceUrl: 'https://host.internal./PRIVATE_IMAGE_ATTRIBUTION' },
-    steps: [{ text: { zh: '煮熟' }, clip: { videoUrl: 'https://example.org/PRIVATE_VIDEO', start: 1, end: 2 } }],
+    steps: [{ text: { zh: '煮熟' }, image: { src: 'another-dish/images/step.png', license: 'own', author: 'chef' },
+      clip: { videoUrl: 'https://example.org/PRIVATE_VIDEO', start: 1, end: 2 } }],
     provenance: {
       source: 'knowledge', recipeId: '3f4c6638-dcf8-4231-966c-1c5e2816c059', recipeVersion: 1,
       candidateId: 'e2068014-7d9e-4e74-b24d-32f12554e7c4', snapshotHash: 'a'.repeat(64),
@@ -92,7 +94,8 @@ test("legacy frozen KB evidence remains readable but never reaches catalog or so
       },
     },
   };
-  repo.commit({ ['data/dishes/' + dishId + '.json']: JSON.stringify(legacy), 'data/dishes/kb-cover.png': PNG_A });
+  repo.commit({ ['data/dishes/' + dishId + '.json']: JSON.stringify(legacy), 'data/dishes/kb-cover.png': PNG_A,
+    'data/dishes/another-dish/images/prep.png': PNG_A, 'data/dishes/another-dish/images/step.png': PNG_A });
   const { env } = makeEnv(repo);
   const catalog = await call(worker, env, 'GET', '/catalog', { headers: bearer('buyer') });
   assert.equal(catalog.status, 200, JSON.stringify(catalog.body));
@@ -100,6 +103,8 @@ test("legacy frozen KB evidence remains readable but never reaches catalog or so
   assert.equal(catalog.body.dishes[dishId].provenance.sourceGapCount, 1);
   assert.equal(catalog.body.dishes[dishId].provenance.coverState, 'rights-pending');
   assert.equal(catalog.body.dishes[dishId].image, undefined);
+  assert.equal(catalog.body.dishes[dishId].steps[0].image, undefined);
+  assert.equal(catalog.body.dishes[dishId].components[0].prep.image, undefined);
   for (const role of ['buyer', 'chef']) {
     const source = await call(worker, env, 'GET', '/source/dish/' + dishId, { headers: bearer(role) });
     assert.equal(source.status, 200, JSON.stringify(source.body));
@@ -109,6 +114,10 @@ test("legacy frozen KB evidence remains readable but never reaches catalog or so
   }
   const image = await call(worker, env, 'GET', `/asset?revision=${repo.head}&owner=${encodeURIComponent('data/dishes/' + dishId + '.json')}&pointer=%2Fimage`, { headers: bearer('buyer') });
   assert.equal(image.status, 422, 'legacy private-attribution image bytes must not be served');
+  for (const pointer of ['/components/0/prep/image', '/steps/0/image']) {
+    const crossed = await call(worker, env, 'GET', `/asset?revision=${repo.head}&owner=${encodeURIComponent('data/dishes/' + dishId + '.json')}&pointer=${encodeURIComponent(pointer)}`, { headers: bearer('buyer') });
+    assert.equal(crossed.status, 422, 'cross-dish image bytes must not be served');
+  }
   assert.match(repo.fileText('data/dishes/' + dishId + '.json'), /PRIVATE_TRANSCRIPT_SENTINEL/, 'read projection must not rewrite the private Git head');
 });
 

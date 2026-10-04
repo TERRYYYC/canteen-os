@@ -12,17 +12,18 @@ function legacyCoverState(provenance: KnowledgeProvenance): KnowledgeProvenance[
   return 'unavailable';
 }
 
-function publicImage(ref: ImageRef | undefined): ImageRef | undefined {
+function publicImage(ref: ImageRef | undefined, dishRef: string): ImageRef | undefined {
   if (!ref || !completeKnowledgeImageRights(ref)) return undefined;
-  // A legacy ImageRef may point straight at a private KB URL; frozen images
-  // must be relative, pinned repository files before any public read/build.
-  const parts = ref.src.split('/');
-  return parts.length > 0 && parts.every(part => /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(part) && part !== '..' && part !== '.') &&
-    /\.(?:png|jpe?g|webp)$/i.test(parts.at(-1) ?? '') ? ref : undefined;
+  // A legacy ImageRef may point at a private URL or another dish's file.
+  // Only images pinned under this exact versioned dish can be published.
+  const prefix = `${dishRef}/images/`, absolutePrefix = `data/dishes/${prefix}`;
+  const name = ref.src.startsWith(prefix) ? ref.src.slice(prefix.length)
+    : ref.src.startsWith(absolutePrefix) ? ref.src.slice(absolutePrefix.length) : '';
+  return /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:png|jpe?g|webp)$/i.test(name) ? ref : undefined;
 }
 
 /** Never return raw KB source records, quotes, review notes, private media or unlicensed image refs. */
-export function publicDish(dish: AnyDish): AnyDish {
+export function publicDish(dish: AnyDish, dishRef: string): AnyDish {
   const copy = clone(dish);
   if (copy.provenance?.source !== 'knowledge') return copy;
   const provenance = copy.provenance as KnowledgeProvenance;
@@ -30,7 +31,7 @@ export function publicDish(dish: AnyDish): AnyDish {
   if (provenance.sourceGapCount === undefined && legacy?.unresolved?.length) {
     provenance.sourceGapCount = legacy.unresolved.length;
   }
-  if (!publicImage(copy.image)) {
+  if (!publicImage(copy.image, dishRef)) {
     if (copy.image && !provenance.coverState) provenance.coverState = 'rights-pending';
     delete copy.image;
   }
@@ -40,10 +41,10 @@ export function publicDish(dish: AnyDish): AnyDish {
   delete provenance.evidence;
   for (const component of copy.components ?? []) {
     if ('originalText' in component) delete component.originalText;
-    if (component.prep?.image && !publicImage(component.prep.image)) delete component.prep.image;
+    if (component.prep?.image && !publicImage(component.prep.image, dishRef)) delete component.prep.image;
   }
   for (const step of copy.steps ?? []) {
-    if (step.image && !publicImage(step.image)) delete step.image;
+    if (step.image && !publicImage(step.image, dishRef)) delete step.image;
     // Knowledge videos remain in the private KB even when an old frozen step had a clip URL.
     delete step.clip;
   }

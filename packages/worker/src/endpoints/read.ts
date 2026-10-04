@@ -38,7 +38,7 @@ export async function handleSource(ctx: Ctx): Promise<unknown> {
   if (!file) throw fail("not_found");
 
   const stored = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
-  const content = kindRaw === 'dish' ? publicDish(stored as AnyDish) : stored;
+  const content = kindRaw === 'dish' ? publicDish(stored as AnyDish,idRaw) : stored;
   if (kindRaw === "shopping-list") {
     const list = content as ShoppingList;
     await validateStoredList(gh, currentHead, list, idRaw);
@@ -82,7 +82,7 @@ export async function handleCatalog(ctx: Ctx): Promise<unknown> {
     } else {
       const id = entry.path.slice(entry.path.lastIndexOf("/") + 1, -".json".length);
       if (!ID_RE.test(id)) throw fail("invalid_source", { path: entry.path });
-      if (entry.path.startsWith("data/dishes/")) dishes[id] = publicDish(parseSource(text, "dish", entry.path) as AnyDish);
+      if (entry.path.startsWith("data/dishes/")) dishes[id] = publicDish(parseSource(text, "dish", entry.path) as AnyDish,id);
       else ingredients[id] = parseSource(text, "ingredient", entry.path);
     }
   }
