@@ -7,12 +7,25 @@ import {tmpdir} from 'node:os';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages/admin/import.ts'),source=await readFile(entry,'utf8');
-const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList, resolveWeek }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
-const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
+const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,resolveWeek,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
 const week='2026-09-14',catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
 const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
 const row={date:week,mealType:'lunch',dishRef:'soup'};
+test('implicit import uses the existing saved week-41 plan; explicit plan routes remain authoritative',async()=>{
+ const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
+ try{
+  const reads=[],api={mode:'mock',sessionKey:()=>1,getPlan:async id=>{reads.push(id);return id==='week-41'?{content:{schemaVersion:'2',dateRange:{start:'2026-10-05',end:'2026-10-11'},meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'soup'}]}}:null;}};
+  const ctx={planId:'week-41'};
+  assert.deepEqual(await resolveWeek('',ctx,api),{planId:'week-41',weekStart:'2026-10-05'});
+  assert.deepEqual(reads,['week-41']);
+  assert.deepEqual(await resolveWeek('week-2026-41',ctx,api),{planId:'week-2026-41',weekStart:'2026-10-05'});
+  assert.deepEqual(reads,['week-41'],'explicit plan route does not silently switch plans');
+  const stale={...api,getPlan:async id=>id==='week-41'?{content:{schemaVersion:'2',dateRange:{start:'2025-10-06',end:'2025-10-12'},meals:[]}}:null};
+  assert.deepEqual(await resolveWeek('',ctx,stale),{planId:'week-2026-41',weekStart:'2026-10-05'},'a reused legacy ID from another year is not current');
+ }finally{globalThis.Date=RealDate;}
+});
 test('real core parsed missing servings stay blank rather than receiving a page default',()=>{
  const line=parsed();assert.equal(line.status,'ok');assert.equal(Object.hasOwn(line,'plannedServings'),false);
  const result=effective(line,undefined,catalog,week);assert.equal(result.importable,true);assert.equal(result.servings,undefined);

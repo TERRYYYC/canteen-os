@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test, after } from 'node:test';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,7 +16,8 @@ const output = join(dir, 'knowledge.mjs');
 const bundle = await esbuild.build({ stdin: { contents: `export {render} from './pages/admin/knowledge'; export * from './api/knowledge'; export * from './pages/admin/knowledge/model'; export {inspectReloadSafety} from './view-models/reload-safety';`, loader: 'ts', resolveDir: join(here, '../src') }, bundle: true, write: false, format: 'esm', platform: 'browser', loader: { '.css': 'empty' }, define: { 'import.meta.env.VITE_WORKER_URL': '"/worker"' }, logLevel: 'silent', plugins: [{ name: 'auth-boundary', setup(build) {
   build.onResolve({ filter: /\/admin\/token$/ }, () => ({ path: 'token', namespace: 'test' }));
   build.onResolve({ filter: /\/router$/ }, () => ({ path: 'router', namespace: 'test' }));
-  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const peekToken=getToken; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
+  build.onResolve({ filter: /\/api\/team-meals$/ }, () => ({ path: 'team-meals', namespace: 'test' }));
+  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const peekToken=getToken; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : args.path === 'team-meals' ? `export const getTeamMealsApi=()=>globalThis.fixture.teamApi;` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
 } }] });
 await writeFile(output, bundle.outputFiles[0].text);
 const id = '10000000-0000-4000-8000-000000000001';
@@ -26,8 +27,8 @@ const detail = (overrides = {}) => ({ id, version: 1, createdAt: '2026-09-19T00:
 const json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', etag: '"v1"', ...headers } });
 const defer = () => { let resolve, reject; const promise = new Promise((a,b) => { resolve=a; reject=b; }); return {promise,resolve,reject}; };
 let serial = 0;
-async function setup(handler = () => json(detail())) {
-  globalThis.fixture = { token: 'test-only-token', auth: 1, authHooks: [], routeHooks: [], calls: [], handler };
+async function setup(handler = () => json(detail()), plans = {}) {
+  globalThis.fixture = { token: 'test-only-token', auth: 1, authHooks: [], routeHooks: [], calls: [], handler, teamApi: { sessionKey: () => 1, getPlan: async id => plans[id] ? { content: plans[id] } : null } };
   Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
   globalThis.window = { addEventListener() {}, confirm: () => true };
   globalThis.location = { hash: '#/admin/knowledge' };
@@ -36,7 +37,7 @@ async function setup(handler = () => json(detail())) {
   globalThis.fetch = async (url, init = {}) => { fixture.calls.push({ url: String(url), init }); return fixture.handler(String(url), init); };
   const m = await import(pathToFileURL(output).href + `?run=${++serial}`);
   const flush = async () => { for (let i=0;i<15;i++) await new Promise(resolve => setImmediate(resolve)); };
-  const mount = async (rest = id, lang = 'zh') => { await m.render(el, { lang, planId: 'week-2026-40', setReloadCoverage() {} }, rest); await flush(); };
+  const mount = async (rest = id, lang = 'zh', planId = 'week-2026-40') => { await m.render(el, { lang, planId, setReloadCoverage() {} }, rest); await flush(); };
   const all = selector => el.querySelectorAll(selector);
   const click = text => { const control = all('button').find(b => b.textContent === text); assert(control, `button ${text}`); control.click(); };
   const field = (legend, language) => {
@@ -169,6 +170,30 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
   assert.doesNotMatch(source.textContent,/厨房用量待核定/);
   assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-2026-40/select/kb-${id.replaceAll('-','')}-v2`));
+});
+
+test('freezing a source reuses the existing week-41 plan instead of creating a parallel dated plan',async()=>{
+  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
+  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
+  const captureId='2a132a7d-1835-484e-a270-2617fb124379';
+  const item={id:itemId,contentId:'7676372301671218289',kind:'note',url:'https://www.douyin.com/note/7676372301671218289',index:44,author:'test',cardAlt:'test card',displayText:'test card',state:'approved'};
+  const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test-chef'};
+  const existingPlan=JSON.parse(await readFile(join(here,'../../../data/menu-plans/week-41.json'),'utf8'));
+  const h=await setup((url)=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[]});
+    if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
+    if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
+    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url}}]});
+    if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
+    if(url.endsWith(`/knowledge-materializations/${candidateId}`))return json({dishRef:`kb-${id.replaceAll('-','')}-v1`,recipeVersion:1,commit:'a'.repeat(40),unresolvedCount:0,unchanged:false});
+    throw Error(`unexpected ${url}`);
+  },{'week-41':existingPlan});
+  await h.mount('inbox','zh','week-41');
+  const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
+  try{h.click('固定此版本供菜单使用');await h.flush();}finally{globalThis.Date=RealDate;}
+  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-41/select/kb-${id.replaceAll('-','')}-v1`));
+  assert(!h.all('a').some(link=>link.getAttribute('href')?.includes('week-2026-41/select/')));
 });
 
 test('inbox searches candidate names and shows a source-only preview before opening a video',async()=>{

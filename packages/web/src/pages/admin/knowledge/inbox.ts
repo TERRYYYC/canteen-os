@@ -1,4 +1,3 @@
-import { datedPlanIdOfDate } from '@canteenos/core';
 import { localDateIso } from '../../../local-date';
 import { h, replace } from '../../../dom';
 import { onRoute } from '../../../router';
@@ -8,7 +7,7 @@ import { getKnowledgeApi, type I18n, type Recipe } from '../../../api/knowledge'
 import { words, button, field, safeExternal } from './ui';
 import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
 import { getTeamMealsApi } from '../../../api/team-meals';
-import { currentPlan } from '../plan-context';
+import { planForCurrentWeek } from '../plan-context';
 
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
 type CandidateSummary = { candidateId:string; title:I18n; status:string; ingredientCount:number; stepCount:number; illustrationCount:number; thumbnailAssetId?:string|null; unresolvedCount:number };
@@ -311,12 +310,15 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         const material=button(t('固定此版本供菜单使用','Freeze this version for menus','Зафіксувати версію для меню'),()=>void materialize());
         async function materialize(){material.disabled=true;try{
           const {data}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unchanged:boolean;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:'{}'});
-          if(active())showFrozen(data);
+          if(active())await showFrozen(data);
         }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
-        function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
-          const currentWeek=datedPlanIdOfDate(localDateIso());
-          replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('来源与用量待确认项','Source and amount questions','Питання щодо джерела й кількості')} ${data.unresolvedCount}`),
-            currentWeek?h('a',{href:`#/admin/plan/${currentWeek}/select/${encodeURIComponent(data.dishRef)}`},t('到本周菜单安排这道菜','Schedule in this week’s menu','Запланувати в меню цього тижня')):null);
+        async function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
+          const saved=h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('来源与用量待确认项','Source and amount questions','Питання щодо джерела й кількості')} ${data.unresolvedCount}`);
+          replace(materialNotice,saved);
+          try{
+            const plan=await planForCurrentWeek(ctx,getTeamMealsApi(),localDateIso());
+            if(active())replace(materialNotice,saved,h('a',{href:`#/admin/plan/${plan.id}/select/${encodeURIComponent(data.dishRef)}`},t('到本周菜单安排这道菜','Schedule in this week’s menu','Запланувати в меню цього тижня')));
+          }catch{if(active())replace(materialNotice,saved,h('p',{role:'alert'},t('未能核对本周菜单，请从菜单计划页选择已有计划。','Could not verify this week’s plan. Choose an existing plan from the plan page.','Не вдалося перевірити план тижня. Виберіть наявний план.')));}
         }
         const check=button(t('检查菜谱新版本','Check newer recipe version','Перевірити нову версію'),()=>void checkCurrent());
         async function checkCurrent(){check.disabled=true;replace(newVersion,h('p',{role:'status'},t('正在读取最新版本…','Loading latest version…','Завантаження…')));
@@ -330,7 +332,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
             const freeze=button(`${t('核对并固定','Check and freeze','Перевірити й зафіксувати')} v${version}`,()=>void freezeVersion(),true);
             async function freezeVersion(){if(!newReviewer.value.trim()||!newNote.value.trim()){replace(materialNotice,h('p',{role:'alert'},t('请填写审核人和与原作品核对的变更说明。','Enter reviewer and source comparison note.','Вкажіть рецензента й пояснення.')));return;}
               freeze.disabled=true;try{const {data:fixed}=await api.request<{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}>(`/materializations/${candidate.id}`,{method:'POST',body:JSON.stringify({recipeVersion:version,reviewer:newReviewer.value.trim(),note:newNote.value.trim()})});
-                if(active())showFrozen(fixed);
+                if(active())await showFrozen(fixed);
               }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{freeze.disabled=false;}}
             replace(newVersion,h('p',{},t('请先查看这个只读版本并对照原作品，再确认用于菜单。','Inspect this frozen KB revision against the source before using it in a menu.','Звірте цю версію з оригіналом.')),
               h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${version}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${version}`),
