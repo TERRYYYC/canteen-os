@@ -85,6 +85,9 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   });
   await h.mount('inbox');
   const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  assert(h.all('a').some(link=>link.textContent.includes('进入正式菜谱编辑器核定')&&link.getAttribute('href')===`#/admin/knowledge/${id}`));
+  assert.match(source.textContent,/来源已审核/);
+  assert.match(source.textContent,/厨房用量待核定/);
   assert.match(h.el.textContent,/检查菜谱新版本/);
   h.click('检查菜谱新版本');await h.flush();
   assert.match(h.el.textContent,/v2/);
@@ -96,6 +99,93 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
   assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
+});
+
+test('inbox searches candidate names and shows a source-only preview before opening a video',async()=>{
+  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
+  const thumb='30000000-0000-4000-8000-000000000001';
+  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
+  const item={id:itemId,contentId:'7688940752160196770',kind:'video',url:'https://www.douyin.com/video/7688940752160196770',index:1,author:'原片作者',cardAlt:'',displayText:'',state:'needs_review',candidateSummary:{candidateId,title:{zh:'陈皮排骨',en:'Tangerine peel ribs'},status:'needs_review',ingredientCount:12,stepCount:8,illustrationCount:5,thumbnailAssetId:thumb,unresolvedCount:3}};
+  const oldCreate=URL.createObjectURL,oldRevoke=URL.revokeObjectURL;
+  URL.createObjectURL=()=> 'blob:inbox-preview';URL.revokeObjectURL=()=>{};
+  try{
+    const h=await setup(url=>{
+      if(url.endsWith('/favorites/imports'))return json({items:[]});
+      if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
+      if(url.endsWith(`/assets/${thumb}/content`))return new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/jpeg'}});
+      throw Error(`unexpected ${url}`);
+    });
+    await h.mount('inbox');
+    const search=h.all('input').find(input=>input.getAttribute('type')==='search');
+    assert(search,'chef can search by candidate name');
+    h.set(search,'陈皮排骨');h.click('搜索菜名');await h.flush();
+    const query=fixture.calls.filter(call=>call.url.includes('/favorites/items?')).at(-1).url;
+    assert.equal(new URL(query,'http://local.test').searchParams.get('q'),'陈皮排骨');
+    const summary=h.all('.kb-inbox-item')[0].querySelector('summary');
+    assert.match(summary.textContent,/陈皮排骨/);assert.match(summary.textContent,/12 项食材/);assert.match(summary.textContent,/8 步做法/);assert.match(summary.textContent,/5 张原片参考图/);
+    assert.match(summary.textContent,/来源待师傅审核/);
+    assert.equal(summary.querySelectorAll('img').length,1);
+    assert.equal(h.all('.kb-inbox-candidate').length,0,'detail is not requested until the item opens');
+    await h.mount('inbox','en');
+    assert.match(h.all('.kb-inbox-item')[0].querySelector('summary').textContent,/Tangerine peel ribs/);
+    assert.match(h.all('.kb-inbox-item')[0].querySelector('summary').textContent,/Source awaits chef review/);
+  }finally{URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;}
+});
+test('a late previous name search cannot replace the chef’s current results',async()=>{
+  const old=defer(),base={kind:'video',url:'https://www.douyin.com/video/7688940752160196770',author:'原片作者',cardAlt:'',displayText:'',state:'needs_review'};
+  const item=(name,index)=>({...base,id:`c829d4a8-837c-47d0-b62c-7f10d829bb5${index}`,contentId:`768894075216019677${index}`,index,candidateSummary:{candidateId:`e2068014-7d9e-4e74-b24d-32f12554e7c${index}`,title:{zh:name},status:'needs_review',ingredientCount:1,stepCount:1,illustrationCount:0,thumbnailAssetId:null,unresolvedCount:0}});
+  const h=await setup(url=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[]});
+    if(url.includes('/favorites/items?')){
+      const q=new URL(url,'http://local.test').searchParams.get('q');
+      return q==='旧菜'?old.promise:json({items:q==='新菜'?[item('新菜',2)]:[],nextCursor:null});
+    }
+    throw Error(`unexpected ${url}`);
+  });
+  await h.mount('inbox');
+  const search=h.all('input').find(input=>input.getAttribute('type')==='search');
+  h.set(search,'旧菜');h.click('搜索菜名');await h.flush();
+  h.set(search,'新菜');h.click('搜索菜名');await h.flush();
+  old.resolve(json({items:[item('旧菜',1)],nextCursor:null}));await h.flush();
+  assert.equal(h.all('.kb-inbox-item').length,1);
+  assert.match(h.all('.kb-inbox-item')[0].textContent,/新菜/);
+  assert.doesNotMatch(h.all('.kb-inbox-item')[0].textContent,/旧菜/);
+});
+test('inbox reference thumbnails wait until visible and are released on route departure',async()=>{
+  const previousObserver=globalThis.IntersectionObserver,oldCreate=URL.createObjectURL,oldRevoke=URL.revokeObjectURL;
+  const seen=[],revoked=[];let observer;
+  globalThis.IntersectionObserver=class{constructor(callback){this.callback=callback;observer=this;}observe(element){seen.push(element);}unobserve(){}disconnect(){}};
+  URL.createObjectURL=()=> 'blob:visible-source-frame';URL.revokeObjectURL=url=>revoked.push(url);
+  try{
+    const thumb='30000000-0000-4000-8000-000000000001';
+    const h=await setup(url=>{
+      if(url.endsWith('/favorites/imports'))return json({items:[]});
+      if(url.includes('/favorites/items?'))return json({items:[{id:'c829d4a8-837c-47d0-b62c-7f10d829bb51',contentId:'7688940752160196770',kind:'video',url:'https://www.douyin.com/video/7688940752160196770',index:1,author:'作者',cardAlt:'',displayText:'',state:'needs_review',candidateSummary:{candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',title:{zh:'陈皮排骨'},status:'needs_review',ingredientCount:12,stepCount:8,illustrationCount:5,thumbnailAssetId:thumb,unresolvedCount:0}}],nextCursor:null});
+      if(url.endsWith(`/assets/${thumb}/content`))return new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/jpeg'}});
+      throw Error(`unexpected ${url}`);
+    });
+    await h.mount('inbox');
+    assert.equal(fixture.calls.filter(call=>call.url.includes('/assets/')).length,0,'offscreen images do not fetch');
+    assert.equal(seen.length,1);
+    observer.callback([{target:seen[0],isIntersecting:true}]);await h.flush();
+    assert.equal(fixture.calls.filter(call=>call.url.includes('/assets/')).length,1);
+    h.leave();assert.deepEqual(revoked,['blob:visible-source-frame']);
+  }finally{globalThis.IntersectionObserver=previousObserver;URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;}
+});
+test('the inbox labels CSV coverage as source-card intake, not recipe-analysis progress',async()=>{
+  const h=await setup(url=>{
+    if(url.endsWith('/favorites/imports'))return json({items:[{id:'batch',claimedCount:264,validCount:257,coverageGap:7,rejectedCount:0}]});
+    if(url.includes('/favorites/items?'))return json({items:[],nextCursor:null});
+    throw Error(`unexpected ${url}`);
+  });
+  await h.mount('inbox');
+  assert.match(h.el.textContent,/收藏卡片入箱/);
+  assert.match(h.el.textContent,/不是已解析菜谱数/);
+});
+test('an empty formal library points the chef to review existing source proposals',async()=>{
+  const h=await setup(url=>{assert.match(url,/\/recipes\?limit=20$/);return json({items:[],nextCursor:null});});
+  await h.mount('');
+  assert(h.all('a').some(link=>link.getAttribute('href')==='#/admin/knowledge/inbox'&&link.textContent.includes('打开收藏收件箱审核草稿')));
 });
 
 test('video inbox presents the whole recipe and complete source video before technical evidence',async()=>{

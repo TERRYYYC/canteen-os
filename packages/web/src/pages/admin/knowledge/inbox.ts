@@ -2,21 +2,33 @@ import { h, replace } from '../../../dom';
 import { onRoute } from '../../../router';
 import { onAuthSessionChange } from '../../../admin/token';
 import type { PageCtx } from '../../../types';
-import { getKnowledgeApi, type Recipe } from '../../../api/knowledge';
+import { getKnowledgeApi, type I18n, type Recipe } from '../../../api/knowledge';
 import { words, button, field, safeExternal } from './ui';
 import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
 
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
-type Item = { id: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
+type CandidateSummary = { candidateId:string; title:I18n; status:string; ingredientCount:number; stepCount:number; illustrationCount:number; thumbnailAssetId?:string|null; unresolvedCount:number };
+type Item = { id: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; candidateSummary?:CandidateSummary|null; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
 type Capture = { id: string; status: string; method: string; sha256: string; capturedAt: string; evidence: { sourceUrl: string; text?: string; media?: { sha256:string; durationMs:number; byteCount:number; sourceMethod:string }; segments?: { id?:string; kind: string; locator: string; text: string; startMs?:number; endMs?:number }[]; images?: { url: string; role: string; licenseStatus: string; sourceUrl: string; locator?: string }[] } };
 type Illustration = { id:string; assetId:string; url:string; sourceMediaSha256:string; frameMs:number; role:'ingredient'|'step'|'finished'; stepId:string; caption:{zh?:string;en?:string;uk?:string}; sourceUrl:string; author:string; rightsState:'unknown' };
 const imageControllers=new Set<AbortController>(), imageUrls=new Set<string>();
+const previewLoads=new Map<Element,()=>void>();
+let previewObserver:IntersectionObserver|null=null;
 let imageEpoch=0;
-function releaseInboxImages():void { imageEpoch++; for(const controller of imageControllers)controller.abort();imageControllers.clear();for(const url of imageUrls)URL.revokeObjectURL(url);imageUrls.clear(); }
+function releaseInboxImages():void { imageEpoch++;previewObserver?.disconnect();previewObserver=null;previewLoads.clear();for(const controller of imageControllers)controller.abort();imageControllers.clear();for(const url of imageUrls)URL.revokeObjectURL(url);imageUrls.clear(); }
 onRoute(releaseInboxImages,false);
 onAuthSessionChange(releaseInboxImages);
 type Candidate = { id: string; captureId: string; status: string; recipe: Recipe; fieldEvidence: unknown; imageCandidates: unknown[]; illustrations?:Illustration[]; unresolved?:string[]; recipeId?: string; recipeVersion?: number; reviewer?: string; reviewNote?: string };
-const stateName: Record<string, string> = { evidence_pending:'等待作品正文', evidence_ready:'已有作品证据', needs_review:'待审核草稿', approved:'菜谱已审核', blocked_auth:'访问受限', unavailable:'作品不可用', non_recipe:'非菜谱', rejected:'审核退回' };
+const stateName: Record<string, [string,string,string]> = {
+  evidence_pending:['等待作品正文','Waiting for source text','Очікування тексту джерела'],
+  evidence_ready:['已有作品证据','Source evidence ready','Джерело перевірено'],
+  needs_review:['来源待师傅审核','Source awaits chef review','Джерело очікує перевірки шефа'],
+  approved:['来源已审核','Source approved','Джерело схвалено'],
+  blocked_auth:['访问受限','Access restricted','Доступ обмежено'],
+  unavailable:['作品不可用','Source unavailable','Джерело недоступне'],
+  non_recipe:['非菜谱','Not a recipe','Не рецепт'],
+  rejected:['审核退回','Returned by reviewer','Повернуто на доопрацювання'],
+};
 const errorText = (error: unknown) => error instanceof Error ? error.message : '请求未完成，请重试。';
 const lines = (value: string) => value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
 const duration = (ms:number) => `${String(Math.floor(ms/60000)).padStart(2,'0')}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}`;
@@ -52,8 +64,14 @@ function recipeProposal(title: string, titleQuote: string, ingredientsText: stri
 export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () => boolean): Promise<void> {
   releaseInboxImages();
   const t = words(ctx.lang), api = getKnowledgeApi();
-  let csvRows: FavoriteCsvRow[] | null = null, prepared: Batch | null = null, loading = false, cursor: string | null = null;
+  const stateText=(value:string)=>{const labels=stateName[value];return labels?t(...labels):t('待核对','Needs review','Потребує перевірки');};
+  const titleText=(value:I18n|undefined)=>value?.[ctx.lang]||value?.zh||value?.en||value?.uk||'';
+  let csvRows: FavoriteCsvRow[] | null = null, prepared: Batch | null = null, loading = false, cursor: string | null = null, searchTerm = '', listEpoch = 0;
   const info = h('div'), cards = h('div', { class:'kb-inbox-list' }), batchInfo = h('div');
+  const searchInput=h('input',{type:'search',placeholder:t('例如：陈皮排骨','For example: tangerine peel ribs','Наприклад: реберця')}) as HTMLInputElement;
+  const searchButton=button(t('搜索菜名','Search recipe names','Пошук за назвою'),()=>{searchTerm=searchInput.value.trim();void loadItems(true);});
+  const searchForm=h('form',{class:'kb-inbox-search'},field(t('按菜名搜索待审核做法','Search recipe candidates by name','Пошук рецептів за назвою'),searchInput),searchButton);
+  searchForm.addEventListener('submit',event=>{event.preventDefault();searchTerm=searchInput.value.trim();void loadItems(true);});
   const file = h('input',{ type:'file',accept:'.csv,text/csv' }) as HTMLInputElement;
   const claimed = h('input',{ type:'number',min:'0',step:'1',value:'264' }) as HTMLInputElement;
   const inspect = button(t('检查 CSV','Inspect CSV','Перевірити CSV'),()=>void prepare(),true);
@@ -61,6 +79,8 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const more = button(t('继续加载','Load more','Завантажити ще'),()=>void loadItems(false)); more.hidden = true;
   root.append(h('div',{class:'kb-header'},h('h2',{},t('抖音收藏收件箱','Douyin favorites inbox','Вхідні обраного Douyin')),h('a',{class:'kb-link',href:'#/admin/knowledge'},t('返回菜谱库','Back to recipe library','До бібліотеки рецептів'))),
     h('p',{class:'kb-muted'},t('先保存作品线索；核对正文或字幕后再生成可审核草稿。保存菜谱不会自动发布菜单。','Save source links first. Check the post or transcript before proposing a recipe. Saving never publishes a menu.','Спочатку збережіть посилання. Перевірте допис або субтитри перед створенням рецепта. Збереження не публікує меню.')),
+    h('section',{class:'kb-panel'},h('h3',{},t('找一款做法','Find a recipe','Знайти рецепт')),searchForm,
+      h('p',{class:'kb-muted'},t('列表显示原片参考图与做法摘要；图片使用权待核实。来源审核与厨房用量核定是两步。','The list shows source-frame previews and recipe summaries. Image rights still need review. Source approval and kitchen quantities are separate steps.','Список показує кадри оригіналу й короткий опис. Права на зображення ще не перевірено. Джерело і кухонні кількості перевіряються окремо.'))),
     h('section',{class:'kb-panel'},h('h3',{},t('导入收藏 CSV','Import favorites CSV','Імпорт CSV')),h('div',{class:'kb-actions'},field(t('CSV 文件','CSV file','Файл CSV'),file),field(t('收藏夹页面计数','Collection count','Кількість у колекції'),claimed),inspect,apply),
       h('p',{class:'kb-muted'},t('检查不会写库。卡片文字只作为线索，不能直接批准成菜谱。','Inspection does not write. Card text is a lead, not verified recipe evidence.','Перевірка не записує дані. Текст картки — лише підказка.')),info,batchInfo),
     h('section',{class:'kb-panel'},h('h3',{},t('待处理作品','Source items','Джерела')),cards,more));
@@ -89,22 +109,60 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
     finally{loading=false;apply.disabled=false;}
   }
   async function loadBatches(){try{const {data}=await api.request<{items:Batch[]}>('/favorites/imports');if(!active())return;
-    const latest=data.items[0];replace(batchInfo,latest?h('p',{class:'kb-status'},`${t('最近批次','Latest batch','Остання партія')}: ${latest.validCount}/${latest.claimedCount} · ${t('差额','Gap','Різниця')} ${latest.coverageGap} · ${t('坏行','Rejected','Відхилено')} ${latest.rejectedCount}`):h('p',{class:'kb-muted'},t('尚未导入收藏。','No favorites imported yet.','Ще нічого не імпортовано.')));
+    const latest=data.items[0];replace(batchInfo,latest?h('p',{class:'kb-status'},`${t('收藏卡片入箱','Source cards imported','Імпортовано картки джерел')}: ${latest.validCount}/${latest.claimedCount} · ${t('差额','Gap','Різниця')} ${latest.coverageGap} · ${t('坏行','Rejected','Відхилено')} ${latest.rejectedCount} · ${t('这是收藏 CSV 覆盖数，不是已解析菜谱数。','This counts imported CSV cards, not analyzed recipes.','Це кількість карток CSV, а не проаналізованих рецептів.')}`):h('p',{class:'kb-muted'},t('尚未导入收藏。','No favorites imported yet.','Ще нічого не імпортовано.')));
   }catch(error){if(active())replace(batchInfo,h('p',{role:'alert'},errorText(error)));}}
-  async function loadItems(reset:boolean){if(reset){releaseInboxImages();cursor=null;replace(cards);}const params=new URLSearchParams({limit:'50',folder:'吃的'});if(cursor)params.set('cursor',cursor);
-    try{const {data}=await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`);if(!active())return;
+  async function loadItems(reset:boolean){if(reset){listEpoch++;releaseInboxImages();cursor=null;replace(cards);}const epoch=listEpoch,params=new URLSearchParams({limit:'50',folder:'吃的'});if(searchTerm)params.set('q',searchTerm);if(cursor)params.set('cursor',cursor);
+    try{const {data}=await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`);if(!active()||epoch!==listEpoch)return;
       for(const item of data.items)cards.append(renderItem(item));cursor=data.nextCursor;more.hidden=!cursor;
-      if(reset&&!data.items.length)cards.append(h('p',{class:'kb-muted'},t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
-    }catch(error){if(active())cards.append(h('p',{role:'alert'},errorText(error)));}}
+      if(reset&&!data.items.length)cards.append(h('p',{class:'kb-muted'},searchTerm?t('没有找到这个菜名的草稿。','No candidate matches that recipe name.','За цією назвою рецептів не знайдено.'):t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
+    }catch(error){if(active()&&epoch===listEpoch)cards.append(h('p',{role:'alert'},errorText(error)));}}
+  function previewImage(assetId:string,title:string):{element:HTMLElement;dispose:()=>void}{
+    const frame=h('span',{class:'kb-inbox-preview','data-asset-state':'loading'},t('原片参考图读取中','Loading source frame','Завантаження кадру'));
+    const controller=new AbortController(),epoch=imageEpoch;let objectUrl:string|undefined,started=false;
+    imageControllers.add(controller);
+    function dispose(){previewObserver?.unobserve(frame);previewLoads.delete(frame);controller.abort();imageControllers.delete(controller);if(objectUrl&&imageUrls.delete(objectUrl))URL.revokeObjectURL(objectUrl);objectUrl=undefined;}
+    function load(){if(started||controller.signal.aborted||epoch!==imageEpoch||!active()||!frame.isConnected)return;started=true;
+      void api.image(`/api/v1/assets/${assetId}/content`,controller.signal).then(blob=>{
+        if(controller.signal.aborted||epoch!==imageEpoch||!active()||!frame.isConnected)return;
+        objectUrl=URL.createObjectURL(blob);imageUrls.add(objectUrl);
+        const img=h('img',{src:objectUrl,alt:`${title} · ${t('原片参考图，使用权待核实','Source frame, rights unverified','Кадр оригіналу, права не перевірено')}`,loading:'lazy'});
+        img.addEventListener('error',()=>{if(!controller.signal.aborted){dispose();frame.setAttribute('data-asset-state','unavailable');replace(frame,t('原片参考图未载入','Source frame unavailable','Кадр недоступний'));}});
+        frame.setAttribute('data-asset-state','available');replace(frame,img);
+      }).catch(()=>{if(!controller.signal.aborted&&epoch===imageEpoch&&frame.isConnected){frame.setAttribute('data-asset-state','unavailable');replace(frame,t('原片参考图未载入','Source frame unavailable','Кадр недоступний'));}}).finally(()=>imageControllers.delete(controller));
+    }
+    if(typeof IntersectionObserver==='undefined')queueMicrotask(load);
+    else{
+      if(!previewObserver)previewObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;const ready=previewLoads.get(entry.target);if(ready){previewObserver?.unobserve(entry.target);previewLoads.delete(entry.target);ready();}}},{rootMargin:'160px 0px'});
+      previewLoads.set(frame,load);
+      queueMicrotask(()=>{if(!controller.signal.aborted&&epoch===imageEpoch&&frame.isConnected)previewObserver?.observe(frame);});
+    }
+    return {element:frame,dispose};
+  }
   function renderItem(item:Item):HTMLElement{
-    const body=h('div'), summary=h('summary',{},h('span',{class:'kb-inbox-badge'},stateName[item.state]??item.state),` #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`);
+    const body=h('div');let disposePreview=()=>{};
+    function summaryParts():HTMLElement[]{
+      const candidate=item.candidateSummary,title=titleText(candidate?.title);
+      const status=stateText(candidate?.status??item.state);
+      const label=h('span',{class:'kb-inbox-summary-text'},h('strong',{},title||`#${item.index} · ${item.author}`),
+        h('small',{},`${status} · #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`));
+      if(!candidate)return [h('span',{class:'kb-inbox-badge'},status),label];
+      label.append(h('small',{},`${candidate.ingredientCount} ${t('项食材','ingredients','інгредієнтів')} · ${candidate.stepCount} ${t('步做法','steps','кроків')} · ${candidate.illustrationCount} ${t('张原片参考图','source frames','кадрів оригіналу')}`));
+      if(candidate.status==='approved')label.append(h('small',{},t('厨房用量待核定','Kitchen quantities need checking','Кухонні кількості потребують перевірки')));
+      const assetId=candidate.thumbnailAssetId;
+      if(assetId&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(assetId)){
+        const preview=previewImage(assetId,title||t('菜谱','Recipe','Рецепт'));disposePreview=preview.dispose;
+        return [preview.element,label];
+      }
+      return [h('span',{class:'kb-inbox-preview','data-asset-state':'not-recorded'},t('无参考图','No source frame','Немає кадру')),label];
+    }
+    const summary=h('summary',{},...summaryParts());
     const detail=h('details',{class:'kb-inbox-item'},summary,body);let loaded=false;
     const detailImageDisposers=new Set<()=>void>();
     detail.addEventListener('toggle',()=>{if(detail.open&&!loaded){loaded=true;void loadDetail();}});
     async function loadDetail(){for(const dispose of detailImageDisposers)dispose();detailImageDisposers.clear();replace(body,h('p',{},t('正在读取证据…','Loading evidence…','Завантаження…')));
       try{const [current,captures,candidates]=await Promise.all([api.request<Item>(`/favorites/items/${item.id}`),api.request<{items:Capture[]}>(`/favorites/items/${item.id}/captures`),api.request<{items:Candidate[]}>(`/favorites/items/${item.id}/candidates`)]);
         if(!active()||!detail.isConnected)return;Object.assign(item,current.data);
-        replace(summary,h('span',{class:'kb-inbox-badge'},stateName[item.state]??item.state),` #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`);
+        disposePreview();disposePreview=()=>{};replace(summary,...summaryParts());
         paint(captures.data.items,candidates.data.items);
       }catch(error){if(active())replace(body,h('p',{role:'alert'},errorText(error)),button(t('重试','Retry','Повторити'),()=>void loadDetail()));}}
     function paint(captures:Capture[],candidates:Candidate[]){
@@ -212,7 +270,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
       const ingredients=candidate.recipe.ingredients??[],steps=candidate.recipe.steps??[],unresolved=candidate.unresolved??[];
       const illustrations=candidate.illustrations??[];
       const sourceImages=(role:Illustration['role'],stepId?:string)=>illustrations.filter(image=>image.role===role&&(!stepId||image.stepId===stepId)).map(sourceFigure);
-      const row=h('details',{class:'kb-inbox-candidate',open:true},h('summary',{},`${candidate.recipe.title.zh??''} · ${candidate.status} · ${source?.status??''}`),
+      const row=h('details',{class:'kb-inbox-candidate',open:true},h('summary',{},`${titleText(candidate.recipe.title)} · ${stateText(candidate.status)}`),
         h('div',{class:'kb-full-recipe'},
           h('div',{class:'kb-full-recipe-head'},h('h3',{},candidate.recipe.title.zh??candidate.recipe.title.en??''),
             h('p',{class:'kb-muted'},candidate.recipe.baseServings
@@ -264,7 +322,9 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
               field(t('新版本审核人','Reviewer for new revision','Рецензент нової версії'),newReviewer),
               field(t('与原作品核对的变更说明','Source comparison note','Пояснення змін'),newNote),freeze);
           }catch(error){if(active())replace(newVersion,h('p',{role:'alert'},errorText(error)));}finally{check.disabled=false;}}
-        row.append(h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
+        row.append(h('p',{class:'kb-status'},t('来源已审核；厨房用量待核定。请先在正式菜谱编辑器检查原方份数、未知用量和切配条件。','Source approved; kitchen quantities still need checking. Review servings, unknown amounts and preparation in the recipe editor.','Джерело схвалено; кухонні кількості ще треба перевірити.')),
+          h('a',{href:`#/admin/knowledge/${candidate.recipeId}`},t('进入正式菜谱编辑器核定','Open recipe editor to verify quantities','Відкрити редактор рецепта для перевірки')),
+          h('a',{href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('打开菜谱版本','Open recipe version','Відкрити рецепт')} v${candidate.recipeVersion}`),
           h('div',{class:'kb-actions'},material,check),newVersion,materialNotice);
       }
       else if(candidate.status==='needs_review')row.append(field(t('审核人','Reviewer','Рецензент'),reviewer),field(t('审核备注','Review note','Примітка'),note),

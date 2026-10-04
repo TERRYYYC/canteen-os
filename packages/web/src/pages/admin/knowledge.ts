@@ -183,7 +183,8 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
         else if (externalCover) showImage(cover, externalCover, label(item.title, ctx.lang), listEpoch);
       }
       cursor = data.nextCursor;
-      replace(info, ...(!seen.size ? [status(t('还没有符合条件的菜谱，可以收藏一款新做法。', 'No matching recipes. You can add a new one.', 'Відповідних рецептів немає. Можна додати новий.'))] : []));
+      replace(info, ...(!seen.size ? [status(t('这里还没有符合条件的正式菜谱。已导入的视频草稿要先由师傅审核。', 'No formal recipe matches. A chef must review imported video drafts first.', 'Відповідного затвердженого рецепта немає. Імпортовані відео спершу перевіряє шеф.')),
+        h('a',{href:href('inbox')},t('打开收藏收件箱审核草稿','Open favorites inbox to review drafts','Відкрити вхідні для перевірки чернеток'))] : []));
       more.hidden = !cursor;
     } catch (error) {
       if (active() && current === generation) replace(info, status(message(error, t), true), button(t('重试', 'Retry', 'Спробувати знову'), () => void load(reset)));
