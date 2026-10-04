@@ -271,6 +271,11 @@ export function createPlanRenderer(api:TeamMealsApi) {
         event.preventDefault();if(!isLive()||owner.session.getState().contextId!==captured)return;
         if(date.value&&dish.value&&(!dateRange||inPlanRange(date.value,dateRange))&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
           view.addBaseline=[view.addDate,view.addMeal,view.addDish];touch(view);paint();
+          // The inbox link is a one-time preselection. Once Add consumes it,
+          // a reload must not put the same dish back into the pending form.
+          if(selectedDish&&location.hash===adminHref('plan',id,'select',selectedDish)){
+            try{history.replaceState(null,'',adminHref('plan',id));}catch{/* keep the added draft if URL rewriting is unavailable */}
+          }
         }
       });return formEl;
     }

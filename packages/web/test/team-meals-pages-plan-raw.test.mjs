@@ -101,6 +101,24 @@ test('inbox selection opens the newly frozen version in an already visited plan'
    assert.equal(f.writes[0].body.meals.at(-1).dishRef,dishRef);
  }finally{f.cleanup();}
 });
+test('adding a selected inbox dish consumes the deep link so a fresh load is clean',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc',dishRef=`kb-${recipeId.replaceAll('-','')}-v2`;
+ let saved=null,reloaded;const previousHistory=globalThis.history;
+ const read=u=>u.pathname.startsWith('/source/plan')&&saved?Response.json({content:saved,commit:B,blobSha:'after'}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{en:'Soup'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined;
+ const f=await setup({post:body=>{saved=body;return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});},read});
+ try{
+   location.hash=`#/admin/plan/week-a/select/${dishRef}`;
+   globalThis.history={replaceState(_state,_title,url){location.hash=url.slice(url.indexOf('#'));}};
+   const rest=`week-a/select/${dishRef}`;document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'en',planId:'week-a',route:'admin',rest,setReloadCoverage(){}},rest);
+   cls(el,'tm-add-form')[0].dispatch('submit');save(el).click();await f.flush();
+   assert.equal(location.hash,'#/admin/plan/week-a','the consumed preselection must not replay on reload');
+   f.cleanup();reloaded=await setup({read});const next=await reloaded.mount('week-a');
+   assert.equal(reloaded.render.readAuxiliary('week-a').dirty,false);
+   assert.equal(saved.meals.at(-1)?.dishRef,dishRef);
+   assert.equal(walk(next).filter(x=>x.attrs['data-meal-index']!==undefined).length,saved.meals.length);
+ }finally{f.cleanup();reloaded?.cleanup();globalThis.history=previousHistory;}
+});
 test('selected dish in an expired plan requires an explicit old date and cannot add an out-of-range meal',async()=>{
  const dishRef=`kb-${'1'.repeat(32)}-v1`;
  const f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({content:{schemaVersion:'3',dateRange:{start:'2026-09-12',end:'2026-09-13'},meals:[]},commit:A,blobSha:'before'}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
