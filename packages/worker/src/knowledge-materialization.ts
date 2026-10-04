@@ -25,6 +25,22 @@ async function sha256(value: unknown): Promise<string> {
   return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
+/** Only a canonical public post URL may cross from the private KB into Git inputs. */
+function publicPostUrl(value: unknown): string | undefined {
+  if(typeof value!=='string')return undefined;
+  try {const url=new URL(value);
+    if(url.protocol==='https:'&&url.hostname==='www.douyin.com'&&!url.username&&!url.password&&
+      /^\/(?:video|note)\/\d+\/?$/.test(url.pathname))return `${url.origin}${url.pathname.replace(/\/$/,'')}`;
+  }catch{/* An unparseable or private URL is not public provenance. */}
+  return undefined;
+}
+
+function publicGap(value:string):string {
+  const gap=value.trim();
+  return gap.length<=200&&!/(?:https?:\/\/|www\.|\/api\/|\b(?:token|cookie|authorization)=)/i.test(gap)
+    ?gap:'来源细节需在主厨后台核对';
+}
+
 function quantity(amount: Amount): { qty?: { value?: number; unit: string }; baseUnit:'g'|'ml'|'pcs'; originalAmount:string } {
   const originalAmount=amount.raw?.trim() || (amount.kind==='unknown'?'未录用量':amount.kind==='exact'?`${amount.value} ${amount.unit}`:'');
   if(amount.kind==='to_taste')return {qty:{unit:'to-taste'},baseUnit:'g',originalAmount:originalAmount||'适量'};
@@ -68,7 +84,7 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
       ...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{}),trackStock:false};
     files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize(ingredient)});
     return {ingredientRef:ref,...(converted.qty?{qty:converted.qty}:{}),originalAmount:converted.originalAmount,
-      originalText:row.rawText??'',...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
+      ...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
   });
   const steps=detail.recipe.steps.map((row,index)=>{
     if(!UUID.test(row.id)||!row.text)throw new Error('invalid_recipe_step');
@@ -77,20 +93,19 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
   }).map(row=>row.image?row:{text:row.text});
   const cover=detail.recipe.assets?.find(asset=>asset.role==='cover');
   const coverImage=cover?imageRef(cover.assetId,'cover'):undefined;
-  const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.find(source=>typeof source?.url==='string')?.url;
-  const sourceRecords=detail.sourceRecords??[];
-  const sourceRefs=detail.recipe.sources??[];
-  const evidenceMedia=detail.media?.map(item=>{
-    const selected=detail.recipe.assets?.find(ref=>ref.assetId===item.assetId&&ref.role==='cover')
-      ??detail.recipe.assets?.find(ref=>ref.assetId===item.assetId);
-    return selected?{...item,selectedRole:selected.role}:item;
-  })??[];
+  const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.map(source=>publicPostUrl(source?.url)).find(Boolean);
+  const coverRef=detail.recipe.assets?.find(ref=>ref.role==='cover');
+  const coverMedia=coverRef&&detail.media?.find(item=>item.assetId===coverRef.assetId&&item.kind==='image');
+  // A cover that was not pinned can explain its absence without exposing its URL,
+  // asset ID, rights record, or bytes to the public projection.
+  const evidenceMedia=coverMedia&&!imageMap.has(coverMedia.assetId)
+    ?[{kind:'image',role:'cover',publicationState:/^https?:\/\//i.test(coverMedia.url)?'external-unpinned':'rights-pending'}]:[];
+  const publicGaps=sourceGaps.map(publicGap);
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
     ...(coverImage?{image:coverImage}:{}),...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
-      ...(candidate.review?{review:candidate.review}:{}),
       ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
-      ...(sourceRecords.length||sourceRefs.length||evidenceMedia.length||sourceGaps.length?{evidence:{sourceRecords,sourceRefs,media:evidenceMedia,...(sourceGaps.length?{unresolved:sourceGaps}:{})}}:{})},status:'active'};
+      ...(evidenceMedia.length||publicGaps.length?{evidence:{sourceRecords:[],sourceRefs:[],...(evidenceMedia.length?{media:evidenceMedia}:{}),...(publicGaps.length?{unresolved:publicGaps}:{})}}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};
 }

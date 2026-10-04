@@ -7,6 +7,9 @@ export function knowledgeCoverState(dish: AnyDish | undefined): KnowledgeCoverSt
   if (dish?.provenance?.source !== 'knowledge') return 'not-recorded';
   const covers = dish.provenance.evidence?.media?.filter(item => item.kind === 'image' && (item.selectedRole === 'cover' || item.role === 'cover')) ?? [];
   if (!covers.length) return 'needs-image';
+  if (covers.some(item => item.publicationState === 'external-unpinned')) return 'external-unpinned';
+  if (covers.some(item => item.publicationState === 'rights-pending')) return 'rights-pending';
+  if (covers.some(item => item.publicationState === 'unavailable')) return 'unavailable';
   if (covers.some(item => typeof item.url === 'string' && /^https?:\/\//i.test(item.url))) return 'external-unpinned';
   if (covers.some(item => !completeKnowledgeImageRights(item.rights))) return 'rights-pending';
   return 'unavailable';

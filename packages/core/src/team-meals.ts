@@ -1,6 +1,6 @@
 /** Pure reference collection and per-list manual decisions. See team-meals-contract.md. */
 import type {
-  AnyDish, AnyMenuPlan, Dish, Id, Ingredient, MealType, MenuPlan, Quantity,
+  AnyDish, AnyMenuPlan, Dish, DishV3, Id, Ingredient, MealType, MenuPlan, Quantity,
   ShoppingBasis, ShoppingDecision, ShoppingItem, ShoppingList, ShoppingSelection, Technique,
 } from './types.js';
 import { DEFAULT_MARGIN, convertQuantity, expand } from './procurement/engine.js';
@@ -32,6 +32,29 @@ export interface IngredientCollection {
 }
 const lookup = <T>(map: Record<string,T>, key: string): T | undefined => Object.hasOwn(map,key) ? map[key] : undefined;
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+function publicKnowledgeUrl(value: unknown): string | undefined {
+  if(typeof value!=='string')return undefined;
+  const match=/^https:\/\/www\.douyin\.com\/(video|note)\/(\d+)\/?(?:[?#].*)?$/.exec(value);
+  return match?`https://www.douyin.com/${match[1]}/${match[2]}`:undefined;
+}
+function publicKnowledgeDish(dish: AnyDish): AnyDish {
+  if(dish.provenance?.source!=='knowledge')return dish;
+  const versioned=dish as DishV3;
+  const {source,recipeId,recipeVersion,candidateId,snapshotHash,sourceUrl,evidence}=dish.provenance;
+  const safeUrl=publicKnowledgeUrl(sourceUrl);
+  const gaps=evidence?.unresolved?.map(value=>value.trim().length<=200&&
+    !/(?:https?:\/\/|www\.|\/api\/|\b(?:token|cookie|authorization)=)/i.test(value)
+      ?value.trim():'来源细节需在主厨后台核对')??[];
+  const cover=evidence?.media?.find(item=>item.kind==='image'&&(item.selectedRole==='cover'||item.role==='cover'));
+  const media=cover?[{kind:'image',role:'cover',publicationState:
+    cover.publicationState==='external-unpinned'||cover.publicationState==='rights-pending'||cover.publicationState==='unavailable'
+      ?cover.publicationState:typeof cover.url==='string'&&/^https?:\/\//i.test(cover.url)?'external-unpinned':'rights-pending'}]:[];
+  return {...versioned,
+    components:versioned.components?.map(({originalText:_originalText,...component})=>component),
+    steps:versioned.steps?.map(({clip:_clip,...step})=>step),
+    provenance:{source,recipeId,recipeVersion,candidateId,snapshotHash,...(safeUrl?{sourceUrl:safeUrl}:{}),
+      ...(gaps.length||media.length?{evidence:{sourceRecords:[],sourceRefs:[],...(gaps.length?{unresolved:gaps}:{}),...(media.length?{media}:{})}}:{})}};
+}
 const finiteNumbers = (value: unknown): boolean => typeof value === 'number' ? Number.isFinite(value)
   : value !== null && typeof value === 'object' ? Object.values(value).every(finiteNumbers) : true;
 const selectionKey = (s: ShoppingSelection) => JSON.stringify([s.menuPlanRef,s.date,s.mealType]);
@@ -280,7 +303,7 @@ export function projectTeamMeals(inputs: TeamMealInputs, basis: TeamProjectionCo
     menuPlans[slot.menuPlanRef]=plan;
     for (const meal of plan.meals.filter(m=>m.date===slot.date&&m.mealType===slot.mealType)) {
       const dish=lookup(inputs.dishes,meal.dishRef); if (!dish) continue;
-      dishes[meal.dishRef]=dish;
+      dishes[meal.dishRef]=publicKnowledgeDish(dish);
       for (const component of dish.components ?? []) if (component.prep?.techniqueRef) techniqueIds.add(component.prep.techniqueRef);
       for (const step of dish.steps ?? []) if (step.techniqueRef) techniqueIds.add(step.techniqueRef);
     }

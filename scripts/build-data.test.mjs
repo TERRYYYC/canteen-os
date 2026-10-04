@@ -308,6 +308,34 @@ function committedTeamRoot() {
 }
 function commitData(root) {git(root,'add','data');git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','Next fixed inputs');return git(root,'rev-parse','HEAD');}
 
+test('public team JSON excludes private knowledge evidence from previously frozen dishes',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(file);
+  dish.schemaVersion='3';
+  dish.components[0].originalText='PRIVATE_ORIGINAL_SENTINEL';
+  dish.steps[0].clip={videoUrl:'https://private.example.invalid/?token=PRIVATE_CLIP_SENTINEL',start:1,end:2};
+  dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+   sourceUrl:'https://private.example.invalid/watch?token=PRIVATE_URL_SENTINEL',
+   review:{reviewer:'chef',note:'PRIVATE_REVIEW_SENTINEL',approvedCandidateVersion:1},
+   evidence:{sourceRecords:[{textContent:'PRIVATE_OCR_SENTINEL'}],
+    sourceRefs:[{evidence:{segments:[{text:'PRIVATE_FRAME_SENTINEL'}]}}],
+    media:[{kind:'image',role:'cover',url:'https://private.example.invalid/image?token=PRIVATE_MEDIA_SENTINEL',rights:{status:'pending'}}],
+    unresolved:['火力待核实','见 https://private.example.invalid/?token=PRIVATE_GAP_SENTINEL']}};
+  writeJson(file,dish);const revision=commitData(root),out=path.join(root,'out');
+  const built=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:out});
+  assert(built.written.includes('team-meals/week-41.json'));
+  const publicJson=readFileSync(path.join(out,'team-meals/week-41.json'),'utf8');
+  for(const secret of ['PRIVATE_URL_SENTINEL','PRIVATE_REVIEW_SENTINEL','PRIVATE_OCR_SENTINEL','PRIVATE_FRAME_SENTINEL','PRIVATE_MEDIA_SENTINEL','PRIVATE_ORIGINAL_SENTINEL','PRIVATE_CLIP_SENTINEL','PRIVATE_GAP_SENTINEL'])
+   assert(!publicJson.includes(secret),`${secret} escaped into the public artifact`);
+  const publicDish=JSON.parse(publicJson).dishes[DISH];
+  assert.equal(publicDish.provenance.snapshotHash,dish.provenance.snapshotHash);
+  assert.deepEqual(publicDish.provenance.evidence.unresolved,['火力待核实','来源细节需在主厨后台核对']);
+  assert.deepEqual(publicDish.steps.map(step=>step.text),dish.steps.map(step=>step.text));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
 test('team target reads only fixed revision JSON while legacy target rejects v3 without NaN',()=>{
   const {root,revision}=committedTeamRoot();
   try {

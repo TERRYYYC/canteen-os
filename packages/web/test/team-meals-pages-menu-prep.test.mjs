@@ -125,7 +125,9 @@ test('menu summary includes seasonings and repeated rows; opening a row shows th
 test('unpublished knowledge cover evidence is distinct from an absent image in menu and prep',()=>{
   const cases=[
     [{assetId:'a',kind:'image',role:'cover',url:'https://example.org/temporary.jpg',rights:{license:'CC BY 4.0',author:'artist'}},'外部图片未固定'],
+    [{kind:'image',role:'cover',publicationState:'external-unpinned'},'外部图片未固定'],
     [{assetId:'b',kind:'image',role:'cover',url:'/api/v1/assets/b/content',rights:{status:'pending'}},'图片使用许可待核实'],
+    [{kind:'image',role:'cover',publicationState:'rights-pending'},'图片使用许可待核实'],
     [{assetId:'c',kind:'image',role:'cover',url:'/api/v1/assets/c/content',rights:{license:'own'}},'图片使用许可待核实'],
     [null,'待补图'],
   ];

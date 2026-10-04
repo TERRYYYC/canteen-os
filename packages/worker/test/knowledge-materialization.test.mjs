@@ -58,7 +58,7 @@ test('video source gaps remain in the frozen dish and 斤 converts without losin
   assert.equal(validateEntity('dish',dish).valid,true);
 });
 
-test('approved preparation and original field evidence remain in immutable menu inputs',async()=>{
+test('approved preparation remains in menu inputs while original field evidence stays in the KB revision',async()=>{
   const changed=structuredClone(detail);
   changed.recipe.ingredients[0].preparation={zh:'浸泡一夜'};
   changed.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64),fieldEvidence:{title:{quote:'测试菜',locator:'post'},ingredients:[{quote:'肉 1000 克',locator:'post'}],steps:[{quote:'烤熟',locator:'post'}]}}}];
@@ -66,9 +66,35 @@ test('approved preparation and original field evidence remain in immutable menu 
   const fixed=await materializationFiles(approved,changed);
   const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
   assert.deepEqual(dish.components[0].originalPreparation,{zh:'浸泡一夜'});
-  assert.equal(dish.provenance.evidence.sourceRecords[0].textContent,'测试菜 肉 1000 克 烤熟');
-  assert.equal(dish.provenance.evidence.sourceRefs[0].evidence.fieldEvidence.ingredients[0].quote,'肉 1000 克');
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(dish.provenance.sourceUrl,undefined);
+  assert.notEqual(fixed.snapshotHash,(await materializationFiles(approved,detail)).snapshotHash,'full KB evidence affects the traceable revision hash');
   assert.equal(validateEntity('dish',dish).valid,true);
+});
+
+test('frozen menu input keeps a traceable hash without copying private OCR or media URLs',async()=>{
+  const changed=structuredClone(detail);
+  changed.sourceRecords=[{id:'source-1',url:'https://private.example.invalid/?token=PRIVATE_URL_SENTINEL',textContent:'PRIVATE_OCR_SENTINEL'}];
+  changed.recipe.sources=[{sourceId:'source-1',evidence:{quote:'PRIVATE_FRAME_SENTINEL'}}];
+  changed.media=[{assetId:'c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1',kind:'image',role:'cover',status:'ready',url:'https://private.example.invalid/image?token=PRIVATE_MEDIA_SENTINEL',rights:{license:'All rights reserved'}}];
+  const frozen=await materializationFiles({...approved,unresolved:['火力待核实','见 https://private.example.invalid/?token=PRIVATE_GAP_SENTINEL']},changed);
+  const dishText=frozen.files.find(file=>file.path===`data/dishes/${frozen.dishRef}.json`).text;
+  for(const secret of ['PRIVATE_URL_SENTINEL','PRIVATE_OCR_SENTINEL','PRIVATE_FRAME_SENTINEL','PRIVATE_MEDIA_SENTINEL','PRIVATE_GAP_SENTINEL'])
+    assert(!dishText.includes(secret),`${secret} escaped into immutable menu input`);
+  const dish=JSON.parse(dishText);
+  assert.equal(dish.provenance.snapshotHash,frozen.snapshotHash);
+  assert.deepEqual(dish.provenance.evidence.unresolved,['火力待核实','来源细节需在主厨后台核对']);
+  assert.equal(validateEntity('dish',dish).valid,true);
+});
+
+test('a public Douyin post citation is canonicalized without sharing private query parameters',async()=>{
+  const changed=structuredClone(detail);
+  changed.sourceRecords=[{url:'https://www.douyin.com/video/7688940752160196770?token=PRIVATE_QUERY_SENTINEL',textContent:'PRIVATE_OCR_SENTINEL'}];
+  const frozen=await materializationFiles(approved,changed);
+  const dish=JSON.parse(frozen.files.find(file=>file.path===`data/dishes/${frozen.dishRef}.json`).text);
+  assert.equal(dish.provenance.sourceUrl,'https://www.douyin.com/video/7688940752160196770');
+  assert(!JSON.stringify(dish).includes('PRIVATE_QUERY_SENTINEL'));
+  assert(!JSON.stringify(dish).includes('PRIVATE_OCR_SENTINEL'));
 });
 
 test('unapproved or mismatched candidate never becomes a menu dish', async () => {
@@ -123,7 +149,7 @@ test('a chef checks edited KB v2 against the approved source before a new frozen
   ]);
   const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
   assert.equal(dish.provenance.recipeVersion,2);
-  assert.deepEqual(dish.provenance.review,{reviewer:checked.reviewer,note:checked.note,approvedCandidateVersion:1});
+  assert.equal(dish.provenance.review,undefined,'private chef notes stay in KB and are represented by the snapshot hash');
   assert.equal(dish.components[0].qty.value,900);
   assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked})).body.unchanged,true);
   const detached=structuredClone(edited);detached.recipe.sources=[];
@@ -194,8 +220,7 @@ test('external or rights-pending KB artwork remains evidence, not a published di
   assert.equal(fixed.status,200,JSON.stringify(fixed.body));
   const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
   assert.equal(dish.image,undefined);
-  assert.equal(dish.provenance.evidence.media[0].url,'https://example.org/temporary.jpg');
-  assert.equal(dish.provenance.evidence.media[0].selectedRole,'cover','snapshot records the recipe role without overwriting the asset’s original role');
+  assert.deepEqual(dish.provenance.evidence.media,[{kind:'image',role:'cover',publicationState:'external-unpinned'}]);
   assert.equal(seen.length,2,'external artwork was never fetched for Git publication');
 });
 
@@ -212,7 +237,7 @@ test('a local image with a nonpublishable license remains evidence, not a Git im
   assert.equal(response.status,200,JSON.stringify(response.body));
   const dish=JSON.parse(repo.fileText(`data/dishes/${response.body.dishRef}.json`));
   assert.equal(dish.image,undefined);
-  assert.equal(dish.provenance.evidence.media[0].rights.license,'All rights reserved');
+  assert.deepEqual(dish.provenance.evidence.media,[{kind:'image',role:'cover',publicationState:'rights-pending'}]);
   assert.equal([...repo.trees.get(repo.commits.get(repo.head).tree).keys()].some(path=>path.endsWith('/images/cover.png')),false);
 });
 
