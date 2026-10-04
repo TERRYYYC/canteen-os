@@ -20,8 +20,8 @@ import { validateEntity } from "../validate.js";
 import { writePrecondition } from "../preconditions.js";
 import { commitSingleFile } from "../write.js";
 
-/** D-08：planId 不是 week-NN 形状**不拒绝**，只带 warning。 */
-const WEEK_ID_RE = /^week-\d{1,2}$/;
+/** 保留旧 week-N，同时接受不会跨年碰撞的 week-YYYY-N。其他 ID 仍只警告。 */
+const WEEK_ID_RE = /^week-(?:\d{1,2}|\d{4}-(?:[1-9]|[1-4]\d|5[0-3]))$/;
 
 export interface WriteResponse {
   ok: true;

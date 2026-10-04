@@ -108,12 +108,13 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   const name=h.all('input').find(input=>input.getAttribute('placeholder')==='新版本审核人');
   const note=h.all('input').find(input=>input.getAttribute('placeholder')==='与原作品核对的变更说明');
   assert(name&&note);h.set(name,'test-chef-2');h.set(note,'checked v2');
-  h.click('核对并固定 v2');await h.flush();
+  const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-04T12:00:00Z']));}};
+  try{h.click('核对并固定 v2');await h.flush();}finally{globalThis.Date=RealDate;}
   const write=fixture.calls.find(call=>call.url.endsWith(`/knowledge-materializations/${candidateId}`));
   assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
   assert.doesNotMatch(source.textContent,/厨房用量待核定/);
-  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
+  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-2026-40/select/kb-${id.replaceAll('-','')}-v2`));
 });
 
 test('inbox searches candidate names and shows a source-only preview before opening a video',async()=>{

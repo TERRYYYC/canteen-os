@@ -69,7 +69,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
     const photos=new Map<string,{url?:string;failed?:boolean}>();
     const disposePhotos=()=>{for(const photo of photos.values())if(photo.url)URL.revokeObjectURL(photo.url);photos.clear();};
     const today=new Date().toISOString().slice(0,10);
-    const defaultDate=weekStartOfPlanId(id,today)??today;
+    const weekStart=weekStartOfPlanId(id,today);
+    const defaultDate=weekStart&&/^week-\d{4}-\d{1,2}$/.test(id)&&today>=weekStart&&today<=shift(weekStart,6)?today:weekStart??today;
     const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:'',addBaseline:[defaultDate,'lunch',''],initialized:false,generation:++rawGeneration,reads:0};views.set(id,view);
     if(!auxiliary.has(view))auxiliary.set(view,registerAuxiliaryEdits({ownerId:`plan-buffer/${id}`,identity:{kind:'plan',id},boundary:api,operationTracking:'tickets',
       read:()=>({generation:view.generation,dirty:rawPending(view),phase:view.reads?'busy':'idle'})}));

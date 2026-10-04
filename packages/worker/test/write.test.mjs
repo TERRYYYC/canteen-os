@@ -182,6 +182,17 @@ test("D-08：planId 不是 week-NN 形状只警告不拒绝", async () => {
   assert.ok(body.warnings.includes("plan-id-shape"));
 });
 
+test("year-specific ISO-week plan ID saves without a shape warning", async () => {
+  const repo = seeded();
+  const { env } = makeEnv(repo);
+  const { status, body } = await call(worker, env, "POST", "/plan/week-2026-43", {
+    headers: { ...bearer("chef"), ...planCondition(repo) },
+    body: planFixture(),
+  });
+  assert.equal(status, 200);
+  assert.equal(body.warnings.includes("plan-id-shape"), false);
+});
+
 test("D-10：pcs 食材设了 yield → 只警告不拒绝", async () => {
   const repo = seeded();
   const { env } = makeEnv(repo);
