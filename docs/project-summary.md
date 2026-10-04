@@ -5,20 +5,20 @@ doc_kind: project-summary
 created: 2026-09-13
 ---
 
-# CanteenOS 当前状态 — 0.3.0-alpha.2
+# CanteenOS 当前分支状态 — 0.3.0-alpha.3（待审）
 
-团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。SQLite 菜谱库列表可预览已登记封面；菜谱图片进入固定菜单、备料与采购的版本接线尚未完成。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
+团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。本机隔离副本中，师傅现可从抖音候选阅读完整食材、步骤、来源和待核验项，人工确认正式菜谱并固定版本，再排入本周计划。原片截图仅供有权限的师傅核对；未核实使用权的图片不会自动进入帮厨或顾客页面。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
 
-**English.** Version 0.3.0-alpha.2 is a team-meals prerelease with planning/import, preparation, meal views, buyer-confirmed shopping, dish/ingredient editing and publishing. The SQLite recipe library previews recorded covers; fixed menu/preparation image integration remains pending. The drawer distinguishes the application version from the data publication time. Local evidence does not establish a fully writable production deployment.
+**English.** Version 0.3.0-alpha.3 is a review candidate exercised against an isolated local copy. A chef can review a full Douyin recipe candidate, create a formal recipe, freeze a version and schedule it in the current week. Source frames are private chef references; unverified images are not published to helpers or guests. The remote and public deployments have not been updated by this branch.
 
 | 当前范围 | 状态与入口 |
 |---|---|
-| 产品与接口 | 本版整合、版本展示及审查/CI 结果以对应 PR 和发布记录为准；已审候选与本地证据见 [当前调度状态](../feature-specs/2026-09-11-team-meals-dispatch.md) |
-| 发布资料 | 计划、菜品、食材和图片按同一提交投影；PWA 更新及编辑保护沿用已审实现 |
+| 产品与接口 | 本版整合与本机隔离验收正在进行；已审候选与本地证据见 [当前调度状态](../feature-specs/2026-09-11-team-meals-dispatch.md) |
+| 发布资料 | 计划、菜品、食材按同一提交投影；来源截图暂不随菜谱固定进入公开发布资料 |
 | Worker 配置 | 显式配置公开 Worker 地址；校验后进入构建。空值保持只读，不能当成模拟写入成功 |
 | QR | 原 pnpm 9.15.0 构建命令已实测生成新 QR；本地打印证据与真实站点验收分别记录 |
-| 生产上线 | 真实 Worker、隔离环境与凭据仍需核实；合入后 Actions 和预发布记录由发布负责人检查。见 [发布检查表](field-test/week-43/ops-checklist.md) |
-| 真实厨房 | 菜谱、份量、语言质量及厨房工作流仍待实地验收；未完成真实厨房周 |
+| 生产上线 | 远端和公网尚未更新此分支；合入后 Actions 和预发布记录由发布负责人检查。见 [发布检查表](field-test/week-43/ops-checklist.md) |
+| 真实厨房 | 真实候选仍待师傅逐条确认；原片播放、图片授权、份量和语言质量仍待验收；未完成真实厨房周 |
 
 版本和变更见 [CHANGELOG](../CHANGELOG.md)，使用与本地检查入口见 [README](../README.md)。本页的版本是源码版本，实际部署以 Actions 结果和网页抽屉版本为准。
 
