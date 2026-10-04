@@ -60,6 +60,8 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   if (!publication) { status('loading', ctx.t('data.loading')); return true; }
   if (publication.kind === 'legacy') { dispose(); return false; }
   if (!publication.manifest.plans.length) { status('no-plans', t('noPlans')); return true; }
+  if(!ctx.planId){status('choose-plan',word(lang,'选择一个计划，或创建本周计划后保存并发布。','Choose a plan, or create this week’s plan, save and publish it.','Виберіть план або створіть план на цей тиждень, збережіть і опублікуйте його.'));return true;}
+  if(!publication.manifest.plans.includes(ctx.planId)){status('not-published',word(lang,'所选计划尚未在本版发布。保存后还需要发布，其他计划不会替代它。','The selected plan is not in this publication. Save and publish it; other plans do not replace it.','Вибраного плану немає в цій публікації. Збережіть і опублікуйте його; інші плани його не замінюють.'));return true;}
   status('loading', ctx.t('data.loading'));
   let plan: PublishedTeamPlan;
   try { plan = await ctx.data.loadPublishedTeamPlan(publication, ctx.planId ?? ''); }
@@ -78,14 +80,17 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   let memory = choices.get(publication);
   if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all', timingOpen: false, disclosures: new Map() }; choices.set(publication, memory); }
   const all = selectRows(source, { menuPlanRef: plan.planId });
+  const href=(page:'menu'|'prep',...parts:string[])=>ctx.planSelection?.href(page,parts.join('/'))??`#/${page}${parts.length?'/'+parts.map(encodeURIComponent).join('/'):''}`;
   const slots = plan.projection.selection.filter(slot => slot.menuPlanRef === plan.planId);
   const dates = [...new Set(slots.map(slot => slot.date))].sort();
   const [datePart = '', second = '', ingredientRef = ''] = ctx.rest.split('/');
-  const date = dates.includes(datePart) ? datePart : dates.find(d => d >= dayToday()) ?? dates.at(-1) ?? '';
+  const slot=ctx.planSelection?.slot;
+  const date = dates.includes(datePart) ? datePart : slot&&dates.includes(slot.date)?slot.date:dates.find(d => d >= dayToday()) ?? dates.at(-1) ?? '';
   const mealTypes = order.filter(type => slots.some(slot => slot.date === date && slot.mealType === type));
   const matchingDishes = all.filter(row => row.meal.date === date && row.meal.dishRef === second);
   const requestedDish = page === 'menu' ? matchingDishes.find(row => row.mealIndex === memory!.menuRow) ?? matchingDishes.find(row => row.meal.mealType === memory!.meal) ?? matchingDishes[0] : undefined;
-  let selectedMeal = page === 'menu' ? requestedDish?.meal.mealType ?? (mealTypes.includes(memory.meal!) ? memory.meal! : mealTypes[0]) : mealTypes.find(type => type === second) ?? mealTypes[0];
+  const rememberedMeal=slot?.mealType??memory.meal;
+  let selectedMeal = page === 'menu' ? requestedDish?.meal.mealType ?? (mealTypes.includes(rememberedMeal!) ? rememberedMeal! : mealTypes[0]) : mealTypes.find(type => type === second) ?? (mealTypes.includes(rememberedMeal!)?rememberedMeal!:mealTypes[0]);
   const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[d]))));
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
@@ -112,6 +117,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   }
   function paint(): void {
     if (!current()) return;
+    if(selectedMeal)ctx.planSelection?.selectSlot?.(date,selectedMeal);
     stopBody?.(); replace(body); replace(dishNav);
     const rows = selectRows(source, { menuPlanRef: plan.planId, date, mealType: selectedMeal });
     if (page === 'menu') {

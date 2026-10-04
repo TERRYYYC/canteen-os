@@ -6,6 +6,9 @@ import { h, replace } from "./dom";
 import { LANGS, LANG_CHIP, LANG_NAME, LANG_TAG, getLang, setLang, t, type Lang } from "./i18n";
 import { hrefOf, type Route } from "./router";
 import { THEMES, getTheme, setTheme } from "./theme";
+import {planChoiceLabel,planHref,weekPlanId,type PlanSelection} from './plan-selection';
+import {weekStartOfPlanId} from '@canteenos/core';
+import {localDateIso} from './local-date';
 
 export interface Shell {
   /** 换一个全新的空 outlet 挂到主区域（旧的摘掉），返回给页面 render 用 */
@@ -14,6 +17,7 @@ export interface Shell {
   setActive(route: Route, rest?: string): void;
   /** Same validated publication as main; old one-argument callers retain legacy semantics. null clears unavailable navigation. */
   setBuild(build: BuildManifest | null, kind?: Publication["kind"]): void;
+  setPlanSelection(selection:PlanSelection,onChoose:(id:string)=>void):void;
   /** 语言变了 / SW 接管了本页（src/pwa.ts）：重画壳层全部文案与抽屉底部状态 */
   refresh(): void;
   openDrawer(): void;
@@ -58,6 +62,8 @@ export function mountShell(root: HTMLElement): Shell {
   let activeRest = "";
   let build: BuildManifest | null = null;
   let publicationKind: Publication["kind"] | null = null;
+  let selected:PlanSelection|undefined;
+  let choosePlan:((id:string)=>void)|undefined;
   let open = false;
 
   // ---- 顶栏 ----
@@ -71,13 +77,14 @@ export function mountShell(root: HTMLElement): Shell {
 
   // ---- 主内容 ----
   const main = h("main", { id: "main" });
+  const planBar=h('div',{class:'plan-selection'});
 
   // ---- 抽屉 ----
   const scrim = h("div", { class: "scrim", hidden: true });
   const drawer = h("div", { id: "drawer", class: "drawer", role: "dialog", "aria-modal": "true", hidden: true });
 
   const coreNav = h("nav", {class:"core-nav"});
-  root.replaceChildren(appbar, main, coreNav, scrim, drawer);
+  root.replaceChildren(appbar,planBar, main, coreNav, scrim, drawer);
 
   // ---- 语言下拉 ----
   for (const l of LANGS) select.append(h("option", { value: l, title: LANG_NAME[l] }, LANG_CHIP[l]));
@@ -89,9 +96,32 @@ export function mountShell(root: HTMLElement): Shell {
   // ---- 抽屉内容 ----
   function isCurrent(href: string): boolean {
     const path = active === 'admin' ? `${hrefOf('admin')}/${activeRest.split('/').filter(Boolean).map(encodeURIComponent).join('/')}` : hrefOf(active);
-    return href === path;
+    const target = href.split('?')[0];
+    return target === path || active !== 'admin' && target?.startsWith(`${path}/`) === true;
   }
   const localized=(zh:string,en:string,uk:string)=>({zh,en,uk})[getLang()];
+  const currentId=()=>selected?selected.id:build?.plans.at(0)??null;
+  const sharedHref=(page:Route,rest='')=>selected?.href(page,rest)??planHref(page,rest,null);
+  function renderPlanSelection():void {
+    if(!selected){replace(planBar);planBar.hidden=true;return;}
+    planBar.hidden=false;
+    const id=selected.id,lang=getLang(),control=h('select',{id:'plan-selection','aria-label':localized('所选计划','Selected plan','Вибраний план')});
+    const current=weekPlanId(),next=weekPlanId(1),choices=selected.choices;
+    control.append(h('option',{value:'',disabled:true},localized('选择或创建计划','Choose or create a plan','Виберіть або створіть план')));
+    control.append(h('option',{value:'@current'},localized('本周计划 · 选择或创建','This week · choose or create','Цей тиждень · вибрати або створити')),
+      h('option',{value:'@next'},localized('下周计划 · 选择或创建','Next week · choose or create','Наступний тиждень · вибрати або створити')));
+    for(const choice of choices)control.append(h('option',{value:choice.id},planChoiceLabel(choice,lang)));
+    if(id&&!choices.some(choice=>choice.id===id))control.append(h('option',{value:id},planChoiceLabel({id,start:weekStartOfPlanId(id,localDateIso())??undefined},lang)+' · '+localized('尚未发布','Not published yet','Ще не опубліковано')));
+    control.value=id??'';
+    control.addEventListener('change',()=>{
+      const target=control.value==='@current'?current:control.value==='@next'?next:control.value;
+      const start=weekStartOfPlanId(target,localDateIso()),end=start?new Date(Date.parse(`${start}T12:00:00Z`)+6*86400000).toISOString().slice(0,10):null;
+      const existing=control.value.startsWith('@')&&start&&end?choices.find(choice=>choice.start&&choice.end&&choice.start<=start&&choice.end>=end):undefined;
+      choosePlan?.(existing?.id??target);
+    });
+    replace(planBar,h('label',{for:'plan-selection'},h('span',{},localized('所选计划','Selected plan','Вибраний план')),control),
+      h('a',{class:'plan-selection-create',href:planHref('admin',`plan/${id??current}`,id??current)},localized(id?'排菜 / 编辑':'创建本周计划',id?'Plan / edit':'Create this week’s plan',id?'Планувати / редагувати':'Створити план на цей тиждень')));
+  }
   const iconPaths = {
     prep:'M4 8h16M6 8v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M9 4h6M3 12h3m12 0h3',
     menu:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h8m-8 4h5',
@@ -106,12 +136,12 @@ export function mountShell(root: HTMLElement): Shell {
     planImport.textContent = localized('导入','Import','Імпорт');
     planImport.setAttribute('aria-label',localized('粘贴导入','Paste import','Імпорт зі вставленого тексту'));
     coreNav.setAttribute('aria-label',localized('主导航','Main navigation','Основна навігація'));
-    const planId=build?.plans[0];
+    const planId=currentId();
     const items=[
-      {key:'prep',href:hrefOf('prep'),label:localized('备料','Prep','Підготовка')},
-      {key:'menu',href:hrefOf('menu'),label:localized('菜单','Menu','Меню')},
-      {key:'purchase',href:hrefOf('purchase'),label:localized('采购','Shopping','Закупівлі')},
-      {key:'plan',href:planId?`${hrefOf('admin')}/plan/${encodeURIComponent(planId)}`:null,label:localized('菜单计划','Plan','План')},
+      {key:'prep',href:sharedHref('prep'),label:localized('备料','Prep','Підготовка')},
+      {key:'menu',href:sharedHref('menu'),label:localized('菜单','Menu','Меню')},
+      {key:'purchase',href:sharedHref('purchase'),label:localized('采购','Shopping','Закупівлі')},
+      {key:'plan',href:planId?sharedHref('admin',`plan/${planId}`):selected?planHref('admin',`plan/${weekPlanId()}`,weekPlanId()):null,label:localized('菜单计划','Plan','План')},
     ] as const;
     replace(coreNav,...items.map(item=>{
       const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPaths[item.key]}"/></svg>`;
@@ -128,7 +158,7 @@ export function mountShell(root: HTMLElement): Shell {
     const items: HTMLElement[] = NAV.map(({ route, icon, l1, l2 }) =>
       h(
         "a",
-        { class: "di", href: hrefOf(route), "aria-current": route === active ? "page" : null },
+        { class: "di", href: sharedHref(route), "aria-current": route === active ? "page" : null },
         h("span", { class: "ic", "aria-hidden": "true" }, icon),
         h("span", { class: "tx" },
           h("span", { class: "l1" }, t(route === 'menu' && team ? 'page.teamMenu' : l1)),
@@ -144,8 +174,8 @@ export function mountShell(root: HTMLElement): Shell {
         h("span", { class: "l1" }, t("drawer.chef")),
         h("span", { class: "l2" }, t("drawer.chef.role"))),
     );
-    const planId = build?.plans[0];
-    const planHref = planId ? `${hrefOf('admin')}/plan/${encodeURIComponent(planId)}` : null;
+    const planId = currentId();
+    const planHref = planId ? sharedHref('admin',`plan/${planId}`) : selected?sharedHref('admin',`plan/${weekPlanId()}`):null;
     const plan = h(
       planHref ? "a" : "div",
       { class: planHref ? "di" : "di soon", href: planHref, "aria-disabled": planHref ? null : "true",
@@ -212,6 +242,7 @@ export function mountShell(root: HTMLElement): Shell {
     langLabel.textContent = t("lang.label");
     corner.setAttribute("aria-label", open ? t("drawer.close") : t("drawer.open"));
     renderDrawer();
+    renderPlanSelection();
   }
 
   // ---- 打开 / 关闭 ----
@@ -223,6 +254,7 @@ export function mountShell(root: HTMLElement): Shell {
     drawer.hidden = false;
     main.setAttribute("inert", "");
     coreNav.setAttribute("inert", "");
+    planBar.setAttribute("inert", "");
     corner.setAttribute("aria-expanded", "true");
     corner.setAttribute("aria-label", t("drawer.close"));
     corner.classList.add("open");
@@ -236,6 +268,7 @@ export function mountShell(root: HTMLElement): Shell {
     drawer.hidden = true;
     main.removeAttribute("inert");
     coreNav.removeAttribute("inert");
+    planBar.removeAttribute("inert");
     corner.setAttribute("aria-expanded", "false");
     corner.setAttribute("aria-label", t("drawer.open"));
     corner.classList.remove("open");
@@ -299,6 +332,7 @@ export function mountShell(root: HTMLElement): Shell {
       publicationKind = b ? kind : null;
       renderDrawer();
     },
+    setPlanSelection(value,onChoose){selected=value;choosePlan=onChoose;renderPlanSelection();renderDrawer();},
     refresh: renderChrome,
     openDrawer,
     closeDrawer: () => closeDrawer(),

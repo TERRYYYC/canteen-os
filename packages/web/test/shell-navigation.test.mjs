@@ -144,3 +144,24 @@ test('core navigation remains visible, uses verified plan, and preserves current
  e.shell.openDrawer();assert.equal(nav.hasAttribute('inert'),true);e.shell.closeDrawer();assert.equal(nav.hasAttribute('inert'),false);
  e.shell.setBuild(null);assert.equal(nav.querySelectorAll('a').some(a=>a.getAttribute('href').startsWith('#/admin/plan')),false);
 });
+
+test('dated shared links retain active navigation in the core bar and refreshed drawer',async()=>{
+ const e=await setup(),id='week-2026-41';
+ e.shell.setPlanSelection({id,choices:[],href:(route,rest='')=>`#/${route}${rest?'/'+rest:route==='prep'?'/2026-10-06/dinner':route==='menu'?'/2026-10-06':''}?plan=${id}&meal=dinner`,select(){}},()=>{});
+ for(const route of ['menu','prep']){
+  e.shell.setActive(route,route==='prep'?'2026-10-06/dinner':'2026-10-06');
+  assert.equal(e.root.querySelector('.core-nav').querySelector('[aria-current="page"]')?.getAttribute('href').split('/')[1],route);
+  e.shell.openDrawer();e.shell.refresh();
+  assert.equal(e.drawer.querySelector('[aria-current="page"]')?.getAttribute('href').split('/')[1],route);
+  e.shell.closeDrawer();
+ }
+});
+
+test('shared plan controls become inert while the drawer is modal',async()=>{
+ const e=await setup();
+ e.shell.setPlanSelection({id:'week-2026-41',choices:[],href:route=>`#/${route}?plan=week-2026-41`,select(){}},()=>{});
+ const selection=e.root.querySelector('.plan-selection');
+ e.shell.openDrawer();assert.equal(selection.hasAttribute('inert'),true);
+ e.shell.refresh();assert.equal(selection.hasAttribute('inert'),true);
+ e.shell.closeDrawer();assert.equal(selection.hasAttribute('inert'),false);
+});

@@ -54,9 +54,20 @@ async function setup({existing=false,mode='mock'}={}){
   if(u.pathname==='/asset')return failure(404,'not_found');throw new Error('Unexpected fixture request');
  }});
  const render=page.createPurchaseRenderer(api),coverage=page.createPageReloadCoverage();
- const start=(rest='new/team-week',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{rest,lang,planId:'team-week',route:'purchase',setReloadCoverage:coverage.beginRender('purchase',rest)});return{el,promise};};
- return{page,api,render,calls,writes,sources,start,failIndex(){indexFails=true;},async mount(rest,lang){const x=start(rest,lang);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},renameIngredient(id,name){snap.ingredients[id].name=name;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
+ const start=(rest='new/team-week',lang='en',planId='team-week')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{rest,lang,planId,route:'purchase',setReloadCoverage:coverage.beginRender('purchase',rest)});return{el,promise};};
+ return{page,api,render,calls,writes,sources,start,failIndex(){indexFails=true;},async mount(rest,lang,planId){const x=start(rest,lang,planId);await x.promise;return x.el;},async flush(){for(let i=0;i<12;i++)await tick();},snapshot:()=>page.inspectReloadSafety(),hold(match){let release;const promise=new Promise(r=>release=r);const g={match,promise,release,claimed:false};gates.push(g);return g;},auth(){identity++;page.changeAuth();},revision(v){revision=v;},renameIngredient(id,name){snap.ingredients[id].name=name;},post(v){post=v;},cleanup(){try{for(const g of gates)g.release();api.dispose();document.body.replaceChildren();}finally{restoreGlobals();}}};
 }
+test('ordinary new shopping follows selected plan while each plan retains its own unapplied input',async()=>{
+ const f=await setup();try{let el=await f.mount('new','en','team-week');assert.equal(focus(el,'plan-ids').value,'team-week');input(el,'new-list-id','unfinished-a');
+  el=await f.mount('new','en','next-week');assert.equal(focus(el,'plan-ids').value,'next-week');assert.notEqual(focus(el,'new-list-id').value,'unfinished-a');
+  el=await f.mount('new','uk','team-week');assert.equal(focus(el,'new-list-id').value,'unfinished-a');assert.equal(focus(el,'plan-ids').value,'team-week');assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
+});
+test('existing shopping list retains original basis when shared selection and publication change',async()=>{
+ const f=await setup({existing:true});try{const el=await f.mount('team-shop','en','next-week');f.revision(B);
+  const again=await f.mount('team-shop','uk','another-week');assert.equal(focus(again,'plan-ids').value,'team-week');assert.equal(f.sources.get('team-shop').content.basis.sourceRevision,A);assert.deepEqual(f.sources.get('team-shop').content.basis.selection,selection);assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
+});
 async function scope(f){const el=await f.mount();btn(el,'Read latest saved plans').click();await f.flush();assert.ok(boxes(el).length>1);return el;}
 
 test('purchase entry discovers server-saved lists with dates and opens their original identity',async()=>{

@@ -55,7 +55,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const detail=!creating&&(detailKind==='ingredient'||detailKind==='dish')&&validId(detailId);
   if((!creating&&!validId(routeId))||extra||(!creating&&(rangeDate||detailKind&&!detail))||(creating&&(!validRange||detailKind&&!validId(detailKind)||range!=='all'&&!rangeDate))){el.append(h('p',{role:'alert'},t('missing')));return;}
   if(api.mode==='unconfigured'){el.append(h('p',{class:'tm-status',role:'status'},tr('unconfigured')));return;}
-  const key=creating?`new/${detailKind}${detailId?`/${detailId}/${rangeDate}`:''}`:routeId;
+  const creationPlan=detailKind||ctx.planId||'';
+  const key=creating?`new/${creationPlan}${detailId?`/${detailId}/${rangeDate}`:''}`:routeId;
   const previous=views.get(key);
   if(creating&&previous?.completed&&!rawPending(previous)&&!previous.active){previous.reload.dispose();views.delete(key);}
   const view=views.get(key)??createView(key,creating?`shop-${new Date().toISOString().slice(0,10)}-${crypto.randomUUID().slice(0,8)}`:routeId,creating?(detailKind||ctx.planId||''):ctx.planId||'');views.set(key,view);covered=true;

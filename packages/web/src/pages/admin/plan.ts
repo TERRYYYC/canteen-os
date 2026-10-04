@@ -91,6 +91,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(version){version.remove();version.classList.add('tm-plan-version');}
       if(s.draft){
         selectPlan(api,id,s.draft.name);
+        ctx.planSelection?.select(id,s.draft.name);
         const dateRange=planRange(s.draft);
         output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')));
         if(dateRange)output.push(h('p',{class:'tm-plan-note'},`${lang==='zh'?'计划日期':lang==='en'?'Plan dates':'Дати плану'}：${dateRange.start} — ${dateRange.end}`));

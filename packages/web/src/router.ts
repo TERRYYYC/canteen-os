@@ -16,6 +16,9 @@ export interface RouteState {
   page: Route;
   /** 页面段之后的部分（已 decodeURIComponent，不含开头的 "/"）；无则 "" */
   rest: string;
+  /** Public resource identity only; query never becomes a page's legacy rest. */
+  planId?: string;
+  mealType?:'breakfast'|'lunch'|'dinner';
 }
 
 function isRoute(s: string): s is Route {
@@ -24,7 +27,8 @@ function isRoute(s: string): s is Route {
 
 /** 解析任意 hash（"#/prep/x" / "#prep" / ""）；不合法返回 null */
 export function parseHash(hash: string): RouteState | null {
-  const m = /^#\/?([^/?#]*)(?:\/(.*))?$/.exec(hash);
+  const [path,query=''] = hash.split('?');
+  const m = /^#\/?([^/?#]*)(?:\/(.*))?$/.exec(path!);
   if (!m) return null;
   const page = m[1] ?? "";
   if (!isRoute(page)) return null;
@@ -34,7 +38,9 @@ export function parseHash(hash: string): RouteState | null {
   } catch {
     /* 保留原样 */
   }
-  return { page, rest };
+  const plan=new URLSearchParams(query).get('plan');
+  const meal=new URLSearchParams(query).get('meal');
+  return { page, rest, ...(/^[a-z][a-z0-9-]*$/.test(plan??'')?{planId:plan!}:{}),...(['breakfast','lunch','dinner'].includes(meal??'')?{mealType:meal as RouteState['mealType']}:{}) };
 }
 
 export function hrefOf(page: Route, rest = ""): string {
@@ -64,7 +70,7 @@ export function normalize(): boolean {
   return true;
 }
 
-type Listener = (page: Route, rest: string) => void;
+type Listener = (page: Route, rest: string, planId?:string,mealType?:RouteState['mealType']) => void;
 const listeners = new Set<Listener>();
 let bound = false;
 
@@ -75,13 +81,13 @@ export function onRoute(fn: Listener, immediate = true): () => void {
     bound = true;
     window.addEventListener("hashchange", () => {
       if (normalize()) return; // replace 会再触发一次 hashchange
-      const { page, rest } = routeState();
-      for (const l of listeners) l(page, rest);
+      const { page, rest,planId,mealType } = routeState();
+      for (const l of listeners) l(page, rest,planId,mealType);
     });
   }
   if (immediate) {
-    const { page, rest } = routeState();
-    fn(page, rest);
+    const { page, rest,planId,mealType } = routeState();
+    fn(page, rest,planId,mealType);
   }
   return () => {
     listeners.delete(fn);
