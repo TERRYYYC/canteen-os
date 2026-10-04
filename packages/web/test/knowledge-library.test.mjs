@@ -81,6 +81,52 @@ test('formal recipe editor keeps a long source behind a short, expandable eviden
   assert.equal(evidence.querySelector('p').textContent,original,'full source is available unchanged on expansion');
   assert.deepEqual(recipe.sources,[{sourceId:id2}],'presentation does not alter recipe source references');
 });
+test('formal editor shows private candidate frames by explicit step link without publishing them',async()=>{
+  const otherStep='10000000-0000-4000-8000-000000000003';
+  const assets=[1,2,3,4].map(n=>`20000000-0000-4000-8000-${String(n).padStart(12,'0')}`);
+  const recipe={...detail().recipe,steps:[{id:id2,text:{zh:'皮朝下放入煲中'}}],assets:[]};
+  const linked={recipeId:id,recipeVersion:1,candidateId:id2,approvedCandidateVersion:1,
+    illustrations:[
+      {assetId:assets[0],role:'ingredient',sourceStepId:null,caption:{zh:'配料盘'},rightsState:'pending'},
+      {assetId:assets[1],role:'step',sourceStepId:id2,caption:{zh:'皮朝下'},rightsState:'pending'},
+      {assetId:assets[2],role:'step',sourceStepId:otherStep,caption:{zh:'旧步骤'},rightsState:'pending'},
+      {assetId:assets[3],role:'finished',sourceStepId:null,caption:{zh:'成品'},rightsState:'verified'}],
+    stepLinks:[{sourceStepId:id2,recipeStepId:id2},{sourceStepId:otherStep,recipeStepId:null}]};
+  const create=URL.createObjectURL,revoke=URL.revokeObjectURL;
+  URL.createObjectURL=blob=>`blob:private-${blob.size}`;URL.revokeObjectURL=()=>{};
+  try{
+    const h=await setup(url=>url.includes('/source-illustrations?version=1')?json(linked):url.includes('/assets/')?new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}}):json(detail({recipe})));
+    await h.mount();await h.flush();
+    const panel=h.all('.kb-source-reference-panel')[0];assert(panel);
+    assert.equal(h.all('.kb-form')[0].querySelector('.kb-source-reference-panel'),null,'reference panel is outside the editable recipe form');
+    const groups=h.all('.kb-source-reference-group');
+    assert(groups.some(group=>group.getAttribute('data-kind')==='ingredient'&&group.textContent.includes('配料盘')));
+    assert(groups.some(group=>group.getAttribute('data-kind')==='finished'&&group.textContent.includes('成品')));
+    const stepGroup=groups.find(group=>group.getAttribute('data-kind')==='step');
+    const steps=stepGroup.querySelectorAll('.kb-source-reference-card');
+    assert(steps.some(card=>card.getAttribute('data-linked-step-id')===id2&&card.textContent.includes('皮朝下')));
+    assert(steps.some(card=>card.getAttribute('data-linked-step-id')===null&&card.textContent.includes('未关联到当前步骤')));
+    assert.match(panel.textContent,/使用权待核实/);
+    assert.deepEqual(recipe.assets,[]);
+    assert.equal(fixture.calls.filter(call=>call.url.includes('/assets/')).length,4,'frames load through authenticated asset route');
+    assert(fixture.calls.some(call=>call.url.endsWith(`/recipes/${id}/source-illustrations?version=1`)));
+  }finally{URL.createObjectURL=create;URL.revokeObjectURL=revoke;}
+});
+test('saving a new recipe revision rereads its fixed source illustration mapping',async()=>{
+  const recipe={...detail().recipe,steps:[{id:id2,text:{zh:'焖煮'}}],assets:[]};
+  let saved;
+  const h=await setup((url,init)=>{
+    if(url.endsWith(`/recipes/${id}/source-illustrations?version=1`))return json({recipeId:id,recipeVersion:1,candidateId:id2,approvedCandidateVersion:1,illustrations:[],stepLinks:[]});
+    if(url.endsWith(`/recipes/${id}/source-illustrations?version=2`))return json({recipeId:id,recipeVersion:2,candidateId:id2,approvedCandidateVersion:1,illustrations:[{assetId,role:'step',sourceStepId:id2,caption:{zh:'旧步骤图'},rightsState:'pending'}],stepLinks:[{sourceStepId:id2,recipeStepId:null}]});
+    if(url.includes('/assets/'))return new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}});
+    if(init.method==='PUT'){saved=JSON.parse(init.body);return json(detail({version:2,recipe:saved}),200,{etag:'"v2"'});}
+    return json(detail({recipe}));
+  });
+  await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'新版本');h.click('保存菜谱');await h.flush();
+  assert(fixture.calls.some(call=>call.url.endsWith(`/recipes/${id}/source-illustrations?version=2`)));
+  assert.match(h.el.textContent,/旧步骤图.*未关联到当前步骤/);
+  assert.deepEqual(saved.assets,[],'source reference frames never enter publishable recipe assets');
+});
 test('an approved source exposes a deliberate v2 chef check before freezing its new version',async()=>{
   const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
   const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
@@ -386,7 +432,7 @@ test('unknown new-save retries exact request/key and does not create duplicate r
   await h.mount('new');assert.equal(h.field('菜名（至少一种语言）','中文').value,'','another independent new draft is supported');
 });
 test('late create completion updates cached draft but does not navigate away from another task', async () => {
-  const held=defer();const h=await setup(()=>held.promise);await h.mount('new');h.set(h.field('菜名（至少一种语言）','中文'),'晚到');h.click('保存菜谱');await h.flush();h.leave();held.resolve(json(detail(),201));await h.flush();assert.equal(location.hash,'#/admin/plan');await h.mount(id);assert.equal(fixture.calls.length,1);assert.equal(h.field('菜名（至少一种语言）','中文').value,'红烧肉');
+  const held=defer();const h=await setup(()=>held.promise);await h.mount('new');h.set(h.field('菜名（至少一种语言）','中文'),'晚到');h.click('保存菜谱');await h.flush();h.leave();held.resolve(json(detail(),201));await h.flush();assert.equal(location.hash,'#/admin/plan');await h.mount(id);assert.equal(fixture.calls.filter(call=>call.url.endsWith(`/recipes/${id}`)).length,0,'cached draft avoids a redundant recipe read');assert.equal(fixture.calls.filter(call=>call.url.endsWith(`/recipes/${id}/source-illustrations?version=1`)).length,1);assert.equal(h.field('菜名（至少一种语言）','中文').value,'红烧肉');
 });
 test('language change while saving preserves inputs and refreshes the current editor on completion',async()=>{
   const held=defer();const h=await setup((url,init)=>init.method==='PUT'?held.promise:json(detail()));await h.mount();h.set(h.field('菜名（至少一种语言）','中文'),'语言切换草稿');h.click('保存菜谱');await h.flush();await h.mount(id,'en');assert.equal(h.field('Title (at least one language)','中文').value,'语言切换草稿');held.resolve(json(detail({version:2,recipe:{...detail().recipe,title:{zh:'语言切换草稿',en:'Braised pork',uk:'Тушкована свинина'}}}),200,{etag:'"v2"'}));await h.flush();assert.match(h.el.textContent,/Saved\. Each edit/);assert.equal(h.m.inspectReloadSafety().reason,'clear');

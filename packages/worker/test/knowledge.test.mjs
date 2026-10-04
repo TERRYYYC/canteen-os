@@ -35,15 +35,15 @@ function send(f, method, path, { role = 'chef', body, headers = {}, raw } = {}) 
   }), f.env);
 }
 
-test('all knowledge routes require Bearer; buyers read all routes but cannot write; chefs and admins can write', async () => {
+test('all knowledge routes require Bearer; source and image bytes stay chef-private', async () => {
   for (const [method, template] of KNOWLEDGE_ROUTES) {
-    const path = template.replace(':id', id).replace(':version', '1');
+    const path = template.replace(':id', id).replace(':version', '1') + (template.endsWith('/source-illustrations') ? '?version=1' : '');
     const upload = path.endsWith('/upload');
     const request = method === 'GET' ? {} : upload ? { raw: '--test--\r\n', headers: { 'Content-Type': 'multipart/form-data; boundary=test' } } : { body: {} };
     for (const role of [null, 'buyer', 'chef', 'admin']) {
       const f = fixture();
       const response = await send(f, method, path, { ...request, role });
-      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites')) ? 403 : method === 'POST' ? 201 : 200;
+      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites') || template.endsWith('/source-illustrations') || template === '/knowledge/assets/:id/content') ? 403 : method === 'POST' ? 201 : 200;
       assert.equal(response.status, expected, `${role} ${method} ${path}: ${await response.text()}`);
       assert.equal(f.seen.length, expected < 400 ? 1 : 0);
       assert.equal(f.gitCalls, 0);
@@ -98,6 +98,32 @@ test('favorites search permits an empty q but rejects duplicate, control and ove
     const f = fixture();
     assert.equal((await send(f, 'GET', '/knowledge/favorites/items?q=%E9%99%88%E7%9A%AE', { role })).status, role ? 403 : 401);
     assert.equal(f.seen.length, 0);
+  }
+});
+
+test('source illustrations are chef-private and tied to one fixed recipe revision', async () => {
+  const body={recipeId:id,recipeVersion:2,candidateId:id,approvedCandidateVersion:1,illustrations:[],stepLinks:[]};
+  const f=fixture(async()=>asJson(body));
+  const path=`/knowledge/recipes/${id}/source-illustrations?version=2`;
+  const response=await send(f,'GET',path);
+  assert.equal(response.status,200);
+  assert.deepEqual(await response.json(),body);
+  assert.equal(f.seen[0].url,`http://127.0.0.1:4390/api/v1/recipes/${id}/source-illustrations?version=2`);
+  assert.equal((await send(fixture(),'GET',path,{role:'admin'})).status,200);
+  assert.equal((await send(fixture(),'GET',path,{role:'buyer'})).status,403);
+  for(const suffix of ['', '?version=0', '?version=01', '?version=9007199254740992', '?version=1&version=2', '?version=2&url=https://outside.invalid']) {
+    const denied=fixture();
+    assert.equal((await send(denied,'GET',`/knowledge/recipes/${id}/source-illustrations${suffix}`)).status,400,suffix);
+    assert.equal(denied.seen.length,0);
+  }
+});
+
+test('private KB image bytes never reach an anonymous or buyer caller',async()=>{
+  for(const [role,expected] of [[null,401],['buyer',403],['chef',200],['admin',200]]){
+    const f=fixture();
+    const response=await send(f,'GET',`/knowledge/assets/${id}/content`,{role});
+    assert.equal(response.status,expected,`${role} image access`);
+    assert.equal(f.seen.length,expected===200?1:0);
   }
 });
 

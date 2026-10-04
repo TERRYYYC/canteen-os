@@ -9,6 +9,8 @@ export interface Recipe { title: I18n; description?: I18n; tags?: string[]; base
 export interface Media { rights?: {license: string; author?: string; sourceUrl?: string}; assetId: string; kind: string; url: string; status: string; role?: AssetRef['role']; stepId?: string; clip?: AssetRef['clip'] }
 export interface Source { id: string; kind: 'web' | 'video' | 'text' | 'file'; title?: string; author?: string; url?: string; textContent?: string; assetId?: string }
 export interface RecipeDetail { legacy?: unknown; id: string; version: number; recipe: Recipe; createdAt: string; updatedAt?: string; archivedAt?: string | null; media?: Media[]; sources?: Source[]; sourceRecords?: Source[] }
+export interface SourceIllustration { assetId: string; role: 'ingredient' | 'step' | 'finished'; sourceStepId: string | null; caption?: I18n; rightsState: 'pending' | 'verified'; sourceRecordId?: string }
+export interface SourceIllustrationLinks { recipeId: string; recipeVersion: number; candidateId: string | null; approvedCandidateVersion: number | null; illustrations: SourceIllustration[]; stepLinks: { sourceStepId: string; recipeStepId: string | null }[] }
 export interface Summary { id: string; title: I18n; description?: I18n; tags?: string[]; version: number; updatedAt: string; cover?: Media }
 export interface RecipeList { items: Summary[]; nextCursor: string | null }
 export interface Revision { version: number; createdAt: string }

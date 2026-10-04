@@ -20,8 +20,10 @@ function targetPath(ctx: Ctx): string {
   const template = ctx.endpoint.slice(ctx.request.method.length + 1);
   const canonical = template.replace(/:([a-z]+)/g, (_match, key: string) => ctx.params[key] ?? "");
   if (canonical !== ctx.url.pathname) throw fail("bad_path", { message: "知识库接口路径不正确" });
+  const sourceIllustrations = ctx.endpoint === "GET /knowledge/recipes/:id/source-illustrations";
   const allowed = ctx.request.method !== "GET" ? new Map<string, number>()
     : canonical === "/knowledge/recipes" ? new Map([["q", 200], ["tag", 100], ["cursor", 2000], ["limit", 3]])
+      : sourceIllustrations ? new Map([["version", 16]])
       : canonical === "/knowledge/favorites/items" ? new Map([["folder", 200], ["state", 40], ["q", 200], ["cursor", 1000], ["limit", 3]])
       : ["/knowledge/ingredients", "/knowledge/techniques"].includes(canonical)
         ? new Map([["q", 200], ["cursor", 1000], ["limit", 3]]) : new Map<string, number>();
@@ -30,8 +32,10 @@ function targetPath(ctx: Ctx): string {
     const max = allowed.get(key);
     if (max === undefined || seen.has(key) || value.length > max || /[\u0000-\u001f\u007f]/.test(value)) throw fail("bad_path", { message: "知识库查询参数不正确" });
     if (key === "limit" && (!/^[1-9][0-9]{0,2}$/.test(value) || Number(value) > 100)) throw fail("bad_path", { message: "每页数量必须为 1 到 100" });
+    if (key === "version" && (!/^[1-9][0-9]*$/.test(value) || !Number.isSafeInteger(Number(value)))) throw fail("bad_path", { message: "菜谱版本必须是正整数" });
     seen.add(key);
   });
+  if (sourceIllustrations && !seen.has("version")) throw fail("bad_path", { message: "必须指定固定菜谱版本" });
   return `/api/v1${canonical.slice("/knowledge".length)}${ctx.url.searchParams.size ? `?${ctx.url.searchParams.toString()}` : ""}`;
 }
 

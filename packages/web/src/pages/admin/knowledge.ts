@@ -4,11 +4,12 @@ import { h, replace } from '../../dom';
 import type { PageCtx } from '../../types';
 import { getAuthSessionVersion, onAuthSessionChange } from '../../admin/token';
 import { onRoute } from '../../router';
-import { getKnowledgeApi, KnowledgeError, createAttempt, type RecipeDetail, type RecipeList, type Revision } from '../../api/knowledge';
+import { getKnowledgeApi, KnowledgeError, createAttempt, type RecipeDetail, type RecipeList, type Revision, type SourceIllustrationLinks } from '../../api/knowledge';
 import { registerAuxiliaryEdits } from '../../view-models/reload-safety';
 import { words, button, field, input, select, multilingual, section, order, jsonEvidence, safeExternal, type Words } from './knowledge/ui';
 import { fresh, editable, dirty, pending, validate, removeStep, type Draft } from './knowledge/model';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
+import { sourceIllustrationPanel } from './knowledge/source-illustrations';
 
 const drafts = new Map<string, Draft>();
 let mounted: HTMLElement | null = null;
@@ -200,6 +201,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
   let historyOpen = false, historyLoaded = false, evidenceOpen = false;
   let revisionRequest = 0, historyRequest = 0, seenHistoryEpoch = draft.historyEpoch;
   let history: Revision[] = [], selected: RecipeDetail | undefined, historicalError = '', evidence: unknown;
+  let referenceVersion = 0, referenceRequest = 0, references: SourceIllustrationLinks | undefined, referenceError = '';
   let statusLabel: HTMLElement, saveButton: HTMLButtonElement;
   function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; if (repaint) paint(); else updateStatus(); }
   function updateStatus() {
@@ -218,6 +220,40 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     draft.historyEpoch++;
     draft.recipe = editable(detail.recipe); draft.baseline = JSON.stringify(draft.recipe); draft.detail = detail;
     draft.etag = etag || undefined; draft.media = detail.media || []; draft.sources = detail.sourceRecords || detail.sources || []; draft.pending = {}; draft.rightsChanged = false; draft.generation++;
+    referenceRequest++;referenceVersion=0;references=undefined;referenceError='';
+  }
+  async function loadReferences(version:number){
+    if(!draft.detail)return;
+    const recipeId=draft.detail.id,request=++referenceRequest;
+    referenceVersion=version;references=undefined;referenceError='';
+    try{
+      const {data}=await api.request<SourceIllustrationLinks>(`/recipes/${recipeId}/source-illustrations?version=${version}`);
+      if(!current()||!root.isConnected||request!==referenceRequest||draft.detail?.version!==version)return;
+      if(data.recipeId!==recipeId||data.recipeVersion!==version||!Array.isArray(data.illustrations)||!Array.isArray(data.stepLinks))throw new Error('Reference mapping does not match this recipe revision');
+      references=data;
+    }catch(error){
+      if(!current()||!root.isConnected||request!==referenceRequest||draft.detail?.version!==version)return;
+      referenceError=error instanceof KnowledgeError&&error.status===403
+        ?t('原片参考图仅师傅可查看。','Source frames are available only to chefs.','Кадри доступні лише шефам.')
+        :t('原片参考图暂时无法读取，请重试。','Source frames could not be loaded. Retry.','Не вдалося завантажити кадри. Спробуйте ще раз.');
+    }
+    if(current()&&root.isConnected&&request===referenceRequest)paint();
+  }
+  function referenceImage(assetId:string,target:HTMLElement,alt:string){
+    const controller=new AbortController(),version=draft.detail?.version;
+    coverControllers.add(controller);
+    void api.image(`/api/v1/assets/${assetId}/content`,controller.signal).then(blob=>{
+      if(controller.signal.aborted||!current()||!target.isConnected||draft.detail?.version!==version)return;
+      const objectUrl=URL.createObjectURL(blob);urls.add(objectUrl);
+      const image=h('img',{src:objectUrl,alt,loading:'lazy'});
+      image.addEventListener('error',()=>{
+        if(urls.delete(objectUrl))URL.revokeObjectURL(objectUrl);
+        if(!controller.signal.aborted&&target.isConnected){target.setAttribute('data-asset-state','unavailable');replace(target,t('原片图未载入','Source frame unavailable','Кадр недоступний'));}
+      });
+      target.setAttribute('data-asset-state','available');replace(target,image);
+    }).catch(()=>{
+      if(!controller.signal.aborted&&current()&&target.isConnected){target.setAttribute('data-asset-state','unavailable');replace(target,t('原片图未载入','Source frame unavailable','Кадр недоступний'));}
+    }).finally(()=>coverControllers.delete(controller));
   }
   async function save(archive = false) {
     if (draft.busy || draft.detail?.archivedAt) return;
@@ -297,6 +333,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       historyLoaded = false; history = []; selected = undefined; historicalError = '';
       if (historyOpen) void refreshHistory();
     }
+    if(draft.detail&&referenceVersion!==draft.detail.version)void loadReferences(draft.detail.version);
     releaseImages();
     const recipe = draft.recipe;
     const header = h('div', { class: 'kb-header' }, h('div', {}, h('a', { href: href() }, t('← 返回菜谱库', '← Back to library', '← До бібліотеки')), h('h2', {}, label(recipe.title, ctx.lang) || t('收藏新做法', 'New recipe', 'Новий рецепт')), h('small', {}, draft.detail ? `v${draft.detail.version}` : t('同名也会独立保存', 'A matching name still creates an independent recipe', 'Однакова назва також створює окремий рецепт'))));
@@ -327,11 +364,21 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       removeStep(recipe, step.id); changed(true);
     }, t), multilingual(t('步骤说明', 'Step instructions', 'Опис кроку'), step.text, value => { step.text = value; changed(); }, true))));
     steps.append(button(t('＋ 添加步骤', '＋ Add step', '＋ Додати крок'), () => { (recipe.steps ??= []).push({ id: crypto.randomUUID(), text: {} }); changed(true); }));
-    const form = h('fieldset', { class: 'kb-form', disabled: draft.busy || draft.unknown || !!draft.detail?.archivedAt }, base, ingredients, steps, ...mediaEditor(draft, view));
+    const disabled=draft.busy||draft.unknown||!!draft.detail?.archivedAt;
+    const recipeForm=h('fieldset',{class:'kb-form',disabled},base,ingredients,steps);
+    const referencePanel=draft.detail
+      ?referenceError
+        ?h('section',{class:'kb-panel kb-source-reference-panel'},h('h3',{},t('原片参考图（只读）','Source video frames (read only)','Кадри оригіналу (лише читання)')),
+          status(referenceError,true),button(t('重试参考图','Retry source frames','Повторити кадри'),()=>{referenceVersion=0;paint();}))
+        :references
+          ?sourceIllustrationPanel(references,recipe,ctx.lang,t,referenceImage)
+          :section(t('原片参考图（只读）','Source video frames (read only)','Кадри оригіналу (лише читання)'),status(t('正在读取原片参考图…','Loading source frames…','Завантаження кадрів…')))
+      :null;
+    const mediaForm=h('fieldset',{class:'kb-form',disabled},...mediaEditor(draft,view));
     statusLabel = h('span', { role: 'status' });
     saveButton = button(draft.unknown ? t('核对保存结果', 'Check save result', 'Перевірити збереження') : t('保存菜谱', 'Save recipe', 'Зберегти рецепт'), () => void save(), true);
     const footer = h('div', { class: 'kb-savebar' }, statusLabel, saveButton);
-    replace(root, header, notices, historical, form, footer);
+    replace(root, header, notices, historical, recipeForm, referencePanel, mediaForm, footer);
     if (draft.detail && !draft.detail.archivedAt) {
       const archive = button(t('归档这款菜谱', 'Archive recipe', 'Архівувати рецепт'), () => void save(true)); archive.disabled = draft.busy || draft.unknown; root.append(h('p', {}, archive));
     }

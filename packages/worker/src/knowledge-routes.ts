@@ -6,6 +6,7 @@ export const KNOWLEDGE_ROUTES = [
   ["GET", "/knowledge/health"],
   ["GET", "/knowledge/recipes"],
   ["GET", "/knowledge/recipes/:id"],
+  ["GET", "/knowledge/recipes/:id/source-illustrations"],
   ["GET", "/knowledge/recipes/:id/revisions"],
   ["GET", "/knowledge/recipes/:id/revisions/:version"],
   ["POST", "/knowledge/recipes"],
