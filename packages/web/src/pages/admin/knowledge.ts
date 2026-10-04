@@ -9,7 +9,7 @@ import { registerAuxiliaryEdits } from '../../view-models/reload-safety';
 import { words, button, field, input, select, multilingual, section, order, jsonEvidence, safeExternal, type Words } from './knowledge/ui';
 import { fresh, editable, dirty, pending, validate, removeStep, type Draft } from './knowledge/model';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
-import { sourceIllustrationPanel } from './knowledge/source-illustrations';
+import { sourceIllustrationPanel, syncSourceIllustrationLinks } from './knowledge/source-illustrations';
 
 const drafts = new Map<string, Draft>();
 let mounted: HTMLElement | null = null;
@@ -203,7 +203,10 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
   let history: Revision[] = [], selected: RecipeDetail | undefined, historicalError = '', evidence: unknown;
   let referenceVersion = 0, referenceRequest = 0, references: SourceIllustrationLinks | undefined, referenceError = '';
   let statusLabel: HTMLElement, saveButton: HTMLButtonElement;
-  function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; if (repaint) paint(); else updateStatus(); }
+  function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; if (repaint) paint(); else {
+    if(references&&draft.detail){const panel=root.querySelector<HTMLElement>('.kb-source-reference-panel');if(panel)syncSourceIllustrationLinks(panel,references,draft.recipe,draft.detail.recipe,ctx.lang,t);}
+    updateStatus();
+  } }
   function updateStatus() {
     if (statusLabel) statusLabel.textContent = draft.unknown ? t('保存结果待确认', 'Save result unconfirmed', 'Результат збереження не підтверджено') : dirty(draft) ? t('有内容尚未保存', 'Unsaved changes', 'Є незбережені зміни') : t('内容已保存', 'Saved', 'Збережено');
     if (saveButton) saveButton.disabled = draft.busy || !!draft.detail?.archivedAt || (!draft.unknown && !!draft.detail && !dirty(draft));
@@ -371,7 +374,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
         ?h('section',{class:'kb-panel kb-source-reference-panel'},h('h3',{},t('原片参考图（只读）','Source video frames (read only)','Кадри оригіналу (лише читання)')),
           status(referenceError,true),button(t('重试参考图','Retry source frames','Повторити кадри'),()=>{referenceVersion=0;paint();}))
         :references
-          ?sourceIllustrationPanel(references,recipe,ctx.lang,t,referenceImage)
+          ?sourceIllustrationPanel(references,recipe,draft.detail.recipe,ctx.lang,t,referenceImage)
           :section(t('原片参考图（只读）','Source video frames (read only)','Кадри оригіналу (лише читання)'),status(t('正在读取原片参考图…','Loading source frames…','Завантаження кадрів…')))
       :null;
     const mediaForm=h('fieldset',{class:'kb-form',disabled},...mediaEditor(draft,view));

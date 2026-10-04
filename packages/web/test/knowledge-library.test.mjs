@@ -106,6 +106,14 @@ test('formal editor shows private candidate frames by explicit step link without
     const steps=stepGroup.querySelectorAll('.kb-source-reference-card');
     assert(steps.some(card=>card.getAttribute('data-linked-step-id')===id2&&card.textContent.includes('皮朝下')));
     assert(steps.some(card=>card.getAttribute('data-linked-step-id')===null&&card.textContent.includes('未关联到当前步骤')));
+    const linkedStep=steps.find(card=>card.getAttribute('data-linked-step-id')===id2);
+    const stepInput=h.field('步骤说明','中文');
+    h.set(stepInput,'改成先焯水再入煲');
+    assert.equal(linkedStep.getAttribute('data-linked-step-id'),null,'an unsaved text change unlinks the old frame immediately');
+    assert.match(linkedStep.textContent,/未关联到当前步骤/);
+    assert.doesNotMatch(linkedStep.textContent,/当前步骤 1 · 改成先焯水再入煲/);
+    h.set(stepInput,'皮朝下放入煲中');
+    assert.equal(linkedStep.getAttribute('data-linked-step-id'),id2,'restoring saved text restores the explicit link');
     assert.match(panel.textContent,/使用权待核实/);
     assert.deepEqual(recipe.assets,[]);
     assert.equal(fixture.calls.filter(call=>call.url.includes('/assets/')).length,4,'frames load through authenticated asset route');
