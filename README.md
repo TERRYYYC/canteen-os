@@ -21,6 +21,8 @@ This integration branch adds a SQLite recipe library at `#/admin/knowledge`, beh
 
 **上线边界：** 上述新流程目前只在本机隔离副本验证；真实候选仍需师傅逐条确认，来源图片使用权仍待核实，远端和公网版本没有随此分支更新。此版本不宣称完整可写生产上线。当前验收与授权见 [团队调度状态](feature-specs/2026-09-11-team-meals-dispatch.md)、[发布检查表](docs/field-test/week-43/ops-checklist.md)，版本历史见 [CHANGELOG](CHANGELOG.md)。
 
+知识库菜谱列表、明细和历史可能包含来源原文与媒体地址，现仅师傅和管理员令牌可读；采购角色仍可使用已发布的菜单、备料与采购数据。
+
 ### 打开
 
 GitHub Pages 地址如下。成功合并到 `main` 会触发发布工作流；以实际 Actions 结果和抽屉版本为准，源码版本不代表该版本已经部署：

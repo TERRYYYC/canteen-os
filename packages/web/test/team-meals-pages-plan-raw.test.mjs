@@ -101,6 +101,18 @@ test('inbox selection opens the newly frozen version in an already visited plan'
    assert.equal(f.writes[0].body.meals.at(-1).dishRef,dishRef);
  }finally{f.cleanup();}
 });
+test('a frozen knowledge dish explains private source images without claiming no image was recorded',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc';
+ const f=await setup({read:u=>u.pathname==='/catalog'?Response.json({commit:A,dishes:{
+   soup:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[],provenance:{source:'knowledge',recipeId,recipeVersion:2,candidateId:recipeId,snapshotHash:'e'.repeat(64)}},
+   stew:{schemaVersion:'3',name:{zh:'炖菜'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ try{
+   const el=await f.mount('week-a','zh');const photos=cls(el,'tm-plan-photo');
+   assert.match(photos[0].getAttribute('aria-label'),/原片参考图仅师傅可见/);
+   assert.match(photos[0].textContent,/待授权/);
+   assert.equal(photos[1].getAttribute('aria-label'),'图片未录');
+ }finally{f.cleanup();}
+});
 test('adding a selected inbox dish consumes the deep link so a fresh load is clean',async()=>{
  const recipeId='12345678-1234-4234-8234-123456789abc',dishRef=`kb-${recipeId.replaceAll('-','')}-v2`;
  let saved=null,reloaded;const previousHistory=globalThis.history;

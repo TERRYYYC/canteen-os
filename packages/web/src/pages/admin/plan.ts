@@ -184,8 +184,12 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     function photo(dishRef:string,name:string):HTMLElement {
       const record=catalog?.dishes[dishRef],revision=catalog?.commit;
-      const missing=lang==='zh'?'图片未录':lang==='en'?'No image':'Без фото';
-      const box=h('div',{class:'tm-plan-photo',role:'img','aria-label':missing},h('span',{'aria-hidden':'true'},'♧'));
+      const fromKnowledge=record?.provenance?.source==='knowledge';
+      const missing=fromKnowledge
+        ?lang==='zh'?'原片参考图仅师傅可见；菜单图片待授权或补录':lang==='en'?'Source frames are chef-only; menu image needs rights or upload':'Кадри джерела доступні лише кухарю; фото меню потребує дозволу або завантаження'
+        :lang==='zh'?'图片未录':lang==='en'?'No image':'Без фото';
+      const pending=lang==='zh'?'待授权/补图':lang==='en'?'Image pending':'Фото очікується';
+      const box=h('div',{class:'tm-plan-photo',role:'img','aria-label':missing},h('span',{class:fromKnowledge?'tm-plan-photo-state':undefined,'aria-hidden':'true'},fromKnowledge?pending:'♧'));
       if(!record?.image||!revision)return box;
       const key=`${revision}/${dishRef}`;
       let state=photos.get(key);

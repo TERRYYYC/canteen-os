@@ -13,7 +13,7 @@ function sourceUrl(value: unknown, own: boolean): boolean {
   if(own&&value.split('/').every(part=>/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(part)&&part!=='.'&&part!=='..'))return true;
   try { const parsed = new URL(value),host=parsed.hostname.toLowerCase();
     return parsed.protocol==='https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash &&
-      host.includes('.') && !host.startsWith('[') && !/^\d+(?:\.\d+){3}$/.test(host) &&
+      host.includes('.') && !host.endsWith('.') && !host.startsWith('[') && !/^\d+(?:\.\d+){3}$/.test(host) &&
       host!=='localhost' && !/\.(?:localhost|local|internal|invalid|test)$/.test(host);
   }
   catch { return false; }

@@ -246,6 +246,8 @@ test('new materialization pins only complete rights with public attribution URLs
   for(const {rights,publish} of [
     {rights:{license:'own'},publish:false},
     {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://example.org/photo?token=PRIVATE_ATTRIBUTION_SENTINEL'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://host.internal./private'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://localhost./private'},publish:false},
     {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://example.org/photo'},publish:true},
   ]){
     const repo=new FakeRepo();repo.commit({'README.md':'base'});

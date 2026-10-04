@@ -43,12 +43,35 @@ test('all knowledge routes require Bearer; source and image bytes stay chef-priv
     for (const role of [null, 'buyer', 'chef', 'admin']) {
       const f = fixture();
       const response = await send(f, method, path, { ...request, role });
-      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites') || template.endsWith('/source-illustrations') || template === '/knowledge/assets/:id/content') ? 403 : method === 'POST' ? 201 : 200;
+      const privateRecipe = template.startsWith('/knowledge/recipes');
+      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites') || privateRecipe || template === '/knowledge/assets/:id/content') ? 403 : method === 'POST' ? 201 : 200;
       assert.equal(response.status, expected, `${role} ${method} ${path}: ${await response.text()}`);
       assert.equal(f.seen.length, expected < 400 ? 1 : 0);
       assert.equal(f.gitCalls, 0);
     }
   }
+});
+
+test('buyer cannot read source transcripts through current, historical or legacy recipe detail', async () => {
+  for (const path of [`/knowledge/recipes/${id}`, `/knowledge/recipes/${id}/revisions/1`, `/knowledge/recipes/${id}/legacy`]) {
+    const f=fixture(async()=>asJson({id,sourceRecords:[{textContent:'PRIVATE_TRANSCRIPT_SENTINEL'}]}));
+    const denied=await send(f,'GET',path,{role:'buyer'});
+    assert.equal(denied.status,403,path);
+    assert.equal(f.seen.length,0,'a denied caller must not reach the private KB');
+    const chef=await send(f,'GET',path,{role:'chef'});
+    assert.equal(chef.status,200,path);
+    assert.match(await chef.text(),/PRIVATE_TRANSCRIPT_SENTINEL/);
+  }
+});
+
+test('buyer cannot read private media URLs from the knowledge recipe list', async () => {
+  const f=fixture(async()=>asJson({items:[{id,cover:{url:'https://private.example.invalid/?token=PRIVATE_MEDIA_SENTINEL'}}]}));
+  const denied=await send(f,'GET','/knowledge/recipes',{role:'buyer'});
+  assert.equal(denied.status,403);
+  assert.equal(f.seen.length,0);
+  const chef=await send(f,'GET','/knowledge/recipes',{role:'chef'});
+  assert.equal(chef.status,200);
+  assert.match(await chef.text(),/PRIVATE_MEDIA_SENTINEL/);
 });
 
 test('favorites inbox has fixed routes, private access and bounded query forwarding', async () => {
