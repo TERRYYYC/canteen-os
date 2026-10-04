@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/ingredient-v3.schema.json",
+  "title": "IngredientV3",
+  "description": "厨房核定快照；未知单位省略。旧v2仍严格读取。",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "3"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/I18nString"
+    },
+    "image": {
+      "$ref": "common.schema.json#/$defs/ImageRef",
+      "description": "食材图 { src, license, author?, sourceUrl? }；Commons 来源须填 sourceUrl 并按许可署名"
+    },
+    "externalId": {
+      "type": "string",
+      "pattern": "^Q\\d+$",
+      "description": "Wikidata QID（场景 A 种子数据来源），如 Q23501（番茄）"
+    },
+    "baseUnit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "ml",
+        "pcs"
+      ]
+    },
+    "pcsToGram": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield（margin 对所有食材生效，ADR-0006 2026-09-06 修正）"
+    },
+    "yield": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "description": "净料率 0–1，单一数字（ADR-0006 收窄场景 D 的分阶段模型）：仅对按重量/体积（g/ml）计的食材有意义，pcs 食材不得设置。初始值参考 USDA FBG/AH-102 与乌克兰 норми відходів（docs/research/v2/scenario-d-yield-data.md），本地实测后回填"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "main",
+        "seasoning"
+      ],
+      "description": "主料 / 调料（可选）。备料单噪音控制的依据：seasoning 缺 prep 不提示「无切配规格」（盐/油/糖无需切配），main（或未标注）缺 prep 仍提示"
+    },
+    "purchase": {
+      "type": "object",
+      "description": "采购规格；缺失 = 该食材还不能算采购（readiness「能采」关卡不过）",
+      "properties": {
+        "supplier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "供应商名字符串（不是实体引用），采购单按它分组；重名/改名不影响历史单（场景 F）"
+        },
+        "packSize": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "单包装净含量（packUnit 计），如 5（kg 装番茄）/ 180（枚/箱鸡蛋）"
+        },
+        "packUnit": {
+          "$ref": "common.schema.json#/$defs/Unit"
+        },
+        "minPacks": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最小起订量（包装数），缺省视为 1；packs = max(minPacks, ceil(需求 / packSize))"
+        },
+        "lastPrice": {
+          "$ref": "common.schema.json#/$defs/Money",
+          "description": "最近一次每包价格（下单纯估价用）；更新时跳过 0 与空值（场景 F，Grocy 教训）"
+        }
+      },
+      "required": [
+        "supplier",
+        "packSize",
+        "packUnit"
+      ],
+      "additionalProperties": false
+    },
+    "trackStock": {
+      "type": "boolean",
+      "description": "是否记现有量：仅耐放品（盐、油、干货）为 true；false 时采购推导不扣库存"
+    },
+    "onHand": {
+      "type": "number",
+      "minimum": 0,
+      "description": "现有量（baseUnit 计）；仅 trackStock=true 时有意义"
+    },
+    "canonicalIngredientId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "canonicalIngredientVersion": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "name",
+    "trackStock"
+  ],
+  "additionalProperties": false,
+  "dependentRequired": {
+    "canonicalIngredientId": [
+      "canonicalIngredientVersion"
+    ],
+    "canonicalIngredientVersion": [
+      "canonicalIngredientId"
+    ],
+    "yield": [
+      "baseUnit"
+    ],
+    "onHand": [
+      "baseUnit"
+    ]
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "yield"
+        ]
+      },
+      "then": {
+        "properties": {
+          "baseUnit": {
+            "enum": [
+              "g",
+              "ml"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "onHand"
+        ]
+      },
+      "then": {
+        "properties": {
+          "trackStock": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}

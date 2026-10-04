@@ -19,6 +19,9 @@ import { bytesToBase64, commitMessage } from "./github.js";
 import { gitBlobSha } from "./gitsha.js";
 import { fail } from "./http.js";
 import type { Role } from "./types.js";
+import type { Technique } from '@canteenos/core';
+import { stableSerialize } from './serialize.js';
+import { validateEntity } from './validate.js';
 
 export const SKIP_CI = "[skip ci]";
 
@@ -97,20 +100,39 @@ export async function commitSingleFile(
 export async function commitImmutableFiles(
   gh: GitHubClient,
   files: { path: string; bytes: Uint8Array }[],
-  { subject, role, endpoint }: { subject: string; role: Role; endpoint: string },
+  { subject, role, endpoint, techniques=[] }: { subject: string; role: Role; endpoint: string; techniques?:Technique[] },
 ): Promise<{ commit: string; unchanged: boolean }> {
-  if(!files.length||new Set(files.map(f=>f.path)).size!==files.length)throw fail('invalid_source');
-  const expected=await Promise.all(files.map(async f=>({ ...f, sha:await gitBlobSha(f.bytes) })));
+  if(!files.length)throw fail('invalid_source');
+  const unique=new Map<string,{path:string;bytes:Uint8Array;sha:string}>();
+  for(const file of files){
+    const sha=await gitBlobSha(file.bytes),old=unique.get(file.path);
+    if(old&&old.sha!==sha)throw fail('invalid_source',{message:'同一快照路径不能包含不同内容'});
+    unique.set(file.path,{...file,sha});
+  }
+  const expected=[...unique.values()];
   for(let attempt=0;attempt<2;attempt++){
     const head=await gh.getHeadSha();
     const current=await Promise.all(expected.map(f=>gh.getFile(f.path,head)));
-    const present=current.filter(Boolean).length;
-    if(present){
-      if(present===expected.length&&current.every((file,index)=>file?.sha===expected[index]!.sha))return {commit:head,unchanged:true};
-      throw fail('conflict',{message:'此菜谱版本已写入不同内容，不能覆盖固定快照'});
+    if(current.some((file,index)=>file&&file.sha!==expected[index]!.sha))throw fail('conflict',{message:'此菜谱版本已写入不同内容，不能覆盖固定快照'});
+    const missing=expected.filter((_file,index)=>!current[index]);
+    if(techniques.length){
+      if(unique.has('data/techniques.json'))throw fail('invalid_source');
+      const existing=await gh.getFile('data/techniques.json',head);
+      let dictionary:Technique[];
+      try{dictionary=existing?JSON.parse(existing.text):[];}catch{throw fail('invalid_source');}
+      if(!validateEntity('techniques',dictionary).valid||new Set(dictionary.map(t=>t.id)).size!==dictionary.length)throw fail('invalid_source');
+      let appended=false;
+      for(const technique of techniques){
+        const old=dictionary.find(t=>t.id===technique.id);
+        if(old){if(stableSerialize(old)!==stableSerialize(technique))throw fail('conflict');}
+        else{dictionary.push(technique);appended=true;}
+      }
+      if(!validateEntity('techniques',dictionary).valid)throw fail('invalid_source');
+      if(appended){const bytes=new TextEncoder().encode(stableSerialize(dictionary));missing.push({path:'data/techniques.json',bytes,sha:await gitBlobSha(bytes)});}
     }
+    if(!missing.length)return {commit:head,unchanged:true};
     const entries=[];
-    for(const file of expected){
+    for(const file of missing){
       entries.push({path:file.path,mode:'100644',type:'blob',sha:await gh.createBlob(bytesToBase64(file.bytes),'base64')});
     }
     const base=await gh.getCommit(head);

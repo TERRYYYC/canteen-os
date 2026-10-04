@@ -216,6 +216,10 @@ async function writeEntity(
     ifMatch: params.path.startsWith("data/ingredients/") ? ifMatch(ctx) : null,
     precondition: params.path.startsWith("data/ingredients/") ? undefined : writePrecondition(ctx.request.headers),
     verify: async (head, current) => {
+      if (params.path.startsWith("data/ingredients/") && current) {
+        const previous=parseSource(current.text,'ingredient',params.path) as {schemaVersion?:string};
+        if(previous.schemaVersion==='3'&&(params.value as {schemaVersion?:string}).schemaVersion!=='3')throw fail('format_downgrade');
+      }
       if (!params.path.startsWith("data/ingredients/")) {
         const kind = params.path.startsWith("data/menu-plans/") ? "plan" : "dish";
         const next = params.value as { schemaVersion?: string };

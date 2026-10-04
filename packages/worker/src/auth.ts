@@ -75,6 +75,7 @@ export const PERMISSIONS: Record<string, readonly Role[]> = {
     // source text and media. Buyers use the separately published catalog.
     `${method} ${path}`, path.startsWith('/knowledge/favorites') || path.startsWith('/knowledge/recipes') || path === '/knowledge/assets/:id/content' ? ["chef", "admin"] : method === "GET" ? ["chef", "buyer", "admin"] : ["chef", "admin"],
   ])) as Record<string, readonly Role[]>,
+  "POST /knowledge-materializations/recipes/:id": ["chef", "admin"],
   "POST /knowledge-materializations/:id": ["chef", "admin"],
   "POST /plan/:planId": ["chef", "admin"],
   "POST /ingredient/:id": ["chef", "admin"],

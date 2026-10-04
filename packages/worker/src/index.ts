@@ -21,7 +21,7 @@ import { handleShoppingList } from "./endpoints/shopping-list.js";
 import { handleShoppingIndex } from "./endpoints/shopping-index.js";
 import { handleTranslate } from "./endpoints/translate.js";
 import { handleKnowledge } from "./endpoints/knowledge.js";
-import { handleKnowledgeMaterialization } from "./endpoints/knowledge-materializations.js";
+import { handleKnowledgeMaterialization, handleRecipeMaterialization } from "./endpoints/knowledge-materializations.js";
 import { KNOWLEDGE_ROUTES, KNOWLEDGE_JSON_MAX_BYTES, KNOWLEDGE_UPLOAD_MAX_BYTES } from "./knowledge-routes.js";
 import { BodyTooLarge, boundedBytes } from "./bounded-body.js";
 import { UpstreamError } from "./github.js";
@@ -82,6 +82,7 @@ export const ROUTES: Route[] = [
     path === "/knowledge/assets/upload",
     path === "/knowledge/assets/upload" ? KNOWLEDGE_UPLOAD_MAX_BYTES : KNOWLEDGE_JSON_MAX_BYTES,
   )),
+  route("POST", "/knowledge-materializations/recipes/:id", handleRecipeMaterialization, "write"),
   route("POST", "/knowledge-materializations/:id", handleKnowledgeMaterialization, "write"),
   route("POST", "/plan/:planId", handlePlan, "write"),
   route("POST", "/ingredient/:id", handleIngredient, "write"),

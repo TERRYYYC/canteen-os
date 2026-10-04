@@ -2,7 +2,7 @@ import type { Ctx } from '../context.js';
 import { githubClient } from '../context.js';
 import { boundedBytes } from '../bounded-body.js';
 import { fail, validationFailure } from '../http.js';
-import { materializationFiles, type PinnedImage } from '../knowledge-materialization.js';
+import { recipeMaterializationFiles, type KitchenApproval, type PinnedImage } from '../knowledge-materialization.js';
 import { inspectImage } from '../image-integrity.js';
 import { validateEntity } from '../validate.js';
 import { commitImmutableFiles } from '../write.js';
@@ -60,21 +60,25 @@ export async function handleKnowledgeMaterialization(ctx:Ctx){
   if(Object.keys(body).some(key=>!['recipeVersion','reviewer','note'].includes(key)))throw fail('bad_json');
   const candidate=await readKnowledge(ctx,`/favorites/candidates/${candidateId}`) as {id:string;status:string;recipeId?:string;recipeVersion?:number;reviewer?:string};
   if(candidate.id!==candidateId||candidate.status!=='approved'||!UUID.test(candidate.recipeId??'')||!Number.isSafeInteger(candidate.recipeVersion))throw fail('review_required',{message:'只有已审核的菜谱版本可以排进菜单'});
-  const original=await readKnowledge(ctx,`/recipes/${candidate.recipeId}/revisions/${candidate.recipeVersion}`) as Parameters<typeof materializationFiles>[1];
-  let selected={...candidate};
-  let detail=original;
-  if(Object.keys(body).length){
-    const version=body.recipeVersion;
-    if(!Number.isSafeInteger(version)||typeof version!=='number'||version<=candidate.recipeVersion!||version>1000000||
-      typeof body.reviewer!=='string'||!body.reviewer.trim()||body.reviewer.length>200||
-      typeof body.note!=='string'||!body.note.trim()||body.note.length>2000)throw fail('bad_json',{message:'新版本需要准确版本号、审核人和对照说明'});
-    detail=await readKnowledge(ctx,`/recipes/${candidate.recipeId}/revisions/${version}`) as typeof original;
-    if(detail.id!==candidate.recipeId||detail.version!==version)throw fail('invalid_source',{message:'菜谱版本与请求不一致'});
-    const approvedSources=new Set(original.recipe.sources?.map(ref=>(ref as {sourceId?:unknown}).sourceId).filter((id):id is string=>typeof id==='string'));
-    if(!approvedSources.size||!detail.recipe.sources?.some(ref=>approvedSources.has((ref as {sourceId?:unknown}).sourceId as string)))
-      throw fail('invalid_source',{message:'新版本已失去原审核作品的来源关联'});
-    selected={...candidate,recipeVersion:version,review:{reviewer:body.reviewer.trim(),note:body.note.trim(),approvedCandidateVersion:candidate.recipeVersion}} as typeof selected;
-  }
+  const version=body.recipeVersion??candidate.recipeVersion;
+  if(!Number.isSafeInteger(version)||typeof version!=='number'||version<1||version>1000000)throw fail('bad_json');
+  return materializeApprovedRecipe(ctx,candidate.recipeId!,version,candidateId);
+}
+
+export async function handleRecipeMaterialization(ctx:Ctx){
+  const recipeId=ctx.params.id??'';
+  if(!UUID.test(recipeId)||ctx.url.search)throw fail('bad_id');
+  if(!ctx.body||Array.isArray(ctx.body)||typeof ctx.body!=='object')throw fail('bad_json');
+  const body=ctx.body as Record<string,unknown>,version=body.recipeVersion;
+  if(Object.keys(body).some(key=>key!=='recipeVersion')||!Number.isSafeInteger(version)||typeof version!=='number'||version<1||version>1000000)throw fail('bad_json');
+  return materializeApprovedRecipe(ctx,recipeId,version);
+}
+
+async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,candidateId?:string){
+  const adoption=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}/adoption`) as {recipeId:string;recipeVersion:number;kitchenApproval:KitchenApproval|null};
+  if(adoption.recipeId!==recipeId||adoption.recipeVersion!==version||!adoption.kitchenApproval)throw fail('review_required',{message:'此保存版本尚未由厨师核定，请先核对原方与厨房修订'});
+  if(candidateId&&adoption.kitchenApproval.origin.candidateId!==candidateId)throw fail('invalid_source');
+  const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Parameters<typeof recipeMaterializationFiles>[1];
   const pinnedImages:PinnedImage[]=[];
   const media=detail.media??[];
   const used=new Set((detail.recipe.assets??[]).filter(ref=>ref.role==='cover'||ref.role==='step').map(ref=>ref.assetId));
@@ -92,7 +96,7 @@ export async function handleKnowledgeMaterialization(ctx:Ctx){
     pinnedImages.push(image);
   }
   let materialized;
-  try{materialized=await materializationFiles(selected,detail,pinnedImages);}catch{throw fail('invalid_source',{message:'已审核的菜谱版本资料不完整，不能固定到菜单'});}
+  try{materialized=await recipeMaterializationFiles(adoption.kitchenApproval,detail,pinnedImages);}catch{throw fail('invalid_source',{message:'已审核的菜谱版本资料不完整，不能固定到菜单'});}
   for(const file of materialized.files){
     const kind=file.path.startsWith('data/dishes/')?'dish':'ingredient';
     const checked=validateEntity(kind,JSON.parse(file.text));
@@ -100,8 +104,8 @@ export async function handleKnowledgeMaterialization(ctx:Ctx){
   }
   const gh=githubClient(ctx);
   const outcome=await commitImmutableFiles(gh,[...materialized.files.map(file=>({path:file.path,bytes:new TextEncoder().encode(file.text)})),...materialized.imageFiles],
-    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete});
-  return {ok:true,dishRef:materialized.dishRef,recipeId:candidate.recipeId,recipeVersion:detail.version,
-    candidateId,snapshotHash:materialized.snapshotHash,unresolvedCount:materialized.unresolvedCount,
+    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques});
+  return {ok:true,dishRef:materialized.dishRef,recipeId,recipeVersion:detail.version,
+    ...(candidateId?{candidateId}:{}),snapshotHash:materialized.snapshotHash,unresolvedCount:materialized.unresolvedCount,
     commit:outcome.commit,unchanged:outcome.unchanged};
 }

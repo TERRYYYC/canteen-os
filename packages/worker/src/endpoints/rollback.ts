@@ -114,7 +114,7 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
       throw error;
     }
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      throw fail("invalid_source", { path: isCandidate ? `${path}#` : path });
+      throw fail("invalid_source", { path: `${path}#` });
     }
     const explicit = (value as { schemaVersion?: unknown }).schemaVersion;
     const version = explicit === undefined && path.startsWith("data/dishes/") ? "2" : explicit;
@@ -125,7 +125,7 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
 
   let candidateVersionError: HttpError | undefined;
   for (const [path, before] of current) {
-    if (!/^data\/(menu-plans|dishes)\/[^/]+\.json$/.test(path)) continue;
+    if (!/^data\/(menu-plans|dishes|ingredients)\/[^/]+\.json$/.test(path)) continue;
     if (await readVersion(path, before) !== "3") continue;
     const next = candidate.get(path);
     if (!next) throw fail("format_downgrade", { path });

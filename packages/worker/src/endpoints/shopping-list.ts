@@ -36,7 +36,7 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
       if (next.id !== id) throw fail('invalid_selection', { path: '/id' });
       await resolveListRevisions(gh, head, next, checkedRevisions);
       const inputs = await readInputs(next.basis);
-      const fresh = createShoppingList(id, next.basis, inputs);
+      const fresh = createShoppingList(id, next.basis, inputs, next.shoppingListVersion);
       if (!current) {
         assertCandidates(received, fresh, 'invalid_selection');
         for (const [index, item] of received.items.entries()) {
@@ -48,6 +48,7 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
       const stored = parseSource(current.text, 'shopping-list', path) as ShoppingList;
       const previousInputs = await validateStoredList(gh, head, stored, id, readInputs, checkedRevisions);
       const previous = normalizeList(stored);
+      if(previous.shoppingListVersion!==next.shoppingListVersion)throw fail('format_downgrade',{message:'旧清单继续使用原格式；新标准身份请另建清单'});
       if (!sameValue(previous.basis, next.basis)) {
         const reconciled = reconcileShoppingList(previous, previousInputs, next.basis, inputs);
         if (!sameValue(next, normalizeList(reconciled.list))) throw new ReviewRequiredError(reconciled.reviewRequired);
@@ -58,7 +59,7 @@ export async function handleShoppingList(ctx: Ctx): Promise<WriteResponse> {
         const normalized = next.items.find(value => value.ingredientRef === item.ingredientRef)!;
         const old = previous.items.find(value => value.ingredientRef === item.ingredientRef)!;
         if (sameValue(old, normalized)) continue;
-        if (item.decision !== 'check' && !Object.hasOwn(inputs.ingredients, item.ingredientRef)) {
+        if (item.decision !== 'check' && !(item.snapshotRefs??[item.ingredientRef]).every(ref=>Object.hasOwn(inputs.ingredients,ref))) {
           throw fail('unresolved_reference', { path: `/items/${index}/ingredientRef` });
         }
         const applied = applyShoppingDecision(previous, item.ingredientRef, item.decision, item.bought)

@@ -9,7 +9,7 @@
  * （JSON Pointer，前端按它把输入框标黄）。
  */
 import type { CompiledValidator, ValidatorError } from "../generated/validators.js";
-import { validateDish, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList } from "../generated/validators.js";
+import { validateDish, validateIngredientV3, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList } from "../generated/validators.js";
 import type { FieldError } from "./types.js";
 
 export const VALIDATORS = {
@@ -108,7 +108,8 @@ export interface ValidationOutcome {
 export function validateEntity(kind: keyof typeof VALIDATORS, data: unknown, precisePaths = false): ValidationOutcome {
   const version = data && typeof data === "object" ? (data as {schemaVersion?: unknown}).schemaVersion : undefined;
   const validate = kind === "plan" && version === "3" ? validateMenuPlanV3
-    : kind === "dish" && version === "3" ? validateDishV3 : VALIDATORS[kind];
+    : kind === "dish" && version === "3" ? validateDishV3
+    : kind === "ingredient" && version === "3" ? validateIngredientV3 : VALIDATORS[kind];
   const valid = validate(data);
   return { valid, errors: valid ? [] : toFieldErrors(validate.errors, precisePaths) };
 }

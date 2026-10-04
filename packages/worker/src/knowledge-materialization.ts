@@ -1,18 +1,70 @@
 /** Convert one human-approved SQLite revision into version-addressed Git inputs. */
-import { stableSerialize } from './serialize.js';
-import { completeKnowledgeImageRights } from '@canteenos/core';
+import { stableSerialize, sortKeysDeep } from './serialize.js';
+import { completeKnowledgeImageRights, type Technique } from '@canteenos/core';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 type Localized = { zh?: string; en?: string; uk?: string };
 type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; value?: string; unit?: string };
-type IngredientRow = { id: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized };
-type StepRow = { id: string; text: Localized };
+type IngredientRow = { id: string; ingredientId?: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized; kitchenPrep?: { techniqueId?: string; timing?: string; size?: string; note?: Localized } };
+type StepRow = { id: string; text: Localized; techniqueId?: string };
 type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string;
   review?: { reviewer: string; note: string; approvedCandidateVersion: number }; unresolved?: string[] };
 type AssetRef = { assetId: string; role: string; stepId?: string };
 type Media = { assetId: string; kind: string; status: string; url: string; role?: string; sha256?: string; rights?: { license: string; author?: string; sourceUrl?: string } };
 type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
 export type PinnedImage = { assetId: string; bytes: Uint8Array; ext: 'png'|'jpg'|'webp'; rights: { license: string; author?: string; sourceUrl?: string } };
+
+export type KitchenApproval = {
+  approvalVersion:'1';status:'approved';recipeId:string;recipeVersion:number;
+  origin:{kind:'favorite'|'manual'|'legacy';candidateId?:string;originalRecipeVersion:number};
+  approvalHash:string;recipeSnapshotHash:string;originalSnapshotHash:string;
+  dependencies:{ingredients:{id:string;version:number;ingredient:Record<string,unknown>;createdAt:string}[];
+    techniques:{id:string;hash:string;technique:{kind:'cut'|'heat'|'pretreat';name:Localized;note?:Localized}}[]};
+  unresolved:string[];reviewer:string;note:string;actor:string;createdAt:string;
+};
+async function contractHash(value:unknown):Promise<string>{
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sortKeysDeep(value))));
+  return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/** Only a durable KB decision authorizes a new frozen recipe revision. */
+export async function recipeMaterializationFiles(approval:KitchenApproval,detail:Detail,pinnedImages:PinnedImage[]=[]){
+  if(!approval||approval.approvalVersion!=='1'||approval.status!=='approved'||approval.recipeId!==detail.id||approval.recipeVersion!==detail.version||
+    !approval.origin||!['favorite','manual','legacy'].includes(approval.origin.kind)||!Number.isSafeInteger(approval.origin.originalRecipeVersion)||approval.origin.originalRecipeVersion<1||
+    !approval.dependencies||!Array.isArray(approval.dependencies.ingredients)||!Array.isArray(approval.dependencies.techniques)||
+    !/^[0-9a-f]{64}$/.test(approval.approvalHash)||!approval.reviewer)throw new Error('persistent_approval_required');
+  const {approvalHash,...value}=approval;
+  if(await contractHash(value)!==approvalHash||await contractHash(detail)!==approval.recipeSnapshotHash)throw new Error('approval_snapshot_mismatch');
+  const ingredientIds=[...new Set(detail.recipe.ingredients.map(row=>row.ingredientId).filter(Boolean))].sort();
+  if(JSON.stringify(ingredientIds)!==JSON.stringify(approval.dependencies.ingredients.map(x=>x.id).sort()))throw new Error('ingredient_dependency_mismatch');
+  const techniqueIds=[...new Set([...detail.recipe.ingredients.map(row=>row.kitchenPrep?.techniqueId),...detail.recipe.steps.map(row=>row.techniqueId)].filter(Boolean))].sort();
+  if(JSON.stringify(techniqueIds)!==JSON.stringify(approval.dependencies.techniques.map(x=>x.id).sort()))throw new Error('technique_dependency_mismatch');
+  const techniques:Technique[]=[];
+  for(const dep of approval.dependencies.techniques){
+    if(!UUID.test(dep.id)||await contractHash(dep.technique)!==dep.hash)throw new Error('technique_snapshot_mismatch');
+    techniques.push({id:`kbt-${dep.id.replaceAll('-','')}-${dep.hash.slice(0,12)}`,...dep.technique});
+  }
+  const result=await materializationFiles({id:approval.origin.candidateId??detail.id,status:'approved',recipeId:detail.id,recipeVersion:detail.version,reviewer:approval.reviewer,unresolved:approval.unresolved},detail,pinnedImages);
+  const dishFile=result.files.find(file=>file.path===`data/dishes/${result.dishRef}.json`)!;
+  const dish=JSON.parse(dishFile.text);
+  const files:{path:string;text:string}[]=[];
+  dish.components=detail.recipe.ingredients.map((row,index)=>{
+    const dep=row.ingredientId?approval.dependencies.ingredients.find(x=>x.id===row.ingredientId):undefined;
+    if(dep&&(!UUID.test(dep.id)||!Number.isSafeInteger(dep.version)||dep.version<1||!dep.ingredient?.name))throw new Error('ingredient_dependency_invalid');
+    const ref=dep?`kbi-${dep.id.replaceAll('-','')}-v${dep.version}`:`kbi-${detail.id.replaceAll('-','')}-v${detail.version}-${index+1}`;
+    const {aliases:_aliases,...spec}=dep?.ingredient??{name:row.name,trackStock:false,...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})};
+    files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize({schemaVersion:'3',...spec,...(dep?{canonicalIngredientId:dep.id,canonicalIngredientVersion:dep.version}:{})})});
+    const component={...dish.components[index],ingredientRef:ref,...(dep?{canonicalIngredientId:dep.id,canonicalIngredientVersion:dep.version}:{}),...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})};
+    if(row.kitchenPrep){const {techniqueId,...prep}=row.kitchenPrep;component.prep={...prep,...(techniqueId?{techniqueRef:techniques.find(t=>t.id.startsWith(`kbt-${techniqueId.replaceAll('-','')}-`))!.id}:{})};}
+    return component;
+  });
+  detail.recipe.steps.forEach((row,index)=>{if(row.techniqueId)dish.steps[index].techniqueRef=techniques.find(t=>t.id.startsWith(`kbt-${row.techniqueId!.replaceAll('-','')}-`))!.id;});
+  result.snapshotHash=await sha256({approvalHash,detail});
+  dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash,approvalHash,originKind:approval.origin.kind,originalRecipeVersion:approval.origin.originalRecipeVersion};
+  if(!approval.origin.candidateId)delete dish.provenance.candidateId;
+  files.push({path:dishFile.path,text:stableSerialize(dish)});
+  return {...result,files,techniques};
+}
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?: number }> = {
   g:{unit:'g',baseUnit:'g'}, 克:{unit:'g',baseUnit:'g'}, kg:{unit:'kg',baseUnit:'g'}, 千克:{unit:'kg',baseUnit:'g'}, 公斤:{unit:'kg',baseUnit:'g'},

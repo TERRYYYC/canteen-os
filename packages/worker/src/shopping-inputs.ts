@@ -1,4 +1,4 @@
-import type { AnyDish, AnyMenuPlan, Ingredient, ShoppingBasis, TeamMealInputs, Technique } from '@canteenos/core';
+import type { AnyDish, AnyMenuPlan, AnyIngredient, ShoppingBasis, TeamMealInputs, Technique } from '@canteenos/core';
 import type { GitHubClient, TreeEntry } from './github.js';
 import { fail } from './http.js';
 import { parseSource } from './source.js';
@@ -28,7 +28,7 @@ export async function loadShoppingInputs(gh: GitHubClient, basis: ShoppingBasis,
 async function hydrate(entries: TreeEntry[], basis: ShoppingBasis, basisPath: string, blobText: (sha: string) => Promise<string>): Promise<TeamMealInputs> {
   const menuPlans: Record<string, AnyMenuPlan> = {};
   const dishes: Record<string, AnyDish> = {};
-  const ingredients: Record<string, Ingredient> = {};
+  const ingredients: Record<string, AnyIngredient> = {};
   let techniques: Technique[] = [];
   const selected = new Set(basis.selection.map(s => s.menuPlanRef));
   for (const entry of entries) {
@@ -42,7 +42,7 @@ async function hydrate(entries: TreeEntry[], basis: ShoppingBasis, basisPath: st
     const value = parseSource(await blobText(entry.sha), kind, entry.path);
     if (kind === 'plan') menuPlans[id] = value as AnyMenuPlan;
     else if (kind === 'dish') dishes[id] = value as AnyDish;
-    else if (kind === 'ingredient') ingredients[id] = value as Ingredient;
+    else if (kind === 'ingredient') ingredients[id] = value as AnyIngredient;
     else techniques = value as Technique[];
   }
   for (const [index, selection] of basis.selection.entries()) {

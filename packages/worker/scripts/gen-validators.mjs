@@ -43,6 +43,7 @@ const ROOTS = {
   validateDishV3: "dish-v3.schema.json",
   validateShoppingList: "shopping-list.schema.json",
   validateIngredient: "ingredient.schema.json",
+  validateIngredientV3: "ingredient-v3.schema.json",
   validateDish: "dish.schema.json",
   validateTechniques: "techniques.schema.json",
 };

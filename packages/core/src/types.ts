@@ -139,6 +139,24 @@ export interface Ingredient {
   onHand?: number; // >= 0
 }
 
+/** Honest kitchen snapshot; absent baseUnit never enters numeric procurement. */
+export interface IngredientV3 {
+  schemaVersion: '3';
+  name: I18nString;
+  image?: ImageRef;
+  externalId?: string;
+  baseUnit?: 'g' | 'ml' | 'pcs';
+  pcsToGram?: number;
+  yield?: number;
+  role?: 'main' | 'seasoning';
+  purchase?: PurchaseSpec;
+  trackStock: boolean;
+  onHand?: number;
+  canonicalIngredientId?: string;
+  canonicalIngredientVersion?: number;
+}
+export type AnyIngredient = Ingredient | IngredientV3;
+
 // ---------------------------------------------------------------------------
 // techniques.schema.json（单文件词表 data/techniques.json，整体是数组）
 // ---------------------------------------------------------------------------
@@ -348,16 +366,26 @@ export interface MenuPlanV3 {
 }
 export type AnyMenuPlan = MenuPlan | MenuPlanV3;
 
+export interface DishPrepV3 {
+  techniqueRef?: Id;
+  size?: string;
+  timing?: PrepTiming;
+  note?: I18nString;
+  image?: ImageRef;
+}
 export interface DishComponentV3 {
   ingredientRef: Id;
   qty?: Quantity;
-  prep?: DishPrep;
+  prep?: DishPrepV3;
+  role?: 'main' | 'seasoning';
   confidence?: Confidence;
   originalAmount?: string;
   /** Legacy frozen records only; strip before any public projection. */
   originalText?: string;
   originalPreparation?: I18nString;
   knowledgeIngredientId?: string;
+  canonicalIngredientId?: string;
+  canonicalIngredientVersion?: number;
 }
 /** Legacy frozen evidence is accepted on read, never emitted by new materialization. */
 export interface KnowledgeEvidence {
@@ -370,8 +398,11 @@ export interface KnowledgeProvenance {
   source: 'knowledge';
   recipeId: string;
   recipeVersion: number;
-  candidateId: string;
+  candidateId?: string;
   snapshotHash: string;
+  approvalHash?: string;
+  originKind?: 'favorite' | 'manual' | 'legacy';
+  originalRecipeVersion?: number;
   /** Legacy read compatibility only; never expose these fields in public responses. */
   review?: { reviewer: string; note: string; approvedCandidateVersion: number };
   sourceUrl?: string;
@@ -403,9 +434,11 @@ export interface ShoppingItem {
   decision: ShoppingDecision;
   bought?: boolean;
   previous?: ShoppingPrevious;
+  /** List2 only: all immutable dependency files behind the stable grouping key. */
+  snapshotRefs?: Id[];
 }
 export interface ShoppingList {
-  shoppingListVersion: "1";
+  shoppingListVersion: "1" | "2";
   id: Id;
   basis: ShoppingBasis;
   items: ShoppingItem[];

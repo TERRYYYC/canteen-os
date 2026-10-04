@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {fixtureApproval} from './adoption-fixture.mjs';
 import {PNG_A,PNG_B} from './image-fixtures.mjs';
-import {FakeRepo,makeEnv,bearer,call,WORKER} from './helpers.mjs';
+import {FakeRepo,makeEnv as baseMakeEnv,bearer,call,WORKER} from './helpers.mjs';
 import {projectTeamMeals,estimateShoppingList} from '../../core/dist/index.js';
 
 const { materializationFiles } = await import('../dist/knowledge-materialization.js');
@@ -18,6 +19,17 @@ const detail = { id:recipeId,version:1,recipe:{title:{zh:'测试菜'},baseServin
   steps:[{id:stepId,text:{zh:'烤熟'}}],sources:[],assets:[]},media:[],sourceRecords:[] };
 const approved = {id:candidateId,status:'approved',recipeId,recipeVersion:1,reviewer:'test-chef'};
 const worker=(await import(WORKER)).default;
+function makeEnv(repo,options){
+  const original=options.__knowledgeFetch;
+  return baseMakeEnv(repo,{...options,__knowledgeFetch:async (url,...args)=>{
+    const response=await original(url,...args);
+    if(String(url).endsWith('/adoption')&&response.headers.get('Content-Type')?.includes('application/json')){
+      const document=await response.clone().json();
+      if(document.recipe)return new Response(JSON.stringify({recipeId:document.id,recipeVersion:document.version,kitchenApproval:fixtureApproval(document,candidateId)}),{headers:{'Content-Type':'application/json'}});
+    }
+    return response;
+  }});
+}
 
 test('approved version becomes a deterministic immutable dish and preserves unconvertible original amounts', async () => {
   const first=await materializationFiles(approved,detail);
@@ -122,48 +134,35 @@ test('authorized materialization writes versioned Git inputs atomically and repl
     method:'POST',headers:{...bearer(role),'Content-Type':'application/json'},body:'{}'}),env);
   assert.equal((await send('buyer')).status,403);
   const response=await send();const body=await response.json();assert.equal(response.status,200,JSON.stringify(body));assert.equal(body.unchanged,false);
-  assert.deepEqual(seen,[`http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`]);
+  assert.deepEqual(seen,[`http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`]);
   assert.equal(JSON.parse(repo.fileText(`data/dishes/${body.dishRef}.json`)).provenance.snapshotHash,body.snapshotHash);
   assert.equal(repo.head,body.commit);
   assert.equal((await send()).status,200);
   const replay=await (await send()).json();assert.equal(replay.unchanged,true);assert.equal(repo.head,body.commit);
 });
 
-test('a chef checks edited KB v2 against the approved source before a new frozen menu input exists',async()=>{
+test('edited v2 requires a stored approval; caller reviewer strings cannot approve it',async()=>{
   const repo=new FakeRepo();repo.commit({'README.md':'base'});
-  const original=structuredClone(detail);
-  original.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64)}}];
-  const edited=structuredClone(original);edited.version=2;edited.recipe.title={zh:'测试菜改良版'};
+  const edited=structuredClone(detail);edited.version=2;edited.recipe.title={zh:'测试菜改良版'};
   edited.recipe.ingredients[0].amount={kind:'exact',value:'900',unit:'克',raw:'900 克'};
-  const seen=[];
+  let kitchenApproval=null;
   const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
-    const url=String(input);seen.push(url);
-    const value=url.endsWith(`/favorites/candidates/${candidateId}`)?approved:url.endsWith('/revisions/1')?original:edited;
+    const url=String(input);
+    const value=url.endsWith(`/favorites/candidates/${candidateId}`)?approved:url.endsWith('/adoption')?{recipeId,recipeVersion:2,kitchenApproval}:edited;
     return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
   }});
   const route=`/knowledge-materializations/${candidateId}`;
-  const checked={recipeVersion:2,reviewer:'test-chef-2',note:'Checked the changed v2 against the original post'};
-  const premature=await call(worker,env,'POST',route,{headers:bearer('chef'),body:{recipeVersion:2}});
-  assert.equal(premature.status,400);
-  assert.equal(repo.head!==null,true);
+  const checked={recipeVersion:2,reviewer:'caller-name',note:'Caller text is not approval'};
+  const before=repo.head;
+  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked})).status,409);
+  assert.equal(repo.head,before);
+  kitchenApproval=fixtureApproval(edited,candidateId);
   const fixed=await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked});
-  assert.equal(fixed.status,200,JSON.stringify(fixed.body));
-  assert.match(fixed.body.dishRef,/-v2$/);
-  assert.equal(fixed.body.recipeVersion,2,'the response must report the revision actually frozen');
-  assert.deepEqual(seen.slice(-3),[
-    `http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,
-    `http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`,
-    `http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/2`,
-  ]);
+  assert.equal(fixed.status,200,JSON.stringify(fixed.body));assert.match(fixed.body.dishRef,/-v2$/);
   const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
-  assert.equal(dish.provenance.recipeVersion,2);
-  assert.equal(dish.provenance.review,undefined,'private chef notes stay in KB and are represented by the snapshot hash');
-  assert.equal(dish.components[0].qty.value,900);
-  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked})).body.unchanged,true);
-  const detached=structuredClone(edited);detached.recipe.sources=[];
-  env.__knowledgeFetch=async input=>new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:String(input).endsWith('/revisions/1')?original:detached),{headers:{'Content-Type':'application/json'}});
-  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:{...checked,recipeVersion:3}})).status,422);
-  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:{...checked,note:'Changed approval'}})).status,422);
+  assert.equal(dish.provenance.recipeVersion,2);assert.equal(dish.components[0].qty.value,900);
+  assert.equal(dish.provenance.approvalHash,kitchenApproval.approvalHash);assert.equal(dish.provenance.review,undefined);
+  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:{...checked,note:'arbitrary caller note'}})).body.unchanged,true);
 });
 
 test('licensed local KB image bytes from isolated port 4392 are pinned with the same dish revision',async()=>{
@@ -196,7 +195,7 @@ test('licensed local KB image bytes from isolated port 4392 are pinned with the 
   const frozenHead=repo.head;
   env.__knowledgeFetch=async input=>String(input).endsWith(`/assets/${assetId}/content`)
     ? new Response(PNG_B,{headers:{'Content-Type':'image/png'}})
-    : new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:withImage),{headers:{'Content-Type':'application/json'}});
+    : new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:String(input).endsWith('/adoption')?{recipeId,recipeVersion:1,kitchenApproval:fixtureApproval(withImage,candidateId)}:withImage),{headers:{'Content-Type':'application/json'}});
   const changed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
   assert.equal(changed.status,422,'a changed KB image must not silently reuse a frozen dish');
   assert.equal(repo.head,frozenHead);
@@ -230,7 +229,7 @@ test('external or rights-pending KB artwork remains evidence, not a published di
   assert.equal(dish.image,undefined);
   assert.equal(dish.provenance.evidence,undefined);
   assert.doesNotMatch(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`),/temporary\.jpg/);
-  assert.equal(seen.length,2,'external artwork was never fetched for Git publication');
+  assert.equal(seen.length,3,'external artwork was never fetched for Git publication');
 });
 
 test('a local image with a nonpublishable license remains private, not a Git image or public metadata',async()=>{

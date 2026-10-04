@@ -210,7 +210,7 @@ test('fixed path and query whitelist refuses alternate proxy destinations, alias
     ['GET', '/knowledge/recipes/%2Fsecret', 400],
     ['GET', '/knowledge/proxy', 404],
     ['DELETE', `/knowledge/recipes/${id}`, 404],
-    ['POST', '/knowledge/ingredients', 404],
+    ['DELETE', '/knowledge/ingredients', 404],
     ['GET', '/knowledge/ingredients?tag=one', 400],
     ['GET', '/knowledge/techniques?after=one', 400],
     ['GET', `/knowledge/ingredients?cursor=${'x'.repeat(1001)}`, 400],
