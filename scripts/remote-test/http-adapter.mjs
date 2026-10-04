@@ -27,6 +27,6 @@ export function workerRequest(req,origin,bytes){
 export function knowledgeBaseUrl(config,env=process.env){
  // Only operator-owned config/environment can select the upstream. Never request input.
  const value=env.KNOWLEDGE_BASE_URL??config.knowledgeBaseUrl??'http://127.0.0.1:4390';
- if(!['http://127.0.0.1:4390','http://127.0.0.1:4391'].includes(value))throw new Error('Remote test KB must use a fixed loopback port (4390 or 4391)');
+ if(!['http://127.0.0.1:4390','http://127.0.0.1:4391','http://127.0.0.1:4392'].includes(value))throw new Error('Remote test KB must use a fixed loopback port (4390, 4391 or 4392)');
  return value;
 }

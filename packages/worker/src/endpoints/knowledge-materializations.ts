@@ -9,7 +9,7 @@ import { commitImmutableFiles } from '../write.js';
 import { completeKnowledgeImageRights } from '@canteenos/core';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const KB_URL=/^http:\/\/127\.0\.0\.1:(?:4390|4391)\/?$/;
+const KB_URL=/^http:\/\/127\.0\.0\.1:(?:4390|4391|4392)\/?$/;
 
 async function readKnowledge(ctx:Ctx,path:string):Promise<unknown>{
   const configured=ctx.env.KNOWLEDGE_BASE_URL;

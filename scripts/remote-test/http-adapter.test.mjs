@@ -26,7 +26,10 @@ test('PUT bytes and conditional/idempotency headers reach Worker unchanged',asyn
  assert.equal(knowledgeBaseUrl({},{}),'http://127.0.0.1:4390');
  assert.throws(()=>knowledgeBaseUrl({knowledgeBaseUrl:'https://outside.invalid'},{}));
  assert.equal(knowledgeBaseUrl({}, {KNOWLEDGE_BASE_URL:'http://127.0.0.1:4391'}),'http://127.0.0.1:4391');
- assert.throws(()=>knowledgeBaseUrl({}, {KNOWLEDGE_BASE_URL:'http://127.0.0.1:4392'}));
+ assert.equal(knowledgeBaseUrl({}, {KNOWLEDGE_BASE_URL:'http://127.0.0.1:4392'}),'http://127.0.0.1:4392');
+ for(const value of ['http://127.0.0.1:4393','http://localhost:4392','https://outside.invalid','http://127.0.0.1:4392@outside.invalid']){
+  assert.throws(()=>knowledgeBaseUrl({}, {KNOWLEDGE_BASE_URL:value}),value);
+ }
 });
 test('HTTP overflow returns a readable 413 rather than a reset connection',async t=>{
  const server=createServer(async(req,res)=>{

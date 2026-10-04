@@ -179,7 +179,7 @@ test('fixed path and query whitelist refuses alternate proxy destinations, alias
 });
 
 test('missing or unsafe trusted URL fails closed, independent of request URL and Git fetch configuration', async () => {
-  for (const url of [undefined, '', 'https://outside.invalid', 'http://localhost:4390', 'http://127.0.0.1:4380', 'http://127.0.0.1:4390@outside.invalid', 'http://127.0.0.1:4390/api/v1', 'http://127.0.0.1:4390?target=x', 'http://127.0.0.1:4390#x']) {
+  for (const url of [undefined, '', 'https://outside.invalid', 'http://localhost:4390', 'http://127.0.0.1:4380', 'http://127.0.0.1:4393', 'http://127.0.0.1:4392@outside.invalid', 'http://127.0.0.1:4390/api/v1', 'http://127.0.0.1:4390?target=x', 'http://127.0.0.1:4390#x']) {
     const f = fixture(undefined, { KNOWLEDGE_BASE_URL: url });
     const response = await send(f, 'GET', '/knowledge/health');
     assert.equal(response.status, 503); assert.equal((await response.json()).error.code, 'KNOWLEDGE_NOT_CONFIGURED');
@@ -188,6 +188,9 @@ test('missing or unsafe trusted URL fails closed, independent of request URL and
   const recovery = fixture(undefined, { KNOWLEDGE_BASE_URL: 'http://127.0.0.1:4391/' });
   assert.equal((await send(recovery, 'GET', '/knowledge/health')).status, 200);
   assert.equal(recovery.seen[0].url, 'http://127.0.0.1:4391/api/v1/health');
+  const isolated = fixture(undefined, { KNOWLEDGE_BASE_URL: 'http://127.0.0.1:4392' });
+  assert.equal((await send(isolated, 'GET', '/knowledge/health')).status, 200);
+  assert.equal(isolated.seen[0].url, 'http://127.0.0.1:4392/api/v1/health');
 });
 
 test('network failure, redirection, invalid response and whole-body timeout are explicit; none fall back to Git', async () => {

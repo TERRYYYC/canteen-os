@@ -62,10 +62,10 @@ function requestHeaders(ctx: Ctx): Headers {
 export async function handleKnowledge(ctx: Ctx): Promise<Response> {
   const path = targetPath(ctx);
   const headers = requestHeaders(ctx);
-  // Literal loopback addresses only, with explicit deployment/recovery ports.
+  // Literal loopback addresses only, with explicit deployment/recovery/test ports.
   // No credentials, path prefix, query, fragment, hostname resolution or redirect.
   const configured = ctx.env.KNOWLEDGE_BASE_URL;
-  if (typeof configured !== "string" || !/^http:\/\/127\.0\.0\.1:(?:4390|4391)\/?$/.test(configured)) {
+  if (typeof configured !== "string" || !/^http:\/\/127\.0\.0\.1:(?:4390|4391|4392)\/?$/.test(configured)) {
     return error(503, "KNOWLEDGE_NOT_CONFIGURED", "菜谱知识库尚未连接，请联系管理员");
   }
   const timeout = ctx.env.KNOWLEDGE_TIMEOUT_MS === undefined ? 10000 : Number(ctx.env.KNOWLEDGE_TIMEOUT_MS);

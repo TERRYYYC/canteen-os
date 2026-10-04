@@ -44,7 +44,9 @@ existing snapshot `node_modules` links are left unchanged.
 
 The new adapter sets `KNOWLEDGE_BASE_URL=http://127.0.0.1:4390`. Trusted runtime
 `knowledgeBaseUrl` or environment `KNOWLEDGE_BASE_URL` may explicitly repeat
-that value, or `http://127.0.0.1:4391` for isolated recovery/testing; other addresses are rejected. No browser-controlled upstream exists.
+that value, use `http://127.0.0.1:4391` for isolated recovery, or use
+`http://127.0.0.1:4392` for a separate local business-state test copy.
+Other addresses are rejected. No browser-controlled upstream exists.
 JSON requests below `/__q/worker/knowledge/` allow 4 MiB, asset uploads allow
 8 MiB + 64 KiB, and all old paths retain 256 KiB. Overflows return 413. Worker
 still owns authentication, KB routing, media validation and upstream credentials.

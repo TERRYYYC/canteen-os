@@ -132,7 +132,7 @@ test('a chef checks edited KB v2 against the approved source before a new frozen
   assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:{...checked,note:'Changed approval'}})).status,422);
 });
 
-test('licensed local KB image bytes and rights are pinned with the same dish revision',async()=>{
+test('licensed local KB image bytes from isolated port 4392 are pinned with the same dish revision',async()=>{
   const bytes=PNG_A;
   const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
   const withImage=structuredClone(detail);
@@ -140,7 +140,7 @@ test('licensed local KB image bytes and rights are pinned with the same dish rev
   withImage.media=[{assetId,kind:'image',role:'cover',status:'ready',url:`/api/v1/assets/${assetId}/content`,sha256:createHash('sha256').update(bytes).digest('hex'),rights:{license:'own',author:'test-chef'}}];
   const repo=new FakeRepo();repo.commit({'README.md':'base'});
   const seen=[];
-  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4392',__knowledgeFetch:async input=>{
     const url=String(input);seen.push(url);
     return url.endsWith(`/assets/${assetId}/content`)
       ? new Response(bytes,{headers:{'Content-Type':'image/png'}})
@@ -148,6 +148,7 @@ test('licensed local KB image bytes and rights are pinned with the same dish rev
   }});
   const fixed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
   assert.equal(fixed.status,200,JSON.stringify(fixed.body));
+  assert(seen.every(url=>url.startsWith('http://127.0.0.1:4392/api/v1/')));
   assert(seen.some(url=>url.endsWith(`/assets/${assetId}/content`)));
   const path=`data/dishes/${fixed.body.dishRef}.json`;
   const dish=JSON.parse(repo.fileText(path));
@@ -165,6 +166,18 @@ test('licensed local KB image bytes and rights are pinned with the same dish rev
   const changed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
   assert.equal(changed.status,422,'a changed KB image must not silently reuse a frozen dish');
   assert.equal(repo.head,frozenHead);
+});
+
+test('materialization rejects non-allowlisted KB ports and external origins before reading',async()=>{
+  for(const url of ['http://127.0.0.1:4393','https://outside.invalid']){
+    const repo=new FakeRepo();repo.commit({'README.md':'base'});let reads=0;
+    const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:url,__knowledgeFetch:async()=>{reads++;throw Error('must not fetch');}});
+    const before=repo.head;
+    const result=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+    assert.equal(result.status,503,url);
+    assert.equal(reads,0,url);
+    assert.equal(repo.head,before,url);
+  }
 });
 
 test('external or rights-pending KB artwork remains evidence, not a published dish image',async()=>{
