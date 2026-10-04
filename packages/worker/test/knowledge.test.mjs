@@ -63,6 +63,44 @@ test('favorites inbox has fixed routes, private access and bounded query forward
   assert.equal((await send(fixture(), 'POST', `/knowledge/favorites/candidates/${id}/review`, { body: {} })).status, 201);
 });
 
+test('favorites search forwards Chinese text with filters and cursor, preserving candidate summaries', async () => {
+  const body = { items: [{ id, author: '厨房作者', state: 'evidence_ready',
+    candidateSummary: { title: { zh: '陈皮排骨' }, status: 'needs_review', ingredientCount: 12, stepCount: 8 } }],
+  nextCursor: 'eyJpbmRleCI6Mn0' };
+  const f = fixture(async () => asJson(body));
+  const query = new URLSearchParams({ folder: '吃的', state: 'evidence_ready', q: '陈皮 排骨', cursor: 'eyJpbmRleCI6MX0', limit: '20' });
+  const response = await send(f, 'GET', `/knowledge/favorites/items?${query}`);
+  assert.equal(response.status, 200);
+  assert.equal(f.seen[0].url, `http://127.0.0.1:4390/api/v1/favorites/items?${query}`);
+  assert.deepEqual(await response.json(), body);
+  assert.equal(f.seen[0].headers.get('x-kb-client'), 'web');
+  assert.equal(f.seen[0].headers.get('authorization'), null);
+  assert.equal(f.gitCalls, 0);
+  const literal = '陈皮&sourceUrl=https://outside.invalid';
+  const escaped = await send(f, 'GET', `/knowledge/favorites/items?q=${encodeURIComponent(literal)}`);
+  assert.equal(escaped.status, 200);
+  const forwarded = new URL(f.seen[1].url);
+  assert.equal(forwarded.pathname, '/api/v1/favorites/items');
+  assert.equal(forwarded.searchParams.get('q'), literal);
+  assert.deepEqual([...forwarded.searchParams.keys()], ['q']);
+});
+
+test('favorites search permits an empty q but rejects duplicate, control and overlong values without contacting KB', async () => {
+  const empty = fixture();
+  assert.equal((await send(empty, 'GET', '/knowledge/favorites/items?q=')).status, 200);
+  assert.equal(empty.seen[0].url, 'http://127.0.0.1:4390/api/v1/favorites/items?q=');
+  for (const query of ['q=a&q=b', 'q=%0Aevil', `q=${'中'.repeat(201)}`, 'q=ok&sourceUrl=https%3A%2F%2Foutside.invalid']) {
+    const f = fixture();
+    assert.equal((await send(f, 'GET', `/knowledge/favorites/items?${query}`)).status, 400, query);
+    assert.equal(f.seen.length, 0, query);
+  }
+  for (const role of [null, 'buyer']) {
+    const f = fixture();
+    assert.equal((await send(f, 'GET', '/knowledge/favorites/items?q=%E9%99%88%E7%9A%AE', { role })).status, role ? 403 : 401);
+    assert.equal(f.seen.length, 0);
+  }
+});
+
 test('PUT keeps raw decimal strings, preconditions and KB error bodies, and does not forward old credentials or ambient headers', async () => {
   const upstreamBody = { error: { code: 'VERSION_CONFLICT', message: '此菜谱已经更新。', details: { currentVersion: 7 } } };
   const f = fixture(async req => {
