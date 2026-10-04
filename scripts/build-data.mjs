@@ -388,12 +388,35 @@ function loadCommittedInputs(root, revision) {
   return {inputs,read,entries};
 }
 
+/**
+ * The decoder child's own words, bounded to one short line (#101).
+ * Without this the child's stderr is dropped and every failure reads as a bare
+ * `Same-revision image is unavailable`, which hides causes such as `PNG is not a constructor`.
+ */
+export function describeDecoderFailure(error) {
+  const first=(value)=>{
+    const text=(value==null?'':Buffer.isBuffer(value)?value.toString('utf8'):String(value)).trim();
+    return (text.split('\n').find((line)=>line.trim())??'').trim().slice(0,200);
+  };
+  const stderr=first(error?.stderr);
+  if(stderr) return stderr;
+  if(error?.code==='ETIMEDOUT') return 'decoder timed out';
+  if(typeof error?.status==='number'&&error.status!==0) return `decoder exited with code ${error.status}`;
+  if(error?.signal) return `decoder terminated by ${error.signal}`;
+  return first(error?.message)||'decoder failed';
+}
+
 /** Decode in a bounded child so the existing synchronous build API stays stable. */
 function verifyRaster(content) {
   if(!content.length||content.length>200*1024) throw new Error('Image exceeds the byte limit');
-  const result=execFileSync(process.execPath,[path.join(HERE,'verify-team-image.mjs')],{
-    input:content,stdio:['pipe','pipe','pipe'],timeout:30000,maxBuffer:64*1024,
-  });
+  let result;
+  try {
+    result=execFileSync(process.execPath,[path.join(HERE,'verify-team-image.mjs')],{
+      input:content,stdio:['pipe','pipe','pipe'],timeout:30000,maxBuffer:64*1024,
+    });
+  } catch (error) {
+    throw new Error(describeDecoderFailure(error));
+  }
   const decoded=JSON.parse(result.toString('utf8'));
   if(!decoded||!['png','jpeg','webp'].includes(decoded.format)||
     !Number.isInteger(decoded.width)||!Number.isInteger(decoded.height)||
@@ -425,7 +448,7 @@ function projectAssets(projection, source, revision, planId) {
       const content=source.read(file);verifyRaster(content);
       asset.status='available';asset.path=`assets/${revision}/${file}`;
       bytes.set(asset.path,content);
-    } catch {fail(`Same-revision image is unavailable: ${file}`);}
+    } catch (error) {fail(`Same-revision image is unavailable: ${file} (${describeDecoderFailure(error)})`);}
   };
   for (const [id,ingredient] of Object.entries(projection.ingredients)) add(ingredient.image,`data/ingredients/${id}.json`,'/image');
   for (const [id,dish] of Object.entries(projection.dishes)) {

@@ -274,6 +274,10 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
   async function checkVersion(): Promise<void> {
     lastCheck = Date.now();
     if (!navigator.onLine) return;
+    // The installed manifest and projection remain in one precache generation.
+    // Check for a waiting worker on every throttled visibility check, even before
+    // comparing the network-only probe with that installed manifest.
+    void registration?.update().catch(() => undefined);
     let baseline: string;
     try {
       baseline = publicationKey(await dataApi.loadPublication());
@@ -286,10 +290,8 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
     } catch {
       return; // 离线 / 网络抖动：下次再查
     }
-    if (fresh !== baseline) {
-      bar.showUpdate(requestUpdate);
-      void registration?.update().catch(() => undefined);
-    }
+    // 资料换了但应用壳没换（或 SW 还没接管）时仍然直接出提示。
+    if (fresh !== baseline) bar.showUpdate(requestUpdate);
   }
 
   document.addEventListener("visibilitychange", () => {

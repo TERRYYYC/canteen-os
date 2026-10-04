@@ -175,7 +175,7 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
   async function loadPublishedTeamPlan(publication:TeamPublication,planId:string):Promise<PublishedTeamPlan> {
     requirePublication(publication);if(publication.kind!=='team-meals')error('unsupported_target','projection','build.json');
     if(!id(planId)||!publication.manifest.plans.includes(planId))error('plan_not_published','projection','build.json');
-    const g=generation,path=`team-meals/${planId}.json`,tag=refreshTag;
+    const g=generation,path=`team-meals/${planId}.json`,tag=refreshTag,pinned=publication.manifest.commit;
     return withRevision(cached(path,'projection',async()=>{
       let raw:unknown,requestTag=tag;
       try {raw=await json(path,'projection',requestTag);}
@@ -186,7 +186,25 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
         // may supply it offline, but must pass the same complete validation below.
         requestTag='';raw=await json(path,'projection',requestTag);
       }
-      const {view,bindings}=validateProjection(raw,publication,planId,requestTag);
+      let validated:ReturnType<typeof validateProjection>;
+      try {validated=validateProjection(raw,publication,planId,requestTag);}
+      catch(e) {
+        if(requestTag===pinned||!(e instanceof PublishedDataError)||e.code!=='revision_mismatch')throw e;
+        // A precached projection predates this manifest. Pinning the query to the commit
+        // leaves the precache list so the network answers, and keeps one stable URL per
+        // publication so HTTP and runtime caches still hit. Retried at most once.
+        let repinned:unknown;
+        try {repinned=await json(path,'projection',pinned);}
+        catch(retry) {
+          guard(g,'projection',path);
+          // Offline keeps the mismatch that sent us here; the retry must not replace it.
+          if(retry instanceof PublishedDataError&&retry.code==='unavailable'&&retry.status===null)throw e;
+          throw retry;
+        }
+        guard(g,'projection',path);
+        validated=validateProjection(repinned,publication,planId,pinned);
+      }
+      const {view,bindings}=validated;
       guard(g,'projection',path);plans.set(view,{generation:g,bindings});return view;
     }),publication.manifest.commit);
   }

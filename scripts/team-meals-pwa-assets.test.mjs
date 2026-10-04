@@ -25,7 +25,7 @@ function inspectWorker(outDir, base) {
   const scope = `${origin}${base}`;
   const exports = {};
   const constructorOptions = new Map();
-  const routes = [], precache = [];
+  const routes = [], precache = [], precacheOptions = [];
   const context = vm.createContext({URL, Request, Response, Headers, console, setTimeout, clearTimeout,
     registration: {scope}, location: new URL('sw.js', scope), addEventListener() {},
     fetch() { throw new Error('Network is forbidden in generated-SW configuration tests'); }});
@@ -39,11 +39,15 @@ function inspectWorker(outDir, base) {
   vm.runInContext(readFileSync(path.join(outDir, workboxFile), 'utf8'), context, {filename: workboxFile});
   const observed = {...exports,
     clientsClaim() {}, cleanupOutdatedCaches() {},
-    precacheAndRoute(entries) { precache.push(...entries); },
+    precacheAndRoute(entries, options) { precache.push(...entries); precacheOptions.push(options); },
     createHandlerBoundToURL() { return () => {}; },
     registerRoute(capture, handler, method) { routes.push({capture, handler, method}); },
   };
-  for (const name of ['CacheFirst', 'StaleWhileRevalidate', 'ExpirationPlugin', 'CacheableResponsePlugin']) {
+  // Only the strategies the config actually uses get bundled into the generated SW. Since issue #110
+  // dropped the manifest's NetworkFirst route, NetworkFirst is no longer exported — wrapping a missing
+  // export would throw here and hide the real assertions below.
+  for (const name of ['CacheFirst', 'NetworkFirst', 'StaleWhileRevalidate', 'ExpirationPlugin', 'CacheableResponsePlugin']) {
+    if (typeof exports[name] !== 'function') continue;
     observed[name] = new Proxy(exports[name], {
       construct(target, args) {
         const instance = Reflect.construct(target, args);
@@ -59,7 +63,7 @@ function inspectWorker(outDir, base) {
   };
   vm.runInContext(readFileSync(path.join(outDir, 'sw.js'), 'utf8'), context, {filename: 'sw.js'});
   const runtime = routes.filter(route => constructorOptions.has(route.handler));
-  return {origin, scope, base, runtime, precache, constructorOptions, exports};
+  return {origin, scope, base, runtime, precache, precacheOptions, constructorOptions, exports};
 }
 
 before(async () => {
@@ -151,10 +155,16 @@ for (const base of ['/', '/canteen-os/']) {
     assert.notEqual(route.handler.cacheName, 'images');
   });
 
-  test(`${base}: JSON precache and the prior image/font rules remain, without full asset precaching`, async () => {
+  test(`${base}: build.json is precached next to the projection so both swap in one activate`, async () => {
     const deployment = deployments.get(base);
     const paths = deployment.precache.map(entry => new URL(entry.url, deployment.scope).pathname);
-    for (const suffix of ['data/build.json', 'data/team-meals/week.json', 'icons/probe.svg']) assert.ok(paths.includes(`${base}${suffix}`), suffix);
+    for (const suffix of ['data/team-meals/week.json', 'icons/probe.svg']) assert.ok(paths.includes(`${base}${suffix}`), suffix);
+    // issue #110/#114: the manifest and the projection must come from the same precache generation.
+    // Split across two cache paths, an installed client holds a new manifest plus an old projection
+    // and validateProjection hard-fails with revision_mismatch; the waiting SW has no upper time bound.
+    const manifestEntry = deployment.precache.find(entry => new URL(entry.url, deployment.scope).pathname === `${base}data/build.json`);
+    assert.ok(manifestEntry, 'build.json must be precached');
+    assert.match(manifestEntry.revision ?? '', /^[0-9a-f]{8,}$/, 'the precached manifest must be revisioned per build');
     assert.equal(paths.some(value => value.startsWith(`${base}data/assets/`)), false);
     const image = deployment.runtime.find(route => route.handler.cacheName === 'images');
     assert.ok(image.handler instanceof deployment.exports.CacheFirst);
@@ -165,6 +175,30 @@ for (const base of ['/', '/canteen-os/']) {
     assert.equal(await plugin.cacheWillUpdate({response: zero}), zero);
     for (const cacheName of ['google-fonts-css', 'google-fonts-files']) {
       assert.ok(deployment.runtime.find(route => route.handler.cacheName === cacheName).handler instanceof deployment.exports.StaleWhileRevalidate);
+    }
+  });
+
+  test(`${base}: nothing routes build.json at runtime — probes stay NetworkOnly`, () => {
+    const deployment = deployments.get(base);
+    // issue #110 plan B: the manifest is served from precache, so there is no runtime cache for it.
+    assert.equal(deployment.runtime.some(entry => entry.handler.cacheName === 'publication-manifest'), false,
+      'a runtime manifest cache would desynchronise the manifest from the precached projection again');
+    // issue #114: probe URLs are unique per call. They must not be cached anywhere — not in a runtime
+    // cache (they evicted the offline fallback) and not in precache (they would pin a stale answer).
+    // Workbox only ignores utm_/fbclid when matching precache entries, so any query-bearing request
+    // falls through every route and goes to the network. Passing no options keeps that default.
+    for (const options of deployment.precacheOptions) assert.equal(options?.ignoreURLParametersMatching, undefined,
+      'precacheAndRoute must keep workbox default ignoreURLParametersMatching (utm_/fbclid only)');
+    for (const href of [
+      `${deployment.scope}data/build.json`,
+      `${deployment.scope}data/build.json?__publication=probe-1758000000000-reader-1`,
+      `${deployment.scope}data/build.json?__publication=${sha}`,
+      `${deployment.scope}data/build.json?t=1758000000000`,
+    ]) for (const route of deployment.runtime) {
+      // Font routes are declared as RegExp (built inside the SW's vm realm, so `instanceof RegExp`
+      // is false here); the rest are callbacks serialised into the SW.
+      const claimed = typeof route.capture === 'function' ? matches(deployment, route, href) : route.capture.test(href);
+      assert.equal(claimed, false, `${route.handler.cacheName} must not claim ${href}`);
     }
   });
 }

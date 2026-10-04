@@ -5,6 +5,12 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {inflateSync} from 'node:zlib';
 import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+
+// Node 22 returns an empty CJS namespace from `await import()` when this process has
+// already read a piped stdin (see scripts/verify-team-image.test.mjs). Both decoders are
+// plain CommonJS, so load them with require(): correct on every supported Node.
+const requireDecoder=createRequire(import.meta.url);
 
 // Container checks only. Call the approved pixel decoder on EVERY decodeInput
 // before treating this image as usable; publishing always retains the source bytes.
@@ -353,11 +359,11 @@ export async function verifyTeamImage(bytes,{timeoutMs=29000}={}) {
   const deadline=Date.now()+timeoutMs;imageBytes(bytes,'Image');let container;
   if(bytes.subarray(0,8).equals(PNG_SIGNATURE)) {
     container=validatePngContainer(bytes);remaining(deadline);
-    const {default:png}=await import('pngjs');remaining(deadline);
-    for(const input of container.decodeInputs) await decodePng(input,png.PNG,deadline);
+    const {PNG}=requireDecoder('pngjs');remaining(deadline);
+    for(const input of container.decodeInputs) await decodePng(input,PNG,deadline);
   } else if(bytes[0]===0xff&&bytes[1]===0xd8) {
     container=validateJpegContainer(bytes);remaining(deadline);
-    const {default:jpeg}=await import('jpeg-js');remaining(deadline);
+    const jpeg=requireDecoder('jpeg-js');remaining(deadline);
     const decoded=jpeg.decode(bytes,{useTArray:true,formatAsRGBA:true,tolerantDecoding:false,maxResolutionInMP:1.6384,maxMemoryUsageInMB:64});
     remaining(deadline);decodedPixels(decoded,container);
   } else if(bytes.toString('latin1',0,4)==='RIFF') {

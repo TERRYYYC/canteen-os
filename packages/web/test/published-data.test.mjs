@@ -59,7 +59,7 @@ test('unknown targets/versions, bad JSON and unsupported legacy calls never sile
 test('A manifest with B projection, wrong plan and nonpublishable diagnostics fail closed',async()=>{
  for(const [delta,code] of [[{sourceRevision:B},'revision_mismatch'],[{projectionVersion:'2'},'unsupported_version'],[{menuPlans:{other:{schemaVersion:'3',meals:[]}}},'invalid_data'],[{issues:[{kind:'error',code:'invalid-source'}]},'invalid_data']]) {
   const {api,calls}=setup('normal',u=>u.pathname.includes('/team-meals/')?json({...cases.normal.projection,...delta}):undefined);
-  await assert.rejects(load(api),{code});assert.equal(calls.length,2);
+  await assert.rejects(load(api),{code});assert.equal(calls.length,code==='revision_mismatch'?3:2); // A mismatch retries once pinned to the commit.
  }
  const {api}=setup('normal',u=>u.pathname.includes('/team-meals/')?json({},404):undefined);await assert.rejects(load(api),{code:'unavailable',stage:'projection',sourceRevision:cases.normal.revision});
 });
@@ -154,4 +154,42 @@ test('approved producer emits real original PNG bytes and stable technique bindi
   }
   assert.equal(calls.filter(p=>p.startsWith('assets/')).length,1);
  } finally {fixture.cleanup();}
+});
+const stale=()=>({...cases.normal.projection,sourceRevision:B});
+const projectionCalls=calls=>calls.filter(c=>c.url.pathname.includes('/team-meals/'));
+test('a precached projection older than the manifest is refetched once, pinned to the commit',async()=>{
+ // #110: a NetworkFirst build.json plus a precached projection hands the reader a stale pair.
+ const {api,calls}=setup('normal',u=>u.pathname.includes('/team-meals/')&&!u.searchParams.has('__publication')?json(stale()):undefined);
+ const view=await load(api);assert.equal(view.sourceRevision,cases.normal.revision);
+ assert.deepEqual(view.projection.menuPlans,cases.normal.projection.menuPlans);
+ const tries=projectionCalls(calls);assert.equal(tries.length,2);assert.equal(tries[0].url.search,'');
+ assert.equal(tries[1].url.searchParams.get('__publication'),cases.normal.revision);
+ assert.equal(calls.length,3);
+});
+test('a projection still stale after the pinned retry fails revision_mismatch against the pinned URL',async()=>{
+ const {api,calls}=setup('normal',u=>u.pathname.includes('/team-meals/')?json(stale()):undefined);
+ await assert.rejects(load(api),e=>{
+  assert.equal(e.code,'revision_mismatch');assert.equal(e.stage,'projection');assert.equal(e.sourceRevision,cases.normal.revision);
+  assert.equal(new URL(e.url).searchParams.get('__publication'),cases.normal.revision);return true;});
+ assert.equal(projectionCalls(calls).length,2);assert.equal(calls.length,3);
+});
+test('an offline pinned retry reports the original revision_mismatch, never the network failure',async()=>{
+ const {api,calls}=setup('normal',u=>{
+  if(!u.pathname.includes('/team-meals/'))return undefined;
+  if(u.searchParams.has('__publication'))throw new TypeError('local app transport unavailable');
+  return json(stale());
+ });
+ await assert.rejects(load(api),e=>{
+  assert.equal(e.code,'revision_mismatch');assert.equal(e.status,null);assert.equal(e.stage,'projection');
+  assert.equal(e.sourceRevision,cases.normal.revision);
+  assert.equal(new URL(e.url).search,'','offline diagnostics keep the URL that actually mismatched');return true;});
+ assert.equal(projectionCalls(calls).length,2);assert.equal(calls.length,3);
+});
+test('the pinned retry runs at most once, including from a refresh-tagged first request',async()=>{
+ const {api,calls}=setup('normal',u=>u.pathname.includes('/team-meals/')?json(stale()):undefined);
+ const fresh=await api.loadPublication({fresh:true});
+ await assert.rejects(api.loadPublishedTeamPlan(fresh,'week-41'),{code:'revision_mismatch'});
+ const tags=projectionCalls(calls).map(c=>c.url.searchParams.get('__publication'));
+ assert.equal(tags.length,2);assert.ok(tags[0]&&tags[0]!==cases.normal.revision);assert.equal(tags[1],cases.normal.revision);
+ assert.equal(calls.length,3);
 });

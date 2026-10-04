@@ -36,6 +36,28 @@ jobs:
       - name: Check packages/core/src/types.ts against schemas/*.schema.json
         run: node scripts/check-types-vs-schema.mjs
 
+  # #101: the real piped child decoder has a Node 22-specific CJS loading path.
+  # Keep existing check names intact and verify the frozen dependency set separately.
+  image-gate-node22:
+    name: Node 22 image gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      - name: Install frozen image dependencies and tools
+        run: |
+          set -e
+          pnpm install --frozen-lockfile
+          node scripts/prepare-team-image-tools.mjs
+      - name: Build core for the producer diagnostics
+        run: pnpm -C packages/core build
+      - name: Verify decoder input, piped PNG/JPEG and bounded stderr
+        run: node --test scripts/verify-team-image.test.mjs scripts/verify-team-image.spawn.test.mjs scripts/build-data.decoder-failure.test.mjs
+
   # 单测 + 前端构建。步骤与 build-deploy.yml 的 build 作业同源（那边只在 push main 之后跑，
   # 红了错误已经在 main 上）——这里把同样的证据前移到 PR。issue #57。
   build-web:
