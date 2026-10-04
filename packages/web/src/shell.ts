@@ -135,6 +135,15 @@ export function mountShell(root: HTMLElement): Shell {
           h("span", { class: "l2" }, t(route === 'menu' ? (team ? 'drawer.teamMenu.role' : publicationKind === 'legacy' ? l2 : 'drawer.menu.view') : l2))),
       ),
     );
+    const inboxHref = `${hrefOf('admin')}/knowledge/inbox`;
+    const chefInbox = h(
+      "a",
+      { class: "di", href: inboxHref, "aria-current": isCurrent(inboxHref) ? "page" : null },
+      h("span", { class: "ic", "aria-hidden": "true" }, "厨"),
+      h("span", { class: "tx" },
+        h("span", { class: "l1" }, t("drawer.chef")),
+        h("span", { class: "l2" }, t("drawer.chef.role"))),
+    );
     const planId = build?.plans[0];
     const planHref = planId ? `${hrefOf('admin')}/plan/${encodeURIComponent(planId)}` : null;
     const plan = h(
@@ -184,7 +193,7 @@ export function mountShell(root: HTMLElement): Shell {
         h("span", { class: "corner", "aria-hidden": "true" }, ...cornerGlyph()),
         h("div", {}, h("div", { class: "n" }, t("app.name")), h("div", { class: "s" }, t("app.tagline"))),
       ),
-      h("nav", { "aria-label": t("drawer.title") }, ...items, plan),
+      h("nav", { "aria-label": t("drawer.title") }, ...items, chefInbox, plan),
       h("div", { class: "theme" }, themeLabel, toggle),
       foot,
     );

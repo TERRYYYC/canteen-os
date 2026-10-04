@@ -47,6 +47,8 @@ const DICT = {
   "drawer.purchase.role": { uk: "для закупівельника · 采购员", zh: "采购员", en: "for the buyer · 采购员" },
   "drawer.menu": { uk: "Меню", zh: "菜单", en: "Menu" },
   "drawer.menu.role": { uk: "для гостей · 顾客", zh: "顾客", en: "for guests · 顾客" },
+  "drawer.chef": { uk: "Кабінет шефа", zh: "师傅后台", en: "Chef back office" },
+  "drawer.chef.role": { uk: "Вхідні рецепти · 复核菜谱", zh: "复核菜谱", en: "Review recipes" },
   "drawer.plan": { uk: "План меню · 菜单计划", zh: "菜单计划", en: "Menu plan · 菜单计划" },
   "drawer.plan.role": { uk: "для шефа · 师傅", zh: "师傅", en: "for the chef · 师傅" },
   "drawer.teamMenu.role": { uk: "Для команди", zh: "团队查看", en: "For the team" },
