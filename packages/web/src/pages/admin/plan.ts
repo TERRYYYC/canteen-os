@@ -1,6 +1,6 @@
 /** Team plan page. D0 design: docs/design/team-meals-pages/. */
 import './plan.css';
-import { weekStartOfPlanId, planIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
+import { weekStartOfPlanId, datedPlanIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
 import { apiMessage } from '../../admin/kit';
@@ -15,6 +15,7 @@ import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
 import {currentPlan,selectPlan} from './plan-context';
 import {recordValue} from '../record-display';
+import {localDateIso} from '../../local-date';
 export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
@@ -55,7 +56,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
     const [routeId,actionName,selectedDishRef]=rest.split('/');
-    const id=routeId||currentPlan(ctx,api).id||planIdOfDate(new Date().toISOString().slice(0,10))||'';
+    const id=routeId||currentPlan(ctx,api).id||datedPlanIdOfDate(localDateIso())||'';
     const selectedDish=actionName==='select'&&selectedDishRef&&/^kb-[0-9a-f]{32}-v[1-9][0-9]*$/.test(selectedDishRef)?selectedDishRef:null;
     if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
     el.classList.add('tm-page');el.classList.add('tm-plan');
@@ -68,7 +69,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     let previewLoading=false,previewError:unknown=null;
     const photos=new Map<string,{url?:string;failed?:boolean}>();
     const disposePhotos=()=>{for(const photo of photos.values())if(photo.url)URL.revokeObjectURL(photo.url);photos.clear();};
-    const today=new Date().toISOString().slice(0,10);
+    const today=localDateIso();
     const weekStart=weekStartOfPlanId(id,today);
     const defaultDate=weekStart&&/^week-\d{4}-\d{1,2}$/.test(id)&&today>=weekStart&&today<=shift(weekStart,6)?today:weekStart??today;
     const view:View=views.get(id)??{range:'all',date:defaultDate,invalid:new Map(),addDate:defaultDate,addMeal:'lunch',addDish:'',addBaseline:[defaultDate,'lunch',''],initialized:false,generation:++rawGeneration,reads:0};views.set(id,view);

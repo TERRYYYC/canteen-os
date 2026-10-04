@@ -13,14 +13,15 @@
  *      → 跳 #/admin/plan/<planId>；导入本身不调任何写入端点。已有导入草稿时顶部可「撤销」（store.undoDraftPlan）。
  *
  * 原始输入按 API 会话与计划保留；语言与导航只更换视图，异步文件结果回到原 owner。
- * 目标周：rest 里的 planId，缺省 = 今天所在 ISO 周（D-06：week-<ISO 周号>，换算只有 core 那一份实现）。
+ * 目标周：rest 里的 planId，缺省 = 浏览器本地今天所在 ISO 周（带年份的 week-<年>-<周>）。
  * 样式：根元素 class="adm adm-import"，import.css 里每条选择器以 .adm-import 开头（§3.4）。
  * 文案：本文件私有字典，前缀 `import.`，三语齐全（§5.2 / §5.4）；共用文案用 admin/kit.ts 的 adm()。
  */
 import "./import.css";
 
 import type { AnyMenuPlan, MealType, MenuPlanV3, MenuPlanMealV3, ParsedLine } from "@canteenos/core";
-import { isoWeekOf, mondayOfIsoWeek, parsePlanText, planIdOfDate, weekStartOfPlanId } from "@canteenos/core";
+import { isoWeekOf, mondayOfIsoWeek, parsePlanText, datedPlanIdOfDate, weekStartOfPlanId } from "@canteenos/core";
+import { localDateIso } from "../../local-date";
 import { adm, apiMessage, button, errorCard, notice, sessionExpired, topBar } from "../../admin/kit";
 import { bindDraftStore } from "../../admin/store";
 import { onAuthSessionChange } from "../../admin/token";
@@ -271,9 +272,7 @@ function notifyInputOwner(owner: ImportInputOwner): void {
 // ---------------------------------------------------------------------------
 
 function todayIso(): string {
-  const d = new Date();
-  const p = (n: number): string => (n < 10 ? `0${n}` : String(n));
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  return localDateIso();
 }
 
 function addDaysIso(iso: string, n: number): string {
@@ -292,7 +291,7 @@ function dayOffset(iso: string, weekStart: string): number {
 /** 目标周：rest 里的 planId，缺省今天所在 ISO 周（D-06）；weekStart 从 planId 反推，推不出就用本周一 */
 function resolveWeek(rest: string, ctx: PageCtx): { planId: string; weekStart: string } {
   const today = todayIso();
-  const planId = rest || planIdOfDate(today) || ctx.planId || "week-1";
+  const planId = rest || datedPlanIdOfDate(today) || ctx.planId || "week-1";
   const w = isoWeekOf(today);
   const thisMonday = (w && mondayOfIsoWeek(w.year, w.week)) || today;
   return { planId, weekStart: weekStartOfPlanId(planId, today) ?? thisMonday };

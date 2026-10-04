@@ -1,4 +1,5 @@
 import { datedPlanIdOfDate } from '@canteenos/core';
+import { localDateIso } from '../../../local-date';
 import { h, replace } from '../../../dom';
 import { onRoute } from '../../../router';
 import { onAuthSessionChange } from '../../../admin/token';
@@ -311,7 +312,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           if(active())showFrozen(data);
         }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
         function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
-          const currentWeek=datedPlanIdOfDate(new Date().toISOString().slice(0,10));
+          const currentWeek=datedPlanIdOfDate(localDateIso());
           replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('来源与用量待确认项','Source and amount questions','Питання щодо джерела й кількості')} ${data.unresolvedCount}`),
             currentWeek?h('a',{href:`#/admin/plan/${currentWeek}/select/${encodeURIComponent(data.dishRef)}`},t('到本周菜单安排这道菜','Schedule in this week’s menu','Запланувати в меню цього тижня')):null);
         }

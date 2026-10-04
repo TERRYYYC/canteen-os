@@ -5,6 +5,7 @@ import type { Source } from '../../api/types';
 import { createEditSession } from '../../view-models/edit-session';
 import { parseServingsInput } from './servings-input';
 import { connectPlanImport } from './plan-import';
+import { localDateIso } from '../../local-date';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
@@ -75,7 +76,7 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
       } else {
         const source = await read(id, () => api.getPlan(id));
         if (!live()) return null;
-        const start=!source&&/^week-\d{4}-\d{1,2}$/.test(id)?weekStartOfPlanId(id,new Date().toISOString().slice(0,10)):null;
+        const start=!source&&/^week-\d{4}-\d{1,2}$/.test(id)?weekStartOfPlanId(id,localDateIso()):null;
         const dateRange=start?{start,end:new Date(Date.parse(`${start}T12:00:00Z`)+6*86400000).toISOString().slice(0,10)}:undefined;
         const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',...(dateRange?{dateRange}:{}),meals:[]};
         session.open({kind:'plan',id},initial,source); known.add(id);

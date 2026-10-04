@@ -158,6 +158,17 @@ test('new year-specific current-week plan preselects the frozen dish for today a
    assert.deepEqual(f.writes[0].body.meals,[{date:'2026-10-04',mealType:'lunch',dishRef}]);
  }finally{f?.cleanup();globalThis.Date=RealDate;}
 });
+test('current-week preselection uses the chef browser date across UTC midnight',async()=>{
+ const RealDate=Date,oldTimezone=process.env.TZ;process.env.TZ='America/Los_Angeles';
+ globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T00:30:00Z']));}static now(){return RealDate.parse('2026-10-05T00:30:00Z');}};
+ const dishRef=`kb-${'3'.repeat(32)}-v1`;let f;
+ try{
+   f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({ok:false,errors:[{code:'not_found',path:'',message:''}]},{status:404}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+   const rest=`week-2026-40/select/${dishRef}`;document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'zh',planId:'week-2026-40',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-date').value,'2026-10-04','local Sunday is still in ISO week 40');
+ }finally{f?.cleanup();globalThis.Date=RealDate;if(oldTimezone===undefined)delete process.env.TZ;else process.env.TZ=oldTimezone;}
+});
 test('controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page',async()=>{
  let release;const calls=[];const f=await setup({image:true,read:u=>{if(u.pathname==='/asset'){calls.push(u);return new Promise(r=>release=r);}}});try{const el=await f.mount();await f.flush();assert.equal(calls.length,1);assert.equal(calls[0].searchParams.get('revision'),A);assert.equal(calls[0].searchParams.get('owner'),'data/dishes/soup.json');assert.equal(calls[0].searchParams.get('pointer'),'/image');assert.equal(f.render.readAuxiliary('week-a').phase,'busy');document.body.replaceChildren();release(new Response('image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(el.querySelectorAll('img').length,0);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(f.writes.length,0);}finally{f.cleanup();}
 });
