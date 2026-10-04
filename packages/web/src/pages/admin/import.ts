@@ -582,12 +582,17 @@ function mergePlan(base: AnyMenuPlan | null, meals: MenuPlanMealV3[], planId: st
 export async function render(el: HTMLElement, ctx: PageCtx, rest: string, api: TeamMealsApi = getTeamMealsApi()): Promise<void> {
   const drafts = bindDraftStore(api);
   const lang = ctx.lang;
+  const ticket = ++renderGeneration, session = api.sessionKey(), auth = ownerAuthGeneration;
   const target=resolveWeek(rest, ctx, api);
-  const { planId, weekStart } = target instanceof Promise ? await target : target;
+  if(target instanceof Promise)ctx.setReloadCoverage?.("read-only");
+  let selected:{planId:string;weekStart:string};
+  try{selected=target instanceof Promise ? await target : target;}
+  catch(error){if(ticket!==renderGeneration||!el.isConnected||session!==api.sessionKey()||auth!==ownerAuthGeneration)return;throw error;}
+  if(ticket!==renderGeneration||!el.isConnected||session!==api.sessionKey()||auth!==ownerAuthGeneration)return;
+  const { planId, weekStart } = selected;
   const owner = getImportInputOwner(api, planId), state = owner.state;
-  // Every input owner is registered before this render can begin async work.
+  // Implicit plan discovery has no input owner; only the still-current render registers one.
   ctx.setReloadCoverage?.("tracked");
-  const ticket = ++renderGeneration;
   const live = () => el.isConnected && ticket === renderGeneration && ownerValid(owner);
 
   const returnTo = adminHref("plan", planId, "import");

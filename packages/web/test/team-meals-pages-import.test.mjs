@@ -205,6 +205,22 @@ test('two old Import read tickets survive auth and settle independently without 
  changeAuth();const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const file=deferredFile('private-a.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');f.changeAuth();changeAuth();el=mount();await render(el,ctx('uk'),'week-38',f.api);let snapshot=inspectReloadSafety();assert.equal(snapshot.reason,'unknown');assert.ok(snapshot.records.some(r=>r.id==='previous-session-operation'));assert.equal(JSON.stringify(snapshot).includes('private-a.csv'),false);release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'unknown','the second old read still exists');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear','all old reads ended; B blank owner is clear');assert.equal(el.querySelector('#adm-import-text').value,'');
 });
 
+test('a late implicit-week read cannot invalidate a newer explicit import page',async()=>{
+ const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
+ try{
+  let release;const pending=new Promise(resolve=>{release=resolve;});
+  const f=setup(),read=f.api.getPlan.bind(f.api);
+  f.api.getPlan=(id,opts)=>id==='week-41'?pending:read(id,opts);
+  const a=mount(),old=render(a,{...ctx('zh'),planId:'week-41'},'',f.api);
+  const b=mount();await render(b,ctx('zh'),'week-38',f.api);
+  release({content:{schemaVersion:'2',dateRange:{start:'2026-10-05',end:'2026-10-11'},meals:[]}});
+  await old;
+  const input=b.querySelector('#adm-import-text');input.value='周一午 原汤';input.dispatch('input');
+  assert.equal(b.querySelector('.adm-import-parse').disabled,false,'the visible B page must still accept input');
+  assert.equal(a.children.length,0,'the detached A page must not render after its read');
+ }finally{globalThis.Date=RealDate;}
+});
+
 
 test('Import initialization completes original coverage after auth cancellation and snapshot never reads A raw',async()=>{
  changeAuth();let release,old=true;const gate=new Promise(r=>release=r),f=setup({catalogRead:()=>old?gate:catalog}),coverage=createPageReloadCoverage();
