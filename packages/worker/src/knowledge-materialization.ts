@@ -1,5 +1,6 @@
 /** Convert one human-approved SQLite revision into version-addressed Git inputs. */
 import { stableSerialize } from './serialize.js';
+import { completeKnowledgeImageRights } from '@canteenos/core';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 type Localized = { zh?: string; en?: string; uk?: string };
@@ -68,7 +69,7 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
       ...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{}),trackStock:false};
     files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize(ingredient)});
     return {ingredientRef:ref,...(converted.qty?{qty:converted.qty}:{}),originalAmount:converted.originalAmount,
-      originalText:row.rawText??'',...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
+      ...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
   });
   const steps=detail.recipe.steps.map((row,index)=>{
     if(!UUID.test(row.id)||!row.text)throw new Error('invalid_recipe_step');
@@ -77,20 +78,18 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
   }).map(row=>row.image?row:{text:row.text});
   const cover=detail.recipe.assets?.find(asset=>asset.role==='cover');
   const coverImage=cover?imageRef(cover.assetId,'cover'):undefined;
-  const sourceUrl=(detail.sourceRecords as {url?:unknown}[]|undefined)?.find(source=>typeof source?.url==='string')?.url;
-  const sourceRecords=detail.sourceRecords??[];
-  const sourceRefs=detail.recipe.sources??[];
-  const evidenceMedia=detail.media?.map(item=>{
-    const selected=detail.recipe.assets?.find(ref=>ref.assetId===item.assetId&&ref.role==='cover')
-      ??detail.recipe.assets?.find(ref=>ref.assetId===item.assetId);
-    return selected?{...item,selectedRole:selected.role}:item;
-  })??[];
+  const coverMedia=cover?detail.media?.find(media=>media.assetId===cover.assetId):undefined;
+  const coverState=coverImage?undefined:!cover?'needs-image':
+    !coverMedia?'unavailable':
+    /^https?:\/\//i.test(coverMedia.url)?'external-unpinned':
+    !completeKnowledgeImageRights(coverMedia.rights)?'rights-pending':'unavailable';
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
     ...(coverImage?{image:coverImage}:{}),...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
     provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
-      ...(candidate.review?{review:candidate.review}:{}),
-      ...(typeof sourceUrl==='string'?{sourceUrl}:{}),
-      ...(sourceRecords.length||sourceRefs.length||evidenceMedia.length||sourceGaps.length?{evidence:{sourceRecords,sourceRefs,media:evidenceMedia,...(sourceGaps.length?{unresolved:sourceGaps}:{})}}:{})},status:'active'};
+      // Git inputs and the buyer-facing catalog are public projections. Raw
+      // source records, quotes, media URLs and review notes stay in private KB.
+      ...(sourceGaps.length?{sourceGapCount:sourceGaps.length}:{}),
+      ...(coverState?{coverState}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};
 }

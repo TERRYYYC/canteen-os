@@ -16,7 +16,7 @@ const output = join(dir, 'knowledge.mjs');
 const bundle = await esbuild.build({ stdin: { contents: `export {render} from './pages/admin/knowledge'; export * from './api/knowledge'; export * from './pages/admin/knowledge/model'; export {inspectReloadSafety} from './view-models/reload-safety';`, loader: 'ts', resolveDir: join(here, '../src') }, bundle: true, write: false, format: 'esm', platform: 'browser', loader: { '.css': 'empty' }, define: { 'import.meta.env.VITE_WORKER_URL': '"/worker"' }, logLevel: 'silent', plugins: [{ name: 'auth-boundary', setup(build) {
   build.onResolve({ filter: /\/admin\/token$/ }, () => ({ path: 'token', namespace: 'test' }));
   build.onResolve({ filter: /\/router$/ }, () => ({ path: 'router', namespace: 'test' }));
-  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
+  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const peekToken=getToken; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
 } }] });
 await writeFile(output, bundle.outputFiles[0].text);
 const id = '10000000-0000-4000-8000-000000000001';
@@ -36,7 +36,7 @@ async function setup(handler = () => json(detail())) {
   globalThis.fetch = async (url, init = {}) => { fixture.calls.push({ url: String(url), init }); return fixture.handler(String(url), init); };
   const m = await import(pathToFileURL(output).href + `?run=${++serial}`);
   const flush = async () => { for (let i=0;i<15;i++) await new Promise(resolve => setImmediate(resolve)); };
-  const mount = async (rest = id, lang = 'zh') => { await m.render(el, { lang, setReloadCoverage() {} }, rest); await flush(); };
+  const mount = async (rest = id, lang = 'zh') => { await m.render(el, { lang, planId: 'week-2026-40', setReloadCoverage() {} }, rest); await flush(); };
   const all = selector => el.querySelectorAll(selector);
   const click = text => { const control = all('button').find(b => b.textContent === text); assert(control, `button ${text}`); control.click(); };
   const field = (legend, language) => {
@@ -95,7 +95,7 @@ test('an approved source exposes a deliberate v2 chef check before freezing its 
   const write=fixture.calls.find(call=>call.url.endsWith(`/knowledge-materializations/${candidateId}`));
   assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
   assert.match(h.el.textContent,/已固定菜谱版本 v2/);
-  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/team-week/select/kb-${id.replaceAll('-','')}-v2`));
+  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-2026-40/select/kb-${id.replaceAll('-','')}-v2`));
 });
 
 test('video inbox presents the whole recipe and complete source video before technical evidence',async()=>{

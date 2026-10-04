@@ -40,7 +40,7 @@
             "$ref": "dish.schema.json#/properties/components/items/properties/confidence"
           },
           "originalAmount": { "type": "string", "description": "经审核来源的原方用量；即使不能换算也必须保留" },
-          "originalText": { "type": "string", "description": "原方食材行文本" },
+          "originalText": { "type": "string", "description": "仅兼容旧版已存资料；对外投影必须移除" },
           "originalPreparation": { "$ref": "common.schema.json#/$defs/I18nString" },
           "knowledgeIngredientId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
         },
@@ -72,7 +72,9 @@
           "sourceRefs": { "type": "array", "items": { "type": "object" } },
           "media": { "type": "array", "items": { "type": "object" } },
           "unresolved": { "type": "array", "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 2000 } }
-        }, "required": ["sourceRecords", "sourceRefs"], "additionalProperties": false }
+        }, "required": ["sourceRecords", "sourceRefs"], "additionalProperties": false },
+        "sourceGapCount": { "type": "integer", "minimum": 1, "maximum": 100, "description": "原片仍需核对的条件数量；原文和审核备注留在私有知识库" },
+        "coverState": { "type": "string", "enum": ["needs-image", "rights-pending", "external-unpinned", "unavailable"], "description": "可公开的缺图原因；私有来源图片及网址不进入发布资料" }
       }, "required": ["source","recipeId","recipeVersion","candidateId","snapshotHash"], "additionalProperties": false }
     ] },
     "status": {

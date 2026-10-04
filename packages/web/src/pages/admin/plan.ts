@@ -19,7 +19,7 @@ export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalogCommit?:string; pendingSelection?:string; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
+interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalogCommit?:string; pendingSelection?:string; selectedRouteAdded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
@@ -121,7 +121,17 @@ export function createPlanRenderer(api:TeamMealsApi) {
           output.push(h('section',{class:'tm-plan-group'},h('h3',{class:'tm-plan-sr'},`${date} · ${tr(meal as MealType)}`),...indices.map(index=>row(index))));
         }
         if(groups.size===0)output.push(h('p',{class:'tm-card'},tr('empty')));
-        const save=action(tr('save'),()=>void owner.session.save(s.contextId),true);
+        const save=action(tr('save'),()=>{
+          void owner.session.save(s.contextId).then(result=>{
+            // Consume the one-time inbox selection only after its added meal is
+            // actually saved. A failed/unknown save keeps the deep link recoverable.
+            if(result.status==='saved'&&view.selectedRouteAdded&&selectedDish&&isLive()&&
+              location.hash===adminHref('plan',id,'select',selectedDish)&&typeof history!=='undefined'){
+              history.replaceState(history.state,'',adminHref('plan',id));
+              view.selectedRouteAdded=false;
+            }
+          });
+        },true);
         save.disabled=!s.dirty||s.operationId!==null||s.phase==='conflict'||view.invalid.size>0;
         output.push(h('div',{class:'tm-actions'},save,h('a',{class:'tm-button primary tm-plan-purchase',href:hrefOf('purchase',`new/${id}/${view.range}${view.range==='all'?'':`/${view.date}`}`)},lang==='zh'?'建立采购清单':lang==='en'?'Create shopping list':'Створити список покупок')),
           h('p',{class:'tm-plan-note'},lang==='zh'?'采购清单使用已保存的计划':lang==='en'?'Shopping uses the saved plan':'Закупівлі використовують збережений план'));
@@ -171,8 +181,12 @@ export function createPlanRenderer(api:TeamMealsApi) {
     }
     function photo(dishRef:string,name:string):HTMLElement {
       const record=catalog?.dishes[dishRef],revision=catalog?.commit;
-      const missing=lang==='zh'?'图片未录':lang==='en'?'No image':'Без фото';
-      const box=h('div',{class:'tm-plan-photo',role:'img','aria-label':missing},h('span',{'aria-hidden':'true'},'♧'));
+      const fromKnowledge=record?.provenance?.source==='knowledge';
+      const missing=fromKnowledge
+        ?lang==='zh'?'原片参考图仅师傅可见；菜单图片待授权或补录':lang==='en'?'Source frames are chef-only; menu image needs rights or upload':'Кадри джерела доступні лише кухарю; фото меню потребує дозволу або завантаження'
+        :lang==='zh'?'图片未录':lang==='en'?'No image':'Без фото';
+      const pending=lang==='zh'?'待授权/补图':lang==='en'?'Image pending':'Фото очікується';
+      const box=h('div',{class:'tm-plan-photo',role:'img','aria-label':missing},h('span',{class:fromKnowledge?'tm-plan-photo-state':undefined,'aria-hidden':'true'},fromKnowledge?pending:'♧'));
       if(!record?.image||!revision)return box;
       const key=`${revision}/${dishRef}`;
       let state=photos.get(key);
@@ -253,6 +267,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
       formEl.addEventListener('submit',event=>{
         event.preventDefault();if(!isLive()||owner.session.getState().contextId!==captured)return;
         if(date.value&&dish.value&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
+          if(selectedDish&&dish.value===selectedDish)view.selectedRouteAdded=true;
           view.addBaseline=[view.addDate,view.addMeal,view.addDish];touch(view);paint();
         }
       });return formEl;

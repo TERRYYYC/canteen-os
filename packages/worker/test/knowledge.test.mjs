@@ -35,7 +35,7 @@ function send(f, method, path, { role = 'chef', body, headers = {}, raw } = {}) 
   }), f.env);
 }
 
-test('all knowledge routes require Bearer; buyers read all routes but cannot write; chefs and admins can write', async () => {
+test('all knowledge routes require Bearer; source and image bytes stay chef-private', async () => {
   for (const [method, template] of KNOWLEDGE_ROUTES) {
     const path = template.replace(':id', id).replace(':version', '1');
     const upload = path.endsWith('/upload');
@@ -43,11 +43,21 @@ test('all knowledge routes require Bearer; buyers read all routes but cannot wri
     for (const role of [null, 'buyer', 'chef', 'admin']) {
       const f = fixture();
       const response = await send(f, method, path, { ...request, role });
-      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || path.startsWith('/knowledge/favorites')) ? 403 : method === 'POST' ? 201 : 200;
+      const privateSource = path.startsWith('/knowledge/favorites') || path.startsWith('/knowledge/recipes') || template === '/knowledge/assets/:id/content';
+      const expected = role === null ? 401 : role === 'buyer' && (method !== 'GET' || privateSource) ? 403 : method === 'POST' ? 201 : 200;
       assert.equal(response.status, expected, `${role} ${method} ${path}: ${await response.text()}`);
       assert.equal(f.seen.length, expected < 400 ? 1 : 0);
       assert.equal(f.gitCalls, 0);
     }
+  }
+});
+
+test('buyer never reaches raw source text, historical quotes or private media URLs', async () => {
+  for (const path of ['/knowledge/recipes', `/knowledge/recipes/${id}`, `/knowledge/recipes/${id}/revisions/1`, `/knowledge/recipes/${id}/legacy`]) {
+    const f = fixture(async () => asJson({ sourceRecords: [{ textContent: 'PRIVATE_TRANSCRIPT_SENTINEL' }], coverUrl: 'https://private.invalid/PRIVATE_MEDIA_SENTINEL' }));
+    const response = await send(f, 'GET', path, { role: 'buyer' });
+    assert.equal(response.status, 403, path);
+    assert.equal(f.seen.length, 0, path);
   }
 });
 

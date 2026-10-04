@@ -124,15 +124,14 @@ test('menu summary includes seasonings and repeated rows; opening a row shows th
 });
 test('unpublished knowledge cover evidence is distinct from an absent image in menu and prep',()=>{
   const cases=[
-    [{assetId:'a',kind:'image',role:'cover',url:'https://example.org/temporary.jpg',rights:{license:'CC BY 4.0',author:'artist'}},'外部图片未固定'],
-    [{assetId:'b',kind:'image',role:'cover',url:'/api/v1/assets/b/content',rights:{status:'pending'}},'图片使用许可待核实'],
-    [{assetId:'c',kind:'image',role:'cover',url:'/api/v1/assets/c/content',rights:{license:'own'}},'图片使用许可待核实'],
-    [null,'待补图'],
+    ['external-unpinned','外部图片未固定'],
+    ['rights-pending','图片使用许可待核实'],
+    ['needs-image','待补图'],
   ];
-  for(const [media,expected] of cases){
+  for(const [coverState,expected] of cases){
     const data=JSON.parse(JSON.stringify(fixture())),dish=data.projection.dishes['dish-a'];
     delete dish.image;
-    dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),evidence:{sourceRecords:[],sourceRefs:[],media:media?[media]:[]}};
+    dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),coverState};
     for(const render of [menu.renderFrozenMenu,prep.renderFrozenPrep]){
       const el=mount(),stop=render(el,freeze(data),options());
       assert.match(el.textContent,new RegExp(expected));
@@ -141,16 +140,15 @@ test('unpublished knowledge cover evidence is distinct from an absent image in m
     }
   }
 });
-test('prep shows source cooking gaps outside folded technical evidence',()=>{
+test('prep shows the source gap count without exposing private source text',()=>{
   const data=JSON.parse(JSON.stringify(fixture())),dish=data.projection.dishes['dish-a'];
   dish.status='active';
-  dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),
-    evidence:{sourceRecords:[],sourceRefs:[],unresolved:['煲煮火力和时长未说明','粉的品种未说明']}};
+  dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),sourceGapCount:2};
   const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options());
   const questions=attr(el,'class','prep-source-questions');
   assert.equal(questions.length,1);
-  assert.match(questions[0].textContent,/煲煮火力和时长未说明/);
-  assert.match(questions[0].textContent,/粉的品种未说明/);
+  assert.match(questions[0].textContent,/2 · 备料前请厨房负责人/);
+  assert.doesNotMatch(el.textContent,/煲煮火力和时长未说明|粉的品种未说明/);
   stop();el.remove();
 });
 test('an unresolved plan is shown as missing source, not silently represented as an empty menu',()=>{

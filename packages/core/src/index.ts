@@ -5,6 +5,7 @@
  */
 export * from "./types.js";
 export * from "./image-rights.js";
+export * from "./public-dish.js";
 export * from "./procurement/engine.js";
 export * from "./sheets.js";
 export * from "./render/prep.js";

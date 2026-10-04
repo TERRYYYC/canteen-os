@@ -5,6 +5,8 @@ import type { PageCtx } from '../../../types';
 import { getKnowledgeApi, type Recipe } from '../../../api/knowledge';
 import { words, button, field, safeExternal } from './ui';
 import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
+import { getTeamMealsApi } from '../../../api/team-meals';
+import { currentPlan } from '../plan-context';
 
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
 type Item = { id: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
@@ -242,8 +244,10 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           if(active())showFrozen(data);
         }catch(error){if(active())replace(materialNotice,h('p',{role:'alert'},errorText(error)));}finally{material.disabled=false;}}
         function showFrozen(data:{dishRef:string;recipeVersion:number;commit:string;unresolvedCount:number}){
+          const planId=currentPlan(ctx,getTeamMealsApi()).id;
           replace(materialNotice,h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version frozen','Версію зафіксовано')} v${data.recipeVersion} · ${data.dishRef} · ${data.commit.slice(0,12)} · ${t('来源与用量待确认项','Source and amount questions','Питання щодо джерела й кількості')} ${data.unresolvedCount}`),
-            h('a',{href:`#/admin/plan/team-week/select/${encodeURIComponent(data.dishRef)}`},t('到菜单计划选这道菜','Select in menu plan','Вибрати в плані меню')));
+            planId?h('a',{href:`#/admin/plan/${planId}/select/${encodeURIComponent(data.dishRef)}`},t('到当前菜单计划选这道菜','Select in current menu plan','Вибрати в поточному плані меню')):
+              h('p',{role:'status'},t('请先打开并选择一个菜单计划，再安排这道菜。','Open and select a menu plan before scheduling this dish.','Спочатку відкрийте та виберіть план меню.')));
         }
         const check=button(t('检查菜谱新版本','Check newer recipe version','Перевірити нову версію'),()=>void checkCurrent());
         async function checkCurrent(){check.disabled=true;replace(newVersion,h('p',{role:'status'},t('正在读取最新版本…','Loading latest version…','Завантаження…')));

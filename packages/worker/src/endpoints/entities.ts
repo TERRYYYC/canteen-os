@@ -145,6 +145,9 @@ async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> 
 
   const result = validateEntity("dish", body);
   if (!result.valid) throw validationFailure(result.errors);
+  if ((body.provenance as { source?: unknown } | undefined)?.source === 'knowledge') {
+    throw validationFailure([{ path: '/provenance/source', code: 'forbidden', message: '知识库菜谱只能通过审核定版流程写入' }]);
+  }
 
   if (forceDraft) {
     // §1.3：请求体带了别的值也覆盖成 draft，并在 warnings 里说明。

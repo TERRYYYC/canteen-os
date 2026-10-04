@@ -1,5 +1,5 @@
 export interface KnowledgeImageRights { license: string; author: string; sourceUrl?: string }
-declare const URL: { new (value: string): { protocol: string; username: string; password: string } };
+declare const URL: { new (value: string): { protocol: string; username: string; password: string; hostname: string; search: string; hash: string } };
 
 /** The publish pipeline accepts this exact set of image license labels. */
 export function allowedImageLicense(value: unknown): value is string {
@@ -8,9 +8,12 @@ export function allowedImageLicense(value: unknown): value is string {
 
 function sourceUrl(value: unknown, own: boolean): boolean {
   if (typeof value !== 'string' || !value || value.length > 4096 || /[\u0000-\u0020]/.test(value)) return false;
-  if (own && !value.includes(':') && !value.startsWith('/') && !value.includes('\\') && !/[?#]/.test(value) &&
-    value.split('/').every(part => part && part !== '.' && part !== '..')) return true;
-  try { const parsed = new URL(value); return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password; }
+  if(own&&value.split('/').every(part=>/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(part)&&part!=='.'&&part!=='..'))return true;
+  try { const parsed = new URL(value),host=parsed.hostname.toLowerCase();
+    return parsed.protocol==='https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash &&
+      host.includes('.') && !host.endsWith('.') && !host.startsWith('[') && !/^\d+(?:\.\d+){3}$/.test(host) &&
+      host!=='localhost' && !/\.(?:localhost|local|internal|invalid|test)$/.test(host);
+  }
   catch { return false; }
 }
 

@@ -17,6 +17,31 @@ function fixture(name) {
 function sample(){ const x=fixture('boundaries'); x.menuPlans['team-week'].schemaVersion='3'; for(const m of x.menuPlans['team-week'].meals) delete m.plannedServings; return x; }
 const copy=x=>structuredClone(x);
 
+test('legacy KB evidence is stripped from the same projection consumed by static build-data',()=>{
+ const x=sample(),dish=x.dishes['first-dish'];
+ dish.schemaVersion='3';
+ dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+  candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+  review:{reviewer:'chef',note:'PRIVATE_REVIEW_NOTE',approvedCandidateVersion:1},
+  sourceUrl:'https://example.org/PRIVATE_SOURCE_URL',
+  evidence:{sourceRecords:[{text:'PRIVATE_TRANSCRIPT_SENTINEL'}],sourceRefs:[{quote:'PRIVATE_QUOTE'}],
+   media:[{role:'cover',url:'https://example.org/PRIVATE_MEDIA_URL'}],unresolved:['PRIVATE_GAP']}};
+ dish.components[0].originalText='PRIVATE_RAW_LINE';
+ dish.image={src:'first-dish/cover.png',license:'own',author:'chef',sourceUrl:'https://host.internal./PRIVATE_ATTRIBUTION'};
+ dish.steps=[{text:{zh:'加热'},image:{src:'first-dish/step.png',license:'own',author:'chef',sourceUrl:'https://localhost/PRIVATE_STEP_ATTRIBUTION'},
+  clip:{videoUrl:'https://example.org/PRIVATE_VIDEO',start:1,end:2}}];
+ const before=JSON.stringify(x);
+ const projection=core.projectTeamMeals(x,basis);
+ const published=projection.dishes['first-dish'];
+ assert.doesNotMatch(JSON.stringify(projection),/PRIVATE_/);
+ assert.equal(published.provenance.sourceGapCount,1);
+ assert.equal(published.provenance.coverState,'rights-pending');
+ assert.equal(published.image,undefined);
+ assert.equal(published.steps[0].image,undefined);
+ assert.equal(published.steps[0].clip,undefined);
+ assert.equal(JSON.stringify(x),before,'projection cannot mutate the private historical Git dish');
+});
+
 test('collect all recorded references without serving, qty, status or packaging filters',()=>{
  const x=sample(),before=JSON.stringify(x);
  x.dishes['second-dish'].schemaVersion='3';delete x.dishes['second-dish'].baseServings;delete x.dishes['second-dish'].components[0].qty;

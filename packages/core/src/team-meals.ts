@@ -5,6 +5,7 @@ import type {
 } from './types.js';
 import { DEFAULT_MARGIN, convertQuantity, expand } from './procurement/engine.js';
 import type { ProcurementLine } from './procurement/engine.js';
+import { publicDish } from './public-dish.js';
 
 export interface TeamMealInputs {
   menuPlans: Record<Id, AnyMenuPlan>;
@@ -280,7 +281,7 @@ export function projectTeamMeals(inputs: TeamMealInputs, basis: TeamProjectionCo
     menuPlans[slot.menuPlanRef]=plan;
     for (const meal of plan.meals.filter(m=>m.date===slot.date&&m.mealType===slot.mealType)) {
       const dish=lookup(inputs.dishes,meal.dishRef); if (!dish) continue;
-      dishes[meal.dishRef]=dish;
+      dishes[meal.dishRef]=publicDish(dish);
       for (const component of dish.components ?? []) if (component.prep?.techniqueRef) techniqueIds.add(component.prep.techniqueRef);
       for (const step of dish.steps ?? []) if (step.techniqueRef) techniqueIds.add(step.techniqueRef);
     }

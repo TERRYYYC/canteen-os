@@ -5,6 +5,7 @@ import { resolveRevision } from '../revision.js';
 import { inspectImage } from '../image-integrity.js';
 import { parseSource } from '../source.js';
 import { localAssetPath } from '../asset-path.js';
+import { publicDish, type AnyDish } from '@canteenos/core';
 
 const OWNER = /^data\/(ingredients|dishes)\/[a-z][a-z0-9-]*\.json$/;
 
@@ -24,7 +25,8 @@ export async function handleAsset(ctx: Ctx): Promise<Response> {
   const entries = await gh.getTree(revision, true);
   const ownerEntry = entries.find(e => e.path === owner);
   if (!ownerEntry || ownerEntry.type !== 'blob' || ownerEntry.mode !== '100644') throw fail('asset_unavailable');
-  let ref = parseSource(await gh.getBlobText(ownerEntry.sha), kind, owner);
+  const stored = parseSource(await gh.getBlobText(ownerEntry.sha), kind, owner);
+  let ref = kind === 'dish' ? publicDish(stored as AnyDish) : stored;
   for (const segment of pointer.slice(1).split('/')) {
     if (!ref || typeof ref !== 'object' || !Object.hasOwn(ref, segment)) throw fail('asset_unavailable');
     ref = (ref as Record<string, unknown>)[segment];
