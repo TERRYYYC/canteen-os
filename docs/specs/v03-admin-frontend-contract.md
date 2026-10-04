@@ -225,6 +225,8 @@ export function applyFieldErrors(root: HTMLElement, errors: readonly FieldError[
 
 `applyFieldErrors` 的行为照 ADR §5 与 worker 契约 §1.8 逐字：**原样显示 `message`，不二次编造文案**；`path` 为 `""` 的错误显示在表单顶部。
 
+> 当前本地化呈现补充见 [当前合同“错误文案”](../current-contract.md#错误文案)（#113）：已登记 code 显示当前语言说明，未知 code 保留 message；字段级具体值保留。原 HTTP/code/path、鉴权、冲突和未知写入结果语义不变，ADR-0007 保持历史原文。
+
 ### 3.3 文件归属表（一个文件只有一个主人）
 
 | 文件 / 目录 | 归属 | 说明 |

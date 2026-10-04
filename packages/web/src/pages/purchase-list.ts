@@ -24,11 +24,18 @@ export const shoppingWords={
  budget:['金额只按可计算项参考，不代表完整预算。','Calculable amounts are references, not a complete budget.','Розраховані суми є орієнтирами, а не повним бюджетом.'],
  intro:['来自菜单计划','FROM YOUR MENU PLAN','З ПЛАНУ МЕНЮ'],headline:['这次买什么，逐项确认。','Decide what to buy.','Вирішіть, що купити.'],
  issues:['需要核对的资料','Information to check','Дані для перевірки'],summary:['本次材料判断','Current ingredient decisions','Поточні рішення щодо інгредієнтів'],
+ readonly:['未连接后台 · 这里是已发布版本的只读清单','Not connected · this is the published version, read only','Немає з’єднання · це опублікована версія лише для читання'],
+ readonlyWrites:['保存、判断和打勾都要连上后台。请用师傅链接打开。','Saving, decisions and ticks need a connected service. Open with the chef link.','Збереження, рішення та відмітки потребують з’єднання. Відкрийте за посиланням шефа.'],
+ readonlySource:['这一版已发布资料现在读不到。稍后再看。','This published version cannot be read right now. Check again later.','Зараз не вдається прочитати цю опубліковану версію. Перегляньте пізніше.'],
+ readonlySelect:['请先选择一个已发布计划。','Select a published plan first.','Спочатку виберіть опублікований план.'],
+ readonlySaved:['已保存清单需要连接后台才能打开；下面仅显示当前已发布资料，不包含这份清单的购买判断。','A saved list needs a connected service. Below is only the current publication, without that list’s purchase decisions.','Для збереженого списку потрібне з’єднання. Нижче лише поточна публікація без рішень про купівлю зі збереженого списку.'],
 } as const;
 export type ShoppingWord=keyof typeof shoppingWords;
 export const shoppingText=(lang:Lang,key:ShoppingWord)=>shoppingWords[key][lang==='zh'?0:lang==='en'?1:2];
 const lookup=<T>(map:Record<string,T>,id:string):T|undefined=>Object.hasOwn(map,id)?map[id]:undefined;
 const reasons:Record<string,readonly[string,string,string]>={
+ 'missing-base-unit':['标准材料的基准单位未录','The standard ingredient’s base unit is not recorded','Базову одиницю стандартного інгредієнта не записано'],
+ 'ingredient-spec-conflict':['同一材料的采购规格版本不同，请核对后分别估算','This ingredient has different purchase specification versions. Review them before estimating separately','Інгредієнт має різні версії закупівельних параметрів. Перевірте їх перед окремими розрахунками'],
  'missing-planned-servings':['计划份数未录','Planned servings missing','Порції в плані не вказано'],'missing-base-servings':['配方基准份数未录','Recipe servings missing','Порції рецепта не вказано'],
  'missing-qty':['原用量未录','Recipe quantity missing','Кількість рецепта не вказано'],'to-taste':['适量','To taste','За смаком'],'dish-not-active':['菜谱待完善','Recipe is not active','Рецепт ще не активний'],
  'missing-dish':['菜谱未找到','Recipe missing','Рецепт не знайдено'],'missing-ingredient':['材料资料未找到','Ingredient missing','Інгредієнт не знайдено'],'components-unrecorded':['尚未录入配料','Ingredients not recorded','Інгредієнти не записано'],
@@ -37,13 +44,13 @@ const reasons:Record<string,readonly[string,string,string]>={
 };
 export function reasonText(code:string,lang:Lang):string{return reasons[code]?.[lang==='zh'?0:lang==='en'?1:2]??code;}
 export interface CandidatesOptions {
- compact?:boolean;lang:Lang;collection:IngredientCollection;estimate:ShoppingEstimate;ingredients:Record<string,Ingredient>;dishes:Record<string,AnyDish>;
+ compact?:boolean;lang:Lang;collection:IngredientCollection;estimate:ShoppingEstimate;ingredients:Record<string,Pick<Ingredient,'name'|'role'>>;dishes:Record<string,AnyDish>;
  href?:(kind:'ingredient'|'dish',id:string)=>string;
  controls?:(id:string)=>HTMLElement;
 }
 export function renderCandidates(options:CandidatesOptions):HTMLElement {
  const {lang,collection,estimate,ingredients,dishes}=options,t=(key:ShoppingWord)=>shoppingText(lang,key);
- const name=(kind:'ingredient'|'dish',id:string)=>pick(lookup<Ingredient|AnyDish>(kind==='ingredient'?ingredients:dishes,id)?.name,lang)||t('missing');
+ const name=(kind:'ingredient'|'dish',id:string)=>pick(lookup<Pick<Ingredient,'name'|'role'>|AnyDish>(kind==='ingredient'?ingredients:dishes,id)?.name,lang)||t('missing');
  const ref=(kind:'ingredient'|'dish',id:string)=>options.href?h('a',{href:options.href(kind,id)},name(kind,id)):h('span',{},name(kind,id));
  const result=h('div',{class:'tm-candidates'},h('p',{class:'muted'},t('coverage')));
  if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('article',{},h('p',{},reasonText(issue.code,lang),' · ',[issue.date,issue.mealType?text(lang,issue.mealType):''].filter(Boolean).join(' / ')),issue.dishRef?ref('dish',issue.dishRef):null,issue.ingredientRef?ref('ingredient',issue.ingredientRef):null,h('p',{},word(lang,'查看来源资料并补齐后，再核对采购范围。','Check and complete the source records, then review the shopping scope.','Перевірте й доповніть вихідні дані, потім перевірте діапазон закупівель.')),supportDetails(lang,JSON.stringify(issue))))));
