@@ -7,7 +7,7 @@ export function button(text: string, action: () => void, primary = false): HTMLB
   const el = h('button', { type: 'button', class: primary ? 'kb-primary' : '' }, text);
   el.addEventListener('click', action); return el;
 }
-export function field(text: string, control: HTMLElement): HTMLLabelElement { return h('label', { class: 'kb-field' }, h('span', {}, text), control); }
+export function field(text: string, control: HTMLElement): HTMLLabelElement { if(['INPUT','TEXTAREA','SELECT'].includes(control.tagName)&&!control.getAttribute('aria-label'))control.setAttribute('aria-label',text); return h('label', { class: 'kb-field' }, h('span', {}, text), control); }
 export function input(value: string, change: (value: string) => void, multiline = false): HTMLInputElement | HTMLTextAreaElement {
   const el = multiline ? h('textarea', { rows: 3 }) : h('input', { type: 'text' });
   el.value = value; el.addEventListener('input', () => change(el.value)); return el;

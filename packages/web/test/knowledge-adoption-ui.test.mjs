@@ -113,3 +113,10 @@ test('canonical creation keeps unknown fields absent and lost response uses the 
  });await h.mount();h.click('＋ 标准材料');h.set(h.field('标准名称','中文'),'工程小米辣');h.click('保存标准资料新版本');await h.flush();assert.equal(h.m.inspectReloadSafety().reason,'unknown');assert.deepEqual(ingredient,{name:{zh:'工程小米辣'}});
  h.click('核对操作结果（使用同一请求）');await h.flush();assert.deepEqual(attempts[0],attempts[1]);assert.equal(h.all('[data-testid="standard-editor"]').length,0);assert.match(h.el.textContent,/工程小米辣/);
 });
+
+test('native field controls have an exact localized accessible label',async()=>{const h=await setup();await h.mount();const control=h.all('label').find(label=>label.children[0]?.textContent==='用量类型').querySelector('select');assert.equal(control.getAttribute('aria-label'),'用量类型');});
+
+test('incomplete price-only purchase input is retained instead of silently omitted',async()=>{
+ let writes=0;const stored=detail({recipe:{...detail().recipe,ingredients:[]}});
+ const h=await setup((url,init)=>{if(url.includes('/ingredients?')||url.includes('/techniques?'))return json({items:[],nextCursor:null});if(url.endsWith('/ingredients')&&init.method==='POST'){writes++;return json({id:assetId,version:1,ingredient:JSON.parse(init.body)},201);}return json(stored);});await h.mount();h.click('＋ 标准材料');h.set(h.field('标准名称','中文'),'测试材料');const named=text=>h.all('label').find(row=>row.children[0]?.textContent===text).querySelector('input,select');h.set(named('参考价格（未知留空）'),'10');const currency=named('币种');currency.value='USD';currency.dispatchEvent({type:'change'});h.click('保存标准资料新版本');await h.flush();assert.equal(writes,0);assert.equal(named('参考价格（未知留空）').value,'10');assert.equal(currency.value,'USD');assert.equal(h.all('[data-testid="standard-editor"]').length,1);
+});
