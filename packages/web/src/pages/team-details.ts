@@ -67,7 +67,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   }
   function renderSources():void {
     el.append(h('h3',{},t('sources')));
-    const sources=projection.collection.items.find(x=>x.ingredientRef===id)?.sources??[];
+    const sources=projection.collection.items.flatMap(item=>item.sources.filter(source=>(source.ingredientRef??item.ingredientRef)===id));
     for(const source of sources)el.append(h('div',{class:'tm-detail-source-recipe'},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||t('missingSource')),supportDetails(lang,`${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
