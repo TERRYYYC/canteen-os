@@ -2,7 +2,7 @@ export type Lang = 'zh' | 'en' | 'uk';
 export type I18n = Partial<Record<Lang, string>>;
 export type Amount = { kind: 'unknown'; raw?: string } | { kind: 'exact'; value: string; unit: string; raw?: string } | { kind: 'to_taste' | 'text'; raw: string };
 export interface Ingredient { id: string; name: I18n; ingredientId?: string; rawText?: string; role?: 'main' | 'seasoning' | 'unspecified'; amount: Amount; preparation?: I18n; kitchenPrep?: KitchenPrep }
-export interface KitchenPrep {techniqueId?:string;timing?:'before-service'|'on-order';size?:string;note?:I18n}
+export interface KitchenPrep {techniqueId?:string;timing?:'day-before'|'morning'|'before-service';size?:string;note?:I18n}
 export interface Step { id: string; text: I18n; techniqueId?:string }
 export interface AssetRef { assetId: string; role: 'cover' | 'reference' | 'step'; stepId?: string; clip?: { start: number; end: number } }
 export interface SourceRef { sourceId: string; evidence?: Record<string, unknown> }
