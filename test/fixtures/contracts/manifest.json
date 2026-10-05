@@ -240,6 +240,7 @@
     }
   ],
   "sha256": {
+    "adoption-parity.json": "c094350ca76e52a37d34b2d3c73c1ffd64a537deb01426d773317d3ca2e00318",
     "golden-expectations.json": "870755474eb746c03e9db7a297dbf4a193f21073d7dc4bed4254b841ffbb550c",
     "invalid/bad-json/data/dishes/first-dish.json": "0908e12ebfb4efa061eb5a29c801c7431d2c3006f96cf4bcefc1ee61a80a4342",
     "invalid/clip-order/data/dishes/first-dish.json": "a144f8e2e3d2f0d8211322a03b26258cde559d22888f76e2e9a8fc22d4bd2215",

@@ -1,10 +1,11 @@
 /**
- * 限流（契约 §3.5 + D-11 + D-16）。四个桶，按角色令牌计：
+ * 限流（契约 §3.5 + D-11 + D-16）。原四个桶和独立知识库桶，按角色令牌计：
  *
  *   write     60 次/小时   写入端点（ADR-0007 §5）
  *   publish   10 次/小时   POST /publish（ADR-0007 §5）
  *   rollback   5 次/小时   POST /rollback/:sha（D-11：低频高危，塞进 60/h 等于没有保护）
  *   read     600 次/小时   只读端点（D-16：够 5 路并发轮询用）
+ *   knowledge-write / knowledge-read 60 / 600 次/小时，不占旧 Git 桶
  *
  * 实现：滑动窗口，存在 isolate 内的 Map 里。**这不是全局精确的** —— Cloudflare 会开多个
  * isolate，每个各算各的。单人后台够用；要精确就绑一个 KV 或 Workers 的限流绑定，
@@ -12,13 +13,16 @@
  */
 import type { RateStore, Role } from "./types.js";
 
-export type Bucket = "write" | "publish" | "rollback" | "read";
+export type Bucket = "write" | "publish" | "rollback" | "read" | "knowledge-write" | "knowledge-read";
 
 export const LIMITS: Record<Bucket, number> = {
   write: 60,
   publish: 10,
   rollback: 5,
   read: 600,
+  // Separate budgets: editing SQLite does not consume legacy publication quota.
+  "knowledge-write": 60,
+  "knowledge-read": 600,
 };
 
 export const WINDOW_MS = 60 * 60 * 1000;

@@ -12,10 +12,14 @@ import { VitePWA } from "vite-plugin-pwa";
  * PWA（vite-plugin-pwa，MIT，内含 Workbox）：
  * - registerType "prompt" + injectRegister false：不自动刷新；src/pwa.ts 自己用 virtual:pwa-register 注册，
  *   有新 SW 在等待时页面顶部出「有新版本，点此刷新」，用户点了才 skipWaiting → reload；
- * - 预缓存 = 应用壳（js/css/html/webmanifest/图标）+ public/data/ 下全部 JSON（当前周三张单）。
- *   build.json 不在其中：它是新鲜度探针，走下面的 NetworkFirst（issue #98）；
- *   该 NetworkFirst 只收「无查询串」的 build.json，带 `?__publication=` 的探针没有运行时路由、
- *   即 NetworkOnly，不占那条路由的缓存格（issue #114）；
+ * - 预缓存 = 应用壳（js/css/html/webmanifest/图标）+ public/data/ 下全部 JSON，**含 build.json**（issue #110 方案 B）：
+ *   清单（build.json）与投影（<kind>/<plan>.json）必须来自同一次 activate。两者分走两条缓存路径时，
+ *   装过应用的客户端拿到的是「新清单 + 旧投影」→ view-models/published.ts 的 validateProjection
+ *   硬失败 revision_mismatch → 整屏错误页；旧 SW 不 activate 的等待窗口没有时间上界（#110、#114 实测）。
+ *   放回 precache 后两者绑在同一代 precache 上原子换版，旧客户端整体停在旧发布、自洽不报错。
+ *   #98 的「探针失真」由另一条约定解决：探针一律带查询串（pwa.ts 的 `?__publication=probe-…`、
+ *   运维清单 §3.1 的 `?t=`），workbox 的 precache 路由只忽略 utm_/fbclid，带查询串的请求既不匹配
+ *   precache、也没有运行时路由 → NetworkOnly，永远拿网络真值；
  * - 运行时：图片 CacheFirst（300 张 / 30 天，docs/research/v2/scenario-g §已知坑 4）；Google Fonts 的 css 与字体文件
  *   StaleWhileRevalidate（断网时用上次的字体，没有就按 tokens.css 回退栈走系统字体）；
  * - navigateFallback index.html：hash 路由只有一个入口，离线时任何导航都回到壳；
@@ -62,41 +66,15 @@ export default defineConfig({
         // manifest.webmanifest 由插件自己加进清单，不放进 glob（否则同一 URL 出现两次）
         globPatterns: ["**/*.{js,css,html,svg,png}", "data/**/*.json"],
         // 数据目录里将来的菜品/食材图片不进预缓存（只 precache 应用壳），走下面的运行时 CacheFirst
-        // data/build.json 是「线上换版没有」的唯一探针（运维清单 §3.1/§5）：precache 走 cache-first，
-        // 装过应用的客户端会一直返回旧副本，探针永远失真 → 移出预缓存，改走下面的 NetworkFirst（issue #98）
-        globIgnores: ["data/**/*.{png,svg,jpg,jpeg,webp,avif,gif}", "data/build.json"],
+        // data/build.json 回到预缓存（issue #110 方案 B，撤回 #98/#103 的 NetworkFirst 方向）：
+        // 清单与投影必须同代换版，否则每次发版都把装过应用的客户端首屏变成 revision_mismatch 错误页。
+        // 探针失真不再靠「移出预缓存」解决，而是靠「探针一律带查询串」——见文件头注释。
+        globIgnores: ["data/**/*.{png,svg,jpg,jpeg,webp,avif,gif}"],
         navigateFallback: "index.html",
         clientsClaim: true,
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
-          {
-            // data/build.json：先走网络拿真值，3 秒超时或离线时回落到上次成功的响应，
-            // §4 第 1 条（断网能看上次打开的内容）不受影响。必须排在下面的规则之前（issue #98）。
-            urlPattern: ({ request, url, sameOrigin }) => {
-              if (request.method !== "GET" || !sameOrigin) return false;
-              // Scope-anchored like the published-assets rule: /other/data/build.json is a different file.
-              // issue #114：路由按 pathname 匹配，查询串不参与判断，所以每个
-              // `?__publication=probe-…` 探针都会占掉一格 maxEntries；探针每次都是新 URL，
-              // 4 次（约 40 分钟）就把「无查询串」的那条挤出去，离线冷启动读不到清单 → 整屏错误页。
-              // 带查询串的请求（探针本身、运维清单 §3.1 的 ?t= 新鲜度检查）本来就要走网络拿真值，
-              // 没有运行时路由即 NetworkOnly，行为不变；离线时探针失败照旧在 pwa.ts 被 catch 忽略。
-              if (url.search !== "") return false;
-              return url.pathname === new URL(
-                "data/build.json",
-                (self as unknown as { registration: { scope: string } }).registration.scope,
-              ).pathname;
-            },
-            method: "GET",
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "publication-manifest",
-              networkTimeoutSeconds: 3,
-              // 现在只有「无查询串」的那一条会写进来，2 格足够（另一格留给切 scope 的边缘情况）
-              expiration: { maxEntries: 2 },
-              cacheableResponse: { statuses: [200] },
-            },
-          },
           {
             // Published assets use fetch (empty destination). Workbox serializes this callback into the SW.
             urlPattern: ({ request, url, sameOrigin }) => {

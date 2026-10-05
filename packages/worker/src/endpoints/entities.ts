@@ -20,8 +20,8 @@ import { validateEntity } from "../validate.js";
 import { writePrecondition } from "../preconditions.js";
 import { commitSingleFile } from "../write.js";
 
-/** D-08：planId 不是 week-NN 形状**不拒绝**，只带 warning。 */
-const WEEK_ID_RE = /^week-\d{1,2}$/;
+/** 保留旧 week-N，同时接受不会跨年碰撞的 week-YYYY-N。其他 ID 仍只警告。 */
+const WEEK_ID_RE = /^week-(?:\d{1,2}|\d{4}-(?:[1-9]|[1-4]\d|5[0-3]))$/;
 
 export interface WriteResponse {
   ok: true;
@@ -113,6 +113,7 @@ export async function handlePlan(ctx: Ctx): Promise<WriteResponse> {
 
 export async function handleIngredient(ctx: Ctx): Promise<WriteResponse> {
   const id = assertId(ctx.params.id ?? "");
+  if(id.startsWith('kbi-'))throw fail('bad_path',{message:'固定版本的食材资料不能原地修改'});
   const body = asObject(ctx.body);
 
   const result = validateEntity("ingredient", body);
@@ -139,10 +140,14 @@ export async function handleDish(ctx: Ctx): Promise<WriteResponse> {
 
 async function dishWrite(ctx: Ctx, forceDraft: boolean): Promise<WriteResponse> {
   const id = assertId(ctx.params.id ?? "");
+  if(id.startsWith('kb-'))throw fail('bad_path',{message:'固定版本的菜谱不能原地修改'});
   const body = asObject(ctx.body);
 
   const result = validateEntity("dish", body);
   if (!result.valid) throw validationFailure(result.errors);
+  if ((body.provenance as { source?: unknown } | undefined)?.source === 'knowledge') {
+    throw validationFailure([{ path: '/provenance/source', code: 'forbidden', message: '知识库菜谱只能通过审核定版流程写入' }]);
+  }
 
   if (forceDraft) {
     // §1.3：请求体带了别的值也覆盖成 draft，并在 warnings 里说明。
@@ -211,6 +216,10 @@ async function writeEntity(
     ifMatch: params.path.startsWith("data/ingredients/") ? ifMatch(ctx) : null,
     precondition: params.path.startsWith("data/ingredients/") ? undefined : writePrecondition(ctx.request.headers),
     verify: async (head, current) => {
+      if (params.path.startsWith("data/ingredients/") && current) {
+        const previous=parseSource(current.text,'ingredient',params.path) as {schemaVersion?:string};
+        if(previous.schemaVersion==='3'&&(params.value as {schemaVersion?:string}).schemaVersion!=='3')throw fail('format_downgrade');
+      }
       if (!params.path.startsWith("data/ingredients/")) {
         const kind = params.path.startsWith("data/menu-plans/") ? "plan" : "dish";
         const next = params.value as { schemaVersion?: string };

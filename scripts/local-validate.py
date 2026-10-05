@@ -142,15 +142,30 @@ def validate(node, schema: dict, current_file: Path, path: str):
                 validate(it, schema["items"], current_file, f"{path}[{i}]")
 
     if isinstance(node, dict):
+        if "minProperties" in schema and len(node) < schema["minProperties"]:
+            fail(path, f"minProperties={schema['minProperties']} 不满足: 长度 {len(node)}")
         for r in schema.get("required", []):
             if r not in node:
                 fail(path, f"缺少必填字段: {r}")
+        for trigger, required in schema.get("dependentRequired", {}).items():
+            if trigger in node:
+                for key in required:
+                    if key not in node:
+                        fail(path, f"{trigger} requires {key}")
         props = schema.get("properties", {})
         for k, v in node.items():
             if k in props:
                 validate(v, props[k], current_file, f"{path}.{k}")
             elif schema.get("additionalProperties") is False:
                 fail(path, f"存在未声明字段: {k}")
+
+    if "not" in schema:
+        before = len(errors)
+        validate(node, schema["not"], current_file, path)
+        matched = len(errors) == before
+        del errors[before:]
+        if matched:
+            fail(path, "not constraint matched")
 
     if "oneOf" in schema:
         matches = 0
@@ -269,6 +284,7 @@ def main():
             if isinstance(data, dict) and data.get("schemaVersion") == "3":
                 if rel == "menu-plans": version_schema = "menu-plan-v3.schema.json"
                 if rel == "dishes": version_schema = "dish-v3.schema.json"
+                if rel == "ingredients": version_schema = "ingredient-v3.schema.json"
             schema_file = SCHEMA_DIR / version_schema
             schema = load_schema(schema_file)
             before = len(errors)

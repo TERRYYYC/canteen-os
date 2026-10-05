@@ -8,7 +8,7 @@
  * 为什么不让前端直读 GitHub：匿名 GitHub API 是 60 次/小时/IP，后台一屏就可能打光
  * （契约 §1.7）。
  */
-import type { ShoppingList } from "@canteenos/core";
+import { publicDish, type AnyDish, type ShoppingList } from "@canteenos/core";
 import { validateStoredList } from "../shopping-validation.js";
 import type { Ctx } from "../context.js";
 import { githubClient } from "../context.js";
@@ -17,8 +17,8 @@ import { parseSource, parseTranslationLock } from "../source.js";
 import { fail } from "../http.js";
 import { ID_RE, entityPath, isSourceKind, looksLikeTraversal } from "../paths.js";
 
-/** 一次 catalog 最多读多少个文件。见交付说明：Cloudflare 免费版单请求 50 个子请求。 */
-const CATALOG_MAX_FILES = 200;
+/** Keep one catalog page below the Worker subrequest budget, including head and tree reads. */
+const CATALOG_PAGE_SIZE = 40;
 /** 一次 changes 最多展开多少个 commit 的文件列表。 */
 const CHANGES_MAX_COMMITS = 30;
 
@@ -37,7 +37,8 @@ export async function handleSource(ctx: Ctx): Promise<unknown> {
   const file = await gh.getFile(entityPath(kindRaw, idRaw), head);
   if (!file) throw fail("not_found");
 
-  const content = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
+  const stored = parseSource(file.text, kindRaw, entityPath(kindRaw, idRaw));
+  const content = kindRaw === 'dish' ? publicDish(stored as AnyDish,idRaw) : stored;
   if (kindRaw === "shopping-list") {
     const list = content as ShoppingList;
     await validateStoredList(gh, currentHead, list, idRaw);
@@ -47,7 +48,13 @@ export async function handleSource(ctx: Ctx): Promise<unknown> {
 
 export async function handleCatalog(ctx: Ctx): Promise<unknown> {
   const gh = githubClient(ctx);
-  const head = await resolveRevision(gh, await gh.getHeadSha(), ctx.url.searchParams.get("revision"));
+  const cursorRaw = ctx.url.searchParams.get("cursor");
+  const cursorMatch = cursorRaw === null ? null : /^v1\.([0-9a-f]{40})\.([1-9][0-9]*)$/.exec(cursorRaw);
+  const offset = cursorMatch ? Number(cursorMatch[2]) : 0;
+  if (cursorRaw !== null && (!cursorMatch || !Number.isSafeInteger(offset) || offset % CATALOG_PAGE_SIZE !== 0)) throw fail("bad_id");
+  const requestedRevision = ctx.url.searchParams.get("revision");
+  if (cursorMatch && requestedRevision && requestedRevision !== cursorMatch[1]) throw fail("bad_id");
+  const head = await resolveRevision(gh, await gh.getHeadSha(), cursorMatch?.[1] ?? requestedRevision);
   const entries = (await gh.getTree(head, true)).filter((e) => e.type === "blob");
 
   const wanted = entries.filter(
@@ -56,19 +63,16 @@ export async function handleCatalog(ctx: Ctx): Promise<unknown> {
       /^data\/dishes\/[^/]+\.json$/.test(e.path) ||
       e.path === "data/techniques.json" ||
       e.path === "data/translations.lock.json",
-  );
-  if (wanted.length > CATALOG_MAX_FILES) {
-    throw fail("upstream_error", {
-      message: `知识库已经有 ${wanted.length} 个文件，超过 catalog 的一次读取上限，需要改成按需读`,
-    });
-  }
+  ).sort((a,b)=>a.path.localeCompare(b.path,'en'));
+  if (offset >= wanted.length && offset !== 0) throw fail("bad_id");
+  const page = wanted.slice(offset,offset+CATALOG_PAGE_SIZE);
 
   const dishes: Record<string, unknown> = {};
   const ingredients: Record<string, unknown> = {};
   let techniques: unknown[] = [];
   let lock: Record<string, { status?: string; stale?: boolean }> = {};
 
-  for (const entry of wanted) {
+  for (const entry of page) {
     const text = await gh.getBlobText(entry.sha);
     if (entry.mode !== "100644") throw fail("invalid_source", { path: entry.path });
     if (entry.path === "data/techniques.json") {
@@ -78,7 +82,7 @@ export async function handleCatalog(ctx: Ctx): Promise<unknown> {
     } else {
       const id = entry.path.slice(entry.path.lastIndexOf("/") + 1, -".json".length);
       if (!ID_RE.test(id)) throw fail("invalid_source", { path: entry.path });
-      if (entry.path.startsWith("data/dishes/")) dishes[id] = parseSource(text, "dish", entry.path);
+      if (entry.path.startsWith("data/dishes/")) dishes[id] = publicDish(parseSource(text, "dish", entry.path) as AnyDish,id);
       else ingredients[id] = parseSource(text, "ingredient", entry.path);
     }
   }
@@ -108,6 +112,7 @@ export async function handleCatalog(ctx: Ctx): Promise<unknown> {
     techniques,
     suppliers: [...suppliers].sort(),
     translations: { machine, human, stale },
+    nextCursor: offset + page.length < wanted.length ? `v1.${head}.${offset + CATALOG_PAGE_SIZE}` : null,
   };
 }
 

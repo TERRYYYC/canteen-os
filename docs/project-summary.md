@@ -1,26 +1,28 @@
 ---
-feature_ids: [team-meals]
-topics: [release, status, team-meals]
+feature_ids: [team-meals, knowledge-base]
+topics: [release, status, real-recipes, current-scope]
 doc_kind: project-summary
 created: 2026-09-13
 ---
 
-# CanteenOS 当前状态 — 0.3.0-alpha.1
+# CanteenOS 当前现状与验收边界
 
-团队用餐预发布：菜单计划和粘贴导入、备料与用餐安排、人工确认采购，以及菜品/食材编辑和发布入口已实现。应用支持中/英/乌三语；抽屉底部展示 Web 包派生的应用版本，和资料更新时间分开。历史的自动数值采购引擎保留在兼容与固定黄金回归中，当前团队采购仍需人确认。
+当前范围是小团队每天吃什么、按原方备料、人工判断需要买什么。日常 Recipe/Candidate 和来源证据以 SQLite 为真源，采用的菜谱版本及完整依赖明确固定到 Git，再用于所选计划的发布资料；已有采购工作单保留自己的 basis 和人工状态。当前范围、设计、依赖与退出条件统一见 [当前工作合同](current-contract.md)。
 
-**English.** Version 0.3.0-alpha.1 is a team-meals prerelease with planning/import, preparation, meal views, buyer-confirmed shopping, dish/ingredient editing and publishing. The drawer distinguishes the application version from the data publication time. Local evidence does not establish a fully writable production deployment.
+**2026-10-05 源码版本：** CanteenOS `0.3.0-alpha.4`，配套 SQLite KB `0.1.2` / schema 6。来源、手工和旧导入的正式菜谱使用普通编辑/核定/明确采用入口；菜单、备料、采购与后台持续使用所选计划。标准食材身份及采购/技法版本明确固定，旧计划与采购工作单不被新编辑静默改变。发行复跑见 [alpha.4](releases/alpha4.md)，实际检查、独立审查、合入和平台 CI 以 [#128](https://github.com/TERRYYYC/canteen-os/issues/128) 的固定版本回执为准。
 
-| 当前范围 | 状态与入口 |
+**English.** Source versions are CanteenOS `0.3.0-alpha.4` and private companion KB `0.1.2` (schema 6). Normal recipe editing, durable kitchen confirmation and explicit immutable adoption serve source, manual and legacy recipes. All meal pages retain the selected plan; shared ingredient IDs and purchasing/technique revisions preserve saved history. Source behavior, isolated real-media engineering tests, merging, deployment and actual chef approval remain separate facts.
+
+| 证据/能力 | 当前边界 |
 |---|---|
-| 产品与接口 | 本版整合、版本展示及审查/CI 结果以对应 PR 和发布记录为准；已审候选与本地证据见 [当前调度状态](../feature-specs/2026-09-11-team-meals-dispatch.md) |
-| 发布资料 | 计划、菜品、食材和图片按同一提交投影；PWA 更新及编辑保护沿用已审实现 |
-| Worker 配置 | 显式配置公开 Worker 地址；校验后进入构建。空值保持只读，不能当成模拟写入成功 |
-| QR | 原 pnpm 9.15.0 构建命令已实测生成新 QR；本地打印证据与真实站点验收分别记录 |
-| 生产上线 | 真实 Worker、隔离环境与凭据仍需核实；合入后 Actions 和预发布记录由发布负责人检查。见 [发布检查表](field-test/week-43/ops-checklist.md) |
-| 真实厨房 | 菜谱、份量、语言质量及厨房工作流仍待实地验收；未完成真实厨房周 |
+| 真实来源与候选 | 已有原片与分析缓存供完整阅读；真实候选仍待师傅确认，不重复 AI 阅读同一已验证媒体 |
+| 正式菜谱→计划 | 普通入口厨房核定与 recipeId+version 采用；共享标准食材及全部依赖固定，实际用例见 #124/#125/#128 版本回执 |
+| 普通菜单/备料/采购 | 明确所选计划贯穿全部入口，旧演示兼容；完整真实媒体副本的页面验证与旧 list1/new list2 回执见 #123/#128 |
+| 模型服务验证 | 本机实际 Worker/producer/web 可验证页面与请求；GitHub/Actions/Pages 的持久模型不是实际平台发布 |
+| 真实部署 | CanteenOS 接入 PR 不含完整独立 KB 部署源码；配套源码白名单包/manifest 和实际依赖需单独核对。源码版本、CI 和本机运行不说明远端已部署；以真实工作流和客户端资料版核对 |
+| 厨房投入使用 | 完整路径、原方未知、图片使用权与语言质量仍按实际验收；工程副本的测试批准不是真实厨师批准 |
 
-版本和变更见 [CHANGELOG](../CHANGELOG.md)，使用与本地检查入口见 [README](../README.md)。本页的版本是源码版本，实际部署以 Actions 结果和网页抽屉版本为准。
+源码版本、显示版本、CHANGELOG 和部署回执随实际交付一致更新，参见 [CHANGELOG](../CHANGELOG.md)、[README](../README.md) 和 [发布检查表](field-test/week-43/ops-checklist.md)。绿色 Reference v3 是当前小团队视觉目标；PR #91 十画板整体仍为提案。
 
 ---
 

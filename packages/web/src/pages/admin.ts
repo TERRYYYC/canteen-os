@@ -25,7 +25,7 @@ import type { PageCtx } from "../types";
 
 /** 屏的 render 签名：与 PageCtx 相同，外加剥掉屏关键字之后的 rest（见文件头的表） */
 export type ScreenRender = (el: HTMLElement, ctx: PageCtx, rest: string) => void | Promise<void>;
-export type AdminScreen = "home" | "plan" | "import" | "ingredient-new" | "dish-new" | "publish";
+export type AdminScreen = "home" | "plan" | "import" | "ingredient-new" | "dish-new" | "publish" | "knowledge";
 
 /** `#/admin` 或 `#/admin/<seg>/<seg>…`：逐段 encodeURIComponent 后用 "/" 连接（照 prep.ts 的 prepHref；不走 hrefOf(page, rest)） */
 export function adminHref(...segs: string[]): string {
@@ -52,19 +52,24 @@ const LOADERS: Record<AdminScreen, () => Promise<{ render: ScreenRender }>> = {
   "ingredient-new": () => import("./admin/ingredient-new.js"),
   "dish-new": () => import("./admin/dish-new.js"),
   publish: () => import("./admin/publish.js"),
+  knowledge: () => import("./admin/knowledge.js"),
 };
 
 /** rest → 屏 + 交给屏的 rest；认不出 → null */
 function resolve(rest: string): { screen: AdminScreen; rest: string } | null {
   const segs = rest.split("/").filter(Boolean);
-  const [a, b, c] = segs;
+  const [a, b, c, d] = segs;
   if (segs.length === 0) return { screen: "home", rest: "" };
   switch (a) {
     case "plan":
       if (segs.length === 1) return { screen: "plan", rest: "" };
       if (segs.length === 2) return b === "import" ? { screen: "import", rest: "" } : { screen: "plan", rest: b ?? "" };
       if (segs.length === 3 && c === "import" && b !== "import") return { screen: "import", rest: b ?? "" };
+      if (segs.length === 4 && c === "select" && b && d) return { screen: "plan", rest: `${b}/select/${d}` };
       return null;
+    case "knowledge":
+      if (segs.length <= 2) return { screen: "knowledge", rest: b ?? "" };
+      return segs.length === 4 && c === 'revisions' && b && d ? {screen:'knowledge',rest:`${b}/revisions/${d}`} : null;
     case "ingredient":
       return segs.length === 2 && b ? { screen: "ingredient-new", rest: b } : null;
     case "dish":
@@ -119,5 +124,11 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
   }
   if (!el.isConnected) { ctx.setReloadCoverage?.("read-only"); return; } // No screen owner was started in this abandoned render.
   loading.remove();
-  await mod.render(el, ctx, target.rest);
+  if (target.screen === "dish-new" || target.screen === "ingredient-new") {
+    const text = { zh: "这是旧菜单的发布历史资料，修改不会自动同步到新菜谱知识库。", en: "These are legacy publication records. Edits do not sync to the new recipe library.", uk: "Це старі дані публікацій. Зміни не синхронізуються з новою бібліотекою рецептів." };
+    const link = { zh: "打开菜谱知识库", en: "Open recipe library", uk: "Відкрити бібліотеку рецептів" };
+    const content = h("div");
+    el.append(h("aside", { class: "card kb-legacy-notice", role: "note" }, h("p", {}, text[ctx.lang]), h("a", { href: adminHref("knowledge") }, link[ctx.lang])), content);
+    await mod.render(content, ctx, target.rest);
+  } else await mod.render(el, ctx, target.rest);
 }

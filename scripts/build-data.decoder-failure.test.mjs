@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {describeDecoderFailure} from './build-data.mjs';
 
 // #101: verifyRaster ran the decoder in a child and dropped its stderr, so every failure
@@ -23,4 +24,18 @@ test('a silent non-zero exit still names the exit code, and the line stays bound
  assert.equal(describeDecoderFailure({stderr:'x'.repeat(500)}).length,200);
  assert.equal(describeDecoderFailure({code:'ETIMEDOUT'}),'decoder timed out');
  assert.equal(describeDecoderFailure(undefined),'decoder failed');
+});
+
+// The gate's own rejection also travels through execFileSync's pipe error shape.
+test('a corrupt PNG reports the actual decoder stderr rather than a missing image',()=>{
+ const gate=fileURLToPath(new URL('verify-team-image.mjs',import.meta.url));
+ let rejection;
+ try {execFileSync(process.execPath,[gate],{input:Buffer.from([137,80,78,71,13,10,26,10]),stdio:['pipe','pipe','pipe']});}
+ catch(error){rejection=error;}
+ assert.ok(rejection,'truncated PNG must fail the real gate');
+ const detail=describeDecoderFailure(rejection);
+ assert.match(detail,/^Image decode failed: /);
+ assert.equal(detail,rejection.stderr.toString('utf8').trim().split('\n')[0]);
+ assert.ok(detail.length<=200);
+ assert.doesNotMatch(detail,/Same-revision image is unavailable|PNG is not a constructor/);
 });

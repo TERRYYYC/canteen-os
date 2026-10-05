@@ -1,3 +1,18 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [historical-architecture, sqlite, git-publication]
+doc_kind: historical-architecture
+created: 2026-09-07
+---
+
+# 历史记录与当前入口
+
+下方架构描述第一轮 Git JSON 方案，保留模型、数值引擎和旧写入通道的由来。现行日常知识库改为 SQLite，明确版本采用后固定 Git 依赖；角色读取边界见 ADR-0009/0010，不执行旧“无数据库”前提。
+
+当前范围、设计来源、数据真源及验收入口统一见 [当前工作合同](current-contract.md)。下方原记录保留其当时的措辞、日期和状态；其中旧排期、无数据库限制、固定份数、旧视觉与 backlog 波次不作为当前任务的执行要求。许可证、凭据保护和独立审查等仍适用的约束继续遵守 [AGENTS](../AGENTS.md)。
+
+---
+
 # CanteenOS 总体架构
 
 > **English summary.** CanteenOS is a spec-first monorepo (pnpm workspaces) where JSON Schemas under `schemas/` are the single source of truth; TypeScript types, the `data/` knowledge base, and docs all derive from them. After the v2 scope reduction ([ADR-0006](adr/0006-scope-reduction-v2.md)) the product does one job — *a Chinese chef with a Ukrainian helper cooks Chinese food abroad and buys the right ingredients* — through three daily sheets (prep list / purchase order / menu) over **5 entities**: `ingredient`, `techniques` (single-file vocabulary), `dish`, `menu-plan`, and `purchase-order` (an engine-output snapshot with a per-line trace; no state machine). The repo directory *is* the knowledge base: one file per entity, filename = ID, sync via git pull or copying the folder. The engine is a deterministic pure function (`expand` / `renderPrepList` / `renderPurchaseOrders` / `renderMenu` / `readiness`); the video-ingest skill outputs `dish.json` + `images/` directly and a git PR is the human review queue. The feedback/ordering module is deferred. Roadmap: engine first, then video POC, then the Phase-1 read-only PWA.

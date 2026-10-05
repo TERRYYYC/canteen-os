@@ -1,0 +1,309 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {fixtureApproval} from './adoption-fixture.mjs';
+import {PNG_A,PNG_B} from './image-fixtures.mjs';
+import {FakeRepo,makeEnv as baseMakeEnv,bearer,call,WORKER} from './helpers.mjs';
+import {projectTeamMeals,estimateShoppingList} from '../../core/dist/index.js';
+
+const { materializationFiles } = await import('../dist/knowledge-materialization.js');
+const { validateEntity } = await import('../dist/validate.js');
+const recipeId = '3f4c6638-dcf8-4231-966c-1c5e2816c059';
+const candidateId = 'e2068014-7d9e-4e74-b24d-32f12554e7c4';
+const ingredientId = '70a8bc39-50d6-47cc-8b3e-0f788c602b6a';
+const stepId = 'c6d97786-92e5-4547-8e62-82225f4d27f0';
+const detail = { id:recipeId,version:1,recipe:{title:{zh:'测试菜'},baseServings:2,tags:[],description:{zh:'经核对'},
+  ingredients:[{id:ingredientId,name:{zh:'肉'},amount:{kind:'exact',value:'1000',unit:'克',raw:'1000 克'},rawText:'肉 1000 克'},
+    {id:'a1590617-581a-4d6d-9e75-0be1b241a2d7',name:{zh:'酱油'},amount:{kind:'exact',value:'3',unit:'勺',raw:'3 勺'},rawText:'酱油 3 勺'},
+    {id:'33f335cf-24a0-4e36-9800-544e33aa8b5c',name:{zh:'胡椒粉'},amount:{kind:'to_taste',raw:'适量'},rawText:'胡椒粉适量'}],
+  steps:[{id:stepId,text:{zh:'烤熟'}}],sources:[],assets:[]},media:[],sourceRecords:[] };
+const approved = {id:candidateId,status:'approved',recipeId,recipeVersion:1,reviewer:'test-chef'};
+const worker=(await import(WORKER)).default;
+function makeEnv(repo,options){
+  const original=options.__knowledgeFetch;
+  return baseMakeEnv(repo,{...options,__knowledgeFetch:async (url,...args)=>{
+    const response=await original(url,...args);
+    if(String(url).endsWith('/adoption')&&response.headers.get('Content-Type')?.includes('application/json')){
+      const document=await response.clone().json();
+      if(document.recipe)return new Response(JSON.stringify({recipeId:document.id,recipeVersion:document.version,current:{version:document.version,archived:false},kitchenApproval:fixtureApproval(document,candidateId)}),{headers:{'Content-Type':'application/json'}});
+    }
+    return response;
+  }});
+}
+
+test('approved version becomes a deterministic immutable dish and preserves unconvertible original amounts', async () => {
+  const first=await materializationFiles(approved,detail);
+  const again=await materializationFiles(approved,detail);
+  assert.deepEqual(first,again);
+  assert.match(first.dishRef,/^kb-[0-9a-f]{32}-v1$/);
+  assert.equal(first.files.length,4);
+  const dish=JSON.parse(first.files.find(x=>x.path===`data/dishes/${first.dishRef}.json`).text);
+  assert.equal(dish.status,'active');
+  assert.deepEqual(dish.provenance,{source:'knowledge',recipeId,recipeVersion:1,candidateId,snapshotHash:first.snapshotHash,coverState:'needs-image'});
+  assert.equal(dish.components[0].qty.value,1000);
+  assert.equal(dish.components[0].qty.unit,'g');
+  assert.equal(dish.components[1].qty,undefined);
+  assert.equal(dish.components[1].originalAmount,'3 勺');
+  assert.deepEqual(dish.components[2].qty,{unit:'to-taste'});
+  assert.equal(dish.components[2].originalAmount,'适量');
+});
+
+test('precise recorded decimals remain numeric and missing raw text still has an original amount',async()=>{
+  const changed=structuredClone(detail);
+  changed.recipe.ingredients[0].amount={kind:'exact',value:'0.33333',unit:'kg'};
+  const fixed=await materializationFiles(approved,changed);
+  const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
+  assert.deepEqual(dish.components[0].qty,{value:0.33333,unit:'kg'});
+  assert.equal(dish.components[0].originalAmount,'0.33333 kg');
+});
+
+test('video source gaps remain countable without publishing raw review notes; 斤 keeps its original amount',async()=>{
+  const changed=structuredClone(detail);
+  changed.recipe.ingredients[0].amount={kind:'exact',value:'5',unit:'斤',raw:'5斤'};
+  const video={...approved,unresolved:['煲煮火力和时长未说明','粉的品种未说明']};
+  const fixed=await materializationFiles(video,changed);
+  const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
+  assert.deepEqual(dish.components[0].qty,{value:2500,unit:'g'});
+  assert.equal(dish.components[0].originalAmount,'5斤');
+  assert.equal(dish.provenance.sourceGapCount,2);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(JSON.stringify(dish).includes(video.unresolved[0]),false);
+  assert.equal(fixed.unresolvedCount,3,'two source gaps plus one unconvertible spoon quantity');
+  assert.equal(validateEntity('dish',dish).valid,true);
+});
+
+test('approved preparation stays usable while raw source records and quotes remain private in KB',async()=>{
+  const changed=structuredClone(detail);
+  changed.recipe.ingredients[0].preparation={zh:'浸泡一夜'};
+  changed.recipe.sources=[{sourceId:'source-1',evidence:{captureHash:'e'.repeat(64),fieldEvidence:{title:{quote:'PRIVATE_SOURCE_QUOTE',locator:'post'}}}}];
+  changed.sourceRecords=[{id:'source-1',kind:'web',title:'原贴',author:'作者',url:'https://example.org/PRIVATE_SOURCE_URL',textContent:'PRIVATE_TRANSCRIPT_SENTINEL'}];
+  changed.recipe.ingredients[0].rawText='PRIVATE_RAW_INGREDIENT_LINE';
+  const fixed=await materializationFiles(approved,changed);
+  const dish=JSON.parse(fixed.files.find(file=>file.path===`data/dishes/${fixed.dishRef}.json`).text);
+  assert.deepEqual(dish.components[0].originalPreparation,{zh:'浸泡一夜'});
+  assert.equal(dish.components[0].originalAmount,'1000 克');
+  assert.equal(dish.components[0].originalText,undefined);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(dish.provenance.sourceUrl,undefined);
+  assert.doesNotMatch(fixed.files.map(file=>file.text).join(''),/PRIVATE_/);
+  assert.equal(validateEntity('dish',dish).valid,true);
+});
+
+test('frozen menu input keeps a traceable hash without copying private OCR or media URLs',async()=>{
+  const changed=structuredClone(detail);
+  changed.sourceRecords=[{id:'source-1',url:'https://private.example.invalid/?token=PRIVATE_URL_SENTINEL',textContent:'PRIVATE_OCR_SENTINEL'}];
+  changed.recipe.sources=[{sourceId:'source-1',evidence:{quote:'PRIVATE_FRAME_SENTINEL'}}];
+  changed.media=[{assetId:'c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1',kind:'image',role:'cover',status:'ready',url:'https://private.example.invalid/image?token=PRIVATE_MEDIA_SENTINEL',rights:{license:'All rights reserved'}}];
+  const frozen=await materializationFiles({...approved,unresolved:['火力待核实','见 https://private.example.invalid/?token=PRIVATE_GAP_SENTINEL']},changed);
+  const dishText=frozen.files.find(file=>file.path===`data/dishes/${frozen.dishRef}.json`).text;
+  for(const secret of ['PRIVATE_URL_SENTINEL','PRIVATE_OCR_SENTINEL','PRIVATE_FRAME_SENTINEL','PRIVATE_MEDIA_SENTINEL','PRIVATE_GAP_SENTINEL'])
+    assert(!dishText.includes(secret),`${secret} escaped into immutable menu input`);
+  const dish=JSON.parse(dishText);
+  assert.equal(dish.provenance.snapshotHash,frozen.snapshotHash);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.equal(dish.provenance.sourceGapCount,2);
+  assert.equal(dish.provenance.coverState,'needs-image');
+  assert.equal(validateEntity('dish',dish).valid,true);
+});
+
+test('a Douyin post citation stays in private KB while its fingerprint remains traceable',async()=>{
+  const changed=structuredClone(detail);
+  changed.sourceRecords=[{url:'https://www.douyin.com/video/7688940752160196770?token=PRIVATE_QUERY_SENTINEL',textContent:'PRIVATE_OCR_SENTINEL'}];
+  const frozen=await materializationFiles(approved,changed);
+  const dish=JSON.parse(frozen.files.find(file=>file.path===`data/dishes/${frozen.dishRef}.json`).text);
+  assert.equal(dish.provenance.sourceUrl,undefined);
+  assert.notEqual(frozen.snapshotHash,(await materializationFiles(approved,detail)).snapshotHash);
+  assert(!JSON.stringify(dish).includes('PRIVATE_QUERY_SENTINEL'));
+  assert(!JSON.stringify(dish).includes('PRIVATE_OCR_SENTINEL'));
+});
+
+test('unapproved or mismatched candidate never becomes a menu dish', async () => {
+  await assert.rejects(()=>materializationFiles({...approved,status:'needs_review'},detail));
+  await assert.rejects(()=>materializationFiles({...approved,recipeVersion:2},detail));
+});
+
+test('authorized materialization writes versioned Git inputs atomically and replays without a new commit', async()=>{
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const seen=[];
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
+    seen.push(String(input));
+    const value=String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:detail;
+    return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
+  }});
+  const send=(role='chef')=>worker.fetch(new Request(`http://worker.example/knowledge-materializations/${candidateId}`,{
+    method:'POST',headers:{...bearer(role),'Content-Type':'application/json'},body:'{}'}),env);
+  assert.equal((await send('buyer')).status,403);
+  const response=await send();const body=await response.json();assert.equal(response.status,200,JSON.stringify(body));assert.equal(body.unchanged,false);
+  assert.deepEqual(seen,[`http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`]);
+  assert.equal(JSON.parse(repo.fileText(`data/dishes/${body.dishRef}.json`)).provenance.snapshotHash,body.snapshotHash);
+  assert.equal(repo.head,body.commit);
+  assert.equal((await send()).status,200);
+  const replay=await (await send()).json();assert.equal(replay.unchanged,true);assert.equal(repo.head,body.commit);
+});
+
+test('edited v2 requires a stored approval; caller reviewer strings cannot approve it',async()=>{
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const edited=structuredClone(detail);edited.version=2;edited.recipe.title={zh:'测试菜改良版'};
+  edited.recipe.ingredients[0].amount={kind:'exact',value:'900',unit:'克',raw:'900 克'};
+  let kitchenApproval=null;
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
+    const url=String(input);
+    const value=url.endsWith(`/favorites/candidates/${candidateId}`)?approved:url.endsWith('/adoption')?{recipeId,recipeVersion:2,current:{version:2,archived:false},kitchenApproval}:edited;
+    return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
+  }});
+  const route=`/knowledge-materializations/${candidateId}`;
+  const checked={recipeVersion:2,reviewer:'caller-name',note:'Caller text is not approval'};
+  const before=repo.head;
+  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked})).status,409);
+  assert.equal(repo.head,before);
+  kitchenApproval=fixtureApproval(edited,candidateId);
+  const fixed=await call(worker,env,'POST',route,{headers:bearer('chef'),body:checked});
+  assert.equal(fixed.status,200,JSON.stringify(fixed.body));assert.match(fixed.body.dishRef,/-v2$/);
+  const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
+  assert.equal(dish.provenance.recipeVersion,2);assert.equal(dish.components[0].qty.value,900);
+  assert.equal(dish.provenance.approvalHash,kitchenApproval.approvalHash);assert.equal(dish.provenance.review,undefined);
+  assert.equal((await call(worker,env,'POST',route,{headers:bearer('chef'),body:{...checked,note:'arbitrary caller note'}})).body.unchanged,true);
+});
+
+test('licensed local KB image bytes from isolated port 4392 are pinned with the same dish revision',async()=>{
+  const bytes=PNG_A;
+  const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
+  const withImage=structuredClone(detail);
+  withImage.recipe.assets=[{assetId,role:'cover'}];
+  withImage.media=[{assetId,kind:'image',role:'cover',status:'ready',url:`/api/v1/assets/${assetId}/content`,sha256:createHash('sha256').update(bytes).digest('hex'),rights:{license:'own',author:'test-chef'}}];
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const seen=[];
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4392',__knowledgeFetch:async input=>{
+    const url=String(input);seen.push(url);
+    return url.endsWith(`/assets/${assetId}/content`)
+      ? new Response(bytes,{headers:{'Content-Type':'image/png'}})
+      : new Response(JSON.stringify(url.endsWith(`/favorites/candidates/${candidateId}`)?approved:withImage),{headers:{'Content-Type':'application/json'}});
+  }});
+  const fixed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(fixed.status,200,JSON.stringify(fixed.body));
+  assert(seen.every(url=>url.startsWith('http://127.0.0.1:4392/api/v1/')));
+  assert(seen.some(url=>url.endsWith(`/assets/${assetId}/content`)));
+  const path=`data/dishes/${fixed.body.dishRef}.json`;
+  const dish=JSON.parse(repo.fileText(path));
+  assert.deepEqual(dish.image,{src:`${fixed.body.dishRef}/images/cover.png`,license:'own',author:'test-chef'});
+  const assetPath=`data/dishes/${fixed.body.dishRef}/images/cover.png`;
+  const tree=repo.trees.get(repo.commits.get(repo.head).tree);
+  assert.deepEqual(repo.blobs.get(tree.get(assetPath)),bytes);
+  const image=await worker.fetch(new Request(`https://worker.example/asset?revision=${fixed.body.commit}&owner=${encodeURIComponent(path)}&pointer=%2Fimage`,{headers:bearer('chef')}),env);
+  assert.equal(image.status,200);
+  assert.deepEqual(Buffer.from(await image.arrayBuffer()),bytes);
+  const frozenHead=repo.head;
+  env.__knowledgeFetch=async input=>String(input).endsWith(`/assets/${assetId}/content`)
+    ? new Response(PNG_B,{headers:{'Content-Type':'image/png'}})
+    : new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:String(input).endsWith('/adoption')?{recipeId,recipeVersion:1,current:{version:1,archived:false},kitchenApproval:fixtureApproval(withImage,candidateId)}:withImage),{headers:{'Content-Type':'application/json'}});
+  const changed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(changed.status,422,'a changed KB image must not silently reuse a frozen dish');
+  assert.equal(repo.head,frozenHead);
+});
+
+test('materialization rejects non-allowlisted KB ports and external origins before reading',async()=>{
+  for(const url of ['http://127.0.0.1:4393','https://outside.invalid']){
+    const repo=new FakeRepo();repo.commit({'README.md':'base'});let reads=0;
+    const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:url,__knowledgeFetch:async()=>{reads++;throw Error('must not fetch');}});
+    const before=repo.head;
+    const result=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+    assert.equal(result.status,503,url);
+    assert.equal(reads,0,url);
+    assert.equal(repo.head,before,url);
+  }
+});
+
+test('external or rights-pending KB artwork remains evidence, not a published dish image',async()=>{
+  const pending=structuredClone(detail);
+  const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
+  pending.recipe.assets=[{assetId,role:'cover'}];
+  pending.media=[{assetId,kind:'image',role:'reference',status:'ready',url:'https://example.org/temporary.jpg',rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://example.org/source'}}];
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const seen=[];
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
+    seen.push(String(input));return new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:pending),{headers:{'Content-Type':'application/json'}});
+  }});
+  const fixed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(fixed.status,200,JSON.stringify(fixed.body));
+  const dish=JSON.parse(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`));
+  assert.equal(dish.image,undefined);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.doesNotMatch(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`),/temporary\.jpg/);
+  assert.equal(seen.length,4,'external artwork was never fetched for Git publication');
+});
+
+test('a local image with a nonpublishable license remains private, not a Git image or public metadata',async()=>{
+  const repo=new FakeRepo();repo.commit({'README.md':'base'});
+  const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
+  const changed=structuredClone(detail);
+  changed.recipe.assets=[{assetId,role:'cover'}];
+  changed.media=[{assetId,kind:'image',role:'cover',status:'ready',url:`/api/v1/assets/${assetId}/content`,sha256:createHash('sha256').update(PNG_A).digest('hex'),rights:{license:'All rights reserved',author:'owner',sourceUrl:'https://example.org/photo'}}];
+  const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>String(input).endsWith(`/assets/${assetId}/content`)
+    ?new Response(PNG_A,{headers:{'Content-Type':'image/png'}})
+    :new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:changed),{headers:{'Content-Type':'application/json'}})});
+  const response=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(response.status,200,JSON.stringify(response.body));
+  const dish=JSON.parse(repo.fileText(`data/dishes/${response.body.dishRef}.json`));
+  assert.equal(dish.image,undefined);
+  assert.equal(dish.provenance.evidence,undefined);
+  assert.doesNotMatch(repo.fileText(`data/dishes/${response.body.dishRef}.json`),/All rights reserved/);
+  assert.equal([...repo.trees.get(repo.commits.get(repo.head).tree).keys()].some(path=>path.endsWith('/images/cover.png')),false);
+});
+
+test('new materialization pins only complete rights with public attribution URLs',async()=>{
+  const assetId='c8e7724a-77fd-45bd-a9d0-b0ed829aa8e1';
+  for(const {rights,publish} of [
+    {rights:{license:'own'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://example.org/photo?token=PRIVATE_ATTRIBUTION_SENTINEL'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://host.internal./private'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://localhost./private'},publish:false},
+    {rights:{license:'CC BY 4.0',author:'artist',sourceUrl:'https://example.org/photo'},publish:true},
+  ]){
+    const repo=new FakeRepo();repo.commit({'README.md':'base'});
+    const changed=structuredClone(detail);
+    changed.recipe.assets=[{assetId,role:'cover'}];
+    changed.media=[{assetId,kind:'image',role:'cover',status:'ready',url:`/api/v1/assets/${assetId}/content`,sha256:createHash('sha256').update(PNG_A).digest('hex'),rights}];
+    let imageReads=0;
+    const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
+      if(String(input).endsWith(`/assets/${assetId}/content`)){imageReads++;return new Response(PNG_A,{headers:{'Content-Type':'image/png'}});}
+      return new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:changed),{headers:{'Content-Type':'application/json'}});
+    }});
+    const result=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+    assert.equal(result.status,200,JSON.stringify(result.body));
+    assert.equal(imageReads,Number(publish),'only publishable image bytes may be read');
+    const dish=JSON.parse(repo.fileText(`data/dishes/${result.body.dishRef}.json`));
+    assert.equal(Boolean(dish.image),publish);
+    assert(!JSON.stringify(dish).includes('PRIVATE_ATTRIBUTION_SENTINEL'));
+  }
+});
+
+test('approved version survives menu save and publish as the exact prep and purchase source',async()=>{
+  const repo=new FakeRepo();repo.commit({'data/techniques.json':'[]\n'});
+  const {env}=makeEnv(repo,{PUBLISH_MODE:'push-trigger',PUBLISH_CLAIM_TIMEOUT_MS:'0',KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',
+    __knowledgeFetch:async input=>new Response(JSON.stringify(String(input).includes('/favorites/candidates/')?approved:detail),{headers:{'Content-Type':'application/json'}})});
+  const fixed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
+  assert.equal(fixed.status,200,JSON.stringify(fixed.body));
+  const dishRef=fixed.body.dishRef;
+  const plan={schemaVersion:'3',name:{zh:'测试菜单'},meals:[{date:'2026-10-19',mealType:'lunch',dishRef,plannedServings:4}]};
+  const saved=await call(worker,env,'POST','/plan/team-week',{headers:{...bearer('chef'),'If-None-Match':'*'},body:plan});
+  assert.equal(saved.status,200,JSON.stringify(saved.body));
+  const published=await call(worker,env,'POST','/publish',{headers:bearer('chef')});
+  assert.equal(published.status,200,JSON.stringify(published.body));
+  const revision=repo.head;
+  const catalog=await call(worker,env,'GET',`/catalog?revision=${revision}`,{headers:bearer('buyer')});
+  const frozen=await call(worker,env,'GET',`/source/plan/team-week?revision=${revision}`,{headers:bearer('buyer')});
+  assert.equal(catalog.status,200,JSON.stringify(catalog.body));
+  assert.equal(frozen.status,200,JSON.stringify(frozen.body));
+  assert.equal(frozen.body.content.meals[0].dishRef,dishRef);
+  const inputs={menuPlans:{'team-week':frozen.body.content},dishes:catalog.body.dishes,ingredients:catalog.body.ingredients,techniques:catalog.body.techniques};
+  const selection=[{menuPlanRef:'team-week',date:'2026-10-19',mealType:'lunch'}];
+  const projected=projectTeamMeals(inputs,{sourceRevision:revision,selection});
+  const meat=projected.collection.items.find(item=>item.sources.some(source=>source.originalAmount==='1000 克'));
+  assert.equal(meat.sources[0].scaledQty.value,2000);
+  assert.equal(meat.sources[0].scaledQty.unit,'g');
+  assert.equal(projected.dishes[dishRef].provenance.recipeVersion,1);
+  assert.equal(projected.collection.items.find(item=>item.sources.some(source=>source.originalAmount==='3 勺')).sources[0].scaledQty,undefined);
+  const shopping=estimateShoppingList(inputs,selection,'2026-10-19T09:00:00Z');
+  assert.equal(shopping.budgetStatus,'incomplete');
+  assert.equal(shopping.items.find(item=>item.ingredientRef===meat.ingredientRef).status,'unavailable');
+});

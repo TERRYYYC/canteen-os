@@ -16,6 +16,7 @@ import {
   parseChineseNumber,
   parsePlanText,
   planIdOfDate,
+  datedPlanIdOfDate,
   weekStartOfPlanId,
 } from "../dist/index.js";
 
@@ -541,10 +542,17 @@ test("ISO 周：2026-10-05 是第 41 周周一；第 43 周周一 = 2026-10-19�
   assert.equal(planIdOfDate("2026-10-19"), "week-43");
   assert.equal(planIdOfDate("2026-10-05"), "week-41");
   assert.equal(planIdOfDate("bad"), null);
+  assert.equal(datedPlanIdOfDate("2026-10-04"), "week-2026-40");
+  assert.equal(datedPlanIdOfDate("2026-10-05"), "week-2026-41");
+  assert.equal(datedPlanIdOfDate("2021-01-01"), "week-2020-53");
+  assert.equal(datedPlanIdOfDate("bad"), null);
 });
 
 test("planId → 周一：week-41 从 2026-09-09 看是 2026-10-05；年末看 week-1 落到下一年；形状不对 → null", () => {
   assert.equal(weekStartOfPlanId("week-41", "2026-09-09"), "2026-10-05");
+  assert.equal(weekStartOfPlanId("week-2026-40", "2030-01-01"), "2026-09-28");
+  assert.equal(weekStartOfPlanId("week-2020-53", "2026-10-04"), "2020-12-28");
+  assert.equal(weekStartOfPlanId("week-2021-53", "2026-10-04"), null);
   assert.equal(weekStartOfPlanId("week-1", "2026-12-28"), "2027-01-04");
   assert.equal(weekStartOfPlanId("week-52", "2027-01-05"), "2026-12-21");
   assert.equal(weekStartOfPlanId("week-41", "bad"), null);

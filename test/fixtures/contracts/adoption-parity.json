@@ -1,0 +1,372 @@
+[
+  {
+    "name": "unknown-unit",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false
+    },
+    "expected": true
+  },
+  {
+    "name": "canonical-missing-version",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "canonicalIngredientId": "52d1955b-e1a9-44e8-a674-a3b3055a1130"
+    },
+    "expected": false
+  },
+  {
+    "name": "canonical-version-missing-ID",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "canonicalIngredientVersion": 1
+    },
+    "expected": false
+  },
+  {
+    "name": "yield-unknown-unit",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "yield": 0.9
+    },
+    "expected": false
+  },
+  {
+    "name": "pcs-yield",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "baseUnit": "pcs",
+      "yield": 0.9
+    },
+    "expected": false
+  },
+  {
+    "name": "known-ml-yield",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "baseUnit": "ml",
+      "yield": 0.9
+    },
+    "expected": true
+  },
+  {
+    "name": "stock-without-track",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": false,
+      "baseUnit": "g",
+      "onHand": 4
+    },
+    "expected": false
+  },
+  {
+    "name": "stock-unknown-unit",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": true,
+      "onHand": 4
+    },
+    "expected": false
+  },
+  {
+    "name": "known-stock",
+    "kind": "ingredient",
+    "schema": "ingredient-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "trackStock": true,
+      "baseUnit": "g",
+      "onHand": 4
+    },
+    "expected": true
+  },
+  {
+    "name": "list2-valid",
+    "kind": "shopping-list",
+    "schema": "shopping-list.schema.json",
+    "value": {
+      "shoppingListVersion": "2",
+      "id": "trip",
+      "basis": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selection": [
+          {
+            "menuPlanRef": "team",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "salt",
+          "snapshotRefs": [
+            "salt"
+          ],
+          "decision": "check"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "list2-missing-refs",
+    "kind": "shopping-list",
+    "schema": "shopping-list.schema.json",
+    "value": {
+      "shoppingListVersion": "2",
+      "id": "trip",
+      "basis": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selection": [
+          {
+            "menuPlanRef": "team",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "salt",
+          "decision": "check"
+        }
+      ]
+    },
+    "expected": false
+  },
+  {
+    "name": "list2-empty-refs",
+    "kind": "shopping-list",
+    "schema": "shopping-list.schema.json",
+    "value": {
+      "shoppingListVersion": "2",
+      "id": "trip",
+      "basis": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selection": [
+          {
+            "menuPlanRef": "team",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "salt",
+          "snapshotRefs": [],
+          "decision": "check"
+        }
+      ]
+    },
+    "expected": false
+  },
+  {
+    "name": "list2-duplicate-refs",
+    "kind": "shopping-list",
+    "schema": "shopping-list.schema.json",
+    "value": {
+      "shoppingListVersion": "2",
+      "id": "trip",
+      "basis": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selection": [
+          {
+            "menuPlanRef": "team",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "salt",
+          "snapshotRefs": [
+            "salt",
+            "salt"
+          ],
+          "decision": "check"
+        }
+      ]
+    },
+    "expected": false
+  },
+  {
+    "name": "list1-has-refs",
+    "kind": "shopping-list",
+    "schema": "shopping-list.schema.json",
+    "value": {
+      "shoppingListVersion": "1",
+      "id": "trip",
+      "basis": {
+        "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selection": [
+          {
+            "menuPlanRef": "team",
+            "date": "2026-10-05",
+            "mealType": "lunch"
+          }
+        ]
+      },
+      "items": [
+        {
+          "ingredientRef": "salt",
+          "snapshotRefs": [
+            "salt"
+          ],
+          "decision": "check"
+        }
+      ]
+    },
+    "expected": false
+  },
+  {
+    "name": "dish3-timing-only-prep",
+    "kind": "dish",
+    "schema": "dish-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "components": [
+        {
+          "ingredientRef": "salt",
+          "prep": {
+            "timing": "before-service"
+          }
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "dish3-size-only-prep",
+    "kind": "dish",
+    "schema": "dish-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "components": [
+        {
+          "ingredientRef": "salt",
+          "prep": {
+            "size": "3mm"
+          }
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "dish3-note-only-prep",
+    "kind": "dish",
+    "schema": "dish-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "components": [
+        {
+          "ingredientRef": "salt",
+          "prep": {
+            "note": {
+              "zh": "未知时间"
+            }
+          }
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "dish3-empty-prep",
+    "kind": "dish",
+    "schema": "dish-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "components": [
+        {
+          "ingredientRef": "salt",
+          "prep": {}
+        }
+      ]
+    },
+    "expected": false
+  },
+  {
+    "name": "dish3-unknown-field-prep",
+    "kind": "dish",
+    "schema": "dish-v3.schema.json",
+    "value": {
+      "schemaVersion": "3",
+      "name": {
+        "zh": "Synthetic"
+      },
+      "components": [
+        {
+          "ingredientRef": "salt",
+          "prep": {
+            "placeholder": true
+          }
+        }
+      ]
+    },
+    "expected": false
+  }
+]

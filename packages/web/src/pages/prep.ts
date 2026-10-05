@@ -17,6 +17,7 @@ import {renderRecordNotice} from './record-notices';
  */
 import "./prep.css";
 import { renderPublishedMeals } from "./published-meals";
+import { knowledgeCoverState, type KnowledgeCoverState } from "./knowledge-cover-status";
 import type { PublishedAsset } from "../data";
 
 import type {
@@ -374,7 +375,9 @@ export interface FrozenMealRow {
 const RAW_COPY = {
   selectedComponents: { zh: "所选材料与调料", en: "Selected ingredients and seasonings", uk: "Вибрані інгредієнти й приправи" },
   imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Зображення не записано" },
-  externalImage: { zh: "外链图片未固定到此版本", en: "External image is not pinned to this version", uk: "Зовнішнє зображення не закріплено за цією версією" },
+  imageNeedsImage: { zh: "待补图", en: "Image needed", uk: "Потрібно додати зображення" },
+  imageRightsPending: { zh: "图片使用许可待核实", en: "Image rights need review", uk: "Права на зображення потребують перевірки" },
+  externalImage: { zh: "外部图片未固定", en: "External image is not pinned to this version", uk: "Зовнішнє зображення не закріплено за цією версією" },
   title: { zh: "原配方与备料资料", en: "Recipes and preparation", uk: "Рецепти й підготовка" },
   issues: { zh: "需要核对的资料", en: "Information to review", uk: "Дані для перевірки" },
   "missing-plan": { zh: "排菜计划未找到", en: "Meal plan unavailable", uk: "План харчування недоступний" },
@@ -509,12 +512,13 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     details.addEventListener("toggle",()=>{if(live&&el.isConnected&&details.isConnected)options.disclosureState?.set(key,details.open);});
     return details;
   }
-  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>, support?: HTMLElement): HTMLElement {
+  function image(ref: ImageRef | undefined, owner: string, pointer: string, read?: () => Promise<FrozenImageResult>, support?: HTMLElement, missingCover: KnowledgeCoverState = 'not-recorded'): HTMLElement {
     const box = h("figure", {});
     const load = read ?? (options.asset ? () => options.asset!({ revision: projection.sourceRevision, owner, pointer }) : undefined);
-    const state = h("p", { class: "muted", role: "status" }, t(!ref ? "imageUnrecorded" : load ? "imageLoading" : "imageMissing"));
+    const missingText=missingCover==='needs-image'?t('imageNeedsImage'):missingCover==='rights-pending'?t('imageRightsPending'):missingCover==='external-unpinned'?t('externalImage'):missingCover==='unavailable'?t('imageMissing'):t('imageUnrecorded');
+    const state = h("p", { class: "muted", role: "status" }, ref ? t(load ? "imageLoading" : "imageMissing") : missingText);
     box.append(state);
-    if (!ref) { box.setAttribute("data-asset-state", "not-recorded"); return box; }
+    if (!ref) { box.setAttribute("data-asset-state", missingCover); return box; }
     const caption=h("details", {}, h("summary", {}, word(lang,"图片来源与许可","Image source and license","Джерело зображення й ліцензія")), `${t("license")}: ${ref.license} · ${t("author")}: ${ref.author ?? t("missing")} · `, external(ref.sourceUrl, word(lang,"查看来源","View source","Переглянути джерело")));
     if(support)support.append(h("div",{class:"prep-image-record"},caption));else box.append(h("figcaption", { class: "muted" },caption));
     if (load) {
@@ -552,7 +556,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
   if (issuePanel && !cooking) root.append(issuePanel);
   if (!rows.length) root.append(h("p", { class: "card empty", role: "status" }, t(hasFrozenSourceGap(selectedIssues) ? "missingRecord" : "empty")));
-  const timedComponents = rows.flatMap(row => row.dish?.components ?? []);
+  const timedComponents = rows.flatMap(row => (row.dish?.components ?? []) as Array<NonNullable<AnyDish['components']>[number]>);
   const matching = timedComponents.filter(component => (!options.ingredientRef || component.ingredientRef === options.ingredientRef) && (!options.timing || options.timing === "all" || component.prep?.timing === options.timing));
   if (options.timing && options.timing !== "all") {
       const unknown = timedComponents.filter(component => !component.prep?.timing).length;
@@ -574,7 +578,13 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const owner = `data/dishes/${meal.dishRef}.json`;
     const recipeRecord = h("details", { class: "prep-recipe-record" }, h("summary", {}, word(lang,"配方资料与来源","Recipe record and source","Дані й джерело рецепта")));
     if (cooking) recipeRecord.append(context, fact(t("planned"), meal.plannedServings));
-    (cooking ? recipeRecord : section).append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image"));
+    (cooking ? recipeRecord : section).append(names(dish.name), fact(t("base"), dish.baseServings), fact(t("status"), recordValue(dish.status, lang)), h("p", {}, pick(dish.description, lang)), image(dish.image, owner, "/image", undefined, undefined, knowledgeCoverState(dish)));
+    const sourceGapCount=dish.provenance?.source==='knowledge' ? dish.provenance.sourceGapCount??0 : 0;
+    if(sourceGapCount){
+      section.append(h('section',{class:'prep-source-questions',role:'alert'},
+        h('h3',{},word(lang,'原视频仍需核对的条件','Conditions left unclear in the source video','Умови, не уточнені у відео')),
+        h('p',{},`${sourceGapCount} · ${word(lang,'备料前请厨房负责人到固定菜谱版本核对。','Ask the chef to check the frozen recipe version before preparation.','Перед підготовкою попросіть шефа перевірити зафіксовану версію рецепта.')}`)));
+    }
     section.append(h("h3", { class: "section-label" }, cooking && options.ingredientRef ? t("selectedComponents") : t("components")), h("p", { class: "muted prep-quantity-basis" }, t("original")));
     if (cooking && dish.baseServings === undefined) recipeRecord.append(attention(word(lang,"配方基准份数未录，暂不能按计划份数换算；请人工核对本次用量。","Recipe servings are not recorded; quantities cannot be scaled to the plan. Check this meal’s amounts manually.","Базові порції рецепта не записано; кількості не можна перерахувати за планом. Перевірте потрібну кількість вручну."), "dish", meal.dishRef));
     if (cooking && meal.plannedServings === undefined) recipeRecord.append(attention(word(lang,"计划份数未录，无法确认本次用量；此页仍为原配方用量。","Planned servings are not recorded; this meal’s amounts cannot be confirmed. This page shows original quantities.","Порції в плані не записано; потрібну кількість не можна підтвердити. На цій сторінці наведено вихідні кількості."), "plan", menuPlanRef));
@@ -585,11 +595,21 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
       if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
-      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, rawQuantityText(component.qty, lang));
+      // Group identity may differ from the concrete frozen snapshot; older sources use the item ref.
+      const source=projection.collection.items.flatMap(item=>item.sources.filter(value=>(value.ingredientRef??item.ingredientRef)===component.ingredientRef&&
+        value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex&&
+        value.date===meal.date&&value.mealType===meal.mealType&&value.dishRef===meal.dishRef))[0];
+      const shown=source?.scaledQty;
+      const original=source?.originalAmount||rawQuantityText(component.qty,lang);
+      const quantityText=shown
+        ? `${word(lang,'本次','This meal','Цей прийом')}: ${rawQuantityText(shown,lang)} · ${word(lang,'原方','Original','Оригінал')}: ${original}`
+        : original;
+      const label = h("h4", {}, reference("ingredient", component.ingredientRef, ingredient ? pick(ingredient.name, lang) : t("missingRecord"))), quantity = h("p", { class: "num", "data-original-quantity": "" }, quantityText);
       const card = h("section", { class: "card", "data-component-index": componentIndex });
       const ingredientRecord = h("details", { class: "prep-ingredient-record" }, h("summary", {}, word(lang,"材料与采购资料","Ingredient and purchase record","Дані інгредієнта й закупівлі")));
       if (cooking) { card.append(h("div", { class: "prep-ingredient-heading" }, label, quantity)); ingredientRecord.append(names(ingredient?.name), fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined)); }
       else card.append(label, names(ingredient?.name), quantity, fact(t("role"), ingredient?.role ? t(ingredient.role) : undefined));
+      if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{'data-original-preparation':''},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
       if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
@@ -618,7 +638,11 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       section.append(h("section", { class: "step", "data-step-index": stepIndex }, h("span", { class: "k" }, String(stepIndex + 1)), body));
     }
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
-    if (dish.provenance?.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
+    if(dish.provenance?.source==='knowledge'){
+      (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
+        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+    }
+    if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);
   }
   if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }

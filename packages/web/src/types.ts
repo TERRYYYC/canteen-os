@@ -20,15 +20,18 @@
 import type { DataApi, Publication, PublishedDataError } from "./data";
 import type { Lang, TParams, UiKey } from "./i18n";
 import type { Route } from "./router";
+import type {PlanSelection} from './plan-selection';
 
 export interface PageCtx {
   /** 当前语言（内容 + UI） */
   lang: Lang;
   /**
-   * 当前菜单计划 id（= build.json.plans[0]；第一轮只有 week-41）。
-   * build.json 读不到 / plans 为空时为 null——页面显示「数据未就绪」。
+   * Shared current/explicitly selected plan, independent of ShoppingList basis.
+   * Null means no current/next-week publication was found; choose or create explicitly.
    */
   planId: string | null;
+  /** Application-owned resource selection; old injected PageCtx callers remain compatible. */
+  planSelection?:PlanSelection;
   /** 当前路由与 hash 第二段（#/prep/<rest> 的 rest，无则 ""） */
   route: Route;
   rest: string;

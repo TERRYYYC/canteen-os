@@ -228,7 +228,7 @@ export interface IngredientFormOpts {
   /** true = 文件已存在：id 锁定、不查重 */
   editing: boolean;
   /** 供应商下拉 + 重名检查；null = catalog 还没到（只留自由输入，不阻塞；晚到时 setCatalog） */
-  catalog: Pick<Catalog, "ingredients" | "suppliers"> | null;
+  catalog: {ingredients:Record<string,Pick<Ingredient,"name">>;suppliers:Catalog["suppliers"]} | null;
   /** DOM id 前缀（§3.4：adm-<screen>-<field>）；#24 内嵌时换一个，免得与自己的字段撞 id */
   idPrefix?: string;
   /** 任何输入变化后回调（草稿的 dirty 已经置好） */
@@ -256,7 +256,7 @@ export interface IngredientFormHandle {
   showErrors(errors: readonly FieldError[]): void;
   clearErrors(): void;
   /** catalog 晚到时补上供应商下拉与查重 */
-  setCatalog(catalog: Pick<Catalog, "ingredients" | "suppliers">): void;
+  setCatalog(catalog: {ingredients:Record<string,Pick<Ingredient,"name">>;suppliers:Catalog["suppliers"]}): void;
 }
 
 function remapError(e: FieldError): FieldError {
@@ -744,7 +744,7 @@ export function buildIngredientForm(opts: IngredientFormOpts): IngredientFormHan
   );
   const el = h("div", { class: "adm-ing-body" }, basic, h("p", { class: "section-label adm-ing-label" }, L("ing.purchase")), buy);
 
-  function setCatalog(c: Pick<Catalog, "ingredients" | "suppliers">): void {
+  function setCatalog(c: {ingredients:Record<string,Pick<Ingredient,"name">>;suppliers:Catalog["suppliers"]}): void {
     catalog = c;
     supplierList.replaceChildren(...c.suppliers.map((s) => h("option", { value: s })));
     refreshDup();

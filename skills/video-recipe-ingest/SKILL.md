@@ -1,93 +1,53 @@
 ---
 name: video-recipe-ingest
-description: 把做菜视频（中/英/乌克兰语旁白或字幕）解析为 CanteenOS 菜品草稿——直接输出 data/dishes/<菜>.json（status=draft）+ images/ 截帧目录，以 git PR 提交，师傅审 PR 即人工确认。解析可跑在云端/第三方（Gemini 主、Qwen 备）。
+description: >
+  Use when: 把完整做菜视频变成可复核的 CanteenOS 菜谱草稿，或检查视频菜谱是否漏了配料和步骤。
+  Not for: 只凭收藏卡片、标题或平台摘要生成菜谱，也不代替师傅审核。
+  Output: F2 采集记录、全片音画证据、SQLite KB 待审核候选和完整菜谱阅读面；师傅审核后才进入固定菜单版本。
 ---
 
-# video-recipe-ingest — 视频解析 Skill 契约
+# 视频 → 完整菜谱 → 厨房
 
-> 本文件是**实现方契约**：任何解析引擎（Gemini、Qwen-VL、自托管管线、AI agent 手工整理）只要遵守本契约，产物即可作为 CanteenOS 菜品草稿提 PR 入库。
-> 背景与选型论证见 [docs/video-import.md](../../docs/video-import.md) 与 [docs/research/v2/scenario-c-video-to-dishpack-keyframes.md](../../docs/research/v2/scenario-c-video-to-dishpack-keyframes.md)。
-> 输出格式以 [schemas/dish.schema.json](../../schemas/dish.schema.json) 为准（机器校验的单一事实源）；完整样例见 [data/dishes/tomato-egg-stir-fry.json](../../data/dishes/tomato-egg-stir-fry.json)。
-> ⚠️ **v2 变更（ADR-0006，2026-09-06）**：不再有 dishpack 中间包，skill **直出菜品文件 + 图片**；git PR 即人工确认队列。
+这是当前 SQLite KB 接入路径的执行契约。2026-09-06 的直写 `data/dishes/*.json`、默认放大到 50 份、PR 即厨师审核设计属于接入前历史方案；当前收藏收件箱不走这条路径。见 [视频导入说明](../../docs/video-import.md) 与 [KB 纵向决策](../../../knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)。
 
----
+## 1. 获取整片
 
-## 1. 输入
+- 输入为收藏作品 URL/ID 或已有视频文件。抖音作品优先使用 KB 的 [`scripts/video-evidence/f2-acquire.py`](../../../knowledge-base/scripts/video-evidence/f2-acquire.py)，见 [F2 获取与缓存说明](../../../knowledge-base/docs/F2-VIDEO-ACQUIRE.md)。它先通过 F2 官方 `gen_ttwid()` 初始化正常游客，再调用单作品 handler 与下载器；记录真实 Git SHA、作品 ID、详情/下载结果及完整文件校验。远端可连接且运行版本已核定时使用远端；本机成功不当作远端成功。F2 是采集器，不做视频理解。
+- 用户要求修复 F2 时，继续定位连接、游客初始化、详情与下载各阶段，并以真实 F2 下载验收。按用户授权继续播放核对视频，播放核对本身不代表 F2 已修复；其他采集按用户选择使用已有文件或播放路径，并记录每份解析输入的真实来源。不得暗读浏览器 Cookie、绕验证或把凭据写进日志/数据库。游客单片下载成功不等于私有收藏列表授权同步可用。
+- 记录来源链接、实际获取方式、媒体 SHA-256、字节数、音视频时长、是否有音轨。签名媒体地址只是临时获取路径，不当作永久来源。
+- 以媒体 hash 与解析契约版本查已有结果；同一片、同一契约优先复用完整证据和候选。媒体文件放在 KB 之外。
 
-| 参数 | 类型 | 必填 | 说明 |
-|---|---|---|---|
-| `videoUrl` 或视频文件 | uri / binary | ✅ 二选一 | youtube / bilibili / douyin / tiktok / instagram / local-file（下载统一走 yt-dlp，ADR-0006 裁决其 Unlicense 可用；策略：锁版本+高频升级+失败回放） |
-| `languageHint` | `zh` / `en` / `uk` | 否 | 旁白语言提示，提高解析质量（uk ASR 是最弱环，FLEURS WER ≈ 9.5%，数字字段需重点校验） |
-| `targetLanguages` | 数组 | 否，默认 `[zh, en, uk]` | 输出内容语言（zh 权威，en/uk 机翻初稿） |
+## 2. AI 读取完整音画
 
-## 2. 输出：dish.json + images/（直出，无中间包）
+- 先使用 KB 已有的 [`scripts/video-evidence/prepare.py`](../../../knowledge-base/scripts/video-evidence/prepare.py)，执行方式和持久环境见[全片预处理说明](../../../knowledge-base/docs/VIDEO-EVIDENCE-PREPARE.md)。相同媒体与提取配置命中完整性校验后的缓存时，跳过重复抽帧、OCR 和 ASR。不要每次在 `/tmp` 重建依赖。其 `ready_for_analysis` 仅指原始证据包就绪，后续仍须核对并生成候选，不能直接当作完整菜谱或师傅批准。
+- 整段音轨转写并保存分段时间。取字幕轨、全片字幕 OCR、必要的画面操作观察；覆盖开头配料表、中间处理、后段调味和收尾装盘。记录总时长、音轨处理终点、抽帧数、末帧与最大间隔；对数字、菜名、厨艺术语和冲突位置回看原帧。
+- 每条观察有稳定 ID、`spoken|subtitle|visual` 类型、起止毫秒与文本。标题、收藏卡片、平台 AI 摘要只用于发现，不单独证明用量或做法。AI 纠错仍标明来自哪段原画面，不冒充人类复核。
+- 输出全部食材/调料、原话用量、替代关系、预处理和完整步骤。未讲明的份数、火力、煲煮时间、勺规格、汤量或粉种类保持未知。替代项附在原料上，不能作为另一条同时采购。
+- 采用 [本 skill 的本地候选契约](references/candidate-contract.md) 生成 `source.json`、`evidence.json`、`candidate.json` 和 `review.md`。若 agent 安装了 `video-recipe-evidence`，可按它完成音画取证；不得从卡片或三张缩略图生成“完整菜谱”。
 
-一个菜品 = 一个 PR，包含：
+## 3. 写入当前产品
 
-```
-data/dishes/<dish-id>.json     # 符合 schemas/dish.schema.json；status 必须为 "draft"
-images/<dish-id>/              # 截帧目录
-├── cover.jpg                  # 成品图（→ dish.image）
-├── prep-<ingredientRef>.jpg   # 每个配料"被切的那几秒"的代表帧（→ component.prep.image）
-└── step-<n>.jpg               # 步骤关键帧（→ steps[].image，可选）
-```
+- 用 KB 的 `scripts/import-video-candidate.mjs` 验证原媒体 hash、证据引用和候选结构，再通过 loopback/SSH 隧道 API 依次写入不可变 `favorite_capture` 和 `needs_review` 的 `favorite_candidate`。同输入重试复用记录。
+- 候选页先展示整份食材、做法、未知条件和**完整原视频**。时码/证据折叠保存，师傅无需逐字段回看片段。保留来源使用权状态；未确认许可的视频帧不能作为可发布菜图。
+- AI 不署名审批。师傅补齐厨房所需条件、审核保存 SQLite 菜谱版本后，CanteenOS 才能将 `recipeId + version` 固定为菜单快照。帮厨看该版本备料，采购读同版本、按真实份数和库存决策；未知量不生成精确采购数字。
 
-dish.json 字段义务（相对 schema 的补充约束）：
+### 候选的必要原片说明图
 
-| 字段 | 义务 |
-|---|---|
-| `name` | I18nString，**zh 必填**（权威），en/uk 机翻初稿 |
-| `baseServings` | **食堂尺度**（默认按 50 份产出；视频是家常尺度时按师傅经验放大并标注 confidence） |
-| `components[]` | `{ingredientRef, qty{value,unit}, prep?, confidence?}`——必须映射到 `data/ingredients/` **已有**食材（词典/模糊匹配）；匹配不到就在 PR 描述列出，由师傅决定新建食材还是改映射 |
-| `components[].prep` | `{techniqueRef, size?, note?, image?}`——**image 必填**（有切配动作的配料）：该配料"被切的几秒"截帧，即备料单上帮厨要看的图 |
-| `components[].confidence` | 机器来源逐条标注 `{value: 0..1, source: "video"}`；**< 0.85 的字段必须在 PR 描述中逐条列出** |
-| `steps[]` | `{text{zh,en,uk}, techniqueRef?, image?, clip?{videoUrl,start,end}}`——**clip 必填**：每步对齐到视频时间段（WhisperX 词级时间戳 ∪ VLM temporal grounding，±2s 交叉校验） |
-| `provenance` | `{source: "video", videoUrl}` 必填 |
-| `status` | 必须 `"draft"`——skill 永远只产草稿 |
+- 从完整原片选择必要的配料、操作/状态变化和成品帧，实际核对后缩放压缩；单图 **≤200000 bytes，最长边≤1280**。图片留在菜谱产物目录内。
+- 写 `illustrations.json`：顶层含原视频 `sourceMediaSha256`、原始 `sourceUrl`、`author`、`rightsState: "unknown"` 和 `images`；每图含 `path`、图片文件 `sha256`、实际 `frameMs`、`role: ingredient|step|finished`、从1开始的 `stepOrder` 和有来源依据的 `caption`。说明文字可为字符串或至少一语的 `I18nString`，不假造授权。
+- 候选导入后，从 KB checkout 调用 [`scripts/import-candidate-illustrations.mjs`](../../../knowledge-base/scripts/import-candidate-illustrations.mjs)。默认从产物目录的 `local-import-receipt.json` 读取 `candidateId` 或 `imported.candidateId`；也可明确传 `--candidate-id <UUID>`。脚本读取真实候选，把 `stepOrder` 映射到该候选的步骤 UUID。
 
-## 3. 技法闭集约束（硬性）
-
-`prep.techniqueRef` 与 `steps[].techniqueRef` **只能是 [data/techniques.json](../../data/techniques.json) 中已存在的 id**（`cut | heat | pretreat` 三类受控词表）。模型 prompt 中附完整词表（id + 三语名 + 定义）作为选择闭集；词表外的切法/做法：
-
-- 选语义最近的已有词条，把差异写进 `prep.note`（如词表只有"块"，视频是"骰子块"→ `small-cubes` + note 注明尺寸）；或
-- 在 PR 描述中提议新增词条（师傅确认后先扩词表再引用）。
-
-## 4. 质量门槛（硬性）
-
-| 规则 | 阈值 |
-|---|---|
-| 单字段置信度 | `confidence.value < 0.85` → 该字段列入 PR 描述的"待人工确认"清单 |
-| 整体置信度 | 全部 component 置信度均值 < 0.85 → PR 标题标 `[需重点审核]`；禁止自动合并 |
-| JSON 合法性 | 产出必须通过 `schemas/dish.schema.json` 校验 + `scripts/local-validate.py`（含跨文件引用检查）；不通过自动重试 ≤ 2 次，仍失败则放弃并在日志说明 |
-| 溯源完整性 | `provenance.videoUrl`、`steps[].clip` 必须可回溯到视频；截帧时间落在对应 clip 区间内 |
-| 图片许可 | 视频截帧为自有演绎，`license: "own"`；若引用第三方图片必须带 `{license, author?, sourceUrl}`（ADR-0006 CC BY-SA 裁决） |
-
-## 5. 推荐管线（场景 C）
-
-```
-视频 URL → yt-dlp 下载 → WhisperX large-v3 转写(zh/en/uk)+词级对齐
-        → Gemini（主，responseSchema 约束 JSON 输出）/ Qwen3-VL（备，7B+，temporal grounding）
-          归组出 配料+用量+备菜规格+步骤（步骤带时间窗）
-        → 关键帧双路定位（VLM 时间窗 ∪ ASR"切/切丁…"词级时刻，±2s 交叉校验）
-        → PySceneDetect 窗内切镜头 + Laplacian 清晰度 + pHash 去重挑帧
-        → data/dishes/<菜>.json(draft) + images/<菜>/ → git PR → 师傅审核合并
+```bash
+node scripts/import-candidate-illustrations.mjs --artifact-dir /absolute/path/to/recipe-artifacts
+node scripts/import-candidate-illustrations.mjs --artifact-dir /absolute/path/to/recipe-artifacts --apply --output /absolute/path/to/recipe-artifacts/illustrations-import-receipt.json
 ```
 
-引擎路由：Gemini 主（`response_schema` 服务端强制 JSON 结构，免自托管 GPU，约 $0.02–0.05/条）；Qwen 备（国内合规/中文优势/可自托管）。字幕轨优先于 ASR；疑难样本可升级 Gemini Pro 二次精修。
+- 默认 dry run 读取候选/采集记录并校验全部图片，不上传或写 KB。API 默认 `http://127.0.0.1:4390`；其他 loopback API 或已核定 SSH 隧道传 `--api-base`。`--apply` 才执行，`--output` 只指定报告文件；检查执行回执中的图片 ID 与 `replayed`。相同图片、说明、来源和步骤映射重试复用原事件。
+- 图片以内部候选事件追加，不修改不可变 capture/candidate，不进入可发布的 `recipe.assets`。师傅在完整菜谱的关联步骤旁看说明图，并可打开完整原视频；日常审核无需逐段回放，权利未知的图不随菜单公开。
 
-## 6. 审核流程 = draft + PR（无独立队列）
+## 完成证据
 
-1. skill 产出 draft 菜品 + images/，开 PR；PR 描述模板列出：全部低置信字段（confidence < 0.85）、未匹配食材、词表外技法建议。
-2. 师傅在 PR 里直接改 JSON（单人编辑，阶段 1 无编辑 UI）；CI 跑 schema + 引用校验。
-3. 合并即入库；师傅把 `status` 改为 `active` 后参与菜单与采购推导。
-
-## 7. 验收清单（审 PR 用）
-
-- [ ] 通过 dish schema 校验与 `local-validate.py` 跨文件引用检查
-- [ ] 所有 `ingredientRef` 指向 `data/ingredients/` 已有食材（或 PR 中说明新建）
-- [ ] 所有 `techniqueRef` 在 techniques.json 闭集内
-- [ ] 每个有切配动作的配料带 `prep.image`（截帧可辨认"切成了什么样"）
-- [ ] 每个 step 带 `clip`，抽 1 条按时间段回放视频可核对步骤内容
-- [ ] `confidence < 0.85` 的字段已全部列入 PR 描述并逐条人工确认
-- [ ] `name` 三语齐全（至少 zh + 请求语言）；uk 数字字段重点抽查
-- [ ] `status = "draft"`，`provenance.videoUrl` 可打开
+1. 视频 hash、时长和音画覆盖记录；候选每项有证据 ID，所有未知问题列明。
+2. KB 返回 `captureId` 与 `candidateId`，重跑返回原 ID；有必要配图时保存追加回执并验证重复复用，收件箱能直接读完整菜谱、步骤旁图片并打开完整原视频。
+3. 师傅审核人与版本回执；固定菜单版在 KB 后续编辑后不漂移，备料/采购显示同一份食材与步骤。
+4. 至少另一条真实烹饪视频与非菜谱样本对照后，才扩至收藏批次。

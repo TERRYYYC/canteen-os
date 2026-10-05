@@ -1,3 +1,18 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [historical-scope, roadmap, kitchen-acceptance]
+doc_kind: historical-owner-plan
+created: 2026-09-07
+---
+
+# 历史记录与当前入口
+
+本文件的固定人数、材料数、日期和第一轮排期是历史安排，不是当前收口承诺。真正的厨房使用验收仍保留，但具体要求以 #128 为当前入口。
+
+当前范围、设计来源、数据真源及验收入口统一见 [当前工作合同](current-contract.md)。下方原记录保留其当时的措辞、日期和状态；其中旧排期、无数据库限制、固定份数、旧视觉与 backlog 波次不作为当前任务的执行要求。许可证、凭据保护和独立审查等仍适用的约束继续遵守 [AGENTS](../AGENTS.md)。
+
+---
+
 # CanteenOS 第一轮开发计划（给 Terry）
 
 > 2026-09-07 起。设计阶段到此收尾。这份是给你看的：现在在哪、要做出什么、按什么节奏、你每周要做什么、什么时候喊停。给 agent 的执行细则在 `docs/execution-brief.md`，两份一起读，冲突时以本文为准。

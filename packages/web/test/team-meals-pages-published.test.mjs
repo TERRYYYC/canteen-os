@@ -8,9 +8,9 @@ import {pathToFileURL} from 'node:url';
 import {pagesPublishedFixture as publishedFixture} from './team-meals-pages-published-fixture.mjs';
 const require=createRequire(import.meta.url),esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')));
 const temp=await mkdtemp(join(tmpdir(),'d-public-pages-'));
-const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';export {createPlanSelection} from './src/plan-selection';export {parseHash} from './src/router';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 await writeFile(join(temp,'pages.mjs'),bundle.outputFiles[0].text);const mod=await import(pathToFileURL(join(temp,'pages.mjs')));
-const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b'].map(n=>[n,publishedFixture(n)]));
+const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b','slot-duplicates','slot-duplicates-reordered'].map(n=>[n,publishedFixture(n)]));
 after(()=>{Object.values(fixtures).forEach(f=>f.cleanup());return rm(temp,{recursive:true,force:true});});
 class Element {
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.parentNode=null;this.text=text;this.style={};this.listeners={};this.open=false;this.classList={toggle:()=>{}};}
@@ -37,6 +37,7 @@ const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Cont
 function setup(name='normal',custom){let selected=fixtures[name];const calls=[];const data=mod.createPublishedData({baseUrl:'https://fixture.invalid/data/',fetch:async(address,init)=>{const url=new URL(address);calls.push({url,init});const response=await custom?.(url,selected);if(response)return response;if(url.pathname.endsWith('build.json'))return json(selected.manifest);if(url.pathname.includes('/team-meals/'))return json(selected.projection);if(url.pathname.includes('/assets/'))return new Response(await readFile(join(selected.root,decodeURIComponent(url.pathname.split('/assets/')[1]).split('/').slice(1).join('/'))),{headers:{'Content-Type':'image/png'}});return json({},404);}});return {data,calls,select:n=>{selected=fixtures[n];}};}
 async function context(s,route,rest='',lang='en'){let publication=null,publicationError=null;try{publication=await s.data.loadPublication();}catch(e){publicationError=e;}return {data:s.data,publication,publicationError,planId:publication?.manifest.plans[0]??null,route,rest,lang,t:k=>k};}
 const tick=()=>new Promise(r=>setTimeout(r,20));
+async function waitFor(check,timeoutMs=2000){const end=Date.now()+timeoutMs;while(!check()&&Date.now()<end)await new Promise(r=>setTimeout(r,10));}
 for(const page of ['menu','prep']){
  test(`${page} public entry reads approved team output and exposes original recipe via existing route`,async()=>{const s=setup('quantity-warning'),ctx=await context(s,page),meal=fixtures['quantity-warning'].projection.menuPlans['week-41'].meals[0];ctx.rest=page==='menu'?`${meal.date}/${meal.dishRef}`:`${meal.date}/${meal.mealType}`;const el=mount();await mod[page](el,ctx);assert(nodes(el,'[data-source-revision]').length,'actual public entry must render raw published source');assert.match(el.textContent,new RegExp(fixtures['quantity-warning'].revision));assert(nodes(el,'[data-step-index]').length>0);assert.match(el.textContent,/Salt|盐|Сіль/);assert.doesNotMatch(el.textContent,/legacy|Simulation|≈/i);assert(s.calls.some(c=>c.url.pathname.includes('/team-meals/')));assert(!s.calls.some(c=>/\/(menu|prep)\//.test(c.url.pathname)));el.remove();});
  test(`${page} distinguishes empty manifest, empty plan, missing file and invalid target`,async()=>{for(const [name,custom,code] of [['no-plans',null,'no-plans'],['empty-plan',null,'empty-plan'],['normal',u=>u.pathname.includes('/team-meals/')?json({},404):undefined,'unavailable'],['normal',u=>u.pathname.endsWith('build.json')?json({...fixtures.normal.manifest,target:'future'}):undefined,'unsupported_target']]){const s=setup(name,custom),el=mount();await mod[page](el,await context(s,page));assert.equal(nodes(el,'[data-publication-state]')[0]?.getAttribute('data-publication-state'),code);if(code==='empty-plan')assert.match(el.textContent,/Empty/);if(code==='no-plans')assert.equal(s.calls.length,1);assert(!s.calls.some(c=>/\/(menu|prep)\//.test(c.url.pathname)));el.remove();}});
@@ -79,8 +80,8 @@ test('Menu keeps selected-meal notices by its dishes and full-publication notice
 });
 test('Menu recipe keeps the image next to its name and preserves the full license, author and source in its record',async()=>{
  for(const lang of ['zh','en','uk']){
-  const s=setup('menu-image'),meal=fixtures['menu-image'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,lang));await tick();
-  const hero=nodes(el,'.menu-recipe-hero')[0],record=nodes(el,'.menu-recipe-provenance')[0];assert(nodes(hero,'img').length);
+  const s=setup('menu-image'),meal=fixtures['menu-image'].projection.menuPlans['week-41'].meals[0],el=mount();await mod.menu(el,await context(s,'menu',`${meal.date}/${meal.dishRef}`,lang));
+  const hero=nodes(el,'.menu-recipe-hero')[0],record=nodes(el,'.menu-recipe-provenance')[0];await waitFor(()=>nodes(hero,'img').length>0);assert(nodes(hero,'img').length);
   assert.equal(nodes(hero,'figcaption').length,0,'license controls do not separate the hero and dish name');
   assert.match(record.textContent,/CC0/);assert.match(record.textContent,/Recorded fixture author/);
   assert(nodes(record,'a').some(a=>a.getAttribute('href')==='https://example.org/fixture-source'));
@@ -105,4 +106,61 @@ test('Prep entry prioritizes its selected dish and materials, with date/meal con
  assert(nodes(el,'[data-step-index]').length,'timing does not hide method steps');
  nodes(el,'[data-filter="all"]')[0].dispatch('click');assert(nodes(el,'[data-component-index]').length);
  nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();
+});
+
+function sharedSelection(ctx,date,meal){
+ const owner=mod.createPlanSelection();owner.select(ctx.planId);if(meal)owner.selectSlot(date,meal);
+ return {...owner.snapshot(),selectSlot:(nextDate,nextMeal)=>owner.selectSlot(nextDate,nextMeal)};
+}
+const firstSlot=name=>fixtures[name].projection.menuPlans['week-41'].meals[0];
+test('review: a same-render Menu meal change rebuilds recipe and date links from the displayed slot',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.menu(el,ctx);
+ nodes(el,'[data-meal="dinner"]')[0].dispatch('click');
+ for(const link of [...nodes(el,'[data-recipe-link]'),...nodes(el,'[data-date]')]){
+  const state=mod.parseHash(link.getAttribute('href'));assert.equal(state.planId,ctx.planId);assert.equal(state.mealType,'dinner');
+ }
+ assert.equal(ctx.planSelection.slot.mealType,'lunch','PageCtx snapshot stays immutable');el.remove();
+});
+test('review: a cold copied recipe link chooses explicit dinner over a first lunch duplicate',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',`${first.date}/${first.dishRef}`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'dinner');await mod.menu(el,ctx);
+ const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType==='dinner');
+ assert.equal(nodes(el,'[data-meal="dinner"]')[0].getAttribute('aria-pressed'),'true');
+ assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));el.remove();
+});
+test('a cold copied lunch recipe beats a first dinner row on a different date',async()=>{
+ const name='slot-duplicates-reordered',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',`${first.date}/${first.dishRef}`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.menu(el,ctx);
+ const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType==='lunch');
+ assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));
+ for(const link of nodes(el,'a').filter(link=>/^#\/prep\//.test(link.getAttribute('href')??'')))assert.equal(mod.parseHash(link.getAttribute('href')).mealType,'lunch');el.remove();
+});
+for(const name of ['slot-duplicates','slot-duplicates-reordered'])for(const desired of ['lunch','dinner']){
+ test(`explicit ${desired} recipe intent beats warm opposite memory and row order (${name})`,async()=>{
+  const s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount(),opposite=desired==='lunch'?'dinner':'lunch';
+  ctx.planSelection=sharedSelection(ctx,first.date,opposite);await mod.menu(el,ctx);
+  nodes(el,'[data-recipe-link]')[0].dispatch('click');
+  const linked={...ctx,rest:`${first.date}/${first.dishRef}`,planSelection:sharedSelection(ctx,first.date,desired)};await mod.menu(el,linked);
+  const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType===desired);
+  assert.equal(nodes(el,`[data-meal="${desired}"]`)[0].getAttribute('aria-pressed'),'true');
+  assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));el.remove();
+ });
+}
+test('a Menu without an initial slot still creates complete meal links after a same-render choice',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date);await mod.menu(el,ctx);nodes(el,'[data-meal="dinner"]')[0].dispatch('click');
+ assert.equal(mod.parseHash(nodes(el,'[data-recipe-link]')[0].getAttribute('href')).mealType,'dinner');el.remove();
+});
+test('Prep meal links and ingredient/dish/date links agree with the target slot rather than an old snapshot',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'prep',`${first.date}/dinner`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.prep(el,ctx);
+ for(const link of nodes(el,'[data-meal]'))assert.equal(mod.parseHash(link.getAttribute('href')).mealType,link.getAttribute('data-meal'));
+ for(const link of nodes(el,'a').filter(link=>/^#\/(prep|menu)\//.test(link.getAttribute('href')??'')&&!link.getAttribute('data-meal'))){
+  const state=mod.parseHash(link.getAttribute('href'));assert.equal(state.mealType,'dinner');assert.equal(state.planId,ctx.planId);
+ }
+ const next=nodes(el,'[data-date]').find(link=>link.getAttribute('data-date')!==first.date),state=mod.parseHash(next.getAttribute('href'));
+ await mod.prep(el,{...ctx,rest:state.rest,planSelection:sharedSelection(ctx,state.rest,'dinner')});
+ assert.equal(nodes(el,'[data-meal="dinner"]')[0].getAttribute('aria-current'),'true');
+ assert.ok(nodes(el,'a').some(link=>link.getAttribute('href')?.includes(`/${state.rest}/dinner/tomato?plan=week-41&meal=dinner`)));el.remove();
 });

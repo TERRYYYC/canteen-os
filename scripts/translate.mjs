@@ -179,6 +179,12 @@ export async function runTranslate({ files, lock = {}, translator = null, now = 
 
   for (const file of files) {
     for (const { pointer, node } of collectI18nStrings(file.data)) {
+      // A fixed revision's bytes and hash cover every language. Translation is
+      // an edit to canonical knowledge, followed by a new approval/version.
+      const techniqueIndex=/^\/(\d+)\//.exec(pointer)?.[1];
+      const frozen=/^data\/(?:dishes\/kb-|ingredients\/kbi-)/.test(file.path)||
+        file.path==='data/techniques.json'&&techniqueIndex!==undefined&&String(file.data[Number(techniqueIndex)]?.id??'').startsWith('kbt-');
+      if(frozen){const key=`${file.path}#${pointer}`;seen.add(key);if(lock[key])newLock[key]=lock[key];continue;}
       stats.strings++;
       const key = `${file.path}#${pointer}`;
       seen.add(key);

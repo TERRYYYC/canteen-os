@@ -60,7 +60,20 @@ async function setup(lang='en'){
 test('Vite derives the application version from the Web package',()=>{
  assert.equal(config.define?.__APP_VERSION__,JSON.stringify(packageVersion));
 });
-const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',guest:'для гостей'}};
+const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',chef:'师傅后台',chefRole:'复核菜谱',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',chef:'Chef back office',chefRole:'Review recipes',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',chef:'Кабінет шефа',chefRole:'Вхідні рецепти',guest:'для гостей'}};
+test('chef recipe inbox is reachable from the drawer independently of a published menu plan',async()=>{
+ const e=await setup('zh'),p=await e.publication(empty.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
+ const inbox=e.byHref('#/admin/knowledge/inbox');
+ assert.ok(inbox,'The drawer must link to the chef inbox');
+ assert.ok(inbox.textContent.includes('师傅后台'));
+ assert.ok(inbox.textContent.includes('复核菜谱'));
+ e.shell.setActive('admin','knowledge/inbox');
+ assert.equal(e.byHref('#/admin/knowledge/inbox').getAttribute('aria-current'),'page');
+ e.shell.setBuild(null);
+ assert.ok(e.byHref('#/admin/knowledge/inbox'),'Knowledge navigation must not depend on publication availability');
+ e.byHref('#/admin/knowledge/inbox').focus();e.drawer.fire('click',{target:document.activeElement});
+ assert.equal(e.shell.isDrawerOpen(),false);
+});
 for(const lang of ['zh','en','uk']){
  test(`drawer version remains distinct from publication time and survives refresh (${lang})`,async()=>{
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
@@ -76,23 +89,26 @@ for(const lang of ['zh','en','uk']){
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
   assert.equal(e.drawer.textContent.includes(copy[lang].guest),false);
   assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].menu));assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].role));
+  const inbox=e.byHref('#/admin/knowledge/inbox');assert.ok(inbox.textContent.includes(copy[lang].chef));assert.ok(inbox.textContent.includes(copy[lang].chefRole));
   const plan=e.byHref('#/admin/plan/week-41');assert.ok(plan,'Published plan must be reachable through the existing admin route');
   assert.ok(plan.textContent.includes(copy[lang].plan));assert.equal(plan.hasAttribute('aria-disabled'),false);assert.equal(e.drawer.textContent.includes('2-й етап'),false);
-  assert.deepEqual(e.links().map(a=>a.getAttribute('href')),['#/prep','#/purchase','#/menu','#/admin/plan/week-41']);
+  assert.deepEqual(e.links().map(a=>a.getAttribute('href')),['#/prep','#/purchase','#/menu','#/admin/knowledge/inbox','#/admin/plan/week-41']);
  });
  test(`empty and failed publication do not invent or retain an editable target (${lang})`,async()=>{
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
   const noPlans=await e.publication(empty.manifest);e.shell.setBuild(noPlans.manifest,noPlans.kind);
-  assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin')),false);
+  assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin/plan/')),false);
+  assert.ok(e.byHref('#/admin/knowledge/inbox'));
   assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].role));assert.equal(e.drawer.textContent.includes('2-й етап'),false);
-  e.shell.setBuild(null);assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin')),false);
+  e.shell.setBuild(null);assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin/plan/')),false);
+  assert.ok(e.byHref('#/admin/knowledge/inbox'));
   assert.equal(e.drawer.textContent.includes(copy[lang].guest),false);assert.equal(e.drawer.textContent.includes(copy[lang].role),false);
  });
  test(`legacy keeps reader meaning and opens only the listed plan (${lang})`,async()=>{
   const e=await setup(lang),legacy=await e.publication({builtAt:normal.manifest.builtAt,commit:'local',plans:['old-week']});
   e.shell.setBuild(legacy.manifest,legacy.kind);assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].guest));
   assert.ok(e.byHref('#/admin/plan/old-week'));assert.equal(e.byHref('#/admin/plan/week-41'),undefined);
-  e.shell.setBuild({...legacy.manifest,plans:[]},legacy.kind);assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin')),false);
+  e.shell.setBuild({...legacy.manifest,plans:[]},legacy.kind);assert.equal(e.links().some(a=>a.getAttribute('href').startsWith('#/admin/plan/')),false);
  });
 }
 test('open drawer keeps equivalent focus across language and publication changes, and closes on the plan link',async()=>{
@@ -127,4 +143,25 @@ test('core navigation remains visible, uses verified plan, and preserves current
  e.shell.setActive('menu');assert.equal(e.root.querySelector('.plan-import').hidden,true);assert.equal(e.root.querySelector('.plan-import').hasAttribute('href'),false);
  e.shell.openDrawer();assert.equal(nav.hasAttribute('inert'),true);e.shell.closeDrawer();assert.equal(nav.hasAttribute('inert'),false);
  e.shell.setBuild(null);assert.equal(nav.querySelectorAll('a').some(a=>a.getAttribute('href').startsWith('#/admin/plan')),false);
+});
+
+test('dated shared links retain active navigation in the core bar and refreshed drawer',async()=>{
+ const e=await setup(),id='week-2026-41';
+ e.shell.setPlanSelection({id,choices:[],href:(route,rest='')=>`#/${route}${rest?'/'+rest:route==='prep'?'/2026-10-06/dinner':route==='menu'?'/2026-10-06':''}?plan=${id}&meal=dinner`,select(){}},()=>{});
+ for(const route of ['menu','prep']){
+  e.shell.setActive(route,route==='prep'?'2026-10-06/dinner':'2026-10-06');
+  assert.equal(e.root.querySelector('.core-nav').querySelector('[aria-current="page"]')?.getAttribute('href').split('/')[1],route);
+  e.shell.openDrawer();e.shell.refresh();
+  assert.equal(e.drawer.querySelector('[aria-current="page"]')?.getAttribute('href').split('/')[1],route);
+  e.shell.closeDrawer();
+ }
+});
+
+test('shared plan controls become inert while the drawer is modal',async()=>{
+ const e=await setup();
+ e.shell.setPlanSelection({id:'week-2026-41',choices:[],href:route=>`#/${route}?plan=week-2026-41`,select(){}},()=>{});
+ const selection=e.root.querySelector('.plan-selection');
+ e.shell.openDrawer();assert.equal(selection.hasAttribute('inert'),true);
+ e.shell.refresh();assert.equal(selection.hasAttribute('inert'),true);
+ e.shell.closeDrawer();assert.equal(selection.hasAttribute('inert'),false);
 });

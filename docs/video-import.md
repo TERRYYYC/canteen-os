@@ -1,76 +1,32 @@
-# 视频导入：解析 skill 规范
-
-> **English summary.** The video-import pipeline turns cooking videos (zh/en/uk narration or subtitles) directly into knowledge-base drafts: **`data/dishes/<dish>.json` (status=draft) + an `images/<dish>/` directory of keyframes — no interchange bundle anymore** (v2, [ADR-0006](adr/0006-scope-reduction-v2.md)). A git PR is the human review queue; merging accepts the dish. Downloads use yt-dlp (Unlicense, ruled acceptable); parsing is **Gemini primary / Qwen fallback**, with WhisperX word-level alignment and PySceneDetect + sharpness scoring for keyframe extraction. Every ingredient's "seconds being cut" frame lands in `component.prep.image`; every step carries a `clip{videoUrl,start,end}` range; technique references are a closed set from `data/techniques.json`; low-confidence fields (<0.85) are listed in the PR description for the chef. Full research: [research/v2/scenario-c](research/v2/scenario-c-video-to-dishpack-keyframes.md) and [research/video-to-recipe-tech-survey.md](research/video-to-recipe-tech-survey.md).
-
-- skill 契约（供实现方，**以它为准**）：[skills/video-recipe-ingest/SKILL.md](../skills/video-recipe-ingest/SKILL.md)
-- 输出格式 schema：`schemas/dish.schema.json`；样例：`data/dishes/tomato-egg-stir-fry.json`
-
+---
+feature_ids: [douyin-favorites-ingest, knowledge-base, menu-prep-purchase]
+topics: [video-import, f2, ai-recipe, chef-review]
+doc_kind: integration-contract
+created: 2026-09-28
 ---
 
-## 1. 输入契约
+# 视频导入：从收藏到厨房可读菜谱
 
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `videoUrl` 或视频文件 | uri / binary | youtube / bilibili / douyin / tiktok / instagram / local-file；下载统一走 yt-dlp（锁版本 + 高频升级 + 失败回放） |
-| `languageHint` | `zh` / `en` / `uk` / 空 | 旁白语言提示，提高解析与翻译质量 |
-| `targetLanguages` | 默认 `[zh, en, uk]` | 输出三语内容（zh 权威，en/uk 机翻初稿） |
+## 当前产品路径
 
-## 2. 管线
-
-```mermaid
-flowchart TD
-    A[视频 URL/文件] --> B[yt-dlp 下载<br/>Unlicense，ADR-0006 裁决可用]
-    B --> C[WhisperX large-v3<br/>转写 zh/en/uk + 词级对齐]
-    B --> D[PySceneDetect<br/>镜头切分]
-    C --> E{结构化引擎}
-    D --> E
-    E -->|主| F[Gemini responseSchema<br/>服务端强制 JSON]
-    E -->|备| G[Qwen3-VL 7B+<br/>temporal grounding]
-    F & G --> H[dish.json 草稿<br/>配料+用量+prep+步骤+时间窗]
-    H --> I[关键帧双路定位<br/>VLM 时间窗 ∪ ASR 切菜关键词 ±2s 交叉校验]
-    I --> J[窗内挑帧：Laplacian 清晰度 + pHash 去重]
-    J --> K[data/dishes/菜.json status=draft<br/>+ images/菜/]
-    K --> L[git PR = 人工确认队列<br/>低置信字段列入 PR 描述]
-    L -->|师傅合并| M[入库，改 active 后参与菜单与采购]
+```text
+抖音收藏卡片 → F2 单作品获取（或已可访问的完整原片）
+             → 全片音频转写 + 字幕 OCR + 操作画面观察
+             → 有时码的音画证据 + 完整结构化菜谱草稿
+             → SQLite KB 收藏收件箱：师傅读完整菜谱与完整原视频
+             → 师傅补足厨房条件并审核保存 recipeId + version
+             → CanteenOS 明确固定菜单版本 → 帮厨备料 / 采购核单
 ```
 
-关键设计：
+现行执行格式见 [video-recipe-ingest skill](../skills/video-recipe-ingest/SKILL.md) 与 [KB 接入决策](../../knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)。旧版 ADR-0006 里的「yt-dlp 统一下载、直写 `data/dishes/*.json`、默认放大 50 份、PR 即审核」是 SQLite KB 接入之前的设计；不应用于当前收藏收件箱。旧调研保留为当时的技术资料，不把未经实测的成本、识别率或平台支持写成当前验收结论。
 
-1. **直出菜品文件，无中间包**（v2 收窄）：解析引擎的中间产物（如 schema.org/Recipe JSON-LD）是引擎内部细节，不再是仓库契约；仓库契约就是 `dish.schema.json` + 本文件。
-2. **保留溯源**：`provenance.videoUrl` + 每步 `clip{start,end}`（秒），备料/教学可回放。
-3. **人机闭环**：`components[].confidence` < 0.85 的字段在 PR 描述逐条列出；PR 合并即人工确认完成。
-4. **技法闭集**：`techniqueRef` 只能是 `data/techniques.json` 里的 id（SKILL.md §3）。
-5. **字幕优先**：视频自带字幕轨时直接抽取，成本最低错误最少，ASR 兜底。
+## 完整性与呈现
 
-## 3. 引擎选型与裁决（ADR-0006）
+- AI 读取整片，而不是只用标题、平台章节摘要或少量缩略图。每个用量、食材和操作有音画证据 ID/时间点；音画处理覆盖、空白区间和冲突单独记录。
+- UI 首先显示完整食材与调料、全部步骤、未定条件和「观看完整原视频」。技术依据默认折叠。师傅无需逐字段回看片段；有争议时仍可按时码追根。
+- 原方份数、汤量、火力、煲煮时长、勺规格和替代量缺失时写未知；AI 声称的份数须经师傅核定后才可写入缩放基准。`stated_imprecise` 即使含数字也只保留原话，不参与采购计算。替代料只作为选择，不叠加为采购数量。视频帧权利未知时，不标为自有图片，也不随菜谱自动发布。
+- AI 候选可重试和缓存，但不自动批准。师傅决定可否入菜单；被固定的 `recipeId + version` 后续不随 KB 编辑漂移，备料和采购读同一快照。
 
-| 决策 | 结论 | 依据 |
-|---|---|---|
-| 下载器 | **yt-dlp 可用**（Unlicense = 公有领域奉献，宽松度等同 MIT；B 站/抖音/YouTube 唯一稳的开源底座） | 场景 C §4 |
-| 解析引擎 | **Gemini 主**（responseSchema 强制 JSON、免 GPU、$0.02–0.05/条）/**Qwen 备**（Apache-2.0、可自托管、中文强） | 场景 C §3、调研报告成本分析 |
-| ASR | WhisperX（BSD-2）+ Whisper large-v3；uk FLEURS WER ≈ 9.5%，无更优开源对手 | 场景 C §1/§5 |
-| 抽帧 | PySceneDetect（BSD-3）+ Laplacian 清晰度 + pHash 去重 | 场景 C §2 |
-| 动作识别 | 不上专用模型（EPIC-KITCHENS 为 CC BY-NC，只看不取）；用 VLM 时间窗 + ASR 关键词双路定位 | 场景 C §2 |
+## 首个真实样本与下一道门
 
-## 4. 成本估算（引调研报告，2026-05~09 快照）
-
-| 路线 | 单条边际成本 | 工程投入 | 适合阶段 |
-|---|---|---|---|
-| Gemini Flash（主） | **$0.02–0.05**（免费档可开发） | 1–2 人周 | POC → 生产 |
-| Qwen3-VL / 百炼（备） | ¥0.1–0.5 | 低 | 国内合规 |
-| Gemini Pro | $0.10–0.30 | 低 | 疑难样本兜底 |
-| 自托管 WhisperX+Qwen-VL | < $0.01 + GPU 固定成本 | 3–6 人周 + 运维 | 数万条/月、离线 |
-
-经验法则：**月处理量 < 1 万条时云端 API 全面占优**。价格以官方控制台实时报价为准。
-
-## 5. POC 验证计划（ADR-0006 执行顺序：先引擎后 POC，本节属 POC）
-
-1. 拿 10–20 条真实目标视频（**含乌克兰语样本**）在 Gemini 免费档跑通；
-2. 中文场景参考 [TsaiHao/recipe-from-video](https://github.com/TsaiHao/recipe-from-video)（B 站/抖音 → 结构化中文食谱，与本需求几乎同构）、[pick-a-recipe](https://github.com/pickeld/pick-a-recipe)（MIT，管线完整）做基线对比；
-3. 重点实测：乌克兰语抽取质量（数字/用量字段单独统计错误率）、技法闭集命中率、截帧可用率（"被切的几秒"是否真的拍到了切）。
-
-## 6. 开放问题（Open Questions)
-
-1. 批量导入（一次 100 条视频）时 PR 噪音如何控制（批量分支 + 汇总 PR？）。
-2. 配料映射不到现有食材时，skill 是否可在同一 PR 附带新建 `data/ingredients/<新>.json` 草稿（当前约定：允许，但必须在 PR 描述列出）。
-3. 截帧图片的体积上限与压缩管线（场景 G 已知坑 #1：git 不是图床，需源头压缩 + 硬上限）。
+收藏第 2 条「古法羊腩煲」完整媒体 263.848 秒，已产生 128 条音画证据、21 个非重复原料项、10 步、10 条综合问题和 28 条逐字段问题。实际页面先显示综合问题，逐字段问题可展开；审核后的固定版本也将来源缺口带到备料页。远端 KB 测试 release `kb-video-recipe-20260928-005` 已将该候选入箱，首写与重放返回相同 capture/candidate ID；CanteenOS 测试模型已升级到代码 `0d28c7755b7744deeb4860c70dfbaf3ac6ab2850`，两次启动后的私有和公开菜单头未变。远端 F2 0.0.1.7 的匿名详情仍失败，不能把浏览器已取回的媒体记作 F2 成功。师傅实际厨房补定、固定菜单版在备料和采购中的真实验收仍需真人操作记录；当前候选不得称作厨房已可用。

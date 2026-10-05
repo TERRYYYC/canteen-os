@@ -22,6 +22,7 @@ const walk=n=>[n,...n.children.flatMap(walk)],cls=(n,c)=>walk(n).filter(x=>(x.at
 const save=el=>cls(el,'tm-actions')[0].querySelector('button'),remove=(el,index)=>walk(el).find(x=>x.attrs['data-meal-index']===String(index)).querySelector('button');
 const input=(el,key,value,type='input')=>{const node=focus(el,key);node.value=value;node.dispatch(type);};
 const A='a'.repeat(40),B='b'.repeat(40),raw='2.0000000000000001';
+const frozenDishRef=`kb-${'1'.repeat(32)}-v1`;
 const seed=()=>({schemaVersion:'3',margin:1.13,meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'soup',plannedServings:8},{date:'2026-09-15',mealType:'dinner',dishRef:'stew',plannedServings:12,serviceWindow:'18:00-19:00'},{date:'2026-09-16',mealType:'lunch',dishRef:'soup'}]});
 let serial=0;
 async function setup({post,read,image=false,previewLoad}={}){
@@ -29,7 +30,7 @@ async function setup({post,read,image=false,previewLoad}={}){
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};const events={};globalThis.window={addEventListener:(k,f)=>(events[k]??=[]).push(f)};globalThis.location={hash:'#/admin/plan/week-a'};globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const page=await import(`${pathToFileURL(file)}?case=${++serial}`),writes=[];let identity=1;
- const api=page.createTeamMealsApi('https://plan-raw-fixture.invalid',{mode:'mock',token:()=>'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{const u=new URL(url);if(init.method==='GET'&&read){const response=await read(u,identity);if(response)return response;}if(init.method==='POST'){const body=JSON.parse(init.body);writes.push({id:u.pathname,body});if(post)return post(body);return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});}if(u.pathname==='/catalog')return Response.json({commit:u.searchParams.get('revision')??A,dishes:{soup:{schemaVersion:'3',name:{en:'Soup'},...(image?{image:{path:'soup.jpg',license:'CC0'}}:{}),components:[]},stew:{schemaVersion:'3',name:{en:'Stew'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});return Response.json({content:seed(),commit:A,blobSha:'before'});}});
+ const api=page.createTeamMealsApi('https://plan-raw-fixture.invalid',{mode:'mock',token:()=>'explicit-local-fixture',identity:()=>identity,fetch:async(url,init)=>{const u=new URL(url);if(init.method==='GET'&&read){const response=await read(u,identity);if(response)return response;}if(init.method==='POST'){const body=JSON.parse(init.body);writes.push({id:u.pathname,body});if(post)return post(body);return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});}if(u.pathname==='/catalog')return Response.json({commit:u.searchParams.get('revision')??A,dishes:{soup:{schemaVersion:'3',name:{en:'Soup'},...(image?{image:{path:'soup.jpg',license:'CC0'}}:{}),components:[]},stew:{schemaVersion:'3',name:{en:'Stew'},components:[]},[frozenDishRef]:{schemaVersion:'3',name:{en:'Frozen dish'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});return Response.json({content:seed(),commit:A,blobSha:'before'});}});
  const render=page.createPlanRenderer(api),coverage=page.createPageReloadCoverage(),start=(id='week-a',lang='en')=>{document.body.replaceChildren();const el=new Element('main');document.body.append(el);const promise=render(el,{lang,planId:id,route:'admin',rest:id,setReloadCoverage:coverage.beginRender('admin',`plan/${id}`)},id);return{el,promise};},mount=async(id='week-a',lang='en')=>{const {el,promise}=start(id,lang);await promise;return el;};
  return{page,api,render,writes,mount,start,events,auth(){identity++;page.changeAuth();},async flush(){for(let i=0;i<5;i++)await tick();},cleanup(){api.dispose();document.body.replaceChildren();delete globalThis.__planPreviewModuleGate;}};
 }
@@ -84,6 +85,108 @@ test('a known Source error releases its read and page coverage without clearing 
 // Reference-v3 presentation: these checks use the existing renderer and real TeamMealsApi.
 test('compact Plan keeps three direct count inputs, day navigation and first-screen actions ahead of secondary editing',async()=>{
  const f=await setup();try{const el=await f.mount();assert.equal(cls(el,'tm-plan').length,1);assert.equal(cls(el,'tm-plan-day').length,7);assert.equal(cls(el,'tm-plan-row-main').length,3);assert.equal(focus(el,'servings-2').value,'');assert.equal(cls(el,'tm-plan-edit').length,3);const nodes=walk(el);assert(nodes.indexOf(cls(el,'tm-actions')[0])<nodes.indexOf(cls(el,'tm-add-form')[0]));const before=f.render.readAuxiliary('week-a');cls(el,'tm-plan-day')[1].click();assert.equal(cls(el,'tm-plan-row-main').length,1);assert.equal(focus(el,'servings-1').value,'12');assert.deepEqual(f.render.readAuxiliary('week-a'),before);assert.equal(f.writes.length,0);}finally{f.cleanup();}
+});
+test('inbox selection opens the newly frozen version in an already visited plan',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc',dishRef=`kb-${recipeId.replaceAll('-','')}-v2`;
+ const f=await setup({read:u=>u.pathname==='/catalog'?Response.json({commit:u.searchParams.has('revision')?A:B,
+   dishes:{soup:{schemaVersion:'3',name:{en:'Soup'},components:[]},...(u.searchParams.has('revision')?{}:{[dishRef]:{schemaVersion:'3',name:{en:'Soup'},components:[],provenance:{source:'knowledge',recipeId,recipeVersion:2,candidateId:recipeId,snapshotHash:'e'.repeat(64)}}})},
+   ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ const previousHistory=globalThis.history;
+ globalThis.history={state:null,replaceState(_state,_title,url){location.hash=url;}};
+ try{
+   await f.mount();
+   document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   const rest=`week-a/select/${dishRef}`;
+   location.hash=`#/admin/plan/${rest}`;
+   await f.render(el,{lang:'en',planId:'week-a',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-dish').value,dishRef);
+   assert.match(focus(el,'add-dish').textContent,/KB v2 · 12345678/);
+   cls(el,'tm-add-form')[0].dispatch('submit');save(el).click();await f.flush();
+   assert.equal(f.writes[0].body.meals.at(-1).dishRef,dishRef);
+   assert.match(el.textContent,/Image pending/);
+   assert(cls(el,'tm-plan-photo').some(node=>/Source frames are chef-only/.test(node.getAttribute('aria-label')??'')));
+   assert.equal(location.hash,'#/admin/plan/week-a','saved one-time selection must not repeat after reload');
+ }finally{f.cleanup();if(previousHistory===undefined)delete globalThis.history;else globalThis.history=previousHistory;}
+});
+test('a frozen knowledge dish explains private source images without claiming no image was recorded',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc';
+ const f=await setup({read:u=>u.pathname==='/catalog'?Response.json({commit:A,dishes:{
+   soup:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[],provenance:{source:'knowledge',recipeId,recipeVersion:2,candidateId:recipeId,snapshotHash:'e'.repeat(64)}},
+   stew:{schemaVersion:'3',name:{zh:'炖菜'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ try{
+   const el=await f.mount('week-a','zh');const photos=cls(el,'tm-plan-photo');
+   assert.match(photos[0].getAttribute('aria-label'),/原片参考图仅师傅可见/);
+   assert.match(photos[0].textContent,/待授权/);
+   assert.equal(photos[1].getAttribute('aria-label'),'图片未录');
+ }finally{f.cleanup();}
+});
+test('adding a selected inbox dish consumes the deep link so a fresh load is clean',async()=>{
+ const recipeId='12345678-1234-4234-8234-123456789abc',dishRef=`kb-${recipeId.replaceAll('-','')}-v2`;
+ let saved=null,reloaded;const previousHistory=globalThis.history;
+ const read=u=>u.pathname.startsWith('/source/plan')&&saved?Response.json({content:saved,commit:B,blobSha:'after'}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{en:'Soup'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined;
+ const f=await setup({post:body=>{saved=body;return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});},read});
+ try{
+   location.hash=`#/admin/plan/week-a/select/${dishRef}`;
+   globalThis.history={replaceState(_state,_title,url){location.hash=url.slice(url.indexOf('#'));}};
+   const rest=`week-a/select/${dishRef}`;document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'en',planId:'week-a',route:'admin',rest,setReloadCoverage(){}},rest);
+   cls(el,'tm-add-form')[0].dispatch('submit');save(el).click();await f.flush();
+   assert.equal(location.hash,'#/admin/plan/week-a','the consumed preselection must not replay on reload');
+   f.cleanup();reloaded=await setup({read});const next=await reloaded.mount('week-a');
+   assert.equal(reloaded.render.readAuxiliary('week-a').dirty,false);
+   assert.equal(saved.meals.at(-1)?.dishRef,dishRef);
+   assert.equal(walk(next).filter(x=>x.attrs['data-meal-index']!==undefined).length,saved.meals.length);
+ }finally{f.cleanup();reloaded?.cleanup();globalThis.history=previousHistory;}
+});
+test('selected dish in an expired plan requires an explicit old date and cannot add an out-of-range meal',async()=>{
+ const dishRef=`kb-${'1'.repeat(32)}-v1`;
+ const f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({content:{schemaVersion:'3',dateRange:{start:'2026-09-12',end:'2026-09-13'},meals:[]},commit:A,blobSha:'before'}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+ try{
+   const rest=`team-week/select/${dishRef}`;
+   document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'zh',planId:'team-week',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-dish').value,dishRef);
+   assert.match(el.textContent,/2026-09-12.*2026-09-13/);
+   const date=focus(el,'add-date');assert.equal(date.value,'','an expired plan must not silently schedule the dish in the past');
+   assert.equal(date.getAttribute('min'),'2026-09-12');assert.equal(date.getAttribute('max'),'2026-09-13');
+   assert.match(el.textContent,/已过期.*手动选择/);
+   input(el,'add-date','2026-10-04');cls(el,'tm-add-form')[0].dispatch('submit');
+   assert.equal(walk(el).filter(x=>x.attrs['data-meal-index']!==undefined).length,0);
+   assert.equal(f.writes.length,0);
+   input(el,'add-date','2026-09-13');cls(el,'tm-add-form')[0].dispatch('submit');
+   assert.equal(walk(el).filter(x=>x.attrs['data-meal-index']!==undefined).length,1);
+   save(el).click();await f.flush();assert.equal(f.writes[0].body.meals[0].date,'2026-09-13');
+ }finally{f.cleanup();}
+});
+test('new year-specific current-week plan preselects the frozen dish for today and saves its bounded range',async()=>{
+ const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-04T12:00:00Z']));}static now(){return RealDate.parse('2026-10-04T12:00:00Z');}};
+ const dishRef=`kb-${'2'.repeat(32)}-v1`;
+ let f;
+ try{
+   f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({ok:false,errors:[{code:'not_found',path:'',message:''}]},{status:404}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+   const rest=`week-2026-40/select/${dishRef}`;
+   document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'zh',planId:'week-2026-40',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-dish').value,dishRef);
+   assert.equal(focus(el,'add-date').value,'2026-10-04');
+   assert.match(el.textContent,/2026-09-28.*2026-10-04/);
+   assert.equal(f.writes.length,0,'navigation and preselection do not create a plan');
+   cls(el,'tm-add-form')[0].dispatch('submit');save(el).click();await f.flush();
+   assert.equal(f.writes.length,1);assert.equal(f.writes[0].id,'/plan/week-2026-40');
+   assert.deepEqual(f.writes[0].body.dateRange,{start:'2026-09-28',end:'2026-10-04'});
+   assert.deepEqual(f.writes[0].body.meals,[{date:'2026-10-04',mealType:'lunch',dishRef}]);
+ }finally{f?.cleanup();globalThis.Date=RealDate;}
+});
+test('current-week preselection uses the chef browser date across UTC midnight',async()=>{
+ const RealDate=Date,oldTimezone=process.env.TZ;process.env.TZ='America/Los_Angeles';
+ globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T00:30:00Z']));}static now(){return RealDate.parse('2026-10-05T00:30:00Z');}};
+ const dishRef=`kb-${'3'.repeat(32)}-v1`;let f;
+ try{
+   f=await setup({read:u=>u.pathname.startsWith('/source/plan')?Response.json({ok:false,errors:[{code:'not_found',path:'',message:''}]},{status:404}):u.pathname==='/catalog'?Response.json({commit:A,dishes:{[dishRef]:{schemaVersion:'3',name:{zh:'陈皮排骨'},components:[]}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}}):undefined});
+   const rest=`week-2026-40/select/${dishRef}`;document.body.replaceChildren();const el=new Element('main');document.body.append(el);
+   await f.render(el,{lang:'zh',planId:'week-2026-40',route:'admin',rest,setReloadCoverage(){}},rest);
+   assert.equal(focus(el,'add-date').value,'2026-10-04','local Sunday is still in ISO week 40');
+ }finally{f?.cleanup();globalThis.Date=RealDate;if(oldTimezone===undefined)delete process.env.TZ;else process.env.TZ=oldTimezone;}
 });
 test('controlled Plan images use the bound catalog revision with a real read ticket; late images cannot paint the next page',async()=>{
  let release;const calls=[];const f=await setup({image:true,read:u=>{if(u.pathname==='/asset'){calls.push(u);return new Promise(r=>release=r);}}});try{const el=await f.mount();await f.flush();assert.equal(calls.length,1);assert.equal(calls[0].searchParams.get('revision'),A);assert.equal(calls[0].searchParams.get('owner'),'data/dishes/soup.json');assert.equal(calls[0].searchParams.get('pointer'),'/image');assert.equal(f.render.readAuxiliary('week-a').phase,'busy');document.body.replaceChildren();release(new Response('image',{headers:{'Content-Type':'image/png','X-Source-Revision':A}}));await f.flush();assert.equal(el.querySelectorAll('img').length,0);assert.equal(f.render.readAuxiliary('week-a').phase,'idle');assert.equal(f.writes.length,0);}finally{f.cleanup();}

@@ -1,6 +1,6 @@
 {
   "name": "@canteenos/web",
-  "version": "0.3.0-alpha.1",
+  "version": "0.3.0-alpha.4",
   "private": true,
   "description": "CanteenOS 团队用餐网页：菜单计划、备料、人工确认采购、菜品与食材编辑及发布；原生 DOM + TypeScript，读取同版静态资料，写入通过显式配置的 Worker。",
   "homepage": "https://terryyyc.github.io/canteen-os/",

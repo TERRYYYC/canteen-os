@@ -6,7 +6,10 @@
   "properties": {
     "shoppingListVersion": {
       "type": "string",
-      "const": "1"
+      "enum": [
+        "1",
+        "2"
+      ]
     },
     "id": {
       "$ref": "common.schema.json#/$defs/Id"
@@ -129,6 +132,14 @@
         },
         "previous": {
           "$ref": "#/$defs/ShoppingPrevious"
+        },
+        "snapshotRefs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/Id"
+          }
         }
       },
       "required": [
@@ -167,5 +178,49 @@
         }
       ]
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "shoppingListVersion": {
+            "const": "1"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "items": {
+              "not": {
+                "required": [
+                  "snapshotRefs"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "shoppingListVersion": {
+            "const": "2"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "items": {
+              "required": [
+                "snapshotRefs"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }

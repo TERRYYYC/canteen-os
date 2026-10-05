@@ -6,6 +6,15 @@ import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {test,after} from 'node:test';
+// These fixture meals span September 13–19. Freeze only this test process so the
+// importer's real current/next-week validation remains stable as calendar time moves.
+const RealDate = globalThis.Date;
+const fixtureInstant = new RealDate('2026-09-13T12:00:00Z').getTime();
+globalThis.Date = class extends RealDate {
+ constructor(...args) { super(...(args.length ? args : [fixtureInstant])); }
+ static now() { return fixtureInstant; }
+};
+after(() => { globalThis.Date = RealDate; });
 const here=dirname(fileURLToPath(import.meta.url)),req=createRequire(import.meta.url),vr=createRequire(req.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const dir=await mkdtemp(join(tmpdir(),'plan-import-composition-'));after(()=>rm(dir,{recursive:true,force:true}));
 const built=await esbuild.build({stdin:{contents:`export {createPlanRenderer} from './src/pages/admin/plan';export {createPlanForm} from './src/pages/admin/plan-form';export {applyPlanImport} from './src/pages/admin/plan-import';export {render as renderImport} from './src/pages/admin/import';export {createTeamMealsApi} from './src/api/team-meals';export {clearToken as changeAuth} from './src/admin/token';export {inspectReloadSafety,createPageReloadCoverage} from './src/view-models/reload-safety';export {bindDraftStore} from './src/admin/store';`,resolveDir:join(here,'..')},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent',plugins:[{name:'read-actual-plan-session',setup(build){build.onLoad({filter:/\/pages\/admin\/plan\.ts$/},async args=>({contents:(await readFile(args.path,'utf8')).replace('return Object.assign(renderPlan,{','return Object.assign(renderPlan,{readSession:()=>form.session,'),loader:'ts'}));}}]});

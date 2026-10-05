@@ -34,23 +34,222 @@
             "$ref": "dish.schema.json#/properties/components/items/properties/qty"
           },
           "prep": {
-            "$ref": "dish.schema.json#/properties/components/items/properties/prep"
+            "type": "object",
+            "description": "该配料在本菜中的备菜规格（备料单「能教」关卡的依据）",
+            "properties": {
+              "techniqueRef": {
+                "$ref": "common.schema.json#/$defs/Id",
+                "description": "刀工/预处理技法，必须是 data/techniques.json 中的 id（闭集）"
+              },
+              "size": {
+                "type": "string",
+                "minLength": 1,
+                "description": "尺寸/规格补充，如 3mm、2cm 见方"
+              },
+              "timing": {
+                "type": "string",
+                "enum": [
+                  "day-before",
+                  "morning",
+                  "before-service"
+                ],
+                "description": "备料时机（可选）：day-before=前一天 / morning=当天早上 / before-service=开餐前。备料单按它分组，缺省归「早上」（execution-brief §3 v0.1）"
+              },
+              "note": {
+                "$ref": "common.schema.json#/$defs/I18nString"
+              },
+              "image": {
+                "$ref": "common.schema.json#/$defs/ImageRef",
+                "description": "该配料「被切的几秒」的截帧（视频导入时由 skill 产出）；{ src, license, author?, sourceUrl? }"
+              }
+            },
+            "additionalProperties": false,
+            "minProperties": 1
           },
           "confidence": {
             "$ref": "dish.schema.json#/properties/components/items/properties/confidence"
+          },
+          "originalAmount": {
+            "type": "string",
+            "description": "经审核来源的原方用量；即使不能换算也必须保留"
+          },
+          "originalText": {
+            "type": "string",
+            "description": "仅兼容旧版已存资料；对外投影必须移除"
+          },
+          "originalPreparation": {
+            "$ref": "common.schema.json#/$defs/I18nString"
+          },
+          "knowledgeIngredientId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "canonicalIngredientId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "canonicalIngredientVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role": {
+            "enum": [
+              "main",
+              "seasoning"
+            ]
           }
         },
         "required": [
           "ingredientRef"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "dependentRequired": {
+          "canonicalIngredientId": [
+            "canonicalIngredientVersion"
+          ],
+          "canonicalIngredientVersion": [
+            "canonicalIngredientId"
+          ]
+        }
       }
     },
     "steps": {
       "$ref": "dish.schema.json#/properties/steps"
     },
     "provenance": {
-      "$ref": "dish.schema.json#/properties/provenance"
+      "oneOf": [
+        {
+          "$ref": "dish.schema.json#/properties/provenance"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "source": {
+              "const": "knowledge"
+            },
+            "recipeId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "recipeVersion": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "candidateId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "snapshotHash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "review": {
+              "type": "object",
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "approvedCandidateVersion": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "reviewer",
+                "note",
+                "approvedCandidateVersion"
+              ],
+              "additionalProperties": false
+            },
+            "sourceUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "evidence": {
+              "type": "object",
+              "properties": {
+                "sourceRecords": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "sourceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "media": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "unresolved": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                }
+              },
+              "required": [
+                "sourceRecords",
+                "sourceRefs"
+              ],
+              "additionalProperties": false
+            },
+            "sourceGapCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "原片仍需核对的条件数量；原文和审核备注留在私有知识库"
+            },
+            "coverState": {
+              "type": "string",
+              "enum": [
+                "needs-image",
+                "rights-pending",
+                "external-unpinned",
+                "unavailable"
+              ],
+              "description": "可公开的缺图原因；私有来源图片及网址不进入发布资料"
+            },
+            "approvalHash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "originKind": {
+              "enum": [
+                "favorite",
+                "manual",
+                "legacy"
+              ]
+            },
+            "originalRecipeVersion": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "source",
+            "recipeId",
+            "recipeVersion",
+            "snapshotHash"
+          ],
+          "additionalProperties": false
+        }
+      ]
     },
     "status": {
       "$ref": "dish.schema.json#/properties/status"

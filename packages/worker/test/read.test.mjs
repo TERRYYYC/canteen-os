@@ -6,6 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { FakeRepo, WORKER, bearer, call, makeEnv } from "./helpers.mjs";
+import { PNG_A } from './image-fixtures.mjs';
 
 const worker = (await import(WORKER)).default;
 
@@ -68,6 +69,79 @@ test("GET /catalog：全库索引 + 供应商去重 + 翻译计数", async () =>
   assert.deepEqual(body.suppliers, ["绿源农产品配送"]);
   assert.deepEqual(body.translations, { machine: 1, human: 1, stale: 0 });
   assert.equal(repo.writeCalls().length, 0);
+});
+
+test("legacy frozen KB evidence remains readable but never reaches catalog or source responses", async () => {
+  const repo = seeded();
+  const dishId = 'kb-3f4c6638dcf84231966c1c5e2816c059-v1';
+  const legacy = {
+    schemaVersion: '3', name: { zh: '测试菜' }, status: 'active',
+    components: [{ ingredientRef: 'tomato', originalAmount: '1 克', originalText: 'PRIVATE_RAW_LINE',
+      prep: { techniqueRef: 'dice', image: { src: 'another-dish/images/prep.png', license: 'own', author: 'chef' } } }],
+    image: { src: 'kb-cover.png', license: 'own', author: 'chef', sourceUrl: 'https://host.internal./PRIVATE_IMAGE_ATTRIBUTION' },
+    steps: [{ text: { zh: '煮熟' }, image: { src: 'another-dish/images/step.png', license: 'own', author: 'chef' },
+      clip: { videoUrl: 'https://example.org/PRIVATE_VIDEO', start: 1, end: 2 } }],
+    provenance: {
+      source: 'knowledge', recipeId: '3f4c6638-dcf8-4231-966c-1c5e2816c059', recipeVersion: 1,
+      candidateId: 'e2068014-7d9e-4e74-b24d-32f12554e7c4', snapshotHash: 'a'.repeat(64),
+      review: { reviewer: 'chef', note: 'PRIVATE_REVIEW_NOTE', approvedCandidateVersion: 1 },
+      sourceUrl: 'https://example.org/PRIVATE_SOURCE_URL',
+      evidence: {
+        sourceRecords: [{ textContent: 'PRIVATE_TRANSCRIPT_SENTINEL' }],
+        sourceRefs: [{ quote: 'PRIVATE_QUOTE' }],
+        media: [{ kind: 'image', role: 'cover', url: 'https://example.org/PRIVATE_MEDIA_URL' }],
+        unresolved: ['PRIVATE_SOURCE_GAP'],
+      },
+    },
+  };
+  repo.commit({ ['data/dishes/' + dishId + '.json']: JSON.stringify(legacy), 'data/dishes/kb-cover.png': PNG_A,
+    'data/dishes/another-dish/images/prep.png': PNG_A, 'data/dishes/another-dish/images/step.png': PNG_A });
+  const { env } = makeEnv(repo);
+  const catalog = await call(worker, env, 'GET', '/catalog', { headers: bearer('buyer') });
+  assert.equal(catalog.status, 200, JSON.stringify(catalog.body));
+  assert.doesNotMatch(JSON.stringify(catalog.body), /PRIVATE_/);
+  assert.equal(catalog.body.dishes[dishId].provenance.sourceGapCount, 1);
+  assert.equal(catalog.body.dishes[dishId].provenance.coverState, 'rights-pending');
+  assert.equal(catalog.body.dishes[dishId].image, undefined);
+  assert.equal(catalog.body.dishes[dishId].steps[0].image, undefined);
+  assert.equal(catalog.body.dishes[dishId].components[0].prep.image, undefined);
+  for (const role of ['buyer', 'chef']) {
+    const source = await call(worker, env, 'GET', '/source/dish/' + dishId, { headers: bearer(role) });
+    assert.equal(source.status, 200, JSON.stringify(source.body));
+    assert.doesNotMatch(JSON.stringify(source.body), /PRIVATE_/);
+    assert.equal(source.body.content.components[0].originalAmount, '1 克');
+    assert.equal(source.body.content.image, undefined);
+  }
+  const image = await call(worker, env, 'GET', `/asset?revision=${repo.head}&owner=${encodeURIComponent('data/dishes/' + dishId + '.json')}&pointer=%2Fimage`, { headers: bearer('buyer') });
+  assert.equal(image.status, 422, 'legacy private-attribution image bytes must not be served');
+  for (const pointer of ['/components/0/prep/image', '/steps/0/image']) {
+    const crossed = await call(worker, env, 'GET', `/asset?revision=${repo.head}&owner=${encodeURIComponent('data/dishes/' + dishId + '.json')}&pointer=${encodeURIComponent(pointer)}`, { headers: bearer('buyer') });
+    assert.equal(crossed.status, 422, 'cross-dish image bytes must not be served');
+  }
+  assert.match(repo.fileText('data/dishes/' + dishId + '.json'), /PRIVATE_TRANSCRIPT_SENTINEL/, 'read projection must not rewrite the private Git head');
+});
+
+test("GET /catalog paginates more than 200 Git files at one fixed revision", async () => {
+  const repo = new FakeRepo();
+  const files = Object.fromEntries(Array.from({ length: 201 }, (_, i) =>
+    [`data/ingredients/item-${String(i).padStart(3, '0')}.json`, TOMATO]));
+  repo.commit(files, "many ingredients");
+  const { env } = makeEnv(repo);
+  let cursor = null;
+  const found = new Set();
+  let pages = 0;
+  do {
+    const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const { status, body } = await call(worker, env, "GET", `/catalog${suffix}`, { headers: bearer("buyer") });
+    assert.equal(status, 200, JSON.stringify(body));
+    assert.equal(body.commit, repo.head);
+    for (const id of Object.keys(body.ingredients)) found.add(id);
+    cursor = body.nextCursor;
+    pages++;
+    assert(pages < 10, 'cursor must advance');
+  } while (cursor);
+  assert.equal(found.size, 201);
+  assert(pages > 1);
 });
 
 test("GET /changes：未发布 = 动过 data/ 的 commit，排除机翻回写与不动 data/ 的 commit（D-12）", async () => {

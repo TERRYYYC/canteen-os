@@ -1,3 +1,18 @@
+---
+feature_ids: [team-meals, knowledge-base]
+topics: [historical-scope, product]
+doc_kind: historical-prd
+created: 2026-09-07
+---
+
+# 历史记录与当前入口
+
+下方是 v2 收窄及 2026-09-07 第一轮需求记录。当前用户是小团队，顾客订单、报告和库存流水不进入本轮；“无数据库”和“PR 即厨师审核”已由后续明确合同替代。
+
+当前范围、设计来源、数据真源及验收入口统一见 [当前工作合同](current-contract.md)。下方原记录保留其当时的措辞、日期和状态；其中旧排期、无数据库限制、固定份数、旧视觉与 backlog 波次不作为当前任务的执行要求。许可证、凭据保护和独立审查等仍适用的约束继续遵守 [AGENTS](../AGENTS.md)。
+
+---
+
 # CanteenOS 产品需求文档（PRD）
 
 > **English summary.** After the v2 scope reduction ([ADR-0006](adr/0006-scope-reduction-v2.md), 2026-09-06) CanteenOS does one job: **a Chinese chef with a Ukrainian helper cooks Chinese food abroad and buys the right ingredients** — one knowledge base (the `data/` directory) producing three sheets a day: prep list (for the helper, Ukrainian-first), purchase order (for the purchaser), and menu (for customers, trilingual). Knowledge enters through cooking-video parsing (skill outputs `dish.json` + `images/` directly; a git PR is the human review queue). Round 1 (v0.1 → v1.0, 2026-09-07 → 10-30) ships one URL with four pages: `/prep` `/purchase` `/menu` (read-only, PWA, offline) and `/admin` — a chef back office to plan the week, add ingredients/dishes by hand, and publish (static page → cloud function → GitHub API; no backend database, no login; ADR-0007). Video import stays a CLI in Round 1. The ordering/rating/feedback module (formerly 模块三) is **deferred**.

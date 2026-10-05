@@ -1,3 +1,10 @@
+---
+feature_ids: [canteen-release-closure, 122]
+topics: [regression, date-rot, release]
+doc_kind: operations-guide
+created: 2026-10-05
+---
+
 运维 · 日期腐烂（date rot）的主动扫法
 =====================================
 

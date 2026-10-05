@@ -480,7 +480,7 @@ export function draftFromDish(dish: AnyDish, id: string, blobSha: string | null)
     row.expanded = false;
     d.steps.push(row);
   }
-  d.provenance = dish.provenance ? { ...dish.provenance } : null;
+  d.provenance = dish.provenance?.source==='knowledge' ? null : dish.provenance ? { ...dish.provenance } : null;
   d.status = dish.status ?? null;
   d.blobSha = blobSha;
   return d;

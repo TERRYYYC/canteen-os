@@ -274,10 +274,9 @@ export function initPwa(shell: Shell, hooks: { refreshPublication(): Promise<voi
   async function checkVersion(): Promise<void> {
     lastCheck = Date.now();
     if (!navigator.onLine) return;
-    // issue #98 之前 build.json 走 precache（cache-first），loadPublication() 读到的是装机时那份，
-    // 所以「基线 != 探测值」等价于「线上换版了」，SW 更新检查挂在这个分支里。改成 NetworkFirst 之后
-    // 两边都是真值、这个分支不再触发，waiting worker 只能等浏览器自己那次检查——所以把 update()
-    // 提到分支外：每次可见性检查（CHECK_INTERVAL_MS 节流）都主动问一次，发现新 SW 由 onNeedRefresh 出提示。
+    // The installed manifest and projection remain in one precache generation.
+    // Check for a waiting worker on every throttled visibility check, even before
+    // comparing the network-only probe with that installed manifest.
     void registration?.update().catch(() => undefined);
     let baseline: string;
     try {

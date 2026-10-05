@@ -139,7 +139,9 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
       !record(raw.dishes)||!record(raw.ingredients)||!Array.isArray(raw.techniques)||!Array.isArray(raw.selection)||!record(raw.collection)||!record(raw.estimates)||!Array.isArray(raw.assets)||!Array.isArray(raw.issues))return fail();
     if(!raw.selection.every((s:any)=>record(s)&&s.menuPlanRef===planId&&typeof s.date==='string'&&['breakfast','lunch','dinner'].includes(s.mealType)))return fail();
     for(const [key,d] of Object.entries(raw.dishes))if(!id(key)||!record(d)||!record(d.name)||(d.components!==undefined&&(!Array.isArray(d.components)||!d.components.every((c:any)=>record(c)&&id(c.ingredientRef)&&(c.prep===undefined||record(c.prep)))))||(d.steps!==undefined&&(!Array.isArray(d.steps)||!d.steps.every(record))))return fail();
-    for(const [key,i] of Object.entries(raw.ingredients))if(!id(key)||!record(i)||!record(i.name)||typeof i.baseUnit!=='string')return fail();
+    // Only explicit v3 snapshots permit unknown units; older publications retain their string guard.
+    for(const [key,i] of Object.entries(raw.ingredients))if(!id(key)||!record(i)||!record(i.name)||
+      (i.schemaVersion==='3' ? i.baseUnit!==undefined&&i.baseUnit!=='g'&&i.baseUnit!=='ml'&&i.baseUnit!=='pcs' : typeof i.baseUnit!=='string'))return fail();
     if(!raw.techniques.every((t:any)=>record(t)&&id(t.id))||new Set(raw.techniques.map((t:any)=>t.id)).size!==raw.techniques.length)return fail();
     const {items,issues,coverage}=raw.collection;
     if(!Array.isArray(items)||!items.every((i:any)=>record(i)&&id(i.ingredientRef)&&Array.isArray(i.sources)&&i.sources.every(record))||new Set(items.map((i:any)=>i.ingredientRef)).size!==items.length||!Array.isArray(issues)||!issues.every((i:any)=>record(i)&&typeof i.code==='string')||!record(coverage)||!['complete','incomplete'].includes(coverage.enumeration)||!['resolved','unresolved'].includes(coverage.references)||coverage.recipeCompleteness!=='unverified')return fail();

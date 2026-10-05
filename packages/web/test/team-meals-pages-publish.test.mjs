@@ -142,3 +142,38 @@ test('known terminal proof clears registry while legacy failure and ambiguous di
 for(const old of [false,true])test(`an array masquerading as a rollback commit never proves ${old?'old':'current'} write completion`,async()=>{
  const held=deferred(),f=await setup({respond:p=>!old&&p.startsWith('/rollback/')?Response.json({ok:true,commit:[C],restoredFrom:A,changedFiles:2}):undefined});try{if(old)f.legacy.rollback=()=>held.promise;let el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();if(old){f.auth();el=f.mount();await f.flush();held.resolve({commit:[C],restoredFrom:A,changedFiles:2});await f.flush();}assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.doesNotMatch(el.textContent,/Rolled back to/);}finally{f.cleanup();}
 });
+
+const rollbackRejections=[[400,'invalid_revision'],[422,'revision_unavailable'],[422,'invalid_source'],[409,'format_downgrade']];
+const rejection=(status,code,errors=[{code,path:'data/dishes/soup.json',message:'Completed fixture rejection'}])=>Response.json({ok:false,errors},{status});
+for(const [status,code] of rollbackRejections)for(const lang of ['zh','en','uk'])test(`${lang}: completed rollback ${status}/${code} permits a different safe target without resetting the owner`,async()=>{
+ const f=await setup({respond:p=>{
+  if(p==='/changes'){const value=changes();value.publishes.push({sha:B,at:'2026-09-09T00:00:00Z',runId:9,isOnline:false});return Response.json({ok:true,...value});}
+  if(p===`/rollback/${A}`)return rejection(status,code);
+  if(p===`/rollback/${B}`)return Response.json({ok:true,commit:C,restoredFrom:B,changedFiles:2});
+ }});
+ try{
+  let el=f.mount(lang);await f.flush();rollback(el).click();confirm(el).click();await f.flush();
+  assert.equal(postCount(f,`/rollback/${A}`),1);assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(f.page.inspectReloadSafety().reason,'clear');
+  assert.equal(publish(el).disabled,false);assert.equal(byClass(el,'adm-pub-rollback')[1].disabled,false);assert.doesNotMatch(el.textContent,/Rolled back to|已回退到|Повернуто до/);
+  byClass(el,'adm-pub-rollback')[1].click();confirm(el).click();await f.flush();
+  assert.equal(postCount(f,`/rollback/${A}`),1);assert.equal(postCount(f,`/rollback/${B}`),1);assert.equal(f.page.readPublishAuxiliary().phase,'idle');
+  assert.match(el.textContent,lang==='zh'?/已回退到 bbbbbbb/:lang==='uk'?/Повернуто до bbbbbbb/:/Rolled back to bbbbbbb/);
+  f.leave();el=f.mount(lang);await f.flush();assert.equal(byClass(el,'adm-pub-rollback')[1].disabled,false);assert.equal(postCount(f,`/rollback/${B}`),1);
+ }finally{f.cleanup();}
+});
+for(const [status,code] of rollbackRejections)test(`publish cannot treat rollback-only ${status}/${code} as a definite rejection`,async()=>{
+ const f=await setup({respond:p=>p==='/publish'?rejection(status,code):undefined});
+ try{const el=f.mount();await f.flush();publish(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.equal(publish(el).disabled,true);assert.equal(rollback(el).disabled,true);publish(el).click();assert.equal(postCount(f,'/publish'),1);}finally{f.cleanup();}
+});
+for(const [status,code] of rollbackRejections)test(`rollback-only ${code} with the wrong status remains unknown`,async()=>{
+ const f=await setup({respond:p=>p.startsWith('/rollback/')?rejection(status===400?409:400,code):undefined});
+ try{const el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(publish(el).disabled,true);assert.equal(rollback(el).disabled,true);assert.equal(postCount(f,`/rollback/${A}`),1);}finally{f.cleanup();}
+});
+for(const response of [()=>rejection(422,'future_rejection'),()=>rejection(502,'upstream_error'),()=>new Response('gateway response',{status:409}),()=>rejection(409,'format_downgrade',[{code:'format_downgrade',path:'',message:'Rejected'},{code:'future_rejection',path:'',message:'Unknown'}]),()=>Promise.reject(new Error('Acknowledgement lost'))])test(`unknown rollback response ${response.toString()} retains its write gate`,async()=>{
+ const f=await setup({respond:p=>p.startsWith('/rollback/')?response():undefined});
+ try{let el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();f.leave();el=f.mount('uk');await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'unknown');assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.equal(publish(el).disabled,true);assert.equal(rollback(el).disabled,true);rollback(el).click();assert.equal(confirm(el),undefined);assert.equal(postCount(f,`/rollback/${A}`),1);}finally{f.cleanup();}
+});
+test('late rollback rejection in a changed auth session cannot clear the anonymous unknown operation',async()=>{
+ const held=deferred(),f=await setup({respond:p=>p.startsWith('/rollback/')?held.promise:undefined});
+ try{let el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();f.auth();el=f.mount('uk');await f.flush();held.resolve(rejection(409,'format_downgrade'));await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.doesNotMatch(el.textContent,/Rolled back to|Повернуто до/);}finally{f.cleanup();}
+});

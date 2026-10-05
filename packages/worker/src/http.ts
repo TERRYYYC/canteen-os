@@ -15,6 +15,7 @@ export const ALLOWED_HEADERS = [
   "Authorization",
   "Content-Type",
   "If-Match",
+  "Idempotency-Key",
   "If-None-Match",
   "X-Image-License",
   "X-Image-Author",
@@ -26,7 +27,7 @@ export function corsHeaders(allowedOrigin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     Vary: "Origin",
-    "Access-Control-Expose-Headers": "X-Source-Revision",
+    "Access-Control-Expose-Headers": "X-Source-Revision, ETag, Idempotency-Replayed, Retry-After",
   };
 }
 
@@ -35,7 +36,7 @@ export function preflightResponse(allowedOrigin: string): Response {
     status: 200,
     headers: {
       ...corsHeaders(allowedOrigin),
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
       "Access-Control-Allow-Headers": ALLOWED_HEADERS,
       "Access-Control-Max-Age": "600",
     },

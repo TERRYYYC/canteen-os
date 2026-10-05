@@ -1,0 +1,19 @@
+[Unit]
+Description=CanteenOS isolated persistent test model
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/canteen-os-test/source
+Environment=CANTEEN_TEST_CONFIG=%h/canteen-os-test/runtime.json
+Environment=PATH=%h/canteen-os-test/tools/node-v24.18.0-linux-x64/bin:/usr/bin:/bin
+ExecStart=%h/canteen-os-test/tools/node-v24.18.0-linux-x64/bin/node %h/canteen-os-test/source/scripts/remote-test/server.mjs
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=35
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

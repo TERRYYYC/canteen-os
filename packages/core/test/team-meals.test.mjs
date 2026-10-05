@@ -17,6 +17,63 @@ function fixture(name) {
 function sample(){ const x=fixture('boundaries'); x.menuPlans['team-week'].schemaVersion='3'; for(const m of x.menuPlans['team-week'].meals) delete m.plannedServings; return x; }
 const copy=x=>structuredClone(x);
 
+test('legacy KB evidence is stripped from the same projection consumed by static build-data',()=>{
+ const x=sample(),dish=x.dishes['first-dish'];
+ dish.schemaVersion='3';
+ dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+  candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+  review:{reviewer:'chef',note:'PRIVATE_REVIEW_NOTE',approvedCandidateVersion:1},
+  sourceUrl:'https://example.org/PRIVATE_SOURCE_URL',
+  evidence:{sourceRecords:[{text:'PRIVATE_TRANSCRIPT_SENTINEL'}],sourceRefs:[{quote:'PRIVATE_QUOTE'}],
+   media:[{role:'cover',url:'https://example.org/PRIVATE_MEDIA_URL'}],unresolved:['PRIVATE_GAP']}};
+ dish.components[0].originalText='PRIVATE_RAW_LINE';
+ dish.image={src:'first-dish/cover.png',license:'own',author:'chef',sourceUrl:'https://host.internal./PRIVATE_ATTRIBUTION'};
+ dish.steps=[{text:{zh:'加热'},image:{src:'first-dish/step.png',license:'own',author:'chef',sourceUrl:'https://localhost/PRIVATE_STEP_ATTRIBUTION'},
+  clip:{videoUrl:'https://example.org/PRIVATE_VIDEO',start:1,end:2}}];
+ const before=JSON.stringify(x);
+ const projection=core.projectTeamMeals(x,basis);
+ const published=projection.dishes['first-dish'];
+ assert.doesNotMatch(JSON.stringify(projection),/PRIVATE_/);
+ assert.equal(published.provenance.sourceGapCount,1);
+ assert.equal(published.provenance.coverState,'rights-pending');
+ assert.equal(published.image,undefined);
+ assert.equal(published.steps[0].image,undefined);
+ assert.equal(published.steps[0].clip,undefined);
+ assert.equal(JSON.stringify(x),before,'projection cannot mutate the private historical Git dish');
+});
+
+test('public KB cover, prep and step images stay bound to this frozen dish',()=>{
+ const id='kb-3f4c6638dcf84231966c1c5e2816c059-v1';
+ const image=name=>({src:`${id}/images/${name}.png`,license:'own',author:'chef'});
+ const dish={schemaVersion:'3',name:{zh:'汤'},image:image('cover'),
+  components:[{ingredientRef:'salt',prep:{techniqueRef:'dice',image:image('prep')}}],
+  steps:[{text:{zh:'煮熟'},image:image('step')}],
+  provenance:{source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64)}};
+ const valid=core.publicDish(dish,id);
+ assert.deepEqual(valid.image,dish.image);
+ assert.deepEqual(valid.components[0].prep.image,dish.components[0].prep.image);
+ assert.deepEqual(valid.steps[0].image,dish.steps[0].image);
+ const crossed=copy(dish);
+ crossed.image.src='another-dish/images/cover.png';
+ crossed.components[0].prep.image.src='another-dish/images/prep.png';
+ crossed.steps[0].image.src='another-dish/images/step.png';
+ const publicCopy=core.publicDish(crossed,id);
+ assert.equal(publicCopy.image,undefined);
+ assert.equal(publicCopy.components[0].prep.image,undefined);
+ assert.equal(publicCopy.steps[0].image,undefined);
+ assert.equal(publicCopy.provenance.coverState,'rights-pending');
+});
+
+test('legacy status-only cover evidence retains its publish-safe missing-image reason',()=>{
+ const dish={schemaVersion:'3',name:{zh:'汤'},provenance:{source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',
+  recipeVersion:1,candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+  evidence:{sourceRecords:[],sourceRefs:[],media:[{kind:'image',role:'cover',publicationState:'external-unpinned'}]}}};
+ const projected=core.publicDish(dish,'kb-3f4c6638dcf84231966c1c5e2816c059-v1');
+ assert.equal(projected.provenance.coverState,'external-unpinned');
+ assert.equal(projected.provenance.evidence,undefined);
+});
+
 test('collect all recorded references without serving, qty, status or packaging filters',()=>{
  const x=sample(),before=JSON.stringify(x);
  x.dishes['second-dish'].schemaVersion='3';delete x.dishes['second-dish'].baseServings;delete x.dishes['second-dish'].components[0].qty;
@@ -188,4 +245,17 @@ test('explicit human check clears previous while pure same-basis reconciliation 
  const decided=core.applyShoppingDecision(retained,'salt','check');
  assert.equal(decided.items.find(i=>i.ingredientRef==='salt').previous,undefined);
  assert.ok(retained.items.find(i=>i.ingredientRef==='salt').previous);
+});
+
+test('versioned KB dish keeps original amounts and computes only quantities with known servings',()=>{
+ const x={menuPlans:{'team-week':{schemaVersion:'3',meals:[{date:'2026-09-14',mealType:'lunch',dishRef:'kb-recipe-v1',plannedServings:4}]}},
+  dishes:{'kb-recipe-v1':{schemaVersion:'3',name:{zh:'测试菜'},status:'active',baseServings:2,components:[
+   {ingredientRef:'meat',qty:{value:1000,unit:'g'},originalAmount:'1000 克'},
+   {ingredientRef:'sauce',originalAmount:'3 勺'}]}},
+  ingredients:{meat:{schemaVersion:'2',name:{zh:'肉'},baseUnit:'g',trackStock:false},sauce:{schemaVersion:'2',name:{zh:'酱油'},baseUnit:'g',trackStock:false}},techniques:[]};
+ const r=core.collectIngredientReferences(x,selection);
+ assert.deepEqual(r.items.find(i=>i.ingredientRef==='meat').sources[0].scaledQty,{value:2000,unit:'g'});
+ assert.equal(r.items.find(i=>i.ingredientRef==='sauce').sources[0].scaledQty,undefined);
+ assert.equal(r.items.find(i=>i.ingredientRef==='sauce').sources[0].originalAmount,'3 勺');
+ assert.equal(core.estimateShoppingList(x,selection,AT).items.find(i=>i.ingredientRef==='sauce').status,'unavailable');
 });

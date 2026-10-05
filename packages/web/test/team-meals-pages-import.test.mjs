@@ -10,9 +10,34 @@ const here=dirname(fileURLToPath(import.meta.url)),entry=join(here,'../src/pages
 const bundle=await esbuild.build({stdin:{contents:source+'\nexport { getImportInputOwner, effective, mergePlan, parsePlanText, dishList, resolveWeek, addDaysIso }; export {bindDraftStore} from "../../admin/store"; export {inspectReloadSafety,createPageReloadCoverage} from "../../view-models/reload-safety"; export {clearToken as changeAuth} from "../../admin/token"; export {createTeamMealsApi} from "../../api/team-meals";',loader:'ts',resolveDir:dirname(entry)},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const dir=await mkdtemp(join(tmpdir(),'team-import-'));after(()=>rm(dir,{recursive:true,force:true}));await writeFile(join(dir,'import.mjs'),bundle.outputFiles[0].text);
 const {getImportInputOwner,effective,mergePlan,parsePlanText,dishList,resolveWeek,addDaysIso,render,bindDraftStore,inspectReloadSafety,createPageReloadCoverage,changeAuth,createTeamMealsApi}=await import(pathToFileURL(join(dir,'import.mjs')));
-const week=resolveWeek('week-38',{}).weekStart,day=n=>addDaysIso(week,n),catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+const week=(await resolveWeek('week-38',{})).weekStart,day=n=>addDaysIso(week,n),catalog={commit:'a'.repeat(40),dishes:{soup:{schemaVersion:'3',name:{zh:'原汤',en:'Original soup',uk:'Початковий суп'},status:'active',components:[{ingredientRef:'salt'}]},other:{schemaVersion:'2',name:{zh:'另一道'},status:'active'}},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
 const parsed=(count='')=>parsePlanText({text:`周一午 原汤 ${count}`,dishes:dishList(catalog),weekStart:week}).lines[0];
 const row={date:week,mealType:'lunch',dishRef:'soup'};
+test('implicit import uses the existing saved week-41 plan; explicit plan routes remain authoritative',async()=>{
+ const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
+ try{
+  const reads=[],api={mode:'mock',sessionKey:()=>1,getPlan:async id=>{reads.push(id);return id==='week-41'?{content:{schemaVersion:'2',dateRange:{start:'2026-10-05',end:'2026-10-11'},meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'soup'}]}}:null;}};
+  const ctx={planId:'week-41'};
+  assert.deepEqual(await resolveWeek('',ctx,api),{planId:'week-41',weekStart:'2026-10-05'});
+  assert.deepEqual(reads,['week-41']);
+  assert.deepEqual(await resolveWeek('week-2026-41',ctx,api),{planId:'week-2026-41',weekStart:'2026-10-05'});
+  assert.deepEqual(reads,['week-41'],'explicit plan route does not silently switch plans');
+  const stale={...api,getPlan:async id=>id==='week-41'?{content:{schemaVersion:'2',dateRange:{start:'2025-10-06',end:'2025-10-12'},meals:[]}}:null};
+  assert.deepEqual(await resolveWeek('',ctx,stale),{planId:'week-2026-41',weekStart:'2026-10-05'},'a reused legacy ID from another year is not current');
+ }finally{globalThis.Date=RealDate;}
+});
+test('implicit import follows the actual local week across year and time-zone boundaries',async()=>{
+ const ActualDate=globalThis.Date,priorZone=process.env.TZ;
+ const instant=ActualDate.parse('2027-01-03T12:30:00Z');
+ globalThis.Date=class extends ActualDate {constructor(...args){super(...(args.length?args:[instant]));}static now(){return instant;}};
+ try{
+  for(const [zone,planId,weekStart] of [['UTC','week-2026-53','2026-12-28'],['Pacific/Kiritimati','week-2027-1','2027-01-04'],['Pacific/Midway','week-2026-53','2026-12-28']]){
+   process.env.TZ=zone;
+   const api={mode:'unconfigured'};
+   assert.deepEqual(await resolveWeek('',{planId:'expired-demo'},api),{planId,weekStart},zone);
+  }
+ }finally{globalThis.Date=ActualDate;if(priorZone===undefined)delete process.env.TZ;else process.env.TZ=priorZone;}
+});
 test('real core parsed missing servings stay blank rather than receiving a page default',()=>{
  const line=parsed();assert.equal(line.status,'ok');assert.equal(Object.hasOwn(line,'plannedServings'),false);
  const result=effective(line,undefined,catalog,week);assert.equal(result.importable,true);assert.equal(result.servings,undefined);
@@ -190,6 +215,22 @@ test('Import auxiliary tracks raw and actual file read across repaint and explic
 });
 test('two old Import read tickets survive auth and settle independently without exposing prior identity',async()=>{
  changeAuth();const f=setup(),release=f.hold();let el=await preview(f);el.querySelector('.adm-import-submit').dispatch('click');await tick();const file=deferredFile('private-a.csv','date,meal,dish,servings\nMon,lunch,原汤,8');chooseFile(el,file.file);assert.equal(inspectReloadSafety().reason,'saving');f.changeAuth();changeAuth();el=mount();await render(el,ctx('uk'),'week-38',f.api);let snapshot=inspectReloadSafety();assert.equal(snapshot.reason,'unknown');assert.ok(snapshot.records.some(r=>r.id==='previous-session-operation'));assert.equal(JSON.stringify(snapshot).includes('private-a.csv'),false);release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'unknown','the second old read still exists');file.release();await tick();await tick();assert.equal(inspectReloadSafety().reason,'clear','all old reads ended; B blank owner is clear');assert.equal(el.querySelector('#adm-import-text').value,'');
+});
+
+test('a late implicit-week read cannot invalidate a newer explicit import page',async()=>{
+ const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
+ try{
+  let release;const pending=new Promise(resolve=>{release=resolve;});
+  const f=setup(),read=f.api.getPlan.bind(f.api);
+  f.api.getPlan=(id,opts)=>id==='week-41'?pending:read(id,opts);
+  const a=mount(),old=render(a,{...ctx('zh'),planId:'week-41'},'',f.api);
+  const b=mount();await render(b,ctx('zh'),'week-38',f.api);
+  release({content:{schemaVersion:'2',dateRange:{start:'2026-10-05',end:'2026-10-11'},meals:[]}});
+  await old;
+  const input=b.querySelector('#adm-import-text');input.value='周一午 原汤';input.dispatch('input');
+  assert.equal(b.querySelector('.adm-import-parse').disabled,false,'the visible B page must still accept input');
+  assert.equal(a.children.length,0,'the detached A page must not render after its read');
+ }finally{globalThis.Date=RealDate;}
 });
 
 

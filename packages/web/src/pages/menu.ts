@@ -2,6 +2,7 @@
 import "./menu.css";
 import {renderMenuRecipe} from "./menu-recipe";
 import { renderPublishedMeals } from "./published-meals";
+import { knowledgeCoverState } from "./knowledge-cover-status";
 
 import type { I18nString, ImageRef, MealType, MenuSheet, MenuSheetDay, MenuSheetDish, MenuSheetMeal } from "@canteenos/core";
 import { h, replace } from "../dom";
@@ -515,7 +516,9 @@ const FROZEN_MENU_COPY = {
   imageLoading: { zh: "图片读取中", en: "Loading image", uk: "Завантаження фото" },
   imageMissing: { zh: "图片未载入", en: "Image unavailable", uk: "Фото недоступне" },
   imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Фото не записано" },
-  external: { zh: "外部图片，未固定版本", en: "External image; version not pinned", uk: "Зовнішнє фото; версію не зафіксовано" },
+  imageNeedsImage: { zh: "待补图", en: "Image needed", uk: "Потрібно додати фото" },
+  imageRightsPending: { zh: "图片使用许可待核实", en: "Image rights need review", uk: "Права на фото потребують перевірки" },
+  external: { zh: "外部图片未固定", en: "External image not pinned", uk: "Зовнішнє фото не закріплено" },
   original: { zh: "查看完整原配方", en: "Read the full original recipe", uk: "Прочитати повний оригінальний рецепт" },
   servings: { zh: "计划份数", en: "Planned servings", uk: "Заплановані порції" },
   missing: { zh: "未录", en: "Not recorded", uk: "Не записано" },
@@ -554,7 +557,9 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
     const card = h("section", { class: "mlist menu-recipe-row", "data-menu-plan": menuPlanRef, "data-meal-index": mealIndex });
     const name=dish?pick(dish.name,lang):meal.dishRef,recipeHref=options.recipeHref?.(row);
     const body=h("div",{class:"b"},h("h2",{class:"n1"},name),dish?.description?h("p",{class:"ds"},pick(dish.description,lang)):null);
-    const photo=h('div',{class:'menu-thumbnail','data-asset-state':dish?.image?(options.asset?'loading':'unavailable'):'not-recorded'},h('span',{},t(dish?.image?(options.asset?'imageLoading':'imageMissing'):'imageUnrecorded')));
+    const coverState=knowledgeCoverState(dish);
+    const missingCover=coverState==='needs-image'?t('imageNeedsImage'):coverState==='rights-pending'?t('imageRightsPending'):coverState==='external-unpinned'?t('external'):coverState==='unavailable'?t('imageMissing'):t('imageUnrecorded');
+    const photo=h('div',{class:'menu-thumbnail','data-asset-state':dish?.image?(options.asset?'loading':'unavailable'):coverState},h('span',{},dish?.image?t(options.asset?'imageLoading':'imageMissing'):missingCover));
     const line=recipeHref?.startsWith('#/')?h('a',{class:'mr',href:recipeHref,'aria-label':`${name} · ${t('original')}`,'data-recipe-link':meal.dishRef,'data-recipe-index':mealIndex},photo,body,h('span',{class:'menu-chevron','aria-hidden':'true'},'›')):h('div',{class:'mr'},photo,body);
     card.append(line);root.append(card);
     if (!dish) { body.append(h("p", { class: "issue", role: "status" }, t("missingDish"))); continue; }

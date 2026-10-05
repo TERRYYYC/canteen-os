@@ -114,7 +114,7 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
       throw error;
     }
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      throw fail("invalid_source", { path: isCandidate ? `${path}#` : path });
+      throw fail("invalid_source", { path: `${path}#` });
     }
     const explicit = (value as { schemaVersion?: unknown }).schemaVersion;
     const version = explicit === undefined && path.startsWith("data/dishes/") ? "2" : explicit;
@@ -125,7 +125,7 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
 
   let candidateVersionError: HttpError | undefined;
   for (const [path, before] of current) {
-    if (!/^data\/(menu-plans|dishes)\/[^/]+\.json$/.test(path)) continue;
+    if (!/^data\/(menu-plans|dishes|ingredients)\/[^/]+\.json$/.test(path)) continue;
     if (await readVersion(path, before) !== "3") continue;
     const next = candidate.get(path);
     if (!next) throw fail("format_downgrade", { path });
@@ -184,12 +184,12 @@ async function validateRollbackCandidate(gh: GitHubClient, current: EntryMap, hi
       }
     } else if (path.startsWith("data/dishes/")) {
       const dish = value as {
-        components?: Array<{ ingredientRef: string; prep?: { techniqueRef: string } }>;
+        components?: Array<{ ingredientRef: string; prep?: { techniqueRef?: string } }>;
         steps?: Array<{ techniqueRef?: string }>;
       };
       for (const [index, component] of (dish.components ?? []).entries()) {
         if (!sources.has(`data/ingredients/${component.ingredientRef}.json`)) throw fail("invalid_source", { path: `${path}#/components/${index}/ingredientRef` });
-        if (component.prep && !techniqueIds.has(component.prep.techniqueRef)) throw fail("invalid_source", { path: `${path}#/components/${index}/prep/techniqueRef` });
+        if (component.prep?.techniqueRef !== undefined && !techniqueIds.has(component.prep.techniqueRef)) throw fail("invalid_source", { path: `${path}#/components/${index}/prep/techniqueRef` });
       }
       for (const [index, step] of (dish.steps ?? []).entries()) {
         if (step.techniqueRef !== undefined && !techniqueIds.has(step.techniqueRef)) {

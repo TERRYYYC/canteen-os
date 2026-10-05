@@ -29,8 +29,8 @@
  *   - 日期既不在本周也不在下周 → unparsed（人话原因）；
  *   - archived 的菜不参与匹配（当作不存在）。
  *
- * 顺带导出周号换算（D-06：week-NN ↔ 日期 **只准有一份实现**，core 归 #22，就放这里）：
- *   isoWeekOf / mondayOfIsoWeek / planIdOfDate / weekStartOfPlanId。全部按 UTC 算，不碰本地时区。
+ * 顺带导出周号换算（D-06：week-NN 与年明确 week-YYYY-N ↔ 日期，core 统一实现）：
+ *   isoWeekOf / mondayOfIsoWeek / planIdOfDate / datedPlanIdOfDate / weekStartOfPlanId。全部按 UTC 算。
  */
 import type { DishStatus, I18nString, Id, MealType } from "../types.js";
 
@@ -141,11 +141,24 @@ export function planIdOfDate(iso: string): string | null {
   return w ? `week-${w.week}` : null;
 }
 
+/** 新计划使用带 ISO 周年号的 ID，避免下一年的同周覆盖旧计划。 */
+export function datedPlanIdOfDate(iso: string): string | null {
+  const w = isoWeekOf(iso);
+  return w ? `week-${w.year}-${w.week}` : null;
+}
+
 /**
- * planId（week-NN）→ 那一周的周一。planId 里没有年份：在 today 所在 ISO 年的前后各一年里，
- * 取离 today 最近的那个周一（年末排下年第 1 周、年初看上年第 52 周都对）。形状不对 → null。
+ * 年明确 ID 直接解析 ISO 周；旧 week-NN 在 today 所在 ISO 年前后各一年里，
+ * 取离 today 最近的周一。无效周次或 ID → null。
  */
 export function weekStartOfPlanId(planId: string, today: string): string | null {
+  const dated = /^week-(\d{4})-(\d{1,2})$/.exec(planId);
+  if (dated) {
+    const year = Number(dated[1]), week = Number(dated[2]);
+    const monday = mondayOfIsoWeek(year, week);
+    const actual = monday ? isoWeekOf(monday) : null;
+    return actual?.year === year && actual.week === week ? monday : null;
+  }
   const m = /^week-(\d{1,2})$/.exec(planId);
   const ref = parseIsoDate(today);
   if (!m || !ref) return null;

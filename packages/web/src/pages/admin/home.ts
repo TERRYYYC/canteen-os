@@ -34,8 +34,8 @@ const T = {
   "home.block.plan": { uk: "Скласти меню", zh: "排菜单", en: "Plan the menu" },
   "home.block.plan.week": { uk: "Тиждень {n}", zh: "第 {n} 周", en: "Week {n}" },
   "home.block.plan.sub": { uk: "Заплановано прийомів їжі: {n}", zh: "已排 {n} 餐", en: "{n} meal slots planned" },
-  "home.block.dish": { uk: "Додати страву", zh: "加一道菜", en: "Add a dish" },
-  "home.block.dish.sub": { uk: "Ввести вручну", zh: "手动输入这道菜", en: "Type it in by hand" },
+  "home.block.dish": { uk: "Стара публікація: додати страву", zh: "旧发布资料：加菜", en: "Legacy publication: add dish" },
+  "home.block.dish.sub": { uk: "Не синхронізується з бібліотекою рецептів", zh: "不会自动同步到菜谱知识库", en: "Does not sync to the recipe library" },
   "home.block.draft": { uk: "На підтвердження", zh: "待确认", en: "To confirm" },
   "home.block.draft.sub": { uk: "Чернеток страв: {n}", zh: "{n} 道草稿", en: "{n} draft dishes" },
   "home.block.draft.none": { uk: "Нічого підтверджувати", zh: "没有要确认的", en: "Nothing to confirm" },
@@ -330,7 +330,11 @@ export function render(el: HTMLElement, ctx: PageCtx, rest: string): void {
   const translate = tile({ key: "translate", badge: true, writes: false });
   const qr = tile({ key: "qr", writes: false });
   const log = tile({ key: "log", writes: false });
-  const tiles = [plan, dish, draft, ingredient, translate, qr, log];
+  const knowledge = tile({ key: "knowledge", big: true, writes: false });
+  knowledge.name.textContent = ({ zh: "菜谱知识库", en: "Recipe library", uk: "Бібліотека рецептів" })[lang];
+  knowledge.sub.textContent = ({ zh: "收藏、编辑与搜索每款做法 · 支持同名独立菜谱", en: "Collect, edit and search independent recipes", uk: "Збирайте, редагуйте й шукайте окремі рецепти" })[lang];
+  knowledge.href = adminHref("knowledge");
+  const tiles = [knowledge, plan, dish, draft, ingredient, translate, qr, log];
 
   // 固定文案 + 固定去处（不依赖数字，加载态就能点）
   plan.name.textContent = tt(lang, "home.block.plan");

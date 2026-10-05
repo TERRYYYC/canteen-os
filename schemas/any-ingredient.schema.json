@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/any-ingredient.schema.json",
+  "oneOf": [
+    {
+      "$ref": "ingredient.schema.json"
+    },
+    {
+      "$ref": "ingredient-v3.schema.json"
+    }
+  ]
+}

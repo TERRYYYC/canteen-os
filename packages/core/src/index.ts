@@ -4,6 +4,8 @@
  * 引擎骨架见 procurement/engine.ts（v2 五函数契约，ADR-0006）。
  */
 export * from "./types.js";
+export * from "./image-rights.js";
+export * from "./public-dish.js";
 export * from "./procurement/engine.js";
 export * from "./sheets.js";
 export * from "./render/prep.js";

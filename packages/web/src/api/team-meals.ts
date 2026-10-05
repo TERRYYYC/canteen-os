@@ -1,11 +1,11 @@
 /** Dual-format API for the new flow. Numeric legacy screens retain AdminApi's strict v2 boundary. */
-import type { AnyDish, AnyMenuPlan, Ingredient, ShoppingList } from '@canteenos/core';
+import type { AnyDish, AnyMenuPlan, AnyIngredient, ShoppingList } from '@canteenos/core';
 import { ApiError } from './types';
 import type { ApiMode, Catalog, Source, WriteCondition, WriteResult } from './types';
 import { HttpTransport, conditionHeaders } from './transport';
 import type { HttpApiOptions } from './transport';
 export type { AnyDish, AnyMenuPlan, ShoppingList } from '@canteenos/core';
-export type TeamCatalog = Omit<Catalog, 'dishes'> & { dishes: Record<string, AnyDish> };
+export type TeamCatalog = Omit<Catalog, 'dishes'|'ingredients'> & { dishes: Record<string, AnyDish>;ingredients:Record<string,AnyIngredient> };
 export interface ReadOptions { revision?: string; force?: boolean }
 export interface ShoppingDecisionCounts { check: number; buy: number; available: number; bought: number }
 export interface ShoppingListSummary { id: string; selection: ShoppingList['basis']['selection']; itemCount: number; decisionCounts: ShoppingDecisionCounts }
@@ -23,7 +23,7 @@ export interface TeamMealsApi {
   peekSessionKey?(): number | null;
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null>;
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null>;
-  getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null>;
+  getIngredient(id: string, opts?: ReadOptions): Promise<Source<AnyIngredient> | null>;
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null>;
   listShoppingLists(opts?: ShoppingListIndexOptions): Promise<ShoppingListIndex>;
   getCatalog(opts?: ReadOptions): Promise<TeamCatalog>;
@@ -141,7 +141,7 @@ class TeamHttpApi implements TeamMealsApi {
   }
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null> { return this.source('plan',id,opts); }
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null> { return this.source('dish',id,opts); }
-  getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null> { return this.source('ingredient',id,opts); }
+  getIngredient(id: string, opts?: ReadOptions): Promise<Source<AnyIngredient> | null> { return this.source('ingredient',id,opts); }
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null> { return this.source('shopping-list',id,opts); }
   async listShoppingLists(opts: ShoppingListIndexOptions = {}): Promise<ShoppingListIndex> {
     const cursor = opts.cursor === undefined ? null : indexCursor(opts.cursor);
@@ -152,9 +152,27 @@ class TeamHttpApi implements TeamMealsApi {
   async getCatalog(opts: ReadOptions = {}): Promise<TeamCatalog> {
     const path = `/catalog${this.query(opts)}`;
     return this.cached(path, opts.force, async () => {
-      const body = await this.transport.request<TeamCatalog & {ok?: unknown}>({method:'GET',path});
-      checkRevision(body.commit, opts.revision);
-      const {ok: _ok, ...catalog} = body; return catalog;
+      let cursor: string | null = null;
+      const seen = new Set<string>();
+      let catalog: TeamCatalog | null = null;
+      do {
+        const pagePath: string = cursor ? `/catalog?cursor=${encodeURIComponent(cursor)}` : path;
+        const body: TeamCatalog & {ok?: unknown;nextCursor?: string | null} = await this.transport.request<TeamCatalog & {ok?: unknown;nextCursor?: string | null}>({method:'GET',path:pagePath});
+        checkRevision(body.commit, opts.revision ?? catalog?.commit);
+        if (!catalog) catalog={commit:body.commit,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}};
+        Object.assign(catalog.dishes,body.dishes);
+        Object.assign(catalog.ingredients,body.ingredients);
+        catalog.techniques.push(...body.techniques);
+        catalog.suppliers.push(...body.suppliers);
+        for (const key of ['machine','human','stale'] as const) catalog.translations[key]+=body.translations[key];
+        cursor=body.nextCursor ?? null;
+        if (cursor) {
+          if (!new RegExp(`^v1\\.${catalog.commit}\\.[1-9][0-9]*$`).test(cursor) || seen.has(cursor)) throw new ApiError(502,'bad_response','');
+          seen.add(cursor);
+        }
+      } while (cursor);
+      catalog!.suppliers=[...new Set(catalog!.suppliers)].sort();
+      return catalog!;
     });
   }
   async getAsset(query: AssetQuery): Promise<RevisionAsset> {

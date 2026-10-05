@@ -308,6 +308,89 @@ function committedTeamRoot() {
 }
 function commitData(root) {git(root,'add','data');git(root,'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','Next fixed inputs');return git(root,'rev-parse','HEAD');}
 
+test('public team JSON excludes private knowledge evidence from previously frozen dishes',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(file);
+  dish.schemaVersion='3';
+  dish.components[0].originalText='PRIVATE_ORIGINAL_SENTINEL';
+  dish.steps[0].clip={videoUrl:'https://private.example.invalid/?token=PRIVATE_CLIP_SENTINEL',start:1,end:2};
+  dish.image={src:'https://private.example.invalid/top?token=PRIVATE_TOP_IMAGE_SENTINEL',license:'own',author:'chef'};
+  dish.components[0].prep.image={src:'https://private.example.invalid/prep?token=PRIVATE_PREP_IMAGE_SENTINEL',license:'own',author:'chef'};
+  dish.steps[0].image={src:'https://private.example.invalid/step?token=PRIVATE_STEP_IMAGE_SENTINEL',license:'own',author:'chef'};
+  dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),
+   sourceUrl:'https://private.example.invalid/watch?token=PRIVATE_URL_SENTINEL',
+   review:{reviewer:'chef',note:'PRIVATE_REVIEW_SENTINEL',approvedCandidateVersion:1},
+   evidence:{sourceRecords:[{textContent:'PRIVATE_OCR_SENTINEL'}],
+    sourceRefs:[{evidence:{segments:[{text:'PRIVATE_FRAME_SENTINEL'}]}}],
+    media:[{kind:'image',role:'cover',url:'https://private.example.invalid/image?token=PRIVATE_MEDIA_SENTINEL',rights:{status:'pending'}}],
+    unresolved:['火力待核实','见 https://private.example.invalid/?token=PRIVATE_GAP_SENTINEL']}};
+  writeJson(file,dish);const revision=commitData(root),out=path.join(root,'out');
+  const built=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:out});
+  assert(built.written.includes('team-meals/week-41.json'));
+  const publicJson=readFileSync(path.join(out,'team-meals/week-41.json'),'utf8');
+  for(const secret of ['PRIVATE_URL_SENTINEL','PRIVATE_REVIEW_SENTINEL','PRIVATE_OCR_SENTINEL','PRIVATE_FRAME_SENTINEL','PRIVATE_MEDIA_SENTINEL','PRIVATE_ORIGINAL_SENTINEL','PRIVATE_CLIP_SENTINEL','PRIVATE_GAP_SENTINEL','PRIVATE_TOP_IMAGE_SENTINEL','PRIVATE_PREP_IMAGE_SENTINEL','PRIVATE_STEP_IMAGE_SENTINEL'])
+   assert(!publicJson.includes(secret),`${secret} escaped into the public artifact`);
+  const publicDish=JSON.parse(publicJson).dishes[DISH];
+  assert.equal(publicDish.provenance.snapshotHash,dish.provenance.snapshotHash);
+  assert.equal(publicDish.provenance.evidence,undefined);
+  assert.equal(publicDish.provenance.sourceGapCount,2);
+  assert.equal(publicDish.provenance.coverState,'rights-pending');
+  assert.deepEqual(publicDish.steps.map(step=>step.text),dish.steps.map(step=>step.text));
+  assert.equal(publicDish.image,undefined);
+  assert.equal(publicDish.components[0].prep.image,undefined);
+  assert.equal(publicDish.steps[0].image,undefined);
+  assert.equal(JSON.parse(publicJson).assets.some(asset=>asset.ownerPath===`data/dishes/${DISH}.json`),false);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('rights-pending and unpinned knowledge image paths do not enter public slots',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(file);
+  dish.schemaVersion='3';
+  const pending={src:`${DISH}/images/pending.png`,license:'All rights reserved',author:'unknown'};
+  dish.image=pending;
+  dish.components[0].prep.image={src:'another-dish/images/prep.png',license:'own',author:'chef'};
+  dish.steps[0].image={src:`${DISH}/images/step.png?token=PRIVATE_PATH_SENTINEL`,license:'own',author:'chef'};
+  dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64)};
+  writeJson(file,dish);const revision=commitData(root);
+  const built=runBuild({root,target:'team-meals',commit:revision,write:false});
+  const publicDish=built.sheets[PLAN].teamMeals.dishes[DISH];
+  assert.equal(publicDish.image,undefined);assert.equal(publicDish.components[0].prep.image,undefined);assert.equal(publicDish.steps[0].image,undefined);
+  assert.equal(built.sheets[PLAN].teamMeals.assets.some(asset=>asset.ownerPath===`data/dishes/${DISH}.json`),false);
+  assert(!JSON.stringify(built.sheets[PLAN].teamMeals).includes('PRIVATE_PATH_SENTINEL'));
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('approved same-dish local knowledge images retain bytes in all three public slots',()=>{
+ const {root}=committedTeamRoot();
+ try {
+  const file=path.join(root,`data/dishes/${DISH}.json`),dish=readJson(file),imageDir=path.join(root,'data/dishes',DISH,'images');
+  dish.schemaVersion='3';
+  dish.provenance={source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:1,
+   candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64)};
+  const image=name=>({src:`${DISH}/images/${name}.png`,license:'own',author:'test-chef'});
+  dish.image=image('cover');dish.components[0].prep.image=image('prep');dish.steps[0].image=image('step');
+  mkdirSync(imageDir,{recursive:true});
+  for(const name of ['cover','prep','step'])writeFileSync(path.join(imageDir,`${name}.png`),Buffer.from(RASTERS.png,'base64'));
+  writeJson(file,dish);const revision=commitData(root),out=path.join(root,'out');
+  const built=runBuild({root,target:'team-meals',commit:revision,write:true,outDir:out});
+  const published=readJson(path.join(out,'team-meals',`${PLAN}.json`)),publicDish=published.dishes[DISH];
+  assert.deepEqual(publicDish.image,dish.image);
+  assert.deepEqual(publicDish.components[0].prep.image,dish.components[0].prep.image);
+  assert.deepEqual(publicDish.steps[0].image,dish.steps[0].image);
+  assert.equal(published.assets.filter(asset=>asset.ownerPath===`data/dishes/${DISH}.json`&&asset.status==='available').length,3);
+  for(const name of ['cover','prep','step']){
+   const assetPath=`assets/${revision}/data/dishes/${DISH}/images/${name}.png`;
+   assert(built.written.includes(assetPath));
+   assert.deepEqual(readFileSync(path.join(out,assetPath)),Buffer.from(RASTERS.png,'base64'));
+  }
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+
 test('team target reads only fixed revision JSON while legacy target rejects v3 without NaN',()=>{
   const {root,revision}=committedTeamRoot();
   try {

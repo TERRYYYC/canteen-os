@@ -35,6 +35,7 @@ export function createSchemaValidators({schemaDir=path.join(ROOT,'schemas')}={})
       if ((kind === 'plan' || kind === 'dish') && value?.schemaVersion === '3') {
         schema = kind === 'plan' ? 'menu-plan-v3.schema.json' : 'dish-v3.schema.json';
       }
+      if (kind === 'ingredient' && value?.schemaVersion === '3') schema = 'ingredient-v3.schema.json';
       if (!schema) return {valid:false,schema:null,errors:[error('kind','unknown entity kind',{kind})]};
       const validate = ajv.getSchema(schema);
       if (!validate) throw new Error(`schema 未注册成功: ${schema}`);

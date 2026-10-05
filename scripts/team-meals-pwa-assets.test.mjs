@@ -25,7 +25,7 @@ function inspectWorker(outDir, base) {
   const scope = `${origin}${base}`;
   const exports = {};
   const constructorOptions = new Map();
-  const routes = [], precache = [];
+  const routes = [], precache = [], precacheOptions = [];
   const context = vm.createContext({URL, Request, Response, Headers, console, setTimeout, clearTimeout,
     registration: {scope}, location: new URL('sw.js', scope), addEventListener() {},
     fetch() { throw new Error('Network is forbidden in generated-SW configuration tests'); }});
@@ -39,11 +39,15 @@ function inspectWorker(outDir, base) {
   vm.runInContext(readFileSync(path.join(outDir, workboxFile), 'utf8'), context, {filename: workboxFile});
   const observed = {...exports,
     clientsClaim() {}, cleanupOutdatedCaches() {},
-    precacheAndRoute(entries) { precache.push(...entries); },
+    precacheAndRoute(entries, options) { precache.push(...entries); precacheOptions.push(options); },
     createHandlerBoundToURL() { return () => {}; },
     registerRoute(capture, handler, method) { routes.push({capture, handler, method}); },
   };
+  // Only the strategies the config actually uses get bundled into the generated SW. Since issue #110
+  // dropped the manifest's NetworkFirst route, NetworkFirst is no longer exported — wrapping a missing
+  // export would throw here and hide the real assertions below.
   for (const name of ['CacheFirst', 'NetworkFirst', 'StaleWhileRevalidate', 'ExpirationPlugin', 'CacheableResponsePlugin']) {
+    if (typeof exports[name] !== 'function') continue;
     observed[name] = new Proxy(exports[name], {
       construct(target, args) {
         const instance = Reflect.construct(target, args);
@@ -59,7 +63,7 @@ function inspectWorker(outDir, base) {
   };
   vm.runInContext(readFileSync(path.join(outDir, 'sw.js'), 'utf8'), context, {filename: 'sw.js'});
   const runtime = routes.filter(route => constructorOptions.has(route.handler));
-  return {origin, scope, base, runtime, precache, constructorOptions, exports};
+  return {origin, scope, base, runtime, precache, precacheOptions, constructorOptions, exports};
 }
 
 before(async () => {
@@ -151,13 +155,16 @@ for (const base of ['/', '/canteen-os/']) {
     assert.notEqual(route.handler.cacheName, 'images');
   });
 
-  test(`${base}: build.json stays out of precache and the prior image/font rules remain, without full asset precaching`, async () => {
+  test(`${base}: build.json is precached next to the projection so both swap in one activate`, async () => {
     const deployment = deployments.get(base);
     const paths = deployment.precache.map(entry => new URL(entry.url, deployment.scope).pathname);
     for (const suffix of ['data/team-meals/week.json', 'icons/probe.svg']) assert.ok(paths.includes(`${base}${suffix}`), suffix);
-    // issue #98: precache is cache-first, so a precached build.json makes the freshness probe
-    // (ops checklist §3.1/§5) read a stale commit forever on any client that installed the app.
-    assert.equal(paths.includes(`${base}data/build.json`), false, 'build.json must not be precached');
+    // issue #110/#114: the manifest and the projection must come from the same precache generation.
+    // Split across two cache paths, an installed client holds a new manifest plus an old projection
+    // and validateProjection hard-fails with revision_mismatch; the waiting SW has no upper time bound.
+    const manifestEntry = deployment.precache.find(entry => new URL(entry.url, deployment.scope).pathname === `${base}data/build.json`);
+    assert.ok(manifestEntry, 'build.json must be precached');
+    assert.match(manifestEntry.revision ?? '', /^[0-9a-f]{8,}$/, 'the precached manifest must be revisioned per build');
     assert.equal(paths.some(value => value.startsWith(`${base}data/assets/`)), false);
     const image = deployment.runtime.find(route => route.handler.cacheName === 'images');
     assert.ok(image.handler instanceof deployment.exports.CacheFirst);
@@ -171,35 +178,27 @@ for (const base of ['/', '/canteen-os/']) {
     }
   });
 
-  test(`${base}: build.json is served NetworkFirst with a bounded timeout and an offline fallback`, () => {
+  test(`${base}: nothing routes build.json at runtime — probes stay NetworkOnly`, () => {
     const deployment = deployments.get(base);
-    const route = deployment.runtime.find(entry => entry.handler.cacheName === 'publication-manifest');
-    assert.ok(route, 'the freshness probe must have its own runtime route');
-    assert.ok(route.handler instanceof deployment.exports.NetworkFirst);
-    const options = deployment.constructorOptions.get(route.handler)?.options;
-    assert.equal(options.networkTimeoutSeconds, 3, 'a hung network must fall back to the cached copy');
-    assert.equal(route.method, 'GET');
-    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json`), true);
+    // issue #110 plan B: the manifest is served from precache, so there is no runtime cache for it.
+    assert.equal(deployment.runtime.some(entry => entry.handler.cacheName === 'publication-manifest'), false,
+      'a runtime manifest cache would desynchronise the manifest from the precached projection again');
+    // issue #114: probe URLs are unique per call. They must not be cached anywhere — not in a runtime
+    // cache (they evicted the offline fallback) and not in precache (they would pin a stale answer).
+    // Workbox only ignores utm_/fbclid when matching precache entries, so any query-bearing request
+    // falls through every route and goes to the network. Passing no options keeps that default.
+    for (const options of deployment.precacheOptions) assert.equal(options?.ignoreURLParametersMatching, undefined,
+      'precacheAndRoute must keep workbox default ignoreURLParametersMatching (utm_/fbclid only)');
     for (const href of [
-      `${deployment.origin}${base === '/' ? '/other/' : '/'}data/build.json`,
-      `https://external.example${base}data/build.json`,
-      `${deployment.scope}data/team-meals/week.json`,
-      `${deployment.scope}data/build.json.bak`,
-    ]) assert.equal(matches(deployment, route, href), false, href);
-    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json`, 'POST'), false);
-    // issue #114: every probe URL is unique, so a query-bearing request must not take a slot
-    // in publication-manifest — the no-query entry is the only offline cold-start fallback.
-    for (const href of [
+      `${deployment.scope}data/build.json`,
       `${deployment.scope}data/build.json?__publication=probe-1758000000000-reader-1`,
       `${deployment.scope}data/build.json?__publication=${sha}`,
       `${deployment.scope}data/build.json?t=1758000000000`,
-    ]) assert.equal(matches(deployment, route, href), false, href);
-    // A bare trailing `?` is an *empty* query: `new URL('…build.json?').search` is '', so this is
-    // the very request the offline fallback is for and it still matches. Measured, not assumed.
-    assert.equal(matches(deployment, route, `${deployment.scope}data/build.json?`), true);
-    // offline fallback lives in the cache this route writes; the expiration bound keeps it small.
-    // Since issue #114, only the no-query request lands in this cache, so two entries are plenty.
-    const expiration = route.handler.plugins.map(plugin => deployment.constructorOptions.get(plugin)).find(record => record?.name === 'ExpirationPlugin');
-    assert.equal(expiration.options.maxEntries, 2);
+    ]) for (const route of deployment.runtime) {
+      // Font routes are declared as RegExp (built inside the SW's vm realm, so `instanceof RegExp`
+      // is false here); the rest are callbacks serialised into the SW.
+      const claimed = typeof route.capture === 'function' ? matches(deployment, route, href) : route.capture.test(href);
+      assert.equal(claimed, false, `${route.handler.cacheName} must not claim ${href}`);
+    }
   });
 }

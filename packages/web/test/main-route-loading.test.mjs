@@ -35,7 +35,10 @@ function boot(initialRoute='admin'){
  g.render=(el,ctx)=>{g.renders.push({el,ctx});if(g.ack)ctx.setReloadCoverage('tracked');};
  g.load=route=>{const gate=deferred();g.loads.push({route,...gate});return gate.promise;};
  g.finish=index=>g.loads[index].resolve({render:g.render});
- g.data={loadPublication(){const gate=deferred();g.requests.push(gate);return gate.promise;}};
+ g.data={loadPublication(){const gate=deferred();g.requests.push(gate);return gate.promise;},async loadPublishedTeamPlan(_publication,id){
+  const d=new Date(),today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return {projection:{menuPlans:{[id]:{schemaVersion:'3',dateRange:{start:today,end:today},meals:[]}}}};
+ }};
  g.shell={setActive(){},setTitle(){},refresh(){},setBuild(){},newOutlet(){for(const el of g.outlets)el.isConnected=false;const el={isConnected:true,children:[],append(p){this.children.push(p);}};g.outlets.push(el);return el;}};
  runInNewContext(bundle.outputFiles[0].text+';probe.runtime=runtime;',{probe:g,structuredClone,console:{error:e=>g.errors.push(e)},document:{getElementById:()=>({}),createElement:()=>({remove(){}})},sessionStorage:{getItem:k=>values.get(k)??null,removeItem:k=>values.delete(k)}});
  return g;

@@ -1,10 +1,11 @@
 /** Page-owned form adapter. C1 remains the sole owner of document/save state. */
-import { upgradeMenuPlan, type AnyMenuPlan, type MealType, type MenuPlanV3 } from '@canteenos/core';
+import { upgradeMenuPlan, weekStartOfPlanId, type AnyMenuPlan, type MealType, type MenuPlanV3 } from '@canteenos/core';
 import type { TeamMealsApi, TeamCatalog } from '../../api/team-meals';
 import type { Source } from '../../api/types';
 import { createEditSession } from '../../view-models/edit-session';
 import { parseServingsInput } from './servings-input';
 import { connectPlanImport } from './plan-import';
+import { localDateIso } from '../../local-date';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
@@ -49,6 +50,14 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
     }).finally(() => pending.delete(key));
     pending.set(key,request); return request;
   };
+  const loadLatestCatalog = async (): Promise<TeamCatalog> => {
+    const state=session.getState(),auth=api.sessionKey();
+    if(!state.identity)throw new Error('plan_not_open');
+    const catalog=await read(state.identity.id,()=>api.getCatalog({force:true}));
+    if(auth!==api.sessionKey())throw new Error('session_changed');
+    catalogs.set(catalog.commit,catalog);
+    return catalog;
+  };
   const mutate = (fn: (draft: MenuPlanV3) => void, contextId = session.getState().contextId) => {
     const state = session.getState();
     if (!state.draft || state.contextId !== contextId) return false;
@@ -67,7 +76,9 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
       } else {
         const source = await read(id, () => api.getPlan(id));
         if (!live()) return null;
-        const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',meals:[]};
+        const start=!source&&/^week-\d{4}-\d{1,2}$/.test(id)?weekStartOfPlanId(id,localDateIso()):null;
+        const dateRange=start?{start,end:new Date(Date.parse(`${start}T12:00:00Z`)+6*86400000).toISOString().slice(0,10)}:undefined;
+        const initial: AnyMenuPlan = source ? toSavePlan({plan: source.content}) : {schemaVersion:'3',...(dateRange?{dateRange}:{}),meals:[]};
         session.open({kind:'plan',id},initial,source); known.add(id);
       }
       // Import before the next asynchronous boundary: later typing is always newer.
@@ -78,7 +89,7 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
       const catalog = await loadCatalog();
       return live() ? catalog : null;
     },
-    loadCatalog,
+    loadCatalog,loadLatestCatalog,
     servings(index: number, raw: string, contextId?: number) {
       const parsed = parseServingsInput(raw);
       if (!parsed.valid) throw new Error('invalid_servings');
