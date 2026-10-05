@@ -68,9 +68,13 @@ export function collectIngredientReferences(inputs: TeamMealInputs, selection: S
         const ingredientRef = component.ingredientRef;
         const ingredient=lookup(inputs.ingredients,ingredientRef);
         const canonical=identity==='canonical'&&ingredient?.schemaVersion==='3'?ingredient.canonicalIngredientId:undefined;
-        const groupRef=canonical?`kbci-${canonical.replaceAll('-','')}`:ingredientRef;
+        // A KB row UUID is scoped to its Recipe; it never establishes a canonical or legacy identity.
+        const recipeId=dish.provenance?.source==='knowledge'?dish.provenance.recipeId:undefined;
+        const rowId='knowledgeIngredientId' in component?component.knowledgeIngredientId:undefined;
+        const recipeRow=identity==='canonical'&&ingredient?.schemaVersion==='3'&&!canonical&&recipeId&&rowId?`kbri-${recipeId.replaceAll('-','')}-${rowId.replaceAll('-','')}`:undefined;
+        const groupRef=canonical?`kbci-${canonical.replaceAll('-','')}`:recipeRow??ingredientRef;
         const source: IngredientSource = {...address,componentIndex};
-        if(canonical)source.ingredientRef=ingredientRef;
+        if(canonical||recipeRow)source.ingredientRef=ingredientRef;
         if (meal.plannedServings !== undefined) source.plannedServings = meal.plannedServings;
         if (dish.baseServings !== undefined) source.baseServings = dish.baseServings;
         if (component.qty !== undefined) source.qty = clone(component.qty);
@@ -82,7 +86,7 @@ export function collectIngredientReferences(inputs: TeamMealInputs, selection: S
         }
         if ('originalAmount' in component && typeof component.originalAmount==='string')source.originalAmount=component.originalAmount;
         let item = candidates.get(groupRef);
-        if (!item) { item = {ingredientRef:groupRef,sources:[],...(canonical?{snapshotRefs:[]}: {})}; candidates.set(groupRef,item); }
+        if (!item) { item = {ingredientRef:groupRef,sources:[],...(canonical||recipeRow?{snapshotRefs:[]}: {})}; candidates.set(groupRef,item); }
         if(item.snapshotRefs&&!item.snapshotRefs.includes(ingredientRef))item.snapshotRefs.push(ingredientRef);
         item.sources.push(source);
         if (!lookup(inputs.ingredients,ingredientRef)) issues.push({...address,componentIndex,ingredientRef,code:'missing-ingredient'});
@@ -124,7 +128,7 @@ function normalizedQty(qty?: Quantity): unknown {
 export interface NormalizedDemand { selection: ShoppingSelection[]; ingredients: Record<Id,string> }
 function demandSpec(ingredient:AnyIngredient):unknown[]{
   const p=ingredient.purchase;
-  return [ingredient.baseUnit??null,ingredient.pcsToGram??null,ingredient.yield??1,
+  return [ingredient.baseUnit??null,ingredient.pcsToGram??null,ingredient.yield??(ingredient.schemaVersion==='3'?null:1),
     p?[p.supplier,p.packSize,p.packUnit,p.minPacks??1,p.lastPrice??null]:null,
     ingredient.trackStock,ingredient.trackStock?ingredient.onHand??0:null];
 }
@@ -146,6 +150,7 @@ export function normalizeDemand(inputs: TeamMealInputs, selection: ShoppingSelec
       s.menuPlanRef,s.date,s.mealType,s.dishRef,s.plannedServings ?? null,s.baseServings ?? null,
       normalizedQty(s.qty),s.originalAmount??null,lookup(inputs.menuPlans,s.menuPlanRef)?.margin ?? DEFAULT_MARGIN,
       lookup(inputs.dishes,s.dishRef)?.status ?? 'draft',
+      ...(identity==='canonical'?[lookup(inputs.dishes,s.dishRef)?.provenance?.source==='knowledge'?lookup(inputs.dishes,s.dishRef)!.provenance:null]:[]),
     ]));
     ingredients[item.ingredientRef] = JSON.stringify({context,sources,ingredient:ordered(specs)});
   }
@@ -214,7 +219,7 @@ export function reconcileShoppingList(previous: ShoppingList, previousInputs: Te
 
 export type EstimateReasonCode = 'multiple-plans' | 'missing-planned-servings' | 'missing-base-servings' |
   'missing-qty' | 'to-taste' | 'dish-not-active' | 'missing-dish' | 'missing-ingredient' |
-  'components-unrecorded' | 'missing-purchase' | 'missing-base-unit' | 'ingredient-spec-conflict' | 'unit-conversion-missing' | 'engine-issue';
+  'components-unrecorded' | 'missing-purchase' | 'missing-yield' | 'missing-base-unit' | 'ingredient-spec-conflict' | 'unit-conversion-missing' | 'engine-issue';
 export interface EstimateReason { code: EstimateReasonCode; source?: IngredientSource }
 export type IngredientEstimate = {ingredientRef: Id; status:'complete'; reasons:EstimateReason[]; lines:ProcurementLine[]}
   | {ingredientRef: Id; status:'unavailable'; reasons:EstimateReason[]};
@@ -237,6 +242,7 @@ export function estimateShoppingList(inputs: TeamMealInputs, selection: Shopping
     else if (!ingredient.purchase) reasons.push({code:'missing-purchase'});
     if(specs.some(spec=>!spec))reasons.push({code:'missing-ingredient'});
     if(specs.some(spec=>spec&&!spec.baseUnit))reasons.push({code:'missing-base-unit'});
+    if(specs.some(spec=>spec?.schemaVersion==='3'&&(spec.baseUnit==='g'||spec.baseUnit==='ml')&&spec.yield===undefined))reasons.push({code:'missing-yield'});
     if(new Set(specs.map(spec=>JSON.stringify(spec?demandSpec(spec):null))).size>1)reasons.push({code:'ingredient-spec-conflict'});
     for (const source of item.sources) {
       const add=(code:EstimateReasonCode)=>reasons.push({code,source:clone(source)});

@@ -74,8 +74,14 @@ export async function handleRecipeMaterialization(ctx:Ctx){
   return materializeApprovedRecipe(ctx,recipeId,version);
 }
 
+type Adoption = {recipeId:string;recipeVersion:number;current:{version:number;archived:boolean};kitchenApproval:KitchenApproval|null};
+async function readAdoption(ctx:Ctx,recipeId:string,version:number):Promise<Adoption>{
+  const value=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}/adoption`) as Adoption;
+  if(value.recipeId!==recipeId||value.recipeVersion!==version||!value.current||!Number.isSafeInteger(value.current.version)||value.current.version<version||typeof value.current.archived!=='boolean')throw fail('invalid_source');
+  return value;
+}
 async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,candidateId?:string){
-  const adoption=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}/adoption`) as {recipeId:string;recipeVersion:number;kitchenApproval:KitchenApproval|null};
+  const adoption=await readAdoption(ctx,recipeId,version);
   if(adoption.recipeId!==recipeId||adoption.recipeVersion!==version||!adoption.kitchenApproval)throw fail('review_required',{message:'此保存版本尚未由厨师核定，请先核对原方与厨房修订'});
   if(candidateId&&adoption.kitchenApproval.origin.candidateId!==candidateId)throw fail('invalid_source');
   const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Parameters<typeof recipeMaterializationFiles>[1];
@@ -104,7 +110,11 @@ async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,
   }
   const gh=githubClient(ctx);
   const outcome=await commitImmutableFiles(gh,[...materialized.files.map(file=>({path:file.path,bytes:new TextEncoder().encode(file.text)})),...materialized.imageFiles],
-    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques});
+    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques,beforeWrite:async()=>{
+      const current=await readAdoption(ctx,recipeId,version);
+      if(current.current.archived)throw fail('review_required',{message:'已归档菜谱不能新增或补写固定资料'});
+      if(current.kitchenApproval?.approvalHash!==adoption.kitchenApproval!.approvalHash)throw fail('invalid_source');
+    }});
   return {ok:true,dishRef:materialized.dishRef,recipeId,recipeVersion:detail.version,
     ...(candidateId?{candidateId}:{}),snapshotHash:materialized.snapshotHash,unresolvedCount:materialized.unresolvedCount,
     commit:outcome.commit,unchanged:outcome.unchanged};

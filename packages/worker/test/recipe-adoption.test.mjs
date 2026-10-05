@@ -33,7 +33,7 @@ test('recipe materialization requires stored kitchen approval and chef authority
   const seen=[];
   const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async url=>{
     const path=new URL(String(url)).pathname;seen.push(path);
-    const result=path.endsWith('/adoption')?{recipeId:detail.id,recipeVersion:1,origin:approval.origin,source:{status:'approved'},kitchenApproval:accepted}:detail;
+    const result=path.endsWith('/adoption')?{recipeId:detail.id,recipeVersion:1,current:{version:1,archived:false},origin:approval.origin,source:{status:'approved'},kitchenApproval:accepted}:detail;
     return new Response(JSON.stringify(result),{headers:{'Content-Type':'application/json'}});
   }});
   const route=`/knowledge-materializations/recipes/${detail.id}`;

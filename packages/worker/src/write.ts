@@ -100,7 +100,7 @@ export async function commitSingleFile(
 export async function commitImmutableFiles(
   gh: GitHubClient,
   files: { path: string; bytes: Uint8Array }[],
-  { subject, role, endpoint, techniques=[] }: { subject: string; role: Role; endpoint: string; techniques?:Technique[] },
+  { subject, role, endpoint, techniques=[], beforeWrite }: { subject: string; role: Role; endpoint: string; techniques?:Technique[]; beforeWrite?:()=>Promise<void> },
 ): Promise<{ commit: string; unchanged: boolean }> {
   if(!files.length)throw fail('invalid_source');
   const unique=new Map<string,{path:string;bytes:Uint8Array;sha:string}>();
@@ -131,6 +131,8 @@ export async function commitImmutableFiles(
       if(appended){const bytes=new TextEncoder().encode(stableSerialize(dictionary));missing.push({path:'data/techniques.json',bytes,sha:await gitBlobSha(bytes)});}
     }
     if(!missing.length)return {commit:head,unchanged:true};
+    // Complete identical history can replay. Every new/repair write, including a CAS retry, needs current eligibility.
+    await beforeWrite?.();
     const entries=[];
     for(const file of missing){
       entries.push({path:file.path,mode:'100644',type:'blob',sha:await gh.createBlob(bytesToBase64(file.bytes),'base64')});

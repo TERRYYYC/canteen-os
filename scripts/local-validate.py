@@ -142,6 +142,8 @@ def validate(node, schema: dict, current_file: Path, path: str):
                 validate(it, schema["items"], current_file, f"{path}[{i}]")
 
     if isinstance(node, dict):
+        if "minProperties" in schema and len(node) < schema["minProperties"]:
+            fail(path, f"minProperties={schema['minProperties']} 不满足: 长度 {len(node)}")
         for r in schema.get("required", []):
             if r not in node:
                 fail(path, f"缺少必填字段: {r}")

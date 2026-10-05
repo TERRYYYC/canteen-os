@@ -25,7 +25,7 @@ function makeEnv(repo,options){
     const response=await original(url,...args);
     if(String(url).endsWith('/adoption')&&response.headers.get('Content-Type')?.includes('application/json')){
       const document=await response.clone().json();
-      if(document.recipe)return new Response(JSON.stringify({recipeId:document.id,recipeVersion:document.version,kitchenApproval:fixtureApproval(document,candidateId)}),{headers:{'Content-Type':'application/json'}});
+      if(document.recipe)return new Response(JSON.stringify({recipeId:document.id,recipeVersion:document.version,current:{version:document.version,archived:false},kitchenApproval:fixtureApproval(document,candidateId)}),{headers:{'Content-Type':'application/json'}});
     }
     return response;
   }});
@@ -134,7 +134,7 @@ test('authorized materialization writes versioned Git inputs atomically and repl
     method:'POST',headers:{...bearer(role),'Content-Type':'application/json'},body:'{}'}),env);
   assert.equal((await send('buyer')).status,403);
   const response=await send();const body=await response.json();assert.equal(response.status,200,JSON.stringify(body));assert.equal(body.unchanged,false);
-  assert.deepEqual(seen,[`http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`]);
+  assert.deepEqual(seen,[`http://127.0.0.1:4390/api/v1/favorites/candidates/${candidateId}`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1`,`http://127.0.0.1:4390/api/v1/recipes/${recipeId}/revisions/1/adoption`]);
   assert.equal(JSON.parse(repo.fileText(`data/dishes/${body.dishRef}.json`)).provenance.snapshotHash,body.snapshotHash);
   assert.equal(repo.head,body.commit);
   assert.equal((await send()).status,200);
@@ -148,7 +148,7 @@ test('edited v2 requires a stored approval; caller reviewer strings cannot appro
   let kitchenApproval=null;
   const {env}=makeEnv(repo,{KNOWLEDGE_BASE_URL:'http://127.0.0.1:4390',__knowledgeFetch:async input=>{
     const url=String(input);
-    const value=url.endsWith(`/favorites/candidates/${candidateId}`)?approved:url.endsWith('/adoption')?{recipeId,recipeVersion:2,kitchenApproval}:edited;
+    const value=url.endsWith(`/favorites/candidates/${candidateId}`)?approved:url.endsWith('/adoption')?{recipeId,recipeVersion:2,current:{version:2,archived:false},kitchenApproval}:edited;
     return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
   }});
   const route=`/knowledge-materializations/${candidateId}`;
@@ -195,7 +195,7 @@ test('licensed local KB image bytes from isolated port 4392 are pinned with the 
   const frozenHead=repo.head;
   env.__knowledgeFetch=async input=>String(input).endsWith(`/assets/${assetId}/content`)
     ? new Response(PNG_B,{headers:{'Content-Type':'image/png'}})
-    : new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:String(input).endsWith('/adoption')?{recipeId,recipeVersion:1,kitchenApproval:fixtureApproval(withImage,candidateId)}:withImage),{headers:{'Content-Type':'application/json'}});
+    : new Response(JSON.stringify(String(input).endsWith(`/favorites/candidates/${candidateId}`)?approved:String(input).endsWith('/adoption')?{recipeId,recipeVersion:1,current:{version:1,archived:false},kitchenApproval:fixtureApproval(withImage,candidateId)}:withImage),{headers:{'Content-Type':'application/json'}});
   const changed=await call(worker,env,'POST',`/knowledge-materializations/${candidateId}`,{headers:bearer('chef'),body:{}});
   assert.equal(changed.status,422,'a changed KB image must not silently reuse a frozen dish');
   assert.equal(repo.head,frozenHead);
@@ -229,7 +229,7 @@ test('external or rights-pending KB artwork remains evidence, not a published di
   assert.equal(dish.image,undefined);
   assert.equal(dish.provenance.evidence,undefined);
   assert.doesNotMatch(repo.fileText(`data/dishes/${fixed.body.dishRef}.json`),/temporary\.jpg/);
-  assert.equal(seen.length,3,'external artwork was never fetched for Git publication');
+  assert.equal(seen.length,4,'external artwork was never fetched for Git publication');
 });
 
 test('a local image with a nonpublishable license remains private, not a Git image or public metadata',async()=>{

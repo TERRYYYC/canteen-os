@@ -96,7 +96,7 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
   if(candidate.status!=='approved'||!UUID.test(candidate.id)||!UUID.test(candidate.recipeId??'')||
     !Number.isSafeInteger(candidate.recipeVersion)||candidate.recipeVersion!<=0||
     candidate.recipeId!==detail.id||candidate.recipeVersion!==detail.version||
-    !Array.isArray(detail.recipe?.ingredients)||!detail.recipe.ingredients.length||detail.recipe.ingredients.length>100||
+    !Array.isArray(detail.recipe?.ingredients)||!detail.recipe.ingredients.length||detail.recipe.ingredients.length>200||
     !Array.isArray(detail.recipe.steps)||!detail.recipe.title||!candidate.reviewer)throw new Error('approved_revision_required');
   const sourceGaps=candidate.unresolved??[];
   if(!Array.isArray(sourceGaps)||sourceGaps.length>100||sourceGaps.some(value=>typeof value!=='string'||!value.trim()||value.length>2000))throw new Error('invalid_source_gaps');

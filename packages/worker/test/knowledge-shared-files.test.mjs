@@ -23,3 +23,15 @@ test('new dish atomically reuses an already frozen identical dependency, includi
   assert.equal(repo.head,before);
   assert.equal(repo.fileText('data/dishes/kb-c-v1.json'),null);
 });
+
+test('eligibility guard covers missing shared technique dictionary entries, complete history bypasses guard',async()=>{
+  const repo=new FakeRepo();repo.commit({'data/dishes/kb-test-v1.json':'{}','data/techniques.json':'[]'});
+  const {env}=makeEnv(repo),gh=new GitHubClient({repo:env.GITHUB_REPO,branch:'main',apiBase:env.GITHUB_API_BASE,token:env.GITHUB_PAT,fetch:env.__fetch});
+  const files=[{path:'data/dishes/kb-test-v1.json',bytes:new TextEncoder().encode('{}')}];
+  const technique={id:'kbt-test',kind:'cut',name:{zh:'Disposable fixture'}};
+  let guarded=0;const denied={subject:'test',role:'chef',endpoint:'test',techniques:[technique],beforeWrite:async()=>{guarded++;throw new Error('archived fixture');}};
+  const head=repo.head;await assert.rejects(()=>commitImmutableFiles(gh,files,denied),/archived fixture/);
+  assert.equal(guarded,1);assert.equal(repo.head,head);assert.equal(repo.writeCalls().length,0);
+  await commitImmutableFiles(gh,files,{...denied,beforeWrite:async()=>{}});
+  const fullHead=repo.head;assert.equal((await commitImmutableFiles(gh,files,denied)).unchanged,true);assert.equal(repo.head,fullHead);assert.equal(guarded,1);
+});
