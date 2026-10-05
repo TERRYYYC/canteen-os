@@ -20,6 +20,8 @@ test('public date/meal identity is copyable across Menu and Prep without changin
 test('snapshot links stay bound to their own plan and slot after a newer choice',()=>{
  const owner=m.createPlanSelection();owner.select('old-plan');owner.selectSlot('2026-10-06','lunch');const old=owner.snapshot();
  owner.select('new-plan');owner.selectSlot('2026-10-07','dinner');assert.match(old.href('prep'),/plan=old-plan/);assert.match(old.href('prep'),/2026-10-06\/lunch/);
+ assert.deepEqual(m.parseHash(old.href('menu','2026-10-07',{date:'2026-10-07',mealType:'dinner'})),{page:'menu',rest:'2026-10-07',planId:'old-plan',mealType:'dinner'});
+ assert.equal(old.slot.mealType,'lunch','Displayed-slot link overrides do not mutate the old snapshot');
 });
 test('router rejects arbitrary plan and meal query values and preserves encoded legacy rest',()=>{
  assert.deepEqual(m.parseHash('#/prep/2026-10-06%2Flunch%2Ftomato?plan=week-2026-41&meal=lunch'),{page:'prep',rest:'2026-10-06/lunch/tomato',planId:'week-2026-41',mealType:'lunch'});

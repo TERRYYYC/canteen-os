@@ -8,9 +8,9 @@ import {pathToFileURL} from 'node:url';
 import {pagesPublishedFixture as publishedFixture} from './team-meals-pages-published-fixture.mjs';
 const require=createRequire(import.meta.url),esbuild=await import(pathToFileURL(createRequire(require.resolve('vite/package.json')).resolve('esbuild')));
 const temp=await mkdtemp(join(tmpdir(),'d-public-pages-'));
-const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const bundle=await esbuild.build({stdin:{contents:`export {render as menu} from './src/pages/menu';export {render as prep} from './src/pages/prep';export {createPublishedData} from './src/view-models/published';export {createPlanSelection} from './src/plan-selection';export {parseHash} from './src/router';`,resolveDir:new URL('..',import.meta.url).pathname},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 await writeFile(join(temp,'pages.mjs'),bundle.outputFiles[0].text);const mod=await import(pathToFileURL(join(temp,'pages.mjs')));
-const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b'].map(n=>[n,publishedFixture(n)]));
+const fixtures=Object.fromEntries(['menu-image','menu-external','menu-empty-recipe','menu-notices','multi-dish','multi-row','normal','quantity-warning','empty-plan','no-plans','external-image','image-a','image-b','slot-duplicates','slot-duplicates-reordered'].map(n=>[n,publishedFixture(n)]));
 after(()=>{Object.values(fixtures).forEach(f=>f.cleanup());return rm(temp,{recursive:true,force:true});});
 class Element {
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.parentNode=null;this.text=text;this.style={};this.listeners={};this.open=false;this.classList={toggle:()=>{}};}
@@ -106,4 +106,61 @@ test('Prep entry prioritizes its selected dish and materials, with date/meal con
  assert(nodes(el,'[data-step-index]').length,'timing does not hide method steps');
  nodes(el,'[data-filter="all"]')[0].dispatch('click');assert(nodes(el,'[data-component-index]').length);
  nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();
+});
+
+function sharedSelection(ctx,date,meal){
+ const owner=mod.createPlanSelection();owner.select(ctx.planId);if(meal)owner.selectSlot(date,meal);
+ return {...owner.snapshot(),selectSlot:(nextDate,nextMeal)=>owner.selectSlot(nextDate,nextMeal)};
+}
+const firstSlot=name=>fixtures[name].projection.menuPlans['week-41'].meals[0];
+test('review: a same-render Menu meal change rebuilds recipe and date links from the displayed slot',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.menu(el,ctx);
+ nodes(el,'[data-meal="dinner"]')[0].dispatch('click');
+ for(const link of [...nodes(el,'[data-recipe-link]'),...nodes(el,'[data-date]')]){
+  const state=mod.parseHash(link.getAttribute('href'));assert.equal(state.planId,ctx.planId);assert.equal(state.mealType,'dinner');
+ }
+ assert.equal(ctx.planSelection.slot.mealType,'lunch','PageCtx snapshot stays immutable');el.remove();
+});
+test('review: a cold copied recipe link chooses explicit dinner over a first lunch duplicate',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',`${first.date}/${first.dishRef}`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'dinner');await mod.menu(el,ctx);
+ const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType==='dinner');
+ assert.equal(nodes(el,'[data-meal="dinner"]')[0].getAttribute('aria-pressed'),'true');
+ assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));el.remove();
+});
+test('a cold copied lunch recipe beats a first dinner row on a different date',async()=>{
+ const name='slot-duplicates-reordered',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',`${first.date}/${first.dishRef}`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.menu(el,ctx);
+ const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType==='lunch');
+ assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));
+ for(const link of nodes(el,'a').filter(link=>/^#\/prep\//.test(link.getAttribute('href')??'')))assert.equal(mod.parseHash(link.getAttribute('href')).mealType,'lunch');el.remove();
+});
+for(const name of ['slot-duplicates','slot-duplicates-reordered'])for(const desired of ['lunch','dinner']){
+ test(`explicit ${desired} recipe intent beats warm opposite memory and row order (${name})`,async()=>{
+  const s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount(),opposite=desired==='lunch'?'dinner':'lunch';
+  ctx.planSelection=sharedSelection(ctx,first.date,opposite);await mod.menu(el,ctx);
+  nodes(el,'[data-recipe-link]')[0].dispatch('click');
+  const linked={...ctx,rest:`${first.date}/${first.dishRef}`,planSelection:sharedSelection(ctx,first.date,desired)};await mod.menu(el,linked);
+  const meals=fixtures[name].projection.menuPlans[ctx.planId].meals,expected=meals.findIndex(meal=>meal.date===first.date&&meal.mealType===desired);
+  assert.equal(nodes(el,`[data-meal="${desired}"]`)[0].getAttribute('aria-pressed'),'true');
+  assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),String(expected));el.remove();
+ });
+}
+test('a Menu without an initial slot still creates complete meal links after a same-render choice',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'menu',first.date),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date);await mod.menu(el,ctx);nodes(el,'[data-meal="dinner"]')[0].dispatch('click');
+ assert.equal(mod.parseHash(nodes(el,'[data-recipe-link]')[0].getAttribute('href')).mealType,'dinner');el.remove();
+});
+test('Prep meal links and ingredient/dish/date links agree with the target slot rather than an old snapshot',async()=>{
+ const name='slot-duplicates',s=setup(name),first=firstSlot(name),ctx=await context(s,'prep',`${first.date}/dinner`),el=mount();
+ ctx.planSelection=sharedSelection(ctx,first.date,'lunch');await mod.prep(el,ctx);
+ for(const link of nodes(el,'[data-meal]'))assert.equal(mod.parseHash(link.getAttribute('href')).mealType,link.getAttribute('data-meal'));
+ for(const link of nodes(el,'a').filter(link=>/^#\/(prep|menu)\//.test(link.getAttribute('href')??'')&&!link.getAttribute('data-meal'))){
+  const state=mod.parseHash(link.getAttribute('href'));assert.equal(state.mealType,'dinner');assert.equal(state.planId,ctx.planId);
+ }
+ const next=nodes(el,'[data-date]').find(link=>link.getAttribute('data-date')!==first.date),state=mod.parseHash(next.getAttribute('href'));
+ await mod.prep(el,{...ctx,rest:state.rest,planSelection:sharedSelection(ctx,state.rest,'dinner')});
+ assert.equal(nodes(el,'[data-meal="dinner"]')[0].getAttribute('aria-current'),'true');
+ assert.ok(nodes(el,'a').some(link=>link.getAttribute('href')?.includes(`/${state.rest}/dinner/tomato?plan=week-41&meal=dinner`)));el.remove();
 });

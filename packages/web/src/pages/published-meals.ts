@@ -80,7 +80,6 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   let memory = choices.get(publication);
   if (!memory) { memory = { meal: null, dishes: new Map(), timing: 'all', timingOpen: false, disclosures: new Map() }; choices.set(publication, memory); }
   const all = selectRows(source, { menuPlanRef: plan.planId });
-  const href=(page:'menu'|'prep',...parts:string[])=>ctx.planSelection?.href(page,parts.join('/'))??`#/${page}${parts.length?'/'+parts.map(encodeURIComponent).join('/'):''}`;
   const slots = plan.projection.selection.filter(slot => slot.menuPlanRef === plan.planId);
   const dates = [...new Set(slots.map(slot => slot.date))].sort();
   const [datePart = '', second = '', ingredientRef = ''] = ctx.rest.split('/');
@@ -88,9 +87,17 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const date = dates.includes(datePart) ? datePart : slot&&dates.includes(slot.date)?slot.date:dates.find(d => d >= dayToday()) ?? dates.at(-1) ?? '';
   const mealTypes = order.filter(type => slots.some(slot => slot.date === date && slot.mealType === type));
   const matchingDishes = all.filter(row => row.meal.date === date && row.meal.dishRef === second);
-  const requestedDish = page === 'menu' ? matchingDishes.find(row => row.mealIndex === memory!.menuRow) ?? matchingDishes.find(row => row.meal.mealType === memory!.meal) ?? matchingDishes[0] : undefined;
+  // Explicit linked slot constrains duplicate dishes before remembered row/meal choices.
+  const linkedMeal=slot?.date===date&&mealTypes.includes(slot.mealType)?slot.mealType:null;
+  const linkedDishes=linkedMeal?matchingDishes.filter(row=>row.meal.mealType===linkedMeal):matchingDishes;
+  const requestedDish = page === 'menu' ? linkedDishes.find(row => row.mealIndex === memory!.menuRow) ?? linkedDishes.find(row => row.meal.mealType === memory!.meal) ?? linkedDishes[0] : undefined;
   const rememberedMeal=slot?.mealType??memory.meal;
   let selectedMeal = page === 'menu' ? requestedDish?.meal.mealType ?? (mealTypes.includes(rememberedMeal!) ? rememberedMeal! : mealTypes[0]) : mealTypes.find(type => type === second) ?? (mealTypes.includes(rememberedMeal!)?rememberedMeal!:mealTypes[0]);
+  const href=(target:'menu'|'prep',...parts:string[])=>{
+    const targetMeal=target==='prep'&&order.includes(parts[1] as MealType)?parts[1] as MealType:selectedMeal;
+    const displayedSlot=targetMeal?{date:parts[0]??date,mealType:targetMeal}:undefined;
+    return ctx.planSelection?.href(target,parts.join('/'),displayedSlot)??`#/${target}${parts.length?'/'+parts.map(encodeURIComponent).join('/'):''}`;
+  };
   const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[d]))));
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
@@ -118,6 +125,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   function paint(): void {
     if (!current()) return;
     if(selectedMeal)ctx.planSelection?.selectSlot?.(date,selectedMeal);
+    for(const link of datesNav.querySelectorAll<HTMLAnchorElement>('[data-date]'))link.setAttribute('href',href(page,link.getAttribute('data-date')!));
     stopBody?.(); replace(body); replace(dishNav);
     const rows = selectRows(source, { menuPlanRef: plan.planId, date, mealType: selectedMeal });
     if (page === 'menu') {

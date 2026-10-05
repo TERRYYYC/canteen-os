@@ -7,13 +7,15 @@ import type {Route} from './router';
 
 export const validPlanId=(id:unknown):id is string=>typeof id==='string'&&/^[a-z][a-z0-9-]*$/.test(id);
 export interface PlanChoice {readonly id:string;readonly name?:AnyMenuPlan['name'];readonly start?:string;readonly end?:string}
+export interface PlanSlot {readonly date:string;readonly mealType:MealType}
 export interface PlanSelection {
  readonly id:string|null;
  readonly choices:readonly PlanChoice[];
- readonly slot?:{readonly date:string;readonly mealType:MealType}|null;
+ readonly slot?:PlanSlot|null;
  select(id:string,name?:AnyMenuPlan['name']):void;
  selectSlot?(date:string,mealType:MealType):void;
- href(page:Route,rest?:string):string;
+ /** A page may bind a newly painted link to its displayed slot; plan identity stays fixed. */
+ href(page:Route,rest?:string,displayedSlot?:PlanSlot):string;
 }
 const storageKey='canteenos.selected-plan';
 export function planHref(page:Route,rest='',id:string|null=null):string {
@@ -56,8 +58,8 @@ export function createPlanSelection(storage:Pick<Storage,'getItem'|'setItem'>|nu
   get id(){return selected;},get choices(){return visibleChoices();},select,
   selectSlot(date:string,mealType:MealType){const at=Date.parse(`${date}T12:00:00Z`);if(selected&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(at)&&new Date(at).toISOString().slice(0,10)===date&&['breakfast','lunch','dinner'].includes(mealType))slots.set(selected,{date,mealType});},
   clearPrivateNames(){privateNames.clear();},
-  href(page:Route,rest=''){return slotHref(page,rest,selected,selected?slots.get(selected):undefined);},
-  snapshot():PlanSelection{const id=selected,slot=id?slots.get(id):undefined;return {id,choices:visibleChoices(),slot:slot??null,select,href:(page,rest='')=>slotHref(page,rest,id,slot)};},
+  href(page:Route,rest='',displayedSlot?:PlanSlot){return slotHref(page,rest,selected,displayedSlot??(selected?slots.get(selected):undefined));},
+  snapshot():PlanSelection{const id=selected,slot=id?slots.get(id):undefined;return {id,choices:visibleChoices(),slot:slot??null,select,href:(page,rest='',displayedSlot)=>slotHref(page,rest,id,displayedSlot??slot)};},
   async resolve(publication:Publication|null,data:DataApi,today=localDateIso()):Promise<boolean>{
    const ticket=++generation;
    if(!publication){choices=[];if(!explicit)selected=null;return true;}

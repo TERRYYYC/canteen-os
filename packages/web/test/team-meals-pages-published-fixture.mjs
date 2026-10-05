@@ -5,12 +5,17 @@ import {execFileSync} from 'node:child_process';
 import {publishedFixture} from './published-fixture.mjs';
 import {runBuild} from '../../../scripts/build-data.mjs';
 export function pagesPublishedFixture(name){
- if(!['multi-row','multi-dish','menu-image','menu-external','menu-empty-recipe','menu-notices'].includes(name))return publishedFixture(name);
+ if(!['multi-row','multi-dish','menu-image','menu-external','menu-empty-recipe','menu-notices','slot-duplicates','slot-duplicates-reordered'].includes(name))return publishedFixture(name);
  const source=publishedFixture(name==='menu-image'?'image-a':name==='menu-notices'?'quantity-warning':'normal'),path=join(source.root,'data/menu-plans/week-41.json');
  const plan=JSON.parse(readFileSync(path,'utf8')),first=plan.meals[0];
  if(name==='menu-empty-recipe'){const file=join(source.root,`data/dishes/${first.dishRef}.json`),dish=JSON.parse(readFileSync(file,'utf8'));dish.schemaVersion='3';delete dish.steps;delete dish.description;writeFileSync(file,JSON.stringify(dish));}
  else if(name==='menu-image'||name==='menu-external'){const file=join(source.root,`data/dishes/${first.dishRef}.json`),dish=JSON.parse(readFileSync(file,'utf8'));dish.image={src:name==='menu-image'?'../images/A %2F?# 雪.png':'https://example.org/original-dish.png',license:'CC0',author:'Recorded fixture author',sourceUrl:'https://example.org/fixture-source'};writeFileSync(file,JSON.stringify(dish));}
  else if(name==='menu-notices'){const file=join(source.root,`data/dishes/${first.dishRef}.json`),dish=JSON.parse(readFileSync(file,'utf8'));dish.status='draft';writeFileSync(file,JSON.stringify(dish));}
+ else if(name.startsWith('slot-duplicates')){
+  const next=new Date(Date.parse(`${first.date}T12:00:00Z`)+86400000).toISOString().slice(0,10);
+  plan.meals=[{...first,mealType:'lunch'},{...first,mealType:'dinner'},{...first,date:next,mealType:'lunch'},{...first,date:next,mealType:'dinner'}];
+  if(name==='slot-duplicates-reordered')plan.meals.reverse();
+ }
  else if(name==='multi-row'){plan.meals.splice(1,0,{...first,plannedServings:7});plan.meals.splice(2,0,{...first,mealType:'dinner',plannedServings:9});}
  else {
   const dish=JSON.parse(readFileSync(join(source.root,`data/dishes/${first.dishRef}.json`),'utf8'));
