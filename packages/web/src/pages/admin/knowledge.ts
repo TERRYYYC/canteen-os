@@ -1,5 +1,6 @@
 /** Native SQLite library. Drafts survive routes/language changes within one access session. */
 import './knowledge.css';
+import './knowledge/adoption.css';
 import { h, replace } from '../../dom';
 import type { PageCtx } from '../../types';
 import { getAuthSessionVersion, onAuthSessionChange } from '../../admin/token';
@@ -9,6 +10,8 @@ import { registerAuxiliaryEdits } from '../../view-models/reload-safety';
 import { words, button, field, input, select, multilingual, section, order, jsonEvidence, safeExternal, type Words } from './knowledge/ui';
 import { fresh, editable, dirty, pending, validate, removeStep, type Draft } from './knowledge/model';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
+import {workflowPanel,kitchenFields,workflowBlocked} from './knowledge/adoption';
+import {contractErrorText} from '../../admin/kit';
 import { sourceIllustrationPanel, syncSourceIllustrationLinks } from './knowledge/source-illustrations';
 
 const drafts = new Map<string, Draft>();
@@ -24,10 +27,11 @@ onAuthSessionChange(() => {
   if (mounted?.isConnected) replace(mounted);
 });
 window.addEventListener('beforeunload', event => {
-  if ([...drafts.values()].some(d => dirty(d) || d.busy || d.unknown)) { event.preventDefault(); event.returnValue = ''; }
+  if ([...drafts.values()].some(d => dirty(d) || d.busy || d.unknown || workflowBlocked(d))) { event.preventDefault(); event.returnValue = ''; }
 });
-function message(error: unknown, t: Words): string {
+function message(error: unknown, t: Words, lang: PageCtx['lang']): string {
   if (error instanceof KnowledgeError) {
+    const primary=contractErrorText(error.code,lang);if(primary)return primary;
     if (error.status === 401) return t('访问链接已失效或会话已更换，请重新打开授权链接。', 'Your access link expired or changed. Reopen an authorized link.', 'Посилання доступу недійсне або сеанс змінено. Відкрийте посилання знову.');
     if (error.status === 403) return t('当前权限只能查看菜谱，不能修改。输入仍保留。', 'This access is read only. Your input is preserved.', 'Цей доступ лише для читання. Введені дані збережено.');
     if (error.uncertain) return t('菜谱知识库暂时无法连接。请重试；当前输入已保留。', 'The recipe library is unavailable. Retry; your input is preserved.', 'Бібліотека рецептів недоступна. Спробуйте знову; введені дані збережено.');
@@ -53,15 +57,15 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
     try{
       const {data}=await getKnowledgeApi().request<RecipeDetail>(`/recipes/${recipeId}/revisions/${version}`);
       if(!active())return;
-      const view:MediaView={t,current:active,changed(){},paint(){},error:error=>message(error,t),image(url,target){
+      const view:MediaView={t,current:active,changed(){},paint(){},error:error=>message(error,t,ctx.lang),image(url,target){
         void getKnowledgeApi().image(url).then(blob=>{
           if(!active()||!target.isConnected)return;
           const objectUrl=URL.createObjectURL(blob);urls.add(objectUrl);
           target.prepend(h('img',{src:objectUrl,alt:t('菜谱图片','Recipe image','Зображення рецепта')}));
-        }).catch(error=>{if(active()&&target.isConnected)target.append(status(message(error,t),true));});
+        }).catch(error=>{if(active()&&target.isConnected)target.append(status(message(error,t,ctx.lang),true));});
       }};
       replace(root,h('div',{class:'kb-header'},h('h2',{},`${t('菜谱固定版本','Frozen recipe version','Версія рецепта')} v${data.version}`),h('a',{href:href(recipeId)},t('打开当前菜谱','Open current recipe','Відкрити поточний рецепт'))),readonlyDetail(data,view));
-    }catch(error){if(active())replace(root,status(message(error,t),true),h('a',{href:href(recipeId)},t('返回菜谱','Back to recipe','Назад до рецепта')));}
+    }catch(error){if(active())replace(root,status(message(error,t,ctx.lang),true),h('a',{href:href(recipeId)},t('返回菜谱','Back to recipe','Назад до рецепта')));}
     return;
   }
   if (!rest) { ctx.setReloadCoverage?.('read-only'); await library(root, ctx, active); return; }
@@ -78,10 +82,10 @@ export async function render(el: HTMLElement, ctx: PageCtx, rest: string): Promi
       const recipe = response ? editable(response.data.recipe) : fresh();
       const owner: Draft = { key, recipe, baseline: JSON.stringify(recipe), detail: response?.data, etag: response?.etag || undefined,
         media: response?.data.media || [], sources: response?.data.sourceRecords || response?.data.sources || [], pending: {}, busy: false, unknown: false, conflict: false, error: '', notice: '', generation: 0, historyEpoch: 0,
-        registration: registerAuxiliaryEdits({ ownerId: `knowledge:${key}:${crypto.randomUUID()}`, identity: { kind: 'knowledge-recipe', id: key }, operationTracking: 'tickets', read: () => ({ generation: owner.generation, dirty: dirty(owner), phase: owner.unknown ? 'unknown' : owner.busy ? 'busy' : 'idle' }) }) };
+        registration: registerAuxiliaryEdits({ ownerId: `knowledge:${key}:${crypto.randomUUID()}`, identity: { kind: 'knowledge-recipe', id: key }, operationTracking: 'tickets', read: () => ({ generation: owner.generation, dirty: dirty(owner), phase: owner.unknown||owner.workflow?.unknown ? 'unknown' : owner.busy||owner.workflow?.busy ? 'busy' : 'idle' }) }) };
       draft = owner; drafts.set(key, owner);
     } catch (error) {
-      if (active()) replace(root, status(message(error, t), true), button(t('重新读取', 'Retry', 'Спробувати знову'), () => void render(el, ctx, rest)), h('a', { href: href() }, t('返回菜谱库', 'Back to library', 'До бібліотеки')));
+      if (active()) replace(root, status(message(error, t, ctx.lang), true), button(t('重新读取', 'Retry', 'Спробувати знову'), () => void render(el, ctx, rest)), h('a', { href: href() }, t('返回菜谱库', 'Back to library', 'До бібліотеки')));
       ctx.setReloadCoverage?.('read-only'); return;
     }
   }
@@ -188,7 +192,7 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
         h('a',{href:href('inbox')},t('打开收藏收件箱审核草稿','Open favorites inbox to review drafts','Відкрити вхідні для перевірки чернеток'))] : []));
       more.hidden = !cursor;
     } catch (error) {
-      if (active() && current === generation) replace(info, status(message(error, t), true), button(t('重试', 'Retry', 'Спробувати знову'), () => void load(reset)));
+      if (active() && current === generation) replace(info, status(message(error, t, ctx.lang), true), button(t('重试', 'Retry', 'Спробувати знову'), () => void load(reset)));
     } finally { if (current === generation) { loading = false; more.disabled = false; } }
   }
   await load(true);
@@ -203,20 +207,20 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
   let history: Revision[] = [], selected: RecipeDetail | undefined, historicalError = '', evidence: unknown;
   let referenceVersion = 0, referenceRequest = 0, references: SourceIllustrationLinks | undefined, referenceError = '';
   let statusLabel: HTMLElement, saveButton: HTMLButtonElement;
-  function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; if (repaint) paint(); else {
+  function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; draft.supportError=undefined; if (repaint) paint(); else {
     if(references&&draft.detail){const panel=root.querySelector<HTMLElement>('.kb-source-reference-panel');if(panel)syncSourceIllustrationLinks(panel,references,draft.recipe,draft.detail.recipe,ctx.lang,t);}
     updateStatus();
   } }
   function updateStatus() {
     if (statusLabel) statusLabel.textContent = draft.unknown ? t('保存结果待确认', 'Save result unconfirmed', 'Результат збереження не підтверджено') : dirty(draft) ? t('有内容尚未保存', 'Unsaved changes', 'Є незбережені зміни') : t('内容已保存', 'Saved', 'Збережено');
-    if (saveButton) saveButton.disabled = draft.busy || !!draft.detail?.archivedAt || (!draft.unknown && !!draft.detail && !dirty(draft));
+    if (saveButton) saveButton.disabled = draft.busy || workflowBlocked(draft) || !!draft.detail?.archivedAt || (!draft.unknown && !!draft.detail && !(JSON.stringify(draft.recipe)!==draft.baseline||pending(draft)||draft.rightsChanged));
   }
-  const view: MediaView = { t, current, changed, paint, error: error => message(error, t), image(url, target) {
+  const view: MediaView = { t, current, changed, paint, error: error => message(error, t, ctx.lang), image(url, target) {
     void api.image(url).then(blob => {
       if (!current() || !target.isConnected) return;
       const objectUrl = URL.createObjectURL(blob); urls.add(objectUrl);
       target.prepend(h('img', { src: objectUrl, alt: t('菜谱图片', 'Recipe image', 'Зображення рецепта') }));
-    }).catch(error => { if (current() && target.isConnected) target.append(status(message(error, t), true)); });
+    }).catch(error => { if (current() && target.isConnected) target.append(status(message(error, t, ctx.lang), true)); });
   } };
   function adopt(detail: RecipeDetail, etag: string | null) {
     // Shared across language/route renders: all lists and snapshots belong to this epoch.
@@ -259,7 +263,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     }).finally(()=>coverControllers.delete(controller));
   }
   async function save(archive = false) {
-    if (draft.busy || draft.detail?.archivedAt) return;
+    if (draft.busy || workflowBlocked(draft) || draft.detail?.archivedAt) return;
     if (!draft.unknown) {
       if (!archive) {
         const invalid = validate(draft.recipe);
@@ -291,7 +295,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       draft.conflict = error instanceof KnowledgeError && [409, 412].includes(error.status);
       if (uncertain && draft.ticket) draft.registration.markUnknown(draft.ticket);
       else { if (draft.ticket) draft.registration.settleOperation(draft.ticket, 'failed'); draft.ticket = undefined; draft.attempt = undefined; }
-      draft.error = uncertain ? t('保存结果暂时无法确认。输入已保留；点击“核对保存结果”将重放同一请求，避免重复新建。', 'The save result is unknown. Input is preserved. Check the save result to replay the same request without creating duplicates.', 'Результат збереження невідомий. Дані збережено. Перевірте результат, повторивши той самий запит без дублювання.') : draft.conflict ? t('这款菜谱已有更新。你的输入已保留；先看历史，再决定是否重新读取。', 'This recipe has changed. Your input is preserved. Review history before reloading.', 'Рецепт уже змінено. Ваші дані збережено. Перегляньте історію перед оновленням.') : message(error, t);
+      draft.error = uncertain ? t('保存结果暂时无法确认。输入已保留；点击“核对保存结果”将重放同一请求，避免重复新建。', 'The save result is unknown. Input is preserved. Check the save result to replay the same request without creating duplicates.', 'Результат збереження невідомий. Дані збережено. Перевірте результат, повторивши той самий запит без дублювання.') : draft.conflict ? t('这款菜谱已有更新。你的输入已保留；先看历史，再决定是否重新读取。', 'This recipe has changed. Your input is preserved. Review history before reloading.', 'Рецепт уже змінено. Ваші дані збережено. Перегляньте історію перед оновленням.') : message(error, t, ctx.lang);
     } finally { draft.busy = false; if (current()) paint(); }
   }
   async function loadHistory() {
@@ -303,29 +307,29 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     if (!draft.detail) return;
     const request = ++historyRequest, version = draft.detail.version, epoch = draft.historyEpoch;
     try { const response = await api.request<{ items: Revision[] }>(`/recipes/${draft.detail.id}/revisions`); if (!current() || request !== historyRequest || epoch !== draft.historyEpoch || draft.detail.version !== version) return; history = response.data.items; historyLoaded = true; historicalError = ''; }
-    catch (error) { if (request === historyRequest && epoch === draft.historyEpoch) historicalError = message(error, t); }
+    catch (error) { if (request === historyRequest && epoch === draft.historyEpoch) historicalError = message(error, t, ctx.lang); }
     if (current() && request === historyRequest && epoch === draft.historyEpoch) paint();
   }
   async function revision(version: number) {
     if (!draft.detail) return;
     const request = ++revisionRequest, epoch = draft.historyEpoch;
     try { const response = await api.request<RecipeDetail>(`/recipes/${draft.detail.id}/revisions/${version}`); if (!current() || request !== revisionRequest || epoch !== draft.historyEpoch) return; selected = response.data; historicalError = ''; }
-    catch (error) { if (request === revisionRequest && epoch === draft.historyEpoch) historicalError = message(error, t); }
+    catch (error) { if (request === revisionRequest && epoch === draft.historyEpoch) historicalError = message(error, t, ctx.lang); }
     if (current() && request === revisionRequest && epoch === draft.historyEpoch) paint();
   }
   async function legacy() {
     evidenceOpen = !evidenceOpen;
     if (evidenceOpen && evidence === undefined && draft.detail) {
       try { const response = await api.request<{ evidence: unknown }>(`/recipes/${draft.detail.id}/legacy`); if (!current()) return; evidence = response.data.evidence; }
-      catch (error) { draft.error = message(error, t); }
+      catch (error) { draft.error = message(error, t, ctx.lang); }
     }
     if (current()) paint();
   }
   async function reload() {
-    if (!draft.detail || draft.busy || draft.unknown || !window.confirm(t('重新读取将放弃当前未保存输入。确定继续？', 'Reload and discard unsaved input?', 'Завантажити знову та відкинути незбережені дані?'))) return;
+    if (!draft.detail || draft.busy || draft.unknown || workflowBlocked(draft) || !window.confirm(t('重新读取将放弃当前未保存输入。确定继续？', 'Reload and discard unsaved input?', 'Завантажити знову та відкинути незбережені дані?'))) return;
     const operation = draft.registration.beginOperation('read'); draft.busy = true; paint();
     try { const response = await api.request<RecipeDetail>(`/recipes/${draft.detail.id}`); if (!current()) return; adopt(response.data, response.etag); draft.error = ''; draft.conflict = false; }
-    catch (error) { if (current()) draft.error = message(error, t); }
+    catch (error) { if (current()) draft.error = message(error, t, ctx.lang); }
     finally { draft.registration.settleOperation(operation, 'completed'); draft.busy = false; if (current()) paint(); }
   }
   function paint() {
@@ -342,11 +346,13 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     const header = h('div', { class: 'kb-header' }, h('div', {}, h('a', { href: href() }, t('← 返回菜谱库', '← Back to library', '← До бібліотеки')), h('h2', {}, label(recipe.title, ctx.lang) || t('收藏新做法', 'New recipe', 'Новий рецепт')), h('small', {}, draft.detail ? `v${draft.detail.version}` : t('同名也会独立保存', 'A matching name still creates an independent recipe', 'Однакова назва також створює окремий рецепт'))));
     if (draft.detail) header.append(button(t('历史版本', 'Revision history', 'Історія версій'), () => void loadHistory()), button(t('导入原文', 'Imported evidence', 'Імпортовані дані'), () => void legacy()));
     const notices = h('div', {}, draft.error ? status(draft.error, true) : null, draft.notice ? status(draft.notice) : null, draft.detail?.archivedAt ? status(t('已归档，内容只读。', 'Archived; read only.', 'Архівовано; лише читання.')) : null);
-    if (draft.detail && !draft.unknown) notices.append(button(t('放弃输入并重新读取', 'Discard input and reload', 'Відкинути дані й оновити'), () => void reload()));
+    if(draft.error&&draft.supportError)notices.append(jsonEvidence(draft.supportError,t('技术支持详情','Support details','Деталі для підтримки')));
+    if (draft.detail && !draft.unknown&&!workflowBlocked(draft)) notices.append(button(t('放弃输入并重新读取', 'Discard input and reload', 'Відкинути дані й оновити'), () => void reload()));
     const historical = h('div');
     if (draft.detail) historical.append(jsonEvidence({ recipeId: draft.detail.id, version: draft.detail.version }, t('资料标识', 'Record identifiers', 'Ідентифікатори запису')));
     if (historyOpen) historical.append(section(t('历史版本（只读）', 'Revision history (read only)', 'Історія версій (лише читання)'), h('div', { class: 'kb-actions' }, ...history.map(item => button(`v${item.version} · ${item.createdAt}`, () => void revision(item.version)))), historicalError ? status(historicalError, true) : h('span'), selected ? readonlyDetail(selected, view) : h('p', {}, t('选择版本查看当时内容。', 'Select a revision to inspect its saved content.', 'Виберіть версію, щоб переглянути збережений вміст.'))));
     if (evidenceOpen) historical.append(section(t('导入原文（只读，不随编辑改变）', 'Imported evidence (read only)', 'Імпортовані дані (лише читання)'), evidence ? jsonEvidence(evidence, t('展开完整来源、原始资料和关联记录', 'Expand complete source and original records', 'Розгорнути джерело та оригінальні записи')) : status(t('这款菜谱没有旧系统导入记录。', 'This recipe has no legacy import record.', 'Для цього рецепта немає запису імпорту.'))));
+    const workflow=workflowPanel(draft,ctx,current,paint,()=>changed());
     const base = section(t('基本信息', 'Basics', 'Основне'), multilingual(t('菜名（至少一种语言）', 'Title (at least one language)', 'Назва (хоча б однією мовою)'), recipe.title, value => { recipe.title = value; changed(); }), multilingual(t('说明与备注', 'Description and notes', 'Опис і примітки'), recipe.description, value => { if (Object.keys(value).length) recipe.description = value; else delete recipe.description; changed(); }, true), h('div', { class: 'kb-grid' }, field(t('标签（逗号分隔）', 'Tags (comma separated)', 'Мітки (через кому)'), input((recipe.tags || []).join(', '), value => { recipe.tags = [...new Set(value.split(/[,，]/).map(v => v.trim()).filter(Boolean))]; changed(); })), field(t('基础份数（未知可留空）', 'Base servings (blank if unknown)', 'Базові порції (порожньо, якщо невідомо)'), input(recipe.baseServings === undefined ? '' : String(recipe.baseServings), value => { if (!value.trim()) delete recipe.baseServings; else recipe.baseServings = Number(value); changed(); }))));
     const ingredients = section(t('食材与调料', 'Ingredients and seasonings', 'Інгредієнти та приправи'));
     (recipe.ingredients || []).forEach((row, index) => {
@@ -358,16 +364,16 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       quantity.append(field(t('用量原文', 'Original amount text', 'Оригінальний текст кількості'), input(amount.raw || '', value => { amount.raw = value; changed(); })));
       ingredients.append(h('div', { class: 'kb-row' }, h('strong', {}, `${index + 1}`), order(recipe.ingredients!, index, () => changed(true), () => { recipe.ingredients!.splice(index, 1); changed(true); }, t),
         multilingual(t('食材名称', 'Ingredient name', 'Назва інгредієнта'), row.name, value => { row.name = value; changed(); }), field(t('类型', 'Role', 'Роль'), select(row.role || 'unspecified', [['unspecified', t('未分类', 'Unspecified', 'Не визначено')], ['main', t('食材', 'Ingredient', 'Інгредієнт')], ['seasoning', t('调料', 'Seasoning', 'Приправа')]], value => { row.role = value as typeof row.role; changed(); })), quantity,
-        field(t('配料原文', 'Original ingredient text', 'Оригінальний текст інгредієнта'), input(row.rawText || '', value => { row.rawText = value; changed(); }, true)), multilingual(t('预处理', 'Preparation', 'Підготовка'), row.preparation, value => { if (Object.keys(value).length) row.preparation = value; else delete row.preparation; changed(); }, true)));
+        field(t('配料原文', 'Original ingredient text', 'Оригінальний текст інгредієнта'), input(row.rawText || '', value => { row.rawText = value; changed(); }, true)), multilingual(t('预处理', 'Preparation', 'Підготовка'), row.preparation, value => { if (Object.keys(value).length) row.preparation = value; else delete row.preparation; changed(); }, true),kitchenFields(draft,ctx,()=>changed(),index)));
     });
     ingredients.append(button(t('＋ 添加食材或调料', '＋ Add ingredient or seasoning', '＋ Додати інгредієнт чи приправу'), () => { (recipe.ingredients ??= []).push({ id: crypto.randomUUID(), name: {}, role: 'unspecified', amount: { kind: 'unknown' } }); changed(true); }));
     const steps = section(t('做法步骤', 'Steps', 'Кроки'));
     (recipe.steps || []).forEach((step, index) => steps.append(h('div', { class: 'kb-row' }, h('strong', {}, `${index + 1}`), order(recipe.steps!, index, () => changed(true), () => {
       if (recipe.assets?.some(asset => asset.stepId === step.id) && !window.confirm(t('移除步骤后，关联素材将保留为参考资料。继续？', 'Remove this step and keep its assets as references?', 'Вилучити крок і залишити матеріали як довідкові?'))) return;
       removeStep(recipe, step.id); changed(true);
-    }, t), multilingual(t('步骤说明', 'Step instructions', 'Опис кроку'), step.text, value => { step.text = value; changed(); }, true))));
+    }, t), multilingual(t('步骤说明', 'Step instructions', 'Опис кроку'), step.text, value => { step.text = value; changed(); }, true),kitchenFields(draft,ctx,()=>changed(),undefined,index))));
     steps.append(button(t('＋ 添加步骤', '＋ Add step', '＋ Додати крок'), () => { (recipe.steps ??= []).push({ id: crypto.randomUUID(), text: {} }); changed(true); }));
-    const disabled=draft.busy||draft.unknown||!!draft.detail?.archivedAt;
+    const disabled=draft.busy||draft.unknown||workflowBlocked(draft)||!!draft.detail?.archivedAt;
     const recipeForm=h('fieldset',{class:'kb-form',disabled},base,ingredients,steps);
     const referencePanel=draft.detail
       ?referenceError
@@ -381,9 +387,9 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     statusLabel = h('span', { role: 'status' });
     saveButton = button(draft.unknown ? t('核对保存结果', 'Check save result', 'Перевірити збереження') : t('保存菜谱', 'Save recipe', 'Зберегти рецепт'), () => void save(), true);
     const footer = h('div', { class: 'kb-savebar' }, statusLabel, saveButton);
-    replace(root, header, notices, historical, recipeForm, referencePanel, mediaForm, footer);
+    replace(root, header, notices, historical, workflow, recipeForm, referencePanel, mediaForm, footer);
     if (draft.detail && !draft.detail.archivedAt) {
-      const archive = button(t('归档这款菜谱', 'Archive recipe', 'Архівувати рецепт'), () => void save(true)); archive.disabled = draft.busy || draft.unknown; root.append(h('p', {}, archive));
+      const archive = button(t('归档这款菜谱', 'Archive recipe', 'Архівувати рецепт'), () => void save(true)); archive.disabled = draft.busy || draft.unknown || workflowBlocked(draft); root.append(h('p', {}, archive));
     }
     updateStatus();
   }

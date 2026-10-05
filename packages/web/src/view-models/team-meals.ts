@@ -18,12 +18,14 @@ export interface SavedViewRequest {
   at: string;
   emptyMenuPlanRefs?: string[];
   force?: boolean;
+  shoppingListVersion?: ShoppingList['shoppingListVersion'];
 }
 declare const savedViewBrand: unique symbol;
 /** Frozen, session-bound handle. Cloning or reconstructing it does not preserve provenance. */
 export interface SavedTeamMealsView {
   readonly [savedViewBrand]: true;
   readonly kind: 'saved';
+  readonly shoppingListVersion: ShoppingList['shoppingListVersion'];
   readonly mode: 'real' | 'mock';
   readonly sourceRevision: string;
   readonly projection: TeamMealsProjection;
@@ -94,7 +96,7 @@ export function createTeamMealsViewModel(api: TeamMealsApi): TeamMealsViewModel 
   async function loadSaved(request: SavedViewRequest): Promise<SavedTeamMealsView> {
     guard();
     // Capture every caller-owned field before the first await.
-    const {revision,selection,at,emptyMenuPlanRefs=[],force}=structuredClone(request);
+    const {revision,selection,at,emptyMenuPlanRefs=[],force,shoppingListVersion='1'}=structuredClone(request);
     requireRevision(revision);
     if (!selection.length && !emptyMenuPlanRefs.length) fail('invalid_selection');
     if (selection.length && emptyMenuPlanRefs.length) fail('invalid_selection');
@@ -112,9 +114,10 @@ export function createTeamMealsViewModel(api: TeamMealsApi): TeamMealsViewModel 
       menuPlans:Object.fromEntries(plans.map(p=>[p.id,p.source!.content])),
       dishes:catalog.dishes,ingredients:catalog.ingredients,techniques:catalog.techniques,
     });
-    const view=freeze({kind:'saved',mode,sourceRevision:revision,
-      projection:derive(()=>projectTeamMeals(inputs,{sourceRevision:revision,selection},{emptyMenuPlanRefs})),
-      estimate:estimateShoppingList(inputs,selection,at),
+    const identity=shoppingListVersion==='2'?'canonical':'snapshot';
+    const view=freeze({kind:'saved',mode,sourceRevision:revision,shoppingListVersion,
+      projection:derive(()=>projectTeamMeals(inputs,{sourceRevision:revision,selection},{emptyMenuPlanRefs,identity})),
+      estimate:estimateShoppingList(inputs,selection,at,identity),
     }) as SavedTeamMealsView;
     snapshots.set(view,inputs);
     return view;
@@ -127,24 +130,24 @@ export function createTeamMealsViewModel(api: TeamMealsApi): TeamMealsViewModel 
     if (!source) return null;
     if (source.content.id!==id) fail('bad_response');
     const basis=await loadSaved({revision:source.content.basis.sourceRevision,
-      selection:source.content.basis.selection,at,force});
+      selection:source.content.basis.selection,at,force,shoppingListVersion:source.content.shoppingListVersion});
     guard();
     assertListBasis(source.content,basis,inputsOf(basis));
     return {source,basis};
   }
   function createList(id: string, view: SavedTeamMealsView): ShoppingList {
     const inputs=inputsOf(view);
-    return derive(()=>createShoppingList(id,basisOf(view),inputs));
+    return derive(()=>createShoppingList(id,basisOf(view),inputs,view.shoppingListVersion));
   }
   function decide(list: ShoppingList, view: SavedTeamMealsView, ingredientRef: string, decision: ShoppingDecision, bought?: boolean): ShoppingList {
     const inputs=inputsOf(view);
     assertListBasis(list,view,inputs);
-    if (decision!=='check' && !Object.hasOwn(inputs.ingredients,ingredientRef)) fail('unresolved_ingredient');
+    if (decision!=='check' && !Object.hasOwn(view.projection.ingredients,ingredientRef)) fail('unresolved_ingredient');
     return derive(()=>applyShoppingDecision(list,ingredientRef,decision,bought));
   }
   async function reviewList(previous: ShoppingList, next: SavedTeamMealsView, options: {at:string; force?:boolean}): Promise<ShoppingReviewView> {
     const nextInputs=inputsOf(next), old=structuredClone(previous), {at,force}=structuredClone(options);
-    const oldView=await loadSaved({revision:old.basis.sourceRevision,selection:old.basis.selection,at,force});
+    const oldView=await loadSaved({revision:old.basis.sourceRevision,selection:old.basis.selection,at,force,shoppingListVersion:old.shoppingListVersion});
     guard();
     return {previous:oldView,next,result:derive(()=>reconcileShoppingList(old,inputsOf(oldView),basisOf(next),nextInputs))};
   }

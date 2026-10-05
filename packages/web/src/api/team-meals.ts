@@ -1,11 +1,11 @@
 /** Dual-format API for the new flow. Numeric legacy screens retain AdminApi's strict v2 boundary. */
-import type { AnyDish, AnyMenuPlan, Ingredient, ShoppingList } from '@canteenos/core';
+import type { AnyDish, AnyMenuPlan, AnyIngredient, ShoppingList } from '@canteenos/core';
 import { ApiError } from './types';
 import type { ApiMode, Catalog, Source, WriteCondition, WriteResult } from './types';
 import { HttpTransport, conditionHeaders } from './transport';
 import type { HttpApiOptions } from './transport';
 export type { AnyDish, AnyMenuPlan, ShoppingList } from '@canteenos/core';
-export type TeamCatalog = Omit<Catalog, 'dishes'> & { dishes: Record<string, AnyDish> };
+export type TeamCatalog = Omit<Catalog, 'dishes'|'ingredients'> & { dishes: Record<string, AnyDish>;ingredients:Record<string,AnyIngredient> };
 export interface ReadOptions { revision?: string; force?: boolean }
 export interface ShoppingDecisionCounts { check: number; buy: number; available: number; bought: number }
 export interface ShoppingListSummary { id: string; selection: ShoppingList['basis']['selection']; itemCount: number; decisionCounts: ShoppingDecisionCounts }
@@ -23,7 +23,7 @@ export interface TeamMealsApi {
   peekSessionKey?(): number | null;
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null>;
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null>;
-  getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null>;
+  getIngredient(id: string, opts?: ReadOptions): Promise<Source<AnyIngredient> | null>;
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null>;
   listShoppingLists(opts?: ShoppingListIndexOptions): Promise<ShoppingListIndex>;
   getCatalog(opts?: ReadOptions): Promise<TeamCatalog>;
@@ -141,7 +141,7 @@ class TeamHttpApi implements TeamMealsApi {
   }
   getPlan(id: string, opts?: ReadOptions): Promise<Source<AnyMenuPlan> | null> { return this.source('plan',id,opts); }
   getDish(id: string, opts?: ReadOptions): Promise<Source<AnyDish> | null> { return this.source('dish',id,opts); }
-  getIngredient(id: string, opts?: ReadOptions): Promise<Source<Ingredient> | null> { return this.source('ingredient',id,opts); }
+  getIngredient(id: string, opts?: ReadOptions): Promise<Source<AnyIngredient> | null> { return this.source('ingredient',id,opts); }
   getShoppingList(id: string, opts?: ReadOptions): Promise<Source<ShoppingList> | null> { return this.source('shopping-list',id,opts); }
   async listShoppingLists(opts: ShoppingListIndexOptions = {}): Promise<ShoppingListIndex> {
     const cursor = opts.cursor === undefined ? null : indexCursor(opts.cursor);

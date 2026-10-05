@@ -135,7 +135,8 @@ async function loadIngredient(owner: IngredientOwner): Promise<void> {
       const source = await owner.api.getIngredient(owner.key);
       if (!ownerValid(owner)) return;
       owner.sourceError = null; owner.notFound = source === null;
-      if (source) owner.draft = draftFromIngredient(source.content, owner.key, source.blobSha);
+      if(source?.content.schemaVersion==='3')throw new ApiError(422,'immutable_snapshot','This is a pinned ingredient snapshot. Edit its standard ingredient in the Recipe library and approve a new version.');
+      if (source && source.content.schemaVersion==='2') owner.draft = draftFromIngredient(source.content, owner.key, source.blobSha);
     } catch (error) { outcome = "failed"; if (ownerValid(owner)) owner.sourceError = error; }
     finally { owner.sourceLoading = null; finishIngredientOperation(owner, operation, outcome); touchOwner(owner); }
   })();

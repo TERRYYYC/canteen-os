@@ -34,6 +34,7 @@ export type ShoppingWord=keyof typeof shoppingWords;
 export const shoppingText=(lang:Lang,key:ShoppingWord)=>shoppingWords[key][lang==='zh'?0:lang==='en'?1:2];
 const lookup=<T>(map:Record<string,T>,id:string):T|undefined=>Object.hasOwn(map,id)?map[id]:undefined;
 const reasons:Record<string,readonly[string,string,string]>={
+ 'missing-yield':['标准材料的净料率未知，请人工判断采购量','The standard ingredient’s yield is unknown; decide the purchase quantity manually','Вихід стандартного інгредієнта невідомий; визначте закупівельну кількість вручну'],
  'missing-base-unit':['标准材料的基准单位未录','The standard ingredient’s base unit is not recorded','Базову одиницю стандартного інгредієнта не записано'],
  'ingredient-spec-conflict':['同一材料的采购规格版本不同，请核对后分别估算','This ingredient has different purchase specification versions. Review them before estimating separately','Інгредієнт має різні версії закупівельних параметрів. Перевірте їх перед окремими розрахунками'],
  'missing-planned-servings':['计划份数未录','Planned servings missing','Порції в плані не вказано'],'missing-base-servings':['配方基准份数未录','Recipe servings missing','Порції рецепта не вказано'],
@@ -57,13 +58,13 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  for(const item of collection.items){
   const ingredient=lookup(ingredients,item.ingredientRef),estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
-  const heading=h('h3',{},ref('ingredient',item.ingredientRef)),role=h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing'));
+  const heading=h('h3',{},ref('ingredient',item.snapshotRefs?.[0]??item.ingredientRef)),role=h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing'));
   const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},...(options.compact?[h('div',{class:'tm-material-heading'},heading,role)]:[heading,role]));
   const reference=options.compact?h('details',{class:'tm-material-reference'},h('summary',{},word(lang,'来源与数量参考','Sources and quantity reference','Джерела й кількісні орієнтири'),` · ${item.sources.length}`)):null;
   if(options.controls)card.append(options.controls(item.ingredientRef));
   (reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>{
     const amount=s.scaledQty?quantityText(s.scaledQty,lang):reasonText(s.plannedServings===undefined?'missing-planned-servings':s.baseServings===undefined?'missing-base-servings':'missing-qty',lang);
-    return h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${amount}`,s.originalAmount?` · ${word(lang,'原方','Original','Оригінал')}: ${s.originalAmount}`:'',supportDetails(lang,s.menuPlanRef));
+    return h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${amount}`,s.ingredientRef?h('span',{},' · ',ref('ingredient',s.ingredientRef)):null,s.originalAmount?` · ${word(lang,'原方','Original','Оригінал')}: ${s.originalAmount}`:'',supportDetails(lang,s.menuPlanRef));
   }))));
   if(estimateItem?.status==='complete')(reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
   else if(estimateItem)(reference??card).append(h(options.compact?'section':'details',{class:'muted'},h(options.compact?'h4':'summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));

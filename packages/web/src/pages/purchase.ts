@@ -235,13 +235,14 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     const checkedIndex=index,checkedError=indexError,choiceScope=scopeKey(scope);
     const createLabel=indexBusy?t('create'):!indexComplete()?w('未查全旧单，仍要新建','Create despite incomplete search','Створити попри неповну перевірку'):matchingLists(scope.selected).length?w('新建另一份清单','Create another list','Створити окремий список'):t('create');
     if(!existing&&!indexBusy&&!indexComplete())card.append(h('p',{class:'muted'},w('可能还有同范围旧单。可继续检查，也可明确新建；已有清单会保留。','Other lists may have this scope. Keep checking or explicitly create a separate list; existing lists stay unchanged.','Можуть бути інші списки з цим діапазоном. Продовжте перевірку або створіть окремий список; наявні залишаться без змін.')));
+    if(!existing)card.append(h('p',{class:'muted'},w('新建共享材料清单：仅合并明确绑定同一标准 ID 的材料。已有清单及购买判断保留。','Create a shared ingredient list: only explicit bindings to the same standard ID are grouped. Existing lists and purchase decisions stay unchanged.','Створити список спільних інгредієнтів: об’єднуються лише явні прив’язки до одного стандартного ID. Наявні списки й рішення збережено.')));
     const apply=action(existing?t('apply'):createLabel,()=>void run(async()=>{
      // This visible choice belongs to the exact scope and discovery result shown.
      if(!existing&&(indexBusy||checkedIndex!==index||checkedError!==indexError||scope!==view.scope||choiceScope!==scopeKey(scope)))return;
      if(!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds)throw new ApiError(400,'invalid_selection',t('choose'));
      const id=view.listId,baseline={listId:id,planIds:view.planIds,scope:scopeKey(scope)};
      const request={revision:scope.revision,selection:structuredClone(scope.selected),at:new Date().toISOString()};
-     const result=existing?await form.rebase(request,live):await form.create(id,request,live);
+     const result=existing?await form.rebase(request,live):await form.create(id,{...request,shoppingListVersion:'2'},live);
      if(result){view.baseline=baseline;if(!existing){view.createdId=id;view.completed=false;}touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
     }),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
    }return card;

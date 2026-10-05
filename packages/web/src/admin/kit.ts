@@ -474,6 +474,12 @@ export function stepper(opts: StepperOpts): HTMLElement {
  * （当前合同“错误文案”，#113）；不是 ApiError（fetch 抛的 TypeError、动态分包加载失败…）→ 「连不上后台」。
  */
 const CONTRACT_ERRORS: Record<string, Record<Lang, string>> = {
+  INVALID_TECHNIQUE: {zh:"技法资料有误，请核对名称、类型和说明",en:"Check the technique name, type and notes",uk:"Перевірте назву, тип і примітки техніки"},
+  INVALID_TECHNIQUE_BINDINGS: {zh:"所选技法与保存版本不一致，请重新核对",en:"Selected techniques do not match the saved version. Review them again",uk:"Вибрані техніки не відповідають збереженій версії. Перевірте знову"},
+  INVALID_TECHNIQUE_VERSION: {zh:"技法版本无效，请重新选择已保存版本",en:"The technique version is invalid. Select a saved version again",uk:"Версія техніки некоректна. Знову виберіть збережену версію"},
+  TECHNIQUE_VERSION_CONFLICT: {zh:"标准技法已更新，输入已保留，请读取新版核对",en:"The standard technique changed. Input is kept; reload and compare",uk:"Стандартна техніка змінилася. Дані збережено; завантажте й порівняйте"},
+  TECHNIQUE_REVISION_NOT_FOUND: {zh:"未找到这一版技法，请重新读取资料",en:"This technique version was not found. Reload the standard",uk:"Цю версію техніки не знайдено. Оновіть стандарт"},
+  immutable_snapshot: {zh:"这是已核定菜谱的固定材料，请在菜谱知识库修改标准资料并核定新版本",en:"This ingredient is pinned to an approved recipe. Edit its standard in the recipe library and approve a new version",uk:"Інгредієнт зафіксовано в затвердженому рецепті. Редагуйте стандарт у бібліотеці й затвердьте нову версію"},
   INVALID_INGREDIENT: { zh: "材料资料有误，请核对输入；未知资料可以保留未录", en: "Check the ingredient details. Unknown information can stay unrecorded", uk: "Перевірте дані інгредієнта. Невідомі дані можна залишити незаписаними" },
   INVALID_APPROVAL: { zh: "核定资料不一致，请重新读取并核对这一版", en: "The approval details do not match. Reload and review this version", uk: "Дані затвердження не збігаються. Завантажте й перевірте цю версію" },
   INVALID_INGREDIENT_VERSION: { zh: "材料版本无效，请重新选择已保存版本", en: "The ingredient version is invalid. Select a saved version again", uk: "Версія інгредієнта некоректна. Знову виберіть збережену версію" },

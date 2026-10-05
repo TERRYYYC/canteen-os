@@ -1,6 +1,7 @@
 /** SQLite contract stays distinct from the publication/Git API. */
 import { getToken, getAuthSessionVersion, peekAuthSessionVersion } from '../admin/token';
 export * from './knowledge-types';
+import type {Adoption,ApprovalInput,KitchenApproval,Materialization} from './knowledge-types';
 export class KnowledgeError extends Error {
   constructor(message: string, public status: number, public code = 'request_failed', public details?: unknown) { super(message); }
   get uncertain(): boolean { return this.status === 0 || this.status >= 500; }
@@ -17,7 +18,7 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
   const base = options.base.replace(/\/+$/, '');
   async function raw(path: string, init: RequestInit = {}): Promise<Response> {
     if (!base) throw new KnowledgeError('Knowledge service is not configured', 503, 'knowledge_unconfigured');
-    const materialization=/^\/materializations\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(path);
+    const materialization=/^\/materializations\/(?:recipes\/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(path);
     if (!materialization && !/^\/(?:recipes|health|assets|sources|ingredients|techniques|favorites)(?:[/?]|$)/.test(path)) throw new KnowledgeError('Invalid knowledge path', 400);
     const credential = token(), generation = session();
     if (!credential) throw new KnowledgeError('Access link required', 401, 'unauthorized');
@@ -51,11 +52,18 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
     }
     return { data: data as T, etag: response.headers.get('ETag'), replayed: response.headers.get('Idempotency-Replayed') };
   }
-  return { request, send<T>(attempt: Attempt) {
+  function send<T>(attempt: Attempt) {
     const headers: Record<string, string> = { 'Idempotency-Key': attempt.key };
     if (attempt.etag) headers['If-Match'] = attempt.etag;
     return request<T>(attempt.path, { method: attempt.method, body: attempt.body, headers });
-  }, async image(url: string, signal?: AbortSignal): Promise<Blob> {
+  }
+  return { request, send,
+    getAdoption:(id:string,version:number)=>request<Adoption>(`/recipes/${id}/revisions/${version}/adoption`),
+    approvalAttempt:(id:string,version:number,value:ApprovalInput,etag:string)=>createAttempt(`/recipes/${id}/revisions/${version}/approve`,'POST',value,etag),
+    materializationAttempt:(id:string,version:number)=>createAttempt(`/materializations/recipes/${id}`,'POST',{recipeVersion:version}),
+    approveRecipe:(attempt:Attempt)=>send<KitchenApproval>(attempt),
+    materializeRecipe:(attempt:Attempt)=>send<Materialization>(attempt),
+    async image(url: string, signal?: AbortSignal): Promise<Blob> {
     if (!/^\/api\/v1\/assets\/[0-9a-f-]{36}\/content$/.test(url)) throw new KnowledgeError('Invalid asset path', 400);
     const response = await raw(url.slice('/api/v1'.length), { signal });
     if (!response.ok) throw new KnowledgeError(`HTTP ${response.status}`, response.status);

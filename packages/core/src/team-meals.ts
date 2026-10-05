@@ -224,10 +224,10 @@ export interface EstimateReason { code: EstimateReasonCode; source?: IngredientS
 export type IngredientEstimate = {ingredientRef: Id; status:'complete'; reasons:EstimateReason[]; lines:ProcurementLine[]}
   | {ingredientRef: Id; status:'unavailable'; reasons:EstimateReason[]};
 export interface ShoppingEstimate { items:IngredientEstimate[]; budgetStatus:'complete'|'incomplete'|'not-applicable' }
-export function estimateShoppingList(inputs: TeamMealInputs, selection: ShoppingSelection[], at: string): ShoppingEstimate {
+export function estimateShoppingList(inputs: TeamMealInputs, selection: ShoppingSelection[], at: string, identity:'canonical'|'snapshot'='canonical'): ShoppingEstimate {
   // at is deliberately caller-owned; expansion has no clock and no price recomputation.
   void at;
-  const scope=normalizeSelection(selection), collection=collectIngredientReferences(inputs,scope);
+  const scope=normalizeSelection(selection), collection=collectIngredientReferences(inputs,scope,identity);
   const planIds=new Set(scope.map(s=>s.menuPlanRef));
   const items: IngredientEstimate[] = collection.items.map(item=>{
     const refs=item.snapshotRefs??[item.ingredientRef];
@@ -292,9 +292,9 @@ export interface TeamMealsProjection {
   menuPlans:Record<Id,AnyMenuPlan>; dishes:Record<Id,AnyDish>;
   ingredients:Record<Id,AnyIngredient>; techniques:Technique[]; collection:IngredientCollection;
 }
-export function projectTeamMeals(inputs: TeamMealInputs, basis: TeamProjectionContext, options: {emptyMenuPlanRefs?: Id[]} = {}): TeamMealsProjection {
+export function projectTeamMeals(inputs: TeamMealInputs, basis: TeamProjectionContext, options: {emptyMenuPlanRefs?: Id[];identity?:'canonical'|'snapshot'} = {}): TeamMealsProjection {
   if (!/^[0-9a-f]{40}$/.test(basis.sourceRevision)) throw new TeamMealsError('invalid_revision','Projection requires a full source revision');
-  const scope=normalizeSelection(basis.selection), collection=collectIngredientReferences(inputs,scope);
+  const scope=normalizeSelection(basis.selection), collection=collectIngredientReferences(inputs,scope,options.identity??'canonical');
   const menuPlans: Record<Id,AnyMenuPlan>={}, dishes: Record<Id,AnyDish>={}, ingredients: Record<Id,AnyIngredient>={};
   const techniqueIds=new Set<Id>();
   for (const id of options.emptyMenuPlanRefs ?? []) {

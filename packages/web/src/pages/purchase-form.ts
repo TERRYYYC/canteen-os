@@ -119,7 +119,7 @@ export function createPurchaseForm(api: TeamMealsApi, options: { at: string }) {
     async rebase(request: SavedViewRequest, isCurrent: () => boolean = () => true): Promise<PurchaseReview | null> {
       if (!canRebase()) return null;
       const { state, record } = current(), live = editTicket(isCurrent);
-      const capturedRequest = structuredClone(request);
+      const capturedRequest = {...structuredClone(request),shoppingListVersion:state.source!.content.shoppingListVersion};
       const next = await vm.loadSaved(capturedRequest);
       if (!live()) return null;
       const reviewed = await vm.reviewList(state.source!.content, next, { at: capturedRequest.at, force: true });
