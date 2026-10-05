@@ -19,8 +19,10 @@ const sourceWeb=join(sourceRoot,'packages/web');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const json=value=>JSON.stringify(value,null,2)+'\n';
 
-export async function createWorkflowPublicationFixture({productionRevision,siteUrl,cacheDiagnostics=false,storageRoot,applicationUpgradeFromRevision}) {
+export async function createWorkflowPublicationFixture({productionRevision,siteUrl,cacheDiagnostics=false,storageRoot,applicationUpgradeFromRevision,seedMode='legacy-demo'}) {
  assert.match(productionRevision,/^[a-f0-9]{40}$/);
+ assert.ok(['legacy-demo','empty'].includes(seedMode),'explicit supported seed mode required');
+ assert.ok(!cacheDiagnostics||seedMode==='legacy-demo','cache diagnostics require their explicit demo seed');
  if(applicationUpgradeFromRevision){assert.ok(storageRoot,'upgrades require existing persistent state');assert.match(applicationUpgradeFromRevision,/^[a-f0-9]{40}$/);assert.notEqual(applicationUpgradeFromRevision,productionRevision);}
  assert.ok(!(storageRoot&&cacheDiagnostics),'cache diagnostics are ephemeral-only');
  const site=new URL(siteUrl);assert.equal(site.hostname,'127.0.0.1');assert.equal(site.protocol,'http:');assert.equal(site.pathname,'/canteen/');
@@ -29,10 +31,10 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   storageRoot=resolve(storageRoot);await mkdir(storageRoot,{recursive:true});storageRoot=await realpath(storageRoot);
   try{restored=JSON.parse(await readFile(join(storageRoot,'checkpoint.json'),'utf8'));}
   catch(error){if(error.code!=='ENOENT')throw error;assert.deepEqual(await readdir(storageRoot),[],'missing checkpoint in nonempty state directory; refuse to reseed');}
-  if(restored){assert.equal(restored.schemaVersion,1);assert.equal(restored.productionRevision,applicationUpgradeFromRevision??productionRevision);assert.equal(restored.siteUrl,siteUrl);}
+  if(restored){assert.equal(restored.schemaVersion,1);assert.equal(restored.productionRevision,applicationUpgradeFromRevision??productionRevision);assert.equal(restored.siteUrl,siteUrl);assert.equal(restored.seedMode??'legacy-demo',seedMode,'cannot change seed mode of existing state');}
  }
  if(applicationUpgradeFromRevision)assert.ok(restored,'application upgrade must never seed state');
- const f=createLocalPublicationFixture(storageRoot?{root:join(storageRoot,'repository'),state:restored?.repo}:{});
+ const f=createLocalPublicationFixture({...(storageRoot?{root:join(storageRoot,'repository'),state:restored?.repo}:{}),seedMode});
  if(cacheDiagnostics){
   const files=currentFiles(f.repo),recipe=JSON.parse(files['data/dishes/tomato-egg-stir-fry.json']);
   recipe.image={src:'cache-read.png',license:'CC0'};
@@ -75,7 +77,8 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   try{await build({root,configFile:join(root,'vite.config.ts'),logLevel:'warn',build:{outDir:join(root,'dist'),emptyOutDir:true}});}
   finally{if(previous===undefined)delete process.env.VITE_WORKER_URL;else process.env.VITE_WORKER_URL=previous;}
   const dist=join(root,'dist');
-  assert.ok((await readFile(join(dist,'sw.js'),'utf8')).includes('data/team-meals/team-week.json'));
+  const sw=await readFile(join(dist,'sw.js'),'utf8');assert.ok(sw.includes('data/build.json'));
+  for(const planId of generated.build.plans)assert.ok(sw.includes(`data/team-meals/${planId}.json`));
   return {root,dist,commit,manifest:generated.build,qr,swSha256:hash(await readFile(join(dist,'sw.js'))),issues:generated.issues};
  }
  if(restored){active=restored.active;await validateActive(active,buildRoot,restored.activeFiles);assert.equal(f.repo.buildJson.commit,active.commit);}
@@ -139,13 +142,13 @@ export async function createWorkflowPublicationFixture({productionRevision,siteU
   const next=await snapshot(commit);active=next;snapshots.push(next);f.repo.buildJson=next.manifest;
   controls.push({action:'stage-cache-update',commit,swSha256:next.swSha256});return next;
  }
- const record=()=>({kind:'Q local workflow model; actual Worker, formal producer, QR generator, Vite and generated SW; no remote execution',productionRevision,integrity,buildRoot,fixtureRoot:f.root,active,snapshots,controls,jobs:jobs.map(({promise,...job})=>job)});
+ const record=()=>({kind:'Q local workflow model; actual Worker, formal producer, QR generator, Vite and generated SW; no remote execution',productionRevision,seedMode,integrity,buildRoot,fixtureRoot:f.root,active,snapshots,controls,jobs:jobs.map(({promise,...job})=>job)});
  async function saveState(){
   assert.ok(storageRoot,'saveState requires persistent storage');
   assert.ok(!applicationUpgradeFromRevision,'only the offline CLI may commit a prepared upgrade');
   const activeFiles=await artifactFiles(active.dist,{sync:true});
   await syncDirectories([active.root,buildRoot,storageRoot,dirname(storageRoot)]);
-  await atomicJson(join(storageRoot,'checkpoint.json'),{schemaVersion:1,productionRevision,siteUrl,repo:exportRepo(f.repo),sequence,requestSequence,active,activeFiles,snapshots,jobs:jobs.map(({promise,run,...j})=>j)});
+  await atomicJson(join(storageRoot,'checkpoint.json'),{schemaVersion:1,productionRevision,siteUrl,seedMode,repo:exportRepo(f.repo),sequence,requestSequence,active,activeFiles,snapshots,jobs:jobs.map(({promise,run,...j})=>j)});
  }
  if(!applicationUpgradeFromRevision){
   await writeFile(join(buildRoot,'source-integrity.json'),json({productionRevision,integrity}));
