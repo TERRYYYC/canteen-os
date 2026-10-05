@@ -595,7 +595,10 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if (options.ingredientRef && component.ingredientRef !== options.ingredientRef) continue;
       if (options.timing && options.timing !== "all" && component.prep?.timing !== options.timing) continue;
       const ingredient = ownRecord(projection.ingredients, component.ingredientRef), prep = component.prep;
-      const source=projection.collection.items.find(item=>item.ingredientRef===component.ingredientRef)?.sources.find(value=>value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex);
+      // Group identity may differ from the concrete frozen snapshot; older sources use the item ref.
+      const source=projection.collection.items.flatMap(item=>item.sources.filter(value=>(value.ingredientRef??item.ingredientRef)===component.ingredientRef&&
+        value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex&&
+        value.date===meal.date&&value.mealType===meal.mealType&&value.dishRef===meal.dishRef))[0];
       const shown=source?.scaledQty;
       const original=source?.originalAmount||rawQuantityText(component.qty,lang);
       const quantityText=shown
