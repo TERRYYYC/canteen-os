@@ -41,6 +41,7 @@ export async function collectAcceptanceIntegrity({sourceRoot,productionRevision,
    assert.ok(blobHash(bytes)===blobSha,`fixed source mismatch: ${file}`);
    entries.push({group,file,bytes:bytes.length,sha256:sha256(bytes)});
   }
+  assert.equal(git(sourceRoot,['status','--porcelain','--untracked-files=all','--',...paths]).toString().trim(),'','fixed source inventory contains tracked/untracked changes');
  }
  const harnessPath='packages/web/test/e2e/team-meals';
  for(const name of (await readdir(join(sourceRoot,harnessPath))).filter(name=>/^(?:acceptance-|(?:local|workflow)-publication-fixture\.mjs$)/.test(name)).sort()){
@@ -57,6 +58,7 @@ export async function collectAcceptanceIntegrity({sourceRoot,productionRevision,
   assert.equal(git(root,['rev-parse','--show-toplevel']).toString().trim(),root,'KB repository root required');
   assert.equal(git(root,['rev-parse','HEAD']).toString().trim(),revision,'KB revision mismatch');
   assert.equal(git(root,['status','--porcelain','--untracked-files=no']).toString().trim(),'','KB tracked source must be clean');
+  assert.equal(git(root,['status','--porcelain','--untracked-files=all','--','apps','contracts','db','infra','scripts','package.json','package-lock.json']).toString().trim(),'','KB source inventory contains untracked changes');
   const kb=[];
   const files=list(root,revision,['apps','contracts','db','infra','scripts','package.json','package-lock.json']);
   assert.ok(files.length,'KB source inventory required');

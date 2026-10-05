@@ -108,6 +108,8 @@ test('integrity fails closed on dirty fixed core/schema/producer source and forg
   await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision}),error=>error.message.includes(`fixed source mismatch: ${file}`));
   await writeFile(join(shadow,file),original);
  }
+ await writeFile(join(shadow,'packages/web/src/untracked.ts'),'// unpinned runtime source\n');
+ await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision}),/fixed source inventory/);
 });
 
 test('legacy demo remains separate; loopback server denies non-opt-in rollback and never serves source fallback',async t=>{
