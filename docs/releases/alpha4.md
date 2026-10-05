@@ -19,6 +19,8 @@ created: 2026-10-05
 
 候选来源确认与厨房核定是两个动作；工程测试代理只能在隔离副本模拟，不能批准原库真实菜谱。来源图片只供师傅复核，公开资料仍遵守固定版本与使用权校验；原片打开完整来源链接，未承诺应用内视频播放。
 
+回滚被明确拒绝后可继续合法操作；结果不明仍保持保护，先核实再操作（[#129](https://github.com/TERRYYYC/canteen-os/issues/129)）。
+
 ## 源码检查
 
 Node 20+ 运行 CanteenOS；KB 必须 Node 24.18+ / SQLite 3.51.3+。CanteenOS 使用 pnpm 9.15.0 与受控 pnpm-lock，KB 使用自己的 package-lock，分别安装到独立物理目录，不共享或链接 node_modules。

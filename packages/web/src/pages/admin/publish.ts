@@ -539,10 +539,15 @@ async function loadChanges(force: boolean): Promise<void> {
 }
 
 /** These Worker errors prove rejection before a ref update/dispatch. Generic 5xx/transport errors do not. */
-function definitelyRejected(err: unknown): boolean {
+function definitelyRejected(err: unknown, kind: Operation["kind"]): boolean {
   if (!isApiError(err)) return false;
   const status: Record<string, number> = { bad_id: 400, bad_path: 400, bad_json: 400, unauthorized: 401, forbidden: 403, not_found: 404, conflict: 409, too_large: 413, rate_limited: 429, dispatch_unavailable: 503, not_configured: 503 };
-  return Object.hasOwn(status, err.code) && status[err.code] === err.status;
+  if (Object.hasOwn(status, err.code) && status[err.code] === err.status) return true;
+  // Resolver/candidate guards precede rollback's createTree; publish cannot emit these rejections.
+  if (kind !== "rollback") return false;
+  const rollbackStatus: Record<string, number> = { invalid_revision: 400, revision_unavailable: 422, invalid_source: 422, format_downgrade: 409 };
+  return Object.hasOwn(rollbackStatus, err.code) && rollbackStatus[err.code] === err.status
+    && err.errors.every(error => Object.hasOwn(rollbackStatus, error.code) && rollbackStatus[error.code] === err.status);
 }
 
 async function onPublish(): Promise<void> {
@@ -560,10 +565,10 @@ async function onPublish(): Promise<void> {
     if (result.runId === null) markUnknown();
     else { ensureTicker(); void tick(); }
   } catch (err) {
-    if (definitelyRejected(err)) settleWrite(context, original, "failed");
+    if (definitelyRejected(err, original.kind)) settleWrite(context, original, "failed");
     else unknownWrite(context, original);
     if (!current(context)) return;
-    if (definitelyRejected(err)) {
+    if (definitelyRejected(err, original.kind)) {
       if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
       if (isApiError(err) && err.code === "dispatch_unavailable") publishOff = true;
       else publishError = apiMessage(err);
@@ -585,10 +590,10 @@ async function onRollback(sha: string): Promise<void> {
     if (poll?.state === "done") poll = null;
     await loadChanges(true);
   } catch (err) {
-    if (definitelyRejected(err)) settleWrite(context, original, "failed");
+    if (definitelyRejected(err, original.kind)) settleWrite(context, original, "failed");
     else unknownWrite(context, original);
     if (!current(context)) return;
-    if (definitelyRejected(err)) {
+    if (definitelyRejected(err, original.kind)) {
       if (isApiError(err) && err.status === 401) { const v = live(); if (v) sessionExpired(v.el, v.lang); return; }
     }
     publishError = apiMessage(err);
