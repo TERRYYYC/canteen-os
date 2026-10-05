@@ -1,6 +1,6 @@
 {
   "name": "canteen-os",
-  "version": "0.3.0-alpha.3",
+  "version": "0.3.0-alpha.4",
   "private": true,
   "description": "CanteenOS — 团队用餐计划、备料与采购协作；中英乌三语，SQLite 管理菜谱知识，Git 固定菜单发布资料",
   "type": "module",

@@ -9,15 +9,15 @@ created: 2026-09-13
 
 当前范围是小团队每天吃什么、按原方备料、人工判断需要买什么。日常 Recipe/Candidate 和来源证据以 SQLite 为真源，采用的菜谱版本及完整依赖明确固定到 Git，再用于所选计划的发布资料；已有采购工作单保留自己的 basis 和人工状态。当前范围、设计、依赖与退出条件统一见 [当前工作合同](current-contract.md)。
 
-**2026-10-05 收口状态：** `0.3.0-alpha.3` 是已有集成候选，不是完整真实厨房闭环通过的证明。候选有菜谱阅读、来源审核特例、版本固定、计划及采购组件能力，但仍存在 main 修复漏合、普通入口选旧计划、手工/旧导入无法通用采用和标准食材身份/采购规格断点。各项修复和最终验收见 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。后续版本号与完成状态由发布负责人按真实合入和验证更新，本页不预告某个拟定版本已经完成。
+**2026-10-05 源码版本：** CanteenOS `0.3.0-alpha.4`，配套 SQLite KB `0.1.2` / schema 6。来源、手工和旧导入的正式菜谱使用普通编辑/核定/明确采用入口；菜单、备料、采购与后台持续使用所选计划。标准食材身份及采购/技法版本明确固定，旧计划与采购工作单不被新编辑静默改变。发行复跑见 [alpha.4](releases/alpha4.md)，实际检查、独立审查、合入和平台 CI 以 [#128](https://github.com/TERRYYYC/canteen-os/issues/128) 的固定版本回执为准。
 
-**English.** The current alpha.3 integration candidate has recipe review, freezing, planning and purchasing components, but the full real-recipe journey remains unaccepted. Current work closes baseline regressions, selected-plan routing, general recipe adoption and stable ingredient/purchase dependencies. SQLite edits, frozen Git publications, isolated model tests, deployed releases and real chef approval are separate facts.
+**English.** Source versions are CanteenOS `0.3.0-alpha.4` and private companion KB `0.1.2` (schema 6). Normal recipe editing, durable kitchen confirmation and explicit immutable adoption serve source, manual and legacy recipes. All meal pages retain the selected plan; shared ingredient IDs and purchasing/technique revisions preserve saved history. Source behavior, isolated real-media engineering tests, merging, deployment and actual chef approval remain separate facts.
 
 | 证据/能力 | 当前边界 |
 |---|---|
 | 真实来源与候选 | 已有原片与分析缓存供完整阅读；真实候选仍待师傅确认，不重复 AI 阅读同一已验证媒体 |
-| 正式菜谱→计划 | 收藏特例已有实现；所有来源的厨房核定/recipeId+version 采用及共享食材仍需 #124/#125 验收 |
-| 普通菜单/备料/采购 | 已有组件及示例页面；#123 必须证明保留旧演示时真实所选计划仍可达，不能删除示例掩盖问题 |
+| 正式菜谱→计划 | 普通入口厨房核定与 recipeId+version 采用；共享标准食材及全部依赖固定，实际用例见 #124/#125/#128 版本回执 |
+| 普通菜单/备料/采购 | 明确所选计划贯穿全部入口，旧演示兼容；完整真实媒体副本的页面验证与旧 list1/new list2 回执见 #123/#128 |
 | 模型服务验证 | 本机实际 Worker/producer/web 可验证页面与请求；GitHub/Actions/Pages 的持久模型不是实际平台发布 |
 | 真实部署 | CanteenOS 接入 PR 不含完整独立 KB 部署源码；配套源码白名单包/manifest 和实际依赖需单独核对。源码版本、CI 和本机运行不说明远端已部署；以真实工作流和客户端资料版核对 |
 | 厨房投入使用 | 完整路径、原方未知、图片使用权与语言质量仍按实际验收；工程副本的测试批准不是真实厨师批准 |
