@@ -14,10 +14,10 @@ const dir = await mkdtemp(join(tmpdir(), 'knowledge-web-'));
 after(() => rm(dir, { recursive: true, force: true }));
 const output = join(dir, 'knowledge.mjs');
 const bundle = await esbuild.build({ stdin: { contents: `export {render} from './pages/admin/knowledge'; export * from './api/knowledge'; export * from './pages/admin/knowledge/model'; export {inspectReloadSafety} from './view-models/reload-safety';`, loader: 'ts', resolveDir: join(here, '../src') }, bundle: true, write: false, format: 'esm', platform: 'browser', loader: { '.css': 'empty' }, define: { 'import.meta.env.VITE_WORKER_URL': '"/worker"' }, logLevel: 'silent', plugins: [{ name: 'auth-boundary', setup(build) {
-  build.onResolve({ filter: /\/admin\/token$/ }, () => ({ path: 'token', namespace: 'test' }));
+  build.onResolve({ filter: /(?:\/admin\/token|^\.\/token)$/ }, () => ({ path: 'token', namespace: 'test' }));
   build.onResolve({ filter: /\/router$/ }, () => ({ path: 'router', namespace: 'test' }));
   build.onResolve({ filter: /\/api\/team-meals$/ }, () => ({ path: 'team-meals', namespace: 'test' }));
-  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const peekToken=getToken; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : args.path === 'team-meals' ? `export const getTeamMealsApi=()=>globalThis.fixture.teamApi;` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
+  build.onLoad({ filter: /.*/, namespace: 'test' }, args => ({ contents: args.path === 'token' ? `export const getToken=()=>globalThis.fixture.token; export const clearToken=()=>{}; export const renderLockScreen=()=>{}; export const peekToken=getToken; export const getAuthSessionVersion=()=>globalThis.fixture.auth; export const peekAuthSessionVersion=getAuthSessionVersion; export const stripTokenFromRest=x=>x; export const onAuthSessionChange=fn=>{globalThis.fixture.authHooks.push(fn);return()=>{};};` : args.path === 'team-meals' ? `export const getTeamMealsApi=()=>globalThis.fixture.teamApi;` : `export const onRoute=fn=>{globalThis.fixture.routeHooks.push(fn);return()=>{};};`, loader: 'js' }));
 } }] });
 await writeFile(output, bundle.outputFiles[0].text);
 const id = '10000000-0000-4000-8000-000000000001';
@@ -136,64 +136,24 @@ test('saving a new recipe revision rereads its fixed source illustration mapping
   assert.match(h.el.textContent,/旧步骤图.*未关联到当前步骤/);
   assert.deepEqual(saved.assets,[],'source reference frames never enter publishable recipe assets');
 });
-test('an approved source exposes a deliberate v2 chef check before freezing its new version',async()=>{
-  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
-  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
-  const captureId='2a132a7d-1835-484e-a270-2617fb124379';
+test('a source-approved candidate links to normal Recipe editing and its original version without a menu write',async()=>{
+  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4',itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379';
   const item={id:itemId,contentId:'7676372301671218289',kind:'note',url:'https://www.douyin.com/note/7676372301671218289',index:44,author:'test',cardAlt:'test card',displayText:'test card',state:'approved'};
-  const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test-chef'};
-  const h=await setup((url,init)=>{
+  const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test source reviewer'};
+  const h=await setup(url=>{
     if(url.endsWith('/favorites/imports'))return json({items:[]});
     if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
     if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
-    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url,text:'测试菜 1 克'}}]});
+    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url,text:'测试菜原文'}}]});
     if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
-    if(url.endsWith(`/recipes/${id}`))return json(detail({version:2}));
-    if(url.endsWith(`/knowledge-materializations/${candidateId}`))return json({dishRef:`kb-${id.replaceAll('-','')}-v2`,recipeVersion:2,commit:'a'.repeat(40),unresolvedCount:0,unchanged:false});
-    throw Error(`unexpected ${url} ${init?.method}`);
-  });
-  await h.mount('inbox');
-  const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
-  assert(h.all('a').some(link=>link.textContent.includes('进入正式菜谱编辑器核定')&&link.getAttribute('href')===`#/admin/knowledge/${id}`));
-  assert.match(source.textContent,/来源已审核/);
-  assert.match(source.textContent,/厨房条件请在正式菜谱中核对/);
-  assert.match(h.el.textContent,/检查菜谱新版本/);
-  h.click('检查菜谱新版本');await h.flush();
-  assert.match(h.el.textContent,/v2/);
-  const name=h.all('input').find(input=>input.getAttribute('placeholder')==='新版本审核人');
-  const note=h.all('input').find(input=>input.getAttribute('placeholder')==='与原作品核对的变更说明');
-  assert(name&&note);h.set(name,'test-chef-2');h.set(note,'checked v2');
-  const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-04T12:00:00Z']));}};
-  try{h.click('核对并固定 v2');await h.flush();}finally{globalThis.Date=RealDate;}
-  const write=fixture.calls.find(call=>call.url.endsWith(`/knowledge-materializations/${candidateId}`));
-  assert.deepEqual(JSON.parse(write.init.body),{recipeVersion:2,reviewer:'test-chef-2',note:'checked v2'});
-  assert.match(h.el.textContent,/已固定菜谱版本 v2/);
-  assert.doesNotMatch(source.textContent,/厨房用量待核定/);
-  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-2026-40/select/kb-${id.replaceAll('-','')}-v2`));
-});
-
-test('freezing a source reuses the existing week-41 plan instead of creating a parallel dated plan',async()=>{
-  const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
-  const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
-  const captureId='2a132a7d-1835-484e-a270-2617fb124379';
-  const item={id:itemId,contentId:'7676372301671218289',kind:'note',url:'https://www.douyin.com/note/7676372301671218289',index:44,author:'test',cardAlt:'test card',displayText:'test card',state:'approved'};
-  const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test-chef'};
-  const existingPlan=JSON.parse(await readFile(join(here,'../../../data/menu-plans/week-41.json'),'utf8'));
-  const h=await setup((url)=>{
-    if(url.endsWith('/favorites/imports'))return json({items:[]});
-    if(url.includes('/favorites/items?'))return json({items:[item],nextCursor:null});
-    if(url.endsWith(`/favorites/items/${itemId}`))return json(item);
-    if(url.endsWith(`/favorites/items/${itemId}/captures`))return json({items:[{id:captureId,status:'ready',method:'manual_post',capturedAt:'2026-09-27',sha256:'e'.repeat(64),evidence:{sourceUrl:item.url}}]});
-    if(url.endsWith(`/favorites/items/${itemId}/candidates`))return json({items:[candidate]});
-    if(url.endsWith(`/knowledge-materializations/${candidateId}`))return json({dishRef:`kb-${id.replaceAll('-','')}-v1`,recipeVersion:1,commit:'a'.repeat(40),unresolvedCount:0,unchanged:false});
     throw Error(`unexpected ${url}`);
-  },{'week-41':existingPlan});
-  await h.mount('inbox','zh','week-41');
-  const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
-  const RealDate=Date;globalThis.Date=class extends RealDate{constructor(...args){super(...(args.length?args:['2026-10-05T12:00:00Z']));}};
-  try{h.click('固定此版本供菜单使用');await h.flush();}finally{globalThis.Date=RealDate;}
-  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/plan/week-41/select/kb-${id.replaceAll('-','')}-v1`));
-  assert(!h.all('a').some(link=>link.getAttribute('href')?.includes('week-2026-41/select/')));
+  });
+  await h.mount('inbox');const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
+  assert(h.all('a').some(link=>link.textContent.includes('进入正式菜谱编辑器核定')&&link.getAttribute('href')===`#/admin/knowledge/${id}`));
+  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/knowledge/${id}/revisions/1`));
+  assert.match(source.textContent,/厨房核定/);
+  assert(!h.all('button').some(button=>/固定|检查菜谱新版本/.test(button.textContent)));
+  assert(!fixture.calls.some(call=>call.init.method==='POST'||call.url.includes('materializations')));
 });
 
 test('inbox searches candidate names and shows a source-only preview before opening a video',async()=>{
@@ -309,8 +269,8 @@ for(const decision of ['approve','reject'])test(`inbox summary reflects ${decisi
   await h.mount('inbox');const source=h.all('.kb-inbox-item')[0];
   source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
   assert.match(source.querySelector('summary').textContent,/来源待师傅审核/);
-  const reviewer=h.all('input').find(input=>input.getAttribute('placeholder')==='审核人');h.set(reviewer,'主厨');
-  h.click(decision==='approve'?'批准并保存独立菜谱':'退回');await h.flush();
+  const reviewer=h.all('label').find(label=>label.children[0]?.textContent==='来源核对人').querySelector('input');h.set(reviewer,'主厨');
+  h.click(decision==='approve'?'确认来源并保存菜谱':'退回');await h.flush();
   assert.match(source.querySelector('summary').textContent,decision==='approve'?/来源已审核/:/审核退回/);
   assert.doesNotMatch(source.querySelector('summary').textContent,/来源待师傅审核/);
 });
