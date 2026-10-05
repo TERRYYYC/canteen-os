@@ -112,6 +112,43 @@ test('integrity fails closed on dirty fixed core/schema/producer source and forg
  await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision}),/fixed source inventory/);
 });
 
+for(const [label,file] of [['Worker selector helper','packages/worker/test/helpers.mjs'],['harness executor','packages/web/test/e2e/team-meals/acceptance-harness.mjs']]){
+ test(`pinned executor rejects dirty ${label} at the declared HEAD`,async t=>{
+  const {collectAcceptanceIntegrity}=await import('./acceptance-integrity.mjs');
+  const parent=await mkdtemp(join(tmpdir(),'w5-executor-'));t.after(()=>rm(parent,{recursive:true,force:true}));
+  const shadow=join(parent,'shadow');execFileSync('git',['clone','--quiet','--shared',sourceRoot,shadow]);
+  await writeFile(join(shadow,file),Buffer.concat([await readFile(join(shadow,file)),Buffer.from('\n// changed execution seam\n')]));
+  await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision}),error=>error.message.includes(`fixed source mismatch: ${file}`));
+ });
+}
+
+test('fixed executor inventory covers the transitive seam sweep and refuses unpinned additions',async t=>{
+ const {collectAcceptanceIntegrity,acceptanceExecutorFiles}=await import('./acceptance-integrity.mjs');
+ const parent=await mkdtemp(join(tmpdir(),'w5-executor-sweep-'));t.after(()=>rm(parent,{recursive:true,force:true}));
+ const shadow=join(parent,'shadow');execFileSync('git',['clone','--quiet','--shared',sourceRoot,shadow]);
+ const ledger=await collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision});
+ const indexed=new Map(ledger.entries.map(entry=>[entry.file,entry]));
+ const fixtures=['test/fixtures/contracts/valid/golden/data/dishes/tomato-egg-stir-fry.json'];
+ const shared=['scripts/remote-test/state.mjs','scripts/remote-test/http-adapter.mjs','scripts/remote-test/service-lock.mjs'];
+ for(const file of [...acceptanceExecutorFiles,...shared,...fixtures]){
+  assert.match(indexed.get(file)?.gitBlobSha??'',/^[a-f0-9]{40}$/,`fixed blob inventory: ${file}`);
+  const bytes=await readFile(join(shadow,file));
+  await writeFile(join(shadow,file),Buffer.concat([bytes,Buffer.from('\n// execution seam sweep\n')]));
+  await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:revision}),error=>error.message.includes(`fixed source mismatch: ${file}`));
+  await writeFile(join(shadow,file),bytes);
+ }
+ for(const file of acceptanceExecutorFiles)assert.ok(ledger.executionClosure.includes(file),`execution closure: ${file}`);
+ // A future committed import still has to join the declared fixed inventory.
+ const fixture='packages/web/test/e2e/team-meals/page-fixture.mjs';
+ await writeFile(join(shadow,fixture),Buffer.concat([await readFile(join(shadow,fixture)),Buffer.from("\nimport './untracked-executor.mjs';\n")]));
+ await writeFile(join(shadow,'packages/web/test/e2e/team-meals/untracked-executor.mjs'),'export const unpinned=true;\n');
+ execFileSync('git',['add',fixture],{cwd:shadow});
+ execFileSync('git',['-c','user.name=LOCAL test','-c','user.email=test@example.invalid','commit','--quiet','-m','LOCAL uncovered execution import'],{cwd:shadow});
+ const advanced=execFileSync('git',['rev-parse','HEAD'],{cwd:shadow,encoding:'utf8'}).trim();
+ await assert.rejects(collectAcceptanceIntegrity({sourceRoot:shadow,productionRevision:advanced}),/execution import lacks fixed source inventory/);
+ t.diagnostic(JSON.stringify({kind:'first-party executor seam sweep',source:revision,mutatedAndRejected:[...acceptanceExecutorFiles,...shared,...fixtures],futureUntrackedImportRejected:true}));
+});
+
 test('legacy demo remains separate; loopback server denies non-opt-in rollback and never serves source fallback',async t=>{
  const legacy=createLocalPublicationFixture();t.after(()=>rm(legacy.root,{recursive:true,force:true}));
  assert.deepEqual(legacy.built.build.plans,['team-week']);assert.match(legacy.fixtureNotice.en,/Demo \/ unverified/);

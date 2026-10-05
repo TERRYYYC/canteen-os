@@ -68,7 +68,14 @@ marker; it refuses forged roots, symlinks and active owners. It never deletes th
 separate KB source, data copy, backup or media. Keep failed-run evidence until examined.
 
 `integrity.json` records fixed core/schema/producer/web/Worker sources, both dependency
-locks, harness bytes/diff, generated core/Worker/validators and complete current web
+locks, Git-blob-checked harness/fixture/Worker-selector helpers and legacy fixture inputs,
+generated core/Worker/validators and complete current web
 runtime hashes. These are byte inventories, not proof of test completeness or remote
 deployment. Optional `W5_HARNESS_EVIDENCE_DIR` in the test command copies only redacted
 receipts and the integrity ledger before test-owned scratch is cleaned up.
+The bounded first-party execution inventory follows literal imports transitively and
+refuses an imported file absent from the fixed inventory. Relevant dirty/untracked
+source files are rejected, including the harness itself. Commit an authorized harness
+change before running acceptance against its new full HEAD; dirty harness evidence is
+not accepted as a fixed release. Generated WORKER/core imports are selected by pinned
+helper/producer bytes and recorded under their separate runtime inventories.
