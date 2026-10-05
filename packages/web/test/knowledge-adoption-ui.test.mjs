@@ -120,3 +120,17 @@ test('incomplete price-only purchase input is retained instead of silently omitt
  let writes=0;const stored=detail({recipe:{...detail().recipe,ingredients:[]}});
  const h=await setup((url,init)=>{if(url.includes('/ingredients?')||url.includes('/techniques?'))return json({items:[],nextCursor:null});if(url.endsWith('/ingredients')&&init.method==='POST'){writes++;return json({id:assetId,version:1,ingredient:JSON.parse(init.body)},201);}return json(stored);});await h.mount();h.click('＋ 标准材料');h.set(h.field('标准名称','中文'),'测试材料');const named=text=>h.all('label').find(row=>row.children[0]?.textContent===text).querySelector('input,select');h.set(named('参考价格（未知留空）'),'10');const currency=named('币种');currency.value='USD';currency.dispatchEvent({type:'change'});h.click('保存标准资料新版本');await h.flush();assert.equal(writes,0);assert.equal(named('参考价格（未知留空）').value,'10');assert.equal(currency.value,'USD');assert.equal(h.all('[data-testid="standard-editor"]').length,1);
 });
+
+test('workflow paints reuse in-flight source frames and departure aborts their private reads',async()=>{
+ const image=defer(),recipe={...detail().recipe,ingredients:[],steps:[]};
+ const h=await setup((url,init)=>{
+  if(url.includes('/source-illustrations'))return json({recipeId:id,recipeVersion:1,candidateId:id2,illustrations:[{assetId,role:'finished',sourceStepId:null,caption:{zh:'工程参考'},rightsState:'pending'}],stepLinks:[]});
+  if(url.includes('/assets/'))return image.promise;
+  if(url.includes('/ingredients?')||url.includes('/techniques?'))return json({items:[],nextCursor:null});
+  if(url.endsWith('/adoption'))return json({recipeId:id,recipeVersion:1,current:{version:1,archived:false},origin:{kind:'manual',originalRecipeVersion:1},source:{status:'needs_review'},kitchenApproval:null,issues:[]});
+  return json(detail({recipe}));
+ });
+ await h.mount();h.click('重新核对原方与标准资料');await h.flush();
+ const reads=fixture.calls.filter(call=>call.url.includes('/assets/'));assert.equal(reads.length,1,'same revision frame is fetched once across metadata/catalog paints');assert.equal(reads[0].init.signal.aborted,false,'metadata paints preserve the original in-flight request');
+ h.leave();assert.equal(reads[0].init.signal.aborted,true,'route departure aborts the original private request');image.resolve(new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}}));await h.flush();assert.equal(h.all('img').length,0,'departed view cannot show a late source frame');
+});

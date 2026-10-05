@@ -18,9 +18,10 @@ const drafts = new Map<string, Draft>();
 let mounted: HTMLElement | null = null;
 const urls = new Set<string>();
 const coverControllers = new Set<AbortController>();
+const referenceControllers = new Set<AbortController>();
 let coverObserver: IntersectionObserver | null = null;
-function releaseImages() { coverObserver?.disconnect(); coverObserver = null; for (const controller of coverControllers) controller.abort(); coverControllers.clear(); for (const url of urls) URL.revokeObjectURL(url); urls.clear(); }
-onRoute(releaseImages, false);
+function releaseImages(preserveReferenceReads=false) { coverObserver?.disconnect(); coverObserver = null; for (const controller of coverControllers) controller.abort(); coverControllers.clear(); if(!preserveReferenceReads){for(const controller of referenceControllers)controller.abort();referenceControllers.clear();} for (const url of urls) URL.revokeObjectURL(url); urls.clear(); }
+onRoute(()=>releaseImages(), false);
 onAuthSessionChange(() => {
   for (const draft of drafts.values()) draft.registration.dispose();
   drafts.clear(); releaseImages();
@@ -206,6 +207,8 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
   let revisionRequest = 0, historyRequest = 0, seenHistoryEpoch = draft.historyEpoch;
   let history: Revision[] = [], selected: RecipeDetail | undefined, historicalError = '', evidence: unknown;
   let referenceVersion = 0, referenceRequest = 0, references: SourceIllustrationLinks | undefined, referenceError = '';
+  // Metadata paints reuse one authenticated read per frame in this rendered revision.
+  const referenceReads=new Map<string,{controller:AbortController;blob:Promise<Blob>}>();
   let statusLabel: HTMLElement, saveButton: HTMLButtonElement;
   function changed(repaint = false) { draft.generation++; draft.notice = ''; draft.error = ''; draft.supportError=undefined; if (repaint) paint(); else {
     if(references&&draft.detail){const panel=root.querySelector<HTMLElement>('.kb-source-reference-panel');if(panel)syncSourceIllustrationLinks(panel,references,draft.recipe,draft.detail.recipe,ctx.lang,t);}
@@ -228,6 +231,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     draft.recipe = editable(detail.recipe); draft.baseline = JSON.stringify(draft.recipe); draft.detail = detail;
     draft.etag = etag || undefined; draft.media = detail.media || []; draft.sources = detail.sourceRecords || detail.sources || []; draft.pending = {}; draft.rightsChanged = false; draft.generation++;
     referenceRequest++;referenceVersion=0;references=undefined;referenceError='';
+    for(const {controller}of referenceReads.values()){controller.abort();referenceControllers.delete(controller);}referenceReads.clear();
   }
   async function loadReferences(version:number){
     if(!draft.detail)return;
@@ -247,9 +251,11 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     if(current()&&root.isConnected&&request===referenceRequest)paint();
   }
   function referenceImage(assetId:string,target:HTMLElement,alt:string){
-    const controller=new AbortController(),version=draft.detail?.version;
-    coverControllers.add(controller);
-    void api.image(`/api/v1/assets/${assetId}/content`,controller.signal).then(blob=>{
+    const version=draft.detail?.version,key=`${version}/${assetId}`;
+    let read=referenceReads.get(key);
+    if(!read||read.controller.signal.aborted){const controller=new AbortController();referenceControllers.add(controller);const blob=api.image(`/api/v1/assets/${assetId}/content`,controller.signal);read={controller,blob};referenceReads.set(key,read);void blob.finally(()=>referenceControllers.delete(controller)).catch(()=>{if(referenceReads.get(key)?.controller===controller)referenceReads.delete(key);});}
+    const {controller,blob:pendingBlob}=read;
+    void pendingBlob.then(blob=>{
       if(controller.signal.aborted||!current()||!target.isConnected||draft.detail?.version!==version)return;
       const objectUrl=URL.createObjectURL(blob);urls.add(objectUrl);
       const image=h('img',{src:objectUrl,alt,loading:'lazy'});
@@ -260,7 +266,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       target.setAttribute('data-asset-state','available');replace(target,image);
     }).catch(()=>{
       if(!controller.signal.aborted&&current()&&target.isConnected){target.setAttribute('data-asset-state','unavailable');replace(target,t('原片图未载入','Source frame unavailable','Кадр недоступний'));}
-    }).finally(()=>coverControllers.delete(controller));
+    });
   }
   async function save(archive = false) {
     if (draft.busy || workflowBlocked(draft) || draft.detail?.archivedAt) return;
@@ -341,7 +347,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       if (historyOpen) void refreshHistory();
     }
     if(draft.detail&&referenceVersion!==draft.detail.version)void loadReferences(draft.detail.version);
-    releaseImages();
+    releaseImages(true);
     const recipe = draft.recipe;
     const header = h('div', { class: 'kb-header' }, h('div', {}, h('a', { href: href() }, t('← 返回菜谱库', '← Back to library', '← До бібліотеки')), h('h2', {}, label(recipe.title, ctx.lang) || t('收藏新做法', 'New recipe', 'Новий рецепт')), h('small', {}, draft.detail ? `v${draft.detail.version}` : t('同名也会独立保存', 'A matching name still creates an independent recipe', 'Однакова назва також створює окремий рецепт'))));
     if (draft.detail) header.append(button(t('历史版本', 'Revision history', 'Історія версій'), () => void loadHistory()), button(t('导入原文', 'Imported evidence', 'Імпортовані дані'), () => void legacy()));
