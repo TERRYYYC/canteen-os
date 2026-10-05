@@ -35,3 +35,33 @@ for(const lang of ['zh','en','uk']){
 test('complete core estimate with no purchase lines keeps the current check decision and does not invent a total',()=>{const input=structuredClone(seed);input.menuPlans['team-week'].meals=input.menuPlans['team-week'].meals.slice(0,1);input.dishes['first-dish'].components=input.dishes['first-dish'].components.slice(0,1);Object.assign(input.ingredients.tomato,{trackStock:true,onHand:100000});const view=freeze(basis(input,[{menuPlanRef:'team-week',date:'2026-09-14',mealType:'lunch'}]));assert.equal(view.estimate.items[0].status,'complete');assert.equal(view.estimate.items[0].lines.length,0);const out=module.shoppingCopy(view.list,view.projection,'en',view.estimate);assert.match(out,/Tomato \[tomato\] — Check/);assert.doesNotMatch(out,/Tomato.*Available|Total|(?<![\d.])0 (?:CNY|g)\b/);});
 
 test('complete references come directly from the supplied core estimate, with no sum or mutation',()=>{const input=structuredClone(seed);input.menuPlans['team-week'].meals=input.menuPlans['team-week'].meals.slice(0,1);input.dishes['first-dish'].components=input.dishes['first-dish'].components.slice(0,1);const view=freeze(basis(input,[{menuPlanRef:'team-week',date:'2026-09-14',mealType:'lunch'}]));assert.equal(view.estimate.items[0].status,'complete');assert.ok(view.estimate.items[0].lines.length);const before=JSON.stringify(view),out=module.shoppingCopy(view.list,view.projection,'en',view.estimate);for(const {supplier,line} of view.estimate.items[0].lines){assert.ok(out.includes(`Calculated reference: ${supplier}`));assert.ok(out.includes(`${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`));if(line.amount)assert.ok(out.includes(`${line.amount.amount} ${line.amount.currency}`));}assert.equal(JSON.stringify(view),before);assert.match(out,/not a complete budget/);assert.doesNotMatch(out,/Total/);});
+
+// Raw original wording and kitchen quantities are independent saved facts, not conversions.
+function originalAmountView(mode){
+ const canonicalId='00000000-0000-4000-8000-000000000002';
+ const components=[{ingredientRef:'snapshot-one',originalAmount:'三块提前泡水；另三块打碎'},{ingredientRef:'snapshot-two',originalAmount:'一碗'}];
+ const ingredients=Object.fromEntries(['snapshot-one','snapshot-two'].map((id,index)=>[id,{schemaVersion:'3',name:{zh:'陈皮',en:'Dried tangerine peel',uk:'Сушена мандаринова шкірка'},trackStock:false,canonicalIngredientId:canonicalId,canonicalIngredientVersion:index+1}]));
+ if(mode==='raw-and-kitchen-quantity')components[0].qty={value:100,unit:'g'};
+ if(mode==='legacy-quantity-only')for(const component of components){delete component.originalAmount;component.qty={value:50,unit:'g'};ingredients[component.ingredientRef]={schemaVersion:'2',name:{zh:'旧材料',en:'Legacy ingredient',uk:'Попередній інгредієнт'},baseUnit:'g',trackStock:false};}
+ const input={menuPlans:{week:{schemaVersion:'3',meals:[{date:'2026-10-05',mealType:'lunch',dishRef:'recipe'}]}},dishes:{recipe:{schemaVersion:'3',name:{zh:'原方用量回归',en:'Original amount regression',uk:'Перевірка початкової кількості'},status:'active',components,steps:[]}},ingredients,techniques:[]};
+ const selection=[{menuPlanRef:'week',date:'2026-10-05',mealType:'lunch'}],savedBasis={sourceRevision:A,selection};
+ const projection=module.projectTeamMeals(input,savedBasis),list=module.createShoppingList('raw-amount-shop',savedBasis,input,mode==='legacy-quantity-only'?'1':'2'),estimate=module.estimateShoppingList(input,selection,'2026-10-05');
+ if(mode!=='legacy-quantity-only'){assert.equal(projection.collection.items.length,1);assert.equal(projection.collection.items[0].sources.length,2);assert.deepEqual(projection.collection.items[0].snapshotRefs,['snapshot-one','snapshot-two']);}
+ else assert.ok(projection.collection.items.every(item=>item.sources.every(source=>source.ingredientRef===undefined)));
+ return freeze({input,projection,list,estimate});
+}
+const kitchenQuantity={zh:'厨房配方用量',en:'Kitchen recipe quantity',uk:'Кількість за кухонним рецептом'};
+for(const lang of ['zh','en','uk'])for(const mode of ['raw-only','raw-and-kitchen-quantity','legacy-quantity-only']){
+ test(`${lang}: ${mode} copy preserves each source original amount separately from kitchen quantity`,()=>{
+  const view=originalAmountView(mode),before=JSON.stringify(view),out=module.shoppingCopy(view.list,view.projection,lang,view.estimate),l=labels[lang];
+  for(const item of view.projection.collection.items)for(const source of item.sources){
+   const line=out.split('\n').find(line=>line.includes(`${l.row}: ${source.mealIndex+1} · ${l.component}: ${source.componentIndex+1}`));
+   assert.ok(line,`${lang}/${mode}: source occurrence missing`);
+   assert.ok(line.includes(`${l.original}: ${source.originalAmount??'50 g'}`),`${lang}/${mode}: ${line}`);
+   if(source.originalAmount&&source.qty){assert.ok(line.includes(`${kitchenQuantity[lang]}: 100 g`),line);assert.ok(!line.includes(`${l.original}: 100 g`),line);}
+   else assert.ok(!line.includes(kitchenQuantity[lang]),line);
+  }
+  if(mode!=='legacy-quantity-only'){assert.ok(out.includes('三块提前泡水；另三块打碎'));assert.ok(out.includes('一碗'));assert.ok(!out.includes(`${l.original}: ${l.missingQty}`));assert.ok(out.includes('snapshot-one'));assert.ok(out.includes('snapshot-two'));}
+  assert.ok(out.includes(l.budget));assert.doesNotMatch(out,/(?<![\d.])0 (?:g|kg|CNY)\b/);assert.equal(JSON.stringify(view),before);
+ });
+}

@@ -7,6 +7,7 @@ import {reasonText, shoppingText, type ShoppingWord} from './purchase-list';
 
 const words={
  original:['原配方用量','Original recipe quantity','Початкова кількість рецепта'],
+ kitchen:['厨房配方用量','Kitchen recipe quantity','Кількість за кухонним рецептом'],
  planned:['计划份数','Planned servings','Порції в плані'],base:['配方基准份数','Recipe servings','Порції рецепта'],
  row:['计划行','Plan row','Рядок плану'],component:['配料项','Recipe item','Складник рецепта'],
  issues:['缺项与资料提示','Missing information and source notices','Відсутні дані й примітки джерела'],
@@ -43,7 +44,9 @@ export function shoppingCopy(list:ShoppingList,projection:TeamMealsProjection,la
    const id=item.ingredientRef,label=name('ingredient',id),ingredient=Object.hasOwn(projection.ingredients,id)?projection.ingredients[id]:undefined;
    lines.push(`${label} — ${t(group)}${ingredient?.role?` · ${t(ingredient.role)}`:''}`);
    for(const source of projection.collection.items.find(x=>x.ingredientRef===id)?.sources??[]){
-    lines.push(`  ${t('sources')}: ${path(source)} · ${w('original')}: ${quantityText(source.qty,lang)} · ${w('planned')}: ${source.plannedServings??reason('missing-planned-servings')} · ${w('base')}: ${source.baseServings??reason('missing-base-servings')}`);
+    const original=source.originalAmount||quantityText(source.qty,lang);
+    const kitchen=source.originalAmount&&source.qty?` · ${w('kitchen')}: ${quantityText(source.qty,lang)}`:'';
+    lines.push(`  ${t('sources')}: ${path(source)} · ${w('original')}: ${original}${kitchen} · ${w('planned')}: ${source.plannedServings??reason('missing-planned-servings')} · ${w('base')}: ${source.baseServings??reason('missing-base-servings')}`);
    }
    const reference=estimate.items.find(x=>x.ingredientRef===id);
    if(reference){
