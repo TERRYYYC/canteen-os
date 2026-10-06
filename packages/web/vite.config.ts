@@ -51,8 +51,8 @@ export default defineConfig({
         display: "standalone",
         start_url: "./#/prep",
         scope: "./",
-        theme_color: "#F2F4F1",
-        background_color: "#F2F4F1",
+        theme_color: "#F4F7FC",
+        background_color: "#F4F7FC",
         icons: [
           { src: "icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
           { src: "icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

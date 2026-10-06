@@ -1,11 +1,10 @@
 /** Reference v3 application chrome. Core routes remain ordinary protected links;
- * the existing drawer retains utilities, theme and keyboard/focus behavior. */
+ * the existing drawer retains utilities and keyboard/focus behavior (light-only palette, no theme switch). */
 import type { BuildManifest } from "@canteenos/core";
 import type { Publication } from "./data";
 import { h, replace } from "./dom";
 import { LANGS, LANG_CHIP, LANG_NAME, LANG_TAG, getLang, setLang, t, type Lang } from "./i18n";
 import { hrefOf, type Route } from "./router";
-import { THEMES, getTheme, setTheme } from "./theme";
 import {planChoiceLabel,planHref,weekPlanId,type PlanSelection} from './plan-selection';
 import {weekStartOfPlanId} from '@canteenos/core';
 import {localDateIso} from './local-date';
@@ -152,7 +151,6 @@ export function mountShell(root: HTMLElement): Shell {
   function renderDrawer(): void {
     const focused = open && drawer.contains(document.activeElement) ? document.activeElement : null;
     const focusedHref = focused?.getAttribute('href');
-    const focusedTheme = focused?.getAttribute('data-theme-value');
     const lang = getLang();
     const team = publicationKind === 'team-meals';
     const items: HTMLElement[] = NAV.map(({ route, icon, l1, l2 }) =>
@@ -186,20 +184,6 @@ export function mountShell(root: HTMLElement): Shell {
         h("span", { class: "l2" }, t(planHref ? "drawer.plan.role" : build ? "drawer.plan.empty" : "drawer.plan.unavailable"))),
     );
 
-    const themeLabel = h("span", { class: "label", id: "theme-label" }, t("theme.label"));
-    const toggle = h("div", { class: "toggle", role: "group", "aria-labelledby": "theme-label" });
-    const cur = getTheme();
-    for (const th of THEMES) {
-      const b = h("button", { type: "button", "aria-pressed": th === cur ? "true" : "false", "data-theme-value": th }, t(`theme.${th}`));
-      b.addEventListener("click", () => {
-        setTheme(th);
-        for (const x of toggle.querySelectorAll<HTMLButtonElement>("button")) {
-          x.setAttribute("aria-pressed", x.dataset["themeValue"] === th ? "true" : "false");
-        }
-      });
-      toggle.append(b);
-    }
-
     // 三态（#12）：在线 / 离线但 SW 已接管本页（离线副本可用）/ 离线且没有 SW（第一次打开就断网）
     const state = netState();
     const foot = h(
@@ -224,13 +208,12 @@ export function mountShell(root: HTMLElement): Shell {
         h("div", {}, h("div", { class: "n" }, t("app.name")), h("div", { class: "s" }, t("app.tagline"))),
       ),
       h("nav", { "aria-label": t("drawer.title") }, ...items, chefInbox, plan),
-      h("div", { class: "theme" }, themeLabel, toggle),
       foot,
     );
     renderCoreNav();
     if (focused) {
       const equivalent = [...drawer.querySelectorAll<HTMLElement>(FOCUSABLE)].find(el =>
-        (focusedHref && el.getAttribute('href') === focusedHref) || (focusedTheme && el.getAttribute('data-theme-value') === focusedTheme));
+        focusedHref && el.getAttribute('href') === focusedHref);
       (equivalent ?? drawer.querySelector<HTMLElement>('a[aria-current="page"]') ?? drawer.querySelector<HTMLElement>(FOCUSABLE))?.focus();
     }
   }

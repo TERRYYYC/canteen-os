@@ -13,7 +13,6 @@ const mocks={
  './pwa':`export const initPwa=(_shell,hooks)=>{globalThis.probe.pwa=hooks;};`,
  './router':`export const normalize=()=>{};export const onRoute=fn=>{const g=globalThis.probe;g.route=fn;fn(g.initialRoute,'first');};`,
  './shell':`export const mountShell=()=>globalThis.probe.shell;`,
- './theme':`export const applyTheme=()=>{};`,
 };
 const bundle=await esbuild.build({stdin:{contents:"import './src/main';export {inspectReloadSafety,registerReloadRecords} from './src/view-models/reload-safety';export {clearToken} from './src/admin/token';",resolveDir:web},bundle:true,write:false,format:'iife',globalName:'runtime',platform:'browser',logLevel:'silent',plugins:[{name:'controlled-main-surfaces',setup(build){
  build.onResolve({filter:/./},args=>{

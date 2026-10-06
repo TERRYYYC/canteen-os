@@ -18,8 +18,8 @@
  * index.json：{ siteUrl, generatedAt, items: [{ route, url, png, label: { uk, zh, en } }] }
  *   png 相对站点根（"qr/prep.png"），页面用 import.meta.env.BASE_URL + png 取。
  *
- * PNG：512×512、margin 2（模块）、纠错 M、深色 #171B19 / 浅色 #FFFFFF（tokens.css 的 --ink / --surface 浅色值；
- *   PNG 不随主题变，深色界面里当白色贴纸看）。依赖 qrcode（MIT，仅 devDependency，只在 node 端跑）。
+ * PNG：512×512、margin 2（模块）、纠错 M、深色模块 #131F35 / 浅色底 #FFFFFF（tokens.css 的 --ink / --surface；
+ *   应用只有浅色配色）。依赖 qrcode（MIT，仅 devDependency，只在 node 端跑）。
  *
  * 纯 Node ≥ 20，ESM。导出 resolveSiteUrl / ROUTES / main 便于复用。
  */
@@ -44,7 +44,7 @@ const PNG_OPTS = {
   width: 512,
   margin: 2,
   errorCorrectionLevel: "M",
-  color: { dark: "#171B19", light: "#FFFFFF" },
+  color: { dark: "#131F35", light: "#FFFFFF" },
 };
 
 /**
