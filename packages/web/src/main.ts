@@ -1,6 +1,6 @@
 /**
  * 入口：挂应用壳 → 同版资料/共享计划选择 → hash 路由分发到 pages/<route>.ts。
- * 语言切换 = 重画壳层 + 重新 render 当前页；主题在壳层内切换（theme.ts）。
+ * 语言切换 = 重画壳层 + 重新 render 当前页；配色只有浅色一套（tokens.css），没有主题切换。
  * PWA（SW 注册、「有新版本」提示条、iOS 提示）在 pwa.ts，这里只调 initPwa(shell)。
  * 页面契约见 src/types.ts。
  */
@@ -12,7 +12,6 @@ import { getLang, onLangChange, t } from "./i18n";
 import { initPwa } from "./pwa";
 import { normalize, onRoute, type Route } from "./router";
 import { mountShell } from "./shell";
-import { applyTheme } from "./theme";
 import type { PageCtx, PageRender } from "./types";
 import { createPageReloadCoverage } from './view-models/reload-safety';
 import { consumeTokenFromRest, getAuthSessionVersion, peekAuthSessionVersion,onAuthSessionChange } from './admin/token';
@@ -30,7 +29,6 @@ const PAGES: Record<Route, () => Promise<{ render: PageRender }>> = {
 const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", admin: "page.admin", qr: "page.qr" } as const;
 
 function boot(): void {
-  applyTheme();
   const root = document.getElementById("app");
   if (!root) throw new Error("#app not found");
   const shell = mountShell(root);

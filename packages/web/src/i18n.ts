@@ -66,12 +66,6 @@ const DICT = {
   "foot.online": { uk: "Онлайн", zh: "在线", en: "Online" },
   "foot.offline": { uk: "Офлайн · без мережі", zh: "离线 · 无网络", en: "Offline · no network" },
 
-  // 主题三态
-  "theme.label": { uk: "Тема", zh: "外观", en: "Theme" },
-  "theme.system": { uk: "Як у системі", zh: "跟随系统", en: "System" },
-  "theme.light": { uk: "Світла", zh: "浅色", en: "Light" },
-  "theme.dark": { uk: "Темна", zh: "深色", en: "Dark" },
-
   "lang.label": { uk: "Мова", zh: "语言", en: "Language" },
 
   // 数据层状态（页面占位共用）

@@ -1,21 +1,23 @@
-/* Current visual source: green Reference v3 @2f890d8; team-meal adaptation.
-   Existing explicit/system dark theme preference remains supported. */
+/* Current visual source: 搪瓷蓝 (Enamel blue) light-only palette from the CanteenOS design system (2026-10-07).
+   Layout/structure still follows Reference v3 @2f890d8; team-meal adaptation. No dark theme. */
 :root {
-  --bg: #F5F7F3;
+  --bg: #F4F7FC;
   --surface: #FFFFFF;
-  --surface-2: #F0F3ED;
-  --ink: #15251F;
-  --muted: #66756C;
-  --line: #E6EBE4;
-  --accent: #397A46;
+  --surface-2: #E9EFF7;
+  --ink: #131F35;
+  --muted: #616A77;
+  --line: #DDE4EC;
+  --accent: #1E61C5;
   --accent-ink: #FFFFFF;
-  --warn: #9C6A12;
-  --warn-bg: #F6EAD1;
-  --ok: #2F7D4E;
-  --ok-bg: #DDEFE3;
-  --bezel: #1A1D1C;
-  --scrim: rgba(23, 27, 25, .45);
-  --shadow: 0 18px 40px rgba(20, 28, 24, .18);
+  --warn: #A05500;
+  --warn-bg: #FFEED4;
+  --ok: #006EA0;
+  --ok-bg: #E0EFFF;
+  /* 青花 (blue-and-white porcelain) ornament colour from the CanteenOS design system; not yet used by pages. */
+  --qinghua: #1F3C86;
+  --bezel: #12192B;
+  --scrim: rgba(19, 31, 53, .45);
+  --shadow: 0 18px 40px rgba(19, 31, 53, .18);
 
   --font-ui: "Avenir Next", "Helvetica Neue", "PingFang SC", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-ui);
@@ -23,48 +25,6 @@
   --slab: var(--font-display);
 
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #131615;
-    --surface: #1D2220;
-    --surface-2: #262C29;
-    --ink: #ECEFEA;
-    --muted: #98A29C;
-    --line: #2E3532;
-    --accent: #80BD89;
-    --accent-ink: #1A1D1C;
-    --warn: #D9A441;
-    --warn-bg: #3A2F17;
-    --ok: #5FB07F;
-    --ok-bg: #1B3325;
-    --bezel: #0B0D0C;
-    --scrim: rgba(0, 0, 0, .6);
-    --shadow: 0 18px 40px rgba(0, 0, 0, .5);
-
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: #131615;
-  --surface: #1D2220;
-  --surface-2: #262C29;
-  --ink: #ECEFEA;
-  --muted: #98A29C;
-  --line: #2E3532;
-  --accent: #80BD89;
-  --accent-ink: #1A1D1C;
-  --warn: #D9A441;
-  --warn-bg: #3A2F17;
-  --ok: #5FB07F;
-  --ok-bg: #1B3325;
-  --bezel: #0B0D0C;
-  --scrim: rgba(0, 0, 0, .6);
-  --shadow: 0 18px 40px rgba(0, 0, 0, .5);
-
-  color-scheme: dark;
 }
 
 /* 键盘焦点：所有可聚焦元素统一 2px 主色描边（screens-v2.html .toggle button:focus-visible 的推广） */

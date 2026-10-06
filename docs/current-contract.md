@@ -28,7 +28,7 @@ GitHub 当前 issue 是任务队列；#128 维护这次闭环依赖和退出条�
 
 ## 当前视觉来源与历史稿
 
-绿色 [Reference v3 固定设计来源](https://github.com/TERRYYYC/canteen-os/tree/2f890d8f182d02e8ed4acb55a865e8aa086416dd/docs/design/reference-v3) 是当前小团队页面的视觉目标：绿色主色、浅背景、无衬线层级、紧凑日期/餐次、图文菜品行、明确主要动作和核心导航。具体应用范围及小团队差异以 D0 和本合同为准，份数可空、不补 1，不搬入原型工具栏、顾客或报告模块。
+[Reference v3 固定设计来源](https://github.com/TERRYYYC/canteen-os/tree/2f890d8f182d02e8ed4acb55a865e8aa086416dd/docs/design/reference-v3) 是当前小团队页面的布局与结构目标：浅背景、无衬线层级、紧凑日期/餐次、图文菜品行、明确主要动作和核心导航。2026-10-07 起配色改为 CanteenOS 设计系统的搪瓷蓝（Enamel blue）浅色配色，取代 Reference v3 的绿色主色；只有浅色一套，不提供深色模式或主题切换，token 以 `packages/web/src/tokens.css` 为准。具体应用范围及小团队差异以 D0 和本合同为准，份数可空、不补 1，不搬入原型工具栏、顾客或报告模块。
 
 [PR #91](https://github.com/TERRYYYC/canteen-os/pull/91) 的十画板全套仍是设计提案，没有整体签收或全部实现声明。`screens-v2.html` / `backoffice-v1.html` 保留历史视觉、行为和兼容资料；“2026-09-07 定稿”不覆盖后续小团队页面目标。知识库和收件箱的专用合同、验证稿仍需结合本轮实际页面验收，不能把其中旧 token 或提案状态扩成全站新签收。
 
