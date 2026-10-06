@@ -12,7 +12,7 @@ const mocks={
  './i18n':`export const getLang=()=>globalThis.probe.lang;export const t=x=>x;export const onLangChange=fn=>{globalThis.probe.changeLanguage=lang=>{globalThis.probe.lang=lang;fn();};};`,
  './pwa':`export const initPwa=(_shell,hooks)=>{globalThis.probe.pwa=hooks;};`,
  './router':`export const normalize=()=>{};export const hrefOf=(page,rest='')=>'#/'+page+(rest?'/'+encodeURIComponent(rest):'');export const onRoute=fn=>{const g=globalThis.probe;g.route=fn;fn(g.initialRoute,g.initialRest,g.initialPlan);};`,
- './shell':`export const mountShell=()=>globalThis.probe.shell;`, './theme':`export const applyTheme=()=>{};`,
+ './shell':`export const mountShell=()=>globalThis.probe.shell;`,
 };
 const bundle=await esbuild.build({stdin:{contents:"import './src/main';export {clearToken} from './src/admin/token';",resolveDir:web},bundle:true,write:false,format:'iife',globalName:'runtime',platform:'browser',logLevel:'silent',plugins:[{name:'controlled-main',setup(b){
  b.onResolve({filter:/./},a=>{if(a.path.endsWith('.css'))return {path:a.path,namespace:'empty'};if(a.importer!==join(web,'src/main.ts'))return;if(a.path.startsWith('./pages/'))return {path:a.path,namespace:'page'};if(mocks[a.path])return {path:a.path,namespace:'mock'};});
