@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>采购页「复制给菜贩」· 本地模拟验证</title>
+<style>.fixture-toolbar{padding:16px;border-bottom:2px solid #98794d;background:#fff8e8;display:flex;flex-wrap:wrap;gap:10px;align-items:center}.fixture-toolbar p{flex-basis:100%;margin:0}#app{max-width:1100px;padding:20px;margin:auto}#result{display:block;white-space:pre-wrap;padding:12px}#ledger{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px}body>details{margin:16px}@media(max-width:500px){#app{padding:12px}.fixture-toolbar{padding:12px}}</style></head><body>
+<aside class="fixture-toolbar">
+<strong>采购页「复制给菜贩」验证 · MOCK ONLY · week-41 黄金样本</strong>
+<p>真实采购页面代码 + C1/C2；只有网络响应是模拟。已保存清单固定在 A：番茄待买、鸡蛋已买、小葱已有、食盐待买、食用油待核对。剪贴板在本页被替换为本地记录，可检查复制成功与失败回退。</p>
+<label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<button id="run">运行复制检查</button><button id="reset">重置</button>
+</aside><output id="result" aria-live="polite">尚未运行。所有保存只在本页内存中。</output><main id="app"></main>
+<details><summary>本地剪贴板与断言记录（无凭据）</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {createPurchaseRenderer} from '../src/pages/purchase.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {shoppingText} from '../src/pages/purchase-list.ts';
+import {createShoppingList,applyShoppingDecision} from '@canteenos/core';
+const files=import.meta.glob('../../../test/fixtures/contracts/valid/golden/data/**/*.json',{eager:true,import:'default'});
+const seed={menuPlans:{},dishes:{},ingredients:{},techniques:[]};
+for(const [path,value] of Object.entries(files)){
+ const m=path.match(/data\/(menu-plans|dishes|ingredients)\/([^/]+)\.json$/);if(m)seed[m[1]==='menu-plans'?'menuPlans':m[1]][m[2]]=value;
+ if(path.endsWith('/techniques.json'))seed.techniques=value;
+}
+const A='a'.repeat(40),LIST='week41-shop',clone=x=>structuredClone(x),ledger=[];
+const selection=seed.menuPlans['week-41'].meals.map(m=>({menuPlanRef:'week-41',date:m.date,mealType:m.mealType}));
+let list=createShoppingList(LIST,{sourceRevision:A,selection},seed,'2');
+for(const [id,decision,bought] of [['tomato','buy'],['egg','buy',true],['scallion','available'],['salt','buy']])list=applyShoppingDecision(list,id,decision,bought);
+const $=s=>document.querySelector(s),lang=()=>$('#lang').value,t=k=>shoppingText(lang(),k);
+const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
+async function fetchMock(url,init={}){
+ const u=new URL(String(url)),revision=u.searchParams.get('revision')??A;
+ if(u.origin!=='https://explicit-supplier-mock.invalid')throw new Error('Mock harness refuses an unexpected origin');
+ if((init.method??'GET')!=='GET')throw new Error('Copying must not write');
+ if(u.pathname===`/source/shopping-list/${LIST}`)return json({content:list,commit:'c'.repeat(40),blobSha:'saved'});
+ if(revision!==A)return json({ok:false,errors:[{path:'',code:'revision_unavailable',message:'revision_unavailable'}]},422);
+ if(u.pathname==='/catalog')return json({commit:A,dishes:seed.dishes,ingredients:seed.ingredients,techniques:seed.techniques,suppliers:[],translations:{machine:0,human:0,stale:0}});
+ if(u.pathname==='/source/plan/week-41')return json({content:seed.menuPlans['week-41'],commit:A,blobSha:'plan'});
+ return json({ok:false,errors:[{path:'',code:'not_found',message:'not_found'}]},404);
+}
+function log(entry){ledger.push(entry);$('#ledger').textContent=JSON.stringify(ledger,null,2);}
+let api;
+async function reset(){
+ api?.dispose();api=createTeamMealsApi('https://explicit-supplier-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});
+ document.documentElement.lang=lang();const outlet=document.createElement('section');$('#app').replaceChildren(outlet);
+ await createPurchaseRenderer(api)(outlet,{lang:lang(),route:'purchase',rest:LIST,planId:'week-41',data:{},t:key=>key});
+}
+let clipboard='ok';
+Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{log({clipboard,length:value.length});if(clipboard!=='ok')throw new Error('Explicit local clipboard-failure scenario');}}});
+const pause=()=>new Promise(resolve=>setTimeout(resolve,20));
+async function until(test,message){for(let i=0;i<180;i++){if(test())return;await pause();}throw new Error(message);}
+function assert(ok,message){if(!ok)throw new Error(message);log({assertion:message,result:'pass'});}
+const card=kind=>$(`#app [data-copy="${kind}"]`),area=kind=>card(kind)?.querySelector('textarea');
+const EXPECTED={
+ zh:['【采购单】2026-10-05 – 2026-10-09 · 宏达粮油调味批发','食盐  20 包 × 500 g（共 10 kg）','共 1 样 · 预估 ¥50.00（按上次价）','【采购单】2026-10-05 – 2026-10-09 · 绿源农产品配送','番茄  19 包 × 5 kg（共 95 kg）','共 1 样 · 预估 ¥541.50（按上次价）'],
+ en:['【Purchase order】2026-10-05 – 2026-10-09 · 宏达粮油调味批发','Salt  20 packs × 500 g (total 10 kg)','1 item · estimated ¥50.00 (at last price)','Tomato  19 packs × 5 kg (total 95 kg)','1 item · estimated ¥541.50 (at last price)'],
+ uk:['【Замовлення】2026-10-05 – 2026-10-09 · 宏达粮油调味批发','Сіль  20 уп. × 500 г (разом 10 кг)','Позицій: 1 · орієнтовно ¥50.00 (за останньою ціною)','Помідор  19 уп. × 5 кг (разом 95 кг)','Позицій: 1 · орієнтовно ¥541.50 (за останньою ціною)'],
+};
+async function run(){
+ const out=$('#result');$('#run').disabled=true;
+ try{
+  ledger.length=0;clipboard='ok';await reset();await until(()=>!!card('suppliers'),'saved list rendered');
+  const actions=$('#app .tm-purchase-actions');
+  assert([...actions.children].map(n=>n.dataset.copy??'save').join()==='save,suppliers,record','save, supplier copy, then the full record');
+  assert(card('suppliers').querySelector('button').textContent===t('copySuppliers')&&card('record').querySelector('button').textContent===t('copyRecord'),'labels follow the interface language');
+  const text=area('suppliers').value,lines=text.split('\n');
+  for(const expected of EXPECTED[lang()])assert(lines.includes(expected),`supplier text line: ${expected}`);
+  for(const marker of [A,LIST,'week-41','[',{zh:'鸡蛋',en:'Chicken egg',uk:'Яйця'}[lang()],{zh:'小葱',en:'Scallion',uk:'Зелена цибуля'}[lang()],{zh:'食用油',en:'Cooking oil',uk:'Олія'}[lang()]])assert(!text.includes(marker),`supplier text leaves out ${marker}`);
+  assert(area('record').value.includes(A)&&area('record').value.includes(LIST),'full record still carries its references');
+  card('suppliers').querySelector('button').click();await until(()=>card('suppliers').querySelector('[role="status"]').textContent===t('copied'),'supplier copy succeeds');
+  clipboard='fail';card('suppliers').querySelector('button').click();await until(()=>!area('suppliers').hidden,'supplier fallback shown');
+  assert(area('suppliers').value===text&&area('record').hidden,'failure shows the same supplier text, record text stays hidden');
+  card('record').querySelector('button').click();await until(()=>!area('record').hidden,'record fallback shown');
+  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；复制给菜贩只列待买未买、按供应商分段、数字来自估算、无内部编号；完整记录不变；复制成功与失败回退。未验证真实 Worker、剪贴板权限或部署。';
+ }catch(error){out.textContent=`FAIL · ${error.message}`;log({failure:error.message});}
+ finally{$('#run').disabled=false;}
+}
+$('#run').onclick=()=>void run();$('#reset').onclick=()=>void reset();$('#lang').onchange=()=>void reset();
+Object.defineProperty(window,'supplierHarness',{value:Object.freeze({run,get ledger(){return clone(ledger);}}),writable:false});
+const params=new URLSearchParams(location.search);if(['zh','en','uk'].includes(params.get('lang')))$('#lang').value=params.get('lang');
+await reset();
+</script></body></html>
