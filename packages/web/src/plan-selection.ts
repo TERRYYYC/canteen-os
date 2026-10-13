@@ -36,6 +36,11 @@ export function planChoiceLabel(choice:PlanChoice,lang:Lang):string {
  const dates=choice.start?`${choice.start}${choice.end&&choice.end!==choice.start?' — '+choice.end:''}`:'';
  return [name||({zh:'菜单计划',en:'Meal plan',uk:'План меню'})[lang],dates].filter(Boolean).join(' · ');
 }
+/** One loaded plan as the plan bar names it: recorded name and recorded dates only, never the raw ID. */
+export function publishedPlanChoice(id:string,plan:Pick<AnyMenuPlan,'name'|'dateRange'|'meals'>):PlanChoice {
+ const dates=plan.meals.map(meal=>meal.date).sort(),range=plan.dateRange;
+ return {id,name:plan.name,start:range?.start??dates[0],end:range?.end??dates.at(-1)};
+}
 export function createPlanSelection(storage:Pick<Storage,'getItem'|'setItem'>|null=null) {
  let selected:string|null=null,explicit=false,choices:PlanChoice[]=[],generation=0;
  const privateNames=new Map<string,AnyMenuPlan['name']>();
@@ -67,9 +72,7 @@ export function createPlanSelection(storage:Pick<Storage,'getItem'|'setItem'>|nu
     try{
      if(publication.kind==='team-meals'){
       const loaded=await data.loadPublishedTeamPlan(publication,id),plan=loaded.projection.menuPlans[id];
-      if(!plan)return {id};
-      const dates=plan.meals.map(meal=>meal.date).sort(),range=plan.dateRange;
-      return {id,name:plan.name,start:range?.start??dates[0],end:range?.end??dates.at(-1)};
+      return plan?publishedPlanChoice(id,plan):{id};
      }
      const sheet=await data.loadMenu(id),dates=sheet.days.map(day=>day.date).sort();
      return {id,start:dates[0],end:dates.at(-1)};

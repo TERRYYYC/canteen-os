@@ -6,6 +6,7 @@ import type { PublishedTeamPlan, Publication } from '../data';
 import { PublishedDataError } from '../view-models/published';
 import { h, replace } from '../dom';
 import { pick, type Lang } from '../i18n';
+import { planChoiceLabel, publishedPlanChoice } from '../plan-selection';
 import type { PageCtx } from '../types';
 import type { FrozenMealSource, FrozenMealRenderOptions, FrozenMealRow } from './prep';
 
@@ -72,7 +73,8 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep prep-publication', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
   replace(el, root);
   const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':'prep-publication-info'},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
-  if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
+  // A plan name is optional: an unnamed plan reads like the plan bar; its raw ID stays in the support record.
+  if(page==='menu'){root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||planChoiceLabel(publishedPlanChoice(plan.planId,record),lang)));publicationInfo.append(h('p',{'data-published-plan-id':''},`${word(lang,'计划标识','Plan ID','Ідентифікатор плану')}: ${plan.planId}`));}
   else publicationInfo.append(h('p',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
   if (plan.issues.length) publicationInfo.append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
     ...plan.issues.map(issue => renderRecordNotice(issue,lang,plan.projection,'data-publication-issue'))));
