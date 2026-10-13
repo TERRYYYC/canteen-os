@@ -33,7 +33,7 @@ function view(decisions,{inputs=seed,slots=selection,version='2'}={}){
 const copy=(v,lang='zh')=>{const before=JSON.stringify(v),out=module.supplierCopy(v.list,v.projection,lang,v.estimate);assert.equal(JSON.stringify(v),before,'inputs are not mutated');return out;};
 const ALL=['cooking-oil','egg','salt','scallion','tomato'];
 const internal=(text,v)=>{
- for(const marker of [A,LIST,'week-41','kbci-','[',']','计划行','配料项','Plan row','Recipe item','Рядок плану','Складник рецепту'])assert.ok(!text.includes(marker),`no internal marker ${marker}`);
+ for(const marker of [A,LIST,'week-41','kbci-','[',']','计划行','配料项','Plan row','Recipe item','Рядок плану','Складник рецепта'])assert.ok(!text.includes(marker),`no internal marker ${marker}`);
  assert.ok(!text.includes(v.projection.sourceRevision));
 };
 
