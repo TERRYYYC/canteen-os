@@ -31,7 +31,7 @@ function inputs(revision){
  const components=[{ingredientRef:'ribs-snapshot',qty:{value:500,unit:'g'}},{ingredientRef:'chili-snapshot',originalAmount:'三根'},{ingredientRef:'tomato',qty:{value:300,unit:'g'}},{ingredientRef:'scallion',qty:{value:20,unit:'g'}},{ingredientRef:'ghost',qty:{value:1,unit:'pcs'}}];
  return {menuPlans:{'team-week':{schemaVersion:'3',meals}},dishes:{'ribs-dish':{schemaVersion:'3',name:{zh:'红烧排骨',en:'Braised ribs',uk:'Тушковані реберця'},baseServings:2,status:'active',components,steps:[]}},ingredients,techniques:[]};
 }
-const sources=new Map(),history=new Map(),ledger=[];let api,render,seq=0,current=A,heldPlan=null,planFails=false;
+const sources=new Map(),history=new Map(),ledger=[];let api,render,seq=0,current=A,heldPlan=null,planFails=false,conflictNext=false;
 const $=s=>document.querySelector(s),lang=()=>$('#lang').value,t=k=>shoppingText(lang(),k);
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
 const failure=(status,code)=>json({ok:false,errors:[{path:'',code,message:code}]},status);
@@ -42,7 +42,7 @@ async function fetchMock(url,init={}){
  if(method==='POST'){
   const id=decodeURIComponent(u.pathname.split('/').at(-1)),body=JSON.parse(init.body),headers=new Headers(init.headers),prior=sources.get(id);
   log({method,path:u.pathname,ifMatch:headers.get('If-Match'),ifNoneMatch:headers.get('If-None-Match'),body:clone(body)});
-  if(prior?headers.get('If-Match')!==prior.blobSha:headers.get('If-None-Match')!=='*')return failure(409,'conflict');
+  if(conflictNext||(prior?headers.get('If-Match')!==prior.blobSha:headers.get('If-None-Match')!=='*')){conflictNext=false;return failure(409,'conflict');}
   const commit=(++seq).toString(16).padStart(40,'0'),value={content:body,commit,blobSha:`mock-list-${seq}`};sources.set(id,value);history.set(`${id}:${commit}`,value);
   return json({commit,blobSha:value.blobSha,unchanged:false,warnings:[]});
  }
@@ -55,10 +55,14 @@ async function fetchMock(url,init={}){
  return failure(404,'not_found');
 }
 async function reset(){
- api?.dispose();sources.clear();history.clear();ledger.length=0;seq=0;current=A;heldPlan=null;planFails=false;
+ sources.clear();history.clear();ledger.length=0;seq=0;current=A;heldPlan=null;planFails=false;conflictNext=false;
  const list=createShoppingList('team-shop',{sourceRevision:A,selection},inputs(A),'2');
  sources.set('team-shop',{content:list,commit:'c'.repeat(40),blobSha:'initial'});
- api=createTeamMealsApi('https://explicit-scope-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});render=createPurchaseRenderer(api);
+ await reopen();
+}
+/** A page reload: new API and renderer over the same mock storage. */
+async function reopen(){
+ api?.dispose();api=createTeamMealsApi('https://explicit-scope-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});render=createPurchaseRenderer(api);
  document.documentElement.lang=lang();const outlet=document.createElement('section');$('#app').replaceChildren(outlet);
  await render(outlet,{lang:lang(),route:'purchase',rest:'team-shop',planId:'team-week',data:{},t:key=>key});
 }
@@ -101,7 +105,14 @@ async function run(){
   const input=$('[data-focus="plan-ids"]');input.focus();input.value=`${input.value}, x`;input.setSelectionRange(input.value.length,input.value.length);input.dispatchEvent(new Event('input',{bubbles:true}));await pause();
   const next=$('[data-focus="plan-ids"]');
   assert(panel('plan-ids').open&&document.activeElement===next&&next.selectionStart===next.value.length,'#132 typing keeps the plan-ID panel open, focus and caret');
-  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；#131 用途分类三态与固定 basis，#132 展开 → 异步读取 → 仍展开 → 显式应用 → 保存，读取失败可见、输入不收起。未验证真实 Worker、真实历史或部署。';
+  await reopen();await until(()=>!!$('.tm-material'),'saved list reopened');
+  assert($('.tm-purchase-record')?.textContent.includes(B)&&!panel('scope').open,'#132 reopened list shows saved basis B and starts collapsed');
+  panel('scope').querySelector(':scope>summary').click();await pause();
+  button(t('buy'),$(`.tm-material[data-ingredient="${ribs}"]`)).click();await until(()=>!button(t('save')).disabled,'decision made');
+  conflictNext=true;button(t('save')).click();await until(()=>!!$('[data-phase="conflict"]'),'save conflict reported');
+  const conflictText={zh:'版本冲突，本地修改已保留',en:'Version conflict; local changes retained',uk:'Конфлікт версій; локальні зміни збережено'}[lang()];
+  assert(panel('scope').open&&panel('scope').textContent.includes(conflictText)&&button(t('read'),panel('scope')).disabled,'#132 a save conflict keeps the panel open, states the conflict and keeps reading blocked');
+  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；#131 用途分类三态与固定 basis，#132 展开 → 异步读取 → 仍展开 → 显式应用 → 保存 → 重开，读取失败与保存冲突可见、输入不收起。未验证真实 Worker、真实历史或部署。';
  }catch(error){out.textContent=`FAIL · ${error.message}`;log({failure:error.message});}
  finally{$('#run').disabled=false;}
 }
