@@ -3,6 +3,7 @@ feature_ids: [team-meals, knowledge-base]
 topics: [agent-workflow, current-scope, authority]
 doc_kind: agent-entry
 created: 2026-10-05
+updated: 2026-10-14
 ---
 
 # AGENTS.md — AI Coding Agent 协作规范
@@ -11,6 +12,8 @@ created: 2026-10-05
 > 人类贡献者请读 [CONTRIBUTING.md](CONTRIBUTING.md)；两份文件冲突时以更严格的为准。
 >
 > **当前开工顺序：先读 [docs/current-contract.md](docs/current-contract.md)、本次 issue 全文及其 schema/API/页面合同。** [第一轮执行简报](docs/execution-brief.md) 保留历史范围和兼容记录；其中旧视觉、无数据库、固定排期与 backlog 波次不覆盖后续已接受目标。本文的许可证、凭据保护、数据一致性和独立审查约束继续有效。
+>
+> Fork/分支、PR、验证与菜谱贡献统一见 [合作指南](CONTRIBUTING.md)。当前任务以实际 GitHub issue 为准；#128 保留 alpha.4 工程验收与发行回执，不作为新的任务队列。
 
 ---
 
@@ -18,13 +21,13 @@ created: 2026-10-05
 
 | 路径 | 内容 | 变更影响面 |
 |---|---|---|
-| `schemas/` | JSON Schema draft 2020-12，**单一事实源**（5 实体，见 ADR-0006） | 牵动 types / data / docs / CI |
+| `schemas/` | JSON Schema draft 2020-12，受控 Git 实体的数据合同真源；日常 SQLite 内容的真源分工见 current-contract | 牵动 types / data / docs / CI |
 | `data/` | Git 固定发布依赖、菜单/采购工作记录和旧数据；日常 Recipe/Candidate 位于独立 SQLite 知识库 | Git 数据由 CI 校验；两真源不自动双向同步 |
-| `packages/core/` | `@canteenos/core`：类型 + 采购引擎 + 三个渲染器 + readiness（已实现，23 测试） | 依赖 schemas 语义；改数字须手算 |
+| `packages/core/` | `@canteenos/core`：类型 + 采购引擎 + 三个渲染器 + readiness；检查状态以实际测试为准 | 依赖 schemas 语义；改数字须手算 |
 | `packages/web/` | Vite 页面及师傅后台；当前小团队视觉来源与专用页面合同见设计索引 | 首屏 JS ≤ 60 KB gzip，无 UI/CSS 框架 |
 | `packages/worker/` | Git 数据写入/发布及受控 SQLite 知识库网关；各通道权限和版本边界分开 | 见 ADR-0007/0009/0010 与对应 API 合同 |
 | `docs/design/` | 当前 Reference v3 小团队目标、专用页面合同与历史稿索引；PR #91 十画板仍为提案 | 按当前适用合同对照设计，不追认全部签收 |
-| `docs/current-contract.md` | 当前小团队目标、数据真源、设计来源和 #128 验收入口 | 新实施的范围入口 |
+| `docs/current-contract.md` | 当前小团队目标、数据真源、设计来源与验收边界 | 新实施的范围入口 |
 | `docs/execution-brief.md` | 第一轮历史执行简报与兼容依据 | 旧范围不覆盖当前合同 |
 | `docs/plan-for-terry.md` | 第一轮排期、三道门和厨房验收的历史记录 | 当前日期/任务状态以实际对象和本次合同为准 |
 | `docs/field-test/` | 真人测试材料与日志 | 测试周只读代码、只写日志 |
@@ -48,7 +51,7 @@ created: 2026-10-05
 - **改视频导入契约** → `docs/video-import.md` + `skills/video-recipe-ingest/SKILL.md` + `schemas/dish.schema.json`
 - **改任何页面** → 先读 `docs/design/README.md` + 当前适用设计/页面/API 合同；小团队四页使用 Reference v3 目标和 D0 合同，旧稿只用于历史兼容
 - **改采购数字或 data/ 里的份数/包装/价格** → PR 必附手算算式（`docs/execution-brief.md` §4.2）
-- **领任务** → 读实际 GitHub issue 与 #128 依赖；按调度分工和本次明确文件范围实施，避免共享文件争用；旧 round-1 JSON 不作为当前队列真源
+- **领任务** → 读实际 GitHub issue 及其依赖；按调度分工和本次明确文件范围实施，避免共享文件争用；旧 round-1 JSON 不作为当前队列真源
 - **提新架构决策** → `docs/adr/0001-adr-process.md`（流程与模板）；第一轮每版最多一篇新 ADR
 
 ## 3. 变更顺序（硬性）
@@ -57,7 +60,7 @@ created: 2026-10-05
 schema → types → data → docs
 ```
 
-详见 CONTRIBUTING.md 第一节。**不要**先写实现再补 schema。CI 会校验 data↔schemas 一致性；若本地无 Node/依赖，至少保证 JSON 字段名与 schema 逐字一致，并在 PR 中说明。
+以上顺序适用于 Git 实体结构变更，详见 [合作指南](CONTRIBUTING.md) 第 5 节。纯实现或文档改动只更新实际受影响项，不为了流程新增字段或数据。**不要**先写改变数据合同的实现再补 schema。CI 会校验 data↔schemas 一致性；若本地无 Node/依赖，至少保证 JSON 字段名与 schema 逐字一致，并在 PR 中说明未运行的检查。
 
 ## 4. 禁止事项（违反一律打回）
 
