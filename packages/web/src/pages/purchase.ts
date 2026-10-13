@@ -15,6 +15,7 @@ import {action,field,onDetached,status,text} from './team-ui';
 import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
+import {supplierCopy} from './supplier-copy';
 import {pick} from '../i18n';
 import {word,supportDetails} from './record-display';
 
@@ -139,7 +140,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(s.phase==='conflict')nodes.push(conflictPanel(list));
    if(!s.source)nodes.push(h('p',{class:'tm-status'},t('first')));
    else if(!form.canDecide&&!s.operationId&&s.phase!=='conflict')nodes.push(h('p',{class:'tm-status'},t('changed')));
-   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,copyPanel(list)));
+   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,...copyPanels(list)));
    const removed=form.review?.removed??[];
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
    nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,
@@ -273,17 +274,26 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(!pending&&view.generation===captured){view.listId=list.id;view.planIds=planIds;view.scope=scope;}
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
-  function copyPanel(list:ShoppingList){
-   const content=shoppingCopy(list,form.basis!.projection,lang,form.basis!.estimate),feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':t('copy')});area.value=content;area.hidden=true;
+  // Both copies share one clipboard path and readable fallback; neither writes the repository.
+  function copyAction(kind:'suppliers'|'record',label:string,content:string,...notes:HTMLElement[]){
+   const feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':label});area.value=content;area.hidden=true;
    const fallback=()=>{if(live()){feedback.textContent=t('copyFailed');area.hidden=false;area.focus();area.select();}};
-   const button=action(t('copy'),()=>{
+   const button=action(label,()=>{
     if(!live())return;if(!navigator.clipboard){fallback();return;}
     const handle=view.reload,operation=handle.beginOperation('write');touch(view);
     // Clipboard API rejection is a definite local failure; no repository write is involved.
     try{void navigator.clipboard.writeText(content).then(()=>{handle.settleOperation(operation,'completed');touch(view);if(live())feedback.textContent=t('copied');},()=>{handle.settleOperation(operation,'failed');touch(view);fallback();});}
     catch{handle.settleOperation(operation,'failed');touch(view);fallback();}
    });
-   return h('section',{class:'tm-card'},button,feedback,area);
+   return {button,card:h('section',{class:'tm-card','data-copy':kind},button,...notes,feedback,area)};
+  }
+  // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
+  function copyPanels(list:ShoppingList){
+   const basis=form.basis!,orders=supplierCopy(list,basis.projection,lang,basis.estimate),{check,bought}=countDecisions(list);
+   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
+   const suppliers=copyAction('suppliers',t('copySuppliers'),orders.text,scope);suppliers.button.disabled=!orders.items;
+   const record=copyAction('record',t('copyRecord'),shoppingCopy(list,basis.projection,lang,basis.estimate));
+   return [suppliers.card,record.card];
   }
   async function load(){await run(async()=>{if(detail&&!detailsModule){const loaded=await import('./team-details');if(!live())return;detailsModule=loaded;}const result=await form.load(routeId,live);if(live())notFound=!result;},'read',true);}
   view.listeners.add(paint);

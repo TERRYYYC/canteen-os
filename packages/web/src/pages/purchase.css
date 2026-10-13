@@ -135,6 +135,11 @@
 .tm-purchase-actions>.tm-card{padding:0;margin:0;border:0;background:transparent;min-width:0}
 .tm-purchase-actions>.tm-card>.tm-button{width:100%;color:var(--accent);border-color:var(--accent)}
 .tm-purchase-actions p:empty{display:none}
+/* Copy for suppliers sits beside save; its note, fallback text and the quieter full-record copy use full rows. */
+.tm-purchase-actions>[data-copy]{display:contents}
+.tm-purchase-actions>[data-copy]>:not(.tm-button){grid-column:1/-1;margin:0}
+.tm-purchase-actions>[data-copy]>p.muted{font-size:11px;line-height:1.5}
+.tm-purchase-actions>[data-copy="record"]>.tm-button{color:var(--muted);border-color:var(--line);font-weight:500}
 .tm-purchase .tm-button{font-size:12px;font-weight:600;padding:10px 9px}
 .tm-purchase .tm-card{border-radius:12px}
 .tm-purchase .tm-candidates>.muted{font-size:11px;line-height:1.5}
