@@ -125,7 +125,8 @@ test('state 3: unknown recipe servings and unknown planned servings are explaine
 test('servings are never invented: only a meal with both recorded servings shows a scaled amount',()=>{
  for(const lang of LANGS){
   const scaled=quantity(cards(render(lang,3))[0]);
-  assert(scaled.includes(COPY[lang].thisMeal)&&scaled.includes('2000 ml')&&scaled.includes('1升'),`${lang}: 1000 ml × 8 / 4 with original kept: ${scaled}`);
+  // 1000 ml × 8 / 4 = 2000 ml, written by the page's own quantity formatter (units may follow the reader's language).
+  assert(scaled.includes(COPY[lang].thisMeal)&&scaled.includes(rawQuantityText({value:2000,unit:'ml'},lang))&&scaled.includes('1升'),`${lang}: 1000 ml × 8 / 4 with original kept: ${scaled}`);
   assert.equal(quantity(cards(render(lang,1))[0]),'1升',`${lang}: planned servings unknown → original only`);
   assert.equal(quantity(cards(render(lang,0))[3]),'30克',`${lang}: recipe servings unknown → original only`);
   const facts=mealIndex=>render(lang,mealIndex).querySelectorAll('details').find(n=>n.getAttribute('class')==='prep-recipe-record').querySelectorAll('p').map(p=>p.textContent);
