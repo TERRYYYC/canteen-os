@@ -18,7 +18,7 @@ updated: 2026-10-05
 | [knowledge-library-v1.md](knowledge-library-v1.md) | SQLite 菜谱列表、编辑和历史的分支页面合同 | 保留既有实施依据；通用核定/采用下一步由 #124 贯通，不能将旧 token 或此合同视作全站视觉签收 |
 | [screens-v2.html](screens-v2.html) / [backoffice-v1.html](backoffice-v1.html) | 2026-09-07 前台/后台设计及后续局部补注 | 历史稿；部分行为仍用于兼容，字体/配色/导航/布局不覆盖当前小团队目标 |
 | [favorites-inbox-v1.html](favorites-inbox-v1.html) / [screens-v1.html](screens-v1.html) | 早期方案 | 历史对照，非当前设计来源 |
-| [四条线提案](four-lines/README.md)（2026-10-14） | 第二轮候选：备料两人对照、排菜不重样、按类别采购、“我们的做法”菜品库；页面稿在 CanteenOS 设计系统 | 提案，未签收；与现行合同冲突处及待定事项见文内，测试周（10/19–25）后按“不对”清单取舍 |
+| [四条线提案](four-lines/README.md)（2026-10-14） | 第二轮候选：备料两人对照、排菜不重样、按类别采购、“我们的做法”菜品库；页面稿在 CanteenOS 设计系统，v12 图片见 [screens/](four-lines/screens/README.md) | 提案，未签收；与现行合同冲突处及待定事项见文内，测试周（10/19–25）后按“不对”清单取舍 |
 
 Reference v3 的小团队适配：份数可留空、旧值保留、不突出总人数/总份数、不补 1；采购围绕人工判断，保留所有食材调料和未知量。原型工具栏、假状态栏和演示状态不进入实际页面。
 
