@@ -40,7 +40,7 @@ import type {
   ReferenceIssue,
 } from "@canteenos/core";
 import type { RevisionAsset } from "../api/team-meals";
-import { peekToken } from "../admin/token";
+import { chefOnly } from "./chef-only";
 import { append, h, replace } from "../dom";
 import { LANG_TAG, pick, type Lang } from "../i18n";
 import { hrefOf } from "../router";
@@ -501,8 +501,10 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     link.addEventListener("click", () => options.onReference?.(kind, id));
     return link;
   };
-  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message,
-    ...(peekToken() === null ? [] : [" ", h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані"))]));
+  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => {
+    const repair = chefOnly(() => h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
+    return h("p", { class: "prep-task-note", role: "status" }, message, repair && " ", repair);
+  };
   function originalNote(text: string, key: string): HTMLElement {
     const letters=Array.from(text),limit=lang==="zh"?32:80;
     if(letters.length<=limit)return fact(t("note"),text);
@@ -641,7 +643,8 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
     if(dish.provenance?.source==='knowledge'){
       (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`));
-      if(peekToken()!==null)(cooking ? recipeRecord : section).append(h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+      const provenance=dish.provenance;
+      append(cooking ? recipeRecord : section,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
     }
     if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);

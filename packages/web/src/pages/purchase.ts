@@ -6,8 +6,8 @@ import {getTeamMealsApi,type TeamMealsApi,type ShoppingListIndex,type ShoppingLi
 import {ApiError,type Source} from '../api/types';
 import type {PublishedTeamPlan} from '../data';
 import {apiMessage} from '../admin/kit';
-import {peekToken} from '../admin/token';
-import {h,replace} from '../dom';
+import {append,h,replace} from '../dom';
+import {chefOnly} from './chef-only';
 import type {PageCtx} from '../types';
 import {hrefOf} from '../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../view-models/reload-safety';
@@ -68,7 +68,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const planChoices=new Map<string,AnyMenuPlan|null>();let plansFailed=false;
   const w=(zh:string,en:string,uk:string)=>word(lang,zh,en,uk);
   el.classList.add('tm-page');el.classList.add('tm-purchase');const body=h('div',{});
-  el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase',detail?routeId:'')},tr('back')),h('h2',{class:'sr-only'},t('title')),...(peekToken()===null?[]:[h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))])));
+  el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase',detail?routeId:'')},tr('back')),h('h2',{class:'sr-only'},t('title')),chefOnly(()=>h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan')))));
   // Every non-C1 readonly operation settles its own original handle, even after auth/navigation.
   async function read<T>(work:()=>Promise<T>,advance=true):Promise<T>{
    const handle=view.reload,operation=handle.beginOperation('read');if(advance)touch(view);
@@ -128,7 +128,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
       if(index<0)throw new ApiError(404,'not_found','');
       if(!live()||form.basis!==basis)throw new ApiError(0,'session_changed','');
       return read(()=>form.getAsset('data/techniques.json',`/${index}/image`));
-     },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:peekToken()===null?undefined:()=>{location.hash=adminHref(detailKind,detailId);}});return;
+     },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:()=>{location.hash=adminHref(detailKind,detailId);}});return;
    }
    const dates=[...new Set(list.basis.selection.map(slot=>slot.date))].sort(),meals=[...new Set(list.basis.selection.map(slot=>tr(slot.mealType)))];
    const scopeTitle=`${dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??t('scope')} · ${meals.join(' / ')}`;
@@ -175,7 +175,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const start=h('section',{class:'tm-card'},h('h3',{},w('从计划新建清单','Create from a plan','Створити з плану')));
    for(const [id,plan] of planChoices){if(plan)start.append(h('a',{class:'tm-button',href:hrefOf('purchase',`new/${id}/all`)},pick(plan.name,lang)||w('已保存的计划','Saved plan','Збережений план')));}
    if(!planChoices.size||plansFailed)start.append(h('p',{},w('未能列出可用计划。可从排菜单页打开所需计划，再选择“建立采购清单”。','Available plans could not be listed. Open a plan on the planning page and choose “Create shopping list”.','Не вдалося показати доступні плани. Відкрийте потрібний план і виберіть «Створити список покупок».')));
-   if(peekToken()!==null)start.append(h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan')));card.append(start);return card;
+   append(start,chefOnly(()=>h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))));card.append(start);return card;
   }
   async function loadIndex(cursor?:string){
    if(!live()||indexBusy)return;indexBusy=true;indexError=null;paint();
