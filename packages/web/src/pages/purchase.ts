@@ -17,6 +17,7 @@ import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
 import {pick} from '../i18n';
 import {word,supportDetails} from './record-display';
+import {displayDate,displayDateRange} from '../display-date';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
 interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
@@ -83,7 +84,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   function update(key:'listId'|'planIds',value:string){if(!live()||view[key]===value)return;view[key]=value;view.inputGeneration++;touch(view);const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;paint();if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();}
   function rawNotice(){return h('p',{class:'tm-status dirty',role:'status','data-purchase-raw-pending':'true'},lang==='zh'?'清单名称或范围选择尚未应用。':lang==='en'?'The list ID or scope choices have not been applied.':'Назву списку або вибір діапазону ще не застосовано.');}
   function sourceVersion(revision:string){return h('details',{class:'tm-source'},h('summary',{},t('revision')),h('code',{},revision));}
-  function scopeLabel(s:ShoppingSelection){const name=pick(view.scope?.plans[s.menuPlanRef]?.name??planChoices.get(s.menuPlanRef)?.name,lang);return `${s.date} · ${tr(s.mealType)}${name?` · ${name}`:''}`;}
+  function scopeLabel(s:ShoppingSelection){const name=pick(view.scope?.plans[s.menuPlanRef]?.name??planChoices.get(s.menuPlanRef)?.name,lang);return `${displayDate(s.date,lang)} · ${tr(s.mealType)}${name?` · ${name}`:''}`;}
   function errorNode(e:unknown){return h('p',{class:'tm-error',role:'alert'},apiMessage(e,lang));}
   function paint(){
    if(!live())return;const busy=view.active>0;disposeDetail();disposeDetail=()=>{};
@@ -130,7 +131,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
      },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:()=>{location.hash=adminHref(detailKind,detailId);}});return;
    }
    const dates=[...new Set(list.basis.selection.map(slot=>slot.date))].sort(),meals=[...new Set(list.basis.selection.map(slot=>tr(slot.mealType)))];
-   const scopeTitle=`${dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??t('scope')} · ${meals.join(' / ')}`;
+   const scopeTitle=`${dates.length>1?displayDateRange(dates[0]!,dates.at(-1)!,lang):dates[0]?displayDate(dates[0],lang):t('scope')} · ${meals.join(' / ')}`;
    nodes.push(h('section',{class:'tm-purchase-intro tm-purchase-loaded'},h('h2',{},t('title')),
     h('details',{class:'tm-purchase-scope'},h('summary',{},scopeTitle),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
    const counts=countDecisions(list);
@@ -148,7 +149,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   }
   function listReference(id:string){return h('p',{class:'tm-list-reference'},w('清单编号','List number','Номер списку'),' · ',h('code',{},id));}
   function savedLink(item:ShoppingListSummary,continuing=false){
-   const dates=[...new Set(item.selection.map(s=>s.date))].sort(),label=dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??w('未记录日期','Date unrecorded','Дату не записано');
+   const dates=[...new Set(item.selection.map(s=>s.date))].sort(),label=dates.length>1?displayDateRange(dates[0]!,dates.at(-1)!,lang):dates[0]?displayDate(dates[0],lang):w('未记录日期','Date unrecorded','Дату не записано');
    return h('article',{class:'tm-saved-list'},h('a',{href:hrefOf('purchase',item.id)},h('b',{},label),h('span',{},`${[...new Set(item.selection.map(slot=>tr(slot.mealType)))].join(' / ')} · ${item.itemCount} ${w('项材料','ingredients','інгредієнтів')} · ${item.selection.length} ${w('餐次','meal slots','прийомів їжі')}`),continuing?h('strong',{},w('继续这份清单','Continue list','Продовжити цей список')):null),
     h('div',{class:'tm-saved-progress',role:'group','aria-label':w('已保存判断','Saved decisions','Збережені рішення')},h('p',{},w('已保存判断','Saved decisions','Збережені рішення')),...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('span',{},t(decision)),h('b',{'data-decision-count':decision},String(item.decisionCounts[decision]))))),listReference(item.id),
     h('details',{},h('summary',{},w('查看范围','View scope','Переглянути діапазон')),...item.selection.map(s=>h('p',{},scopeLabel(s))),supportDetails(lang,JSON.stringify({id:item.id,selection:item.selection}))));
@@ -326,8 +327,8 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
  const estimate=scope.range==='all'?plan.estimates:estimateShoppingList(plan.projection,selection,plan.builtAt);
  const name=pick(plan.projection.menuPlans[plan.planId]?.name,lang)||t('missing');
  const summary=h('section',{class:'tm-card','data-purchase-readonly-scope':scope.range},h('h3',{},name),h('p',{},t('scope')),
-  ...(scope.range!=='all'?[h('p',{},scope.range==='day'?scope.date:`${scope.date} — ${end!.toISOString().slice(0,10)}`)]:[]),
-  ...selection.map(s=>h('p',{},`${s.date} · ${tr(s.mealType)}`)));
+  ...(scope.range!=='all'?[h('p',{},scope.range==='day'?displayDate(scope.date,lang):displayDateRange(scope.date,end!.toISOString().slice(0,10),lang))]:[]),
+  ...selection.map(s=>h('p',{},`${displayDate(s.date,lang)} · ${tr(s.mealType)}`)));
  const blocked=(label:string)=>{const button=action(label,()=>{});button.disabled=true;return button;};
  const decisions=()=>{
   const group=h('div',{class:'tm-decisions','data-purchase-decisions':'blocked'});

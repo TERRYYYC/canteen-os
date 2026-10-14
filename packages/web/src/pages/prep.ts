@@ -42,6 +42,7 @@ import type {
 import type { RevisionAsset } from "../api/team-meals";
 import { append, h, replace } from "../dom";
 import { LANG_TAG, pick, type Lang } from "../i18n";
+import { displayDate } from "../display-date";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
 
@@ -570,7 +571,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const rowKey=JSON.stringify([menuPlanRef,mealIndex,meal.date,meal.mealType]);
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
-    const context = h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
+    const context = h("p", { class: "s" }, `${displayDate(meal.date, lang, { weekday: true })} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
     section.append(h("div", { class: "dish-head" }, h("div", {}, h(cooking ? "h1" : "h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), cooking ? null : context)));
     if (!cooking) section.append(fact(t("planned"), meal.plannedServings));
     root.append(section);

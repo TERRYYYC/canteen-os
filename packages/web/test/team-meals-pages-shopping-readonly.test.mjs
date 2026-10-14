@@ -121,6 +121,7 @@ test('a malformed purchase route keeps its own notice ahead of the published fal
  }finally{f.cleanup();}
 });
 
+const shownDate=(iso,lang)=>new Intl.DateTimeFormat({zh:'zh-Hans',en:'en',uk:'uk'}[lang],{month:'short',day:'numeric',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`));
 test('published day and week deep links limit both sources and estimates to that range',async()=>{
  for(const lang of ['zh','en','uk']){
   for(const [range,date,included,excluded,tomatoKg] of [
@@ -131,8 +132,10 @@ test('published day and week deep links limit both sources and estimates to that
    const f=await mount({lang,rest:`new/week-41/${range}/${date}`});
    try{
     const sources=cls(f.el,'tm-material-reference').map(n=>n.textContent).join(' ');
-    for(const day of included)assert.ok(sources.includes(day),`${lang}/${range}/${date} includes ${day}`);
-    for(const day of excluded)assert.ok(!sources.includes(day),`${lang}/${range}/${date} excludes ${day}`);
+    // Dates read per language (display-date.ts); the ISO form is not shown to the kitchen.
+    for(const day of included)assert.ok(sources.includes(shownDate(day,lang)),`${lang}/${range}/${date} includes ${day}`);
+    for(const day of excluded)assert.ok(!sources.includes(shownDate(day,lang)),`${lang}/${range}/${date} excludes ${day}`);
+    assert.ok(![...included,...excluded].some(day=>sources.includes(day)),`${lang}/${range}/${date}: no ISO dates`);
     // Tomato: 7500g/50 servings; ceil(net/0.85*1.1/5000g), min 2 packs.
     const tomato=walk(f.el).find(n=>n.attrs['data-ingredient']==='tomato');
     assert.ok(tomato.textContent.includes(`${tomatoKg} kg`),'estimate follows the narrowed serving demand');

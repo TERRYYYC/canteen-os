@@ -2,6 +2,7 @@
 import type {IngredientCollection,ShoppingEstimate,AnyDish,Ingredient} from '@canteenos/core';
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
+import {displayDate} from '../display-date';
 import {text} from './team-ui';
 import {quantityText} from './quantity-text';
 import {word,supportDetails} from './record-display';
@@ -64,7 +65,7 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
   if(options.controls)card.append(options.controls(item.ingredientRef));
   (reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>{
     const amount=s.scaledQty?quantityText(s.scaledQty,lang):reasonText(s.plannedServings===undefined?'missing-planned-servings':s.baseServings===undefined?'missing-base-servings':'missing-qty',lang);
-    return h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${amount}`,s.ingredientRef?h('span',{},' · ',ref('ingredient',s.ingredientRef)):null,s.originalAmount?` · ${word(lang,'原方','Original','Оригінал')}: ${s.originalAmount}`:'',supportDetails(lang,s.menuPlanRef));
+    return h('li',{},`${displayDate(s.date,lang)} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${amount}`,s.ingredientRef?h('span',{},' · ',ref('ingredient',s.ingredientRef)):null,s.originalAmount?` · ${word(lang,'原方','Original','Оригінал')}: ${s.originalAmount}`:'',supportDetails(lang,s.menuPlanRef));
   }))));
   if(estimateItem?.status==='complete')(reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
   else if(estimateItem)(reference??card).append(h(options.compact?'section':'details',{class:'muted'},h(options.compact?'h4':'summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));

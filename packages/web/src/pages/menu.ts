@@ -7,6 +7,7 @@ import { knowledgeCoverState } from "./knowledge-cover-status";
 import type { I18nString, ImageRef, MealType, MenuSheet, MenuSheetDay, MenuSheetDish, MenuSheetMeal } from "@canteenos/core";
 import { h, replace } from "../dom";
 import { LANGS, LANG_TAG, pick, type Lang } from "../i18n";
+import { displayDate } from "../display-date";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
 import { renderFrozenPrep, renderFrozenIssues, selectFrozenMealRows, selectFrozenIssues, hasFrozenSourceGap } from "./prep";
@@ -568,7 +569,7 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
       return record ? pick(record.name, lang) : component.ingredientRef;
     });
     const recorded=h('details',{class:'menu-row-record'},h('summary',{},t('record')),namesLine(dish.name,lang),
-      h('p',{},`${meal.date} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`),
+      h('p',{},`${displayDate(meal.date,lang,{weekday:true})} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`),
       h('p',{},`${t('servings')}: ${meal.plannedServings===undefined?t('missing'):meal.plannedServings}`),
       h('p',{},`${t('ingredients')}: ${ingredients.length?ingredients.join(' · '):t('missing')}`));
     card.append(recorded);

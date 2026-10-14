@@ -1,4 +1,5 @@
 import {renderRecordNotice} from './record-notices';
+import {displayDate} from '../display-date';
 import {supportDetails,word} from './record-display';
 /** Page-owned navigation and presentation for C's verified public reader. */
 import type { MealType } from '@canteenos/core';
@@ -98,7 +99,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     const displayedSlot=targetMeal?{date:parts[0]??date,mealType:targetMeal}:undefined;
     return ctx.planSelection?.href(target,parts.join('/'),displayedSlot)??`#/${target}${parts.length?'/'+parts.map(encodeURIComponent).join('/'):''}`;
   };
-  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[d]))));
+  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[displayDate(d,lang,{weekday:true})]))));
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
