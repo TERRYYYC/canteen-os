@@ -2,6 +2,7 @@ import {recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
 import type { TeamMealsProjection, I18nString, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
+import { peekToken } from '../admin/token';
 import { h } from '../dom';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
@@ -86,8 +87,8 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     const dish=lookup(projection.dishes,id)!;
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.source==='knowledge'){
-      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`));
+      if(peekToken()!==null)el.append(h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
       if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));

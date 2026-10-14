@@ -1,5 +1,6 @@
 /** Human-readable warnings over unchanged fixed-source issues. No data repair or inference. */
 import type {TeamMealsProjection} from '@canteenos/core';
+import {peekToken} from '../admin/token';
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
 import {supportDetails,word} from './record-display';
@@ -29,7 +30,7 @@ export function renderRecordNotice(issue:{code:string},lang:Lang,projection?:Tea
  const translated=reasons[issue.code];
  let reason=translated?translated[lang==='zh'?0:lang==='en'?1:2]:word(lang,'这项资料需要核对，请查看相关记录后再使用。','This information needs review; check the related record before use.','Ці дані потребують перевірки; перевірте пов’язаний запис перед використанням.');
  if(issue.code==='components-unrecorded'&&!dishRef&&ingredientRef)reason=word(lang,'部分来源菜谱未录配料，这份材料清单可能不完整。','Some source recipes have no ingredients recorded; this ingredient list may be incomplete.','У частині вихідних рецептів не записано інгредієнтів; цей список може бути неповним.');
- const repair=dishRef?`#/admin/dish/${encodeURIComponent(dishRef)}`:ingredientRef?`#/admin/ingredient/${encodeURIComponent(ingredientRef)}`:planRef?`#/admin/plan/${encodeURIComponent(planRef)}`:null;
+ const repair=peekToken()===null?null:dishRef?`#/admin/dish/${encodeURIComponent(dishRef)}`:ingredientRef?`#/admin/ingredient/${encodeURIComponent(ingredientRef)}`:planRef?`#/admin/plan/${encodeURIComponent(planRef)}`:null;
  return h('div',{class:'record-notice',[attribute]:issue.code},h('p',{},who.filter(Boolean).join(' · ')),h('p',{},reason),
  repair?h('a',{href:repair},word(lang,'查看／补齐资料','View / complete information','Переглянути / доповнити дані')):null,
  supportDetails(lang,h('pre',{},JSON.stringify(issue,null,2))));

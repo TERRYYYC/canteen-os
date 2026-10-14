@@ -61,6 +61,9 @@ const tag=(node,name)=>descendants(node).filter(n=>n.tagName===name.toUpperCase(
 function mount(){const root=new NodeDouble('section');documentDouble.body.append(root);return root;}
 globalThis.document=documentDouble;
 globalThis.MutationObserver=class{observe(){}disconnect(){}};
+const session=new Map(),chefToken='A'.repeat(43);
+globalThis.sessionStorage={getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)};
+const withChefToken=run=>{session.set('canteenos.token',chefToken);try{return run();}finally{session.delete('canteenos.token');}};
 const options=()=>({lang:'zh',selection:{menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',mealIndex:0},href:(kind,id)=>`#/purchase/list/${kind}/${id}`});
 const need=(mod,name)=>assert.equal(typeof mod[name],'function',`${name} must present frozen raw records`);
 
@@ -247,8 +250,17 @@ test('cooking layout leads with original ingredients and full steps; recorded me
   assert.equal(JSON.stringify(source),before);stop();el.remove();
  }
 });
-test('cooking missing quantities and source gaps explain the impact beside the affected task and link to repair',()=>{
+test('cooking missing quantities and source gaps keep their explanation without a chef token and offer no admin link',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),{...options(),layout:'cooking'});
+ const quantity=attr(el,'data-component-index','1')[0],missing=attr(el,'data-component-index','3')[0];
+ assert.match(ordinaryText(quantity),/用量未录/);assert.match(ordinaryText(quantity),/无法确定.*备料量/);
+ assert.match(ordinaryText(missing),/食材资料未找到/);
+ assert.equal(tag(el,'a').some(n=>(n.getAttribute('href')??'').startsWith('#/admin')),false);
+ assert.doesNotMatch(ordinaryText(el),/补齐资料/);
+ stop();el.remove();
+});
+test('cooking missing quantities and source gaps explain the impact beside the affected task and link to repair',()=>{
+ const el=mount(),stop=withChefToken(()=>prep.renderFrozenPrep(el,fixture(),{...options(),layout:'cooking'}));
  const quantity=attr(el,'data-component-index','1')[0],missing=attr(el,'data-component-index','3')[0];
  assert.match(ordinaryText(quantity),/用量未录/);assert.match(ordinaryText(quantity),/无法确定.*备料量/);
  assert(tag(quantity,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));
@@ -302,7 +314,10 @@ test('empty prep timing explains unrecorded timing and offers a working reset wi
 });
 test('source warning uses recorded names with date and a repair action; original identifiers remain in support details',()=>{
  const data=JSON.parse(JSON.stringify(fixture()));data.projection.collection.issues=[{code:'components-unrecorded',menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',dishRef:'dish-a',mealIndex:0}];
- const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options()),panel=tag(el,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));panel.open=true;
+ const plain=mount(),stopPlain=prep.renderFrozenPrep(plain,freeze(data),options()),plainPanel=tag(plain,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));plainPanel.open=true;
+ const plainText=ordinaryText(plainPanel);assert.match(plainText,/甲菜/);assert.match(plainText,/2026-09-11/);assert.doesNotMatch(plainText,/补齐资料/);
+ assert.equal(tag(plainPanel,'a').some(n=>(n.getAttribute('href')??'').startsWith('#/admin')),false,'no chef token: no admin link');stopPlain();plain.remove();
+ const el=mount(),stop=withChefToken(()=>prep.renderFrozenPrep(el,freeze(data),options())),panel=tag(el,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));panel.open=true;
  const visible=ordinaryText(panel);assert.match(visible,/甲菜/);assert.match(visible,/2026-09-11/);assert.match(visible,/补齐资料/);assert.doesNotMatch(visible,/dish-a|components-unrecorded|week/);
  assert(tag(panel,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));assert.match(panel.textContent,/dish-a/);stop();el.remove();
 });
