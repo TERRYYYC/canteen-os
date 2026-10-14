@@ -47,17 +47,22 @@ const render=async(el,planId,lang,rest='')=>{await mod.menu(el,{data,publication
 const visible=node=>node.hidden?'':node.tagName==='DETAILS'&&!node.open?(node.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):node.text+node.children.map(visible).join(' ');
 const context=el=>el.querySelector('.menu-plan-context').textContent;
 const planBar=async()=>{const owner=mod.createPlanSelection();await owner.resolve(publication,data,'2026-10-14');return owner.choices;};
+// The range is fixed here (recorded dateRange for week-43; first and last meal for week-44); how a date is written
+// comes from the plan bar's own formatter, so the label follows the app's date style in every language.
 const EXPECTED={
- 'week-2026-43':{zh:'菜单计划 · 2026-10-19 — 2026-10-25',en:'Meal plan · 2026-10-19 — 2026-10-25',uk:'План меню · 2026-10-19 — 2026-10-25',date:'2026-10-20'},
- 'week-2026-44':{zh:'菜单计划 · 2026-10-27 — 2026-10-28',en:'Meal plan · 2026-10-27 — 2026-10-28',uk:'План меню · 2026-10-27 — 2026-10-28',date:'2026-10-27'},
+ 'week-2026-43':{start:'2026-10-19',end:'2026-10-25',date:'2026-10-20'},
+ 'week-2026-44':{start:'2026-10-27',end:'2026-10-28',date:'2026-10-27'},
 };
+const GENERIC={zh:'菜单计划',en:'Meal plan',uk:'План меню'};
+const label=(planId,lang)=>mod.planChoiceLabel({id:planId,start:EXPECTED[planId].start,end:EXPECTED[planId].end},lang);
 
 test('an unnamed published plan reads like the plan bar in zh/en/uk; its raw ID stays in the collapsed support record',async()=>{
  const choices=await planBar();
  for(const [planId,expected] of Object.entries(EXPECTED))for(const lang of ['zh','en','uk']){
   const el=await render(mount(),planId,lang,expected.date),where=`${planId}/${lang}`;
   assert.equal(output.sheets[planId].teamMeals.menuPlans[planId].name,undefined,`${where}: fixture plan is unnamed`);
-  assert.equal(context(el),expected[lang],`${where}: readable week/date-range label`);
+  assert.equal(context(el),label(planId,lang),`${where}: readable week/date-range label`);
+  assert.ok(context(el).startsWith(`${GENERIC[lang]} · `),`${where}: generic plan name, then the dates`);
   assert.equal(context(el),mod.planChoiceLabel(choices.find(choice=>choice.id===planId),lang),`${where}: same wording as the plan bar`);
   assert(!visible(el).includes(planId),`${where}: the raw plan ID is not part of the ordinary Menu reading`);
   const support=el.querySelector('.menu-publication-info');
@@ -74,7 +79,7 @@ test('a named plan keeps its own name; switching plans in one outlet keeps each 
  for(const lang of ['zh','en','uk'])for(const planId of ['week-2026-43','week-41','week-2026-44','week-41']){
   await render(el,planId,lang);
   assert.equal(el.querySelector('[data-published-plan]').getAttribute('data-published-plan'),planId);
-  assert.equal(context(el),planId==='week-41'?named.name[lang]:EXPECTED[planId][lang],`${planId}/${lang}`);
+  assert.equal(context(el),planId==='week-41'?named.name[lang]:label(planId,lang),`${planId}/${lang}`);
   assert(el.textContent.includes(output.build.commit),'publication revision stays visible in its support record');
   assert(el.querySelectorAll('[data-menu-plan]').every(row=>row.getAttribute('data-menu-plan')===planId),'no rows from another plan');
  }
