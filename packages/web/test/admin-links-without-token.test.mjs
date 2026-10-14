@@ -31,6 +31,7 @@ const projection=()=>projectTeamMeals({menuPlans:{week:{schemaVersion:'3',meals:
 const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
 const adminLinks=el=>el.querySelectorAll('a').filter(a=>(a.getAttribute('href')??'').startsWith('#/admin'));
 const attach=el=>{document.body.append(el);return el;};
+const libraryLine={zh:'来自菜谱库 · 第 2 版',en:'From the recipe library · version 2',uk:'З бібліотеки рецептів · версія 2'};
 const repairLabel=/查看／补齐资料|View \/ complete information|Переглянути \/ доповнити дані/;
 const frozenLabel=/打开固定菜谱版本|Open frozen recipe version|Відкрити версію рецепта/;
 
@@ -57,17 +58,18 @@ for(const withToken of [false,true]){
    }else{
     assert.equal(adminLinks(el).length,0);assert.doesNotMatch(el.textContent,repairLabel);assert.doesNotMatch(el.textContent,frozenLabel);
     assert.equal(note.children.filter(c=>c.tagName!=='').length,0,`${lang}: no empty link container`);assert.equal(note.textContent,note.textContent.trimEnd(),`${lang}: no trailing separator space`);
-    assert.ok(el.textContent.includes(`KB ${recipeId} · v2`),`${lang}: the KB reference line stays`);
+    assert.doesNotMatch(el.textContent,/KB /,`${lang}: no raw KB line`);assert.ok(!el.textContent.includes(recipeId),`${lang}: no recipe id`);
    }
+   if(withToken){assert.ok(el.textContent.includes(libraryLine[lang]),`${lang}: the plain library line`);assert.doesNotMatch(el.textContent,/KB /);}
    stop();el.remove();
   }
  });
  test(`team details ${state}: frozen-recipe link follows the token`,async()=>{
   const m=await load(withToken),el=attach(new Element('main'));
   const stop=m.renderTeamDetails(el,{lang:'en',projection:projection(),kind:'dish',id:'soup',asset:async()=>{throw new Error('none');},href:(kind,id)=>`#/purchase/x/${kind}/${id}`});
-  assert.ok(el.textContent.includes(`KB ${recipeId} · v2`),'the KB reference line stays');
-  if(withToken){assert.deepEqual(adminLinks(el).map(a=>a.getAttribute('href')),[`#/admin/knowledge/${recipeId}/revisions/2`]);assert.match(el.textContent,frozenLabel);}
-  else{assert.equal(adminLinks(el).length,0);assert.doesNotMatch(el.textContent,frozenLabel);}
+  assert.doesNotMatch(el.textContent,/KB /,'no raw KB line');
+  if(withToken){assert.deepEqual(adminLinks(el).map(a=>a.getAttribute('href')),[`#/admin/knowledge/${recipeId}/revisions/2`]);assert.match(el.textContent,frozenLabel);assert.ok(el.textContent.includes('From the recipe library · version 2'));}
+  else{assert.equal(adminLinks(el).length,0);assert.doesNotMatch(el.textContent,frozenLabel);assert.ok(!el.textContent.includes('From the recipe library'));}
   stop();el.remove();
  });
  test(`purchase ${state}: the plan link in the header follows the token`,async()=>{
@@ -111,8 +113,8 @@ test('a mounted page drops its back-office entries when the session ends, withou
   assert.equal(adminLinks(notice).length,0,`${lang}: the repair link leaves with the session`);
   assert.ok(notice.querySelectorAll('p')[1].textContent.length>0,`${lang}: the reason stays`);
   assert.equal(adminLinks(details).length,0,`${lang}: the details link leaves with the session`);assert.doesNotMatch(details.textContent,currentLabel);
-  assert.equal(details.children.length,detailChildren-2,`${lang}: only the two chef entries left the details`);
-  assert.ok(details.textContent.includes(`KB ${recipeId} · v2`),`${lang}: the record line stays`);
+  assert.equal(details.children.length,detailChildren-5,`${lang}: only the chef entries (version, technical details, library line, two links) left the details`);
+  assert.ok(!details.textContent.includes(libraryLine[lang]),`${lang}: the library line leaves with the session`);
   stopPrep();stopDetails();prep.remove();notice.remove();details.remove();
  }
 });

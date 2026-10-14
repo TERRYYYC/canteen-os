@@ -80,7 +80,7 @@ test('published purchase renders the already verified estimates that no screen u
   assert.ok(oil);
   assert.match(oil.textContent,/宏达粮油调味批发/,'the published supplier line is visible');
   assert.match(oil.textContent,/2/,'pack count from the published estimate');
-  assert.match(f.el.textContent,new RegExp(fixture.revision),'the published source revision stays visible');
+  assert.doesNotMatch(f.el.textContent,new RegExp(fixture.revision),'no chef token: the source revision is back-office information');
  }finally{f.cleanup();}
 });
 

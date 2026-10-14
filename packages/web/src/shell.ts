@@ -10,6 +10,7 @@ import {planChoiceLabel,planHref,weekPlanId,type PlanSelection} from './plan-sel
 import {weekStartOfPlanId} from '@canteenos/core';
 import {localDateIso} from './local-date';
 
+import { chefOnly } from "./pages/chef-only";
 export interface Shell {
   /** 换一个全新的空 outlet 挂到主区域（旧的摘掉），返回给页面 render 用 */
   newOutlet(): HTMLElement;
@@ -206,7 +207,7 @@ export function mountShell(root: HTMLElement): Shell {
       "div",
       { class: "foot" },
       h("span", {}, `${t("foot.updated")} `, h("b", {}, formatBuiltAt(build?.builtAt, lang))),
-      h("span", { class: "app-version" }, `${localized("应用版本", "App version", "Версія застосунку")} ${__APP_VERSION__}`),
+      chefOnly(() => h("span", { class: "app-version" }, `${localized("应用版本", "App version", "Версія застосунку")} ${__APP_VERSION__}`)),
       h(
         "span",
         { class: state === "online" ? "online" : state === "cached" ? "offline cached" : "offline" },

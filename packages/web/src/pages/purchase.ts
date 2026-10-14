@@ -341,7 +341,7 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
   summary,
   h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
   renderCandidates({lang,...projection,estimate,compact:true,controls:decisions}),
-  h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt)));
+  chefOnly(()=>h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt))));
 }
 let renderer:ReturnType<typeof createPurchaseRenderer>|undefined;
 export function render(el:HTMLElement,ctx:PageCtx):Promise<void>{return(renderer??=createPurchaseRenderer(getTeamMealsApi()))(el,ctx);}
