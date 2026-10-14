@@ -69,7 +69,24 @@ test('recorded original text is kept verbatim; blank text and the KB unknown pla
  for(const blank of [undefined,'','   ','未录用量'])assert.equal(recordedAmountText(blank),undefined);
 });
 
+const sessionToken=new Map();
+globalThis.sessionStorage={getItem:k=>sessionToken.get(k)??null,setItem:(k,v)=>sessionToken.set(k,v),removeItem:k=>sessionToken.delete(k)};
+
+test('state 1 without a chef token: the quantity note stays and no #/admin link is offered',()=>{
+ sessionToken.clear();
+ for(const lang of LANGS)for(const mealIndex of [0,2]){
+  const all=cards(render(lang,mealIndex));
+  for(const index of [0,5]){
+   const card=all[index],where=`${lang}/meal ${mealIndex}/component ${index}`;
+   assert.match(visible(card),COPY[lang].text,`${where}: the explanation stays`);
+   assert.equal(notes(card).length,1,`${where}: one quantity note`);
+   assert.equal(card.querySelectorAll('a').filter(a=>(a.getAttribute('href')??'').startsWith('#/admin')).length,0,`${where}: no admin link without a token`);
+  }
+ }
+});
+
 test('state 1: an original amount without a structured quantity keeps its text and says it cannot be converted yet',()=>{
+ sessionToken.set('canteenos.token','A'.repeat(43));after(()=>sessionToken.clear());
  for(const lang of LANGS)for(const mealIndex of [0,2]){
   const all=cards(render(lang,mealIndex));
   for(const [index,text] of [[0,'两斤'],[5,'一大碗']]){
