@@ -102,7 +102,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 - 标题「本次采购」，下面是这份清单覆盖的日期和餐次。
 - 每种材料一张卡：名字、「主料」或「调料」。点「来源与数量参考」能展开：用在哪道菜、哪天哪顿、几份、要多少，以及按哪家供应商买几包（每包多大）、大概多少钱。数字有疑问就点开看，不用问人。
 - 每张卡上有「待核对」「待买」「已有」三个按钮和「已买」勾选框。**只读版里这些都是灰的，点不了**，页面上的「保存清单」「读取最新已保存计划」也是灰的。
-- 页面上另有一句「保存、判断和打勾都要连上后台。请用师傅链接打开。」——**你不需要师傅链接，不要去找**，不用理它；要保存的话找 Terry。
+- 灰按钮下面有一句说明，告诉你这是只读清单。**你不需要师傅链接，也不用去找**；要保存的话找 Terry。
 - 「需要核对的资料」折叠块：列出缺规格、单位换不了等问题，**这些材料算不出几包**——看到就说。
 - 「用途未分类」「份数未录」「数量待定」都是资料没填全，不是你点错了，照实说。
 
@@ -140,7 +140,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 - Heading “This shopping list”, then the dates and meals it covers.
 - One card per ingredient, marked “Main ingredient” or “Seasoning”. Open “Sources and quantity reference” to see which dish, which day and meal, how many servings, how much is needed, and how many packs from which supplier (pack size, rough price). If a number looks wrong, open it and check — no need to ask anyone.
 - Each card has the buttons “Check”, “Buy”, “Available” and a “Bought” tick box. **On the read-only version they are all greyed out**, and so are “Save list” and “Read latest saved plans”.
-- The page also says “Saving, decisions and ticks need a connected service. Open with the chef link.” — **you do not need the chef link. Ignore that line**; if something has to be saved, ask Terry.
+- Under the greyed-out buttons a line explains that this is a read-only list. **You do not need the chef link and do not have to look for it**; if something has to be saved, ask Terry.
 - The “Information to check” block lists ingredients with missing specs or units that cannot be converted. **Those cannot be turned into a number of packs** — tell us when you see it.
 - “Role not classified”, “Servings unspecified” and “quantity to confirm” mean the records are incomplete. It is not your mistake; tell us as it is.
 
@@ -178,7 +178,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 - Заголовок «Цей список покупок», нижче — дати й прийоми їжі.
 - Одна картка на інгредієнт, позначка «Основний інгредієнт» або «Приправа». Розгорніть «Джерела й кількісні орієнтири»: яка страва, який день і прийом їжі, скільки порцій, скільки треба, скільки упаковок у якого постачальника (розмір упаковки, орієнтовна ціна). Якщо число сумнівне — розгорніть і перевірте, питати не треба.
 - На кожній картці кнопки «Перевірити», «Купити», «Є в наявності» і прапорець «Куплено». **У версії для читання вони сірі, натиснути не можна**; «Зберегти список» і «Прочитати останні збережені плани» теж сірі.
-- На сторінці ще є рядок «Збереження, рішення та відмітки потребують з’єднання. Відкрийте за посиланням шефа.» — **посилання шефа вам не потрібне, цей рядок ігноруйте**; якщо щось треба зберегти — до Террі.
+- Під сірими кнопками є рядок, що це список лише для читання. **Посилання шефа вам не потрібне, шукати його не треба**; якщо щось треба зберегти — до Террі.
 - Блок «Дані для перевірки» показує інгредієнти без параметрів закупівлі або з одиницями, які не можна перетворити. **Для них не виходить порахувати упаковки** — скажіть, коли побачите.
 - «Роль не визначено», «Порції не вказано», «кількість уточнити» — дані заповнено не повністю. Це не ваша помилка, скажіть як є.
 
