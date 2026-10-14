@@ -73,3 +73,11 @@ test('a plan response arriving between user selection and hashchange cannot rest
  assert.equal(g.selections.at(-1).id,'week-2026-42');
  g.route('admin','plan/week-2026-42','week-2026-42');await flush();assert.equal(g.renders.at(-1).ctx.planId,'week-2026-42');
 });
+test('the chef link and a cleared session each redraw the shared bars at once',async()=>{
+ const storage=new Map(),g=boot({storage});await flush();
+ const seen=[],draw=g.shell.setPlanSelection;g.shell.setPlanSelection=(value,choose)=>{seen.push(storage.get('canteenos.token')??null);draw(value,choose);};
+ const token='A'.repeat(43);g.route('admin','t/'+token);
+ assert.equal(seen[0],token,'The first redraw after opening the chef link already sees its token');
+ seen.length=0;g.runtime.clearToken();
+ assert.deepEqual(seen,[null],'Expiry redraws the bars without waiting for navigation');
+});

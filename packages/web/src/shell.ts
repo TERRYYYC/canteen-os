@@ -9,6 +9,7 @@ import { THEMES, getTheme, setTheme } from "./theme";
 import {planChoiceLabel,planHref,weekPlanId,type PlanSelection} from './plan-selection';
 import {weekStartOfPlanId} from '@canteenos/core';
 import {localDateIso} from './local-date';
+import {peekToken} from './admin/token';
 
 export interface Shell {
   /** 换一个全新的空 outlet 挂到主区域（旧的摘掉），返回给页面 render 用 */
@@ -102,6 +103,9 @@ export function mountShell(root: HTMLElement): Shell {
   const localized=(zh:string,en:string,uk:string)=>({zh,en,uk})[getLang()];
   const currentId=()=>selected?selected.id:build?.plans.at(0)??null;
   const sharedHref=(page:Route,rest='')=>selected?.href(page,rest)??planHref(page,rest,null);
+  /** Shared QR links carry no token: entries that only open behind the chef link leave the shared bars
+   * (the drawer keeps them, and the lock screen explains). Presence only; no role is read from the token. */
+  const hasToken=()=>peekToken()!==null;
   function renderPlanSelection():void {
     if(!selected){replace(planBar);planBar.hidden=true;return;}
     planBar.hidden=false;
@@ -120,7 +124,7 @@ export function mountShell(root: HTMLElement): Shell {
       choosePlan?.(existing?.id??target);
     });
     replace(planBar,h('label',{for:'plan-selection'},h('span',{},localized('所选计划','Selected plan','Вибраний план')),control),
-      h('a',{class:'plan-selection-create',href:planHref('admin',`plan/${id??current}`,id??current)},localized(id?'排菜 / 编辑':'创建本周计划',id?'Plan / edit':'Create this week’s plan',id?'Планувати / редагувати':'Створити план на цей тиждень')));
+      hasToken()&&h('a',{class:'plan-selection-create',href:planHref('admin',`plan/${id??current}`,id??current)},localized(id?'排菜 / 编辑':'创建本周计划',id?'Plan / edit':'Create this week’s plan',id?'Планувати / редагувати':'Створити план на цей тиждень')));
   }
   const iconPaths = {
     prep:'M4 8h16M6 8v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M9 4h6M3 12h3m12 0h3',
@@ -129,7 +133,8 @@ export function mountShell(root: HTMLElement): Shell {
     plan:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h2m4 0h2m-8 4h2m4 0h2',
   };
   function renderCoreNav():void {
-    const onPlan = active === 'admin' && /^plan\/[^/]+$/.test(activeRest);
+    const token = hasToken();
+    const onPlan = token && active === 'admin' && /^plan\/[^/]+$/.test(activeRest);
     planImport.hidden = !onPlan;
     if (onPlan) planImport.setAttribute('href',`${hrefOf('admin')}/${activeRest.split('/').map(encodeURIComponent).join('/')}/import`);
     else planImport.removeAttribute('href');
@@ -137,12 +142,12 @@ export function mountShell(root: HTMLElement): Shell {
     planImport.setAttribute('aria-label',localized('粘贴导入','Paste import','Імпорт зі вставленого тексту'));
     coreNav.setAttribute('aria-label',localized('主导航','Main navigation','Основна навігація'));
     const planId=currentId();
-    const items=[
+    const items=([
       {key:'prep',href:sharedHref('prep'),label:localized('备料','Prep','Підготовка')},
       {key:'menu',href:sharedHref('menu'),label:localized('菜单','Menu','Меню')},
       {key:'purchase',href:sharedHref('purchase'),label:localized('采购','Shopping','Закупівлі')},
       {key:'plan',href:planId?sharedHref('admin',`plan/${planId}`):selected?planHref('admin',`plan/${weekPlanId()}`,weekPlanId()):null,label:localized('菜单计划','Plan','План')},
-    ] as const;
+    ] as const).filter(item=>token||item.key!=='plan');
     replace(coreNav,...items.map(item=>{
       const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPaths[item.key]}"/></svg>`;
       const glyph=h('span',{class:'nav-glyph','aria-hidden':'true',style:`--nav-icon:url("data:image/svg+xml,${encodeURIComponent(svg)}")`});

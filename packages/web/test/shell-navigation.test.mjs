@@ -45,17 +45,17 @@ class Element {
  fire(type,extra={}){const e={target:this,preventDefault(){this.prevented=true;},...extra};for(const fn of this.events[type]??[])fn(e);return e;}
 }
 let sequence=0;
-async function setup(lang='en'){
- const root=new Element('root'),storage=new Map([['canteenos.lang',lang]]);
+async function setup(lang='en',token=null){
+ const root=new Element('root'),storage=new Map([['canteenos.lang',lang]]),session=new Map(token?[['canteenos.token',token]]:[]);
  globalThis.document={documentElement:new Element('html'),activeElement:null,createElement:tag=>new Element(tag),createTextNode:t=>new Element('#text',t)};
  globalThis.window={addEventListener(){},matchMedia:()=>({matches:false})};
  globalThis.localStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)};
- globalThis.sessionStorage={getItem:()=>null};
+ globalThis.sessionStorage={getItem:k=>session.get(k)??null};
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{onLine:true,languages:[lang]}});
  const m=await import(`${pathToFileURL(file).href}?case=${++sequence}`),shell=m.mountShell(root);
  const publication=async manifest=>m.createPublishedData({baseUrl:'https://example.invalid/data/',fetch:async()=>new Response(JSON.stringify(manifest),{headers:{'Content-Type':'application/json'}})}).loadPublication();
  const drawer=root.querySelector('[role="dialog"]');
- return {m,shell,root,drawer,publication,links:()=>drawer.querySelectorAll('a.di'),byHref:href=>drawer.querySelectorAll('a.di').find(a=>a.getAttribute('href')===href)};
+ return {m,shell,root,drawer,session,publication,links:()=>drawer.querySelectorAll('a.di'),byHref:href=>drawer.querySelectorAll('a.di').find(a=>a.getAttribute('href')===href)};
 }
 test('Vite derives the application version from the Web package',()=>{
  assert.equal(config.define?.__APP_VERSION__,JSON.stringify(packageVersion));
@@ -131,8 +131,9 @@ test('navigation publication refresh leaves the existing editor outlet and pendi
  resolve({commit:'b'.repeat(40),blobSha:'lock',unchanged:false,warnings:[]});await saving;editor.dispose();
 });
 
+const chefToken='A'.repeat(43);
 test('core navigation remains visible, uses verified plan, and preserves current route after refresh',async()=>{
- const e=await setup('zh'),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
+ const e=await setup('zh',chefToken),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
  const nav=e.root.querySelector('.core-nav');assert.ok(nav,'persistent core navigation is present');
  assert.deepEqual(nav.querySelectorAll('a').map(a=>a.getAttribute('href')),['#/prep','#/menu','#/purchase','#/admin/plan/week-41']);
  e.shell.setActive('admin','plan/week-41');e.shell.setTitle('师傅后台');
@@ -164,4 +165,50 @@ test('shared plan controls become inert while the drawer is modal',async()=>{
  e.shell.openDrawer();assert.equal(selection.hasAttribute('inert'),true);
  e.shell.refresh();assert.equal(selection.hasAttribute('inert'),true);
  e.shell.closeDrawer();assert.equal(selection.hasAttribute('inert'),false);
+});
+
+// Shared QR links (#/prep, #/menu, #/purchase) carry no token. Plan editing opens only behind the chef link,
+// so the shared bars leave it out; the drawer keeps the chef's way in and the admin page explains the lock.
+const planCopy={zh:{nav:'菜单计划',edit:'排菜 / 编辑',create:'创建本周计划'},en:{nav:'Plan',edit:'Plan / edit',create:'Create this week’s plan'},uk:{nav:'План',edit:'Планувати / редагувати',create:'Створити план на цей тиждень'}};
+const sharedPlan=id=>({id,choices:[],href:(route,rest='')=>`#/${route}${rest?'/'+rest:''}${id?'?plan='+id:''}`,select(){}});
+for(const lang of ['zh','en','uk']){
+ test(`shared links without a token keep plan editing out of the core and plan bars (${lang})`,async()=>{
+  const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});
+  const nav=e.root.querySelector('.core-nav'),bar=e.root.querySelector('.plan-selection');
+  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41']]);
+  assert.equal(nav.textContent.includes(planCopy[lang].nav),false);
+  assert.equal(bar.hidden,false);assert.ok(bar.querySelector('select'),'Everyone still chooses which plan to read');
+  assert.equal(bar.querySelector('.plan-selection-create'),null);assert.equal(bar.textContent.includes(planCopy[lang].edit),false);
+  e.shell.setPlanSelection(sharedPlan(null),()=>{});
+  assert.equal(e.root.querySelector('.plan-selection-create'),null);assert.equal(e.root.querySelector('.plan-selection').textContent.includes(planCopy[lang].create),false);
+  e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});e.shell.setActive('admin','plan/week-41');
+  assert.equal(e.root.querySelector('.plan-import').hidden,true);assert.equal(e.root.querySelector('.plan-import').hasAttribute('href'),false);
+  assert.ok(e.byHref('#/admin/knowledge/inbox'));assert.ok(e.byHref('#/admin/plan/week-41?plan=week-41'),'The drawer keeps the chef entry; the page shows the lock screen');
+ });
+ test(`the chef link keeps plan editing in the core and plan bars (${lang})`,async()=>{
+  const e=await setup(lang,chefToken),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});
+  const nav=e.root.querySelector('.core-nav');
+  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41'],['a','#/admin/plan/week-41?plan=week-41']]);
+  assert.equal(nav.children[3].textContent,planCopy[lang].nav);
+  const edit=e.root.querySelector('.plan-selection-create');
+  assert.equal(edit.getAttribute('href'),'#/admin/plan/week-41?plan=week-41');assert.equal(edit.textContent,planCopy[lang].edit);
+  e.shell.setPlanSelection(sharedPlan(null),()=>{});
+  const create=e.root.querySelector('.plan-selection-create');
+  assert.equal(create.textContent,planCopy[lang].create);assert.match(create.getAttribute('href'),/^#\/admin\/plan\/(week-\d{4}-\d{1,2})\?plan=\1$/);
+  e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});e.shell.setActive('admin','plan/week-41');
+  assert.equal(e.root.querySelector('.plan-import').hidden,false);assert.equal(e.root.querySelector('.plan-import').getAttribute('href'),'#/admin/plan/week-41/import');
+ });
+}
+test('plan editing entries follow the session in and out without a reload',async()=>{
+ const e=await setup('zh'),plan=sharedPlan('week-41');e.shell.setPlanSelection(plan,()=>{});
+ const count=()=>e.root.querySelector('.core-nav').children.length,edit=()=>e.root.querySelector('.plan-selection-create');
+ assert.equal(count(),3);assert.equal(edit(),null);
+ e.session.set('canteenos.token','not-a-token');e.shell.setPlanSelection(plan,()=>{});
+ assert.equal(count(),3,'A malformed value is not a token');assert.equal(edit(),null);
+ // main redraws through setPlanSelection whenever the auth session changes (main-plan-selection test).
+ e.session.set('canteenos.token',chefToken);e.shell.setPlanSelection(plan,()=>{});
+ assert.equal(count(),4);assert.ok(edit());
+ e.session.delete('canteenos.token');e.shell.setActive('menu');
+ assert.equal(count(),3,'A route change re-reads the session');
+ e.shell.setPlanSelection(plan,()=>{});assert.equal(edit(),null);
 });
