@@ -1,7 +1,7 @@
 /**
  * formatSupplierOrderText：团队采购单「复制给菜贩」的单个供应商消息（node:test，跑 dist/）。
- * zh 且没有「数量待定」行时，必须与 formatPurchaseOrderText（week-41 真人测试过的格式）逐字相同；
- * 待定行只写名称，不进合计；en/uk 用同一格式的本地化固定词。
+ * zh、单一币种且没有「数量待定」行时，必须与 formatPurchaseOrderText（week-41 真人测试过的格式）逐字相同；
+ * 待定行只写名称，不进合计；不同币种不相加；en/uk 用同一格式的本地化固定词。
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -129,4 +129,30 @@ test("en/uk：同一格式的本地化固定词；数字与 formatPurchaseOrderT
   const one = formatSupplierOrderText({ supplier: "X", lines: named(lvyuan.lines.slice(0, 1), "en").map((r) => ({ ...r, line: { ...r.line, packs: 1 } })), unquantified: [] }, { date: "2026-10-05", lang: "en" });
   assert.match(one, /^Chicken egg {2}1 pack × 180 pcs/m);
   assert.match(one, /^1 item · /m);
+});
+
+test("不同币种不相加：按币种分列小计并注明不合计，缺价另计（zh/en/uk）", () => {
+  const lvyuan = pos.find((p) => p.supplier === "绿源农产品配送");
+  const unpriced = ({ unitPrice: _u, amount: _a, ...line }) => line;
+  const priced = (currency) => (line) => ({ ...line, unitPrice: { ...line.unitPrice, currency }, amount: { ...line.amount, currency } });
+  const vary = (changes) => lvyuan.lines.map((line) => changes[line.ingredientRef]?.(line) ?? line);
+  const footer = (lines, lang = "zh") =>
+    formatSupplierOrderText({ supplier: lvyuan.supplier, lines: named(lines, lang), unquantified: [] }, { date: "2026-10-05", lang }).split("\n").at(-1);
+  // 单一币种保持原输出
+  assert.equal(footer(lvyuan.lines), "共 3 样 · 预估 ¥1339.50（按上次价）");
+  // 两种币种：鸡蛋 ¥750 + 小葱 ¥48 = ¥798.00；番茄 ₴541.50 单列，不换算
+  const two = vary({ tomato: priced("UAH") });
+  assert.equal(footer(two), "共 3 样 · 预估 ¥798.00、₴541.50（按上次价；币种不同不合计）");
+  assert.equal(footer(two, "en"), "3 items · estimated ¥798.00, ₴541.50 (at last price; currencies differ, not added)");
+  assert.equal(footer(two, "uk"), "Позицій: 3 · орієнтовно ¥798.00, ₴541.50 (за останньою ціною; різні валюти, не додано)");
+  // 三种币种
+  const three = vary({ scallion: priced("USD"), tomato: priced("UAH") });
+  assert.equal(footer(three), "共 3 样 · 预估 ¥750.00、$48.00、₴541.50（按上次价；币种不同不合计）");
+  assert.equal(footer(three, "en"), "3 items · estimated ¥750.00, $48.00, ₴541.50 (at last price; currencies differ, not added)");
+  // 混币且缺价：鸡蛋无上次价，小葱 ¥48.00，番茄 ₴541.50
+  const missing = vary({ egg: unpriced, tomato: priced("UAH") });
+  assert.equal(footer(missing), "共 3 样 · 已估价 ¥48.00、₴541.50（币种不同不合计；1 样缺上次价）");
+  assert.equal(footer(missing, "en"), "3 items · priced ¥48.00, ₴541.50 (currencies differ, not added; 1 without last price)");
+  assert.equal(footer(missing, "uk"), "Позицій: 3 · оцінено ¥48.00, ₴541.50 (різні валюти, не додано; без останньої ціни: 1)");
+  for (const lines of [two, three, missing]) assert.doesNotMatch(footer(lines), /1339\.50|589\.50/);
 });

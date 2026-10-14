@@ -760,6 +760,7 @@ const SUPPLIER_TEXT: Record<keyof I18nString, {
   items: (n: number) => string; estimated: (money: string) => string; lastPrice: string;
   priced: (money: string) => string; withoutPrice: (n: number) => string; noPrice: string;
   toConfirmCount: (n: number) => string; notInEstimate: string;
+  mixed: string; listSep: string; clauseSep: string;
 }> = {
   zh: {
     title: "【采购单】", unspecified: UNSPECIFIED_SUPPLIER, assignFirst: "请先指派再下单",
@@ -767,6 +768,7 @@ const SUPPLIER_TEXT: Record<keyof I18nString, {
     items: (n) => `共 ${n} 样`, estimated: (m) => `预估 ${m}`, lastPrice: "按上次价",
     priced: (m) => `已估价 ${m}`, withoutPrice: (n) => `${n} 样缺上次价`, noPrice: "无上次价记录",
     toConfirmCount: (n) => `${n} 样数量待定`, notInEstimate: "未计入预估",
+    mixed: "币种不同不合计", listSep: "、", clauseSep: "；",
   },
   en: {
     title: "【Purchase order】", unspecified: "No supplier assigned", assignFirst: "assign one before ordering",
@@ -774,6 +776,7 @@ const SUPPLIER_TEXT: Record<keyof I18nString, {
     items: (n) => `${n} ${n === 1 ? "item" : "items"}`, estimated: (m) => `estimated ${m}`, lastPrice: "at last price",
     priced: (m) => `priced ${m}`, withoutPrice: (n) => `${n} without last price`, noPrice: "no last price on record",
     toConfirmCount: (n) => `${n} with quantity to confirm`, notInEstimate: "not in the estimate",
+    mixed: "currencies differ, not added", listSep: ", ", clauseSep: "; ",
   },
   uk: {
     title: "【Замовлення】", unspecified: "Постачальника не вказано", assignFirst: "призначте перед замовленням",
@@ -781,13 +784,15 @@ const SUPPLIER_TEXT: Record<keyof I18nString, {
     items: (n) => `Позицій: ${n}`, estimated: (m) => `орієнтовно ${m}`, lastPrice: "за останньою ціною",
     priced: (m) => `оцінено ${m}`, withoutPrice: (n) => `без останньої ціни: ${n}`, noPrice: "останньої ціни немає",
     toConfirmCount: (n) => `кількість уточнити: ${n}`, notInEstimate: "не враховано в оцінці",
+    mixed: "різні валюти, не додано", listSep: ", ", clauseSep: "; ",
   },
 };
 
 /**
  * formatSupplierOrderText：一个供应商的「复制给菜贩」消息。单头、分隔线、行与合计和
- * formatPurchaseOrderText 同一格式（zh 且没有待定行时逐字相同）；日期由调用方给出
+ * formatPurchaseOrderText 同一格式（zh、没有待定行且单一币种时逐字相同）；日期由调用方给出
  * （清单日期或日期范围）。没有估算数量的行只写名称与「数量待定」，不进合计，合计句说明条数。
+ * 金额只在同一币种内相加；不同币种按币种分列并注明不合计，绝不换算（formatPurchaseOrderText 未改）。
  * 不输出清单编号、版本、计划编号或材料 id。
  */
 export function formatSupplierOrderText(group: SupplierOrderGroup, opts: { date: string; lang?: keyof I18nString }): string {
@@ -804,21 +809,20 @@ export function formatSupplierOrderText(group: SupplierOrderGroup, opts: { date:
   const rows = group.lines.map(({ name, line }) =>
     `${name}  ${line.packs} ${pack(line.packs)} × ${line.trace.packSize} ${unitLabel(line.trace.packUnit, lang)}${p.lp}${w.total} ${displayQty(line.qty, lang)}${p.rp}`);
   for (const name of group.unquantified) rows.push(`${name}  ${w.toConfirm}`);
-  // 合计只看有估算的行：与 renderPurchaseOrders 的 totalAmount 同一规则（全有金额且同币种）
+  // 合计只看有估算的行，且只在同一币种内相加：全有金额且单一币种时与 renderPurchaseOrders 的
+  // totalAmount 相同；多币种按币种分列小计并注明不合计，不换算、不混加
   const lines = group.lines.map((l) => l.line);
-  const priced = lines.filter((l) => l.amount);
+  const subtotals = new Map<Money["currency"], number>();
+  for (const { amount } of lines) if (amount) subtotals.set(amount.currency, (subtotals.get(amount.currency) ?? 0) + amount.amount);
+  const priced = lines.filter((l) => l.amount).length;
+  const money = [...subtotals].map(([currency, amount]) => moneyText({ amount: round2(amount), currency })).join(w.listSep);
+  const notes = (...items: string[]) => `${p.lp}${items.join(w.clauseSep)}${p.rp}`;
+  const mixed = subtotals.size > 1 ? [w.mixed] : [];
   const parts = [w.items(rows.length)];
   if (lines.length > 0) {
-    if (priced.length === lines.length && priced.every((l) => l.amount?.currency === priced[0]?.amount?.currency)) {
-      const total = { amount: round2(priced.reduce((s, l) => s + (l.amount?.amount ?? 0), 0)), currency: (priced[0] as PurchaseOrderLine).amount!.currency };
-      parts.push(`${w.estimated(moneyText(total))}${p.lp}${w.lastPrice}${p.rp}`);
-    } else if (priced.length > 0) {
-      const sum = round2(priced.reduce((s, l) => s + (l.amount?.amount ?? 0), 0));
-      const cur = (priced[0] as PurchaseOrderLine).amount?.currency ?? "CNY";
-      parts.push(`${w.priced(`${CURRENCY_SYMBOL[cur]}${sum.toFixed(2)}`)}${p.lp}${w.withoutPrice(lines.length - priced.length)}${p.rp}`);
-    } else {
-      parts.push(w.noPrice);
-    }
+    if (!priced) parts.push(w.noPrice);
+    else if (priced === lines.length) parts.push(`${w.estimated(money)}${notes(w.lastPrice, ...mixed)}`);
+    else parts.push(`${w.priced(money)}${notes(...mixed, w.withoutPrice(lines.length - priced))}`);
   }
   if (group.unquantified.length > 0) {
     parts.push(lines.length > 0 ? `${w.toConfirmCount(group.unquantified.length)}${p.comma}${w.notInEstimate}` : w.toConfirmCount(group.unquantified.length));

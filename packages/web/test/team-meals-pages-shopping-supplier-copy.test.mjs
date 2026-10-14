@@ -106,6 +106,15 @@ test('v1 lists keyed by snapshot ids give the same supplier messages',()=>{
  const two=copy(view(ALL.map(id=>[id,'buy']))),one=copy(view(ALL.map(id=>[id,'buy']),{version:'1'}));
  assert.equal(one.text,two.text);
 });
+test('amounts in different currencies are listed per currency and never added into one total',()=>{
+ const inputs=structuredClone(seed);inputs.ingredients.tomato.purchase.lastPrice.currency='UAH';
+ const v=view(ALL.map(id=>[id,'buy']),{inputs}),out=copy(v);
+ assert.deepEqual(v.estimate.items.find(i=>i.ingredientRef==='tomato').lines[0].line.amount,{amount:541.5,currency:'UAH'});
+ assert.match(out.text,/^共 3 样 · 预估 ¥798\.00、₴541\.50（按上次价；币种不同不合计）$/m);
+ assert.match(out.text,/^共 2 样 · 预估 ¥186\.00（按上次价）$/m);
+ assert.doesNotMatch(out.text,/1339\.50|¥1339|₴1339/);
+ assert.match(copy(v,'en').text,/^3 items · estimated ¥798\.00, ₴541\.50 \(at last price; currencies differ, not added\)$/m);
+});
 
 // ---------------------------------------------------------------- actual page
 class Element{
