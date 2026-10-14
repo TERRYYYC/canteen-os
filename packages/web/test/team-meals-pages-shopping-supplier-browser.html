@@ -3,8 +3,9 @@
 <style>.fixture-toolbar{padding:16px;border-bottom:2px solid #98794d;background:#fff8e8;display:flex;flex-wrap:wrap;gap:10px;align-items:center}.fixture-toolbar p{flex-basis:100%;margin:0}#app{max-width:1100px;padding:20px;margin:auto}#result{display:block;white-space:pre-wrap;padding:12px}#ledger{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px}body>details{margin:16px}@media(max-width:500px){#app{padding:12px}.fixture-toolbar{padding:12px}}</style></head><body>
 <aside class="fixture-toolbar">
 <strong>采购页「复制给菜贩」验证 · MOCK ONLY · week-41 黄金样本</strong>
-<p>真实采购页面代码 + C1/C2；只有网络响应是模拟。已保存清单固定在 A：番茄待买、鸡蛋已买、小葱已有、食盐待买、食用油待核对。剪贴板在本页被替换为本地记录，可检查复制成功与失败回退。</p>
+<p>真实采购页面代码 + C1/C2；只有网络响应是模拟。已保存清单固定在 A：番茄待买、鸡蛋已买、小葱已有、食盐待买、食用油待核对。只读预览模拟未连接后台：发布资料由本页用 core 从同一样本算出，不是正式 producer 产物。剪贴板在本页被替换为本地记录，可检查复制成功与失败回退。</p>
 <label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<label>页面 <select id="mode"><option value="saved">已保存清单</option><option value="readonly">只读预览（未连接后台）</option></select></label>
 <button id="run">运行复制检查</button><button id="reset">重置</button>
 </aside><output id="result" aria-live="polite">尚未运行。所有保存只在本页内存中。</output><main id="app"></main>
 <details><summary>本地剪贴板与断言记录（无凭据）</summary><pre id="ledger"></pre></details>
@@ -13,7 +14,7 @@ import '../src/tokens.css';import '../src/styles.css';
 import {createPurchaseRenderer} from '../src/pages/purchase.ts';
 import {createTeamMealsApi} from '../src/api/team-meals.ts';
 import {shoppingText} from '../src/pages/purchase-list.ts';
-import {createShoppingList,applyShoppingDecision} from '@canteenos/core';
+import {createShoppingList,applyShoppingDecision,projectTeamMeals,estimateShoppingList} from '@canteenos/core';
 const files=import.meta.glob('../../../test/fixtures/contracts/valid/golden/data/**/*.json',{eager:true,import:'default'});
 const seed={menuPlans:{},dishes:{},ingredients:{},techniques:[]};
 for(const [path,value] of Object.entries(files)){
@@ -24,6 +25,10 @@ const A='a'.repeat(40),LIST='week41-shop',clone=x=>structuredClone(x),ledger=[];
 const selection=seed.menuPlans['week-41'].meals.map(m=>({menuPlanRef:'week-41',date:m.date,mealType:m.mealType}));
 let list=createShoppingList(LIST,{sourceRevision:A,selection},seed,'2');
 for(const [id,decision,bought] of [['tomato','buy'],['egg','buy',true],['scallion','available'],['salt','buy']])list=applyShoppingDecision(list,id,decision,bought);
+// Read-only preview: a local stand-in for the verified publication of the same sample (no producer run here).
+const publication={kind:'team-meals',manifest:{plans:['week-41']}};
+const plan={planId:'week-41',sourceRevision:A,builtAt:'2026-10-03T00:00:00.000Z',projection:projectTeamMeals(seed,{sourceRevision:A,selection},{identity:'canonical'}),estimates:estimateShoppingList(seed,selection,'2026-10-03','canonical')};
+const published={loadPublishedTeamPlan:async(target,id)=>{if(target!==publication||id!=='week-41')throw new Error('Mock harness refuses an unexpected plan');log({read:'published-plan',plan:id});return plan;}};
 const $=s=>document.querySelector(s),lang=()=>$('#lang').value,t=k=>shoppingText(lang(),k);
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
 async function fetchMock(url,init={}){
@@ -38,10 +43,11 @@ async function fetchMock(url,init={}){
 }
 function log(entry){ledger.push(entry);$('#ledger').textContent=JSON.stringify(ledger,null,2);}
 let api;
-async function reset(){
- api?.dispose();api=createTeamMealsApi('https://explicit-supplier-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});
+async function reset(mode=$('#mode').value,rest=''){
+ const readonly=mode==='readonly';api?.dispose();
+ api=createTeamMealsApi(readonly?'':'https://explicit-supplier-mock.invalid',{mode:readonly?'unconfigured':'mock',fetch:readonly?async()=>{throw new Error('The read-only preview must not reach the saved API');}:fetchMock,token:()=>'local-fixture-only',identity:()=>1});
  document.documentElement.lang=lang();const outlet=document.createElement('section');$('#app').replaceChildren(outlet);
- await createPurchaseRenderer(api)(outlet,{lang:lang(),route:'purchase',rest:LIST,planId:'week-41',data:{},t:key=>key});
+ await createPurchaseRenderer(api)(outlet,readonly?{lang:lang(),route:'purchase',rest,planId:'week-41',data:published,publication,t:key=>key}:{lang:lang(),route:'purchase',rest:LIST,planId:'week-41',data:{},t:key=>key});
 }
 let clipboard='ok';
 Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{log({clipboard,length:value.length});if(clipboard!=='ok')throw new Error('Explicit local clipboard-failure scenario');}}});
@@ -54,10 +60,22 @@ const EXPECTED={
  en:['【Purchase order】2026-10-05 – 2026-10-09 · 宏达粮油调味批发','Salt  20 packs × 500 g (total 10 kg)','1 item · estimated ¥50.00 (at last price)','Tomato  19 packs × 5 kg (total 95 kg)','1 item · estimated ¥541.50 (at last price)'],
  uk:['【Замовлення】2026-10-05 – 2026-10-09 · 宏达粮油调味批发','Сіль  20 уп. × 500 г (разом 10 кг)','Позицій: 1 · орієнтовно ¥50.00 (за останньою ціною)','Помідор  19 уп. × 5 кг (разом 95 кг)','Позицій: 1 · орієнтовно ¥541.50 (за останньою ціною)'],
 };
+// No decisions in the preview: all five candidates, the tested week-41 messages for the whole plan.
+const READONLY={
+ zh:['食用油  2 包 × 5 l（共 10 l）','食盐  20 包 × 500 g（共 10 kg）','共 2 样 · 预估 ¥186.00（按上次价）','鸡蛋  5 包 × 180 个（共 900 个）','小葱  4 包 × 1 kg（共 4 kg）','番茄  19 包 × 5 kg（共 95 kg）','共 3 样 · 预估 ¥1339.50（按上次价）'],
+ en:['Cooking oil  2 packs × 5 l (total 10 l)','Chicken egg  5 packs × 180 pcs (total 900 pcs)','2 items · estimated ¥186.00 (at last price)','3 items · estimated ¥1339.50 (at last price)'],
+ uk:['Олія рослинна  2 уп. × 5 л (разом 10 л)','Яйця курячі  5 уп. × 180 шт (разом 900 шт)','Позицій: 2 · орієнтовно ¥186.00 (за останньою ціною)','Позицій: 3 · орієнтовно ¥1339.50 (за останньою ціною)'],
+};
+const DAY_TOMATO={zh:'番茄  8 包 × 5 kg（共 40 kg）',en:'Tomato  8 packs × 5 kg (total 40 kg)',uk:'Помідор  8 уп. × 5 кг (разом 40 кг)'};
+async function copyRoundTrip(kind,text,message){
+ clipboard='ok';card(kind).querySelector('button').click();await until(()=>card(kind).querySelector('[role="status"]').textContent===t('copied'),`${message}: copy succeeds`);
+ clipboard='fail';card(kind).querySelector('button').click();await until(()=>!area(kind).hidden,`${message}: fallback shown`);
+ assert(area(kind).value===text,`${message}: failure shows the same text`);
+}
 async function run(){
  const out=$('#result');$('#run').disabled=true;
  try{
-  ledger.length=0;clipboard='ok';await reset();await until(()=>!!card('suppliers'),'saved list rendered');
+  ledger.length=0;await reset('saved');await until(()=>!!card('suppliers'),'saved list rendered');
   const actions=$('#app .tm-purchase-actions');
   assert([...actions.children].map(n=>n.dataset.copy??'save').join()==='save,suppliers,record','save, supplier copy, then the full record');
   assert(card('suppliers').querySelector('button').textContent===t('copySuppliers')&&card('record').querySelector('button').textContent===t('copyRecord'),'labels follow the interface language');
@@ -65,16 +83,27 @@ async function run(){
   for(const expected of EXPECTED[lang()])assert(lines.includes(expected),`supplier text line: ${expected}`);
   for(const marker of [A,LIST,'week-41','[',{zh:'鸡蛋',en:'Chicken egg',uk:'Яйця'}[lang()],{zh:'小葱',en:'Scallion',uk:'Зелена цибуля'}[lang()],{zh:'食用油',en:'Cooking oil',uk:'Олія'}[lang()]])assert(!text.includes(marker),`supplier text leaves out ${marker}`);
   assert(area('record').value.includes(A)&&area('record').value.includes(LIST),'full record still carries its references');
-  card('suppliers').querySelector('button').click();await until(()=>card('suppliers').querySelector('[role="status"]').textContent===t('copied'),'supplier copy succeeds');
-  clipboard='fail';card('suppliers').querySelector('button').click();await until(()=>!area('suppliers').hidden,'supplier fallback shown');
-  assert(area('suppliers').value===text&&area('record').hidden,'failure shows the same supplier text, record text stays hidden');
+  await copyRoundTrip('suppliers',text,'saved list');
+  assert(area('record').hidden,'record text stays hidden');
   card('record').querySelector('button').click();await until(()=>!area('record').hidden,'record fallback shown');
-  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；复制给菜贩只列待买未买、按供应商分段、数字来自估算、无内部编号；完整记录不变；复制成功与失败回退。未验证真实 Worker、剪贴板权限或部署。';
+  // Read-only preview (no write service): same action over every candidate of the shown scope.
+  await reset('readonly','new/week-41/day/2026-10-05');await until(()=>!!card('suppliers'),'read-only day scope rendered');
+  assert(area('suppliers').value.split('\n').includes(DAY_TOMATO[lang()])&&!area('suppliers').value.includes('2026-10-09'),'read-only day scope copies its own date and estimate');
+  await reset('readonly');await until(()=>!!card('suppliers'),'read-only preview rendered');
+  assert([...$('#app [data-purchase-writes]').querySelectorAll('button')].every(b=>b.disabled),'read-only save and re-read stay disabled');
+  assert(!card('suppliers').querySelector('button').disabled&&card('suppliers').querySelector('button').textContent===t('copySuppliers'),'read-only offers the same supplier copy');
+  assert(card('suppliers').textContent.includes(t('copySuppliersPreview')),'read-only note: everything is listed, remove what is in stock');
+  const preview=area('suppliers').value,previewLines=preview.split('\n');
+  for(const expected of READONLY[lang()])assert(previewLines.includes(expected),`read-only line: ${expected}`);
+  for(const marker of [A,LIST,'week-41','['])assert(!preview.includes(marker),`read-only text leaves out ${marker}`);
+  await copyRoundTrip('suppliers',preview,'read-only');
+  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；已保存清单：复制给菜贩只列待买未买、按供应商分段、数字来自估算、无内部编号，完整记录不变；只读预览：列出所选范围全部材料、随范围变化、保存与判断仍禁用；复制成功与失败回退。未验证真实 Worker、正式发布产物、剪贴板权限或部署。';
  }catch(error){out.textContent=`FAIL · ${error.message}`;log({failure:error.message});}
  finally{$('#run').disabled=false;}
 }
-$('#run').onclick=()=>void run();$('#reset').onclick=()=>void reset();$('#lang').onchange=()=>void reset();
+$('#run').onclick=()=>void run();$('#reset').onclick=()=>void reset();$('#lang').onchange=()=>void reset();$('#mode').onchange=()=>void reset();
 Object.defineProperty(window,'supplierHarness',{value:Object.freeze({run,get ledger(){return clone(ledger);}}),writable:false});
 const params=new URLSearchParams(location.search);if(['zh','en','uk'].includes(params.get('lang')))$('#lang').value=params.get('lang');
+if(['saved','readonly'].includes(params.get('mode')))$('#mode').value=params.get('mode');
 await reset();
 </script></body></html>

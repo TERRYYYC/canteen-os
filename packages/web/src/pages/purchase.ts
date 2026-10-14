@@ -15,8 +15,8 @@ import {action,field,onDetached,status,text} from './team-ui';
 import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
-import {supplierCopy} from './supplier-copy';
-import {pick} from '../i18n';
+import {supplierCopy,previewSupplierCopy} from './supplier-copy';
+import {pick,type Lang} from '../i18n';
 import {word,supportDetails} from './record-display';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
@@ -274,18 +274,9 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(!pending&&view.generation===captured){view.listId=list.id;view.planIds=planIds;view.scope=scope;}
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
-  // Both copies share one clipboard path and readable fallback; neither writes the repository.
+  // Each clipboard attempt keeps its own reload-safety ticket on this view.
   function copyAction(kind:'suppliers'|'record',label:string,content:string,...notes:HTMLElement[]){
-   const feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':label});area.value=content;area.hidden=true;
-   const fallback=()=>{if(live()){feedback.textContent=t('copyFailed');area.hidden=false;area.focus();area.select();}};
-   const button=action(label,()=>{
-    if(!live())return;if(!navigator.clipboard){fallback();return;}
-    const handle=view.reload,operation=handle.beginOperation('write');touch(view);
-    // Clipboard API rejection is a definite local failure; no repository write is involved.
-    try{void navigator.clipboard.writeText(content).then(()=>{handle.settleOperation(operation,'completed');touch(view);if(live())feedback.textContent=t('copied');},()=>{handle.settleOperation(operation,'failed');touch(view);fallback();});}
-    catch{handle.settleOperation(operation,'failed');touch(view);fallback();}
-   });
-   return {button,card:h('section',{class:'tm-card','data-copy':kind},button,...notes,feedback,area)};
+   return copyCard(lang,kind,label,content,notes,live,()=>{const handle=view.reload,operation=handle.beginOperation('write');touch(view);return outcome=>{handle.settleOperation(operation,outcome);touch(view);};});
   }
   // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
   function copyPanels(list:ShoppingList){
@@ -306,6 +297,22 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const view=views.get(key);if(!view)return null;
   return Object.freeze({ownerId:`purchase-buffer/${key}`,identity:Object.freeze({kind:'shopping-list' as const,id:key}),generation:view.generation,dirty:rawPending(view),phase:'idle' as const});
  }});
+}
+/**
+ * One copy action: clipboard first, then the same text selected for manual copying when the clipboard
+ * is missing or refuses. Copying never writes the repository; track lets a saved list keep its ticket.
+ */
+function copyCard(lang:Lang,kind:'suppliers'|'record',label:string,content:string,notes:readonly HTMLElement[],live:()=>boolean,track?:()=>(outcome:'completed'|'failed')=>void){
+ const feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':label});area.value=content;area.hidden=true;
+ const fallback=()=>{if(live()){feedback.textContent=shoppingText(lang,'copyFailed');area.hidden=false;area.focus();area.select();}};
+ const button=action(label,()=>{
+  if(!live())return;if(!navigator.clipboard){fallback();return;}
+  const settle=track?.()??(()=>{});
+  // Clipboard API rejection is a definite local failure; no repository write is involved.
+  try{void navigator.clipboard.writeText(content).then(()=>{settle('completed');if(live())feedback.textContent=shoppingText(lang,'copied');},()=>{settle('failed');fallback();});}
+  catch{settle('failed');fallback();}
+ });
+ return {button,card:h('section',{class:'tm-card','data-copy':kind},button,...notes,feedback,area)};
 }
 /**
  * Unconfigured surface: only the verified publication can be read. Its preview is not a saved
@@ -345,10 +352,15 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
   const bought=h('input',{type:'checkbox'});bought.disabled=true;group.append(h('label',{class:'tm-slot'},bought,t('bought')));
   return group;
  };
+ // Copying is not a write: no list, decision or basis is created. With no decisions here, every
+ // candidate of the shown scope is listed and the note asks to remove what is already in stock.
+ const orders=previewSupplierCopy(projection,lang,estimate,selection);
+ const suppliers=copyCard(lang,'suppliers',t('copySuppliers'),orders.text,[h('p',{class:'muted'},t('copySuppliersPreview'))],()=>el.isConnected);suppliers.button.disabled=!orders.items;
  replace(body,
   scope.savedList?h('p',{class:'tm-status',role:'status','data-purchase-saved-unavailable':'true'},t('readonlySaved')):null,
   summary,
   h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
+  h('div',{class:'tm-purchase-actions'},suppliers.card),
   renderCandidates({lang,...projection,estimate,compact:true,controls:decisions}),
   h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt)));
 }
