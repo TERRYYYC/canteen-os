@@ -223,19 +223,24 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - 要加菜：选菜品，点「加一道菜」；要换日期或餐次，先点开它上面那一行。
    - 排完点「**保存计划**」。顶上的状态条会变成「已保存；发布状态请到发布页查看」。**保存了不等于上线。**
    - 整份文字菜单想一次导入：点右上角「导入」（页面上写作「粘贴导入」）。
-3. **核对。**
+3. **发布前核对。** 这时看的是刚保存的计划。
+   - 在计划页上逐天看一遍：菜、餐次、份数是不是你要的。
    - 点「查看材料候选」，看这些菜要买哪些材料，有没有「用途未分类」「份数未录」之类的提示。
-   - 点「建立采购清单」会跳到采购页（用的是**已保存**的计划，所以先保存）。
-   - 再开三张单各看一眼（`#/prep`、`#/purchase`、`#/menu`）：备料单今天的菜和份数对不对；采购单有没有「需要核对的资料」；菜单今天有没有该有的菜。这是核对，不是欣赏。
+   - 需要在线采购单时，点「建立采购清单」。它用的是**已保存**的计划，所以先保存。清单建好后只认建立时的那份计划；之后再改计划，要在采购单里点「读取最新已保存计划」，核对后再点「保存清单」。
+   - **这一步先别拿三张单（备料、采购、菜单）来核对。** 三张单显示的是**已经发布**的那一版，刚保存的改动在那里还看不到；新建的计划会显示「所选计划尚未在本版发布」。这是正常的，不是没保存上。
 4. **发布。**
    - 点「去发布」（或后台首页顶上那条「N 项改动还没发布」）进发布页，看「还没发布的改动」对不对，再点「**发布**」。
    - 进度四步：「检查数据」→「补翻译」→「生成三张单」→「上线」。哪一步出错了，页面会写「卡在「…」」，照提示看；也可以点「打开 Actions 页面」。
    - 看到「上线了 · 大家两分钟内能看到」才算发完。
-5. **发错了。** 发布页下面「发布记录」里，在对的那一版点「回到这版」→「退回」。退回**不会自动上线**，要再点一次「发布」。
+5. **发布后核对三张单。**
+   - 等两分钟，用手机扫三张码（就是帮厨、采购员、顾客用的那三条，不带钥匙），各打开一次。页面上出现「有新版本」时，先点「点此刷新」。
+   - 备料单今天的菜和份数对不对；采购单有没有「需要核对的资料」；菜单今天有没有该有的菜。这是核对，不是欣赏。
+   - 看到的还是旧菜，或者写着「所选计划尚未在本版发布」：再等两分钟、刷新一次；仍然不对就找 Terry。
+6. **发错了。** 发布页下面「发布记录」里，在对的那一版点「回到这版」→「退回」。退回**不会自动上线**，要再点一次「发布」；发完照第 5 步再核对一遍。
 
 **只读构建下怎么办**
 
-后台首页、计划页、发布页都会写「未连接后台，不能保存」，「保存计划」「发布」不能用。**不要反复点，也不要把改动抄在别处当成已经保存。** 先告诉 Terry；他按 [`ops-checklist.md`](ops-checklist.md) 处理（不是写入服务没配，就是要在仓库里直接改数据再发布）。如果是配好了写入服务但页面提示钥匙无效或没有权限，也是找 Terry，换最新那条链接。
+后台首页、计划页、发布页都会写「未连接后台，不能保存」，「保存计划」「发布」不能用。**不要反复点，也不要把改动抄在别处当成已经保存。** 先告诉 Terry；他按 [`ops-checklist.md`](ops-checklist.md) 处理（不是写入服务没配，就是要在仓库里直接改数据再发布）。如果是配好了写入服务但页面提示钥匙无效或没有权限，也是找 Terry，换最新那条链接。 Terry 在仓库里改完并发布成功后，你照第 5 步核对三张单。
 
 **遇到问题找谁**
 
@@ -261,19 +266,24 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - To add a dish: choose it and tap “Add a dish”; to change the date or meal, open the line above it first.
    - When done, tap “**Save plan**”. The status line turns into “Saved; check publication on the publish page”. **Saved does not mean live.**
    - To bring in a whole text menu at once, tap “Import” at the top right (the page itself says “Paste import”).
-3. **Check.**
+3. **Check before publishing.** At this point you are looking at the plan you just saved.
+   - Go through the plan page day by day: are the dishes, meals and servings what you want?
    - Tap “Preview ingredients” to see what these dishes need to buy, and any notes like “Role not classified” or “Servings unspecified”.
-   - “Create shopping list” jumps to the shopping page (it uses the **saved** plan, so save first).
-   - Then look at the three sheets (`#/prep`, `#/purchase`, `#/menu`): are today’s dishes and servings right on Prep; any “Information to check” on Shopping; is today’s menu what it should be. This is checking, not admiring.
+   - If you need an online shopping list, tap “Create shopping list”. It uses the **saved** plan, so save first. Once created, the list keeps the plan it was made from; if you change the plan later, open the list, tap “Read latest saved plans”, check it, then tap “Save list”.
+   - **Do not use the three sheets (Prep, Shopping, Menu) for this check yet.** They show the version that is **already published**, so changes you just saved are not there yet; a new plan shows “The selected plan is not in this publication. Save and publish it; other plans do not replace it.” That is normal — it does not mean saving failed.
 4. **Publish.**
    - Tap “Go to publish” (or the “N changes not published yet” bar on the back-office home), check “Unpublished changes”, then tap “**Publish**”.
    - Four steps: “Check data” → “Fill in translations” → “Build the three sheets” → “Go live”. If one fails, the page says “Stuck at “…””; follow that. You can also tap “Open the Actions page”.
    - You are done when it says “Live · everyone will see it within two minutes”.
-5. **Published something wrong?** On the publish page, under “Publish history”, tap “Go back to this version” on the right version, then “Roll back”. Rolling back **does not go live by itself** — press “Publish” once more.
+5. **Check the three sheets after publishing.**
+   - Wait two minutes, then scan the three QR codes with your phone (the same three links the helpers, the buyer and diners use, without a key) and open each one. If the page says “New version available”, tap “Reload” first.
+   - Are today’s dishes and servings right on Prep; any “Information to check” on Shopping; is today’s menu what it should be. This is checking, not admiring.
+   - Still the old dishes, or it still says the selected plan is not in this publication: wait two more minutes and reload; if it is still wrong, tell Terry.
+6. **Published something wrong?** On the publish page, under “Publish history”, tap “Go back to this version” on the right version, then “Roll back”. Rolling back **does not go live by itself** — press “Publish” once more, then check again as in step 5.
 
 **If this is a read-only build**
 
-The back-office home, plan page and publish page all say “Not connected; saving is unavailable”, and “Save plan” / “Publish” do not work. **Do not keep tapping, and do not copy changes elsewhere and treat them as saved.** Tell Terry first; he handles it following [`ops-checklist.md`](ops-checklist.md) (either the saving service is not set up, or the data has to be changed in the repository and republished). If the saving service is set up but the page says the key is invalid or not allowed, that is also for Terry — use the newest link.
+The back-office home, plan page and publish page all say “Not connected; saving is unavailable”, and “Save plan” / “Publish” do not work. **Do not keep tapping, and do not copy changes elsewhere and treat them as saved.** Tell Terry first; he handles it following [`ops-checklist.md`](ops-checklist.md) (either the saving service is not set up, or the data has to be changed in the repository and republished). If the saving service is set up but the page says the key is invalid or not allowed, that is also for Terry — use the newest link. Once Terry has changed the data in the repository and the publish has succeeded, check the three sheets as in step 5.
 
 **Who to ask**
 
@@ -299,19 +309,24 @@ The back-office home, plan page and publish page all say “Not connected; savin
    - Щоб додати страву: виберіть її й натисніть «Додати страву»; щоб змінити дату чи прийом їжі — спершу розгорніть рядок над кнопкою.
    - Готово — натисніть «**Зберегти план**». Статус зміниться на «Збережено; стан публікації на сторінці публікації». **Збережено — не означає опубліковано.**
    - Щоб одразу внести весь текст меню, натисніть «Імпорт» угорі праворуч (на сторінці це «Імпорт тексту»).
-3. **Перевірте.**
+3. **Перевірте перед публікацією.** Зараз ви дивитеся на щойно збережений план.
+   - Перегляньте сторінку плану день за днем: чи ті страви, прийоми їжі й порції.
    - «Переглянути інгредієнти» — що треба купити для цих страв і чи є позначки на кшталт «Роль не визначено» чи «Порції не вказано».
-   - «Створити список покупок» веде на сторінку закупівель (бере **збережений** план, тож спершу збережіть).
-   - Потім гляньте три аркуші (`#/prep`, `#/purchase`, `#/menu`): чи правильні страви й порції на сьогодні в «Підготовці»; чи є «Дані для перевірки» в «Закупівлях»; чи є в «Меню» те, що має бути. Це перевірка, а не милування.
+   - Якщо потрібен онлайн-список покупок, натисніть «Створити список покупок». Він бере **збережений** план, тож спершу збережіть. Створений список тримається того плану, з якого його зробили; якщо потім змінити план, відкрийте список, натисніть «Прочитати останні збережені плани», перевірте й натисніть «Зберегти список».
+   - **Поки що не перевіряйте за трьома аркушами (Підготовка, Закупівлі, Меню).** Вони показують **уже опубліковану** версію, тож щойно збережених змін там ще немає; новий план покаже «Вибраного плану немає в цій публікації. Збережіть і опублікуйте його; інші плани його не замінюють.» Так і має бути — це не означає, що зберегти не вдалося.
 4. **Опублікуйте.**
    - «До публікації» (або смужка «Змін ще не опубліковано: N» на головній кабінету), перевірте «Неопубліковані зміни», натисніть «**Опублікувати**».
    - Чотири кроки: «Перевірка даних» → «Доповнення перекладів» → «Формування трьох аркушів» → «Вихід онлайн». Якщо крок зупинився, сторінка напише «Зупинилося на «…»»; дійте за підказкою. Можна відкрити «Відкрити сторінку Actions».
    - Готово, коли з'явиться «Онлайн · усі побачать за дві хвилини».
-5. **Опублікували не те?** На сторінці публікації в «Історія публікацій» біля потрібної версії натисніть «Повернутися до цієї версії», потім «Повернути». Повернення **саме не публікує** — натисніть «Опублікувати» ще раз.
+5. **Перевірте три аркуші після публікації.**
+   - Зачекайте дві хвилини, потім відскануйте телефоном три QR-коди (ті самі три посилання, що в помічників, закупівельника й відвідувачів, без ключа) і відкрийте кожен. Якщо сторінка пише «Є нова версія», спершу натисніть «Оновити».
+   - Чи правильні страви й порції на сьогодні в «Підготовці»; чи є «Дані для перевірки» в «Закупівлях»; чи є в «Меню» те, що має бути. Це перевірка, а не милування.
+   - Досі старі страви або напис, що вибраного плану немає в цій публікації: зачекайте ще дві хвилини й оновіть; якщо все одно не так — до Террі.
+6. **Опублікували не те?** На сторінці публікації в «Історія публікацій» біля потрібної версії натисніть «Повернутися до цієї версії», потім «Повернути». Повернення **саме не публікує** — натисніть «Опублікувати» ще раз, а потім перевірте знову, як у кроці 5.
 
 **Якщо це збірка лише для читання**
 
-Головна кабінету, сторінка плану й сторінка публікації напишуть «Немає з’єднання; збереження недоступне», а «Зберегти план» і «Опублікувати» не працюватимуть. **Не натискайте знову й знову й не переписуйте зміни кудись, вважаючи їх збереженими.** Спершу скажіть Террі; він діятиме за [`ops-checklist.md`](ops-checklist.md) (або службу збереження не налаштовано, або дані треба змінити прямо в репозиторії й опублікувати). Якщо службу налаштовано, але сторінка пише, що ключ недійсний чи немає прав — теж до Террі, візьміть найновіше посилання.
+Головна кабінету, сторінка плану й сторінка публікації напишуть «Немає з’єднання; збереження недоступне», а «Зберегти план» і «Опублікувати» не працюватимуть. **Не натискайте знову й знову й не переписуйте зміни кудись, вважаючи їх збереженими.** Спершу скажіть Террі; він діятиме за [`ops-checklist.md`](ops-checklist.md) (або службу збереження не налаштовано, або дані треба змінити прямо в репозиторії й опублікувати). Якщо службу налаштовано, але сторінка пише, що ключ недійсний чи немає прав — теж до Террі, візьміть найновіше посилання. Коли Террі змінить дані в репозиторії й публікація пройде, перевірте три аркуші, як у кроці 5.
 
 **Якщо щось не так**
 
@@ -326,7 +341,7 @@ The back-office home, plan page and publish page all say “Not connected; savin
 
 1. 打开 `https://terryyyc.github.io/canteen-os/data/build.json`，看 `builtAt` 是不是最后一次发布的时间、`plans` 里有没有本周的计划。
 2. `#/prep` 切到今天：菜、份数、配料。
-3. `#/purchase`：有没有「⚠ N 条问题」或「待补全」。
+3. `#/purchase`：有没有「需要核对的资料」。
 4. **让帮厨的手机联网开一次页面。** 这样万一白天线上挂了，他手里那份离线副本是今天的（见 [`ops-checklist.md`](ops-checklist.md) §4）。
 
 **现场（谁听到谁记）**
