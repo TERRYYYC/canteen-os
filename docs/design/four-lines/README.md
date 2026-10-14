@@ -10,7 +10,7 @@ status: proposed-for-review
 
 > **状态：提案，未签收。** 本文不改变[当前工作合同](../../current-contract.md)和 [D0 页面合同](../team-meals-pages/D0-contract.md)，也不说明任何页面已经实现。与现行合同冲突的地方都列在下文，要先由 Terry 决定，再按“先改合同、再实施”的规则处理。
 >
-> 页面稿和组件在 Terry 的 claude.ai 上的 CanteenOS 设计系统里（v12，版本 `1791585029-5922`；21 张页面稿，每屏中文、English、Українська 并排；搪瓷蓝浅色单一配色，同 [PR #135](https://github.com/TERRYYYC/canteen-os/pull/135)）：<https://claude.ai/artifact/Dgn8Hu33WfMBj4LJkWhnph>。非作者审查匿名打开这个链接时显示“Page not found”，所以**这些页面稿目前未能独立核验，不作为验收或实施依据**。可独立阅读的文字依据是本文和 [product-structure.md](product-structure.md)（设计系统里 `project/product.md` 同一版本的导出）。
+> 页面稿和组件在 Terry 的 claude.ai 上的 CanteenOS 设计系统里（v12，版本 `1791585029-5922`；21 张页面稿，每屏中文、English、Українська 并排；搪瓷蓝浅色单一配色，同 [PR #135](https://github.com/TERRYYYC/canteen-os/pull/135)）：<https://claude.ai/artifact/Dgn8Hu33WfMBj4LJkWhnph>。设计系统本身是私有的，匿名打开显示“Page not found”。21 张页面稿按 v12 导出的图片在 [screens/](screens/README.md)，可以独立核对；文字依据是本文和 [product-structure.md](product-structure.md)（设计系统里 `project/product.md` 同一版本的导出）。**页面稿仍是提案，不作为验收或实施依据。**
 
 ## 1. 为什么提
 
