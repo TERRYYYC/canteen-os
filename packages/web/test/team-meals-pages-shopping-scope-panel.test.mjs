@@ -19,10 +19,12 @@ for(const lang of ['zh','en','uk'])test(`${lang}: scope panel stays open through
   assert.equal(scope().open,true,'open while the read is pending');assert.equal(btn(scope(),t('read')).disabled,true);
   held.release();await flush();
   assert.equal(scope().open,true,'open after the read settles');
-  assert.ok(scope().textContent.includes('2026-09-16'),'latest saved meals are listed');assert.ok(scope().textContent.includes(B),'latest source version shown');
+  // The date may be written as ISO or in the reader's language; either way the latest saved meal is listed.
+  const listed=['2026-09-16',new Intl.DateTimeFormat({zh:'zh-Hans',en:'en',uk:'uk'}[lang],{month:'short',day:'numeric',timeZone:'UTC'}).format(new Date('2026-09-16T12:00:00Z'))];
+  assert.ok(listed.some(date=>scope().textContent.includes(date)),'latest saved meals are listed');assert.ok(scope().textContent.includes(B),'latest source version shown');
   // Reading applied nothing: no write, and the saved list keeps basis A.
   assert.equal(f.writes.length,0);assert.equal(f.sources.get('team-shop').content.basis.sourceRevision,A);
-  const slot=boxes(scope()).find(n=>n.parentNode.textContent.includes('2026-09-16'));assert.ok(slot&&!slot.checked);slot.checked=true;slot.dispatch('change');
+  const slot=boxes(scope()).find(n=>listed.some(date=>n.parentNode.textContent.includes(date)));assert.ok(slot&&!slot.checked);slot.checked=true;slot.dispatch('change');
   assert.equal(scope().open,true,'selection repaint keeps it open');
   const apply=btn(scope(),t('apply'));assert.equal(apply.disabled,false,'next action visible and enabled');apply.click();await flush();
   assert.equal(scope().open,true,'open after the explicit apply');assert.equal(f.writes.length,0,'apply never saves');
