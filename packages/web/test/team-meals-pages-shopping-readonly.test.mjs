@@ -227,6 +227,26 @@ test('read-only copy names candidates without an estimate as 数量待定 and ke
  }finally{unknown.cleanup();}
 });
 
+test('read-only copy never adds amounts in different currencies, in the published or a recomputed scope',async()=>{
+ const mixed=publishedFixture('mixed-currency');// tomato's last price in UAH, egg and scallion stay CNY
+ try{
+  const footers={zh:['共 3 样 · 预估 ¥798.00、₴541.50（按上次价；币种不同不合计）','共 2 样 · 预估 ¥186.00（按上次价）'],
+   en:['3 items · estimated ¥798.00, ₴541.50 (at last price; currencies differ, not added)','2 items · estimated ¥186.00 (at last price)'],
+   uk:['Позицій: 3 · орієнтовно ¥798.00, ₴541.50 (за останньою ціною; різні валюти, не додано)','Позицій: 2 · орієнтовно ¥186.00 (за останньою ціною)']};
+  for(const [lang,expected] of Object.entries(footers)){
+   const f=await mount({lang,source:mixed});
+   try{
+    const {area}=copyParts(f.el),lines=area.value.split('\n');
+    for(const footer of expected)assert.ok(lines.includes(footer),`${lang}: ${footer}\n${area.value}`);
+    assert.doesNotMatch(area.value,/1339\.50/);internal(area.value,mixed.revision);assert.equal(f.calls.length,0);
+   }finally{f.cleanup();}
+  }
+  // 10-05 only (200 servings): egg 2 × ¥150 + scallion 2 × ¥12 = ¥324.00; tomato 8 × ₴28.50 = ₴228.00.
+  const f=await mount({lang:'zh',rest:'new/week-41/day/2026-10-05',source:mixed});
+  try{assert.ok(copyParts(f.el).area.value.split('\n').includes('共 3 样 · 预估 ¥324.00、₴228.00（按上次价；币种不同不合计）'),'the recomputed day estimate keeps currencies apart too');}finally{f.cleanup();}
+ }finally{mixed.cleanup();}
+});
+
 test('read-only copy follows the interface language and shares the clipboard and fallback, writing nothing',async()=>{
  const cases={zh:['复制给菜贩',/请先删掉已经有的/,'番茄  19 包 × 5 kg（共 95 kg）','已复制'],en:['Copy for suppliers',/Remove what you already have before sending/,'Tomato  19 packs × 5 kg (total 95 kg)','Copied'],uk:['Копіювати для постачальників',/приберіть те, що вже є/,'Помідор  19 уп. × 5 кг (разом 95 кг)','Скопійовано']};
  for(const [lang,[label,note,tomato,copied]] of Object.entries(cases))for(const behavior of ['copied','rejected','missing']){
