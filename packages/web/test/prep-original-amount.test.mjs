@@ -69,7 +69,13 @@ test('recorded original text is kept verbatim; blank text and the KB unknown pla
  for(const blank of [undefined,'','   ','未录用量'])assert.equal(recordedAmountText(blank),undefined);
 });
 
+// The repair link is a chef back-office entry, so it is asserted with a chef token in the session: this holds
+// whether or not shared pages without a token hide those entries (#145 covers the case without a token).
+const session=new Map();
+globalThis.sessionStorage={getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)};
 test('state 1: an original amount without a structured quantity keeps its text and says it cannot be converted yet',()=>{
+ session.set('canteenos.token','A'.repeat(43));
+ try{
  for(const lang of LANGS)for(const mealIndex of [0,2]){
   const all=cards(render(lang,mealIndex));
   for(const [index,text] of [[0,'两斤'],[5,'一大碗']]){
@@ -82,6 +88,7 @@ test('state 1: an original amount without a structured quantity keeps its text a
    assert(card.querySelectorAll('a').some(a=>a.getAttribute('href')==='#/admin/dish/ribs'),`${where}: repair link to the frozen recipe`);
   }
  }
+ }finally{session.delete('canteenos.token');}
 });
 
 test('state 2: only an ingredient with neither original text nor a structured quantity is reported as not recorded',()=>{
