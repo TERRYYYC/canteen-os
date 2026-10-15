@@ -3,7 +3,7 @@ import type {IngredientCollection,ShoppingEstimate,AnyDish,Ingredient} from '@ca
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
 import {text} from './team-ui';
-import {quantityText} from './quantity-text';
+import {displayQuantity,quantityText} from './quantity-text';
 import {word,supportDetails} from './record-display';
 export const shoppingWords={
  title:['本次采购','This shopping list','Цей список покупок'],check:['待核对','Check','Перевірити'],buy:['待买','Buy','Купити'],available:['已有','Available','Є в наявності'],bought:['已买','Bought','Куплено'],
@@ -69,7 +69,7 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
     const amount=s.scaledQty?quantityText(s.scaledQty,lang):reasonText(s.plannedServings===undefined?'missing-planned-servings':s.baseServings===undefined?'missing-base-servings':'missing-qty',lang);
     return h('li',{},`${s.date} · ${text(lang,s.mealType)} · `,ref('dish',s.dishRef),` · ${s.plannedServings??t('unknownCount')} · ${amount}`,s.ingredientRef?h('span',{},' · ',ref('ingredient',s.ingredientRef)):null,s.originalAmount?` · ${word(lang,'原方','Original','Оригінал')}: ${s.originalAmount}`:'',supportDetails(lang,s.menuPlanRef));
   }))));
-  if(estimateItem?.status==='complete')(reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
+  if(estimateItem?.status==='complete')(reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},t('estimate')),...estimateItem.lines.map(({supplier,line})=>h('p',{},`${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${displayQuantity({value:line.trace.packSize,unit:line.trace.packUnit},lang)}`,line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''))));
   else if(estimateItem)(reference??card).append(h(options.compact?'section':'details',{class:'muted'},h(options.compact?'h4':'summary',{},t('unavailable')),h('p',{},[...new Set(estimateItem.reasons.map(r=>reasonText(r.code,lang)))].join(' · '))));
   if(reference)card.append(reference);
   result.append(card);

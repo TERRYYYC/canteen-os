@@ -5,7 +5,7 @@ import type { RevisionAsset } from '../api/team-meals';
 import { h } from '../dom';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
-import {quantityText} from './quantity-text';
+import {displayQuantity,quantityText,unitName} from './quantity-text';
 import {knowledgeCoverState,type KnowledgeCoverState} from './knowledge-cover-status';
 export {quantityText} from './quantity-text';
 const copy={
@@ -79,7 +79,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   el.append(names(record.name));
   if(kind==='ingredient'){
     const item=lookup(projection.ingredients,id)!,p=item.purchase;
-    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit),fact(t('supplier'),p?.supplier),fact(t('package'),p?`${p.packSize} ${p.packUnit}`:undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand!==undefined?`${item.onHand} ${item.baseUnit}`:undefined)));
+    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit?unitName(item.baseUnit,lang):undefined),fact(t('supplier'),p?.supplier),fact(t('package'),p?displayQuantity({value:p.packSize,unit:p.packUnit},lang):undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand===undefined?undefined:item.baseUnit?displayQuantity({value:item.onHand,unit:item.baseUnit},lang):item.onHand)));
     if(item.externalId)el.append(supportDetails(lang,`Wikidata: ${item.externalId}`));
     renderSources();
   }else{

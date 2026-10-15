@@ -2,7 +2,7 @@
 import type {IngredientSource, ReferenceIssue, ShoppingEstimate, ShoppingList, TeamMealsProjection} from '@canteenos/core';
 import {pick, type Lang} from '../i18n';
 import {text} from './team-ui';
-import {quantityText} from './quantity-text';
+import {displayQuantity,quantityText} from './quantity-text';
 import {reasonText, shoppingText, type ShoppingWord} from './purchase-list';
 
 const words={
@@ -51,7 +51,7 @@ export function shoppingCopy(list:ShoppingList,projection:TeamMealsProjection,la
    const reference=estimate.items.find(x=>x.ingredientRef===id);
    if(reference){
     for(const issue of reference.reasons)lines.push(`  ${label} · ${t('unavailable')}: ${reason(issue.code)}${issue.source?` · ${path(issue.source)}`:''}`);
-    if(reference.status==='complete')for(const {supplier,line} of reference.lines)lines.push(`  ${label} · ${t('estimate')}: ${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${line.trace.packSize} ${line.trace.packUnit}${line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''}`);
+    if(reference.status==='complete')for(const {supplier,line} of reference.lines)lines.push(`  ${label} · ${t('estimate')}: ${supplier} · ${quantityText(line.qty,lang)} · ${line.packs} × ${displayQuantity({value:line.trace.packSize,unit:line.trace.packUnit},lang)}${line.amount?` · ${line.amount.amount} ${line.amount.currency}`:''}`);
    }
   }
  }

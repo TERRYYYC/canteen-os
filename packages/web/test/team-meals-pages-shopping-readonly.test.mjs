@@ -154,7 +154,7 @@ test('published day and week deep links limit both sources and estimates to that
     for(const day of excluded)assert.ok(!sources.includes(day),`${lang}/${range}/${date} excludes ${day}`);
     // Tomato: 7500g/50 servings; ceil(net/0.85*1.1/5000g), min 2 packs.
     const tomato=walk(f.el).find(n=>n.attrs['data-ingredient']==='tomato');
-    assert.ok(tomato.textContent.includes(`${tomatoKg} kg`),'estimate follows the narrowed serving demand');
+    assert.ok(tomato.textContent.includes(`${tomatoKg} ${{zh:'千克',en:'kg',uk:'кг'}[lang]}`),'estimate follows the narrowed serving demand');
     assert.ok(marked(f.el,'data-purchase-readonly-scope'),'scope is plainly shown');
     assert.equal(f.calls.length,0);
    }finally{f.cleanup();}

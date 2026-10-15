@@ -64,10 +64,10 @@ globalThis.MutationObserver=class{observe(){}disconnect(){}};
 const options=()=>({lang:'zh',selection:{menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',mealIndex:0},href:(kind,id)=>`#/purchase/list/${kind}/${id}`});
 const need=(mod,name)=>assert.equal(typeof mod[name],'function',`${name} must present frozen raw records`);
 
-test('unknown quantity stays unknown; raw quantity units are never scaled or normalized',()=>{
+test('unknown quantity stays unknown; recorded quantities are never scaled, only shown in the reader\'s units',()=>{
   need(prep,'rawQuantityText');assert.equal(prep.rawQuantityText(undefined,'zh'),'用量未录');
   assert.equal(prep.rawQuantityText({unit:'to-taste'},'zh'),'适量');
-  assert.equal(prep.rawQuantityText({value:1500,unit:'g'},'en'),'1500 g');
+  assert.equal(prep.rawQuantityText({value:1500,unit:'g'},'en'),'1.5 kg');
 });
 test('row selection respects projection scope and retains multiple dishes and repeated dish occurrences',()=>{
   need(prep,'selectFrozenMealRows');const source=fixture(),before=JSON.stringify(source);
@@ -86,7 +86,7 @@ test('prep exposes all original components, steps, three names, truth labels and
   need(prep,'renderFrozenPrep');const el=mount(),source=fixture(),before=JSON.stringify(source);
   const dispose=prep.renderFrozenPrep(el,source,options());
   assert.equal(attr(el,'data-component-index').length,4);assert.equal(attr(el,'data-step-index').length,2);
-  for(const text of ['番茄','Tomato','Помідор','盐','missing','1500 g','用量未录','适量','第一步原文','第二步原文','2 cm','原备注','切块','来自词表的备注',revision])assert(el.textContent.includes(text),text);
+  for(const text of ['番茄','Tomato','Помідор','盐','missing','1.5 千克','用量未录','适量','第一步原文','第二步原文','2 cm','原备注','切块','来自词表的备注',revision])assert(el.textContent.includes(text),text);
   assert.match(el.textContent,/模拟|Simulation/);assert.doesNotMatch(el.textContent,/已同步|已发布/);
   assert(tag(el,'a').some(a=>a.getAttribute('href')?.startsWith('https://example.org/watch')));
   assert(!tag(el,'a').some(a=>a.getAttribute('href')?.startsWith('javascript:')));
@@ -117,7 +117,7 @@ test('wrong-version or late assets never substitute current URLs into an old or 
 });
 test('menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe',()=>{
   need(menu,'renderFrozenMenu');const el=mount();const stop=menu.renderFrozenMenu(el,fixture(),{...options(),selection:{menuPlanRef:'week'}});
-  assert.equal(attr(el,'data-meal-index').length,3);assert(el.textContent.includes('盐'));assert(el.textContent.includes('1500 g')===false);
+  assert.equal(attr(el,'data-meal-index').length,3);assert(el.textContent.includes('盐'));assert(el.textContent.includes('1.5 ')===false&&el.textContent.includes('1,5 ')===false);
   const panels=tag(el,'details').filter(n=>!n.getAttribute('class'));assert.equal(panels.length,3);panels[1].open=true;panels[1].dispatch('toggle');
   assert(el.textContent.includes('乙菜步骤'));assert(!el.textContent.includes('第一步原文'));
   stop();el.remove();
@@ -242,7 +242,7 @@ test('cooking layout leads with original ingredients and full steps; recorded me
   const metadata=tag(recipe,'details').find(n=>n.getAttribute('class')==='prep-recipe-record');assert(metadata,'recipe metadata has a secondary disclosure');
   assert(children.indexOf(metadata)>children.findIndex(n=>n.getAttribute('data-step-index')==='1'),'full steps precede recipe metadata');
   assert.match(metadata.textContent,/CC BY 4.0/);assert.doesNotMatch(ordinaryText(recipe),/CC BY 4.0|Recorded author/);
-  assert.deepEqual(attr(el,'data-original-quantity').map(n=>n.textContent),['1500 g',prep.rawQuantityText(undefined,lang),prep.rawQuantityText({unit:'to-taste'},lang),prep.rawQuantityText(undefined,lang)]);
+  assert.deepEqual(attr(el,'data-original-quantity').map(n=>n.textContent),[prep.rawQuantityText({value:1500,unit:'g'},lang),prep.rawQuantityText(undefined,lang),prep.rawQuantityText({unit:'to-taste'},lang),prep.rawQuantityText(undefined,lang)]);
   assert.equal(attr(el,'data-step-index').length,2);assert.match(ordinaryText(el),new RegExp(source.projection.dishes['dish-a'].steps[1].text[lang]));
   assert.equal(JSON.stringify(source),before);stop();el.remove();
  }
@@ -291,7 +291,7 @@ test('the actual roll-cut note uses a full-text control in every recorded langua
 });
 test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());
- const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1500 g/);
+ const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1\.5 千克/);
  assert.doesNotMatch(visible,/ZH:|EN:|UK:|First original step|draft|active|manual|aaaaaaaa|Recorded author/);
  assert.match(el.textContent,/First original step/);assert.match(el.textContent,/Recorded author/);stop();el.remove();
 });

@@ -44,6 +44,7 @@ import { append, h, replace } from "../dom";
 import { LANG_TAG, pick, type Lang } from "../i18n";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
+import { displayQuantity, formatNumber, quantityParts } from "./quantity-text";
 
 // ---------------------------------------------------------------------------
 // 页面私有文案
@@ -109,20 +110,6 @@ function tt(lang: Lang, key: Key, params?: Record<string, string | number>): str
   return s;
 }
 
-/** 单位显示：uk кг/шт/г/л，zh kg/个/g/L，en kg/pcs/g/L（issue #9） */
-const UNIT: Record<Unit, Record<Lang, string>> = {
-  g: { uk: "г", zh: "g", en: "g" },
-  kg: { uk: "кг", zh: "kg", en: "kg" },
-  ml: { uk: "мл", zh: "ml", en: "ml" },
-  l: { uk: "л", zh: "L", en: "L" },
-  pcs: { uk: "шт", zh: "个", en: "pcs" },
-  pack: { uk: "уп.", zh: "包", en: "pack" },
-  tbsp: { uk: "ст. л.", zh: "汤匙", en: "tbsp" },
-  tsp: { uk: "ч. л.", zh: "茶匙", en: "tsp" },
-  pinch: { uk: "дрібка", zh: "撮", en: "pinch" },
-  "to-taste": { uk: "за смаком", zh: "适量", en: "to taste" },
-};
-
 const MEAL_TYPES: readonly MealType[] = ["breakfast", "lunch", "dinner"];
 /** 分节顺序 = core 的 PREP_GROUP_ORDER（前一天 → 早上 → 开餐前 → 备在手边）；本地复制一份，web 只 import type，core 不进产物 */
 const GROUP_ORDER = ["day-before", "morning", "before-service", "at-hand"] as const satisfies readonly PrepGroup[];
@@ -167,36 +154,15 @@ function formatDay(iso: string, lang: Lang): string {
   }
 }
 
-function formatNumber(n: number, lang: Lang, maxFrac: number): string {
-  try {
-    return new Intl.NumberFormat(LANG_TAG[lang], { maximumFractionDigits: maxFrac }).format(n);
-  } catch {
-    return String(Math.round(n * 10 ** maxFrac) / 10 ** maxFrac);
-  }
-}
-
 /**
- * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：
- *   ≥ 1000 g → kg（保留 1 位小数：30 kg、1.5 kg）；≥ 1000 ml → l；
+ * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：规则在 quantity-text.ts 的 quantityParts
+ *   （不足 1000 克写克，到 1000 写千克，毫升 / 升同理；最多两位小数；正数不显示成 0）；
  *   to-taste / 无 value → 只显示「适量 / за смаком / to taste」（word=true，字号小一档）。
  */
 function formatQty(qty: Quantity, lang: Lang): { value: string; unit: string; word: boolean } {
-  if (qty.unit === "to-taste" || qty.value === undefined || qty.value === null) {
-    return { value: tt(lang, "qty.toTaste"), unit: "", word: true };
-  }
-  let value = qty.value;
-  let unit: Unit = qty.unit;
-  let maxFrac = 2;
-  if (unit === "g" && value >= 1000) {
-    value = value / 1000;
-    unit = "kg";
-    maxFrac = 1;
-  } else if (unit === "ml" && value >= 1000) {
-    value = value / 1000;
-    unit = "l";
-    maxFrac = 1;
-  }
-  return { value: formatNumber(value, lang, maxFrac), unit: UNIT[unit][lang], word: false };
+  const parts = quantityParts(qty, lang);
+  if (!parts) return { value: tt(lang, "qty.toTaste"), unit: "", word: true };
+  return { value: parts.value, unit: parts.unit, word: false };
 }
 
 /** 秒 → mm:ss（≥ 1 小时时 h:mm:ss） */
@@ -449,7 +415,7 @@ export function selectFrozenMealRows(source: FrozenMealSource, selection: Frozen
 export function rawQuantityText(qty: Quantity | undefined, lang: Lang): string {
   if (!qty) return rawText(lang, "quantityMissing");
   if (qty.unit === "to-taste") return rawText(lang, "taste");
-  return qty.value === undefined ? rawText(lang, "quantityMissing") : `${qty.value} ${qty.unit}`;
+  return qty.value === undefined ? rawText(lang, "quantityMissing") : displayQuantity(qty, lang);
 }
 /** KB materialization writes this placeholder when a row has neither raw text nor a value (worker knowledge-materialization.ts). */
 const UNRECORDED_AMOUNT_PLACEHOLDER = "未录用量";

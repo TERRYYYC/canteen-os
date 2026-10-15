@@ -54,7 +54,7 @@ test('canonical snapshots, repeated components and repeated meals retain their o
   for(const [index,original,value]of [[0,'原方第一份100克',mealIndex===0?200:300],[1,'原方第二份50克',mealIndex===0?100:150],[2,'原方同材料第三份25克',mealIndex===0?50:75],[4,'旧方10克',mealIndex===0?20:30]]) {
    const text=cards[index].querySelector('[data-original-quantity]').textContent;
    assert(text.includes(original),`${lang}/${layout}/${mealIndex}/${index}: ${text}`);
-   assert(text.includes(`${value} g`),text);
+   assert(text.includes(`${value} ${{zh:'克',en:'g',uk:'г'}[lang]}`),text);
   }
  }
 });
@@ -73,5 +73,5 @@ test('foreign concrete snapshots and wrong source addresses never supply another
  const source=structuredClone(group.sources[0]);
  for(const delta of [{ingredientRef:'foreign'},{menuPlanRef:'other'},{mealIndex:99},{componentIndex:99},{date:'2026-10-06'},{mealType:'dinner'},{dishRef:'other'}])group.sources.unshift({...source,...delta,originalAmount:'错误来源不得显示',scaledQty:{value:999,unit:'g'}});
  const el=render(projection,'zh',0),text=el.querySelectorAll('[data-component-index]')[0].querySelector('[data-original-quantity]').textContent;
- assert(text.includes('原方第一份100克'));assert(text.includes('200 g'));assert(!text.includes('错误来源不得显示'));assert(!text.includes('999'));
+ assert(text.includes('原方第一份100克'));assert(text.includes('200 克'));assert(!text.includes('错误来源不得显示'));assert(!text.includes('999'));
 });
