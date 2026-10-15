@@ -12,7 +12,7 @@ status: proposed-for-review
 >
 > 页面稿和组件在 Terry 的 claude.ai 上的 CanteenOS 设计系统里（v12，版本 `1791585029-5922`；21 张页面稿，每屏中文、English、Українська 并排；搪瓷蓝浅色单一配色，同 [PR #135](https://github.com/TERRYYYC/canteen-os/pull/135)）：<https://claude.ai/artifact/Dgn8Hu33WfMBj4LJkWhnph>。设计系统本身是私有的，匿名打开显示“Page not found”。21 张页面稿按 v12 导出的图片在 [screens/](screens/README.md)，可以独立核对；文字依据是本文和 [product-structure.md](product-structure.md)（设计系统里 `project/product.md` 同一版本的导出）。**页面稿仍是提案，不作为验收或实施依据。**
 >
-> **第一批（2026-10-15）**：Terry 决定四条线一起开工，§4 的冲突和 §9 的待定事项先按本文的建议做，赶在测试周前合并。第一批的范围已写进 [D0「四条线第一批」](../team-meals-pages/D0-contract.md#四条线第一批2026-10-15)：备料页的「要准备的」清单、排菜页的不重样提示、采购页按供应商分段、菜品页。采用的是 §4 第 1、2、3、6 条的建议；第 4、5 条不在第一批。其余页面稿仍是提案。
+> **第一批（2026-10-15）**：Terry 决定四条线一起开工，开发中碰到 §4 的冲突先按本文的建议做，赶在测试周前合并（作者转述，Terry 在 [#150](https://github.com/TERRYYYC/canteen-os/pull/150) 上确认后生效）。第一批的范围已写进 [D0「四条线第一批」](../team-meals-pages/D0-contract.md#四条线第一批2026-10-15)：备料页的「要准备的」清单、排菜页的不重样提示、采购页按供应商分段、菜品页。第一批只采用 §4 第 1、2、3、6 条的建议；§4 第 4、5 条和 §9 第 2–6 项不在第一批，仍待定。其余页面稿仍是提案。
 
 ## 1. 为什么提
 
