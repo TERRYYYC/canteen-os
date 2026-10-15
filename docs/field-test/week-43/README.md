@@ -226,7 +226,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 3. **发布前核对。** 这时看的是刚保存的计划。
    - 在计划页上逐天看一遍：菜、餐次、份数是不是你要的。
    - 点「查看材料候选」，看这些菜要买哪些材料，有没有「用途未分类」「份数未录」之类的提示。
-   - 需要在线采购单时，点「建立采购清单」。它用的是**已保存**的计划，所以先保存。清单建好后只认建立时的那份计划；之后再改计划，要在采购单里点「读取最新已保存计划」，核对后再点「保存清单」。
+   - 需要在线采购单时，点「建立采购清单」。它用的是**已保存**的计划，所以先保存。清单建好后只认建立时的那份计划；之后再改计划，要在采购单里依次：点「读取最新已保存计划」→ 确认日期和餐次 → 点「应用新范围并重新核对」→ 看清哪些材料变了、哪些被撤掉、哪些判断要重新核对 → 点「保存清单」。只读取不点「应用新范围并重新核对」，清单不会变，「保存清单」也是灰的。
    - **这一步先别拿三张单（备料、采购、菜单）来核对。** 三张单显示的是**已经发布**的那一版，刚保存的改动在那里还看不到；新建的计划会显示「所选计划尚未在本版发布」。这是正常的，不是没保存上。
 4. **发布。**
    - 点「去发布」（或后台首页顶上那条「N 项改动还没发布」）进发布页，看「还没发布的改动」对不对，再点「**发布**」。
@@ -269,7 +269,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 3. **Check before publishing.** At this point you are looking at the plan you just saved.
    - Go through the plan page day by day: are the dishes, meals and servings what you want?
    - Tap “Preview ingredients” to see what these dishes need to buy, and any notes like “Role not classified” or “Servings unspecified”.
-   - If you need an online shopping list, tap “Create shopping list”. It uses the **saved** plan, so save first. Once created, the list keeps the plan it was made from; if you change the plan later, open the list, tap “Read latest saved plans”, check it, then tap “Save list”.
+   - If you need an online shopping list, tap “Create shopping list”. It uses the **saved** plan, so save first. Once created, the list keeps the plan it was made from. If you change the plan later, open the list and, in order: tap “Read latest saved plans” → confirm the dates and meals → tap “Apply scope and review again” → check what changed, what was removed and which decisions need checking again → tap “Save list”. Reading alone does not change the list, and “Save list” stays greyed out until you apply.
    - **Do not use the three sheets (Prep, Shopping, Menu) for this check yet.** They show the version that is **already published**, so changes you just saved are not there yet; a new plan shows “The selected plan is not in this publication. Save and publish it; other plans do not replace it.” That is normal — it does not mean saving failed.
 4. **Publish.**
    - Tap “Go to publish” (or the “N changes not published yet” bar on the back-office home), check “Unpublished changes”, then tap “**Publish**”.
@@ -312,7 +312,7 @@ The back-office home, plan page and publish page all say “Not connected; savin
 3. **Перевірте перед публікацією.** Зараз ви дивитеся на щойно збережений план.
    - Перегляньте сторінку плану день за днем: чи ті страви, прийоми їжі й порції.
    - «Переглянути інгредієнти» — що треба купити для цих страв і чи є позначки на кшталт «Роль не визначено» чи «Порції не вказано».
-   - Якщо потрібен онлайн-список покупок, натисніть «Створити список покупок». Він бере **збережений** план, тож спершу збережіть. Створений список тримається того плану, з якого його зробили; якщо потім змінити план, відкрийте список, натисніть «Прочитати останні збережені плани», перевірте й натисніть «Зберегти список».
+   - Якщо потрібен онлайн-список покупок, натисніть «Створити список покупок». Він бере **збережений** план, тож спершу збережіть. Створений список тримається того плану, з якого його зробили. Якщо потім змінити план, відкрийте список і по черзі: «Прочитати останні збережені плани» → перевірте дати й прийоми їжі → «Застосувати діапазон і перевірити знову» → подивіться, що змінилося, що прибрано і які рішення треба перевірити знову → «Зберегти список». Саме читання список не змінює, і «Зберегти список» лишається сірим, доки ви не застосуєте діапазон.
    - **Поки що не перевіряйте за трьома аркушами (Підготовка, Закупівлі, Меню).** Вони показують **уже опубліковану** версію, тож щойно збережених змін там ще немає; новий план покаже «Вибраного плану немає в цій публікації. Збережіть і опублікуйте його; інші плани його не замінюють.» Так і має бути — це не означає, що зберегти не вдалося.
 4. **Опублікуйте.**
    - «До публікації» (або смужка «Змін ще не опубліковано: N» на головній кабінету), перевірте «Неопубліковані зміни», натисніть «**Опублікувати**».
