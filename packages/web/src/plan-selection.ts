@@ -1,6 +1,7 @@
 /** App-owned public plan identity. It never owns an editor, shopping basis, or auth. */
 import {datedPlanIdOfDate,isoWeekOf,mondayOfIsoWeek,type AnyMenuPlan,type MealType} from '@canteenos/core';
 import type {DataApi,Publication} from './data';
+import {displayDateRange} from './display-date';
 import type {Lang} from './i18n';
 import {localDateIso} from './local-date';
 import type {Route} from './router';
@@ -33,7 +34,7 @@ export function weekPlanId(offset=0,today=localDateIso()):string {
 }
 export function planChoiceLabel(choice:PlanChoice,lang:Lang):string {
  const name=choice.name?.[lang]??choice.name?.zh??choice.name?.en??choice.name?.uk;
- const dates=choice.start?`${choice.start}${choice.end&&choice.end!==choice.start?' — '+choice.end:''}`:'';
+ const dates=choice.start?displayDateRange(choice.start,choice.end||choice.start,lang):'';
  return [name||({zh:'菜单计划',en:'Meal plan',uk:'План меню'})[lang],dates].filter(Boolean).join(' · ');
 }
 /** One loaded plan as the plan bar names it: recorded name and recorded dates only, never the raw ID. */
