@@ -16,7 +16,8 @@ import {action,field,onDetached,status,text} from './team-ui';
 import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
-import {supplierCopy,previewSupplierCopy} from './supplier-copy';
+import type {SupplierSection} from './supplier-copy';
+import {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,buyItems,listDates} from './supplier-copy';
 import {pick,type Lang} from '../i18n';
 import {word,supportDetails} from './record-display';
 import {displayDate,displayDateRange} from '../display-date';
@@ -161,7 +162,16 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,...copyPanels(list)));
    const removed=form.review?.removed??[];
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
-   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,
+   // Sections hold every candidate so each keeps its judgment buttons; a section copy lists only what the whole copy lists (buy, not bought).
+   const sections=supplierSections(basis.projection.collection.items,basis.projection,lang,basis.estimate).sections;
+   const buying=supplierSections(buyItems(list),basis.projection,lang,basis.estimate).sections;
+   const sectionCopy=(section:SupplierSection)=>{
+    const found=buying.find(x=>x.supplier===section.supplier);
+    const copied=copyAction('section',t('copySection'),found?supplierSectionText(found,lang,listDates(list)):'');copied.button.disabled=!found;
+    if(!found)copied.card.append(h('p',{class:'muted','data-copy-section-none':''},t('copySectionNone')));
+    return copied.card;
+   };
+   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,sections,sectionCopy,
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
    nodes.push(record,panel('scope',{class:'tm-purchase-advanced'},t('apply'),scopeForm(true)));replace(body,...nodes);
   }
@@ -296,7 +306,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
   // Each clipboard attempt keeps its own reload-safety ticket on this view.
-  function copyAction(kind:'suppliers'|'record',label:string,content:string,...notes:HTMLElement[]){
+  function copyAction(kind:'suppliers'|'record'|'section',label:string,content:string,...notes:HTMLElement[]){
    return copyCard(lang,kind,label,content,notes,live,()=>{const handle=view.reload,operation=handle.beginOperation('write');touch(view);return outcome=>{handle.settleOperation(operation,outcome);touch(view);};});
   }
   // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
@@ -323,7 +333,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
  * One copy action: clipboard first, then the same text selected for manual copying when the clipboard
  * is missing or refuses. Copying never writes the repository; track lets a saved list keep its ticket.
  */
-function copyCard(lang:Lang,kind:'suppliers'|'record',label:string,content:string,notes:readonly HTMLElement[],live:()=>boolean,track?:()=>(outcome:'completed'|'failed')=>void){
+function copyCard(lang:Lang,kind:'suppliers'|'record'|'section',label:string,content:string,notes:readonly HTMLElement[],live:()=>boolean,track?:()=>(outcome:'completed'|'failed')=>void){
  const feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':label});area.value=content;area.hidden=true;
  const fallback=()=>{if(live()){feedback.textContent=shoppingText(lang,'copyFailed');area.hidden=false;area.focus();area.select();}};
  const button=action(label,()=>{
@@ -375,14 +385,16 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
  };
  // Copying is not a write: no list, decision or basis is created. With no decisions here, every
  // candidate of the shown scope is listed and the note asks to remove what is already in stock.
- const orders=previewSupplierCopy(projection,lang,estimate,selection);
+ const orders=previewSupplierCopy(projection,lang,estimate,selection),previewSections=supplierSections(projection.collection.items,projection,lang,estimate).sections;
  const suppliers=copyCard(lang,'suppliers',t('copySuppliers'),orders.text,[h('p',{class:'muted'},t('copySuppliersPreview'))],()=>el.isConnected);suppliers.button.disabled=!orders.items;
  replace(body,
   scope.savedList?h('p',{class:'tm-status',role:'status','data-purchase-saved-unavailable':'true'},t('readonlySaved')):null,
   summary,
   h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
   h('div',{class:'tm-purchase-actions'},suppliers.card),
-  renderCandidates({lang,...projection,estimate,compact:true,controls:decisions}),
+  renderCandidates({lang,...projection,estimate,compact:true,controls:decisions,sections:previewSections,sectionCopy:section=>{
+   const copied=copyCard(lang,'section',t('copySection'),supplierSectionText(section,lang,selection.map(slot=>slot.date)),[],()=>el.isConnected);return copied.card;
+  }}),
   chefOnly(()=>h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt))));
 }
 let renderer:ReturnType<typeof createPurchaseRenderer>|undefined;

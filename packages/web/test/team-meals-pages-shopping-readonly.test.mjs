@@ -106,7 +106,11 @@ test('every write control on the published purchase list stays rendered and disa
   // Copying text for suppliers is the one enabled action: it reads this preview and writes nothing.
   const copy=walk(f.el).find(n=>n.attrs['data-copy']==='suppliers');
   assert.ok(copy&&copy.children.find(n=>n.tagName==='BUTTON').disabled===false,'the supplier copy stays available');
-  const buttons=tags(f.el,'BUTTON').filter(n=>!walk(copy).includes(n));
+  // The per-supplier "copy this section" buttons are copy actions too: they write nothing and stay enabled.
+  // Only those two copy kinds are exempt; the read-only page offers no full-record copy.
+  assert.equal(walk(f.el).some(n=>n.attrs['data-copy']==='record'),false,'no full-record copy on the read-only page');
+  const copyButtons=walk(f.el).filter(n=>n.attrs['data-copy']==='suppliers'||n.attrs['data-copy']==='section').flatMap(walk);
+  const buttons=tags(f.el,'BUTTON').filter(n=>!copyButtons.includes(n));
   assert.ok(buttons.length>0,'write controls are shown, not silently dropped');
   assert.ok(buttons.every(n=>n.disabled===true),'save, re-read and per-item decisions are all disabled');
   assert.ok(boxes(f.el).length>0&&boxes(f.el).every(n=>n.disabled===true),'no item can be ticked');
@@ -276,7 +280,8 @@ test('read-only copy follows the interface language and shares the clipboard and
    button.click();await flush();
    if(behavior==='copied'){assert.equal(captured,area.value);assert.equal(status.textContent,copied);assert.equal(area.hidden,true);}
    else assert.equal(area.hidden,false,`${lang}/${behavior}: the same text is shown for manual copying`);
-   assert.ok(tags(f.el,'BUTTON').filter(n=>n!==button).every(n=>n.disabled===true),'save, re-read and decisions stay disabled');
+   const copyButtons=walk(f.el).filter(n=>n.attrs['data-copy']==='suppliers'||n.attrs['data-copy']==='section').flatMap(walk);
+   assert.ok(tags(f.el,'BUTTON').filter(n=>n!==button&&!copyButtons.includes(n)).every(n=>n.disabled===true),'save, re-read and decisions stay disabled');
    assert.equal(f.calls.length,0,'no saved-API request: copying creates no list, decision or basis');
   }finally{f.cleanup();}
  }
