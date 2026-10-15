@@ -15,6 +15,7 @@ export function publishedFixture(name='normal') {
  if(name==='empty-plan')writeFileSync(planFile,JSON.stringify({schemaVersion:'3',name:{en:'Empty'},meals:[]}));
  if(name==='no-plans')rmSync(planFile);
  if(name==='quantity-warning'){plan.schemaVersion='3';plan.meals.forEach(m=>delete m.plannedServings);writeFileSync(planFile,JSON.stringify(plan));}
+ if(name==='mixed-currency'){const file=join(root,'data/ingredients/tomato.json'),ingredient=JSON.parse(readFileSync(file,'utf8'));ingredient.purchase.lastPrice.currency='UAH';writeFileSync(file,JSON.stringify(ingredient));}
  if(name==='external-image') {
   const file=join(root,'data/ingredients/tomato.json'),ingredient=JSON.parse(readFileSync(file,'utf8'));
   ingredient.image={src:'https://example.org/tomato.png',license:'CC0'};writeFileSync(file,JSON.stringify(ingredient));

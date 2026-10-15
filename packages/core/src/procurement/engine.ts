@@ -738,6 +738,101 @@ export function formatAllPurchaseOrdersText(
 }
 
 // ---------------------------------------------------------------------------
+// 团队采购单「复制给菜贩」：formatPurchaseOrderText 的同一单头/行/合计格式，三语固定词
+// ---------------------------------------------------------------------------
+
+/**
+ * One supplier's part of a saved team shopping list. Rows carry display names only (never ids);
+ * quantities and amounts are the estimate's PurchaseOrderLine values, unchanged.
+ */
+export interface SupplierOrderGroup {
+  /** purchase.supplier as recorded, or UNSPECIFIED_SUPPLIER when none is recorded or unambiguous */
+  supplier: string;
+  /** Estimated rows: packs × packSize, qty and optional amount exactly as estimated */
+  lines: { name: string; line: PurchaseOrderLine }[];
+  /** Rows chosen to buy without an estimated quantity: named, never given a number or price */
+  unquantified: string[];
+}
+
+/** zh is the field-tested wording of formatPurchaseOrderText (week-41); en/uk say the same. */
+const SUPPLIER_TEXT: Record<keyof I18nString, {
+  title: string; unspecified: string; assignFirst: string; note: string; total: string; toConfirm: string;
+  items: (n: number) => string; estimated: (money: string) => string; lastPrice: string;
+  priced: (money: string) => string; withoutPrice: (n: number) => string; noPrice: string;
+  toConfirmCount: (n: number) => string; notInEstimate: string;
+  mixed: string; listSep: string; clauseSep: string;
+}> = {
+  zh: {
+    title: "【采购单】", unspecified: UNSPECIFIED_SUPPLIER, assignFirst: "请先指派再下单",
+    note: "⚠️ 未指定供应商：请指派供应商后再下单", total: "共", toConfirm: "数量待定",
+    items: (n) => `共 ${n} 样`, estimated: (m) => `预估 ${m}`, lastPrice: "按上次价",
+    priced: (m) => `已估价 ${m}`, withoutPrice: (n) => `${n} 样缺上次价`, noPrice: "无上次价记录",
+    toConfirmCount: (n) => `${n} 样数量待定`, notInEstimate: "未计入预估",
+    mixed: "币种不同不合计", listSep: "、", clauseSep: "；",
+  },
+  en: {
+    title: "【Purchase order】", unspecified: "No supplier assigned", assignFirst: "assign one before ordering",
+    note: "⚠️ No supplier assigned: assign a supplier before ordering", total: "total", toConfirm: "quantity to confirm",
+    items: (n) => `${n} ${n === 1 ? "item" : "items"}`, estimated: (m) => `estimated ${m}`, lastPrice: "at last price",
+    priced: (m) => `priced ${m}`, withoutPrice: (n) => `${n} without last price`, noPrice: "no last price on record",
+    toConfirmCount: (n) => `${n} with quantity to confirm`, notInEstimate: "not in the estimate",
+    mixed: "currencies differ, not added", listSep: ", ", clauseSep: "; ",
+  },
+  uk: {
+    title: "【Замовлення】", unspecified: "Постачальника не вказано", assignFirst: "призначте перед замовленням",
+    note: "⚠️ Постачальника не вказано: призначте постачальника перед замовленням", total: "разом", toConfirm: "кількість уточнити",
+    items: (n) => `Позицій: ${n}`, estimated: (m) => `орієнтовно ${m}`, lastPrice: "за останньою ціною",
+    priced: (m) => `оцінено ${m}`, withoutPrice: (n) => `без останньої ціни: ${n}`, noPrice: "останньої ціни немає",
+    toConfirmCount: (n) => `кількість уточнити: ${n}`, notInEstimate: "не враховано в оцінці",
+    mixed: "різні валюти, не додано", listSep: ", ", clauseSep: "; ",
+  },
+};
+
+/**
+ * formatSupplierOrderText：一个供应商的「复制给菜贩」消息。单头、分隔线、行与合计和
+ * formatPurchaseOrderText 同一格式（zh、没有待定行且单一币种时逐字相同）；日期由调用方给出
+ * （清单日期或日期范围）。没有估算数量的行只写名称与「数量待定」，不进合计，合计句说明条数。
+ * 金额只在同一币种内相加；不同币种按币种分列并注明不合计，绝不换算（formatPurchaseOrderText 未改）。
+ * 不输出清单编号、版本、计划编号或材料 id。
+ */
+export function formatSupplierOrderText(group: SupplierOrderGroup, opts: { date: string; lang?: keyof I18nString }): string {
+  const lang = opts.lang ?? "zh";
+  const p = PUNCT[lang];
+  const w = SUPPLIER_TEXT[lang];
+  const unspecified = group.supplier === UNSPECIFIED_SUPPLIER;
+  const header = unspecified
+    ? `${w.title}${opts.date} · ⚠️ ${w.unspecified}${p.lp}${w.assignFirst}${p.rp}`
+    : `${w.title}${opts.date} · ${group.supplier}`;
+  const sep = "────────────────";
+  // en 的通用量词按数量加复数；zh「包」、uk「уп.」不变
+  const pack = (packs: number) => (lang === "en" && packs !== 1 ? "packs" : PACK_LABEL[lang]);
+  const rows = group.lines.map(({ name, line }) =>
+    `${name}  ${line.packs} ${pack(line.packs)} × ${line.trace.packSize} ${unitLabel(line.trace.packUnit, lang)}${p.lp}${w.total} ${displayQty(line.qty, lang)}${p.rp}`);
+  for (const name of group.unquantified) rows.push(`${name}  ${w.toConfirm}`);
+  // 合计只看有估算的行，且只在同一币种内相加：全有金额且单一币种时与 renderPurchaseOrders 的
+  // totalAmount 相同；多币种按币种分列小计并注明不合计，不换算、不混加
+  const lines = group.lines.map((l) => l.line);
+  const subtotals = new Map<Money["currency"], number>();
+  for (const { amount } of lines) if (amount) subtotals.set(amount.currency, (subtotals.get(amount.currency) ?? 0) + amount.amount);
+  const priced = lines.filter((l) => l.amount).length;
+  const money = [...subtotals].map(([currency, amount]) => moneyText({ amount: round2(amount), currency })).join(w.listSep);
+  const notes = (...items: string[]) => `${p.lp}${items.join(w.clauseSep)}${p.rp}`;
+  const mixed = subtotals.size > 1 ? [w.mixed] : [];
+  const parts = [w.items(rows.length)];
+  if (lines.length > 0) {
+    if (!priced) parts.push(w.noPrice);
+    else if (priced === lines.length) parts.push(`${w.estimated(money)}${notes(w.lastPrice, ...mixed)}`);
+    else parts.push(`${w.priced(money)}${notes(...mixed, w.withoutPrice(lines.length - priced))}`);
+  }
+  if (group.unquantified.length > 0) {
+    parts.push(lines.length > 0 ? `${w.toConfirmCount(group.unquantified.length)}${p.comma}${w.notInEstimate}` : w.toConfirmCount(group.unquantified.length));
+  }
+  const out = [header, sep, ...rows, sep, parts.join(" · ")];
+  if (unspecified) out.push(w.note);
+  return out.join("\n");
+}
+
+// ---------------------------------------------------------------------------
 // renderMenu（顾客菜单）
 // ---------------------------------------------------------------------------
 
