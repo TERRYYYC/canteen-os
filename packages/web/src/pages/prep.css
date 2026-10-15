@@ -226,3 +226,34 @@ a.src:hover { text-decoration: underline; }
  .prep .prep-cooking>[data-recipe-meal-index]{padding:20px}
  .prep-cooking .dish-head h1{font-size:28px}
 }
+
+/* ---------- 「要准备的」清单（prep-list.ts） ---------- */
+.prep-list-slot{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
+.prep-list-slot:empty{display:none}
+.prep-list{display:flex;flex-direction:column;gap:8px}
+.prep-list-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.prep-list-head h2{margin:0;font-size:20px}
+.prep-list-head p{margin:0;font-size:14px}
+.prep-list-count{margin-left:auto;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.prep-list-notice{margin:0;padding:10px 12px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:14px;overflow-wrap:anywhere}
+.prep-list-hidden{margin:0;font-size:13px}
+.prep-list-section ul{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.prep-list-item{display:flex;gap:6px;align-items:flex-start;padding:8px 12px 10px 4px;border-top:1px solid var(--line)}
+.prep-list-item:first-child{border-top:0}
+.prep-list-check{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;cursor:pointer}
+.prep-list-check input{width:24px;height:24px;margin:0;accent-color:var(--qinghua,var(--accent))}
+.prep-list-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;overflow-wrap:break-word}
+.prep-list-body p{margin:0}
+.prep-list-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.prep-list-name{display:inline-flex;align-items:center;min-height:44px;min-width:44px;font-weight:700;font-size:16px;color:var(--ink);text-decoration:none}
+.prep-list-name.done{text-decoration:line-through;color:var(--muted)}
+.prep-list-qty{flex:none;max-width:48%;padding-top:10px;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.prep-list-qty .num{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.prep-list-qty small{font-size:12px}
+.prep-list-cut{display:flex;align-items:center;gap:6px;font-size:15px}
+.prep-list-cut.missing{color:var(--warn)}
+.prep-list-shape{flex:none;display:inline-flex;width:24px;height:24px}
+.prep-list-shape svg{width:24px;height:24px}
+.prep-list-shape svg path{stroke:var(--qinghua,var(--accent))}
+.prep-list-sub,.prep-list-note{font-size:14px;color:var(--muted)}
+.prep-list-body p.prep-list-for{margin-top:4px;font-size:13px;color:var(--muted)}
