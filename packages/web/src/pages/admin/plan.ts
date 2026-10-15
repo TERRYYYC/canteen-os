@@ -64,7 +64,9 @@ export function createPlanRenderer(api:TeamMealsApi) {
     if(!/^[a-z][a-z0-9-]*$/.test(id)){el.append(h('p',{role:'alert'},tr('error')));ctx.setReloadCoverage?.('read-only');return;}
     el.classList.add('tm-page');el.classList.add('tm-plan');
     const header=h('div',{class:'tm-head'},h('a',{href:adminHref()},tr('back')),h('h2',{class:'tm-plan-sr'},tr('plan')),h('a',{href:adminHref('plan',id,'import')},tr('import')));
-    const body=h('div',{});el.append(body,header);
+    // The unsaved reminder is appended to the outlet itself, after the footer links: sticky can only move inside its
+    // containing block, so it needs the whole page (like .adm-dish-bottom inside its form), not a wrapper of its own height.
+    const body=h('div',{}),reminder=h('p',{class:'tm-plan-unsaved'});el.append(body,header);
     if(api.mode==='unconfigured'){body.append(h('div',{class:'tm-status',role:'status'},tr('unconfigured')));ctx.setReloadCoverage?.('read-only');return;}
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
@@ -87,7 +89,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     function paint() {
       if(!isLive())return;
       const s=owner.session.getState();contextId=s.contextId;
-      if(s.identity?.id!==id){replace(body,h('p',{role:'status'},tr('loading')),...(loadError?[h('p',{role:'alert'},apiMessage(loadError,lang)),action(tr('retry'),()=>void reloadCatalog())]:[]));return;}
+      if(s.identity?.id!==id){reminder.remove();replace(body,h('p',{role:'status'},tr('loading')),...(loadError?[h('p',{role:'alert'},apiMessage(loadError,lang)),action(tr('retry'),()=>void reloadCatalog())]:[]));return;}
       if(boundKey!==sourceKey()){catalog=null;disposePhotos();}
       if(initialized&&!catalog&&requestedKey!==sourceKey()){requestedKey=sourceKey();void reloadCatalog(false);}
       const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;
@@ -170,8 +172,15 @@ export function createPlanRenderer(api:TeamMealsApi) {
       }
       if(version)output.push(version);
       // Unsaved means the session's draft or page-owned inputs not yet applied (the status line above says the same).
-      if(s.draft&&(s.dirty||rawPending(view)))output.push(h('div',{class:'tm-plan-unsaved-gap','aria-hidden':'true'}),h('p',{class:'tm-plan-unsaved',role:'status'},
-        L('有改动没保存 · 保存后还要发布，帮厨和采购才看得到','Changes not saved · after saving, publish too so the prep cooks and the buyer can see them','Є незбережені зміни · після збереження план ще треба опублікувати, щоб його побачили помічники кухаря й закупівельник')));
+      // A lost response is not a failed save: while the outcome is unknown the reminder repeats the verify-first status instead.
+      // That sentence is already the live status line above, so here it is plain text, not a second role=status announcement.
+      if(s.draft&&(s.dirty||rawPending(view))){
+        const unknownOutcome=s.phase==='outcome-unknown';
+        if(unknownOutcome)reminder.removeAttribute('role');else reminder.setAttribute('role','status');
+        reminder.textContent=unknownOutcome?tr('unknown'):
+          L('有改动没保存 · 保存后还要发布，帮厨和采购才看得到','Changes not saved · after saving, publish too so the prep cooks and the buyer can see them','Є незбережені зміни · після збереження план ще треба опублікувати, щоб його побачили помічники кухаря й закупівельник');
+        if(reminder.parentNode!==el)el.append(reminder);
+      }else reminder.remove();
       replace(body,...output);
       if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
     }

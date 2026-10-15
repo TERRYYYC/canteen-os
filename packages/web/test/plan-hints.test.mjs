@@ -42,12 +42,14 @@ async function setup(content=seed()){
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};globalThis.window={addEventListener(){}};globalThis.location={hash:'#/admin/plan/week-a'};globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const page=await import(`${pathToFileURL(file)}?case=${++serial}`),writes=[];
+ // The controlled server keeps what it committed: a 'lost' POST stores the body and then drops the response.
+ let post='success',saved={content,commit:A,blobSha:'before'};
  const api=page.createTeamMealsApi('https://plan-hints-fixture.invalid',{mode:'mock',token:()=>'explicit-local-fixture',identity:()=>1,fetch:async(url,init)=>{const u=new URL(url);
-  if(init.method==='POST'){writes.push({id:u.pathname,body:JSON.parse(init.body)});return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});}
+  if(init.method==='POST'){const body=JSON.parse(init.body);writes.push({id:u.pathname,body});saved={content:body,commit:B,blobSha:'after'};if(post==='lost'){post='success';throw new TypeError('explicit lost response');}return Response.json({ok:true,commit:B,blobSha:'after',unchanged:false,warnings:[]});}
   if(u.pathname==='/catalog')return Response.json({commit:A,dishes,ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});
-  return Response.json({content,commit:A,blobSha:'before'});}});
+  return Response.json(structuredClone(saved));}});
  const render=page.createPlanRenderer(api);
- return{writes,async mount(lang='en'){document.body.replaceChildren();const el=new Element('main');document.body.append(el);await render(el,{lang,planId:'week-a',route:'admin',rest:'week-a',setReloadCoverage(){}},'week-a');return el;},
+ return{writes,post(mode){post=mode;},async mount(lang='en'){document.body.replaceChildren();const el=new Element('main');document.body.append(el);await render(el,{lang,planId:'week-a',route:'admin',rest:'week-a',setReloadCoverage(){}},'week-a');return el;},
   async flush(){for(let i=0;i<5;i++)await tick();},cleanup(){api.dispose();document.body.replaceChildren();}};
 }
 const turn=(el,index)=>cls(rowOf(el,index),'tm-plan-turn')[0]?.textContent;
@@ -159,4 +161,47 @@ test('unsaved reminder wording in zh and uk',async()=>{
 });
 test('hints carry no developer information',async()=>{
  const f=await setup();try{const el=await f.mount('en');const text=[...cls(el,'tm-plan-turn'),...cls(el,'tm-plan-overview'),...cls(el,'tm-plan-other')].map(n=>n.textContent).join(' ');assert.doesNotMatch(text,/week-a|soup|stew|rice|dishRef|[0-9a-f]{40}/);}finally{f.cleanup();}
+});
+// #152 审查 P2 plan-unsaved-banner-unknown-outcome：服务端已提交但响应丢失时，结果未知，底栏不能断言「没保存」。
+test('unsaved reminder does not claim "not saved" while the save outcome is unknown; it asks to verify, then clears once verified',async()=>{
+ const unknown={zh:'保存结果未知，请先核实',en:'Save outcome unknown; verify first',uk:'Результат збереження невідомий; перевірте'};
+ const recover={zh:'核实保存结果',en:'Verify save outcome',uk:'Перевірити результат збереження'};
+ for(const lang of ['en','zh','uk']){
+  const f=await setup();try{
+   const el=await f.mount(lang);input(el,'servings-0','9');f.post('lost');save(el).click();await f.flush();
+   assert.equal(cls(el,'tm-status')[0].attrs['data-phase'],'outcome-unknown');assert.equal(f.writes.length,1);
+   const bar=cls(el,'tm-plan-unsaved')[0];assert.ok(bar,`${lang}: the bottom reminder stays while the outcome is unknown`);
+   assert.doesNotMatch(bar.textContent,/not saved|没保存|незбережені/i,`${lang}: unknown is not written as a certain failure`);
+   assert.equal(bar.textContent,unknown[lang]);
+   // 复审：上方 tm-status 已是 role=status 的同一句；底栏不再是第二个 live region，读屏不双报。
+   assert.equal(bar.getAttribute('role'),null,`${lang}: the reminder is not a second live region for the same sentence`);
+   assert.equal(walk(el).filter(n=>n.attrs.role==='status'&&n.textContent.startsWith(unknown[lang])).length,1,`${lang}: exactly one live region carries the verify-first sentence`);
+   assert.equal(bar.querySelectorAll('button').length,0);assert.equal(save(el).disabled,true);
+   // Verifying reads the committed plan back: no second POST, and the reminder goes away with the dirty state.
+   walk(el).find(n=>n.tagName==='BUTTON'&&n.textContent===recover[lang]).click();await f.flush();
+   assert.equal(cls(el,'tm-status')[0].attrs['data-phase'],'saved-but-unpublished');
+   assert.equal(cls(el,'tm-plan-unsaved').length,0);assert.equal(f.writes.length,1);
+  }finally{f.cleanup();}
+ }
+});
+// #152 审查 P3 plan-unsaved-banner-covers-footer-links：底栏不能盖住页尾的返回 / 粘贴导入链接。
+test('unsaved reminder sits after the footer links in flow and is sticky, not fixed over them',async()=>{
+ const f=await setup();try{
+  const el=await f.mount('uk');input(el,'servings-0','9');
+  const nodes=walk(el),bar=cls(el,'tm-plan-unsaved')[0],head=cls(el,'tm-head')[0];
+  assert.ok(bar&&head);assert.ok(head.querySelectorAll('a').length>=2,'footer keeps its back and import links');
+  assert.ok(nodes.indexOf(bar)>nodes.indexOf(head),'the reminder comes after the footer links, so scrolling to the end leaves the links clear');
+  assert.equal(cls(el,'tm-plan-unsaved-gap').length,0,'no fixed-height placeholder stands in for the localized bar height');
+  // 复审：sticky 只能在包含块内偏移。包含块必须是整页高的 outlet（同 .adm-dish-bottom 直接挂在高大的 form 下），
+  // 不能是只装它自己的包装 div，否则父盒与自身等高、sticky 退化为普通段落。
+  assert.equal(bar.parentNode,el,'the reminder is a direct child of the page outlet, so sticky has the whole page to move in');
+  assert.ok(el.children.indexOf(bar)>el.children.indexOf(head)&&el.children.indexOf(head)>=0,'…and it is the outlet child after the footer links');
+  assert.equal(cls(el,'tm-plan-reminder').length,0,'no single-child wrapper that would become a zero-room containing block');
+  assert.equal(bar.getAttribute('role'),'status','outside the unknown phase it stays a live region');
+  const css=await readFile(join(here,'../src/pages/admin/plan.css'),'utf8'),rule=css.match(/\.tm-plan-unsaved\{([^}]*)\}/)?.[1]??'';
+  assert.match(rule,/position:sticky/);assert.doesNotMatch(rule,/position:fixed/);assert.doesNotMatch(css,/tm-plan-unsaved-gap/);
+  save(el).click();await f.flush();assert.equal(cls(el,'tm-plan-unsaved').length,0);
+  // A later edit brings it back in the same place.
+  input(el,'servings-1','7');const again=cls(el,'tm-plan-unsaved')[0];assert.ok(again);assert.equal(again.parentNode,el);assert.ok(el.children.indexOf(again)>el.children.indexOf(head));
+ }finally{f.cleanup();}
 });
