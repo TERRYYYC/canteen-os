@@ -17,7 +17,7 @@ import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
 import type {SupplierSection} from './supplier-copy';
-import {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,buyItems,listDates} from './supplier-copy';
+import {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,hasOrder,buyItems,listDates} from './supplier-copy';
 import {pick,type Lang} from '../i18n';
 import {word,supportDetails} from './record-display';
 import {displayDate,displayDateRange} from '../display-date';
@@ -166,9 +166,10 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const sections=supplierSections(basis.projection.collection.items,basis.projection,lang,basis.estimate).sections;
    const buying=supplierSections(buyItems(list),basis.projection,lang,basis.estimate).sections;
    const sectionCopy=(section:SupplierSection)=>{
-    const found=buying.find(x=>x.supplier===section.supplier);
-    const copied=copyAction('section',t('copySection'),found?supplierSectionText(found,lang,listDates(list)):'');copied.button.disabled=!found;
-    if(!found)copied.card.append(h('p',{class:'muted','data-copy-section-none':''},t('copySectionNone')));
+    // A section whose "buy" items are all covered by stock is no order: greyed, with that reason rather than "nothing marked Buy".
+    const found=buying.find(x=>x.supplier===section.supplier),order=found&&hasOrder(found)?found:undefined;
+    const copied=copyAction('section',t('copySection'),order?supplierSectionText(order,lang,listDates(list)):'');copied.button.disabled=!order;
+    if(!order)copied.card.append(h('p',{class:'muted',[found?'data-copy-section-covered':'data-copy-section-none']:''},t(found?'copySectionCovered':'copySectionNone')));
     return copied.card;
    };
    nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,sections,sectionCopy,
@@ -312,7 +313,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
   function copyPanels(list:ShoppingList){
    const basis=form.basis!,orders=supplierCopy(list,basis.projection,lang,basis.estimate),{check,bought}=countDecisions(list);
-   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
+   // Items marked Buy and not bought may all be covered by stock: then there is nothing to send, and the note says so.
+   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':buyItems(list).length?'copySuppliersCovered':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
    const suppliers=copyAction('suppliers',t('copySuppliers'),orders.text,scope);suppliers.button.disabled=!orders.items;
    const record=copyAction('record',t('copyRecord'),shoppingCopy(list,basis.projection,lang,basis.estimate));
    return [suppliers.card,record.card];
@@ -393,7 +395,10 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
   h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
   h('div',{class:'tm-purchase-actions'},suppliers.card),
   renderCandidates({lang,...projection,estimate,compact:true,controls:decisions,sections:previewSections,sectionCopy:section=>{
-   const copied=copyCard(lang,'section',t('copySection'),supplierSectionText(section,lang,selection.map(slot=>slot.date)),[],()=>el.isConnected);return copied.card;
+   // As on a saved list: a section whose items are all covered by stock is no order, so it is greyed with that reason.
+   const order=hasOrder(section);
+   const copied=copyCard(lang,'section',t('copySection'),order?supplierSectionText(section,lang,selection.map(slot=>slot.date)):'',order?[]:[h('p',{class:'muted','data-copy-section-covered':''},t('copySectionPreviewCovered'))],()=>el.isConnected);
+   copied.button.disabled=!order;return copied.card;
   }}),
   chefOnly(()=>h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt))));
 }

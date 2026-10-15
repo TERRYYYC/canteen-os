@@ -13,10 +13,10 @@ import {test,after} from 'node:test';
 import {Element,walk,flush,setup,card,btn} from './team-meals-pages-shopping-harness.mjs';
 const here=dirname(fileURLToPath(import.meta.url)),require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const dir=await mkdtemp(join(tmpdir(),'supplier-sections-'));after(()=>rm(dir,{recursive:true,force:true}));
-const built=await esbuild.build({stdin:{contents:`export {renderCandidates,counterpartName} from './src/pages/purchase-list';export {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,sumByCurrency,moneyText} from './src/pages/supplier-copy';export {projectTeamMeals,estimateShoppingList,createShoppingList,applyShoppingDecision,UNSPECIFIED_SUPPLIER} from '@canteenos/core';`,resolveDir:join(here,'..')},bundle:true,write:false,format:'esm',platform:'node',target:'node20',logLevel:'silent'});
+const built=await esbuild.build({stdin:{contents:`export {renderCandidates,counterpartName} from './src/pages/purchase-list';export {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,sumByCurrency,moneyText} from './src/pages/supplier-copy';export {projectTeamMeals,estimateShoppingList,createShoppingList,applyShoppingDecision,UNSPECIFIED_SUPPLIER} from '@canteenos/core';export {pick} from './src/i18n';`,resolveDir:join(here,'..')},bundle:true,write:false,format:'esm',platform:'node',target:'node20',logLevel:'silent'});
 const file=join(dir,'page.mjs');await writeFile(file,built.outputFiles[0].text);
 globalThis.HTMLElement=Element;globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
-const m=await import(pathToFileURL(file));
+const m=await import(pathToFileURL(file)),{pick}=m;
 
 const golden=join(here,'../../../test/fixtures/contracts/valid/golden/data');
 async function records(folder){return Object.fromEntries(await Promise.all((await readdir(join(golden,folder))).filter(f=>f.endsWith('.json')).map(async f=>[f.slice(0,-5),JSON.parse(await readFile(join(golden,folder,f),'utf8'))])));}
@@ -131,6 +131,105 @@ test('an item without a complete estimate shows the reason instead of numbers',(
  assert.equal(v.estimate.items.find(i=>i.ingredientRef==='scallion').status,'unavailable');
  assert.equal(notes('zh'),'原用量未录');assert.equal(notes('en'),'Recipe quantity missing');assert.equal(notes('uk'),'Кількість рецепта не вказано');
  assert.ok(!/包|packs|уп\./.test(notes('zh')+notes('en')+notes('uk')));
+});
+
+test('a complete estimate with no order line (stock covers the need) reads "no order needed", not "unavailable" or "quantity to confirm"',()=>{
+ // Golden salt is trackStock:true with onHand 500 g; 1000 g covers 480 servings × 1.5 g × margin 1.1 = 792 g, so core keeps complete with no line.
+ const inputs=structuredClone(seed);inputs.ingredients.salt.onHand=1000;
+ const v=view(buyAll,inputs),salt=v.estimate.items.find(i=>i.ingredientRef==='salt');
+ assert.deepEqual(salt,{ingredientRef:'salt',status:'complete',reasons:[],lines:[]},'core: complete, nothing to order');
+ const words={zh:['本次参考无需订货','0 包','无法完整计算','数量待定'],en:['No order needed this time','0 packs','Complete estimate unavailable','quantity to confirm'],uk:['Цього разу замовляти не потрібно','0 уп.','Повний розрахунок недоступний','кількість уточнити']};
+ for(const lang of ['zh','en','uk']){
+  const sections=sectionsOf(v,lang),hongda=sections.find(s=>s.supplier==='宏达粮油调味批发'),i=sections.indexOf(hongda);
+  assert.ok(hongda.entries.some(e=>e.ingredientRef==='salt'),`${lang}: salt stays under its recorded supplier with its sources`);
+  assert.equal(hongda.unquantified,0,`${lang}: a known zero-order reference is not "quantity to confirm"`);
+  const el=render(v,lang),row=cls(card(el,'salt'),'tm-material-estimate')[0],head=text(headOf(el,i));
+  assert.equal(row.attrs['data-estimate'],'covered',lang);
+  assert.ok(text(row).includes(words[lang][0])&&text(row).includes(words[lang][1]),`${lang}: ${text(row)}`);
+  assert.ok(!text(row).includes(words[lang][2]),`${lang}: not reported unavailable: ${text(row)}`);
+  assert.ok(!head.includes(words[lang][3]),`${lang}: section head counts no quantity to confirm: ${head}`);
+  assert.ok(!walk(headOf(el,i)).some(n=>n.attrs['data-section-unquantified']!==undefined),lang);
+  // The other section and a truly unavailable item are unchanged: the reason still shows there.
+  assert.ok(text(headOf(el,1-i)).includes('¥'),`${lang}: the other section still sums`);
+ }
+ // A truly unavailable item in the same view still reads its reason and still counts as quantity to confirm.
+ const both=structuredClone(inputs);delete both.ingredients.tomato.purchase;
+ const w=view(buyAll,both),ws=sectionsOf(w),last=ws.at(-1);
+ assert.equal(last.supplier,m.UNSPECIFIED_SUPPLIER);assert.equal(last.unquantified,1);
+ assert.equal(cls(card(render(w),'tomato'),'tm-material-estimate')[0].attrs['data-estimate'],'reason');
+ assert.equal(ws.find(s=>s.supplier==='宏达粮油调味批发').unquantified,0);
+ // The copied text says the same as the page: a known zero-order item is not a "quantity to confirm" row, so it is left out
+ // of the supplier's order and of the count; a truly unavailable item is still written and counted as before.
+ const dates=selection.map(x=>x.date),toConfirm={zh:'数量待定',en:'quantity to confirm',uk:'кількість уточнити'};
+ for(const lang of ['zh','en','uk']){
+  const saltName=pick(seed.ingredients.salt.name,lang),copy=m.supplierCopy(v.list,v.projection,lang,v.estimate);
+  assert.equal(copy.unquantified,0,`${lang}: whole copy counts no quantity to confirm`);
+  assert.ok(!copy.text.includes(toConfirm[lang]),`${lang}: ${copy.text}`);
+  assert.ok(!copy.text.includes(saltName),`${lang}: a zero-order item is not sent to the supplier: ${copy.text}`);
+  const hongda=sectionsOf(v,lang).find(s=>s.supplier==='宏达粮油调味批发'),sectionText=m.supplierSectionText(hongda,lang,dates);
+  assert.ok(!sectionText.includes(toConfirm[lang])&&!sectionText.includes(saltName),`${lang}: section copy agrees with its head: ${sectionText}`);
+  assert.ok(!/  0 /.test(sectionText),`${lang}: no "name  0 packs" row either: ${sectionText}`);
+  // Unchanged for a truly unavailable item: name, "quantity to confirm", and the count sentence.
+  const wc=m.supplierCopy(w.list,w.projection,lang,w.estimate);
+  assert.equal(wc.unquantified,1,lang);
+  assert.ok(wc.text.includes(`${pick(seed.ingredients.tomato.name,lang)}  ${toConfirm[lang]}`),`${lang}: ${wc.text}`);
+  assert.ok(!wc.text.includes(saltName),lang);
+ }
+ assert.match(m.supplierCopy(w.list,w.projection,'zh',w.estimate).text,/1 样数量待定/);
+ assert.ok(!m.supplierCopy(v.list,v.projection,'zh',v.estimate).text.includes('食盐  数量待定'));
+});
+
+test('a supplier whose only "buy" items are covered by stock gets no order: no empty "0 items" message, not counted as listed',()=>{
+ const inputs=structuredClone(seed);inputs.ingredients.salt.onHand=1000;
+ const zero={zh:'共 0 样',en:'0 items',uk:'Позицій: 0'},dates=selection.map(x=>x.date);
+ for(const lang of ['zh','en','uk']){
+  // Salt alone is marked buy and needs nothing: there is nothing to send at all.
+  const only=view([['salt','buy']],inputs);
+  assert.deepEqual(only.estimate.items.find(i=>i.ingredientRef==='salt').lines,[]);
+  assert.deepEqual(m.supplierCopy(only.list,only.projection,lang,only.estimate),{text:'',items:0,unquantified:0},`${lang}: nothing to copy`);
+  // Salt and tomato marked buy: only tomato's supplier gets a message; salt's supplier gets none, not a header with "0 items".
+  const both=view([['salt','buy'],['tomato','buy']],inputs),copy=m.supplierCopy(both.list,both.projection,lang,both.estimate);
+  assert.equal(copy.items,1,`${lang}: one item is listed`);assert.equal(copy.unquantified,0,lang);
+  assert.equal(copy.text.split('\n\n').length,1,`${lang}: one supplier message only: ${copy.text}`);
+  assert.ok(copy.text.includes('绿源农产品配送')&&!copy.text.includes('宏达粮油调味批发'),`${lang}: ${copy.text}`);
+  assert.ok(!copy.text.includes(zero[lang]),`${lang}: no empty order: ${copy.text}`);
+  // The read-only preview counts the same way.
+  const preview=m.previewSupplierCopy(only.projection,lang,only.estimate,selection);
+  assert.equal(preview.items,4,`${lang}: preview lists every candidate except the covered one`);
+  assert.ok(!preview.text.includes(pick(seed.ingredients.salt.name,lang))&&!preview.text.includes(zero[lang]),`${lang}: ${preview.text}`);
+  // The page still shows salt under its supplier with the "no order needed" row (unchanged from the row test above).
+  const sections=sectionsOf(only,lang),hongda=sections.find(s=>s.supplier==='宏达粮油调味批发');
+  assert.ok(hongda?.entries.some(e=>e.ingredientRef==='salt'&&e.covered),lang);
+  // The sections of the "buy" items alone still hold salt's supplier (so the page can grey its button with a reason), counted as covered;
+  // its raw text would be the empty order, which is exactly what the copies above must not offer.
+  const buying=m.supplierSections([{ingredientRef:'salt'}],only.projection,lang,only.estimate);
+  assert.equal(buying.covered,1,lang);assert.deepEqual(buying.sections.map(s=>s.supplier),['宏达粮油调味批发']);
+  assert.deepEqual(buying.sections[0].group,{supplier:'宏达粮油调味批发',lines:[],unquantified:[]},lang);
+  assert.ok(m.supplierSectionText(buying.sections[0],lang,dates).includes(zero[lang]),`${lang}: ${m.supplierSectionText(buying.sections[0],lang,dates)}`);
+ }
+});
+
+for(const lang of ['zh','en','uk'])test(`${lang}: when every "buy" item of a section is covered by stock, "copy this section" and "copy for suppliers" are greyed and say so instead of copying an empty order`,async()=>{
+ // Tomato gets a purchase record and enough stock: one meal, 2 planned servings of a 2-serving recipe: 300 g × margin 1.1 = 330 g < 1000 g on hand, so core finds nothing to order.
+ const patch=data=>{Object.assign(data.ingredients.tomato,{purchase:{supplier:'绿源农产品配送',packSize:5,packUnit:'kg',lastPrice:{amount:28.5,currency:'CNY'}},trackStock:true,onHand:1000});};
+ const f=await setup({lang,patch});
+ try{
+  const el=await f.mount('team-shop'),words={zh:['待买','这一段的「待买」材料本次都无需订货，没有要发给菜贩的内容。','「待买」且还没买的材料本次都无需订货，没有要发给菜贩的内容。'],en:['Buy','Everything marked Buy here needs no order this time; nothing to send.','Everything marked Buy and not yet bought needs no order this time; nothing to send.'],uk:['Купити','Усе, що тут позначено «Купити», цього разу замовляти не потрібно; надсилати нічого.','Усе, що позначено «Купити» і ще не куплено, цього разу замовляти не потрібно; надсилати нічого.']}[lang];
+  const tomato=card(el,'tomato');
+  assert.equal(cls(tomato,'tm-material-estimate')[0].attrs['data-estimate'],'covered','the row itself says no order is needed');
+  btn(tomato,words[0]).click();await flush();
+  const section=walk(el).find(n=>n.attrs['data-supplier-section']&&walk(n).some(x=>x.attrs['data-ingredient']==='tomato')),copy=walk(section).find(n=>n.attrs['data-copy']==='section');
+  assert.ok(copy,'section copy card');
+  assert.equal(copy.children.find(n=>n.tagName==='BUTTON').disabled,true,'nothing to send from this section');
+  assert.equal(walk(copy).find(n=>n.tagName==='TEXTAREA').value,'','no empty order text behind the button');
+  assert.equal(walk(copy).find(n=>n.attrs['data-copy-section-covered']!==undefined)?.textContent,words[1],'the greyed button says why');
+  assert.equal(walk(copy).some(n=>n.attrs['data-copy-section-none']!==undefined),false,'not the "nothing marked Buy" wording: tomato is marked Buy');
+  const whole=walk(el).find(n=>n.attrs['data-copy']==='suppliers');
+  assert.equal(whole.children.find(n=>n.tagName==='BUTTON').disabled,true,'the whole copy has nothing to send either');
+  assert.equal(walk(whole).find(n=>n.tagName==='TEXTAREA').value,'');
+  assert.ok(walk(whole).some(n=>n.textContent===words[2]),`the whole copy says why: ${whole.textContent}`);
+  assert.equal(f.writes.length,0,'choosing a judgment alone writes nothing');
+ }finally{f.cleanup();}
 });
 
 test('each row names the other language: zh reads uk, uk and en read zh; missing or equal text is left out',()=>{

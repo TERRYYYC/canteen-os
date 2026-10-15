@@ -10,9 +10,9 @@ import {shoppingText} from './purchase-list';
 export interface SupplierCopy {
  /** Per-supplier messages separated by a blank line; empty when nothing is listed. */
  text:string;
- /** Candidates listed in text. */
+ /** Candidates listed in text; a complete estimate that orders nothing is not listed. */
  items:number;
- /** Of those, items listed without an estimated quantity ("quantity to confirm"). */
+ /** Of those, items listed without an estimated quantity ("quantity to confirm"); a complete estimate that orders nothing is neither listed nor counted. */
  unquantified:number;
 }
 /** One candidate row: its key and, for a shared ingredient, the fixed snapshot records behind it. */
@@ -20,8 +20,10 @@ export interface SupplierItem {readonly ingredientRef:string;readonly snapshotRe
 export type EstimatedLine=SupplierOrderGroup['lines'][number]['line'];
 export interface SupplierSectionEntry {
  readonly ingredientRef:string;
- /** Estimated lines of this supplier; empty when the item has no estimated quantity. */
+ /** Estimated lines of this supplier; empty when the item has no estimated quantity or needs no order. */
  readonly lines:EstimatedLine[];
+ /** A complete estimate that produced no line: stock on hand covers the need, so nothing is ordered. Not "quantity to confirm" on the page or in the copied text. */
+ readonly covered:boolean;
 }
 /** One supplier's share of the candidates: the copy group plus the rows and sums the page shows. */
 export interface SupplierSection {
@@ -46,12 +48,18 @@ export function sumByCurrency(lines:readonly EstimatedLine[]):{currency:string;a
  for(const {amount} of lines)if(amount)cents.set(amount.currency,(cents.get(amount.currency)??0)+Math.round(amount.amount*100));
  return [...cents].map(([currency,total])=>({currency,amount:total/100}));
 }
-/** Supplier groups exactly as the copy text lists them; the unassigned group is always last. */
-export function supplierSections(items:readonly SupplierItem[],projection:Pick<TeamMealsProjection,'ingredients'|'collection'>,lang:Lang,estimate:ShoppingEstimate):{sections:SupplierSection[];unquantified:number} {
+/** Whether a section has anything to send: an estimated row or a "quantity to confirm" row. A section whose items are all covered by stock is no order. */
+export const hasOrder=(section:SupplierSection)=>section.group.lines.length>0||section.group.unquantified.length>0;
+/**
+ * Supplier groups exactly as the copy text lists them; the unassigned group is always last. Every item keeps a
+ * section entry so the page can show it; `covered` counts the items whose complete estimate orders nothing,
+ * which the copied text leaves out (see hasOrder).
+ */
+export function supplierSections(items:readonly SupplierItem[],projection:Pick<TeamMealsProjection,'ingredients'|'collection'>,lang:Lang,estimate:ShoppingEstimate):{sections:SupplierSection[];unquantified:number;covered:number} {
  const found=new Map<string,SupplierSection>();
  const section=(supplier:string)=>{let hit=found.get(supplier);if(!hit){hit={supplier,group:{supplier,lines:[],unquantified:[]},entries:[],totals:[],unpriced:0,unquantified:0};found.set(supplier,hit);}return hit;};
- const entry=(target:SupplierSection,ingredientRef:string)=>{let hit=target.entries.find(x=>x.ingredientRef===ingredientRef);if(!hit){hit={ingredientRef,lines:[]};target.entries.push(hit);}return hit;};
- let unquantified=0;
+ const entry=(target:SupplierSection,ingredientRef:string,covered=false)=>{let hit=target.entries.find(x=>x.ingredientRef===ingredientRef);if(!hit){hit={ingredientRef,lines:[],covered};target.entries.push(hit);}return hit;};
+ let unquantified=0,covered=0;
  for(const item of items){
   const refs=item.snapshotRefs??projection.collection.items.find(x=>x.ingredientRef===item.ingredientRef)?.snapshotRefs??[item.ingredientRef];
   const records=refs.map(ref=>own(projection.ingredients,ref));
@@ -59,19 +67,23 @@ export function supplierSections(items:readonly SupplierItem[],projection:Pick<T
   const name=pick((own(projection.ingredients,item.ingredientRef)??records[0])?.name,lang)||shoppingText(lang,'missing');
   const estimated=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
   if(estimated?.status==='complete'&&estimated.lines.length){for(const {supplier,line} of estimated.lines){const target=section(supplier);target.group.lines.push({name,line});entry(target,item.ingredientRef).lines.push(line);}continue;}
-  // No estimated quantity: name only, under the supplier every fixed record names; otherwise unassigned.
+  // No line: name only, under the supplier every fixed record names; otherwise unassigned.
   const suppliers=new Set(records.map(recordedSupplier)),[only]=suppliers;
   const target=section(suppliers.size===1&&only?only:UNSPECIFIED_SUPPLIER);
-  target.group.unquantified.push(name);entry(target,item.ingredientRef);unquantified++;
+  // A complete estimate with no line means core found nothing to order (stock covers it): the page keeps the
+  // row with its sources and says so, and the supplier's text neither lists it nor counts it as "quantity to confirm".
+  const isCovered=estimated?.status==='complete';
+  entry(target,item.ingredientRef,isCovered);
+  if(isCovered)covered++;else{target.group.unquantified.push(name);unquantified++;}
  }
  // Core order: suppliers as first listed, the unassigned group last.
  const sections=[...found.values()].sort((a,b)=>Number(a.supplier===UNSPECIFIED_SUPPLIER)-Number(b.supplier===UNSPECIFIED_SUPPLIER));
  for(const target of sections){
   target.totals=sumByCurrency(target.group.lines.map(x=>x.line));
   target.unpriced=target.entries.filter(x=>x.lines.length>0&&!x.lines.some(line=>line.amount)).length;
-  target.unquantified=target.entries.filter(x=>x.lines.length===0).length;
+  target.unquantified=target.entries.filter(x=>x.lines.length===0&&!x.covered).length;
  }
- return {sections,unquantified};
+ return {sections,unquantified,covered};
 }
 /** The date heading of a supplier message: one day, or first – last. */
 function orderDate(dates:readonly string[]):string {
@@ -83,8 +95,9 @@ export function supplierSectionText(section:SupplierSection,lang:Lang,dates:read
  return formatSupplierOrderText(section.group,{date:orderDate(dates),lang});
 }
 function supplierText(items:readonly SupplierItem[],projection:TeamMealsProjection,lang:Lang,estimate:ShoppingEstimate,dates:readonly string[]):SupplierCopy {
- const {sections,unquantified}=supplierSections(items,projection,lang,estimate);
- return {text:sections.map(entry=>supplierSectionText(entry,lang,dates)).join('\n\n'),items:items.length,unquantified};
+ const {sections,unquantified,covered}=supplierSections(items,projection,lang,estimate);
+ // A supplier whose items are all covered by stock gets no message: an order with no rows is nothing to send.
+ return {text:sections.filter(hasOrder).map(entry=>supplierSectionText(entry,lang,dates)).join('\n\n'),items:items.length-covered,unquantified};
 }
 /** A saved list's items decided "buy" and not yet bought: what both the whole copy and a section copy list. */
 export const buyItems=(list:ShoppingList)=>list.items.filter(item=>item.decision==='buy'&&item.bought!==true);

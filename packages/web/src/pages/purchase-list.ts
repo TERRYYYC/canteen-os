@@ -6,7 +6,7 @@ import {displayDate} from '../display-date';
 import {text} from './team-ui';
 import {displayQuantity,quantityText} from './quantity-text';
 import {word,supportDetails} from './record-display';
-import {moneyText,sumByCurrency,type EstimatedLine,type SupplierSection} from './supplier-copy';
+import {moneyText,sumByCurrency,type EstimatedLine,type SupplierSection,type SupplierSectionEntry} from './supplier-copy';
 export const shoppingWords={
  title:['本次采购','This shopping list','Цей список покупок'],check:['待核对','Check','Перевірити'],buy:['待买','Buy','Купити'],available:['已有','Available','Є в наявності'],bought:['已买','Bought','Куплено'],
  open:['打开清单','Open list','Відкрити список'],new:['新建清单','New list','Новий список'],id:['清单编号（字母、数字、短横线）','List ID (letters, numbers, hyphens)','Номер списку (латиниця, цифри, дефіс)'],
@@ -19,8 +19,12 @@ export const shoppingWords={
  choose:['至少选择一个日期和餐次。','Select at least one date and meal.','Виберіть хоча б одну дату й прийом їжі.'],noList:['未找到清单，可用这个名称新建。','List not found; you can create one with this ID.','Список не знайдено; можна створити його з цією назвою.'],
  coverage:['已录材料候选；配方完整性仍需人工核对。','Recorded ingredient candidates; recipe completeness needs human review.','Записані інгредієнти; повноту рецепта має перевірити людина.'],
  sources:['使用来源','Used in','Використовується в'],estimate:['可计算的参考','Calculated reference','Розрахунковий орієнтир'],unavailable:['无法完整计算','Complete estimate unavailable','Повний розрахунок недоступний'],
+ covered:['本次参考无需订货 · 0 包 · 现有库存已够','No order needed this time · 0 packs · stock on hand covers it','Цього разу замовляти не потрібно · 0 уп. · наявного запасу достатньо'],
  removed:['移出的材料（原购买记录仅供参考）','Removed ingredients (old purchase records for reference)','Вилучені інгредієнти (старі покупки лише для довідки)'],previous:['上次判断，仅供重新核对','Previous decision, for review only','Попереднє рішення, лише для перевірки'],
  copySection:['复制这一段','Copy this section','Копіювати цей розділ'],copySectionNone:['这一段没有还没买的「待买」材料。','Nothing here is marked Buy and still to buy.','Тут немає позицій «Купити», які ще не куплено.'],
+ copySectionCovered:['这一段的「待买」材料本次都无需订货，没有要发给菜贩的内容。','Everything marked Buy here needs no order this time; nothing to send.','Усе, що тут позначено «Купити», цього разу замовляти не потрібно; надсилати нічого.'],
+ copySectionPreviewCovered:['这一段的材料本次都无需订货，没有要发给菜贩的内容。','Nothing in this section needs ordering this time; nothing to send.','У цьому розділі цього разу нічого не треба замовляти; надсилати нічого.'],
+ copySuppliersCovered:['「待买」且还没买的材料本次都无需订货，没有要发给菜贩的内容。','Everything marked Buy and not yet bought needs no order this time; nothing to send.','Усе, що позначено «Купити» і ще не куплено, цього разу замовляти не потрібно; надсилати нічого.'],
  copySuppliers:['复制给菜贩','Copy for suppliers','Копіювати для постачальників'],copySuppliersScope:['只列「待买」且还没买的材料，按供应商分段。','Only items marked Buy and not yet bought, by supplier.','Лише позиції «Купити», ще не куплені, за постачальниками.'],copySuppliersNone:['还没有标为「待买」的材料。','No items are marked Buy yet.','Ще немає позицій «Купити».'],copySuppliersDone:['标为「待买」的材料都已买。','Everything marked Buy is already bought.','Усе, що позначено «Купити», вже куплено.'],copySuppliersPreview:['这里列出所选餐次要用的全部材料，没有「已有」「已买」标记。发给菜贩前，请先删掉已经有的。','This lists everything the selected meals need, with no Available or Bought marks. Remove what you already have before sending.','Тут усе, що потрібно для вибраних прийомів їжі, без позначок «Є в наявності» чи «Куплено». Перед надсиланням приберіть те, що вже є.'],copyRecord:['复制完整记录','Copy full record','Копіювати повний запис'],copyTitle:['当前页面清单（请核对保存状态）','Current page list (check save status)','Список поточної сторінки (перевірте стан збереження)'],copied:['已复制','Copied','Скопійовано'],copyFailed:['复制失败，可选取下面文字复制。','Copy failed; select the text below to copy.','Не вдалося скопіювати; виділіть текст нижче.'],
  revision:['材料和菜单资料版本','Ingredient and menu version','Версія інгредієнтів і меню'],keep:['保留本地范围并重新核对','Keep local scope and review again','Зберегти локальний діапазон і перевірити знову'],
  current:['打开当前资料编辑页','Open current information editor','Відкрити редактор поточних даних'],unknownCount:['份数未录','Servings unspecified','Порції не вказано'],main:['主料','Main ingredient','Основний інгредієнт'],seasoning:['调料','Seasoning','Приправа'],
@@ -85,19 +89,21 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  result.append(h('p',{class:'muted'},t('coverage')));
  if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('article',{},h('p',{},reasonText(issue.code,lang),' · ',[issue.date,issue.mealType?text(lang,issue.mealType):''].filter(Boolean).join(' / ')),issue.dishRef?ref('dish',issue.dishRef):null,issue.ingredientRef?ref('ingredient',issue.ingredientRef):null,h('p',{},word(lang,'查看来源资料并补齐后，再核对采购范围。','Check and complete the source records, then review the shopping scope.','Перевірте й доповніть вихідні дані, потім перевірте діапазон закупівель.')),supportDetails(lang,JSON.stringify(issue))))));
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
- const materialCard=(item:IngredientCollection['items'][number],sectionLines?:readonly EstimatedLine[])=>{
+ const materialCard=(item:IngredientCollection['items'][number],sectionEntry?:SupplierSectionEntry)=>{
   // Name and role describe the same record of this list's fixed basis; a canonical group reads its first snapshot.
   const recordRef=item.snapshotRefs?.[0]??item.ingredientRef,estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
-  const ingredient=lookup(ingredients,recordRef);
+  const ingredient=lookup(ingredients,recordRef),sectionLines=sectionEntry?.lines;
   // An absent role is unclassified, not a missing record; only an absent record keeps the missing notice (#131).
   const other=sectionLines?counterpartName(ingredient?.name,lang):'';
   const heading=h('h3',{},ref('ingredient',recordRef),other?h('span',{class:'tm-counterpart',lang:lang==='zh'?'uk':'zh'},other):null),role=h('p',{class:'muted','data-ingredient-role':!ingredient?'missing':ingredient.role??'unclassified'},!ingredient?t('missing'):ingredient.role?t(ingredient.role):t('unclassified'));
   const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},...(options.compact?[h('div',{class:'tm-material-heading'},heading,role)]:[heading,role]));
   const reference=options.compact?h('details',{class:'tm-material-reference'},h('summary',{},word(lang,'来源与数量参考','Sources and quantity reference','Джерела й кількісні орієнтири'),` · ${item.sources.length}`)):null;
   if(options.controls)card.append(options.controls(item.ingredientRef));
-  if(sectionLines){
+  if(sectionEntry&&sectionLines){
+   // Three cases, never confused: estimated lines; a complete estimate that orders nothing (stock covers it); no complete estimate, with its reasons.
    const reasons=estimateItem?.status==='complete'?[]:[...new Set((estimateItem?.reasons??[]).map(r=>reasonText(r.code,lang)))];
-   card.append(h('div',{class:'tm-material-estimate','data-estimate':sectionLines.length?'lines':'reason'},...(sectionLines.length?sectionLines.map(line=>h('p',{},estimateLineText(line,lang))):[h('p',{class:'muted'},reasons.join(' · ')||t('unavailable'))])));
+   const body=sectionLines.length?sectionLines.map(line=>h('p',{},estimateLineText(line,lang))):[h('p',{class:'muted'},sectionEntry.covered?t('covered'):reasons.join(' · ')||t('unavailable'))];
+   card.append(h('div',{class:'tm-material-estimate','data-estimate':sectionLines.length?'lines':sectionEntry.covered?'covered':'reason'},...body));
   }
   (reference??card).append(h(options.compact?'section':'details',{},h(options.compact?'h4':'summary',{},`${t('sources')} · ${item.sources.length}`),h('ul',{},...item.sources.map(s=>{
     const amount=s.scaledQty?quantityText(s.scaledQty,lang):reasonText(s.plannedServings===undefined?'missing-planned-servings':s.baseServings===undefined?'missing-base-servings':'missing-qty',lang);
@@ -116,7 +122,7 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
    const head=h('div',{class:'tm-supplier-head'},h('div',{},h('h3',{},supplierTitle(section.supplier,lang)),h('p',{},kindsText(section.entries.length,lang),...sum),
     unpriced?h('p',{class:'muted','data-section-unpriced':String(unpriced)},word(lang,`其中 ${unpriced} 种暂无价格`,`${unpriced} of them without a price yet`,`серед них без ціни: ${unpriced}`)):null,
     unquantified?h('p',{class:'muted','data-section-unquantified':String(unquantified)},word(lang,`其中 ${unquantified} 种数量待定，未计入小计`,`${unquantified} with quantity to confirm, not in the subtotal`,`кількість уточнити: ${unquantified} — не враховано в сумі`)):null),copy);
-   const rows=section.entries.flatMap(entry=>{const item=collection.items.find(x=>x.ingredientRef===entry.ingredientRef);return item?[materialCard(item,entry.lines)]:[];});
+   const rows=section.entries.flatMap(entry=>{const item=collection.items.find(x=>x.ingredientRef===entry.ingredientRef);return item?[materialCard(item,entry)]:[];});
    result.append(h('section',{class:'tm-supplier-section','data-supplier-section':section.supplier===UNSPECIFIED_SUPPLIER?'unspecified':'supplier'},head,...rows));
   }
   return result;

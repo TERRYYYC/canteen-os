@@ -286,3 +286,29 @@ test('read-only copy follows the interface language and shares the clipboard and
   }finally{f.cleanup();}
  }
 });
+
+test('read-only copy: a supplier whose every item is covered by stock offers no empty order, in its section or in the whole copy',async()=>{
+ const covered=publishedFixture('stock-covers-hongda');
+ const words={zh:['这一段的材料本次都无需订货，没有要发给菜贩的内容。','本次参考无需订货'],en:['Nothing in this section needs ordering this time; nothing to send.','No order needed this time'],uk:['У цьому розділі цього разу нічого не треба замовляти; надсилати нічого.','Цього разу замовляти не потрібно']};
+ try{
+  for(const [lang,[none,row]] of Object.entries(words)){
+   const f=await mount({lang,source:covered});
+   try{
+    const sections=walk(f.el).filter(n=>n.attrs['data-supplier-section']==='supplier');
+    const hongda=sections.find(n=>n.textContent.includes(lang==='zh'?'宏达粮油调味批发':'宏达')),lvyuan=sections.find(n=>n!==hongda);
+    assert.ok(hongda&&lvyuan,`${lang}: both supplier sections are shown`);
+    const copyOf=section=>{const card=walk(section).find(n=>n.attrs['data-copy']==='section');return{card,button:card.children.find(n=>n.tagName==='BUTTON'),area:walk(card).find(n=>n.tagName==='TEXTAREA')};};
+    const empty=copyOf(hongda),full=copyOf(lvyuan);
+    assert.equal(empty.button.disabled,true,`${lang}: nothing to copy for a covered supplier`);assert.equal(empty.area.value,'');
+    assert.ok(empty.card.textContent.includes(none),`${lang}: the section says why: ${empty.card.textContent}`);
+    assert.ok(walk(empty.card).some(n=>n.attrs['data-copy-section-covered']!==undefined));
+    assert.equal(full.button.disabled,false,`${lang}: the other supplier still copies`);assert.ok(full.area.value.length>0);
+    assert.ok(hongda.textContent.includes(row),`${lang}: the rows say no order is needed`);
+    const {button,area}=copyParts(f.el);
+    assert.equal(button.disabled,false);assert.ok(!area.value.includes(lang==='zh'?'宏达粮油调味批发':'宏达'),`${lang}: the whole copy has no message for the covered supplier`);
+    assert.equal(area.value.split('\n').filter(line=>line.startsWith('【')||line.startsWith('[')).length>=1,true);
+    assert.equal(f.calls.length,0);
+   }finally{f.cleanup();}
+  }
+ }finally{covered.cleanup();}
+});
