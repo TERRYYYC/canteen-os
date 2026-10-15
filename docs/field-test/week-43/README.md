@@ -221,6 +221,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - 「查看范围」：一天 / 一周 / 全部日期，再点上面的日期条选哪一天。
    - 每道菜一行：右边填份数（可以留空）；点「编辑」可以换菜，或点「移除」去掉。
    - 要加菜：选菜品，点「加一道菜」；要换日期或餐次，先点开它上面那一行。
+   - 同一道菜在这个计划里排了不止一次，菜名下面会写「本计划第 N 次」和「上次」排在哪天，方便你避免重样；页面上方一行写「几道菜 · 几种 · 重复几种」。份数空着的菜，份数框旁会写「份数没填」，不会替你补数。有改动没保存时，页面底部会一直提醒，保存后还要发布。
    - 排完点「**保存计划**」。顶上的状态条会变成「已保存；发布状态请到发布页查看」。**保存了不等于上线。**
    - 整份文字菜单想一次导入：点右上角「导入」（页面上写作「粘贴导入」）。
 3. **发布前核对。** 这时看的是刚保存的计划。
@@ -264,6 +265,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - “View range”: Day / Week / All dates, then tap a day in the date strip.
    - One row per dish: fill in servings on the right (may stay blank); tap “Edit” to change the dish or “Remove” to drop it.
    - To add a dish: choose it and tap “Add a dish”; to change the date or meal, open the line above it first.
+   - If the same dish is planned more than once in this plan, a line under its name says “Nth time in this plan” and when it was last planned, so you can avoid repeats; a line above the list says “N dishes · M different · K repeated”. A dish with no servings shows “servings missing” beside the box and nothing is filled in for you. While changes are unsaved, a reminder stays at the bottom of the page: after saving you still need to publish.
    - When done, tap “**Save plan**”. The status line turns into “Saved; check publication on the publish page”. **Saved does not mean live.**
    - To bring in a whole text menu at once, tap “Import” at the top right (the page itself says “Paste import”).
 3. **Check before publishing.** At this point you are looking at the plan you just saved.
@@ -307,6 +309,7 @@ The back-office home, plan page and publish page all say “Not connected; savin
    - «Діапазон перегляду»: День / Тиждень / Усі дати, потім натисніть день у смужці дат.
    - Один рядок на страву: праворуч вкажіть порції (можна не вказувати); «Змінити» — замінити страву, «Прибрати» — видалити.
    - Щоб додати страву: виберіть її й натисніть «Додати страву»; щоб змінити дату чи прийом їжі — спершу розгорніть рядок над кнопкою.
+   - Якщо та сама страва стоїть у цьому плані не раз, під назвою буде «N-й раз у цьому плані» і коли вона була востаннє — щоб не повторюватися; над списком — рядок «Страв: N · різних: M · повторів: K». Якщо порції не вказано, біля поля буде «порції не вказано», число само не з’явиться. Поки є незбережені зміни, унизу сторінки висить нагадування: після збереження ще треба опублікувати.
    - Готово — натисніть «**Зберегти план**». Статус зміниться на «Збережено; стан публікації на сторінці публікації». **Збережено — не означає опубліковано.**
    - Щоб одразу внести весь текст меню, натисніть «Імпорт» угорі праворуч (на сторінці це «Імпорт тексту»).
 3. **Перевірте перед публікацією.** Зараз ви дивитеся на щойно збережений план.

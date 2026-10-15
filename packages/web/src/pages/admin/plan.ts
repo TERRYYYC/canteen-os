@@ -10,7 +10,8 @@ import { pick } from '../../i18n';
 import type { PageCtx } from '../../types';
 import { adminHref } from '../admin';
 import { text, action, field, status, onDetached } from '../team-ui';
-import { createPlanForm, toSavePlan } from './plan-form';
+import { createPlanForm, toSavePlan, planHints } from './plan-form';
+import { displayDate } from '../../display-date';
 import {hrefOf} from '../../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
 import {currentPlan,selectPlan} from './plan-context';
@@ -55,6 +56,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
       views.clear();form=createForm();auth=api.sessionKey();
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
+    const L=(zh:string,en:string,uk:string)=>lang==='zh'?zh:lang==='en'?en:uk;
+    const ordinalEn=(n:number)=>`${n}${n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]??'th'}`;
     const [routeId,actionName,selectedDishRef]=rest.split('/');
     const id=routeId||currentPlan(ctx,api).id||datedPlanIdOfDate(localDateIso())||'';
     const selectedDish=actionName==='select'&&selectedDishRef&&/^kb-[0-9a-f]{32}-v[1-9][0-9]*$/.test(selectedDishRef)?selectedDishRef:null;
@@ -67,6 +70,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
     let compareError:unknown=null,comparing=false,contextId=0;
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
     let previewLoading=false,previewError:unknown=null;
+    // Repeat hints of the draft being painted: computed once per paint, read by each row.
+    let hints:ReturnType<typeof planHints>|undefined;
     const photos=new Map<string,{url?:string;failed?:boolean}>();
     const disposePhotos=()=>{for(const photo of photos.values())if(photo.url)URL.revokeObjectURL(photo.url);photos.clear();};
     const today=localDateIso();
@@ -95,6 +100,11 @@ export function createPlanRenderer(api:TeamMealsApi) {
         const dateRange=planRange(s.draft);
         output.push(h('h2',{},pick(s.draft.name,lang)||tr('plan')));
         if(dateRange)output.push(h('p',{class:'tm-plan-note'},`${lang==='zh'?'计划日期':lang==='en'?'Plan dates':'Дати плану'}：${dateRange.start} — ${dateRange.end}`));
+        const overview=hints=planHints(s.draft);
+        output.push(h('p',{class:'tm-plan-overview'},L(`${overview.dishes} 道菜 · ${overview.different} 种 · 重复 ${overview.repeated} 种`,
+          `${overview.dishes} ${overview.dishes===1?'dish':'dishes'} · ${overview.different} different · ${overview.repeated} repeated`,
+          // Label-number pairs keep Ukrainian free of numeral agreement (1 страва / 2 страви / 5 страв).
+          `Страв: ${overview.dishes} · різних: ${overview.different} · повторів: ${overview.repeated}`)));
         output.push(filters());
       }
       output.push(documentStatus);
@@ -159,6 +169,9 @@ export function createPlanRenderer(api:TeamMealsApi) {
         }
       }
       if(version)output.push(version);
+      // Unsaved means the session's draft or page-owned inputs not yet applied (the status line above says the same).
+      if(s.draft&&(s.dirty||rawPending(view)))output.push(h('div',{class:'tm-plan-unsaved-gap','aria-hidden':'true'}),h('p',{class:'tm-plan-unsaved',role:'status'},
+        L('有改动没保存 · 保存后还要发布，帮厨和采购才看得到','Changes not saved · after saving, publish too so the prep cooks and the buyer can see them','Є незбережені зміни · після збереження план ще треба опублікувати, щоб його побачили помічники кухаря й закупівельник')));
       replace(body,...output);
       if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
     }
@@ -257,10 +270,18 @@ export function createPlanRenderer(api:TeamMealsApi) {
         if(!owner.remove(index,captured))view.invalid=previous;
         paint();
       });
-      const name=pick(catalog?.dishes[meal.dishRef]?.name,lang)||meal.dishRef;
+      const dishName=catalog?.dishes[meal.dishRef]?.name,name=pick(dishName,lang)||meal.dishRef;
+      // Only the other language's own text; no fallback chain stands in for it.
+      const otherText=(lang==='zh'?dishName?.uk:dishName?.zh)?.trim()||'';
+      const turn=hints?.turns.get(index);
+      const turnText=turn?[L(`本计划第 ${turn.nth} 次`,`${ordinalEn(turn.nth)} time in this plan`,`${turn.nth}-й раз у цьому плані`),
+        ...(turn.previous?[L('上次 ','Last: ','Минулого разу: ')+displayDate(turn.previous,lang,{weekday:true})]:[])].join(' · '):'';
+      const servingsMissing=meal.plannedServings===undefined&&!view.invalid.has(index);
+      const servings=field(L('份数','Servings','Порції'),input);
+      if(servingsMissing)servings.append(h('small',{class:'tm-plan-missing'},L('份数没填','servings missing','порції не вказано')));
       const edit=h('details',{class:'tm-plan-edit',open:view.editing===index},h('summary',{'aria-label':`${tr('dish')}: ${name}`},lang==='zh'?'编辑':lang==='en'?'Edit':'Змінити'),h('div',{},field(tr('dish'),dish),remove));
       edit.addEventListener('toggle',()=>{if(isLive()&&edit.isConnected){if(edit.open)view.editing=index;else if(view.editing===index)view.editing=undefined;}});
-      const node=h('div',{class:'tm-meal-row','data-meal-index':index},h('div',{class:'tm-plan-row-main'},photo(meal.dishRef,name),h('div',{class:'tm-plan-dish-name'},h('b',{},name),h('small',{},`${meal.date.slice(5)} · ${tr(meal.mealType)}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`)),field(lang==='zh'?'份数':lang==='en'?'Servings':'Порції',input)),edit);
+      const node=h('div',{class:'tm-meal-row','data-meal-index':index},h('div',{class:'tm-plan-row-main'},photo(meal.dishRef,name),h('div',{class:'tm-plan-dish-name'},h('b',{},name),otherText&&otherText!==name?h('small',{class:'tm-plan-other'},otherText):null,turnText?h('small',{class:'tm-plan-turn'},turnText):null,h('small',{},`${meal.date.slice(5)} · ${tr(meal.mealType)}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`)),servings),edit);
       if(view.invalid.has(index))node.append(h('p',{class:'tm-error'},tr('invalidServings')));
       return node;
     }
