@@ -3,13 +3,14 @@ feature_ids: [team-meals, knowledge-base]
 topics: [dispatch, current-scope, historical-workflow]
 doc_kind: operating-model-index
 created: 2026-10-05
+updated: 2026-10-14
 ---
 
-# 当前调度入口（2026-10-05）
+# 当前调度入口
 
-当前任务和范围统一见 [当前工作合同](current-contract.md) 与 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。调度负责合同、依赖、集成、证据核查和最终 review；实施与测试在独立任务中进行，每包一个实施责任人和非作者 reviewer。以实际 GitHub issue/PR、精确 HEAD 和验收记录交接，不把派工或创建 issue 当成修复完成。
+当前范围见 [当前工作合同](current-contract.md)，当前任务读[实际 GitHub issues](https://github.com/TERRYYYC/canteen-os/issues)。[合作指南](../CONTRIBUTING.md) 统一 Fork/分支、PR 与验收步骤；[#128](https://github.com/TERRYYYC/canteen-os/issues/128) 保留 alpha.4 工程验收与发行回执。调度负责合同、依赖、集成、证据核查和最终 review；实施与测试在独立任务中进行，每包一个实施责任人和非作者 reviewer。以实际 GitHub issue/PR、精确 HEAD 和验收记录交接，不把派工或创建 issue 当成修复完成。
 
-当前队列不是 `.github/backlog/round-1.json` 的全集；旧 `create-issues.mjs`/波次表只用于其历史第一轮，不为同步旧 JSON 重建或取消后来接受的任务。W0 统一基线；W1 所选计划与 W2/W3 采用/材料合同按依赖分工；W4 复用既有缺陷修复；W5 消费真实闭环证据。共享文件争用先协调，保留原 worktree、用户数据和未保存输入。
+当前队列不是 `.github/backlog/round-1.json` 的全集；旧 `create-issues.mjs`/波次表只用于其历史第一轮，不为同步旧 JSON 重建或取消后来接受的任务。W0–W5 的分工保留为 alpha.4 收口记录，新任务按其实际依赖分工。共享文件争用先协调，保留原 worktree、用户数据和未保存输入。
 
 交接说明 What / Why / Tradeoff / Open Questions / Next Action，并附实际变更、精确提交、验证结果及未完成边界。合并/推送/部署按当前用户已经明确的授权范围和仓库护栏执行，授权后的审查及测试要求继续有效；旧记录不能撤销后续明确授权，也不能扩大它。
 

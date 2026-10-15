@@ -1,66 +1,64 @@
-name: Round task（第一轮任务）
-description: 第一轮里程碑内的一项任务。批量任务请改 .github/backlog/round-1.json 再跑 scripts/create-issues.mjs；本模板用于临时补充。
-title: "[v0.x] "
-labels: ["owner:agent"]
+name: Task（实施 / 文档 / 验证任务）
+description: 为当前 GitHub 队列登记一项范围明确、可验收的任务
+title: "[Task] "
+labels: ["type:task"]
 body:
-  - type: dropdown
-    id: milestone
+  - type: markdown
     attributes:
-      label: 里程碑
-      options:
-        - v0.1 收尾工程
-        - v0.2 三张单上屏
-        - v0.3 师傅后台
-        - v0.4 真实数据
-        - v1.0 第一轮收尾
-    validations:
-      required: true
+      value: |
+        先读 `docs/current-contract.md` 和相关合同。用实际 GitHub issue 编号关联任务；旧 `round-1.json`、lock 和里程碑仅作历史资料，不用于重建当前队列。
   - type: textarea
     id: background
     attributes:
-      label: 背景
-      description: 为什么要做；引用 docs/execution-brief.md 的章节或设计稿的屏号
+      label: 角色、场景与目标
+      description: 谁需要完成什么任务，为什么当前做不了或需要改变？附需求、合同或实际问题的链接。
     validations:
       required: true
   - type: textarea
-    id: tasks
+    id: scope
     attributes:
-      label: 任务
-      description: checkbox 列表，每条可独立验证
-      value: |
-        - [ ]
+      label: 本次范围与协作边界
+      description: 列出工作项、涉及文件/模块和暂不处理的内容；说明实施责任人、非作者 reviewer，以及共享文件协调方式。未分派时写待分派。
+      placeholder: |
+        工作项 / 文件范围：
+        暂不处理：
+        实施责任人 / 非作者 reviewer：待分派
     validations:
       required: true
   - type: textarea
-    id: dod
+    id: dependencies
     attributes:
-      label: 完成定义
-      description: 用命令、数字或可观察的行为写，不要写"完成即可"
+      label: 依赖、合同与开放问题
+      description: 使用实际 issue/PR 编号；区别前置阻塞和仅供参考。无依赖写无，尚待决策的方向写明。
+      placeholder: |
+        Blocked by：
+        Ref：
+        对应 schema / API / 页面合同：
+        开放问题：
     validations:
       required: true
-  - type: input
-    id: files
+  - type: textarea
+    id: acceptance
     attributes:
-      label: 涉及文件
-      placeholder: schemas/dish.schema.json packages/core/src/...
-  - type: input
-    id: blocked
+      label: 可观察的验收条件
+      description: 每项写明前提、角色、操作及结果；覆盖受影响的未知值、权限、固定版本和保存/发布边界，不以任务勾选代替业务验收。
+      placeholder: |
+        - [ ] 在……前提下，……角色通过……操作可以……
+    validations:
+      required: true
+  - type: textarea
+    id: validation
     attributes:
-      label: 依赖（Blocked by）
-      placeholder: "#12 #15"
-  - type: input
-    id: branch
-    attributes:
-      label: 分支名
-      placeholder: feat/web-prep
+      label: 验证与交付方式
+      description: 列出受影响检查、需要的页面/请求证据及其环境；涉及数值时附手算，行为修复先保留失败回归。文档任务按内容和链接验证。
+    validations:
+      required: true
   - type: checkboxes
     id: guard
     attributes:
       label: 范围检查
       options:
-        - label: 不新增实体、不新增必填字段（execution-brief §1.2）
+        - label: 范围符合当前工作合同，或已关联待批准的范围变更
           required: true
-        - label: 不在"第一轮不做"清单内（plan-for-terry §7）
+        - label: 未解决问题和真实厨房批准/部署边界将明确记录，不用工程副本操作代替正式批准
           required: true
-        - label: 涉及采购数字时，PR 将附手算算式
-          required: false

@@ -1,70 +1,64 @@
-name: 菜品/食材数据贡献
-description: 按 schema 贡献菜品（Dish）、食材（Ingredient）或技法词条（Technique）数据
+name: 菜谱 / 食材 / 技法资料贡献
+description: 提供可追溯的来源资料或数据修正，未知信息保留待核对
 title: "[Data] "
-labels: ["data-contribution"]
+labels: ["area:data"]
 body:
   - type: markdown
     attributes:
       value: |
-        欢迎贡献数据！维护者会把你的提交转换为符合 `schemas/` 的 JSON 放入 `data/` 并通过 CI 校验。
-        字段定义见：schemas/dish.schema.json、schemas/ingredient.schema.json、schemas/techniques.schema.json。
+        视频/网页资料先作为候选，手工菜谱经正式编辑器保存；食材和技法按对应 schema 审核。日常菜谱在独立知识库中，Git 保存明确采用的固定依赖。
+        issue 或 Git PR 审查不等于师傅核定、版本采用或公开发布。无需为提交补造份数、用量、时间或采购规格；不要上传私有原片、参考图、数据库、token 或 cookie。
   - type: dropdown
     id: entity
     attributes:
-      label: 数据类型
+      label: 资料类型
       options:
-        - Dish（菜品）
-        - Ingredient（食材/调料）
-        - Technique（技法词条提议，进入 techniques.json 闭集）
+        - 来源菜谱候选（视频 / 网页，待复核）
+        - 手工菜谱或既有菜谱修正
+        - Ingredient（标准食材 / 调料 / 规格修正）
+        - Technique（技法词条提议，需审核后进入闭集）
     validations:
       required: true
-  - type: input
-    id: name_zh
+  - type: textarea
+    id: name
     attributes:
-      label: 名称（中文 zh）
+      label: 名称与既有身份
+      description: 至少提供 zh / en / uk 中一种名称。修正已有对象时注明 ID 和已知版本；同名不等于同一食材或菜谱。
+      placeholder: |
+        zh / en / uk 名称：
+        已有 ID / 版本（如有）：
     validations:
       required: true
-  - type: input
-    id: name_en
+  - type: textarea
+    id: provenance
     attributes:
-      label: 名称（English）
-      description: 内容级三语要求：至少提供一种语言，鼓励三语齐全
-  - type: input
-    id: name_uk
-    attributes:
-      label: 名称（Українська）
+      label: 来源与可核对位置
+      description: 提供可公开的来源链接、作者/自有配方说明；视频标注时间段，网页标注段落，修正标注字段。私有证据仅说明可经授权渠道核对，不公开媒体或私人路径。
+    validations:
+      required: true
   - type: textarea
     id: payload
     attributes:
-      label: 结构化数据
-      description: 菜品请给出 baseServings、components（ingredientRef + qty + 可选 prep）、steps；食材请给出 baseUnit、yield（净料率）、pcsToGram（个↔克换算）、purchase（supplier/packSize/packUnit/minPacks）、trackStock 等
+      label: 已知资料与原文
+      description: 按来源提供材料、原文用量、步骤、技法及规格；区分来源事实与厨房建议。可用普通文字，结构化数据须遵守 schema、I18nString、ingredientRef 和 Quantity。
       placeholder: |
-        baseServings: 50
-        components:
-          - 番茄 7500 g（prep: 滚刀块）
-          - 鸡蛋 75 pcs
-        steps:
-          1. 番茄切块……
+        材料及来源原文用量：
+        步骤 / 技法及对应来源位置：
+        已知份数、时间或规格（无依据则保留未知）：
+        厨房建议（与原方分开）：
     validations:
       required: true
-  - type: dropdown
-    id: source
+  - type: textarea
+    id: unresolved
     attributes:
-      label: 数据来源
-      options:
-        - manual（人工录入/自有配方）
-        - video-import（视频解析直出 dish.json，请附视频链接）
-        - web-import（网页导入，请附链接）
+      label: 未知、冲突与待师傅确认项
+      description: 如份数未知、勺容量不明、同名材料身份未确认、来源互相矛盾。未确认前不自动换算、合并身份或批准候选；确无待确认项写无。
     validations:
       required: true
-  - type: input
-    id: source_ref
-    attributes:
-      label: 来源引用（视频 URL / 网页 URL，可选）
-  - type: checkboxes
+  - type: textarea
     id: rights
     attributes:
-      label: 权利确认
-      options:
-        - label: 我确认所提交数据不侵犯第三方版权（菜谱事实信息可自由提交；大段复制的文案与带版权图片请勿提交）
-          required: true
+      label: 文案与图片的来源 / 使用权
+      description: 说明提交内容的作者、许可或授权依据及允许公开的部分；未知写未核实，媒体不随之公开。外部事实可摘述，不复制大段受限文案或受限代码。
+    validations:
+      required: true
