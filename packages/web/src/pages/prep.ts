@@ -155,8 +155,8 @@ function formatDay(iso: string, lang: Lang): string {
 }
 
 /**
- * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：
- *   ≥ 1000 g → kg（保留 1 位小数：30 kg、1.5 kg）；≥ 1000 ml → l；
+ * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：规则在 quantity-text.ts 的 quantityParts
+ *   （不足 1000 克写克，到 1000 写千克，毫升 / 升同理；最多两位小数；正数不显示成 0）；
  *   to-taste / 无 value → 只显示「适量 / за смаком / to taste」（word=true，字号小一档）。
  */
 function formatQty(qty: Quantity, lang: Lang): { value: string; unit: string; word: boolean } {
