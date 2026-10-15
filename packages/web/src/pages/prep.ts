@@ -451,6 +451,13 @@ export function rawQuantityText(qty: Quantity | undefined, lang: Lang): string {
   if (qty.unit === "to-taste") return rawText(lang, "taste");
   return qty.value === undefined ? rawText(lang, "quantityMissing") : `${qty.value} ${qty.unit}`;
 }
+/** KB materialization writes this placeholder when a row has neither raw text nor a value (worker knowledge-materialization.ts). */
+const UNRECORDED_AMOUNT_PLACEHOLDER = "未录用量";
+/** Recorded original-amount text, shown verbatim; never parsed, converted or scaled here. */
+export function recordedAmountText(value: string | undefined): string | undefined {
+  const text = value?.trim();
+  return text && text !== UNRECORDED_AMOUNT_PLACEHOLDER ? text : undefined;
+}
 function rawSafeLink(value: string | undefined): string | null {
   if (!value || !/^https?:\/\//i.test(value)) return null;
   try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) ? url.href : null; } catch { return null; }
@@ -600,7 +607,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
         value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex&&
         value.date===meal.date&&value.mealType===meal.mealType&&value.dishRef===meal.dishRef))[0];
       const shown=source?.scaledQty;
-      const original=source?.originalAmount||rawQuantityText(component.qty,lang);
+      // Original text and a structured quantity are separate records: text alone stays visible but is never converted.
+      const recordedText=recordedAmountText(source?.originalAmount??('originalAmount' in component?component.originalAmount:undefined));
+      const original=recordedText??rawQuantityText(component.qty,lang);
       const quantityText=shown
         ? `${word(lang,'本次','This meal','Цей прийом')}: ${rawQuantityText(shown,lang)} · ${word(lang,'原方','Original','Оригінал')}: ${original}`
         : original;
@@ -612,7 +621,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{'data-original-preparation':''},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
-      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
+      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(recordedText
+        ? word(lang,"原方用量已记录，暂不能自动换算或按份数计算；请按原文人工核对本次用量。","The original amount is recorded as text and cannot yet be converted or scaled to servings automatically. Check this meal’s amount manually against the original.","Вихідну кількість записано текстом; її поки не можна автоматично перерахувати чи масштабувати за порціями. Перевірте потрібну кількість вручну за оригіналом.")
+        : word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
       const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
       (cooking ? ingredientRecord : card).append(purchase);
       if (prep) {
