@@ -86,6 +86,20 @@ test('published purchase renders the already verified estimates that no screen u
  }finally{f.cleanup();}
 });
 
+test('the read-only line says what the buyer can do and never sends them for the chef link',async()=>{
+ const copy={zh:/这是只读清单：只能查看/,en:/This is a read-only list: you can look/,uk:/Це список лише для читання: переглядати можна/};
+ const chefLink=/师傅链接|chef link|посиланням шефа/;
+ for(const lang of ['zh','en','uk']){
+  const f=await mount({lang});
+  try{
+   const line=walk(f.el).find(n=>n.attrs&&n.attrs['data-purchase-writes']!==undefined);
+   assert.ok(line,`${lang}: the explanation line is shown`);
+   assert.match(line.textContent,copy[lang],`${lang}: says the list can only be looked at`);
+   assert.doesNotMatch(f.el.textContent,chefLink,`${lang}: no chef link is suggested`);
+  }finally{f.cleanup();}
+ }
+});
+
 test('every write control on the published purchase list stays rendered and disabled',async()=>{
  const f=await mount({lang:'en'});
  try{
@@ -97,7 +111,7 @@ test('every write control on the published purchase list stays rendered and disa
   assert.ok(buttons.every(n=>n.disabled===true),'save, re-read and per-item decisions are all disabled');
   assert.ok(boxes(f.el).length>0&&boxes(f.el).every(n=>n.disabled===true),'no item can be ticked');
   assert.ok(marked(f.el,'data-purchase-writes'),'one line explains why the controls are disabled');
-  assert.match(f.el.textContent,/Open with the chef link/);
+  assert.match(f.el.textContent,/This is a read-only list/);
   const before=f.el.textContent;
   for(const button of buttons)button.click();
   for(const box of boxes(f.el))box.dispatch('change');
