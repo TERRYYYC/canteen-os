@@ -13,7 +13,7 @@ export const shoppingWords={
  save:['保存清单','Save list','Зберегти список'],saved:['清单已保存','List saved','Список збережено'],first:['先保存这份待核对清单，再逐项判断。','Save this list first, then make individual decisions.','Спочатку збережіть список, потім приймайте рішення щодо інгредієнтів.'],
  changed:['范围或资料已变；先保存重新核对的清单，再确认。','Scope or information changed. Save the reviewed list before confirming items.','Діапазон або дані змінилися. Збережіть перевірений список перед підтвердженням.'],
  saveBefore:['修改范围前，请先保存当前判断。','Save current decisions before changing scope.','Збережіть поточні рішення перед зміною діапазону.'],
- missing:['资料未找到','Information unavailable','Дані недоступні'],empty:['所选餐次目前没有已录材料。','No recorded ingredients for these meals.','Для цих прийомів їжі немає записаних інгредієнтів.'],
+ missing:['资料未找到','Information unavailable','Дані недоступні'],unclassified:['用途未分类','Role not classified','Роль не визначено'],empty:['所选餐次目前没有已录材料。','No recorded ingredients for these meals.','Для цих прийомів їжі немає записаних інгредієнтів.'],
  choose:['至少选择一个日期和餐次。','Select at least one date and meal.','Виберіть хоча б одну дату й прийом їжі.'],noList:['未找到清单，可用这个名称新建。','List not found; you can create one with this ID.','Список не знайдено; можна створити його з цією назвою.'],
  coverage:['已录材料候选；配方完整性仍需人工核对。','Recorded ingredient candidates; recipe completeness needs human review.','Записані інгредієнти; повноту рецепта має перевірити людина.'],
  sources:['使用来源','Used in','Використовується в'],estimate:['可计算的参考','Calculated reference','Розрахунковий орієнтир'],unavailable:['无法完整计算','Complete estimate unavailable','Повний розрахунок недоступний'],
@@ -57,8 +57,11 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('article',{},h('p',{},reasonText(issue.code,lang),' · ',[issue.date,issue.mealType?text(lang,issue.mealType):''].filter(Boolean).join(' / ')),issue.dishRef?ref('dish',issue.dishRef):null,issue.ingredientRef?ref('ingredient',issue.ingredientRef):null,h('p',{},word(lang,'查看来源资料并补齐后，再核对采购范围。','Check and complete the source records, then review the shopping scope.','Перевірте й доповніть вихідні дані, потім перевірте діапазон закупівель.')),supportDetails(lang,JSON.stringify(issue))))));
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  for(const item of collection.items){
-  const ingredient=lookup(ingredients,item.ingredientRef),estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
-  const heading=h('h3',{},ref('ingredient',item.snapshotRefs?.[0]??item.ingredientRef)),role=h('p',{class:'muted'},ingredient?.role?t(ingredient.role):t('missing'));
+  // Name and role describe the same record of this list's fixed basis; a canonical group reads its first snapshot.
+  const recordRef=item.snapshotRefs?.[0]??item.ingredientRef,estimateItem=estimate.items.find(x=>x.ingredientRef===item.ingredientRef);
+  const ingredient=lookup(ingredients,recordRef);
+  // An absent role is unclassified, not a missing record; only an absent record keeps the missing notice (#131).
+  const heading=h('h3',{},ref('ingredient',recordRef)),role=h('p',{class:'muted','data-ingredient-role':!ingredient?'missing':ingredient.role??'unclassified'},!ingredient?t('missing'):ingredient.role?t(ingredient.role):t('unclassified'));
   const card=h('section',{class:'tm-card tm-material','data-ingredient':item.ingredientRef},...(options.compact?[h('div',{class:'tm-material-heading'},heading,role)]:[heading,role]));
   const reference=options.compact?h('details',{class:'tm-material-reference'},h('summary',{},word(lang,'来源与数量参考','Sources and quantity reference','Джерела й кількісні орієнтири'),` · ${item.sources.length}`)):null;
   if(options.controls)card.append(options.controls(item.ingredientRef));

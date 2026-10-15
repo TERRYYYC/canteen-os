@@ -19,7 +19,7 @@ import {pick} from '../i18n';
 import {word,supportDetails} from './record-display';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
-interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
+interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle;panels:Set<string>}
 export interface PurchaseAuxiliaryState {readonly ownerId:string;readonly identity:{readonly kind:'shopping-list';readonly id:string};readonly generation:number;readonly dirty:boolean;readonly phase:'idle'}
 const scopeKey=(scope:Scope|null)=>scope?JSON.stringify([scope.revision,normalizeSelection(scope.selected)]):'';
 const rawPending=(view:View)=>view.listId!==view.baseline.listId||view.planIds!==view.baseline.planIds||scopeKey(view.scope)!==view.baseline.scope;
@@ -39,7 +39,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
  const touch=(view:View)=>{view.generation=++generation;};
  const notify=(view:View)=>{for(const paint of view.listeners)paint();};
  function createView(key:string,listId:string,planIds:string):View {
-  const value={listId,planIds,scope:null,baseline:{listId,planIds,scope:''},generation:++generation,inputGeneration:0,active:0,listeners:new Set<()=>void>()};
+  // Open disclosures are presentation state of this list view only; another list or auth gets a new view.
+  const value={listId,planIds,scope:null,baseline:{listId,planIds,scope:''},generation:++generation,inputGeneration:0,active:0,listeners:new Set<()=>void>(),panels:new Set<string>()};
   const reload=registerAuxiliaryEdits({ownerId:`purchase-buffer/${key}`,identity:{kind:'shopping-list',id:key},boundary:api,operationTracking:'tickets',read:()=>({generation:value.generation,dirty:rawPending(view),phase:'idle'})});
   const view=Object.assign(value,{reload});return view;
  }
@@ -62,7 +63,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   if(creating&&previous?.completed&&!rawPending(previous)&&!previous.active){previous.reload.dispose();views.delete(key);}
   const view=views.get(key)??createView(key,creating?`shop-${new Date().toISOString().slice(0,10)}-${crypto.randomUUID().slice(0,8)}`:routeId,creating?creationPlan:ctx.planId||'');views.set(key,view);covered=true;
   const live=()=>ticket===epoch&&el.isConnected&&controller===form&&auth===api.sessionKey();
-  let error:unknown=null,notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
+  let error:unknown=null,errorPanel='',notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
   let index:ShoppingListIndex|null=null,indexError:unknown=null,indexBusy=false;
   const planChoices=new Map<string,AnyMenuPlan|null>();let plansFailed=false;
   const w=(zh:string,en:string,uk:string)=>word(lang,zh,en,uk);
@@ -75,18 +76,33 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    catch(e){handle.settleOperation(operation,'failed');throw e;}
    finally{if(advance)touch(view);}
   }
-  async function run(work:()=>Promise<unknown>,kind:'read'|'c1'='read',initial=false){
-   if(!live()||(!initial&&view.active))return;view.active++;error=null;notify(view);
-   try{await(kind==='read'?read(work):work());}catch(e){if(live())error=e;}
+  async function run(work:()=>Promise<unknown>,kind:'read'|'c1'='read',initial=false,origin=''){
+   if(!live()||(!initial&&view.active))return;view.active++;error=null;errorPanel='';notify(view);
+   try{await(kind==='read'?read(work):work());}catch(e){if(live()){error=e;errorPanel=origin;}}
    finally{view.active--;notify(view);}
   }
-  function update(key:'listId'|'planIds',value:string){if(!live()||view[key]===value)return;view[key]=value;view.inputGeneration++;touch(view);const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;paint();if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();}
+  function update(key:'listId'|'planIds',value:string){
+   if(!live()||view[key]===value)return;view[key]=value;view.inputGeneration++;touch(view);
+   const focused=document.activeElement instanceof HTMLElement?document.activeElement:null,active=focused?.dataset.focus;
+   // The repaint replaces this input; keep the caret where the user is typing, not at its start.
+   const caret=focused&&'selectionStart' in focused?[(focused as HTMLInputElement).selectionStart,(focused as HTMLInputElement).selectionEnd]:null;
+   paint();
+   if(active){const next=body.querySelector<HTMLInputElement>(`[data-focus="${active}"]`);next?.focus();if(next&&caret?.[0]!=null&&caret[1]!=null)next.setSelectionRange(caret[0],caret[1]);}
+  }
   function rawNotice(){return h('p',{class:'tm-status dirty',role:'status','data-purchase-raw-pending':'true'},lang==='zh'?'清单名称或范围选择尚未应用。':lang==='en'?'The list ID or scope choices have not been applied.':'Назву списку або вибір діапазону ще не застосовано.');}
   function sourceVersion(revision:string){return h('details',{class:'tm-source'},h('summary',{},t('revision')),h('code',{},revision));}
   function scopeLabel(s:ShoppingSelection){const name=pick(view.scope?.plans[s.menuPlanRef]?.name??planChoices.get(s.menuPlanRef)?.name,lang);return `${s.date} · ${tr(s.mealType)}${name?` · ${name}`:''}`;}
   function errorNode(e:unknown){return h('p',{class:'tm-error',role:'alert'},apiMessage(e,lang));}
+  const keepPanel=(key:string,open:boolean)=>{if(open)view.panels.add(key);else view.panels.delete(key);};
+  // Every paint rebuilds these disclosures; reopen them from the user's last choice for this list (#132).
+  function panel(key:string,attrs:Record<string,string>,summary:string,...children:HTMLElement[]){
+   const node=h('details',{...attrs,'data-panel':key,open:view.panels.has(key)},h('summary',{},summary),...children);
+   node.addEventListener('toggle',()=>{if(node.isConnected&&live())keepPanel(key,node.open);});return node;
+  }
   function paint(){
    if(!live())return;const busy=view.active>0;disposeDetail();disposeDetail=()=>{};
+   // A toggle may still be queued when an async result repaints; the outgoing DOM holds the latest choice.
+   for(const node of body.querySelectorAll('details'))if(node.dataset.panel)keepPanel(node.dataset.panel,node.open);
    const s=form.session.getState();context=s.contextId;
    if(s.identity&&s.phase!=='closed')for(const origin of views.values())if(origin.createdId===s.identity.id)origin.completed=!!s.source&&!s.dirty&&!s.operationId&&s.phase!=='conflict'&&s.phase!=='outcome-unknown';
    const loaded=!creating&&s.identity?.id===routeId&&s.phase!=='closed'&&s.draft&&form.basis;
@@ -101,7 +117,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     if(entry)nodes.push(discovery());
     else if(creating||notFound)nodes.push(scopeForm(false));
     else if(!busy)nodes.push(action(tr('retry'),()=>void load()));
-    nodes.push(h('details',{class:'tm-card tm-purchase-advanced'},h('summary',{},w('按清单编号打开','Open by list ID','Відкрити за номером списку')),openForm()));
+    nodes.push(panel('open-by-id',{class:'tm-card tm-purchase-advanced'},w('按清单编号打开','Open by list ID','Відкрити за номером списку'),openForm()));
     replace(body,...nodes);return;
    }
    const list=s.draft!,basis=form.basis!;
@@ -144,7 +160,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
    nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
-   nodes.push(record,h('details',{class:'tm-purchase-advanced'},h('summary',{},t('apply')),scopeForm(true)));replace(body,...nodes);
+   nodes.push(record,panel('scope',{class:'tm-purchase-advanced'},t('apply'),scopeForm(true)));replace(body,...nodes);
   }
   function listReference(id:string){return h('p',{class:'tm-list-reference'},w('清单编号','List number','Номер списку'),' · ',h('code',{},id));}
   function savedLink(item:ShoppingListSummary,continuing=false){
@@ -218,11 +234,14 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const resume=()=>h('section',{class:'tm-card'},h('p',{},w('这份清单已生成，请打开继续处理并保存。','This list has been created. Open it to continue and save.','Цей список уже створено. Відкрийте його, щоб продовжити та зберегти.')),h('a',{class:'tm-button primary',href:hrefOf('purchase',view.createdId!)},t('open')));
    if(generated&&!rawPending(view))return resume();
    const input=h('input',{value:view.planIds,'data-focus':'plan-ids'});input.addEventListener('input',()=>update('planIds',input.value));
-   const read=action(t('read'),()=>void run(readScope));read.disabled=busy||(existing&&!form.canRebase);
-   const advanced=h('details',{class:'tm-purchase-advanced'},h('summary',{},w('调整计划编号','Change plan IDs','Змінити номери планів')),field(t('plans'),input));
-   const card=h('section',{class:'tm-card'},h('h3',{},existing?t('apply'):t('new')),h('p',{},w('选择日期和餐次；清单编号已自动生成。','Choose dates and meals. The list ID is generated automatically.','Виберіть дати та прийоми їжі. Номер списку створено автоматично.')),advanced,read);
+   // The page-level alert stays; this copy keeps a failed read/apply next to the action that caused it.
+   const failed=(origin:string)=>error&&errorPanel===origin?[h('p',{class:'tm-error'},apiMessage(error,lang))]:[];
+   // Reading only refreshes the choices shown here; applying stays a separate explicit action.
+   const read=action(t('read'),()=>void run(readScope,'read',false,'scope-read'));read.disabled=busy||(existing&&!form.canRebase);
+   const advanced=panel('plan-ids',{class:'tm-purchase-advanced'},w('调整计划编号','Change plan IDs','Змінити номери планів'),field(t('plans'),input));
+   const card=h('section',{class:'tm-card'},h('h3',{},existing?t('apply'):t('new')),h('p',{},w('选择日期和餐次；清单编号已自动生成。','Choose dates and meals. The list ID is generated automatically.','Виберіть дати та прийоми їжі. Номер списку створено автоматично.')),advanced,read,...failed('scope-read'));
    if(generated)card.prepend(resume());
-   if(existing&&!form.canRebase)card.append(h('p',{class:'muted'},t('saveBefore')));
+   if(existing&&!form.canRebase){const phase=form.session.getState().phase;card.append(h('p',{class:'muted'},phase==='conflict'?tr('conflict'):phase==='outcome-unknown'?tr('unknown'):t('saveBefore')));}
    if(!existing){const name=h('input',{value:view.listId,pattern:'[a-z][a-z0-9-]*','data-focus':'new-list-id'});name.addEventListener('input',()=>update('listId',name.value));advanced.append(field(w('清单编号','List ID','Номер списку'),name));}
    if(view.scope){
     const scope=view.scope;card.append(sourceVersion(scope.revision));
@@ -244,7 +263,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
      const request={revision:scope.revision,selection:structuredClone(scope.selected),at:new Date().toISOString()};
      const result=existing?await form.rebase(request,live):await form.create(id,{...request,shoppingListVersion:'2'},live);
      if(result){view.baseline=baseline;if(!existing){view.createdId=id;view.completed=false;}touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
-    }),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
+    },'read',false,'scope-apply'),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply,...failed('scope-apply'));
    }return card;
   }
   function decisions(id:string,list:ShoppingList){
