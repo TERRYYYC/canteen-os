@@ -87,7 +87,9 @@ test('invalid revision and mutable source cannot be labelled fixed-source conten
 });
 test('prep exposes all original components, steps, three names, truth labels and safe source links',()=>{
   need(prep,'renderFrozenPrep');const el=mount(),source=fixture(),before=JSON.stringify(source);
-  const dispose=prep.renderFrozenPrep(el,source,options());
+  const plain=mount(),stopPlain=prep.renderFrozenPrep(plain,source,options());
+  assert(!plain.textContent.includes(revision),'no token: no source version');stopPlain();plain.remove();
+  const dispose=withChefToken(()=>prep.renderFrozenPrep(el,source,options()));
   assert.equal(attr(el,'data-component-index').length,4);assert.equal(attr(el,'data-step-index').length,2);
   for(const text of ['番茄','Tomato','Помідор','盐','missing','1.5 千克','用量未录','适量','第一步原文','第二步原文','2 cm','原备注','切块','来自词表的备注',revision])assert(el.textContent.includes(text),text);
   assert.match(el.textContent,/模拟|Simulation/);assert.doesNotMatch(el.textContent,/已同步|已发布/);
@@ -160,8 +162,11 @@ test('an unresolved plan is shown as missing source, not silently represented as
   data.projection.collection.issues=[{code:'missing-plan',menuPlanRef:'unresolved-plan',date:'2026-09-11',mealType:'lunch'}];
   data.projection.collection.coverage.enumeration='incomplete';
   for(const render of [prep.renderFrozenPrep,menu.renderFrozenMenu]){
-    const el=mount(),dispose=render(el,freeze(data),{lang:'zh'});
-    assert(el.textContent.includes('unresolved-plan'),'the unresolved original plan reference must remain visible');
+    const plain=mount(),stopPlain=render(plain,freeze(data),{lang:'zh'});
+    assert(!plain.textContent.includes('unresolved-plan'),'no token: the raw plan reference is hidden');
+    assert(!plain.textContent.includes('所选范围没有已录餐食'),'unresolved is not empty without a token either');stopPlain();plain.remove();
+    const el=mount(),dispose=withChefToken(()=>render(el,freeze(data),{lang:'zh'}));
+    assert(el.textContent.includes('unresolved-plan'),'with a token the unresolved original plan reference stays visible');
     assert(!el.textContent.includes('所选范围没有已录餐食'),'unresolved is not empty');dispose();el.remove();
   }
 });
@@ -211,7 +216,11 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
     data.projection.collection.issues = [{ code: 'missing-plan', menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch' }];
     data.projection.collection.coverage.enumeration = 'incomplete';
     for (const lang of ['zh', 'en', 'uk']) for (const selection of [{}, { menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch', mealIndex: 0 }]) {
-      const el = mount(), dispose = render(el, freeze(data), { lang, selection });
+      const plain = mount(), stopPlain = render(plain, freeze(data), { lang, selection });
+      assert.equal(attr(plain, 'data-source-issue', 'missing-plan').length, 1);
+      assert.doesNotMatch(plain.textContent, /missing-week/);
+      stopPlain(); plain.remove();
+      const el = mount(), dispose = withChefToken(() => render(el, freeze(data), { lang, selection }));
       assert.equal(attr(el, 'data-source-issue', 'missing-plan').length, 1);
       assert.match(el.textContent, /missing-week/);
       assert.doesNotMatch(el.textContent, /所选范围没有已录餐食|No recorded meals in this selection|У цьому виборі немає записаних страв/);
@@ -225,7 +234,11 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
       else delete data.projection.dishes['dish-a'].components;
       data.projection.collection.issues = [{ code, ...options().selection, dishRef: 'dish-a' }];
       data.projection.collection.coverage.enumeration = 'incomplete';
-      const el = mount(), dispose = render(el, freeze(data), { ...options(), lang: 'en' });
+      const plain = mount(), stopPlain = render(plain, freeze(data), { ...options(), lang: 'en' });
+      assert.equal(attr(plain, 'data-source-issue', code).length, 1);
+      if (page === 'prep') assert.doesNotMatch(plain.textContent, /dish-a/);
+      stopPlain(); plain.remove();
+      const el = mount(), dispose = withChefToken(() => render(el, freeze(data), { ...options(), lang: 'en' }));
       assert.equal(attr(el, 'data-source-issue', code).length, 1);
       assert.match(el.textContent, /dish-a/);
       assert.doesNotMatch(el.textContent, /No recorded meals in this selection/);

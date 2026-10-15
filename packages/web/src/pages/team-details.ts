@@ -1,4 +1,4 @@
-import {recordValue,supportDetails,word} from './record-display';
+import {recipeLibraryLine,recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
 import type { TeamMealsProjection, I18nString, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
@@ -73,7 +73,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     for(const source of sources)el.append(h('div',{class:'tm-detail-source-recipe'},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||t('missingSource')),supportDetails(lang,`${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
-  el.append(h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision)));
+  append(el,chefOnly(()=>h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision))));
   if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
   el.append(h('h2',{},pick(record.name,lang)),supportDetails(lang,h('p',{class:'tm-detail-id'},id)));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
@@ -88,7 +88,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     const dish=lookup(projection.dishes,id)!;
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.source==='knowledge'){
-      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`));
+      append(el,recipeLibraryLine(lang,dish.provenance.recipeVersion));
       const provenance=dish.provenance;
       append(el,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
       if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));

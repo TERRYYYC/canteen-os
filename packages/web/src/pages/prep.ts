@@ -1,4 +1,4 @@
-import {recordValue,translations,supportDetails,word} from './record-display';
+import {recipeLibraryLine,recordValue,translations,supportDetails,word} from './record-display';
 import {renderRecordNotice} from './record-notices';
 /**
  * /prep 备料单（issue #9）：A 版列表为主视图，点配料行进 B 版详情，C 版的时间分组做成筛选 chip。
@@ -526,8 +526,8 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     if (cooking && ref && !record && dishRef) result.append(attention(word(lang,"技法资料未找到，无法确认这项操作，请向配方提供者核对。","Technique information is unavailable; check this operation with the recipe author.","Дані техніки недоступні; уточніть цю дію в автора рецепта."), "dish", dishRef));
     return result;
   }
-  const sourceInfo = h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision));
-  if (!cooking) root.append(h("h1", {}, t("title")), sourceInfo);
+  const sourceInfo = chefOnly(() => h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision)));
+  if (!cooking) append(root, h("h1", {}, t("title")), sourceInfo);
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
@@ -620,14 +620,14 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     }
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
     if(dish.provenance?.source==='knowledge'){
-      (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`));
+      append(cooking ? recipeRecord : section,recipeLibraryLine(lang,dish.provenance.recipeVersion));
       const provenance=dish.provenance;
       append(cooking ? recipeRecord : section,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
     }
     if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);
   }
-  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }
+  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } append(root, sourceInfo); }
   root.append(h("p", { class: "muted" }, t("coverage")));
   return dispose;
 }

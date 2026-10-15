@@ -76,7 +76,12 @@ test('chef recipe inbox is reachable from the drawer independently of a publishe
 });
 for(const lang of ['zh','en','uk']){
  test(`drawer version remains distinct from publication time and survives refresh (${lang})`,async()=>{
-  const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
+  const plain=await setup(lang),pp=await plain.publication(normal.manifest);plain.shell.setBuild(pp.manifest,pp.kind);plain.shell.openDrawer();
+  assert.equal(plain.drawer.querySelector('.app-version'),null,'no token: no app version');
+  assert.equal(plain.drawer.textContent.includes(packageVersion),false);
+  // Opened with the chef link: the app version is back-office information.
+  const e=await setup(lang);globalThis.sessionStorage={getItem:k=>k==='canteenos.token'?'A'.repeat(43):null};
+  const p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
   const expected=({zh:'应用版本',en:'App version',uk:'Версія застосунку'})[lang]+` ${packageVersion}`;
   assert.equal(e.drawer.querySelector('.app-version')?.textContent,expected);
   assert.equal(e.root.querySelector('main').textContent.includes(packageVersion),false);
