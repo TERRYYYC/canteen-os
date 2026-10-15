@@ -97,7 +97,7 @@ for(const lang of ['zh','en','uk']){
   const inbox=e.byHref('#/admin/knowledge/inbox');assert.ok(inbox.textContent.includes(copy[lang].chef));assert.ok(inbox.textContent.includes(copy[lang].chefRole));
   const plan=e.byHref('#/admin/plan/week-41');assert.ok(plan,'Published plan must be reachable through the existing admin route');
   assert.ok(plan.textContent.includes(copy[lang].plan));assert.equal(plan.hasAttribute('aria-disabled'),false);assert.equal(e.drawer.textContent.includes('2-й етап'),false);
-  assert.deepEqual(e.links().map(a=>a.getAttribute('href')),['#/prep','#/purchase','#/menu','#/admin/knowledge/inbox','#/admin/plan/week-41']);
+  assert.deepEqual(e.links().map(a=>a.getAttribute('href')),['#/prep','#/purchase','#/menu','#/dishes','#/admin/knowledge/inbox','#/admin/plan/week-41']);
  });
  test(`empty and failed publication do not invent or retain an editable target (${lang})`,async()=>{
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
@@ -140,7 +140,7 @@ const chefToken='A'.repeat(43);
 test('core navigation remains visible, uses verified plan, and preserves current route after refresh',async()=>{
  const e=await setup('zh',chefToken),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);
  const nav=e.root.querySelector('.core-nav');assert.ok(nav,'persistent core navigation is present');
- assert.deepEqual(nav.querySelectorAll('a').map(a=>a.getAttribute('href')),['#/prep','#/menu','#/purchase','#/admin/plan/week-41']);
+ assert.deepEqual(nav.querySelectorAll('a').map(a=>a.getAttribute('href')),['#/prep','#/menu','#/purchase','#/dishes','#/admin/plan/week-41']);
  e.shell.setActive('admin','plan/week-41');e.shell.setTitle('师傅后台');
  assert.equal(nav.querySelector('[aria-current="page"]').getAttribute('href'),'#/admin/plan/week-41');
  assert.equal(e.root.querySelector('.t').textContent,'菜单计划');
@@ -180,8 +180,9 @@ for(const lang of ['zh','en','uk']){
  test(`shared links without a token keep plan editing out of the core and plan bars (${lang})`,async()=>{
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});
   const nav=e.root.querySelector('.core-nav'),bar=e.root.querySelector('.plan-selection');
-  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41']]);
+  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41'],['a','#/dishes?plan=week-41']]);
   assert.equal(nav.textContent.includes(planCopy[lang].nav),false);
+  assert.ok(nav.textContent.includes(({zh:'菜品',en:'Dishes',uk:'Страви'})[lang]),'Dishes stays in the shared nav without a token');
   assert.equal(bar.hidden,false);assert.ok(bar.querySelector('select'),'Everyone still chooses which plan to read');
   assert.equal(bar.querySelector('.plan-selection-create'),null);assert.equal(bar.textContent.includes(planCopy[lang].edit),false);
   e.shell.setPlanSelection(sharedPlan(null),()=>{});
@@ -193,8 +194,8 @@ for(const lang of ['zh','en','uk']){
  test(`the chef link keeps plan editing in the core and plan bars (${lang})`,async()=>{
   const e=await setup(lang,chefToken),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.setPlanSelection(sharedPlan('week-41'),()=>{});
   const nav=e.root.querySelector('.core-nav');
-  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41'],['a','#/admin/plan/week-41?plan=week-41']]);
-  assert.equal(nav.children[3].textContent,planCopy[lang].nav);
+  assert.deepEqual(nav.children.map(item=>[item.tag,item.getAttribute('href')]),[['a','#/prep?plan=week-41'],['a','#/menu?plan=week-41'],['a','#/purchase?plan=week-41'],['a','#/dishes?plan=week-41'],['a','#/admin/plan/week-41?plan=week-41']]);
+  assert.equal(nav.children[4].textContent,planCopy[lang].nav);
   const edit=e.root.querySelector('.plan-selection-create');
   assert.equal(edit.getAttribute('href'),'#/admin/plan/week-41?plan=week-41');assert.equal(edit.textContent,planCopy[lang].edit);
   e.shell.setPlanSelection(sharedPlan(null),()=>{});
@@ -207,13 +208,13 @@ for(const lang of ['zh','en','uk']){
 test('plan editing entries follow the session in and out without a reload',async()=>{
  const e=await setup('zh'),plan=sharedPlan('week-41');e.shell.setPlanSelection(plan,()=>{});
  const count=()=>e.root.querySelector('.core-nav').children.length,edit=()=>e.root.querySelector('.plan-selection-create');
- assert.equal(count(),3);assert.equal(edit(),null);
+ assert.equal(count(),4);assert.equal(edit(),null);
  e.session.set('canteenos.token','not-a-token');e.shell.setPlanSelection(plan,()=>{});
- assert.equal(count(),3,'A malformed value is not a token');assert.equal(edit(),null);
+ assert.equal(count(),4,'A malformed value is not a token');assert.equal(edit(),null);
  // main redraws through setPlanSelection whenever the auth session changes (main-plan-selection test).
  e.session.set('canteenos.token',chefToken);e.shell.setPlanSelection(plan,()=>{});
- assert.equal(count(),4);assert.ok(edit());
+ assert.equal(count(),5);assert.ok(edit());
  e.session.delete('canteenos.token');e.shell.setActive('menu');
- assert.equal(count(),3,'A route change re-reads the session');
+ assert.equal(count(),4,'A route change re-reads the session');
  e.shell.setPlanSelection(plan,()=>{});assert.equal(edit(),null);
 });

@@ -28,10 +28,11 @@ export interface Shell {
 }
 
 /** 抽屉条目：设计稿里的方格字 + 文案键 */
-const NAV: ReadonlyArray<{ route: Route; icon: string; l1: "drawer.prep" | "drawer.purchase" | "drawer.menu"; l2: "drawer.prep.role" | "drawer.purchase.role" | "drawer.menu.role" }> = [
+const NAV: ReadonlyArray<{ route: Route; icon: string; l1: "drawer.prep" | "drawer.purchase" | "drawer.menu" | "drawer.dishes"; l2: "drawer.prep.role" | "drawer.purchase.role" | "drawer.menu.role" | "drawer.dishes.role" }> = [
   { route: "prep", icon: "П", l1: "drawer.prep", l2: "drawer.prep.role" },
   { route: "purchase", icon: "采", l1: "drawer.purchase", l2: "drawer.purchase.role" },
   { route: "menu", icon: "М", l1: "drawer.menu", l2: "drawer.menu.role" },
+  { route: "dishes", icon: "菜", l1: "drawer.dishes", l2: "drawer.dishes.role" },
 ];
 
 const FOCUSABLE = 'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -131,6 +132,7 @@ export function mountShell(root: HTMLElement): Shell {
     prep:'M4 8h16M6 8v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M9 4h6M3 12h3m12 0h3',
     menu:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h8m-8 4h5',
     purchase:'M3 4h2l3 12h10l3-9H6M9 20h.01M18 20h.01',
+    dishes:'M3 11h18a9 9 0 0 1-18 0zM8 21h8M9 7c0-1.5 1.5-1.5 1.5-3M14 7c0-1.5 1.5-1.5 1.5-3',
     plan:'M5 5h14v15H5zM8 3v4m8-4v4M8 11h2m4 0h2m-8 4h2m4 0h2',
   };
   function renderCoreNav():void {
@@ -147,6 +149,7 @@ export function mountShell(root: HTMLElement): Shell {
       {key:'prep',href:sharedHref('prep'),label:localized('备料','Prep','Підготовка')},
       {key:'menu',href:sharedHref('menu'),label:localized('菜单','Menu','Меню')},
       {key:'purchase',href:sharedHref('purchase'),label:localized('采购','Shopping','Закупівлі')},
+      {key:'dishes',href:sharedHref('dishes'),label:localized('菜品','Dishes','Страви')},
       {key:'plan',href:planId?sharedHref('admin',`plan/${planId}`):selected?planHref('admin',`plan/${weekPlanId()}`,weekPlanId()):null,label:localized('菜单计划','Plan','План')},
     ] as const).filter(item=>token||item.key!=='plan');
     replace(coreNav,...items.map(item=>{

@@ -92,7 +92,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 
 1. 微信里收到二维码图片 → 长按 → 识别图中二维码。或者直接点链接。**这条链接不带钥匙**，直接打开就行。
 2. 收藏这一页。页面右上角可以切语言（中文 / English / UA），选一次就记住了。
-3. 底部导航你只会看到「备料」「菜单」「采购」三项，**没有「菜单计划」——这是正常的**，那是师傅用的。
+3. 底部导航你会看到「备料」「菜单」「采购」「菜品」四项（「菜品」里能搜菜，看每道菜的食材和做法），**没有「菜单计划」——这是正常的**，那是师傅用的。
 
 **看什么**
 
@@ -130,7 +130,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 
 1. Long-press the QR image in WeChat and choose “recognize”, or just tap the link. **This link has no key in it** — open it as is.
 2. Bookmark the page. The language switch is at the top right (Chinese / English / UA); pick once and it is remembered.
-3. The bottom bar only shows “Prep”, “Menu” and “Shopping”. **There is no “Plan” tab — that is normal.** It is for the chef.
+3. The bottom bar shows “Prep”, “Menu”, “Shopping” and “Dishes” (in “Dishes” you can search for a dish and see its ingredients and method). **There is no “Plan” tab — that is normal.** It is for the chef.
 
 **What you will see**
 
@@ -168,7 +168,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 
 1. У WeChat утримуйте QR-зображення й оберіть розпізнавання, або просто натисніть посилання. **У цьому посиланні немає ключа** — відкривайте як є.
 2. Додайте сторінку в закладки. Мова перемикається вгорі праворуч (中文 / English / UA); виберіть один раз — запам'ятається.
-3. Унизу ви бачите лише «Підготовка», «Меню» і «Закупівлі». **Вкладки «План» немає — так і має бути.** Вона для шефа.
+3. Унизу ви бачите «Підготовка», «Меню», «Закупівлі» і «Страви» (у вкладці «Страви» можна знайти страву й переглянути її інгредієнти та спосіб приготування). **Вкладки «План» немає — так і має бути.** Вона для шефа.
 
 **Що дивитися**
 
