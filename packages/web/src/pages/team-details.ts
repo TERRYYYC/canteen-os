@@ -2,7 +2,8 @@ import {recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
 import type { TeamMealsProjection, I18nString, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
-import { h } from '../dom';
+import { append, h } from '../dom';
+import { chefOnly } from './chef-only';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
 import {displayQuantity,quantityText,unitName} from './quantity-text';
@@ -36,6 +37,7 @@ export interface DetailOptions {
   asset:(owner:string,pointer:string)=>Promise<RevisionAsset>;
   techniqueAsset?:(techniqueRef:string)=>Promise<RevisionAsset>;
   href:(kind:'ingredient'|'dish',id:string)=>string;
+  /** Opens the live record in the chef back office: shown only while a chef token is present. */
   current?:()=>void;
 }
 export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void {
@@ -72,7 +74,7 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
   el.append(h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision)));
-  if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
+  if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
   el.append(h('h2',{},pick(record.name,lang)),supportDetails(lang,h('p',{class:'tm-detail-id'},id)));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
   el.append(image(record.image,owner,'/image',true,undefined,kind==='dish'?knowledgeCoverState(lookup(projection.dishes,id)):'not-recorded'));
@@ -86,8 +88,9 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     const dish=lookup(projection.dishes,id)!;
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.source==='knowledge'){
-      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`));
+      const provenance=dish.provenance;
+      append(el,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
       if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
@@ -111,6 +114,6 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
       el.append(card);
     }
   }
-  if(options.current)el.append(action(t('current'),options.current));
+  const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));
   el.append(h('p',{class:'muted'},t('coverage')));return ()=>{stop();dispose();};
 }

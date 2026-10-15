@@ -2,6 +2,7 @@
 import type {TeamMealsProjection} from '@canteenos/core';
 import {h} from '../dom';
 import {pick,type Lang} from '../i18n';
+import {chefOnly} from './chef-only';
 import {supportDetails,word} from './record-display';
 const reasons:Record<string,readonly [string,string,string]>={
  'missing-plan':['排菜计划未找到，请检查安排。','Meal plan unavailable; check the schedule.','План харчування недоступний; перевірте розклад.'],
@@ -31,6 +32,6 @@ export function renderRecordNotice(issue:{code:string},lang:Lang,projection?:Tea
  if(issue.code==='components-unrecorded'&&!dishRef&&ingredientRef)reason=word(lang,'部分来源菜谱未录配料，这份材料清单可能不完整。','Some source recipes have no ingredients recorded; this ingredient list may be incomplete.','У частині вихідних рецептів не записано інгредієнтів; цей список може бути неповним.');
  const repair=dishRef?`#/admin/dish/${encodeURIComponent(dishRef)}`:ingredientRef?`#/admin/ingredient/${encodeURIComponent(ingredientRef)}`:planRef?`#/admin/plan/${encodeURIComponent(planRef)}`:null;
  return h('div',{class:'record-notice',[attribute]:issue.code},h('p',{},who.filter(Boolean).join(' · ')),h('p',{},reason),
- repair?h('a',{href:repair},word(lang,'查看／补齐资料','View / complete information','Переглянути / доповнити дані')):null,
+ repair?chefOnly(()=>h('a',{href:repair},word(lang,'查看／补齐资料','View / complete information','Переглянути / доповнити дані'))):null,
  supportDetails(lang,h('pre',{},JSON.stringify(issue,null,2))));
 }

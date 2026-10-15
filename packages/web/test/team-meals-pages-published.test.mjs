@@ -32,6 +32,8 @@ globalThis.document={body:new Element('body'),createElement:t=>new Element(t),cr
 globalThis.MutationObserver=class{observe(){}disconnect(){}};
 globalThis.window={addEventListener(){},removeEventListener(){},scrollTo(){}};
 globalThis.location={hash:'#/menu',replace(value){this.hash=value;}};globalThis.history={back(){}};
+const session=new Map(),chefToken='A'.repeat(43),adminLinks=n=>nodes(n,'a').filter(a=>a.getAttribute('href')?.startsWith('#/admin/'));
+globalThis.sessionStorage={getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)};
 const mount=()=>{const el=new Element('section');document.body.append(el);return el;};
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
 function setup(name='normal',custom){let selected=fixtures[name];const calls=[];const data=mod.createPublishedData({baseUrl:'https://fixture.invalid/data/',fetch:async(address,init)=>{const url=new URL(address);calls.push({url,init});const response=await custom?.(url,selected);if(response)return response;if(url.pathname.endsWith('build.json'))return json(selected.manifest);if(url.pathname.includes('/team-meals/'))return json(selected.projection);if(url.pathname.includes('/assets/'))return new Response(await readFile(join(selected.root,decodeURIComponent(url.pathname.split('/assets/')[1]).split('/').slice(1).join('/'))),{headers:{'Content-Type':'image/png'}});return json({},404);}});return {data,calls,select:n=>{selected=fixtures[n];}};}
@@ -65,7 +67,9 @@ test('publication notices are understandable without opening technical details',
  const panel=nodes(el,'[data-publication-issues]')[0];assert(panel);panel.open=true;
  const visible=n=>n.hidden?'':n.tagName==='DETAILS'&&!n.open?(n.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):n.text+n.children.map(visible).join(' ');
  assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
- assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
+ assert.match(visible(panel),/用量|份数|配料/);assert.equal(adminLinks(panel).length,0,'no chef token: no admin link, the notice text stays');el.remove();
+ session.set('canteenos.token',chefToken);
+ try{const withToken=mount();await mod.prep(withToken,await context(s,'prep','','zh'));const shown=nodes(withToken,'[data-publication-issues]')[0];assert(shown);assert(adminLinks(shown).length>0);withToken.remove();}finally{session.delete('canteenos.token');}
 });
 
 test('Menu keeps selected-meal notices by its dishes and full-publication notices in the secondary record without mixing their counts',async()=>{
@@ -76,7 +80,9 @@ test('Menu keeps selected-meal notices by its dishes and full-publication notice
  const date=nodes(el,'[data-date]').find(n=>n.getAttribute('aria-current')==='date').getAttribute('data-date');
  const meal=nodes(el,'[data-meal]').find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-meal');
  assert.equal(mealNotices.length,fixtures['menu-notices'].projection.collection.issues.filter(issue=>(issue.mealType===undefined||issue.mealType===meal)&&(issue.date===undefined||issue.date===date)).length);
- assert(mealNotices.some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));el.remove();
+ assert.equal(mealNotices.some(n=>adminLinks(n).length>0),false,'no chef token: no admin link');assert(mealNotices.every(n=>n.textContent.length>0),'the notice text stays');el.remove();
+ session.set('canteenos.token',chefToken);
+ try{const withToken=mount();await mod.menu(withToken,await context(s,'menu','','zh'));assert(nodes(withToken,'[data-source-issue]').some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));withToken.remove();}finally{session.delete('canteenos.token');}
 });
 test('Menu recipe keeps the image next to its name and preserves the full license, author and source in its record',async()=>{
  for(const lang of ['zh','en','uk']){
