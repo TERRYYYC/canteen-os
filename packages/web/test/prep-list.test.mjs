@@ -29,8 +29,12 @@ globalThis.document={body:new NodeDouble('body'),createElement:t=>new NodeDouble
 const all=n=>[n,...n.children.flatMap(all)];
 const byAttr=(n,k,v)=>all(n).filter(x=>x.getAttribute(k)!==null&&(v===undefined||x.getAttribute(k)===v));
 const byClass=(n,c)=>all(n).filter(x=>(x.getAttribute('class')??'').split(' ').includes(c));
-const store=new Map();let broken=false;
-beforeEach(()=>{store.clear();broken=false;globalThis.localStorage={getItem:k=>{if(broken)throw new Error('blocked');return store.get(k)??null},setItem:(k,v)=>{if(broken)throw new Error('blocked');store.set(k,v)}};});
+const store=new Map();let broken=false,writeBroken=false;
+// Storage is an own data property so a test can swap it for a throwing getter (SecurityError) and the next test can put it back.
+const workingStorage=()=>Object.defineProperty(globalThis,'localStorage',{configurable:true,writable:true,value:{getItem:k=>{if(broken)throw new Error('blocked');return store.get(k)??null},setItem:(k,v)=>{if(broken||writeBroken)throw new Error('QuotaExceededError');store.set(k,v)},removeItem:k=>{if(broken)throw new Error('blocked');store.delete(k)}}});
+// After a test that broke storage the page may still hold its own marks; a tick and untick with working storage lets it catch up,
+// then the store is emptied and read once more so the page starts from nothing.
+beforeEach(()=>{broken=false;writeBroken=false;workingStorage();const box=byAttr(run(),'data-prep-done')[0];box.click();box.click();store.clear();run();});
 
 const { renderPrepList, PREP_DONE_KEY, cutShape } = await loadPage('prep-list');
 const freeze=v=>{if(v&&typeof v==='object'){Object.values(v).forEach(freeze);Object.freeze(v);}return v;};
@@ -147,6 +151,28 @@ test('quantity: this meal scaled; otherwise the original amount marked as such, 
   assert(!itemOf(run({lang:'uk'}),'Часник').textContent.includes('适量'),'the default to-taste words are not repeated in Chinese');
   assert(run({lang:'en'}).textContent.includes('original'));
 });
+test('this meal’s scaled amount keeps a different recorded wording as the original recipe’s words; the same amount in other words is not repeated; to-taste keeps its own words',()=>{
+  // Real core: every row with a qty gets a scaledQty once servings are known, and to-taste rows always get {unit:'to-taste'}.
+  const b=build(),kb=b.rows[2].dish;
+  const dish={...kb,components:[...kb.components,{ingredientRef:'kbi-chili-v1',qty:{unit:'to-taste'},originalAmount:'少许',role:'main',prep:{timing:'morning'}}]};
+  const src=(componentIndex,scaledQty)=>({menuPlanRef:'wk',mealIndex:2,componentIndex,date:'2026-10-19',mealType:'lunch',dishRef:'kb-cuke-v1',scaledQty});
+  const items=[{ingredientRef:'kbi-cucumber-v1',sources:[src(0,{value:1000,unit:'g'})]},{ingredientRef:'kbi-salt-v1',sources:[src(1,{value:30,unit:'g'})]},
+    {ingredientRef:'kbi-garlic-v1',sources:[src(3,{unit:'to-taste'})]},{ingredientRef:'kbi-chili-v1',sources:[src(4,{unit:'to-taste'})]}];
+  const render=lang=>renderPrepList({lang,projection:freeze({...b.projection,collection:{items,issues:[]}}),rows:[{...b.rows[2],dish}],planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
+  const byKey=(el,part)=>byAttr(el,'data-prep-item').find(i=>i.getAttribute('data-prep-item').includes(part));
+  const zh=render('zh'),cuke=itemOf(zh,'黄瓜');
+  assert.equal(byClass(cuke,'num')[0].textContent,'1 千克','this meal’s amount is the scaled one');
+  assert.equal(byClass(cuke,'prep-list-wording')[0]?.textContent,'原方: 一斤','the recipe’s own words stay and are marked as the original, not passed off as this meal’s amount');
+  assert.equal(byClass(itemOf(render('en'),'Cucumber'),'prep-list-wording')[0]?.textContent,'original: 一斤');
+  assert.equal(byClass(itemOf(render('uk'),'Огірок'),'prep-list-wording')[0]?.textContent,'за рецептом: 一斤');
+  const salt=byKey(zh,'|1|kbi-salt-v1');
+  assert.equal(byClass(salt,'num')[0].textContent,'30 克');assert.equal(byClass(salt,'prep-list-wording').length,0,'10克 is the original 10 g in Chinese words: not repeated');
+  const garlic=byKey(zh,'|3|kbi-garlic-v1');
+  assert.equal(byClass(garlic,'num')[0].textContent,'适量');assert.equal(byClass(garlic,'prep-list-wording').length,0,'适量 is the default to-taste wording');
+  const chili=byKey(zh,'|4|kbi-chili-v1');
+  assert.equal(byClass(chili,'num')[0].textContent,'适量');assert.equal(byClass(chili,'prep-list-wording')[0]?.textContent,'少许','the recipe’s own to-taste words are kept');
+  assert.equal(byClass(byKey(render('uk'),'|4|kbi-chili-v1'),'prep-list-wording')[0]?.textContent,'少许');
+});
 test('cut drawings for the six common cuts, by word-list id or by a recipe-library cut technique’s Chinese name',async()=>{
   assert.equal(cutShape({id:'roll-cut-chunks',kind:'cut',name:{zh:'滚刀块'}}),'roll-cut');
   assert.equal(cutShape({id:KB_CUT,kind:'cut',name:{zh:'丁'}}),'cubes');
@@ -165,7 +191,7 @@ test('ready ticks: ids only, saved on this phone, kept on repaint, labelled per 
   assert.equal(box.getAttribute('aria-label'),'已备: 洋葱 · 用于 炒蛋');
   box.click();
   const saved=JSON.parse(store.get(PREP_DONE_KEY)),[key]=Object.keys(saved);
-  assert.equal(key,'wk|2026-10-19|lunch|a|0|2|onion');assert.equal(saved[key],'2026-10-19');
+  assert.equal(key,'wk|2026-10-19|lunch|a|0|2|onion|1 kg','plan, date, meal, dish version, occurrence, row, ingredient and the amount to prepare');assert.equal(saved[key],'2026-10-19');
   assert(!/炒蛋|洋葱|Onion/.test(store.get(PREP_DONE_KEY)),'no names or recipe content are stored');
   assert(byAttr(run(),'data-prep-count')[0].textContent.includes(`已备 1 / ${ITEMS}`));
   assert(run({lang:'en'}).textContent.includes(`1 of ${ITEMS} ready`));assert(run({lang:'uk'}).textContent.includes(`Готово 1 з ${ITEMS}`));
@@ -182,15 +208,72 @@ test('a mark follows its dish when the plan is republished: another dish in its 
   const done=byClass(inserted,'done');
   assert.equal(done.length,1);assert.equal(done[0].textContent,'洋葱','the first 炒蛋 keeps its onion mark after a dish is added before it');
 });
+test('a mark is tied to the amount to prepare: the same recipe version republished with other servings asks again; another language does not',()=>{
+  const b=build();
+  const at=scaledQty=>({menuPlanRef:'wk',mealIndex:0,componentIndex:0,date:'2026-10-19',mealType:'lunch',dishRef:'a',scaledQty});
+  const render=(sources,lang='zh')=>renderPrepList({lang,projection:freeze({...b.projection,collection:{items:[{ingredientRef:'carrot',sources}],issues:[]}}),rows:b.rows,planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
+  const el=render([at({value:500,unit:'g'})]);
+  byAttr(itemOf(el,'胡萝卜'),'data-prep-done')[0].click();
+  assert.equal(byClass(render([at({value:500,unit:'g'})]),'done').length,1,'same demand: still ready');
+  assert.equal(byClass(render([at({value:500,unit:'g'})],'uk'),'done').length,1,'the same amount read in another language: still ready');
+  assert.equal(byClass(render([at({value:1000,unit:'g'})]),'done').length,0,'servings 4 → 8 with the same dish version: 500 g ready does not mean 1 kg ready');
+  assert.equal(byClass(render([]),'done').length,0,'servings removed: the original amount is another demand');
+  assert(!/胡萝卜|Carrot|Морква|炒蛋/.test(store.get(PREP_DONE_KEY)),'still no names or recipe content stored');
+});
+test('a storage getter that throws (SecurityError) does not stop the list; the mark lives in memory for this visit',()=>{
+  Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){throw new Error('SecurityError');}});
+  const el=run();assert.equal(byAttr(el,'data-prep-item').length,ITEMS,'the list still renders');
+  byAttr(itemOf(el,'洋葱'),'data-prep-done')[0].click();
+  assert(byAttr(el,'data-prep-count')[0].textContent.includes(`已备 1 / ${ITEMS}`));
+  assert.deepEqual(byClass(run(),'done').map(n=>n.textContent),['洋葱'],'a repaint keeps the mark');
+});
+test('readable storage whose writes fail (quota): a repaint keeps this page’s marks instead of the older stored state',()=>{
+  store.set(PREP_DONE_KEY,JSON.stringify({'wk|2026-10-19|lunch|a|0|0|carrot|1500 g':'2026-10-19'}));
+  writeBroken=true;
+  const el=run();byAttr(itemOf(el,'洋葱'),'data-prep-done')[0].click();
+  const again=run();
+  assert(byClass(again,'done').some(n=>n.textContent==='洋葱'),'the unsaved tick survives a repaint');
+  assert.deepEqual(byClass(again,'done').map(n=>n.textContent).sort(),['洋葱','胡萝卜'],'the mark read from storage before the failure stays too');
+  byAttr(itemOf(again,'胡萝卜'),'data-prep-done')[0].click();
+  assert.deepEqual(byClass(run(),'done').map(n=>n.textContent),['洋葱'],'an unsaved untick does not come back from storage');
+  assert.equal(byClass(run({lang:'uk'}),'done').length,1,'nor on a language change');
+  writeBroken=false;
+  byAttr(itemOf(run(),'鬼'),'data-prep-done')[0].click();
+  assert.deepEqual(Object.keys(JSON.parse(store.get(PREP_DONE_KEY))).sort(),['wk|2026-10-19|lunch|a|0|2|onion|1 kg','wk|2026-10-19|lunch|a|0|5|ghost-tech|3 g'],'once a write succeeds, storage carries this page’s state');
+});
+test('after a failed write the page still reads storage: a mark another tab saves meanwhile is shown, and the next successful write keeps it beside this page’s own changes',()=>{
+  writeBroken=true;
+  const el=run();byAttr(itemOf(el,'洋葱'),'data-prep-done')[0].click();
+  // Another tab (or the same phone in another window) ticks the carrot while this page's write is still failing.
+  store.set(PREP_DONE_KEY,JSON.stringify({'wk|2026-10-19|lunch|a|0|0|carrot|1500 g':'2026-10-19'}));
+  assert.deepEqual(byClass(run(),'done').map(n=>n.textContent).sort(),['洋葱','胡萝卜'],'the other tab’s mark shows next to this page’s unsaved tick');
+  // The other tab unticks the carrot again: this page did not touch it, so it goes.
+  store.set(PREP_DONE_KEY,JSON.stringify({}));
+  assert.deepEqual(byClass(run(),'done').map(n=>n.textContent),['洋葱'],'a mark this page never changed follows storage');
+  store.set(PREP_DONE_KEY,JSON.stringify({'wk|2026-10-19|lunch|a|0|0|carrot|1500 g':'2026-10-19'}));
+  writeBroken=false;
+  byAttr(itemOf(run(),'鬼'),'data-prep-done')[0].click();
+  assert.deepEqual(Object.keys(JSON.parse(store.get(PREP_DONE_KEY))).sort(),['wk|2026-10-19|lunch|a|0|0|carrot|1500 g','wk|2026-10-19|lunch|a|0|2|onion|1 kg','wk|2026-10-19|lunch|a|0|5|ghost-tech|3 g'],'the first successful write merges this page’s changes into what is stored instead of replacing it');
+  assert.deepEqual(byClass(run(),'done').map(n=>n.textContent).sort(),['洋葱','胡萝卜','鬼'].sort());
+});
+test('the key format changed, so the store name moved on: marks saved under the old name are neither read nor carried, and the old entry is removed',()=>{
+  const LEGACY='canteenos.prep.done.v1';
+  assert.notEqual(PREP_DONE_KEY,LEGACY,'a key without the amount segment must not share a store with the new format');
+  store.set(LEGACY,JSON.stringify({'wk|2026-10-19|lunch|a|0|2|onion':'2026-10-19'}));
+  const el=run();assert.equal(byClass(el,'done').length,0,'an old-format mark is not shown');
+  byAttr(itemOf(el,'鬼'),'data-prep-done')[0].click();
+  assert.deepEqual(Object.keys(JSON.parse(store.get(PREP_DONE_KEY))),['wk|2026-10-19|lunch|a|0|5|ghost-tech|3 g'],'only new-format entries are written');
+  assert.equal(store.has(LEGACY),false,'the old store is cleared instead of lingering until its dates expire');
+});
 test('marks older than seven days are neither shown nor kept; the clock is read when ticking',()=>{
-  store.set(PREP_DONE_KEY,JSON.stringify({'wk|2026-10-19|lunch|a|0|2|onion':'2026-10-01','wk|2026-10-19|lunch|a|0|0|carrot':'2026-10-15'}));
+  store.set(PREP_DONE_KEY,JSON.stringify({'wk|2026-10-19|lunch|a|0|2|onion|1 kg':'2026-10-01','wk|2026-10-19|lunch|a|0|0|carrot|1500 g':'2026-10-15'}));
   const el=run();assert.equal(byClass(el,'done').length,1,'the 18-day-old mark is not shown');
   let now=new Date(2026,9,20,0,5);
   const late=renderPrepList({lang:'zh',...(()=>{const b=build();return{projection:b.projection,rows:b.rows};})(),planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>now});
   byAttr(itemOf(late,'鬼'),'data-prep-done')[0].click();
   const saved=JSON.parse(store.get(PREP_DONE_KEY));
-  assert.equal(saved['wk|2026-10-19|lunch|a|0|5|ghost-tech'],'2026-10-20','ticked after midnight: today’s date');
-  assert.equal('wk|2026-10-19|lunch|a|0|2|onion' in saved,false);assert.equal(saved['wk|2026-10-19|lunch|a|0|0|carrot'],'2026-10-15');
+  assert.equal(saved['wk|2026-10-19|lunch|a|0|5|ghost-tech|3 g'],'2026-10-20','ticked after midnight: today’s date');
+  assert.equal('wk|2026-10-19|lunch|a|0|2|onion|1 kg' in saved,false);assert.equal(saved['wk|2026-10-19|lunch|a|0|0|carrot|1500 g'],'2026-10-15');
 });
 test('unavailable storage does not crash the page and the mark stays for this visit',()=>{
   broken=true;const el=run();byAttr(el,'data-prep-done')[0].click();
