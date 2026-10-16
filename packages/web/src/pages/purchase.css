@@ -204,3 +204,20 @@
 .tm-purchase-record{font-size:11px;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
 .tm-purchase-record>summary,.tm-purchase-record details>summary{min-height:44px;display:list-item;padding:12px 0;cursor:pointer}
 .tm-purchase-record .tm-list-reference{margin:4px 0}
+
+/* Supplier sections (D0 contract, line 3): one block per supplier, head with sums and its own copy button. */
+.tm-supplier-summary{margin:8px 0;padding:10px 12px}
+.tm-supplier-summary p{margin:0 0 4px;overflow-wrap:anywhere}
+.tm-supplier-section{margin:12px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.tm-supplier-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface-2)}
+.tm-supplier-head>div:first-child{flex:1 1 160px;min-width:0}
+.tm-supplier-head h3{margin:0 0 2px;font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.tm-supplier-head p{margin:0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.tm-supplier-head>[data-copy]{flex:0 1 auto;max-width:100%;margin:0;padding:0;border:0;background:transparent}
+.tm-supplier-head>[data-copy]>.tm-button{min-height:44px;max-width:100%;white-space:normal;color:var(--accent);border-color:var(--accent)}
+.tm-supplier-head>[data-copy]>textarea{width:100%;box-sizing:border-box}
+.tm-supplier-section>.tm-material{border-left:0;border-right:0;border-radius:0}
+.tm-supplier-section>.tm-material:last-of-type{border-bottom:0}
+.tm-counterpart{display:block;font-size:11px;font-weight:400;color:var(--muted);overflow-wrap:anywhere}
+.tm-material-estimate{margin:6px 0 0;font-size:12px;line-height:1.5}
+.tm-material-estimate p{margin:0;overflow-wrap:anywhere}

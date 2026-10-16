@@ -58,7 +58,9 @@ export function inputs(revision){
  return {menuPlans:{'team-week':{schemaVersion:'3',meals}},dishes:{'ribs-dish':{schemaVersion:'3',name:{zh:'红烧排骨',en:'Braised ribs',uk:'Тушковані реберця'},baseServings:2,status:'active',components,steps:[]}},ingredients,techniques:[]};
 }
 let serial=0;
-export async function setup({lang='en'}={}){
+/** `patch(data,revision)` may edit the served catalog and plans of a revision in place before any use (list creation and every read). */
+export async function setup({lang='en',patch}={}){
+ const data=revision=>{const d=inputs(revision);patch?.(d,revision);return d;};
  const priorGlobals=new Map(['HTMLElement','MutationObserver','window','location','document','localStorage','sessionStorage','navigator'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  const restoreGlobals=()=>{for(const [key,descriptor] of priorGlobals){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}};
  Object.defineProperty(globalThis,'navigator',{configurable:true,writable:true,value:{onLine:true}});
@@ -67,7 +69,7 @@ export async function setup({lang='en'}={}){
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const page=await import(`${pathToFileURL(file)}?case=${++serial}`),calls=[],writes=[],sources=new Map(),history=new Map(),gates=[];
  let identity=1,current=A,seq=0,post='success',planFails=false;
- const list=page.createShoppingList('team-shop',{sourceRevision:A,selection},inputs(A),'2');
+ const list=page.createShoppingList('team-shop',{sourceRevision:A,selection},data(A),'2');
  sources.set('team-shop',{content:list,commit:'c'.repeat(40),blobSha:'initial'});history.set(`team-shop:${'c'.repeat(40)}`,sources.get('team-shop'));
  const json=x=>Response.json(clone(x)),failure=(status,code)=>Response.json({ok:false,errors:[{path:'',code,message:code}]},{status});
  // One API object per page load: reopening after a reload gets its own boundary, as in the browser.
@@ -80,9 +82,9 @@ export async function setup({lang='en'}={}){
    const commit=(++seq).toString(16).padStart(40,'0'),value={content,commit,blobSha:`saved-${seq}`};sources.set(id,value);history.set(`${id}:${commit}`,value);return json({commit,blobSha:value.blobSha,unchanged:false,warnings:[]});
   }
   if(u.pathname.startsWith('/source/shopping-list/')){const id=u.pathname.split('/').at(-1),v=call.revision?history.get(`${id}:${call.revision}`):sources.get(id);return v?json(v):failure(404,'not_found');}
-  const revision=call.revision??current,data=inputs(revision);
-  if(u.pathname==='/catalog')return json({commit:revision,dishes:data.dishes,ingredients:data.ingredients,techniques:data.techniques,suppliers:[],translations:{machine:0,human:0,stale:0}});
-  if(u.pathname.startsWith('/source/plan/')){if(planFails)return failure(503,'unavailable');const p=data.menuPlans[u.pathname.split('/').at(-1)];return p?json({content:p,commit:revision,blobSha:`plan-${revision}`}):failure(404,'not_found');}
+  const revision=call.revision??current,served=data(revision);
+  if(u.pathname==='/catalog')return json({commit:revision,dishes:served.dishes,ingredients:served.ingredients,techniques:served.techniques,suppliers:[],translations:{machine:0,human:0,stale:0}});
+  if(u.pathname.startsWith('/source/plan/')){if(planFails)return failure(503,'unavailable');const p=served.menuPlans[u.pathname.split('/').at(-1)];return p?json({content:p,commit:revision,blobSha:`plan-${revision}`}):failure(404,'not_found');}
   if(u.pathname==='/shopping-lists')return json({ok:true,commit:current,items:[],nextCursor:null,skipped:0});
   if(u.pathname==='/asset')return failure(404,'not_found');throw new Error(`Unexpected fixture request ${u.pathname}`);
  }});

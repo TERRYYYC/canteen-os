@@ -58,7 +58,7 @@ test('only buy decisions that are not yet bought are listed, grouped under their
 });
 test('nothing to buy gives no text; bought, available and check decisions never appear',()=>{
  const out=copy(view([['tomato','buy',true],['egg','available'],['salt','check']]));
- assert.deepEqual(out,{text:'',items:0,unquantified:0});
+ assert.deepEqual(out,{text:'',items:0,unquantified:0,keptCovered:0});
 });
 test('a missing estimate is named with quantity to confirm under its recorded supplier and left out of the total',()=>{
  const inputs=structuredClone(seed);delete inputs.dishes['tomato-egg-stir-fry'].components.find(c=>c.ingredientRef==='scallion').qty;

@@ -106,7 +106,11 @@ test('every write control on the published purchase list stays rendered and disa
   // Copying text for suppliers is the one enabled action: it reads this preview and writes nothing.
   const copy=walk(f.el).find(n=>n.attrs['data-copy']==='suppliers');
   assert.ok(copy&&copy.children.find(n=>n.tagName==='BUTTON').disabled===false,'the supplier copy stays available');
-  const buttons=tags(f.el,'BUTTON').filter(n=>!walk(copy).includes(n));
+  // The per-supplier "copy this section" buttons are copy actions too: they write nothing and stay enabled.
+  // Only those two copy kinds are exempt; the read-only page offers no full-record copy.
+  assert.equal(walk(f.el).some(n=>n.attrs['data-copy']==='record'),false,'no full-record copy on the read-only page');
+  const copyButtons=walk(f.el).filter(n=>n.attrs['data-copy']==='suppliers'||n.attrs['data-copy']==='section').flatMap(walk);
+  const buttons=tags(f.el,'BUTTON').filter(n=>!copyButtons.includes(n));
   assert.ok(buttons.length>0,'write controls are shown, not silently dropped');
   assert.ok(buttons.every(n=>n.disabled===true),'save, re-read and per-item decisions are all disabled');
   assert.ok(boxes(f.el).length>0&&boxes(f.el).every(n=>n.disabled===true),'no item can be ticked');
@@ -276,8 +280,35 @@ test('read-only copy follows the interface language and shares the clipboard and
    button.click();await flush();
    if(behavior==='copied'){assert.equal(captured,area.value);assert.equal(status.textContent,copied);assert.equal(area.hidden,true);}
    else assert.equal(area.hidden,false,`${lang}/${behavior}: the same text is shown for manual copying`);
-   assert.ok(tags(f.el,'BUTTON').filter(n=>n!==button).every(n=>n.disabled===true),'save, re-read and decisions stay disabled');
+   const copyButtons=walk(f.el).filter(n=>n.attrs['data-copy']==='suppliers'||n.attrs['data-copy']==='section').flatMap(walk);
+   assert.ok(tags(f.el,'BUTTON').filter(n=>n!==button&&!copyButtons.includes(n)).every(n=>n.disabled===true),'save, re-read and decisions stay disabled');
    assert.equal(f.calls.length,0,'no saved-API request: copying creates no list, decision or basis');
   }finally{f.cleanup();}
  }
+});
+
+test('read-only copy: a supplier whose every item is covered by stock offers no empty order, in its section or in the whole copy',async()=>{
+ const covered=publishedFixture('stock-covers-hongda');
+ const words={zh:['这一段的材料本次都无需订货，没有要发给菜贩的内容。','本次参考无需订货'],en:['Nothing in this section needs ordering this time; nothing to send.','No order needed this time'],uk:['У цьому розділі цього разу нічого не треба замовляти; надсилати нічого.','Цього разу замовляти не потрібно']};
+ try{
+  for(const [lang,[none,row]] of Object.entries(words)){
+   const f=await mount({lang,source:covered});
+   try{
+    const sections=walk(f.el).filter(n=>n.attrs['data-supplier-section']==='supplier');
+    const hongda=sections.find(n=>n.textContent.includes(lang==='zh'?'宏达粮油调味批发':'宏达')),lvyuan=sections.find(n=>n!==hongda);
+    assert.ok(hongda&&lvyuan,`${lang}: both supplier sections are shown`);
+    const copyOf=section=>{const card=walk(section).find(n=>n.attrs['data-copy']==='section');return{card,button:card.children.find(n=>n.tagName==='BUTTON'),area:walk(card).find(n=>n.tagName==='TEXTAREA')};};
+    const empty=copyOf(hongda),full=copyOf(lvyuan);
+    assert.equal(empty.button.disabled,true,`${lang}: nothing to copy for a covered supplier`);assert.equal(empty.area.value,'');
+    assert.ok(empty.card.textContent.includes(none),`${lang}: the section says why: ${empty.card.textContent}`);
+    assert.ok(walk(empty.card).some(n=>n.attrs['data-copy-section-covered']!==undefined));
+    assert.equal(full.button.disabled,false,`${lang}: the other supplier still copies`);assert.ok(full.area.value.length>0);
+    assert.ok(hongda.textContent.includes(row),`${lang}: the rows say no order is needed`);
+    const {button,area}=copyParts(f.el);
+    assert.equal(button.disabled,false);assert.ok(!area.value.includes(lang==='zh'?'宏达粮油调味批发':'宏达'),`${lang}: the whole copy has no message for the covered supplier`);
+    assert.equal(area.value.split('\n').filter(line=>line.startsWith('【')||line.startsWith('[')).length>=1,true);
+    assert.equal(f.calls.length,0);
+   }finally{f.cleanup();}
+  }
+ }finally{covered.cleanup();}
 });

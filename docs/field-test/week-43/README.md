@@ -115,8 +115,10 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 
 - 最上面一行：「未连接后台 · 这里是已发布版本的只读清单」。看到它就是只读版。
 - 标题「本次采购」，下面是这份清单覆盖的日期和餐次。
-- 每种材料一张卡：名字、「主料」或「调料」。点「来源与数量参考」能展开：用在哪道菜、哪天哪顿、几份、要多少，以及按哪家供应商买几包（每包多大）、大概多少钱。数字有疑问就点开看，不用问人。
-- 每张卡上有「待核对」「待买」「已有」三个按钮和「已买」勾选框。**只读版里这些都是灰的，点不了**，页面上的「保存清单」「读取最新已保存计划」也是灰的。
+- 「复制给菜贩」（复制全部）下面紧接着是「预计合计」（按币种分别写）和一共几种。合计**只算能算出价钱的项，不是完整预算**。
+- 材料**按供应商分成一段一段**，分法和「复制给菜贩」一样；没记供应商的一段叫「未指定供应商」。每段开头写供应商名、几种、这一段能算的金额小计（按币种分别写），有暂无价格的写「其中 N 种暂无价格」，算不出数量的写「其中 N 种数量待定，未计入小计」，还有一个「**复制这一段**」按钮，只复制这一段，格式和「复制给菜贩」一样。
+- 段里每种材料一张卡：名字（名字下面一行是乌克兰语名，读者用乌语或英语时是中文名；没录就不写）、「主料」或「调料」。点「来源与数量参考」能展开：用在哪道菜、哪天哪顿、几份、要多少，以及按哪家供应商买几包（每包多大）、大概多少钱。数字有疑问就点开看，不用问人。
+- 每张卡上有「待核对」「待买」「已有」三个按钮和「已买」勾选框；按钮下面一行是估算，写「N 包 · 每包 X · 共 Y」和金额，没有价格写「暂无价格」，算不出来的写原因；库存已经够、这次不用订的写「本次参考无需订货 · 0 包 · 现有库存已够」，这种材料不算进段头的「数量待定」。只读版复制给菜贩时不列它；已保存清单里你标了「待买」的照样复制，写「数量待定」，复制框下面会提醒，数量你自己定。判断仍由你按，估算只是参考。**只读版里这些都是灰的，点不了**，页面上的「保存清单」「读取最新已保存计划」也是灰的。
 - 灰按钮下面有一句说明，告诉你这是只读清单。**你不需要师傅链接，也不用去找**；要保存的话找 Terry。
 - 「需要核对的资料」折叠块：列出缺规格、单位换不了等问题，**这些材料算不出几包**——看到就说。
 - 「用途未分类」「份数未录」「数量待定」都是资料没填全，不是你点错了，照实说。
@@ -128,6 +130,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 3. 金额**按币种分别合计**；一段里有不同币种时会写「币种不同不合计」，不换算、不相加。没有上次价的写「无上次价记录」。
 4. 有一段标着「未指定供应商」：说明这几样没人负责，**先问 Terry 谁来买，再发**。
 5. 只读版里复制的是**所选餐次要用的全部材料**，没有「已有」「已买」的标记。按页面上那句提示，**发给菜贩前先把家里已经有的删掉**，再粘进微信。
+6. 只想发给其中一家：点那一段的「**复制这一段**」，复制的就是上面讲的那一段文字，成功和失败的提示同上。已保存的清单里，一段里没有还没买的「待买」材料时，这个按钮是灰的，下面会写原因。
 
 **以实际部署为准**
 
@@ -153,8 +156,10 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 
 - Top line: “Not connected · this is the published version, read only”. If you see it, you are on the read-only version.
 - Heading “This shopping list”, then the dates and meals it covers.
-- One card per ingredient, marked “Main ingredient” or “Seasoning”. Open “Sources and quantity reference” to see which dish, which day and meal, how many servings, how much is needed, and how many packs from which supplier (pack size, rough price). If a number looks wrong, open it and check — no need to ask anyone.
-- Each card has the buttons “Check”, “Buy”, “Available” and a “Bought” tick box. **On the read-only version they are all greyed out**, and so are “Save list” and “Read latest saved plans”.
+- Right under “Copy for suppliers” (copies everything) the page shows “Estimated total” (one figure per currency) and how many items. The total **only counts items that can be priced and is not a complete budget**.
+- Ingredients are **split into one section per supplier**, the same way as “Copy for suppliers”; items with no recorded supplier sit in “No supplier assigned”. Each section starts with the supplier name, how many items, the subtotal that can be worked out (per currency), “N of them without a price yet” when some have no price, “N with quantity to confirm, not in the subtotal” when a quantity cannot be worked out, and a “**Copy this section**” button. It copies only that section, in the same format as “Copy for suppliers”.
+- In a section, one card per ingredient: the name (with the Chinese name on a second line; when the reader uses Chinese, the Ukrainian name — left out when not recorded), marked “Main ingredient” or “Seasoning”. Open “Sources and quantity reference” to see which dish, which day and meal, how many servings, how much is needed, and how many packs from which supplier (pack size, rough price). If a number looks wrong, open it and check — no need to ask anyone.
+- Each card has the buttons “Check”, “Buy”, “Available” and a “Bought” tick box; under the buttons is a line with the estimate, “N packs · X each · Y in all” and the amount, or “No price yet”, or the reason when it cannot be worked out; when stock on hand already covers it, the line reads “No order needed this time · 0 packs · stock on hand covers it”, and such an item is not counted as “quantity to confirm”. The read-only version leaves it out of the copied text; on a saved list, if you marked it “Buy”, it is still copied as “quantity to confirm”, with a note under the copy box, and the amount is yours to decide. You still make the decision; the estimate is only a guide.  **On the read-only version they are all greyed out**, and so are “Save list” and “Read latest saved plans”.
 - Under the greyed-out buttons a line explains that this is a read-only list. **You do not need the chef link and do not have to look for it**; if something has to be saved, ask Terry.
 - The “Information to check” block lists ingredients with missing specs or units that cannot be converted. **Those cannot be turned into a number of packs** — tell us when you see it.
 - “Role not classified”, “Servings unspecified” and “quantity to confirm” mean the records are incomplete. It is not your mistake; tell us as it is.
@@ -166,6 +171,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 3. Amounts are **totalled per currency**. If one block has several currencies it says “currencies differ, not added” — nothing is converted or added together. Items without a last price say “no last price on record”.
 4. One block may say “No supplier assigned”: nobody owns those items yet. **Ask Terry who buys them before you send it.**
 5. On the read-only version the copy contains **everything the selected meals need**, with no Available / Bought marks. As the page says, **remove what you already have before sending**, then paste into WeChat.
+6. To send just one supplier, tap “**Copy this section**” in that section. It copies the block described above; success and failure messages are the same. On a saved list the button is greyed out, with a note under it, when nothing in the section is marked “Buy” and still to buy.
 
 **Depends on the actual deployment**
 
@@ -191,8 +197,10 @@ If the site was in fact set up with a saving service, a link without a key **wil
 
 - Верхній рядок: «Немає з’єднання · це опублікована версія лише для читання». Якщо він є — це версія для читання.
 - Заголовок «Цей список покупок», нижче — дати й прийоми їжі.
-- Одна картка на інгредієнт, позначка «Основний інгредієнт» або «Приправа». Розгорніть «Джерела й кількісні орієнтири»: яка страва, який день і прийом їжі, скільки порцій, скільки треба, скільки упаковок у якого постачальника (розмір упаковки, орієнтовна ціна). Якщо число сумнівне — розгорніть і перевірте, питати не треба.
-- На кожній картці кнопки «Перевірити», «Купити», «Є в наявності» і прапорець «Куплено». **У версії для читання вони сірі, натиснути не можна**; «Зберегти список» і «Прочитати останні збережені плани» теж сірі.
+- Одразу під «Копіювати для постачальників» (копіює все) — «Орієнтовний підсумок» (окремо за кожною валютою) і кількість позицій. Підсумок **враховує лише позиції, які можна оцінити, і не є повним бюджетом**.
+- Інгредієнти **розбито на розділи по постачальниках** так само, як у «Копіювати для постачальників»; без записаного постачальника — розділ «Постачальника не вказано». На початку розділу: назва постачальника, кількість позицій, проміжна сума (окремо за валютою), «серед них без ціни: N», якщо в когось немає ціни, «кількість уточнити: N — не враховано в сумі», якщо кількість не вдалося порахувати, і кнопка «**Копіювати цей розділ**». Вона копіює лише цей розділ у тому ж форматі, що й «Копіювати для постачальників».
+- У розділі — одна картка на інгредієнт: назва (під нею рядок китайською; не записано — рядка немає), позначка «Основний інгредієнт» або «Приправа». Розгорніть «Джерела й кількісні орієнтири»: яка страва, який день і прийом їжі, скільки порцій, скільки треба, скільки упаковок у якого постачальника (розмір упаковки, орієнтовна ціна). Якщо число сумнівне — розгорніть і перевірте, питати не треба.
+- На кожній картці кнопки «Перевірити», «Купити», «Є в наявності» і прапорець «Куплено»; під кнопками — рядок з оцінкою «N уп. · по X · разом Y» і сумою, або «Ціни поки немає», або причина, якщо порахувати не вдалося; якщо наявного запасу вже достатньо, рядок каже «Цього разу замовляти не потрібно · 0 уп. · наявного запасу достатньо» — така позиція не входить у «кількість уточнити». У версії для читання її немає в скопійованому тексті; у збереженому списку, якщо ви позначили «Купити», її все одно скопійовано як «кількість уточнити», під полем копіювання є примітка, а кількість вирішуєте ви. Рішення, як і раніше, ваше; оцінка — лише підказка.  **У версії для читання вони сірі, натиснути не можна**; «Зберегти список» і «Прочитати останні збережені плани» теж сірі.
 - Під сірими кнопками є рядок, що це список лише для читання. **Посилання шефа вам не потрібне, шукати його не треба**; якщо щось треба зберегти — до Террі.
 - Блок «Дані для перевірки» показує інгредієнти без параметрів закупівлі або з одиницями, які не можна перетворити. **Для них не виходить порахувати упаковки** — скажіть, коли побачите.
 - «Роль не визначено», «Порції не вказано», «кількість уточнити» — дані заповнено не повністю. Це не ваша помилка, скажіть як є.
@@ -204,6 +212,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 3. Суми **рахуються окремо за кожною валютою**. Якщо в блоці різні валюти, буде «різні валюти, не додано» — нічого не конвертується й не додається. Позиції без ціни: «останньої ціни немає».
 4. Один блок може мати «Постачальника не вказано»: ці позиції ще ні за ким. **Спитайте Террі, хто їх купує, перш ніж надсилати.**
 5. У версії для читання копіюється **усе, що потрібно для вибраних прийомів їжі**, без позначок «Є в наявності» / «Куплено». Як і сказано на сторінці, **перед надсиланням приберіть те, що вже є**, потім вставте у WeChat.
+6. Щоб надіслати лише одному постачальнику, натисніть у його розділі «**Копіювати цей розділ**». Копіюється блок, описаний вище; повідомлення про успіх чи помилку ті самі. У збереженому списку кнопка сіра (під нею пояснення), якщо в розділі немає позицій «Купити», які ще не куплено.
 
 **Залежить від фактичного розгортання**
 
