@@ -158,7 +158,7 @@
 .menu-row-record .n2{font-size:11px;display:flex;flex-direction:column;gap:3px;margin-top:8px}
 .menu-publication .raw-source,.menu-publication-info{font-size:11px;color:var(--muted);line-height:1.6;padding:4px 0;overflow-wrap:anywhere}
 .menu-publication .raw-source{margin-top:12px}.menu-publication-info code{font-size:10px}.menu-coverage{font-size:11px;line-height:1.7;margin:8px 0}
-.menu-recipe-dialog{border-radius:22px 22px 0 0;box-shadow:0 -8px 30px #20372422}
+.menu-recipe-dialog{border-radius:22px 22px 0 0;box-shadow:0 -8px 30px #131F3522}
 .menu-recipe-dialog>.chip{border:0;border-bottom:1px solid var(--line);border-radius:0;background:var(--surface);color:var(--accent);font:inherit;font-size:12px;text-align:right;padding:10px 20px}
 .menu-recipe-dialog>.body{padding:0 20px 28px;display:block}
 .menu-recipe{gap:10px}.menu-recipe>h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
