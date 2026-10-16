@@ -164,12 +164,13 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
    // Sections hold every candidate so each keeps its judgment buttons; a section copy lists only what the whole copy lists (buy, not bought).
    const sections=supplierSections(basis.projection.collection.items,basis.projection,lang,basis.estimate).sections;
-   const buying=supplierSections(buyItems(list),basis.projection,lang,basis.estimate).sections;
+   // Every saved Buy is sent, even when the stock reference says nothing needs ordering: the buyer's decision stands.
+   const buying=supplierSections(buyItems(list),basis.projection,lang,basis.estimate,true).sections;
    const sectionCopy=(section:SupplierSection)=>{
-    // A section whose "buy" items are all covered by stock is no order: greyed, with that reason rather than "nothing marked Buy".
-    const found=buying.find(x=>x.supplier===section.supplier),order=found&&hasOrder(found)?found:undefined;
-    const copied=copyAction('section',t('copySection'),order?supplierSectionText(order,lang,listDates(list)):'');copied.button.disabled=!order;
-    if(!order)copied.card.append(h('p',{class:'muted',[found?'data-copy-section-covered':'data-copy-section-none']:''},t(found?'copySectionCovered':'copySectionNone')));
+    const found=buying.find(x=>x.supplier===section.supplier);
+    const copied=copyAction('section',t('copySection'),found?supplierSectionText(found,lang,listDates(list)):'');copied.button.disabled=!found;
+    if(!found)copied.card.append(h('p',{class:'muted','data-copy-section-none':''},t('copySectionNone')));
+    else if(found.keptCovered)copied.card.append(keptNote(found.keptCovered));
     return copied.card;
    };
    nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,sections,sectionCopy,
@@ -306,6 +307,12 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(!pending&&view.generation===captured){view.listId=list.id;view.planIds=planIds;view.scope=scope;}
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
+  // Buy items the stock reference covers are listed without a quantity; the note says the amount is the buyer's to confirm.
+  function keptNote(n:number){
+   return h('p',{class:'muted','data-copy-kept':''},w(`其中 ${n} 种库存参考已够，按你标的「待买」列出，数量待定，请自己确认。`,
+    n===1?'1 of them is covered by the stock reference but listed because you marked it Buy; quantity to confirm.':`${n} of them are covered by the stock reference but listed because you marked them Buy; quantity to confirm.`,
+    `З них ${n}: за довідкою про запас вистачає, але в списку, бо ви позначили «Купити»; кількість уточнити.`));
+  }
   // Each clipboard attempt keeps its own reload-safety ticket on this view.
   function copyAction(kind:'suppliers'|'record'|'section',label:string,content:string,...notes:HTMLElement[]){
    return copyCard(lang,kind,label,content,notes,live,()=>{const handle=view.reload,operation=handle.beginOperation('write');touch(view);return outcome=>{handle.settleOperation(operation,outcome);touch(view);};});
@@ -313,9 +320,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
   function copyPanels(list:ShoppingList){
    const basis=form.basis!,orders=supplierCopy(list,basis.projection,lang,basis.estimate),{check,bought}=countDecisions(list);
-   // Items marked Buy and not bought may all be covered by stock: then there is nothing to send, and the note says so.
-   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':buyItems(list).length?'copySuppliersCovered':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
-   const suppliers=copyAction('suppliers',t('copySuppliers'),orders.text,scope);suppliers.button.disabled=!orders.items;
+   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
+   const suppliers=copyAction('suppliers',t('copySuppliers'),orders.text,scope,...(orders.keptCovered?[keptNote(orders.keptCovered)]:[]));suppliers.button.disabled=!orders.items;
    const record=copyAction('record',t('copyRecord'),shoppingCopy(list,basis.projection,lang,basis.estimate));
    return [suppliers.card,record.card];
   }

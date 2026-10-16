@@ -158,77 +158,80 @@ test('a complete estimate with no order line (stock covers the need) reads "no o
  assert.equal(last.supplier,m.UNSPECIFIED_SUPPLIER);assert.equal(last.unquantified,1);
  assert.equal(cls(card(render(w),'tomato'),'tm-material-estimate')[0].attrs['data-estimate'],'reason');
  assert.equal(ws.find(s=>s.supplier==='宏达粮油调味批发').unquantified,0);
- // The copied text says the same as the page: a known zero-order item is not a "quantity to confirm" row, so it is left out
- // of the supplier's order and of the count; a truly unavailable item is still written and counted as before.
+ // Copied text. Without a human decision (the read-only preview, and the sections the page shows) a known zero-order
+ // item is not a "quantity to confirm" row and is left out. Here every item is a saved Buy, and a saved Buy is never
+ // dropped by the stock reference: salt is sent as "quantity to confirm" (#153 re-review manual-buy-omitted-by-stock-reference).
  const dates=selection.map(x=>x.date),toConfirm={zh:'数量待定',en:'quantity to confirm',uk:'кількість уточнити'};
  for(const lang of ['zh','en','uk']){
   const saltName=pick(seed.ingredients.salt.name,lang),copy=m.supplierCopy(v.list,v.projection,lang,v.estimate);
-  assert.equal(copy.unquantified,0,`${lang}: whole copy counts no quantity to confirm`);
-  assert.ok(!copy.text.includes(toConfirm[lang]),`${lang}: ${copy.text}`);
-  assert.ok(!copy.text.includes(saltName),`${lang}: a zero-order item is not sent to the supplier: ${copy.text}`);
+  assert.equal(copy.unquantified,1,`${lang}: the saved Buy salt is listed without a quantity`);assert.equal(copy.keptCovered,1,lang);
+  assert.ok(copy.text.split('\n').includes(`${saltName}  ${toConfirm[lang]}`),`${lang}: ${copy.text}`);
+  assert.ok(!/  0 /.test(copy.text),`${lang}: never a made-up "name  0 packs" row: ${copy.text}`);
+  const preview=m.previewSupplierCopy(v.projection,lang,v.estimate,selection);
+  assert.equal(preview.unquantified,0,lang);assert.ok(!preview.text.includes(saltName),`${lang}: the preview has no decision and leaves it out: ${preview.text}`);
   const hongda=sectionsOf(v,lang).find(s=>s.supplier==='宏达粮油调味批发'),sectionText=m.supplierSectionText(hongda,lang,dates);
-  assert.ok(!sectionText.includes(toConfirm[lang])&&!sectionText.includes(saltName),`${lang}: section copy agrees with its head: ${sectionText}`);
+  assert.ok(!sectionText.includes(toConfirm[lang])&&!sectionText.includes(saltName),`${lang}: the page section agrees with its head: ${sectionText}`);
   assert.ok(!/  0 /.test(sectionText),`${lang}: no "name  0 packs" row either: ${sectionText}`);
-  // Unchanged for a truly unavailable item: name, "quantity to confirm", and the count sentence.
+  // A truly unavailable item is written and counted as before, beside the kept salt.
   const wc=m.supplierCopy(w.list,w.projection,lang,w.estimate);
-  assert.equal(wc.unquantified,1,lang);
+  assert.equal(wc.unquantified,2,lang);assert.equal(wc.keptCovered,1,lang);
   assert.ok(wc.text.includes(`${pick(seed.ingredients.tomato.name,lang)}  ${toConfirm[lang]}`),`${lang}: ${wc.text}`);
-  assert.ok(!wc.text.includes(saltName),lang);
+  assert.ok(wc.text.includes(`${saltName}  ${toConfirm[lang]}`),lang);
  }
  assert.match(m.supplierCopy(w.list,w.projection,'zh',w.estimate).text,/1 样数量待定/);
- assert.ok(!m.supplierCopy(v.list,v.projection,'zh',v.estimate).text.includes('食盐  数量待定'));
+ assert.ok(m.supplierCopy(v.list,v.projection,'zh',v.estimate).text.includes('食盐  数量待定'));
 });
 
-test('a supplier whose only "buy" items are covered by stock gets no order: no empty "0 items" message, not counted as listed',()=>{
+test('a saved "buy" item that the stock reference covers stays in the supplier copy as quantity to confirm; only the read-only preview leaves it out',()=>{
+ // #153 re-review manual-buy-omitted-by-stock-reference: the buyer may know the stock record is stale; a saved Buy is never dropped by onHand.
  const inputs=structuredClone(seed);inputs.ingredients.salt.onHand=1000;
- const zero={zh:'共 0 样',en:'0 items',uk:'Позицій: 0'},dates=selection.map(x=>x.date);
+ const toConfirm={zh:'数量待定',en:'quantity to confirm',uk:'кількість уточнити'};
  for(const lang of ['zh','en','uk']){
-  // Salt alone is marked buy and needs nothing: there is nothing to send at all.
+  const salt=pick(seed.ingredients.salt.name,lang);
   const only=view([['salt','buy']],inputs);
-  assert.deepEqual(only.estimate.items.find(i=>i.ingredientRef==='salt').lines,[]);
-  assert.deepEqual(m.supplierCopy(only.list,only.projection,lang,only.estimate),{text:'',items:0,unquantified:0},`${lang}: nothing to copy`);
-  // Salt and tomato marked buy: only tomato's supplier gets a message; salt's supplier gets none, not a header with "0 items".
-  const both=view([['salt','buy'],['tomato','buy']],inputs),copy=m.supplierCopy(both.list,both.projection,lang,both.estimate);
-  assert.equal(copy.items,1,`${lang}: one item is listed`);assert.equal(copy.unquantified,0,lang);
-  assert.equal(copy.text.split('\n\n').length,1,`${lang}: one supplier message only: ${copy.text}`);
-  assert.ok(copy.text.includes('绿源农产品配送')&&!copy.text.includes('宏达粮油调味批发'),`${lang}: ${copy.text}`);
-  assert.ok(!copy.text.includes(zero[lang]),`${lang}: no empty order: ${copy.text}`);
-  // The read-only preview counts the same way.
+  assert.deepEqual(only.estimate.items.find(i=>i.ingredientRef==='salt').lines,[],'core: complete, nothing to order');
+  const copy=m.supplierCopy(only.list,only.projection,lang,only.estimate);
+  assert.equal(copy.items,1,`${lang}: the Buy item is listed`);assert.equal(copy.unquantified,1,lang);assert.equal(copy.keptCovered,1,lang);
+  assert.ok(copy.text.includes('宏达粮油调味批发')&&copy.text.split('\n').includes(`${salt}  ${toConfirm[lang]}`),`${lang}: ${copy.text}`);
+  const both=view([['salt','buy'],['tomato','buy']],inputs),two=m.supplierCopy(both.list,both.projection,lang,both.estimate);
+  assert.equal(two.items,2,lang);assert.equal(two.keptCovered,1,lang);assert.equal(two.text.split('\n\n').length,2,`${lang}: one message per supplier: ${two.text}`);
+  // The read-only preview has no human decision: there a complete zero-order reference is still left out.
   const preview=m.previewSupplierCopy(only.projection,lang,only.estimate,selection);
-  assert.equal(preview.items,4,`${lang}: preview lists every candidate except the covered one`);
-  assert.ok(!preview.text.includes(pick(seed.ingredients.salt.name,lang))&&!preview.text.includes(zero[lang]),`${lang}: ${preview.text}`);
-  // The page still shows salt under its supplier with the "no order needed" row (unchanged from the row test above).
-  const sections=sectionsOf(only,lang),hongda=sections.find(s=>s.supplier==='宏达粮油调味批发');
+  assert.equal(preview.items,4,`${lang}: preview lists every candidate except the covered one`);assert.equal(preview.keptCovered,0,lang);
+  assert.ok(!preview.text.includes(salt),`${lang}: ${preview.text}`);
+  // The page row is unchanged: salt shows the "no order needed" reference under its supplier.
+  const hongda=sectionsOf(only,lang).find(s=>s.supplier==='宏达粮油调味批发');
   assert.ok(hongda?.entries.some(e=>e.ingredientRef==='salt'&&e.covered),lang);
-  // The sections of the "buy" items alone still hold salt's supplier (so the page can grey its button with a reason), counted as covered;
-  // its raw text would be the empty order, which is exactly what the copies above must not offer.
-  const buying=m.supplierSections([{ingredientRef:'salt'}],only.projection,lang,only.estimate);
-  assert.equal(buying.covered,1,lang);assert.deepEqual(buying.sections.map(s=>s.supplier),['宏达粮油调味批发']);
-  assert.deepEqual(buying.sections[0].group,{supplier:'宏达粮油调味批发',lines:[],unquantified:[]},lang);
-  assert.ok(m.supplierSectionText(buying.sections[0],lang,dates).includes(zero[lang]),`${lang}: ${m.supplierSectionText(buying.sections[0],lang,dates)}`);
  }
 });
 
-for(const lang of ['zh','en','uk'])test(`${lang}: when every "buy" item of a section is covered by stock, "copy this section" and "copy for suppliers" are greyed and say so instead of copying an empty order`,async()=>{
+for(const lang of ['zh','en','uk'])test(`${lang}: a "buy" item covered by stock still copies from its section and the whole copy, with a note that the quantity is the buyer's to confirm`,async()=>{
  // Tomato gets a purchase record and enough stock: one meal, 2 planned servings of a 2-serving recipe: 300 g × margin 1.1 = 330 g < 1000 g on hand, so core finds nothing to order.
  const patch=data=>{Object.assign(data.ingredients.tomato,{purchase:{supplier:'绿源农产品配送',packSize:5,packUnit:'kg',lastPrice:{amount:28.5,currency:'CNY'}},trackStock:true,onHand:1000});};
  const f=await setup({lang,patch});
  try{
-  const el=await f.mount('team-shop'),words={zh:['待买','这一段的「待买」材料本次都无需订货，没有要发给菜贩的内容。','「待买」且还没买的材料本次都无需订货，没有要发给菜贩的内容。'],en:['Buy','Everything marked Buy here needs no order this time; nothing to send.','Everything marked Buy and not yet bought needs no order this time; nothing to send.'],uk:['Купити','Усе, що тут позначено «Купити», цього разу замовляти не потрібно; надсилати нічого.','Усе, що позначено «Купити» і ще не куплено, цього разу замовляти не потрібно; надсилати нічого.']}[lang];
+  const el=await f.mount('team-shop'),words={
+   zh:['待买','番茄  数量待定','其中 1 种库存参考已够，按你标的「待买」列出，数量待定，请自己确认。'],
+   en:['Buy','Tomato  quantity to confirm','1 of them is covered by the stock reference but listed because you marked it Buy; quantity to confirm.'],
+   uk:['Купити','Помідор  кількість уточнити','З них 1: за довідкою про запас вистачає, але в списку, бо ви позначили «Купити»; кількість уточнити.']}[lang];
   const tomato=card(el,'tomato');
-  assert.equal(cls(tomato,'tm-material-estimate')[0].attrs['data-estimate'],'covered','the row itself says no order is needed');
+  assert.equal(cls(tomato,'tm-material-estimate')[0].attrs['data-estimate'],'covered','the row itself shows the zero-order reference');
   btn(tomato,words[0]).click();await flush();
   const section=walk(el).find(n=>n.attrs['data-supplier-section']&&walk(n).some(x=>x.attrs['data-ingredient']==='tomato')),copy=walk(section).find(n=>n.attrs['data-copy']==='section');
   assert.ok(copy,'section copy card');
-  assert.equal(copy.children.find(n=>n.tagName==='BUTTON').disabled,true,'nothing to send from this section');
-  assert.equal(walk(copy).find(n=>n.tagName==='TEXTAREA').value,'','no empty order text behind the button');
-  assert.equal(walk(copy).find(n=>n.attrs['data-copy-section-covered']!==undefined)?.textContent,words[1],'the greyed button says why');
-  assert.equal(walk(copy).some(n=>n.attrs['data-copy-section-none']!==undefined),false,'not the "nothing marked Buy" wording: tomato is marked Buy');
+  const button=copy.children.find(n=>n.tagName==='BUTTON'),area=walk(copy).find(n=>n.tagName==='TEXTAREA');
+  assert.equal(button.disabled,false,'the Buy decision can be sent');
+  assert.ok(area.value.split('\n').includes(words[1]),`listed as quantity to confirm: ${area.value}`);
+  assert.equal(walk(copy).find(n=>n.attrs['data-copy-kept']!==undefined)?.textContent,words[2],'the card says why it is listed without a quantity');
   const whole=walk(el).find(n=>n.attrs['data-copy']==='suppliers');
-  assert.equal(whole.children.find(n=>n.tagName==='BUTTON').disabled,true,'the whole copy has nothing to send either');
-  assert.equal(walk(whole).find(n=>n.tagName==='TEXTAREA').value,'');
-  assert.ok(walk(whole).some(n=>n.textContent===words[2]),`the whole copy says why: ${whole.textContent}`);
-  assert.equal(f.writes.length,0,'choosing a judgment alone writes nothing');
+  assert.equal(whole.children.find(n=>n.tagName==='BUTTON').disabled,false);
+  assert.ok(walk(whole).find(n=>n.tagName==='TEXTAREA').value.split('\n').includes(words[1]));
+  assert.ok(walk(whole).some(n=>n.attrs['data-copy-kept']!==undefined&&n.textContent===words[2]),`the whole copy says so too: ${whole.textContent}`);
+  let captured=null;navigator.clipboard={writeText:async value=>{captured=value;}};
+  button.click();await flush();
+  assert.equal(captured,area.value,'the section text reaches the clipboard');
+  assert.equal(cls(tomato,'tm-material-estimate')[0].attrs['data-estimate'],'covered','copying changes no reference');
+  assert.equal(f.writes.length,0,'choosing a judgment and copying write nothing');
  }finally{f.cleanup();}
 });
 
