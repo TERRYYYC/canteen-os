@@ -9,6 +9,38 @@ import { localDateIso } from '../../local-date';
 
 export function toSavePlan(s: { plan: AnyMenuPlan }): MenuPlanV3 { return upgradeMenuPlan(s.plan); }
 
+const MEAL_ORDER: Record<MealType, number> = { breakfast: 0, lunch: 1, dinner: 2 };
+
+export interface PlanHints {
+  /** Rows that have a dish. */
+  readonly dishes: number;
+  /** Different dishRef values. */
+  readonly different: number;
+  /** dishRef values that appear more than once. */
+  readonly repeated: number;
+  /** Row index -> this row's turn in the plan, and the date of the turn before it. */
+  readonly turns: ReadonlyMap<number, { readonly nth: number; readonly previous?: string }>;
+}
+
+/** Recomputed from the plan being edited, saved or not. It never reads another plan. */
+export function planHints(plan: AnyMenuPlan): PlanHints {
+  const byDish = new Map<string, number[]>();
+  plan.meals.forEach((meal, index) => { if (meal.dishRef) byDish.set(meal.dishRef, [...(byDish.get(meal.dishRef) ?? []), index]); });
+  const turns = new Map<number, { nth: number; previous?: string }>();
+  let repeated = 0, dishes = 0;
+  for (const indices of byDish.values()) {
+    dishes += indices.length;
+    if (indices.length < 2) continue;
+    repeated++;
+    const ordered = [...indices].sort((a, b) => {
+      const x = plan.meals[a]!, y = plan.meals[b]!;
+      return x.date.localeCompare(y.date) || MEAL_ORDER[x.mealType] - MEAL_ORDER[y.mealType] || a - b;
+    });
+    ordered.forEach((index, at) => turns.set(index, { nth: at + 1, ...(at > 0 ? { previous: plan.meals[ordered[at - 1]!]!.date } : {}) }));
+  }
+  return { dishes, different: byDish.size, repeated, turns };
+}
+
 export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: string): { finish(failed: boolean): void }; remapRows?(id:string,order:number[]):()=>void } = {}) {
   async function read<T>(id: string, request: () => Promise<T>): Promise<T> {
     const operation = options.beginRead?.(id);
