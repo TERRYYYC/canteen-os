@@ -23,11 +23,12 @@ const PAGES: Record<Route, () => Promise<{ render: PageRender }>> = {
   prep: () => import('./pages/prep'),
   purchase: () => import('./pages/purchase'),
   menu: () => import('./pages/menu'),
+  dishes: () => import('./pages/dishes'),
   admin: () => import('./pages/admin'),
   qr: () => import('./pages/qr'),
 };
 /** 顶栏标题键 */
-const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", admin: "page.admin", qr: "page.qr" } as const;
+const TITLE = { prep: "page.prep", purchase: "page.purchase", menu: "page.menu", dishes: "page.dishes", admin: "page.admin", qr: "page.qr" } as const;
 
 function boot(): void {
   applyTheme();
@@ -54,7 +55,7 @@ function boot(): void {
       updateSelection();
       if(!current)return;
       const {route,rest}=current;
-      const target=route==='admin'&&rest.startsWith('plan')?`plan/${id}`:route==='menu'||route==='prep'?'':route==='purchase'&&(!rest||rest.startsWith('new'))?`new/${id}`:rest;
+      const target=route==='admin'&&rest.startsWith('plan')?`plan/${id}`:route==='menu'||route==='prep'||route==='dishes'?'':route==='purchase'&&(!rest||rest.startsWith('new'))?`new/${id}`:rest;
       location.hash=planHref(route,target,id);
     });
   }
