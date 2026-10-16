@@ -10,6 +10,7 @@ import { pick, type Lang } from '../i18n';
 import { planChoiceLabel, publishedPlanChoice } from '../plan-selection';
 import type { PageCtx } from '../types';
 import type { FrozenMealSource, FrozenMealRenderOptions, FrozenMealRow } from './prep';
+import { renderPrepList } from './prep-list';
 
 type Presenter = (el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions) => () => void;
 const copy = {
@@ -105,7 +106,9 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
-  if (page==='prep') root.append(h('div',{class:'prep-context-controls'},datesNav,mealsNav),dishNav,body,publicationInfo);
+  // Prep: the "what to prepare" list comes right after the date and meal, before the dish buttons and full recipes.
+  const prepList = h('div', { class: 'prep-list-slot' });
+  if (page==='prep') root.append(h('div',{class:'prep-context-controls'},datesNav,mealsNav),prepList,dishNav,body,publicationInfo);
   else root.append(datesNav, mealsNav, dishNav, body, publicationInfo);
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
@@ -129,7 +132,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     if (!current()) return;
     if(selectedMeal)ctx.planSelection?.selectSlot?.(date,selectedMeal);
     for(const link of datesNav.querySelectorAll<HTMLAnchorElement>('[data-date]'))link.setAttribute('href',href(page,link.getAttribute('data-date')!));
-    stopBody?.(); replace(body); replace(dishNav);
+    stopBody?.(); replace(body); replace(dishNav); replace(prepList);
     const rows = selectRows(source, { menuPlanRef: plan.planId, date, mealType: selectedMeal });
     if (page === 'menu') {
       stopBody = present(body, source, { ...options(), recipeHref: row => href('menu', row.meal.date, row.meal.dishRef) });
@@ -156,7 +159,10 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
       const timingPanel=h('details',{class:'prep-timing-filter'},h('summary',{},word(lang,'准备时机','Preparation time','Час підготовки'),` · ${t(memory!.timing as 'all'|'morning'|'before-service'|'day-before')}`),timings);
       timingPanel.open=memory!.timingOpen;
       timingPanel.addEventListener('toggle',()=>{if(current()&&timingPanel.isConnected)memory!.timingOpen=timingPanel.open;});
-      body.append(timingPanel);
+      // The timing filter narrows both the list and the recipes below, so it sits above the list.
+      prepList.append(timingPanel, renderPrepList({ lang, projection: plan.projection, rows, planId: plan.planId, timing: memory!.timing,
+        ingredientHref: ref => href('prep', date, selectedMeal ?? '', ref),
+        onOpen: mealIndex => memory!.dishes.set(key, mealIndex) }));
     }
     body.append(content);
     stopBody = recipe(content, source, { ...options(row), layout:'cooking', ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing, onShowAllTimings:()=>{memory!.timing='all';paint();} });
