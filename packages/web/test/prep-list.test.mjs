@@ -189,6 +189,21 @@ test('beside a scaled amount the recorded words are left out only when they say 
    assert.equal(byClass(same,'prep-list-wording').length,0,`${lang}/${recorded}: the same 500 g is not written twice`);
   }
 });
+test('recorded words that differ from the recipe’s own quantity stay beside the scaled amount, even when they read like this meal’s amount',()=>{
+  // #151 re-review: the editor keeps the structured quantity and the recorded words apart, so they can disagree. Words that
+  // happen to equal the scaled amount do not prove "same amount, same basis"; the difference is left for a person to judge.
+  const b=build(),kb=b.rows[2].dish,shown={zh:['黄瓜','原方'],en:['Cucumber','original'],uk:['Огірок','за рецептом']};
+  const render=(lang,qty,recorded,scaledQty)=>{
+   const dish={...kb,components:kb.components.map((c,i)=>i===0?{...c,qty,originalAmount:recorded}:c)};
+   const items=[{ingredientRef:'kbi-cucumber-v1',sources:[{menuPlanRef:'wk',mealIndex:2,componentIndex:0,date:'2026-10-19',mealType:'lunch',dishRef:'kb-cuke-v1',scaledQty}]}];
+   return renderPrepList({lang,projection:freeze({...b.projection,collection:{items,issues:[]}}),rows:[{...b.rows[2],dish}],planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
+  };
+  for(const [qty,recorded,scaled] of [[{value:500,unit:'g'},'1 kg',{value:1000,unit:'g'}],[{value:1000,unit:'g'},'500 g',{value:500,unit:'g'}]])
+   for(const [lang,[name,label]] of Object.entries(shown)){
+    const row=itemOf(render(lang,qty,recorded,scaled),name);
+    assert.equal(byClass(row,'prep-list-wording')[0]?.textContent,`${label}: ${recorded}`,`${lang}: recipe ${qty.value} g recorded as "${recorded}", this meal ${scaled.value} g`);
+   }
+});
 test('cut drawings for the six common cuts, by word-list id or by a recipe-library cut technique’s Chinese name',async()=>{
   assert.equal(cutShape({id:'roll-cut-chunks',kind:'cut',name:{zh:'滚刀块'}}),'roll-cut');
   assert.equal(cutShape({id:KB_CUT,kind:'cut',name:{zh:'丁'}}),'cubes');
