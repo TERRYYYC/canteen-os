@@ -203,14 +203,15 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
       const note = prep?.note ? pick(prep.note, lang) : '';
 
       // How much: this meal's scaled amount; otherwise the original recipe amount, marked as such. The recorded words
-      // of the recipe stay beside either, unless they only say the recipe's own amount in another language
-      // ("500 g" recorded for 500 g). Beside a scaled amount they are marked as the original's, never as this meal's.
+      // of the recipe stay beside either, unless they only say the amount shown in another language's words ("500 g"
+      // recorded beside 500 g). Beside a scaled amount they are compared with that amount, not the recipe's: the
+      // recipe's 500 g beside this meal's 1 kg is another amount and stays, marked as the original's.
       const recorded = recordedAmountText(src?.originalAmount ?? ('originalAmount' in component ? component.originalAmount : undefined));
       const squash = (text: string) => text.replace(/\s+/g, '');
       const otherWording = (own: Quantity | undefined): string | undefined =>
         recorded && !(['zh', 'en', 'uk'] as const).some(code => squash(rawQuantityText(own, code)) === squash(recorded)) ? recorded : undefined;
       let amount: string, original = false, wording: string | undefined, wordingOfOriginal = false;
-      if (scaled && scaled.unit !== 'to-taste') { amount = rawQuantityText(scaled, lang); wording = otherWording(qty); wordingOfOriginal = true; }
+      if (scaled && scaled.unit !== 'to-taste') { amount = rawQuantityText(scaled, lang); wording = otherWording(scaled); wordingOfOriginal = true; }
       else if ((scaled ?? qty)?.unit === 'to-taste') { amount = rawQuantityText({ unit: 'to-taste' }, lang); wording = otherWording({ unit: 'to-taste' }); }
       else if (qty?.value !== undefined) { amount = rawQuantityText(qty, lang); original = true; wording = otherWording(qty); }
       else if (recorded) { amount = recorded; original = true; }

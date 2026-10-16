@@ -166,12 +166,28 @@ test('this meal’s scaled amount keeps a different recorded wording as the orig
   assert.equal(byClass(itemOf(render('en'),'Cucumber'),'prep-list-wording')[0]?.textContent,'original: 一斤');
   assert.equal(byClass(itemOf(render('uk'),'Огірок'),'prep-list-wording')[0]?.textContent,'за рецептом: 一斤');
   const salt=byKey(zh,'|1|kbi-salt-v1');
-  assert.equal(byClass(salt,'num')[0].textContent,'30 克');assert.equal(byClass(salt,'prep-list-wording').length,0,'10克 is the original 10 g in Chinese words: not repeated');
+  assert.equal(byClass(salt,'num')[0].textContent,'30 克');assert.equal(byClass(salt,'prep-list-wording')[0]?.textContent,'原方: 10克','this meal needs 30 g: the recipe’s 10克 is another amount, so it stays, marked as the original');
   const garlic=byKey(zh,'|3|kbi-garlic-v1');
   assert.equal(byClass(garlic,'num')[0].textContent,'适量');assert.equal(byClass(garlic,'prep-list-wording').length,0,'适量 is the default to-taste wording');
   const chili=byKey(zh,'|4|kbi-chili-v1');
   assert.equal(byClass(chili,'num')[0].textContent,'适量');assert.equal(byClass(chili,'prep-list-wording')[0]?.textContent,'少许','the recipe’s own to-taste words are kept');
   assert.equal(byClass(byKey(render('uk'),'|4|kbi-chili-v1'),'prep-list-wording')[0]?.textContent,'少许');
+});
+test('beside a scaled amount the recorded words are left out only when they say that same amount; the original 500 g stays beside this meal’s 1 kg',()=>{
+  // #151 re-review: recipe 500 g recorded as "500 g" (in any language's words), planned for twice the servings → 1000 g.
+  const b=build(),kb=b.rows[2].dish,shown={zh:['黄瓜','1 千克','原方'],en:['Cucumber','1 kg','original'],uk:['Огірок','1 кг','за рецептом']};
+  const render=(lang,recorded,scaledQty)=>{
+   const dish={...kb,components:kb.components.map((c,i)=>i===0?{...c,qty:{value:500,unit:'g'},originalAmount:recorded}:c)};
+   const items=[{ingredientRef:'kbi-cucumber-v1',sources:[{menuPlanRef:'wk',mealIndex:2,componentIndex:0,date:'2026-10-19',mealType:'lunch',dishRef:'kb-cuke-v1',scaledQty}]}];
+   return renderPrepList({lang,projection:freeze({...b.projection,collection:{items,issues:[]}}),rows:[{...b.rows[2],dish}],planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
+  };
+  for(const recorded of ['500 g','500 克','500 г'])for(const [lang,[name,amount,label]] of Object.entries(shown)){
+   const doubled=itemOf(render(lang,recorded,{value:1000,unit:'g'}),name);
+   assert.equal(byClass(doubled,'num')[0].textContent,amount,`${lang}/${recorded}: this meal’s amount`);
+   assert.equal(byClass(doubled,'prep-list-wording')[0]?.textContent,`${label}: ${recorded}`,`${lang}/${recorded}: the original amount is not swallowed`);
+   const same=itemOf(render(lang,recorded,{value:500,unit:'g'}),name);
+   assert.equal(byClass(same,'prep-list-wording').length,0,`${lang}/${recorded}: the same 500 g is not written twice`);
+  }
 });
 test('cut drawings for the six common cuts, by word-list id or by a recipe-library cut technique’s Chinese name',async()=>{
   assert.equal(cutShape({id:'roll-cut-chunks',kind:'cut',name:{zh:'滚刀块'}}),'roll-cut');
