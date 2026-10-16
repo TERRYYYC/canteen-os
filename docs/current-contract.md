@@ -30,6 +30,8 @@ GitHub 当前 issue 是任务队列；#128 维护这次闭环依赖和退出条�
 
 绿色 [Reference v3 固定设计来源](https://github.com/TERRYYYC/canteen-os/tree/2f890d8f182d02e8ed4acb55a865e8aa086416dd/docs/design/reference-v3) 是当前小团队页面的视觉目标：绿色主色、浅背景、无衬线层级、紧凑日期/餐次、图文菜品行、明确主要动作和核心导航。具体应用范围及小团队差异以 D0 和本合同为准，份数可空、不补 1，不搬入原型工具栏、顾客或报告模块。
 
+[四条线提案](design/four-lines/README.md)的第一批（备料「要准备的」清单、排菜不重样提示、采购按供应商分段、菜品页）按 D0 的「四条线第一批」实施，Terry 在 [#150](https://github.com/TERRYYYC/canteen-os/pull/150) 上确认后适用；在那之前仍是提案。提案的其余部分仍未签收。
+
 [PR #91](https://github.com/TERRYYYC/canteen-os/pull/91) 的十画板全套仍是设计提案，没有整体签收或全部实现声明。`screens-v2.html` / `backoffice-v1.html` 保留历史视觉、行为和兼容资料；“2026-09-07 定稿”不覆盖后续小团队页面目标。知识库和收件箱的专用合同、验证稿仍需结合本轮实际页面验收，不能把其中旧 token 或提案状态扩成全站新签收。
 
 ## 数据和状态的各自真源
