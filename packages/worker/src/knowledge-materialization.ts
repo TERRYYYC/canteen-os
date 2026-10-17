@@ -1,4 +1,4 @@
-/** Convert one human-approved SQLite revision into version-addressed Git inputs. */
+/** Convert one saved SQLite revision into version-addressed Git inputs (ADR-0011: no review or approval in the app). */
 import { stableSerialize, sortKeysDeep } from './serialize.js';
 import { completeKnowledgeImageRights, type Technique } from '@canteenos/core';
 
@@ -7,49 +7,54 @@ type Localized = { zh?: string; en?: string; uk?: string };
 type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; value?: string; unit?: string };
 type IngredientRow = { id: string; ingredientId?: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized; kitchenPrep?: { techniqueId?: string; timing?: string; size?: string; note?: Localized } };
 type StepRow = { id: string; text: Localized; techniqueId?: string };
-type Candidate = { id: string; status: string; recipeId?: string; recipeVersion?: number; reviewer?: string;
-  review?: { reviewer: string; note: string; approvedCandidateVersion: number }; unresolved?: string[] };
 type AssetRef = { assetId: string; role: string; stepId?: string };
 type Media = { assetId: string; kind: string; status: string; url: string; role?: string; sha256?: string; rights?: { license: string; author?: string; sourceUrl?: string } };
-type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
+export type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
 export type PinnedImage = { assetId: string; bytes: Uint8Array; ext: 'png'|'jpg'|'webp'; rights: { license: string; author?: string; sourceUrl?: string } };
-
-export type KitchenApproval = {
-  approvalVersion:'1';status:'approved';recipeId:string;recipeVersion:number;
-  origin:{kind:'favorite'|'manual'|'legacy';candidateId?:string;originalRecipeVersion:number};
-  approvalHash:string;recipeSnapshotHash:string;originalSnapshotHash:string;
-  dependencies:{ingredients:{id:string;version:number;ingredient:Record<string,unknown>;createdAt:string}[];
-    techniques:{id:string;hash:string;technique:{kind:'cut'|'heat'|'pretreat';name:Localized;note?:Localized}}[]};
-  unresolved:string[];reviewer:string;note:string;actor:string;createdAt:string;
+export type KnowledgeTechnique = { kind:'cut'|'heat'|'pretreat'; name:Localized; note?:Localized };
+/** The standard ingredient and technique revisions a recipe revision uses, as read from the KB when it is frozen. */
+export type PinnedDependencies = {
+  ingredients:{id:string;version:number;ingredient:Record<string,unknown>;createdAt?:string}[];
+  techniques:{id:string;hash:string;technique:KnowledgeTechnique}[];
 };
-async function contractHash(value:unknown):Promise<string>{
+const NO_DEPENDENCIES:PinnedDependencies={ingredients:[],techniques:[]};
+
+/** The same content hash the KB used for technique snapshots, so frozen technique ids stay comparable. */
+export async function contractHash(value:unknown):Promise<string>{
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sortKeysDeep(value))));
   return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
-/** Only a durable KB decision authorizes a new frozen recipe revision. */
-export async function recipeMaterializationFiles(approval:KitchenApproval,detail:Detail,pinnedImages:PinnedImage[]=[]){
-  if(!approval||approval.approvalVersion!=='1'||approval.status!=='approved'||approval.recipeId!==detail.id||approval.recipeVersion!==detail.version||
-    !approval.origin||!['favorite','manual','legacy'].includes(approval.origin.kind)||!Number.isSafeInteger(approval.origin.originalRecipeVersion)||approval.origin.originalRecipeVersion<1||
-    !approval.dependencies||!Array.isArray(approval.dependencies.ingredients)||!Array.isArray(approval.dependencies.techniques)||
-    !/^[0-9a-f]{64}$/.test(approval.approvalHash)||!approval.reviewer)throw new Error('persistent_approval_required');
-  const {approvalHash,...value}=approval;
-  if(await contractHash(value)!==approvalHash||await contractHash(detail)!==approval.recipeSnapshotHash)throw new Error('approval_snapshot_mismatch');
-  const ingredientIds=[...new Set(detail.recipe.ingredients.map(row=>row.ingredientId).filter(Boolean))].sort();
-  if(JSON.stringify(ingredientIds)!==JSON.stringify(approval.dependencies.ingredients.map(x=>x.id).sort()))throw new Error('ingredient_dependency_mismatch');
-  const techniqueIds=[...new Set([...detail.recipe.ingredients.map(row=>row.kitchenPrep?.techniqueId),...detail.recipe.steps.map(row=>row.techniqueId)].filter(Boolean))].sort();
-  if(JSON.stringify(techniqueIds)!==JSON.stringify(approval.dependencies.techniques.map(x=>x.id).sort()))throw new Error('technique_dependency_mismatch');
+/** Standard ingredients and techniques this revision refers to: exactly what has to be pinned with it. */
+export function dependencyIds(detail:Detail):{ingredientIds:string[];techniqueIds:string[]}{
+  const rows=Array.isArray(detail?.recipe?.ingredients)?detail.recipe.ingredients:[],steps=Array.isArray(detail?.recipe?.steps)?detail.recipe.steps:[];
+  const ingredientIds=[...new Set(rows.map(row=>row.ingredientId).filter((id):id is string=>Boolean(id)))].sort();
+  const techniqueIds=[...new Set([...rows.map(row=>row.kitchenPrep?.techniqueId),...steps.map(row=>row.techniqueId)].filter((id):id is string=>Boolean(id)))].sort();
+  return {ingredientIds,techniqueIds};
+}
+
+/**
+ * Freeze one saved KB recipe revision as it is (ADR-0011). Source review and kitchen approval happen outside the app,
+ * so nothing here asks for them. The revision is pinned together with the ingredient and technique revisions it uses;
+ * the snapshot hash covers both, so the same inputs always give the same files and a changed input never reuses them.
+ * The files depend on nothing else (not on the route or candidate that asked), so every route freezes a revision identically.
+ */
+export async function recipeMaterializationFiles(detail:Detail,dependencies:PinnedDependencies=NO_DEPENDENCIES,pinnedImages:PinnedImage[]=[]){
+  if(!dependencies||!Array.isArray(dependencies.ingredients)||!Array.isArray(dependencies.techniques))throw new Error('invalid_dependencies');
+  const {ingredientIds,techniqueIds}=dependencyIds(detail);
+  if(JSON.stringify(ingredientIds)!==JSON.stringify(dependencies.ingredients.map(x=>x.id).sort()))throw new Error('ingredient_dependency_mismatch');
+  if(JSON.stringify(techniqueIds)!==JSON.stringify(dependencies.techniques.map(x=>x.id).sort()))throw new Error('technique_dependency_mismatch');
   const techniques:Technique[]=[];
-  for(const dep of approval.dependencies.techniques){
+  for(const dep of dependencies.techniques){
     if(!UUID.test(dep.id)||await contractHash(dep.technique)!==dep.hash)throw new Error('technique_snapshot_mismatch');
     techniques.push({id:`kbt-${dep.id.replaceAll('-','')}-${dep.hash.slice(0,12)}`,...dep.technique});
   }
-  const result=await materializationFiles({id:approval.origin.candidateId??detail.id,status:'approved',recipeId:detail.id,recipeVersion:detail.version,reviewer:approval.reviewer,unresolved:approval.unresolved},detail,pinnedImages);
+  const result=await dishFiles(detail,pinnedImages);
   const dishFile=result.files.find(file=>file.path===`data/dishes/${result.dishRef}.json`)!;
   const dish=JSON.parse(dishFile.text);
   const files:{path:string;text:string}[]=[];
   dish.components=detail.recipe.ingredients.map((row,index)=>{
-    const dep=row.ingredientId?approval.dependencies.ingredients.find(x=>x.id===row.ingredientId):undefined;
+    const dep=row.ingredientId?dependencies.ingredients.find(x=>x.id===row.ingredientId):undefined;
     if(dep&&(!UUID.test(dep.id)||!Number.isSafeInteger(dep.version)||dep.version<1||!dep.ingredient?.name))throw new Error('ingredient_dependency_invalid');
     const ref=dep?`kbi-${dep.id.replaceAll('-','')}-v${dep.version}`:`kbi-${detail.id.replaceAll('-','')}-v${detail.version}-${index+1}`;
     const {aliases:_aliases,...spec}=dep?.ingredient??{name:row.name,trackStock:false,...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})};
@@ -59,9 +64,8 @@ export async function recipeMaterializationFiles(approval:KitchenApproval,detail
     return component;
   });
   detail.recipe.steps.forEach((row,index)=>{if(row.techniqueId)dish.steps[index].techniqueRef=techniques.find(t=>t.id.startsWith(`kbt-${row.techniqueId!.replaceAll('-','')}-`))!.id;});
-  result.snapshotHash=await sha256({approvalHash,detail});
-  dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash,approvalHash,originKind:approval.origin.kind,originalRecipeVersion:approval.origin.originalRecipeVersion};
-  if(!approval.origin.candidateId)delete dish.provenance.candidateId;
+  result.snapshotHash=await sha256({dependencies,detail});
+  dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash};
   files.push({path:dishFile.path,text:stableSerialize(dish)});
   return {...result,files,techniques};
 }
@@ -92,17 +96,15 @@ function quantity(amount: Amount): { qty?: { value?: number; unit: string }; bas
   return {baseUnit:'g',originalAmount};
 }
 
-export async function materializationFiles(candidate: Candidate, detail: Detail, pinnedImages: PinnedImage[]=[]): Promise<{dishRef:string;snapshotHash:string;files:{path:string;text:string}[];imageFiles:{path:string;bytes:Uint8Array}[];unresolvedCount:number}> {
-  if(candidate.status!=='approved'||!UUID.test(candidate.id)||!UUID.test(candidate.recipeId??'')||
-    !Number.isSafeInteger(candidate.recipeVersion)||candidate.recipeVersion!<=0||
-    candidate.recipeId!==detail.id||candidate.recipeVersion!==detail.version||
+/** The dish and per-row ingredient files of one revision; recipeMaterializationFiles pins its dependencies on top. */
+async function dishFiles(detail: Detail, pinnedImages: PinnedImage[]=[]): Promise<{dishRef:string;snapshotHash:string;files:{path:string;text:string}[];imageFiles:{path:string;bytes:Uint8Array}[];unresolvedCount:number}> {
+  if(!UUID.test(detail?.id??'')||!Number.isSafeInteger(detail?.version)||detail.version<=0||
     !Array.isArray(detail.recipe?.ingredients)||!detail.recipe.ingredients.length||detail.recipe.ingredients.length>200||
-    !Array.isArray(detail.recipe.steps)||!detail.recipe.title||!candidate.reviewer)throw new Error('approved_revision_required');
-  const sourceGaps=candidate.unresolved??[];
-  if(!Array.isArray(sourceGaps)||sourceGaps.length>100||sourceGaps.some(value=>typeof value!=='string'||!value.trim()||value.length>2000))throw new Error('invalid_source_gaps');
+    !Array.isArray(detail.recipe.steps)||!detail.recipe.title)throw new Error('saved_revision_required');
   const dishRef=`kb-${detail.id.replaceAll('-','')}-v${detail.version}`;
-  const snapshotHash=await sha256({candidate:{id:candidate.id,recipeId:candidate.recipeId,recipeVersion:candidate.recipeVersion,reviewer:candidate.reviewer,review:candidate.review,unresolved:sourceGaps},detail});
-  let unresolvedCount=sourceGaps.length;
+  const snapshotHash=await sha256({detail});
+  // Amounts that cannot enter arithmetic (spoons, free text); they stay as the recorded words. Not a review count.
+  let unresolvedCount=0;
   const files:{path:string;text:string}[]=[];
   const imageFiles:{path:string;bytes:Uint8Array}[]=[];
   const imageMap=new Map(pinnedImages.map(image=>[image.assetId,image]));
@@ -137,10 +139,9 @@ export async function materializationFiles(candidate: Candidate, detail: Detail,
     !completeKnowledgeImageRights(coverMedia.rights)?'rights-pending':'unavailable';
   const dish={schemaVersion:'3',name:detail.recipe.title,...(detail.recipe.description?{description:detail.recipe.description}:{}),
     ...(coverImage?{image:coverImage}:{}),...(detail.recipe.baseServings?{baseServings:detail.recipe.baseServings}:{}),components,steps,
-    provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,candidateId:candidate.id,snapshotHash,
+    provenance:{source:'knowledge',recipeId:detail.id,recipeVersion:detail.version,snapshotHash,
       // Git inputs and the buyer-facing catalog are public projections. Raw
-      // source records, quotes, media URLs and review notes stay in private KB.
-      ...(sourceGaps.length?{sourceGapCount:sourceGaps.length}:{}),
+      // source records, quotes and media URLs stay in private KB.
       ...(coverState?{coverState}:{})},status:'active'};
   files.push({path:`data/dishes/${dishRef}.json`,text:stableSerialize(dish)});
   return {dishRef,snapshotHash,files,imageFiles,unresolvedCount};

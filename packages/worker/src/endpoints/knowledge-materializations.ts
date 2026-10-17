@@ -2,7 +2,7 @@ import type { Ctx } from '../context.js';
 import { githubClient } from '../context.js';
 import { boundedBytes } from '../bounded-body.js';
 import { fail, validationFailure } from '../http.js';
-import { recipeMaterializationFiles, type KitchenApproval, type PinnedImage } from '../knowledge-materialization.js';
+import { contractHash, dependencyIds, recipeMaterializationFiles, type Detail, type KnowledgeTechnique, type PinnedDependencies, type PinnedImage } from '../knowledge-materialization.js';
 import { inspectImage } from '../image-integrity.js';
 import { validateEntity } from '../validate.js';
 import { commitImmutableFiles } from '../write.js';
@@ -57,12 +57,15 @@ export async function handleKnowledgeMaterialization(ctx:Ctx){
   if(!UUID.test(candidateId)||ctx.url.search)throw fail('bad_id');
   if(!ctx.body||Array.isArray(ctx.body)||typeof ctx.body!=='object')throw fail('bad_json');
   const body=ctx.body as Record<string,unknown>;
+  // reviewer / note are still accepted from older pages and ignored: approval is not part of freezing (ADR-0011).
   if(Object.keys(body).some(key=>!['recipeVersion','reviewer','note'].includes(key)))throw fail('bad_json');
-  const candidate=await readKnowledge(ctx,`/favorites/candidates/${candidateId}`) as {id:string;status:string;recipeId?:string;recipeVersion?:number;reviewer?:string};
-  if(candidate.id!==candidateId||candidate.status!=='approved'||!UUID.test(candidate.recipeId??'')||!Number.isSafeInteger(candidate.recipeVersion))throw fail('review_required',{message:'只有已审核的菜谱版本可以排进菜单'});
+  const candidate=await readKnowledge(ctx,`/favorites/candidates/${candidateId}`) as {id:string;recipeId?:string;recipeVersion?:number};
+  if(candidate.id!==candidateId)throw fail('invalid_source');
+  // A candidate is usable once it has been saved as a recipe; its source review state is not checked.
+  if(!UUID.test(candidate.recipeId??'')||!Number.isSafeInteger(candidate.recipeVersion))throw fail('not_found',{message:'这条候选还没有存成菜谱'});
   const version=body.recipeVersion??candidate.recipeVersion;
   if(!Number.isSafeInteger(version)||typeof version!=='number'||version<1||version>1000000)throw fail('bad_json');
-  return materializeApprovedRecipe(ctx,candidate.recipeId!,version,candidateId);
+  return materializeSavedRecipe(ctx,candidate.recipeId!,version,candidateId);
 }
 
 export async function handleRecipeMaterialization(ctx:Ctx){
@@ -71,20 +74,51 @@ export async function handleRecipeMaterialization(ctx:Ctx){
   if(!ctx.body||Array.isArray(ctx.body)||typeof ctx.body!=='object')throw fail('bad_json');
   const body=ctx.body as Record<string,unknown>,version=body.recipeVersion;
   if(Object.keys(body).some(key=>key!=='recipeVersion')||!Number.isSafeInteger(version)||typeof version!=='number'||version<1||version>1000000)throw fail('bad_json');
-  return materializeApprovedRecipe(ctx,recipeId,version);
+  return materializeSavedRecipe(ctx,recipeId,version);
 }
 
-type Adoption = {recipeId:string;recipeVersion:number;current:{version:number;archived:boolean};kitchenApproval:KitchenApproval|null};
-async function readAdoption(ctx:Ctx,recipeId:string,version:number):Promise<Adoption>{
-  const value=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}/adoption`) as Adoption;
+/** Which version is current and whether the recipe is archived; any approval record in the reply is ignored (ADR-0011). */
+type RecipeState = {recipeId:string;recipeVersion:number;current:{version:number;archived:boolean}};
+async function readRecipeState(ctx:Ctx,recipeId:string,version:number):Promise<RecipeState>{
+  const value=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}/adoption`) as RecipeState;
   if(value.recipeId!==recipeId||value.recipeVersion!==version||!value.current||!Number.isSafeInteger(value.current.version)||value.current.version<version||typeof value.current.archived!=='boolean')throw fail('invalid_source');
   return value;
 }
-async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,candidateId?:string){
-  const adoption=await readAdoption(ctx,recipeId,version);
-  if(adoption.recipeId!==recipeId||adoption.recipeVersion!==version||!adoption.kitchenApproval)throw fail('review_required',{message:'此保存版本尚未由厨师核定，请先核对原方与厨房修订'});
-  if(candidateId&&adoption.kitchenApproval.origin.candidateId!==candidateId)throw fail('invalid_source');
-  const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Parameters<typeof recipeMaterializationFiles>[1];
+const ARCHIVED='已归档的菜谱不能排进菜单';
+
+/** Read, at freeze time, the exact ingredient and technique revisions this recipe revision uses. */
+async function readDependencies(ctx:Ctx,detail:Detail):Promise<PinnedDependencies>{
+  const {ingredientIds,techniqueIds}=dependencyIds(detail);
+  if(ingredientIds.length+techniqueIds.length>200||[...ingredientIds,...techniqueIds].some(id=>!UUID.test(id)))throw fail('invalid_source',{message:'菜谱引用的食材或技法不完整，不能固定到菜单'});
+  const pinned=async (kind:'ingredients'|'techniques',id:string)=>{
+    const current=await readKnowledge(ctx,`/${kind}/${id}`) as {id?:string;version?:number};
+    if(current.id!==id||!Number.isSafeInteger(current.version)||current.version!<1)throw fail('invalid_source',{message:'菜谱引用的食材或技法不完整，不能固定到菜单'});
+    const revision=await readKnowledge(ctx,`/${kind}/${id}/revisions/${current.version}`) as {id?:string;version?:number;ingredient?:Record<string,unknown>;technique?:KnowledgeTechnique;createdAt?:string};
+    if(revision.id!==id||revision.version!==current.version)throw fail('invalid_source',{message:'菜谱引用的食材或技法不完整，不能固定到菜单'});
+    return revision;
+  };
+  const ingredients:PinnedDependencies['ingredients']=[];
+  for(const id of ingredientIds){
+    const revision=await pinned('ingredients',id);
+    if(!revision.ingredient||typeof revision.ingredient!=='object')throw fail('invalid_source',{message:'菜谱引用的食材或技法不完整，不能固定到菜单'});
+    ingredients.push({id,version:revision.version!,ingredient:revision.ingredient,...(typeof revision.createdAt==='string'?{createdAt:revision.createdAt}:{})});
+  }
+  const techniques:PinnedDependencies['techniques']=[];
+  for(const id of techniqueIds){
+    const revision=await pinned('techniques',id);
+    const technique=revision.technique;
+    if(!technique||!['cut','heat','pretreat'].includes(technique.kind)||!technique.name)throw fail('invalid_source',{message:'菜谱引用的食材或技法不完整，不能固定到菜单'});
+    techniques.push({id,hash:await contractHash(technique),technique});
+  }
+  return {ingredients,techniques};
+}
+
+async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,candidateId?:string){
+  // Archive is checked just before writing, so a revision frozen before it was archived still replays as unchanged.
+  await readRecipeState(ctx,recipeId,version);
+  const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Detail;
+  if(detail.id!==recipeId||detail.version!==version)throw fail('invalid_source');
+  const dependencies=await readDependencies(ctx,detail);
   const pinnedImages:PinnedImage[]=[];
   const media=detail.media??[];
   const used=new Set((detail.recipe.assets??[]).filter(ref=>ref.role==='cover'||ref.role==='step').map(ref=>ref.assetId));
@@ -98,11 +132,11 @@ async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,
     const image=await readKnowledgeImage(ctx,item.assetId,item.sha256!);
     imageBytes+=image.bytes.length;
     if(imageBytes>32*1024*1024)throw fail('invalid_source',{message:'此版本图片合计超过 32 MiB'});
-    image.rights=item.rights;
+    image.rights=item.rights!;
     pinnedImages.push(image);
   }
   let materialized;
-  try{materialized=await recipeMaterializationFiles(adoption.kitchenApproval,detail,pinnedImages);}catch{throw fail('invalid_source',{message:'已审核的菜谱版本资料不完整，不能固定到菜单'});}
+  try{materialized=await recipeMaterializationFiles(detail,dependencies,pinnedImages);}catch{throw fail('invalid_source',{message:'这一版菜谱资料不完整，不能固定到菜单'});}
   for(const file of materialized.files){
     const kind=file.path.startsWith('data/dishes/')?'dish':'ingredient';
     const checked=validateEntity(kind,JSON.parse(file.text));
@@ -111,9 +145,8 @@ async function materializeApprovedRecipe(ctx:Ctx,recipeId:string,version:number,
   const gh=githubClient(ctx);
   const outcome=await commitImmutableFiles(gh,[...materialized.files.map(file=>({path:file.path,bytes:new TextEncoder().encode(file.text)})),...materialized.imageFiles],
     {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques,beforeWrite:async()=>{
-      const current=await readAdoption(ctx,recipeId,version);
-      if(current.current.archived)throw fail('review_required',{message:'已归档菜谱不能新增或补写固定资料'});
-      if(current.kitchenApproval?.approvalHash!==adoption.kitchenApproval!.approvalHash)throw fail('invalid_source');
+      // Recheck just before the write: a recipe archived in the meantime is never frozen.
+      if((await readRecipeState(ctx,recipeId,version)).current.archived)throw fail('review_required',{message:ARCHIVED});
     }});
   return {ok:true,dishRef:materialized.dishRef,recipeId,recipeVersion:detail.version,
     ...(candidateId?{candidateId}:{}),snapshotHash:materialized.snapshotHash,unresolvedCount:materialized.unresolvedCount,
