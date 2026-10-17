@@ -15,6 +15,9 @@ await writeFile(join(temp,'details.mjs'),bundle.outputFiles[0].text);
 const {renderTeamDetails}=await import(pathToFileURL(join(temp,'details.mjs')).href);
 globalThis.document={body:new Element('body'),createElement:tag=>new Element(tag),createTextNode:text=>new Element('',text)};
 globalThis.MutationObserver=class{observe(){}disconnect(){}};
+// Raw source positions sit in the technical support details, shown only with a chef token.
+let sessionToken='A'.repeat(43);
+globalThis.sessionStorage={getItem:()=>sessionToken,setItem(){},removeItem(){}};
 const revision='a'.repeat(40),recipeId='00000000-0000-4000-8000-000000000001',canonicalId='00000000-0000-4000-8000-000000000002';
 function fixture() {
  const name={zh:'同名材料',en:'Same name',uk:'Однакова назва'};
@@ -44,6 +47,11 @@ test('a concrete canonical snapshot shows only its own sources while retaining r
   for(const mealIndex of [0,1])for(const componentIndex of indices)assert(sources.some(source=>source.textContent.includes(`week / ${mealIndex} / ${componentIndex}`)));
   assert(sources.every(source=>source.querySelector('a').getAttribute('href')==='#/purchase/list/dish/recipe'));
   assert.equal(JSON.stringify(projection),before);
+  sessionToken=null;
+  const plain=render(projection,id,lang);
+  assert.equal(plain.querySelectorAll('.tm-detail-source-recipe').length,indices.length*2,`${lang}/${id}: sources stay without a token`);
+  assert(!plain.textContent.includes('week / '),`${lang}/${id}: no raw positions without a token`);
+  sessionToken='A'.repeat(43);
  }
 });
 

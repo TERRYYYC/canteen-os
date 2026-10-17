@@ -5,8 +5,10 @@ import { renderPublishedMeals } from "./published-meals";
 import { knowledgeCoverState } from "./knowledge-cover-status";
 
 import type { I18nString, ImageRef, MealType, MenuSheet, MenuSheetDay, MenuSheetDish, MenuSheetMeal } from "@canteenos/core";
-import { h, replace } from "../dom";
+import { append, h, replace } from "../dom";
+import { chefOnly } from "./chef-only";
 import { LANGS, LANG_TAG, pick, type Lang } from "../i18n";
+import { displayDate } from "../display-date";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
 import { renderFrozenPrep, renderFrozenIssues, selectFrozenMealRows, selectFrozenIssues, hasFrozenSourceGap } from "./prep";
@@ -546,7 +548,7 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
   frozenMenuDisposers.set(el, dispose);
   const root = h("div", { class: "menu-page", "data-frozen-menu": "", "data-source-revision": source.projection.sourceRevision });
   root.append(h("h1", {class:"sr-only"}, t("title")));
-  const sourceInfo=h("details", {class:"raw-source"},h("summary",{},t("source")),h("code",{},source.projection.sourceRevision));
+  const sourceInfo=chefOnly(()=>h("details", {class:"raw-source"},h("summary",{},t("source")),h("code",{},source.projection.sourceRevision)));
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(source.projection.collection.issues, options.selection);
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, source.projection);
@@ -568,7 +570,7 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
       return record ? pick(record.name, lang) : component.ingredientRef;
     });
     const recorded=h('details',{class:'menu-row-record'},h('summary',{},t('record')),namesLine(dish.name,lang),
-      h('p',{},`${meal.date} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`),
+      h('p',{},`${displayDate(meal.date,lang,{weekday:true})} · ${MEAL[lang][meal.mealType]}${meal.serviceWindow?` · ${meal.serviceWindow}`:''}`),
       h('p',{},`${t('servings')}: ${meal.plannedServings===undefined?t('missing'):meal.plannedServings}`),
       h('p',{},`${t('ingredients')}: ${ingredients.length?ingredients.join(' · '):t('missing')}`));
     card.append(recorded);
@@ -595,7 +597,7 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
       children.push(renderMenuRecipe(host, source, { ...options, selection: { menuPlanRef, mealIndex, date: meal.date, mealType: meal.mealType } }));
     });
   }
-  root.append(sourceInfo,h("p", { class: "muted menu-coverage" }, t("coverage")));
+  append(root,sourceInfo,h("p", { class: "muted menu-coverage" }, t("coverage")));
   el.replaceChildren(root);
   return dispose;
 }

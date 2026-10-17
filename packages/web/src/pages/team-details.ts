@@ -1,11 +1,12 @@
-import {recordValue,supportDetails,word} from './record-display';
+import {recipeLibraryLine,recordValue,supportDetails,word} from './record-display';
 /** Read-only raw details from one fixed projection. Scaling remains in core estimates. */
 import type { TeamMealsProjection, I18nString, ImageRef, Technique } from '@canteenos/core';
 import type { RevisionAsset } from '../api/team-meals';
-import { h } from '../dom';
+import { append, h } from '../dom';
+import { chefOnly } from './chef-only';
 import { pick, type Lang } from '../i18n';
 import { action, onDetached, text } from './team-ui';
-import {quantityText} from './quantity-text';
+import {displayQuantity,quantityText,unitName} from './quantity-text';
 import {knowledgeCoverState,type KnowledgeCoverState} from './knowledge-cover-status';
 export {quantityText} from './quantity-text';
 const copy={
@@ -36,6 +37,7 @@ export interface DetailOptions {
   asset:(owner:string,pointer:string)=>Promise<RevisionAsset>;
   techniqueAsset?:(techniqueRef:string)=>Promise<RevisionAsset>;
   href:(kind:'ingredient'|'dish',id:string)=>string;
+  /** Opens the live record in the chef back office: shown only while a chef token is present. */
   current?:()=>void;
 }
 export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void {
@@ -71,23 +73,24 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     for(const source of sources)el.append(h('div',{class:'tm-detail-source-recipe'},`${source.date} · ${text(lang,source.mealType)} · `,h('a',{href:options.href('dish',source.dishRef)},pick(lookup(projection.dishes,source.dishRef)?.name,lang)||t('missingSource')),supportDetails(lang,`${source.menuPlanRef} / ${source.mealIndex} / ${source.componentIndex}`)));
   }
   const record=kind==='ingredient'?lookup(projection.ingredients,id):lookup(projection.dishes,id);
-  el.append(h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision)));
-  if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));if(options.current)el.append(action(t('current'),options.current));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
+  append(el,chefOnly(()=>h('details',{class:'tm-source'},h('summary',{},word(lang,'支持用资料版本','Source version for support','Версія даних для підтримки')),h('code',{},projection.sourceRevision))));
+  if(!record){el.append(h('p',{role:'alert'},t('missingSource')),supportDetails(lang,id));const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));if(kind==='ingredient')renderSources();return ()=>{stop();dispose();};}
   el.append(h('h2',{},pick(record.name,lang)),supportDetails(lang,h('p',{class:'tm-detail-id'},id)));
   const owner=`data/${kind==='dish'?'dishes':'ingredients'}/${id}.json`;
   el.append(image(record.image,owner,'/image',true,undefined,kind==='dish'?knowledgeCoverState(lookup(projection.dishes,id)):'not-recorded'));
   el.append(names(record.name));
   if(kind==='ingredient'){
     const item=lookup(projection.ingredients,id)!,p=item.purchase;
-    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit),fact(t('supplier'),p?.supplier),fact(t('package'),p?`${p.packSize} ${p.packUnit}`:undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand!==undefined?`${item.onHand} ${item.baseUnit}`:undefined)));
+    el.append(h('dl',{class:'tm-facts'},fact(t('role'),item.role?t(item.role):undefined),fact(t('base'),item.baseUnit?unitName(item.baseUnit,lang):undefined),fact(t('supplier'),p?.supplier),fact(t('package'),p?displayQuantity({value:p.packSize,unit:p.packUnit},lang):undefined),fact(t('min'),p?.minPacks),fact(t('price'),p?.lastPrice?`${p.lastPrice.amount} ${p.lastPrice.currency}`:undefined),fact(t('track'),item.trackStock),fact(t('stock'),item.onHand===undefined?undefined:item.baseUnit?displayQuantity({value:item.onHand,unit:item.baseUnit},lang):item.onHand)));
     if(item.externalId)el.append(supportDetails(lang,`Wikidata: ${item.externalId}`));
     renderSources();
   }else{
     const dish=lookup(projection.dishes,id)!;
     el.append(h('p',{},pick(dish.description,lang)||t('missing')),h('dl',{class:'tm-facts'},fact(t('baseServings'),dish.baseServings),fact(t('provenance'),recordValue(dish.provenance?.source,lang))));
     if(dish.provenance?.source==='knowledge'){
-      el.append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+      append(el,recipeLibraryLine(lang,dish.provenance.recipeVersion));
+      const provenance=dish.provenance;
+      append(el,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
       if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
@@ -111,6 +114,6 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
       el.append(card);
     }
   }
-  if(options.current)el.append(action(t('current'),options.current));
+  const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));
   el.append(h('p',{class:'muted'},t('coverage')));return ()=>{stop();dispose();};
 }

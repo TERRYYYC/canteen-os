@@ -15,6 +15,12 @@ export function publishedFixture(name='normal') {
  if(name==='empty-plan')writeFileSync(planFile,JSON.stringify({schemaVersion:'3',name:{en:'Empty'},meals:[]}));
  if(name==='no-plans')rmSync(planFile);
  if(name==='quantity-warning'){plan.schemaVersion='3';plan.meals.forEach(m=>delete m.plannedServings);writeFileSync(planFile,JSON.stringify(plan));}
+ if(name==='mixed-currency'){const file=join(root,'data/ingredients/tomato.json'),ingredient=JSON.parse(readFileSync(file,'utf8'));ingredient.purchase.lastPrice.currency='UAH';writeFileSync(file,JSON.stringify(ingredient));}
+ if(name==='stock-covers-hongda'){
+  // The week's order from 宏达 is 2 × 5 l oil (minPacks 2, onHand 1000 ml) and 20 × 500 g salt (minPacks 20, onHand 500 g),
+  // so the whole week needs at most 10 l + 1 l oil and 10 kg + 0.5 kg salt; 100 l and 100 kg on hand cover it and core orders nothing.
+  for(const [id,onHand] of [['cooking-oil',100000],['salt',100000]]){const file=join(root,`data/ingredients/${id}.json`),ingredient=JSON.parse(readFileSync(file,'utf8'));ingredient.onHand=onHand;writeFileSync(file,JSON.stringify(ingredient));}
+ }
  if(name==='external-image') {
   const file=join(root,'data/ingredients/tomato.json'),ingredient=JSON.parse(readFileSync(file,'utf8'));
   ingredient.image={src:'https://example.org/tomato.png',license:'CC0'};writeFileSync(file,JSON.stringify(ingredient));

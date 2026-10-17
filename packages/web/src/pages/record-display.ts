@@ -1,6 +1,7 @@
 /** Current-language record labels; original metadata stays in optional disclosures. */
 import type {I18nString} from '@canteenos/core';
 import {h} from '../dom';
+import {chefOnly} from './chef-only';
 import {type Lang,LANG_TAG} from '../i18n';
 export const word=(lang:Lang,zh:string,en:string,uk:string)=>lang==='zh'?zh:lang==='en'?en:uk;
 const labels:Record<string,readonly [string,string,string]>={
@@ -16,8 +17,14 @@ export function recordValue(value:string|boolean|undefined,lang:Lang):string|und
  if(typeof value==='boolean')return value?word(lang,'已启用','Enabled','Увімкнено'):word(lang,'未启用','Not enabled','Не ввімкнено');
  const translated=labels[value];return translated?translated[lang==='zh'?0:lang==='en'?1:2]:value;
 }
-export function supportDetails(lang:Lang,...contents:(Node|string)[]):HTMLElement {
- return h('details',{class:'record-support'},h('summary',{},word(lang,'支持用技术详情','Technical support details','Технічні дані для підтримки')),...contents);
+/** Raw ids and JSON are for the chef. Without a token nothing is built: an empty text node comes back,
+ * so every existing append(...) call site stays as it is and no "null" text can appear. */
+export function supportDetails(lang:Lang,...contents:(Node|string)[]):HTMLElement|Text {
+ return chefOnly(()=>h('details',{class:'record-support'},h('summary',{},word(lang,'支持用技术详情','Technical support details','Технічні дані для підтримки')),...contents))??document.createTextNode('');
+}
+/** Plain-language replacement for the raw "KB <id> · v<n> · <hash>" line; chef-only like the line it replaces. */
+export function recipeLibraryLine(lang:Lang,version:number):HTMLElement|null {
+ return chefOnly(()=>h('p',{},lang==='zh'?`来自菜谱库 · 第 ${version} 版`:lang==='en'?`From the recipe library · version ${version}`:`З бібліотеки рецептів · версія ${version}`));
 }
 export function translations(name:I18nString|undefined,lang:Lang):HTMLElement {
  return h('details',{class:'record-translations'},h('summary',{},word(lang,'其他语言原文','Other language versions','Інші мовні версії')),

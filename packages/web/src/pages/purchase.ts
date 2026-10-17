@@ -6,7 +6,8 @@ import {getTeamMealsApi,type TeamMealsApi,type ShoppingListIndex,type ShoppingLi
 import {ApiError,type Source} from '../api/types';
 import type {PublishedTeamPlan} from '../data';
 import {apiMessage} from '../admin/kit';
-import {h,replace} from '../dom';
+import {append,h,replace} from '../dom';
+import {chefOnly} from './chef-only';
 import type {PageCtx} from '../types';
 import {hrefOf} from '../router';
 import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../view-models/reload-safety';
@@ -15,11 +16,14 @@ import {action,field,onDetached,status,text} from './team-ui';
 import {createPurchaseForm,type PurchaseConflict} from './purchase-form';
 import {shoppingText,renderCandidates,type ShoppingWord} from './purchase-list';
 import {shoppingCopy} from './shopping-copy';
-import {pick} from '../i18n';
+import type {SupplierSection} from './supplier-copy';
+import {supplierCopy,previewSupplierCopy,supplierSections,supplierSectionText,hasOrder,buyItems,listDates} from './supplier-copy';
+import {pick,type Lang} from '../i18n';
 import {word,supportDetails} from './record-display';
+import {displayDate,displayDateRange} from '../display-date';
 
 interface Scope {revision:string;planIds:string;plans:Record<string,AnyMenuPlan>;options:ShoppingSelection[];selected:ShoppingSelection[]}
-interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle}
+interface View {listId:string;planIds:string;scope:Scope|null;baseline:{listId:string;planIds:string;scope:string};generation:number;inputGeneration:number;active:number;createdId?:string;completed?:boolean;listeners:Set<()=>void>;reload:AuxiliaryEditHandle;panels:Set<string>}
 export interface PurchaseAuxiliaryState {readonly ownerId:string;readonly identity:{readonly kind:'shopping-list';readonly id:string};readonly generation:number;readonly dirty:boolean;readonly phase:'idle'}
 const scopeKey=(scope:Scope|null)=>scope?JSON.stringify([scope.revision,normalizeSelection(scope.selected)]):'';
 const rawPending=(view:View)=>view.listId!==view.baseline.listId||view.planIds!==view.baseline.planIds||scopeKey(view.scope)!==view.baseline.scope;
@@ -39,7 +43,8 @@ export function createPurchaseRenderer(api:TeamMealsApi){
  const touch=(view:View)=>{view.generation=++generation;};
  const notify=(view:View)=>{for(const paint of view.listeners)paint();};
  function createView(key:string,listId:string,planIds:string):View {
-  const value={listId,planIds,scope:null,baseline:{listId,planIds,scope:''},generation:++generation,inputGeneration:0,active:0,listeners:new Set<()=>void>()};
+  // Open disclosures are presentation state of this list view only; another list or auth gets a new view.
+  const value={listId,planIds,scope:null,baseline:{listId,planIds,scope:''},generation:++generation,inputGeneration:0,active:0,listeners:new Set<()=>void>(),panels:new Set<string>()};
   const reload=registerAuxiliaryEdits({ownerId:`purchase-buffer/${key}`,identity:{kind:'shopping-list',id:key},boundary:api,operationTracking:'tickets',read:()=>({generation:value.generation,dirty:rawPending(view),phase:'idle'})});
   const view=Object.assign(value,{reload});return view;
  }
@@ -62,12 +67,12 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   if(creating&&previous?.completed&&!rawPending(previous)&&!previous.active){previous.reload.dispose();views.delete(key);}
   const view=views.get(key)??createView(key,creating?`shop-${new Date().toISOString().slice(0,10)}-${crypto.randomUUID().slice(0,8)}`:routeId,creating?creationPlan:ctx.planId||'');views.set(key,view);covered=true;
   const live=()=>ticket===epoch&&el.isConnected&&controller===form&&auth===api.sessionKey();
-  let error:unknown=null,notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
+  let error:unknown=null,errorPanel='',notFound=false,remote:PurchaseConflict|null=null,disposeDetail=()=>{},context=0;
   let index:ShoppingListIndex|null=null,indexError:unknown=null,indexBusy=false;
   const planChoices=new Map<string,AnyMenuPlan|null>();let plansFailed=false;
   const w=(zh:string,en:string,uk:string)=>word(lang,zh,en,uk);
   el.classList.add('tm-page');el.classList.add('tm-purchase');const body=h('div',{});
-  el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase',detail?routeId:'')},tr('back')),h('h2',{class:'sr-only'},t('title')),h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))));
+  el.append(body,h('div',{class:'tm-head'},h('a',{href:hrefOf('purchase',detail?routeId:'')},tr('back')),h('h2',{class:'sr-only'},t('title')),chefOnly(()=>h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan')))));
   // Every non-C1 readonly operation settles its own original handle, even after auth/navigation.
   async function read<T>(work:()=>Promise<T>,advance=true):Promise<T>{
    const handle=view.reload,operation=handle.beginOperation('read');if(advance)touch(view);
@@ -75,18 +80,33 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    catch(e){handle.settleOperation(operation,'failed');throw e;}
    finally{if(advance)touch(view);}
   }
-  async function run(work:()=>Promise<unknown>,kind:'read'|'c1'='read',initial=false){
-   if(!live()||(!initial&&view.active))return;view.active++;error=null;notify(view);
-   try{await(kind==='read'?read(work):work());}catch(e){if(live())error=e;}
+  async function run(work:()=>Promise<unknown>,kind:'read'|'c1'='read',initial=false,origin=''){
+   if(!live()||(!initial&&view.active))return;view.active++;error=null;errorPanel='';notify(view);
+   try{await(kind==='read'?read(work):work());}catch(e){if(live()){error=e;errorPanel=origin;}}
    finally{view.active--;notify(view);}
   }
-  function update(key:'listId'|'planIds',value:string){if(!live()||view[key]===value)return;view[key]=value;view.inputGeneration++;touch(view);const active=document.activeElement instanceof HTMLElement?document.activeElement.dataset.focus:undefined;paint();if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();}
+  function update(key:'listId'|'planIds',value:string){
+   if(!live()||view[key]===value)return;view[key]=value;view.inputGeneration++;touch(view);
+   const focused=document.activeElement instanceof HTMLElement?document.activeElement:null,active=focused?.dataset.focus;
+   // The repaint replaces this input; keep the caret where the user is typing, not at its start.
+   const caret=focused&&'selectionStart' in focused?[(focused as HTMLInputElement).selectionStart,(focused as HTMLInputElement).selectionEnd]:null;
+   paint();
+   if(active){const next=body.querySelector<HTMLInputElement>(`[data-focus="${active}"]`);next?.focus();if(next&&caret?.[0]!=null&&caret[1]!=null)next.setSelectionRange(caret[0],caret[1]);}
+  }
   function rawNotice(){return h('p',{class:'tm-status dirty',role:'status','data-purchase-raw-pending':'true'},lang==='zh'?'清单名称或范围选择尚未应用。':lang==='en'?'The list ID or scope choices have not been applied.':'Назву списку або вибір діапазону ще не застосовано.');}
   function sourceVersion(revision:string){return h('details',{class:'tm-source'},h('summary',{},t('revision')),h('code',{},revision));}
-  function scopeLabel(s:ShoppingSelection){const name=pick(view.scope?.plans[s.menuPlanRef]?.name??planChoices.get(s.menuPlanRef)?.name,lang);return `${s.date} · ${tr(s.mealType)}${name?` · ${name}`:''}`;}
+  function scopeLabel(s:ShoppingSelection){const name=pick(view.scope?.plans[s.menuPlanRef]?.name??planChoices.get(s.menuPlanRef)?.name,lang);return `${displayDate(s.date,lang)} · ${tr(s.mealType)}${name?` · ${name}`:''}`;}
   function errorNode(e:unknown){return h('p',{class:'tm-error',role:'alert'},apiMessage(e,lang));}
+  const keepPanel=(key:string,open:boolean)=>{if(open)view.panels.add(key);else view.panels.delete(key);};
+  // Every paint rebuilds these disclosures; reopen them from the user's last choice for this list (#132).
+  function panel(key:string,attrs:Record<string,string>,summary:string,...children:HTMLElement[]){
+   const node=h('details',{...attrs,'data-panel':key,open:view.panels.has(key)},h('summary',{},summary),...children);
+   node.addEventListener('toggle',()=>{if(node.isConnected&&live())keepPanel(key,node.open);});return node;
+  }
   function paint(){
    if(!live())return;const busy=view.active>0;disposeDetail();disposeDetail=()=>{};
+   // A toggle may still be queued when an async result repaints; the outgoing DOM holds the latest choice.
+   for(const node of body.querySelectorAll('details'))if(node.dataset.panel)keepPanel(node.dataset.panel,node.open);
    const s=form.session.getState();context=s.contextId;
    if(s.identity&&s.phase!=='closed')for(const origin of views.values())if(origin.createdId===s.identity.id)origin.completed=!!s.source&&!s.dirty&&!s.operationId&&s.phase!=='conflict'&&s.phase!=='outcome-unknown';
    const loaded=!creating&&s.identity?.id===routeId&&s.phase!=='closed'&&s.draft&&form.basis;
@@ -101,7 +121,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
     if(entry)nodes.push(discovery());
     else if(creating||notFound)nodes.push(scopeForm(false));
     else if(!busy)nodes.push(action(tr('retry'),()=>void load()));
-    nodes.push(h('details',{class:'tm-card tm-purchase-advanced'},h('summary',{},w('按清单编号打开','Open by list ID','Відкрити за номером списку')),openForm()));
+    nodes.push(panel('open-by-id',{class:'tm-card tm-purchase-advanced'},w('按清单编号打开','Open by list ID','Відкрити за номером списку'),openForm()));
     replace(body,...nodes);return;
    }
    const list=s.draft!,basis=form.basis!;
@@ -130,7 +150,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
      },href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),current:()=>{location.hash=adminHref(detailKind,detailId);}});return;
    }
    const dates=[...new Set(list.basis.selection.map(slot=>slot.date))].sort(),meals=[...new Set(list.basis.selection.map(slot=>tr(slot.mealType)))];
-   const scopeTitle=`${dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??t('scope')} · ${meals.join(' / ')}`;
+   const scopeTitle=`${dates.length>1?displayDateRange(dates[0]!,dates.at(-1)!,lang):dates[0]?displayDate(dates[0],lang):t('scope')} · ${meals.join(' / ')}`;
    nodes.push(h('section',{class:'tm-purchase-intro tm-purchase-loaded'},h('h2',{},t('title')),
     h('details',{class:'tm-purchase-scope'},h('summary',{},scopeTitle),...list.basis.selection.map(slot=>h('p',{},scopeLabel(slot))))));
    const counts=countDecisions(list);
@@ -139,16 +159,27 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(s.phase==='conflict')nodes.push(conflictPanel(list));
    if(!s.source)nodes.push(h('p',{class:'tm-status'},t('first')));
    else if(!form.canDecide&&!s.operationId&&s.phase!=='conflict')nodes.push(h('p',{class:'tm-status'},t('changed')));
-   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,copyPanel(list)));
+   const save=action(t('save'),()=>void run(()=>form.save(s.contextId),'c1'),true);save.disabled=busy||!s.dirty||!!s.operationId||s.phase==='conflict';nodes.push(h('div',{class:'tm-purchase-actions'},save,...copyPanels(list)));
    const removed=form.review?.removed??[];
    if(removed.length)nodes.push(h('section',{class:'tm-card tm-removed'},h('h3',{},t('removed')),...removed.map(item=>h('p',{},`${item.ingredientRef} · ${t(item.decision)}${item.bought?` · ${t('bought')}`:''}`))));
-   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,
+   // Sections hold every candidate so each keeps its judgment buttons; a section copy lists only what the whole copy lists (buy, not bought).
+   const sections=supplierSections(basis.projection.collection.items,basis.projection,lang,basis.estimate).sections;
+   // Every saved Buy is sent, even when the stock reference says nothing needs ordering: the buyer's decision stands.
+   const buying=supplierSections(buyItems(list),basis.projection,lang,basis.estimate,true).sections;
+   const sectionCopy=(section:SupplierSection)=>{
+    const found=buying.find(x=>x.supplier===section.supplier);
+    const copied=copyAction('section',t('copySection'),found?supplierSectionText(found,lang,listDates(list)):'');copied.button.disabled=!found;
+    if(!found)copied.card.append(h('p',{class:'muted','data-copy-section-none':''},t('copySectionNone')));
+    else if(found.keptCovered)copied.card.append(keptNote(found.keptCovered));
+    return copied.card;
+   };
+   nodes.push(renderCandidates({lang,...basis.projection,estimate:basis.estimate,compact:true,sections,sectionCopy,
     href:(kind,id)=>hrefOf('purchase',`${list.id}/${kind}/${id}`),controls:(id)=>decisions(id,list)}));
-   nodes.push(record,h('details',{class:'tm-purchase-advanced'},h('summary',{},t('apply')),scopeForm(true)));replace(body,...nodes);
+   nodes.push(record,panel('scope',{class:'tm-purchase-advanced'},t('apply'),scopeForm(true)));replace(body,...nodes);
   }
   function listReference(id:string){return h('p',{class:'tm-list-reference'},w('清单编号','List number','Номер списку'),' · ',h('code',{},id));}
   function savedLink(item:ShoppingListSummary,continuing=false){
-   const dates=[...new Set(item.selection.map(s=>s.date))].sort(),label=dates.length>1?`${dates[0]} – ${dates.at(-1)}`:dates[0]??w('未记录日期','Date unrecorded','Дату не записано');
+   const dates=[...new Set(item.selection.map(s=>s.date))].sort(),label=dates.length>1?displayDateRange(dates[0]!,dates.at(-1)!,lang):dates[0]?displayDate(dates[0],lang):w('未记录日期','Date unrecorded','Дату не записано');
    return h('article',{class:'tm-saved-list'},h('a',{href:hrefOf('purchase',item.id)},h('b',{},label),h('span',{},`${[...new Set(item.selection.map(slot=>tr(slot.mealType)))].join(' / ')} · ${item.itemCount} ${w('项材料','ingredients','інгредієнтів')} · ${item.selection.length} ${w('餐次','meal slots','прийомів їжі')}`),continuing?h('strong',{},w('继续这份清单','Continue list','Продовжити цей список')):null),
     h('div',{class:'tm-saved-progress',role:'group','aria-label':w('已保存判断','Saved decisions','Збережені рішення')},h('p',{},w('已保存判断','Saved decisions','Збережені рішення')),...(['check','buy','available','bought'] as const).map(decision=>h('div',{},h('span',{},t(decision)),h('b',{'data-decision-count':decision},String(item.decisionCounts[decision]))))),listReference(item.id),
     h('details',{},h('summary',{},w('查看范围','View scope','Переглянути діапазон')),...item.selection.map(s=>h('p',{},scopeLabel(s))),supportDetails(lang,JSON.stringify({id:item.id,selection:item.selection}))));
@@ -174,7 +205,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const start=h('section',{class:'tm-card'},h('h3',{},w('从计划新建清单','Create from a plan','Створити з плану')));
    for(const [id,plan] of planChoices){if(plan)start.append(h('a',{class:'tm-button',href:hrefOf('purchase',`new/${id}/all`)},pick(plan.name,lang)||w('已保存的计划','Saved plan','Збережений план')));}
    if(!planChoices.size||plansFailed)start.append(h('p',{},w('未能列出可用计划。可从排菜单页打开所需计划，再选择“建立采购清单”。','Available plans could not be listed. Open a plan on the planning page and choose “Create shopping list”.','Не вдалося показати доступні плани. Відкрийте потрібний план і виберіть «Створити список покупок».')));
-   start.append(h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan')));card.append(start);return card;
+   append(start,chefOnly(()=>h('a',{href:adminHref('plan',ctx.planId??'')},tr('plan'))));card.append(start);return card;
   }
   async function loadIndex(cursor?:string){
    if(!live()||indexBusy)return;indexBusy=true;indexError=null;paint();
@@ -218,11 +249,14 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    const resume=()=>h('section',{class:'tm-card'},h('p',{},w('这份清单已生成，请打开继续处理并保存。','This list has been created. Open it to continue and save.','Цей список уже створено. Відкрийте його, щоб продовжити та зберегти.')),h('a',{class:'tm-button primary',href:hrefOf('purchase',view.createdId!)},t('open')));
    if(generated&&!rawPending(view))return resume();
    const input=h('input',{value:view.planIds,'data-focus':'plan-ids'});input.addEventListener('input',()=>update('planIds',input.value));
-   const read=action(t('read'),()=>void run(readScope));read.disabled=busy||(existing&&!form.canRebase);
-   const advanced=h('details',{class:'tm-purchase-advanced'},h('summary',{},w('调整计划编号','Change plan IDs','Змінити номери планів')),field(t('plans'),input));
-   const card=h('section',{class:'tm-card'},h('h3',{},existing?t('apply'):t('new')),h('p',{},w('选择日期和餐次；清单编号已自动生成。','Choose dates and meals. The list ID is generated automatically.','Виберіть дати та прийоми їжі. Номер списку створено автоматично.')),advanced,read);
+   // The page-level alert stays; this copy keeps a failed read/apply next to the action that caused it.
+   const failed=(origin:string)=>error&&errorPanel===origin?[h('p',{class:'tm-error'},apiMessage(error,lang))]:[];
+   // Reading only refreshes the choices shown here; applying stays a separate explicit action.
+   const read=action(t('read'),()=>void run(readScope,'read',false,'scope-read'));read.disabled=busy||(existing&&!form.canRebase);
+   const advanced=panel('plan-ids',{class:'tm-purchase-advanced'},w('调整计划编号','Change plan IDs','Змінити номери планів'),field(t('plans'),input));
+   const card=h('section',{class:'tm-card'},h('h3',{},existing?t('apply'):t('new')),h('p',{},w('选择日期和餐次；清单编号已自动生成。','Choose dates and meals. The list ID is generated automatically.','Виберіть дати та прийоми їжі. Номер списку створено автоматично.')),advanced,read,...failed('scope-read'));
    if(generated)card.prepend(resume());
-   if(existing&&!form.canRebase)card.append(h('p',{class:'muted'},t('saveBefore')));
+   if(existing&&!form.canRebase){const phase=form.session.getState().phase;card.append(h('p',{class:'muted'},phase==='conflict'?tr('conflict'):phase==='outcome-unknown'?tr('unknown'):t('saveBefore')));}
    if(!existing){const name=h('input',{value:view.listId,pattern:'[a-z][a-z0-9-]*','data-focus':'new-list-id'});name.addEventListener('input',()=>update('listId',name.value));advanced.append(field(w('清单编号','List ID','Номер списку'),name));}
    if(view.scope){
     const scope=view.scope;card.append(sourceVersion(scope.revision));
@@ -244,7 +278,7 @@ export function createPurchaseRenderer(api:TeamMealsApi){
      const request={revision:scope.revision,selection:structuredClone(scope.selected),at:new Date().toISOString()};
      const result=existing?await form.rebase(request,live):await form.create(id,{...request,shoppingListVersion:'2'},live);
      if(result){view.baseline=baseline;if(!existing){view.createdId=id;view.completed=false;}touch(view);if(!existing&&live())location.hash=hrefOf('purchase',id);}
-    }),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply);
+    },'read',false,'scope-apply'),true);apply.disabled=generated||busy||(!existing&&indexBusy)||!scope.selected.length||!validId(view.listId)||view.planIds!==scope.planIds||(existing&&!form.canRebase);card.append(apply,...failed('scope-apply'));
    }return card;
   }
   function decisions(id:string,list:ShoppingList){
@@ -273,17 +307,23 @@ export function createPurchaseRenderer(api:TeamMealsApi){
    if(!pending&&view.generation===captured){view.listId=list.id;view.planIds=planIds;view.scope=scope;}
    view.baseline={listId:list.id,planIds,scope:scopeKey(scope)};touch(view);
   }
-  function copyPanel(list:ShoppingList){
-   const content=shoppingCopy(list,form.basis!.projection,lang,form.basis!.estimate),feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':t('copy')});area.value=content;area.hidden=true;
-   const fallback=()=>{if(live()){feedback.textContent=t('copyFailed');area.hidden=false;area.focus();area.select();}};
-   const button=action(t('copy'),()=>{
-    if(!live())return;if(!navigator.clipboard){fallback();return;}
-    const handle=view.reload,operation=handle.beginOperation('write');touch(view);
-    // Clipboard API rejection is a definite local failure; no repository write is involved.
-    try{void navigator.clipboard.writeText(content).then(()=>{handle.settleOperation(operation,'completed');touch(view);if(live())feedback.textContent=t('copied');},()=>{handle.settleOperation(operation,'failed');touch(view);fallback();});}
-    catch{handle.settleOperation(operation,'failed');touch(view);fallback();}
-   });
-   return h('section',{class:'tm-card'},button,feedback,area);
+  // Buy items the stock reference covers are listed without a quantity; the note says the amount is the buyer's to confirm.
+  function keptNote(n:number){
+   return h('p',{class:'muted','data-copy-kept':''},w(`其中 ${n} 种库存参考已够，按你标的「待买」列出，数量待定，请自己确认。`,
+    n===1?'1 of them is covered by the stock reference but listed because you marked it Buy; quantity to confirm.':`${n} of them are covered by the stock reference but listed because you marked them Buy; quantity to confirm.`,
+    `З них ${n}: за довідкою про запас вистачає, але в списку, бо ви позначили «Купити»; кількість уточнити.`));
+  }
+  // Each clipboard attempt keeps its own reload-safety ticket on this view.
+  function copyAction(kind:'suppliers'|'record'|'section',label:string,content:string,...notes:HTMLElement[]){
+   return copyCard(lang,kind,label,content,notes,live,()=>{const handle=view.reload,operation=handle.beginOperation('write');touch(view);return outcome=>{handle.settleOperation(operation,outcome);touch(view);};});
+  }
+  // Suppliers get forwardable orders only; the unchanged full record stays one step aside for the kitchen.
+  function copyPanels(list:ShoppingList){
+   const basis=form.basis!,orders=supplierCopy(list,basis.projection,lang,basis.estimate),{check,bought}=countDecisions(list);
+   const scope=h('p',{class:'muted'},t(orders.items?'copySuppliersScope':bought?'copySuppliersDone':'copySuppliersNone'),check?w(`另有 ${check} 项待核对，未列入。`,` ${check} still to check, not included.`,` Ще до перевірки: ${check}, не включено.`):'');
+   const suppliers=copyAction('suppliers',t('copySuppliers'),orders.text,scope,...(orders.keptCovered?[keptNote(orders.keptCovered)]:[]));suppliers.button.disabled=!orders.items;
+   const record=copyAction('record',t('copyRecord'),shoppingCopy(list,basis.projection,lang,basis.estimate));
+   return [suppliers.card,record.card];
   }
   async function load(){await run(async()=>{if(detail&&!detailsModule){const loaded=await import('./team-details');if(!live())return;detailsModule=loaded;}const result=await form.load(routeId,live);if(live())notFound=!result;},'read',true);}
   view.listeners.add(paint);
@@ -296,6 +336,22 @@ export function createPurchaseRenderer(api:TeamMealsApi){
   const view=views.get(key);if(!view)return null;
   return Object.freeze({ownerId:`purchase-buffer/${key}`,identity:Object.freeze({kind:'shopping-list' as const,id:key}),generation:view.generation,dirty:rawPending(view),phase:'idle' as const});
  }});
+}
+/**
+ * One copy action: clipboard first, then the same text selected for manual copying when the clipboard
+ * is missing or refuses. Copying never writes the repository; track lets a saved list keep its ticket.
+ */
+function copyCard(lang:Lang,kind:'suppliers'|'record'|'section',label:string,content:string,notes:readonly HTMLElement[],live:()=>boolean,track?:()=>(outcome:'completed'|'failed')=>void){
+ const feedback=h('p',{role:'status'}),area=h('textarea',{readonly:true,rows:8,'aria-label':label});area.value=content;area.hidden=true;
+ const fallback=()=>{if(live()){feedback.textContent=shoppingText(lang,'copyFailed');area.hidden=false;area.focus();area.select();}};
+ const button=action(label,()=>{
+  if(!live())return;if(!navigator.clipboard){fallback();return;}
+  const settle=track?.()??(()=>{});
+  // Clipboard API rejection is a definite local failure; no repository write is involved.
+  try{void navigator.clipboard.writeText(content).then(()=>{settle('completed');if(live())feedback.textContent=shoppingText(lang,'copied');},()=>{settle('failed');fallback();});}
+  catch{settle('failed');fallback();}
+ });
+ return {button,card:h('section',{class:'tm-card','data-copy':kind},button,...notes,feedback,area)};
 }
 /**
  * Unconfigured surface: only the verified publication can be read. Its preview is not a saved
@@ -326,8 +382,8 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
  const estimate=scope.range==='all'?plan.estimates:estimateShoppingList(plan.projection,selection,plan.builtAt);
  const name=pick(plan.projection.menuPlans[plan.planId]?.name,lang)||t('missing');
  const summary=h('section',{class:'tm-card','data-purchase-readonly-scope':scope.range},h('h3',{},name),h('p',{},t('scope')),
-  ...(scope.range!=='all'?[h('p',{},scope.range==='day'?scope.date:`${scope.date} — ${end!.toISOString().slice(0,10)}`)]:[]),
-  ...selection.map(s=>h('p',{},`${s.date} · ${tr(s.mealType)}`)));
+  ...(scope.range!=='all'?[h('p',{},scope.range==='day'?displayDate(scope.date,lang):displayDateRange(scope.date,end!.toISOString().slice(0,10),lang))]:[]),
+  ...selection.map(s=>h('p',{},`${displayDate(s.date,lang)} · ${tr(s.mealType)}`)));
  const blocked=(label:string)=>{const button=action(label,()=>{});button.disabled=true;return button;};
  const decisions=()=>{
   const group=h('div',{class:'tm-decisions','data-purchase-decisions':'blocked'});
@@ -335,12 +391,22 @@ async function renderPublishedOnly(el:HTMLElement,ctx:PageCtx,scope:{range:strin
   const bought=h('input',{type:'checkbox'});bought.disabled=true;group.append(h('label',{class:'tm-slot'},bought,t('bought')));
   return group;
  };
+ // Copying is not a write: no list, decision or basis is created. With no decisions here, every
+ // candidate of the shown scope is listed and the note asks to remove what is already in stock.
+ const orders=previewSupplierCopy(projection,lang,estimate,selection),previewSections=supplierSections(projection.collection.items,projection,lang,estimate).sections;
+ const suppliers=copyCard(lang,'suppliers',t('copySuppliers'),orders.text,[h('p',{class:'muted'},t('copySuppliersPreview'))],()=>el.isConnected);suppliers.button.disabled=!orders.items;
  replace(body,
   scope.savedList?h('p',{class:'tm-status',role:'status','data-purchase-saved-unavailable':'true'},t('readonlySaved')):null,
   summary,
   h('div',{class:'tm-purchase-actions','data-purchase-writes':'blocked'},blocked(t('save')),blocked(t('read')),h('p',{class:'muted'},t('readonlyWrites'))),
-  renderCandidates({lang,...projection,estimate,compact:true,controls:decisions}),
-  h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt)));
+  h('div',{class:'tm-purchase-actions'},suppliers.card),
+  renderCandidates({lang,...projection,estimate,compact:true,controls:decisions,sections:previewSections,sectionCopy:section=>{
+   // As on a saved list: a section whose items are all covered by stock is no order, so it is greyed with that reason.
+   const order=hasOrder(section);
+   const copied=copyCard(lang,'section',t('copySection'),order?supplierSectionText(section,lang,selection.map(slot=>slot.date)):'',order?[]:[h('p',{class:'muted','data-copy-section-covered':''},t('copySectionPreviewCovered'))],()=>el.isConnected);
+   copied.button.disabled=!order;return copied.card;
+  }}),
+  chefOnly(()=>h('details',{class:'tm-purchase-record'},h('summary',{},t('revision')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt))));
 }
 let renderer:ReturnType<typeof createPurchaseRenderer>|undefined;
 export function render(el:HTMLElement,ctx:PageCtx):Promise<void>{return(renderer??=createPurchaseRenderer(getTeamMealsApi()))(el,ctx);}

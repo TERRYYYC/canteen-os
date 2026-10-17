@@ -1,44 +1,47 @@
-## 改了什么
+## 问题与结果
 
-<!-- 一句话。涉及数据结构时，按 schema → types → data → docs 分别列出改动点 -->
+<!-- 哪个角色在什么场景遇到什么问题，本 PR 后能看到或完成什么？
+引用实际 issue 和 docs/current-contract.md / 对应 schema、API、页面合同。
+涉及结构变更时先确定合同，按 schema → types → data → docs 同步；纯实现或文档变更标注不适用即可。 -->
 
-- schema:
-- types:
-- data:
-- docs:
-- 代码:
+## 范围与取舍
 
-## 怎么验证的
+<!-- 列出受影响的模块/文件、方案取舍、暂不包含的工作和未解决问题。
+涉及权限、固定菜谱/依赖版本、所选计划、发布 commit 或采购单 basis 时，说明具体边界。
+不要把保存、核定、采用、发布、部署或真实师傅批准合并成一个完成状态。 -->
 
-<!-- 贴命令与输出摘要（不是"已测试"两个字）。例：
-python3 scripts/local-validate.py → 14/14
-cd packages/core && node --test → 29/29
-node scripts/build-data.mjs --check → 3 plans, 0 errors
-浏览器：/prep 切 uk/zh/en 三次，截图见下 -->
+## 验证
 
-## 没做什么
+<!-- 提供实际命令与结果摘要、测试环境及被验证的 commit；失败、跳过、未运行及理由也要写明。
+行为修复说明原失败如何复现、回归检查怎样转绿；选择受影响检查，无关项注明不适用。
+页面变更附脱敏截图/可复跑步骤：角色、路由、语言、手机/桌面、服务模式及关键状态。
+分清 fixture、本机工程副本、实际平台部署和真人验收，不能用一层证据代替另一层。 -->
 
-<!-- 本 PR 明确不包含的、评审可能以为包含的东西；以及发现但未处理的问题（写进对应 issue） -->
+## 数值核对（适用时）
 
-## 手算算式（涉及 data/ 或引擎数字时必填）
+<!-- 修改份数、用量、yield、margin、包装、价格或采购引擎时，给出输入、单位、每步取整和预期结果，
+按当前采购合同手算并保留所有来源；未知值不补 1、0 或虚构“适量”。不涉及数值写不适用。 -->
 
-<!-- 黄金测试锁的是"写下来的数字"不是"正确的数字"。每一行：
-菜单需求 → ÷yield（仅 g/ml）→ ×margin（所有食材）→ −onHand → ÷packSize 向上取整 → 与 minPacks 取大 → 金额
-例：番茄 300 g × 480 = 72.0 kg ÷ 0.85 = 84.7 kg × 1.1 = 93.2 kg → 5 kg/袋 → 19 袋（≥2）→ 19 × ¥28.50 = ¥541.50 -->
+## 关联与剩余验收
 
-## 关联
+<!-- Refs #实际 issue 编号：关联、部分实现、跟进或历史参考。
+仅完整满足该 issue 全部验收条件时写 Closes #编号，并逐项对应证据。
+其余条件保留在原 issue 或明确关联的后续任务；不用旧 round-1.lock.json 推定当前队列。 -->
 
-Closes #<!-- issue 编号；来自 .github/backlog/round-1.lock.json -->
+## 非作者审查
 
-## Checklist
+<!-- 实施作者、非作者 reviewer、审查链接/结论及适用的 commit。
+待审写待审；作者自检与绿色 CI 不作为独立批准。范围或源码改变后说明审查证据是否仍适用。 -->
 
-- [ ] 遵循 spec-first 变更顺序（schema → types → data → docs），纯实现变更已说明理由
-- [ ] 未新增实体、未新增必填字段、未删字段（`docs/execution-brief.md` §1.2）
-- [ ] `python3 scripts/local-validate.py` 或 `node scripts/validate-schemas.mjs` 通过
-- [ ] `packages/core` 测试通过；若改了黄金数字，上方算式已逐行给出且 reviewer 已核对
-- [ ] 可展示文本一律 `I18nString`；`Dish.components` 用 `ingredientRef`；数量用 `Quantity {value, unit}`
-- [ ] 文档已同步；本版本新增 ADR ≤ 1 篇
-- [ ] 未引入 AGPL / GPL / Commons Clause / 无许可证依赖或代码；UI 框架 ≤ 10 KB gzip，无 CSS 框架
-- [ ] 未提交密钥、token、内部 URL；图片 ≤ 200 KB / 1280 px
-- [ ] 不在"第一轮不做"清单内（`docs/plan-for-terry.md` §7）
-- [ ] 若为破坏性 schema 变更：已标注 BREAKING 并给出迁移说明
+## 提交前检查
+
+<!-- 按实际影响勾选；不适用的项注明原因。 -->
+
+- [ ] 对照当前合同和 issue 验收条件，schema / types / data / docs 已按需同步
+- [ ] 已列出受影响验证、未完成/未知结果和部署/厨房核定边界
+- [ ] 实体展示文本使用 `I18nString`，界面文案按现有三语约定处理；受影响界面检查 zh / en / uk；材料引用和数量遵守 `ingredientRef` / `Quantity` 合同
+- [ ] 权限、固定版本、旧数据兼容和采购单独立人工状态未被静默改变；破坏性变更有迁移/恢复说明
+- [ ] 数值变更已手算；前端遵守 `AGENTS.md` 的框架/首屏体积约束及 `docs/modules/team-meals-build.md` 的图片限制
+- [ ] 按 `docs/adr/0002-license-apache2.md`，新增依赖默认为 OSI 宽松许可，LGPL 个案评审；未引入 GPL / AGPL / Commons Clause / source-available / 无许可证代码或依赖；媒体来源与使用权已说明
+- [ ] 未提交密钥、token、cookie、内部地址、私有路径、数据库或私有媒体；证据已脱敏
+- [ ] 文档与实际变更一致，非作者审查及剩余验收状态已明确记录

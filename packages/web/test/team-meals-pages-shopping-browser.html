@@ -66,6 +66,7 @@ async function fetchMock(url,init={}){
  const revision=requested??($('#scope').value==='B'?B:A),input=snapshots.get(revision);
  if(!input)return failure(422,'revision_unavailable');
  if(path==='/catalog')return json({commit:revision,...clone(input),suppliers:[],translations:{machine:0,human:0,stale:0}});
+ if(path==='/shopping-lists')return json({ok:true,commit:revision,items:[...sources.values()].map(({content})=>({id:content.id,selection:content.basis.selection,itemCount:content.items.length,decisionCounts:{check:0,buy:0,available:0,bought:0}})),nextCursor:null,skipped:0});
  const plan=path.match(/^\/source\/plan\/([^/]+)$/);
  if(plan){const content=input.menuPlans[decodeURIComponent(plan[1])];return content?json({content:clone(content),commit:revision,blobSha:`mock-plan-${revision}`}):failure(404,'not_found');}
  // This boundary fixture has no real image bytes. Never substitute external or current images.
@@ -88,7 +89,7 @@ Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:
 $('#lang').onchange=()=>void paint();$('#release').onclick=release;
 $('#away').onclick=()=>{location.hash=parseHash(location.hash)?.page==='purchase'?'#/menu':lastPurchase;};
 $('#scope').onchange=()=>log({event:'current-plan-scenario',scenario:$('#scope').value,revision:$('#scope').value==='B'?B:A});
-$('#reload').onclick=()=>{render=createPurchaseRenderer(api);void paint();};$('#reset').onclick=()=>void reset();
+$('#reload').onclick=()=>{connect();void paint();};$('#reset').onclick=()=>void reset();
 window.addEventListener('hashchange',()=>void paint());
 const pause=()=>new Promise(resolve=>setTimeout(resolve,20));
 async function until(test,message){for(let i=0;i<180;i++){if(test())return;await pause();}throw new Error(message);}
@@ -115,7 +116,7 @@ async function run(){
   await choose('tomato','buy',true);await choose('salt','buy',true);await save();
   assert(writes()[1].ifMatch==='mock-list-1'&&!writes()[1].ifNoneMatch,'manual decision save uses acknowledged If-Match');
   assert(writes()[1].body.items.filter(i=>i.bought).length===2,'manual bought decisions are separate from creation');
-  $('#lang').value='uk';render=createPurchaseRenderer(api);await paint();await until(()=>!!card('tomato'),'fresh controller loads existing list after language change');
+  $('#lang').value='uk';connect();await paint();await until(()=>!!card('tomato'),'fresh controller loads existing list after language change');
   assert(button(t('buy'),card('tomato')).getAttribute('aria-pressed')==='true'&&card('tomato').querySelector('input').checked,'saved decisions loaded in Ukrainian');
   $('#scope').value='B';
   card('tomato').querySelector('h3 a').click();await until(()=>!!$('#app article h2'),'same-version ingredient opens');
@@ -123,8 +124,9 @@ async function run(){
   const dishLink=[...$('#app').querySelectorAll('a')].find(a=>parseHash(new URL(a.href).hash)?.rest==='team-shop/dish/first-dish');assert(!!dishLink,'ingredient links to original source dish');dishLink.click();
   await until(()=>!!$('[data-component-index]'),'same-version dish opens');
   assert($('#app').textContent.includes(A)&&$('[data-component-index="0"]').textContent.includes('300 g')&&!$('[data-component-index="0"]').textContent.includes('301 g'),'dish original quantity and version stay at A');
-  await listRoute();click(t('copy'));await until(()=>!!$('#app textarea:not([hidden])'),'clipboard failure exposes readable text');
-  assert($('#app textarea').value.includes(A)&&$('#app textarea').value.includes(t('bought')),'clipboard fallback includes basis and explicit decisions');
+  await listRoute();assert(button(t('copySuppliers')).disabled,'supplier copy has nothing to list once every buy item is bought');
+  click(t('copyRecord'));await until(()=>!!$('#app [data-copy="record"] textarea:not([hidden])'),'clipboard failure exposes readable text');
+  assert($('#app [data-copy="record"] textarea').value.includes(A)&&$('#app [data-copy="record"] textarea').value.includes(t('bought')),'clipboard fallback includes basis and explicit decisions');
   click(t('read'));await until(()=>$('#app').textContent.includes('2026-09-16'),'read latest saved plan exposes new B meal');
   const newSlot=[...document.querySelectorAll('.tm-slot input[type="checkbox"]')].find(el=>el.closest('label').textContent.includes('2026-09-16'));assert(!!newSlot,'new scope can be selected');newSlot.click();
   click(t('apply'));await until(()=>!card('salt')&&!!$('.tm-removed'),'rebase moves removed bought ingredient outside current list');

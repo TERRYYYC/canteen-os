@@ -37,6 +37,7 @@ const DICT = {
   "page.purchase": { uk: "Закупівля", zh: "采购单", en: "Purchasing" },
   "page.teamMenu": { uk: "Харчування", zh: "用餐安排", en: "Meals" },
   "page.menu": { uk: "Меню", zh: "菜单", en: "Menu" },
+  "page.dishes": { uk: "Страви", zh: "菜品", en: "Dishes" },
   "page.admin": { uk: "Кабінет шефа", zh: "师傅后台", en: "Back office" },
   "page.qr": { uk: "QR-коди", zh: "二维码", en: "QR codes" },
 
@@ -47,6 +48,8 @@ const DICT = {
   "drawer.purchase.role": { uk: "для закупівельника · 采购员", zh: "采购员", en: "for the buyer · 采购员" },
   "drawer.menu": { uk: "Меню", zh: "菜单", en: "Menu" },
   "drawer.menu.role": { uk: "для гостей · 顾客", zh: "顾客", en: "for guests · 顾客" },
+  "drawer.dishes": { uk: "Страви", zh: "菜品", en: "Dishes" },
+  "drawer.dishes.role": { uk: "Інгредієнти й спосіб приготування кожної страви", zh: "看每道菜的食材和做法", en: "Ingredients and method for each dish" },
   "drawer.chef": { uk: "Кабінет шефа", zh: "师傅后台", en: "Chef back office" },
   "drawer.chef.role": { uk: "Вхідні рецепти · 复核菜谱", zh: "复核菜谱", en: "Review recipes" },
   "drawer.plan": { uk: "План меню · 菜单计划", zh: "菜单计划", en: "Menu plan · 菜单计划" },

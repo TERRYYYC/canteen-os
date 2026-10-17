@@ -1,45 +1,76 @@
 name: Bug Report
-description: 报告一个缺陷（schema / 文档 / 数据 / 脚本）
+description: 报告页面、工作流、数据、接口或文档缺陷
 title: "[Bug] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        感谢反馈！请尽量提供可复现信息。AI agent 提交 bug 时也请遵循本模板。
+        请描述实际观察到的行为。只提交脱敏后的截图、请求和日志；不要公开 token、cookie、私有媒体、内部地址或本机私有路径。
   - type: dropdown
     id: area
     attributes:
       label: 影响范围
       options:
-        - schemas（数据模型）
-        - data（业务数据）
-        - docs（文档）
-        - packages/core（TS 骨架）
-        - skills（解析 skill 契约）
-        - scripts / CI
+        - 页面 / 日常工作流（packages/web）
+        - 写入 / 发布 / 知识库网关（packages/worker）
+        - 菜谱 / 食材 / 采用快照（data / schemas）
+        - 采购计算 / 渲染器（packages/core）
+        - 视频来源 / 解析契约（skills）
+        - 文档 / 协作入口
+        - 脚本 / CI
         - 其他
     validations:
       required: true
   - type: textarea
-    id: what
+    id: scenario
     attributes:
-      label: 问题描述
-      description: 发生了什么？预期行为是什么？
+      label: 角色与受阻任务
+      description: 谁在什么页面或命令中做什么？影响是看不懂、无法继续、保存失败还是数据不一致？
+      placeholder: 帮厨打开已发布计划的备料页，查看有原文用量但不能换算的材料。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 写明应用版本或 commit、页面路由、系统/浏览器、语言、手机或桌面尺寸，以及服务模式；不确定的项写未知。
+      placeholder: |
+        应用版本 / commit：
+        页面路由或命令：
+        系统 / 浏览器 / 设备或视口：
+        界面语言：zh / en / uk
+        服务模式：公开只读 / 已连接写入服务 / 隔离工程测试 / 未知
     validations:
       required: true
   - type: textarea
     id: repro
     attributes:
-      label: 复现步骤 / 证据
-      description: 命令、报错输出、文件路径与行号等
+      label: 复现步骤
+      description: 从可辨认的起点列出操作、必要前提和复现频率。无法稳定复现时写明已尝试的条件。
       placeholder: |
-        1. node scripts/validate-schemas.mjs
-        2. 报错：data/dishes/xxx.json: 存在未声明字段 yyy
+        前提：
+        1.
+        2.
+        复现频率：
     validations:
       required: true
   - type: textarea
-    id: suggestion
+    id: expected
     attributes:
-      label: 建议修复（可选）
-      description: 如果涉及 schema 变更，请说明对 types/data/docs 的连锁影响
+      label: 预期结果
+      description: 写出用户应该能看到或完成的行为；涉及合同可附仓库相对路径或 issue 链接。
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果与证据
+      description: 附脱敏截图、错误文案、HTTP 状态、日志摘要或失败检查。区分实际观察与根因猜测，不公开私有资料。
+    validations:
+      required: true
+  - type: textarea
+    id: related
+    attributes:
+      label: 关联任务与补充线索（可选）
+      description: 已有 issue/PR、源码位置、临时绕行方式；建议修复不代替根因核实。

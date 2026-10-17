@@ -1,4 +1,5 @@
 import {renderRecordNotice} from './record-notices';
+import {displayDate} from '../display-date';
 import {supportDetails,word} from './record-display';
 /** Page-owned navigation and presentation for C's verified public reader. */
 import type { MealType } from '@canteenos/core';
@@ -6,8 +7,10 @@ import type { PublishedTeamPlan, Publication } from '../data';
 import { PublishedDataError } from '../view-models/published';
 import { h, replace } from '../dom';
 import { pick, type Lang } from '../i18n';
+import { planChoiceLabel, publishedPlanChoice } from '../plan-selection';
 import type { PageCtx } from '../types';
 import type { FrozenMealSource, FrozenMealRenderOptions, FrozenMealRow } from './prep';
+import { renderPrepList } from './prep-list';
 
 type Presenter = (el: HTMLElement, source: FrozenMealSource, options: FrozenMealRenderOptions) => () => void;
 const copy = {
@@ -72,7 +75,8 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
   const root = h('div', { class: page === 'menu' ? 'menu-page menu-publication' : 'prep prep-publication', 'data-publication-state': record.meals.length ? 'published' : 'empty-plan', 'data-published-plan': plan.planId });
   replace(el, root);
   const publicationInfo=h('details',{class:page==='menu'?'menu-publication-info':'prep-publication-info'},h('summary',{},word(lang,'发布与支持用资料','Publication and support information','Дані публікації та підтримки')),h('code',{},plan.sourceRevision),h('p',{},plan.builtAt));
-  if(page==='menu')root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||plan.planId));
+  // A plan name is optional: an unnamed plan reads like the plan bar; its raw ID stays in the support record.
+  if(page==='menu'){root.append(h('p',{class:'menu-plan-context'},pick(record.name,lang)||planChoiceLabel(publishedPlanChoice(plan.planId,record),lang)));publicationInfo.append(h('p',{'data-published-plan-id':''},`${word(lang,'计划标识','Plan ID','Ідентифікатор плану')}: ${plan.planId}`));}
   else publicationInfo.append(h('p',{},pick(record.name,lang)||plan.planId),h('p',{class:'muted',role:'status'},t('published')));
   if (plan.issues.length) publicationInfo.append(h('details', {class:'raw-issues', 'data-publication-issues': ''}, h('summary', {}, `${t('warning')} · ${plan.issues.length}`),
     ...plan.issues.map(issue => renderRecordNotice(issue,lang,plan.projection,'data-publication-issue'))));
@@ -98,11 +102,13 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     const displayedSlot=targetMeal?{date:parts[0]??date,mealType:targetMeal}:undefined;
     return ctx.planSelection?.href(target,parts.join('/'),displayedSlot)??`#/${target}${parts.length?'/'+parts.map(encodeURIComponent).join('/'):''}`;
   };
-  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[d]))));
+  const datesNav = h('nav', { class: page === 'menu' ? 'days' : 'tabs dates', 'aria-label': t('dates') }, ...dates.map(d => h('a', { class: d === date ? 'chip accent' : 'chip', href: href(page, d), 'data-date': d, 'aria-current': d === date ? 'date' : null }, ...(page==='menu'?[h('span',{class:'menu-date-weekday'},new Intl.DateTimeFormat(lang==='zh'?'zh-CN':lang==='uk'?'uk-UA':'en-GB',{weekday:'short',timeZone:'UTC'}).format(new Date(`${d}T12:00:00Z`))),h('b',{class:'menu-date-number'},String(Number(d.slice(8))))]:[displayDate(d,lang,{weekday:true})]))));
   const mealsNav = h('nav', { class: 'tabs meals', 'aria-label': t('meals') });
   const dishNav = h('nav', { class: 'tabs', 'aria-label': t('dishes'), 'data-published-dishes': '' });
   const body = h('div', { class: page === 'menu' ? 'menu-body' : 'list' });
-  if (page==='prep') root.append(h('div',{class:'prep-context-controls'},datesNav,mealsNav),dishNav,body,publicationInfo);
+  // Prep: the "what to prepare" list comes right after the date and meal, before the dish buttons and full recipes.
+  const prepList = h('div', { class: 'prep-list-slot' });
+  if (page==='prep') root.append(h('div',{class:'prep-context-controls'},datesNav,mealsNav),prepList,dishNav,body,publicationInfo);
   else root.append(datesNav, mealsNav, dishNav, body, publicationInfo);
   let stopBody: (() => void) | undefined;
   children.push(() => stopBody?.());
@@ -126,7 +132,7 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
     if (!current()) return;
     if(selectedMeal)ctx.planSelection?.selectSlot?.(date,selectedMeal);
     for(const link of datesNav.querySelectorAll<HTMLAnchorElement>('[data-date]'))link.setAttribute('href',href(page,link.getAttribute('data-date')!));
-    stopBody?.(); replace(body); replace(dishNav);
+    stopBody?.(); replace(body); replace(dishNav); replace(prepList);
     const rows = selectRows(source, { menuPlanRef: plan.planId, date, mealType: selectedMeal });
     if (page === 'menu') {
       stopBody = present(body, source, { ...options(), recipeHref: row => href('menu', row.meal.date, row.meal.dishRef) });
@@ -153,7 +159,10 @@ export async function renderPublishedMeals(el: HTMLElement, ctx: PageCtx, page: 
       const timingPanel=h('details',{class:'prep-timing-filter'},h('summary',{},word(lang,'准备时机','Preparation time','Час підготовки'),` · ${t(memory!.timing as 'all'|'morning'|'before-service'|'day-before')}`),timings);
       timingPanel.open=memory!.timingOpen;
       timingPanel.addEventListener('toggle',()=>{if(current()&&timingPanel.isConnected)memory!.timingOpen=timingPanel.open;});
-      body.append(timingPanel);
+      // The timing filter narrows both the list and the recipes below, so it sits above the list.
+      prepList.append(timingPanel, renderPrepList({ lang, projection: plan.projection, rows, planId: plan.planId, timing: memory!.timing,
+        ingredientHref: ref => href('prep', date, selectedMeal ?? '', ref),
+        onOpen: mealIndex => memory!.dishes.set(key, mealIndex) }));
     }
     body.append(content);
     stopBody = recipe(content, source, { ...options(row), layout:'cooking', ingredientRef: ingredientRef || undefined, timing: ingredientRef ? undefined : memory!.timing, onShowAllTimings:()=>{memory!.timing='all';paint();} });

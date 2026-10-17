@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>采购页 #131/#132 · 本地模拟验证</title>
+<style>.fixture-toolbar{padding:16px;border-bottom:2px solid #98794d;background:#fff8e8;display:flex;flex-wrap:wrap;gap:10px;align-items:center}.fixture-toolbar p{flex-basis:100%;margin:0}#app{max-width:1100px;padding:20px;margin:auto}#result{display:block;white-space:pre-wrap;padding:12px}#ledger{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px}body>details{margin:16px}@media(max-width:500px){#app{padding:12px}.fixture-toolbar{padding:12px}}</style></head><body>
+<aside class="fixture-toolbar">
+<strong>采购页 #131/#132 验证 · MOCK ONLY · 本地示意资料</strong>
+<p>真实采购页面代码 + C1/C2；只有网络响应是模拟。A/B 是格式令牌：A 为清单固定 basis，B 为之后的“当前”资料（同一材料已补用途分类、计划多一个餐次）。不代表任何真实提交、Worker 或部署。</p>
+<label>语言 <select id="lang"><option>zh</option><option>en</option><option>uk</option></select></label>
+<button id="run">运行原生交互回归</button><button id="reset">重置</button>
+</aside><output id="result" aria-live="polite">尚未运行。所有保存只在本页内存中。</output><main id="app"></main>
+<details><summary>本地请求与断言记录（无凭据）</summary><pre id="ledger"></pre></details>
+<script type="module">
+import '../src/tokens.css';import '../src/styles.css';
+import {createPurchaseRenderer} from '../src/pages/purchase.ts';
+import {createTeamMealsApi} from '../src/api/team-meals.ts';
+import {shoppingText} from '../src/pages/purchase-list.ts';
+import {createShoppingList} from '@canteenos/core';
+const A='a'.repeat(40),B='b'.repeat(40),clone=x=>structuredClone(x);
+const RIBS='00000000-0000-4000-8000-000000000131',CHILI='00000000-0000-4000-8000-000000000132';
+const ribs=`kbci-${RIBS.replaceAll('-','')}`,chili=`kbci-${CHILI.replaceAll('-','')}`;
+const selection=[{menuPlanRef:'team-week',date:'2026-09-14',mealType:'lunch'}];
+// Same shape as test/team-meals-pages-shopping-harness.mjs: role absent on recorded snapshots, one absent record.
+function inputs(revision){
+ const ingredients={
+  'ribs-snapshot':{schemaVersion:'3',name:{zh:'排骨',en:'Pork ribs',uk:'Свинячі реберця'},trackStock:false,canonicalIngredientId:RIBS,canonicalIngredientVersion:1},
+  'chili-snapshot':{schemaVersion:'3',name:{zh:'小米辣',en:'Bird’s eye chili',uk:'Перець чилі'},role:'seasoning',trackStock:false,canonicalIngredientId:CHILI,canonicalIngredientVersion:1},
+  tomato:{schemaVersion:'2',name:{zh:'番茄',en:'Tomato',uk:'Помідор'},baseUnit:'g',role:'main',trackStock:false},
+  scallion:{schemaVersion:'2',name:{zh:'小葱',en:'Scallion',uk:'Зелена цибуля'},baseUnit:'g',trackStock:false},
+ };
+ const meals=[{date:'2026-09-14',mealType:'lunch',dishRef:'ribs-dish',plannedServings:2}];
+ if(revision===B){ingredients['ribs-snapshot'].role='main';ingredients.scallion.role='seasoning';meals.push({date:'2026-09-16',mealType:'dinner',dishRef:'ribs-dish',plannedServings:2});}
+ const components=[{ingredientRef:'ribs-snapshot',qty:{value:500,unit:'g'}},{ingredientRef:'chili-snapshot',originalAmount:'三根'},{ingredientRef:'tomato',qty:{value:300,unit:'g'}},{ingredientRef:'scallion',qty:{value:20,unit:'g'}},{ingredientRef:'ghost',qty:{value:1,unit:'pcs'}}];
+ return {menuPlans:{'team-week':{schemaVersion:'3',meals}},dishes:{'ribs-dish':{schemaVersion:'3',name:{zh:'红烧排骨',en:'Braised ribs',uk:'Тушковані реберця'},baseServings:2,status:'active',components,steps:[]}},ingredients,techniques:[]};
+}
+const sources=new Map(),history=new Map(),ledger=[];let api,render,seq=0,current=A,heldPlan=null,planFails=false,conflictNext=false;
+const $=s=>document.querySelector(s),lang=()=>$('#lang').value,t=k=>shoppingText(lang(),k);
+const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
+const failure=(status,code)=>json({ok:false,errors:[{path:'',code,message:code}]},status);
+function log(entry){ledger.push(entry);$('#ledger').textContent=JSON.stringify(ledger,null,2);}
+async function fetchMock(url,init={}){
+ const u=new URL(String(url)),method=init.method??'GET',revision=u.searchParams.get('revision');
+ if(u.origin!=='https://explicit-scope-mock.invalid')throw new Error('Mock harness refuses an unexpected origin');
+ if(method==='POST'){
+  const id=decodeURIComponent(u.pathname.split('/').at(-1)),body=JSON.parse(init.body),headers=new Headers(init.headers),prior=sources.get(id);
+  log({method,path:u.pathname,ifMatch:headers.get('If-Match'),ifNoneMatch:headers.get('If-None-Match'),body:clone(body)});
+  if(conflictNext||(prior?headers.get('If-Match')!==prior.blobSha:headers.get('If-None-Match')!=='*')){conflictNext=false;return failure(409,'conflict');}
+  const commit=(++seq).toString(16).padStart(40,'0'),value={content:body,commit,blobSha:`mock-list-${seq}`};sources.set(id,value);history.set(`${id}:${commit}`,value);
+  return json({commit,blobSha:value.blobSha,unchanged:false,warnings:[]});
+ }
+ log({method,path:u.pathname,revision});
+ if(u.pathname.startsWith('/source/shopping-list/')){const id=decodeURIComponent(u.pathname.split('/').at(-1)),v=revision?history.get(`${id}:${revision}`):sources.get(id);return v?json(v):failure(404,'not_found');}
+ const r=revision??current,data=inputs(r);
+ if(u.pathname==='/catalog')return json({commit:r,dishes:data.dishes,ingredients:data.ingredients,techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});
+ if(u.pathname.startsWith('/source/plan/')){if(!revision&&heldPlan)await heldPlan.promise;if(planFails)return failure(503,'unavailable');const p=data.menuPlans[decodeURIComponent(u.pathname.split('/').at(-1))];return p?json({content:p,commit:r,blobSha:`mock-plan-${r}`}):failure(404,'not_found');}
+ if(u.pathname==='/shopping-lists')return json({ok:true,commit:current,items:[],nextCursor:null,skipped:0});
+ return failure(404,'not_found');
+}
+async function reset(){
+ sources.clear();history.clear();ledger.length=0;seq=0;current=A;heldPlan=null;planFails=false;conflictNext=false;
+ const list=createShoppingList('team-shop',{sourceRevision:A,selection},inputs(A),'2');
+ sources.set('team-shop',{content:list,commit:'c'.repeat(40),blobSha:'initial'});
+ await reopen();
+}
+/** A page reload: new API and renderer over the same mock storage. */
+async function reopen(){
+ api?.dispose();api=createTeamMealsApi('https://explicit-scope-mock.invalid',{mode:'mock',fetch:fetchMock,token:()=>'local-fixture-only',identity:()=>1});render=createPurchaseRenderer(api);
+ document.documentElement.lang=lang();const outlet=document.createElement('section');$('#app').replaceChildren(outlet);
+ await render(outlet,{lang:lang(),route:'purchase',rest:'team-shop',planId:'team-week',data:{},t:key=>key});
+}
+const pause=()=>new Promise(resolve=>setTimeout(resolve,20));
+async function until(test,message){for(let i=0;i<180;i++){if(test())return;await pause();}throw new Error(message);}
+function assert(ok,message){if(!ok)throw new Error(message);log({assertion:message,result:'pass'});}
+const visible=el=>!!el&&el.getClientRects().length>0;
+const panel=key=>$(`details[data-panel="${key}"]`)??[...document.querySelectorAll('#app details')].find(d=>d.querySelector(':scope>summary')?.textContent===({scope:t('apply'),'plan-ids':{zh:'调整计划编号',en:'Change plan IDs',uk:'Змінити номери планів'}[lang()]})[key]);
+const button=(label,within=$('#app'))=>[...within.querySelectorAll('button')].find(el=>el.textContent===label);
+const role=id=>$(`.tm-material[data-ingredient="${id}"] .tm-material-heading>p`)?.textContent;
+const writes=()=>ledger.filter(x=>x.method==='POST');
+async function run(){
+ const out=$('#result');$('#run').disabled=true;
+ try{
+  await reset();await until(()=>!!$('.tm-material'),'saved list rendered');
+  const W={zh:['用途未分类','资料未找到','调料','主料'],en:['Role not classified','Information unavailable','Seasoning','Main ingredient'],uk:['Роль не визначено','Дані недоступні','Приправа','Основний інгредієнт']}[lang()];
+  assert(role(ribs)===W[0]&&role('scallion')===W[0],'#131 recorded ingredient without role is unclassified (basis A, not current B)');
+  assert(role('ghost')===W[1],'#131 only the absent record keeps the missing notice');
+  assert(role(chili)===W[2]&&role('tomato')===W[3],'#131 recorded roles unchanged');
+  panel('scope').querySelector(':scope>summary').click();await pause();
+  assert(panel('scope').open,'#132 user opened the scope panel');
+  current=B;let release;heldPlan={promise:new Promise(r=>release=r)};
+  button(t('read'),panel('scope')).click();await pause();
+  assert(panel('scope').open,'#132 panel stays open while the latest-plan read is pending');
+  heldPlan=null;release();await until(()=>panel('scope')?.textContent.includes('2026-09-16'),'latest saved plan read');
+  const apply=button(t('apply'),panel('scope'));
+  assert(panel('scope').open&&visible(apply)&&!apply.disabled,'#132 after the read the panel is open and the next action is visible and enabled');
+  assert(writes().length===0&&sources.get('team-shop').content.basis.sourceRevision===A,'#132 reading applied and saved nothing');
+  [...panel('scope').querySelectorAll('.tm-slot')].find(l=>l.textContent.includes('2026-09-16')).querySelector('input').click();await pause();
+  assert(panel('scope').open,'#132 choosing a meal keeps the panel open');
+  button(t('apply'),panel('scope')).click();await until(()=>!button(t('save')).disabled,'explicit apply produced a reviewed list');
+  assert(panel('scope').open&&writes().length===0,'#132 apply keeps the panel open and does not save');
+  button(t('save')).click();await until(()=>writes().length===1,'reviewed list saved');
+  assert(writes()[0].ifMatch==='initial'&&writes()[0].body.basis.sourceRevision===B,'#132 explicit save writes basis B with If-Match');
+  planFails=true;await until(()=>!button(t('read'),panel('scope')).disabled,'read available after save');
+  button(t('read'),panel('scope')).click();await until(()=>!!panel('scope').querySelector('.tm-error'),'read failure shown');
+  assert(panel('scope').open&&visible(panel('scope').querySelector('.tm-error')),'#132 a failed read keeps the panel open with the failure beside the action');
+  planFails=false;
+  panel('plan-ids').querySelector(':scope>summary').click();await pause();
+  const input=$('[data-focus="plan-ids"]');input.focus();input.value=`${input.value}, x`;input.setSelectionRange(input.value.length,input.value.length);input.dispatchEvent(new Event('input',{bubbles:true}));await pause();
+  const next=$('[data-focus="plan-ids"]');
+  assert(panel('plan-ids').open&&document.activeElement===next&&next.selectionStart===next.value.length,'#132 typing keeps the plan-ID panel open, focus and caret');
+  await reopen();await until(()=>!!$('.tm-material'),'saved list reopened');
+  assert($('.tm-purchase-record')?.textContent.includes(B)&&!panel('scope').open,'#132 reopened list shows saved basis B and starts collapsed');
+  panel('scope').querySelector(':scope>summary').click();await pause();
+  button(t('buy'),$(`.tm-material[data-ingredient="${ribs}"]`)).click();await until(()=>!button(t('save')).disabled,'decision made');
+  conflictNext=true;button(t('save')).click();await until(()=>!!$('[data-phase="conflict"]'),'save conflict reported');
+  const conflictText={zh:'版本冲突，本地修改已保留',en:'Version conflict; local changes retained',uk:'Конфлікт версій; локальні зміни збережено'}[lang()];
+  assert(panel('scope').open&&panel('scope').textContent.includes(conflictText)&&button(t('read'),panel('scope')).disabled,'#132 a save conflict keeps the panel open, states the conflict and keeps reading blocked');
+  out.textContent='PASS · 真实采购页面 + C1/C2、本地模拟网络；#131 用途分类三态与固定 basis，#132 展开 → 异步读取 → 仍展开 → 显式应用 → 保存 → 重开，读取失败与保存冲突可见、输入不收起。未验证真实 Worker、真实历史或部署。';
+ }catch(error){out.textContent=`FAIL · ${error.message}`;log({failure:error.message});}
+ finally{$('#run').disabled=false;}
+}
+$('#run').onclick=()=>void run();$('#reset').onclick=()=>void reset();$('#lang').onchange=()=>void reset();
+Object.defineProperty(window,'scopeHarness',{value:Object.freeze({run,get ledger(){return clone(ledger);}}),writable:false});
+const params=new URLSearchParams(location.search);if(['zh','en','uk'].includes(params.get('lang')))$('#lang').value=params.get('lang');
+await reset();
+</script></body></html>

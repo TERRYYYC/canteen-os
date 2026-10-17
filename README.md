@@ -3,6 +3,7 @@ feature_ids: [team-meals, knowledge-base]
 topics: [canteen-os, current-scope, getting-started]
 doc_kind: project-entry
 created: 2026-10-05
+updated: 2026-10-14
 ---
 
 # CanteenOS
@@ -46,7 +47,7 @@ GitHub Pages 地址如下。成功合并到 `main` 会触发发布工作流；�
 |---|---|
 | Terry / 任何人 | [当前工作合同](docs/current-contract.md) → [项目摘要](docs/project-summary.md) |
 | AI agent | [AGENTS](AGENTS.md) → 当前工作合同 → 本次 issue → 对应 schema/API/页面合同 |
-| 调度 agent | [#128 真实厨房闭环计划](https://github.com/TERRYYYC/canteen-os/issues/128) → [工作模式的当前补充](docs/operating-model.md) |
+| 调度 agent | [当前 issues](https://github.com/TERRYYYC/canteen-os/issues) → [工作模式的当前补充](docs/operating-model.md)；[#128](https://github.com/TERRYYYC/canteen-os/issues/128) 保留 alpha.4 工程验收与发行回执 |
 | 页面实施者 | [设计索引](docs/design/README.md) → [D0 小团队页面合同](docs/design/team-meals-pages/D0-contract.md) |
 
 当前任务以实际 GitHub issue 为准；`.github/backlog/round-1.json` 和波次脚本是第一轮历史计划，不是当前全部 issue 的生成真源。[旧执行简报](docs/execution-brief.md) 与 [给 Terry 的旧排期](docs/plan-for-terry.md) 保留兼容和历史依据，不恢复固定人数、材料数或旧视觉目标。
@@ -92,7 +93,9 @@ node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
 
 ### 协作入口
 
-本仓库为 spec-first：任何行为变更按 **schema → types → data → docs** 的顺序提交（见 CONTRIBUTING.md）。CI 用 ajv 校验 `data/` 与 `schemas/` 的一致性（含跨文件引用检查），本地可用 `python3 scripts/local-validate.py`。人类与 AI agent 一视同仁：同一套 PR checklist 与 CODEOWNERS 评审。
+欢迎人类与 AI agent 一起建设 CanteenOS：**提出问题 → 确认范围与验收 → 独立分支实施 → PR → 非作者审查 → 合入与状态回执**。外部贡献者使用 Fork + PR，有写权限的协作者使用本仓分支 + PR。完整步骤、[本地只读预览](CONTRIBUTING.md#3-本地环境与只读预览)、任务交接与菜谱来源贡献见 [合作指南](CONTRIBUTING.md)。
+
+涉及 Git 实体结构时遵循 **schema → types → data → docs**；纯实现或文档只更新实际受影响项。菜谱来源先作为候选核查，GitHub PR 合并不代替厨房核定。CI 校验 `data/` 与 `schemas/` 的一致性；当前任务以实际 issue 为准。
 
 ---
 
@@ -131,7 +134,9 @@ Preserve source/media hashes and reuse completed analysis caches. Candidates ent
 
 ### How to collaborate
 
-This repo is spec-first: submit behavioral changes in the order **schema → types → data → docs** (see CONTRIBUTING.md). CI validates `data/` against `schemas/` with ajv (including cross-file reference checks); locally run `python3 scripts/local-validate.py`. Humans and AI agents follow the same PR checklist and CODEOWNERS review.
+Humans and AI agents follow the same collaboration flow: **problem → agreed scope and verification → branch → PR → non-author review → merge and status evidence**. External contributors use a fork; collaborators may use a branch in this repository. See [Contributing](CONTRIBUTING.md) for local preview, issue types, handoff and recipe-source contributions.
+
+Git entity changes follow **schema → types → data → docs**; implementation-only and documentation changes update the affected parts. Recipe sources require explicit kitchen confirmation and version adoption; merging a PR does not approve a recipe. CI validates Git data against schemas, and live GitHub issues are the current task queue.
 
 ---
 

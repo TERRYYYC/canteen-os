@@ -1,4 +1,4 @@
-import {recordValue,translations,supportDetails,word} from './record-display';
+import {recipeLibraryLine,recordValue,translations,supportDetails,word} from './record-display';
 import {renderRecordNotice} from './record-notices';
 /**
  * /prep 备料单（issue #9）：A 版列表为主视图，点配料行进 B 版详情，C 版的时间分组做成筛选 chip。
@@ -40,10 +40,13 @@ import type {
   ReferenceIssue,
 } from "@canteenos/core";
 import type { RevisionAsset } from "../api/team-meals";
+import { chefOnly } from "./chef-only";
 import { append, h, replace } from "../dom";
 import { LANG_TAG, pick, type Lang } from "../i18n";
+import { displayDate } from "../display-date";
 import { hrefOf } from "../router";
 import type { PageCtx } from "../types";
+import { displayQuantity, formatNumber, quantityParts } from "./quantity-text";
 
 // ---------------------------------------------------------------------------
 // 页面私有文案
@@ -109,20 +112,6 @@ function tt(lang: Lang, key: Key, params?: Record<string, string | number>): str
   return s;
 }
 
-/** 单位显示：uk кг/шт/г/л，zh kg/个/g/L，en kg/pcs/g/L（issue #9） */
-const UNIT: Record<Unit, Record<Lang, string>> = {
-  g: { uk: "г", zh: "g", en: "g" },
-  kg: { uk: "кг", zh: "kg", en: "kg" },
-  ml: { uk: "мл", zh: "ml", en: "ml" },
-  l: { uk: "л", zh: "L", en: "L" },
-  pcs: { uk: "шт", zh: "个", en: "pcs" },
-  pack: { uk: "уп.", zh: "包", en: "pack" },
-  tbsp: { uk: "ст. л.", zh: "汤匙", en: "tbsp" },
-  tsp: { uk: "ч. л.", zh: "茶匙", en: "tsp" },
-  pinch: { uk: "дрібка", zh: "撮", en: "pinch" },
-  "to-taste": { uk: "за смаком", zh: "适量", en: "to taste" },
-};
-
 const MEAL_TYPES: readonly MealType[] = ["breakfast", "lunch", "dinner"];
 /** 分节顺序 = core 的 PREP_GROUP_ORDER（前一天 → 早上 → 开餐前 → 备在手边）；本地复制一份，web 只 import type，core 不进产物 */
 const GROUP_ORDER = ["day-before", "morning", "before-service", "at-hand"] as const satisfies readonly PrepGroup[];
@@ -167,36 +156,15 @@ function formatDay(iso: string, lang: Lang): string {
   }
 }
 
-function formatNumber(n: number, lang: Lang, maxFrac: number): string {
-  try {
-    return new Intl.NumberFormat(LANG_TAG[lang], { maximumFractionDigits: maxFrac }).format(n);
-  } catch {
-    return String(Math.round(n * 10 ** maxFrac) / 10 ** maxFrac);
-  }
-}
-
 /**
- * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：
- *   ≥ 1000 g → kg（保留 1 位小数：30 kg、1.5 kg）；≥ 1000 ml → l；
+ * 数量显示（页面唯一的「换算」，只改显示单位，不改数据）：规则在 quantity-text.ts 的 quantityParts
+ *   （不足 1000 克写克，到 1000 写千克，毫升 / 升同理；最多两位小数；正数不显示成 0）；
  *   to-taste / 无 value → 只显示「适量 / за смаком / to taste」（word=true，字号小一档）。
  */
 function formatQty(qty: Quantity, lang: Lang): { value: string; unit: string; word: boolean } {
-  if (qty.unit === "to-taste" || qty.value === undefined || qty.value === null) {
-    return { value: tt(lang, "qty.toTaste"), unit: "", word: true };
-  }
-  let value = qty.value;
-  let unit: Unit = qty.unit;
-  let maxFrac = 2;
-  if (unit === "g" && value >= 1000) {
-    value = value / 1000;
-    unit = "kg";
-    maxFrac = 1;
-  } else if (unit === "ml" && value >= 1000) {
-    value = value / 1000;
-    unit = "l";
-    maxFrac = 1;
-  }
-  return { value: formatNumber(value, lang, maxFrac), unit: UNIT[unit][lang], word: false };
+  const parts = quantityParts(qty, lang);
+  if (!parts) return { value: tt(lang, "qty.toTaste"), unit: "", word: true };
+  return { value: parts.value, unit: parts.unit, word: false };
 }
 
 /** 秒 → mm:ss（≥ 1 小时时 h:mm:ss） */
@@ -449,7 +417,14 @@ export function selectFrozenMealRows(source: FrozenMealSource, selection: Frozen
 export function rawQuantityText(qty: Quantity | undefined, lang: Lang): string {
   if (!qty) return rawText(lang, "quantityMissing");
   if (qty.unit === "to-taste") return rawText(lang, "taste");
-  return qty.value === undefined ? rawText(lang, "quantityMissing") : `${qty.value} ${qty.unit}`;
+  return qty.value === undefined ? rawText(lang, "quantityMissing") : displayQuantity(qty, lang);
+}
+/** KB materialization writes this placeholder when a row has neither raw text nor a value (worker knowledge-materialization.ts). */
+const UNRECORDED_AMOUNT_PLACEHOLDER = "未录用量";
+/** Recorded original-amount text, shown verbatim; never parsed, converted or scaled here. */
+export function recordedAmountText(value: string | undefined): string | undefined {
+  const text = value?.trim();
+  return text && text !== UNRECORDED_AMOUNT_PLACEHOLDER ? text : undefined;
 }
 function rawSafeLink(value: string | undefined): string | null {
   if (!value || !/^https?:\/\//i.test(value)) return null;
@@ -500,8 +475,10 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     link.addEventListener("click", () => options.onReference?.(kind, id));
     return link;
   };
-  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => h("p", { class: "prep-task-note", role: "status" }, message, " ",
-    h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
+  const attention = (message: string, kind: "dish" | "ingredient" | "plan", id: string): HTMLElement => {
+    const repair = chefOnly(() => h("a", { href: `#/admin/${kind}/${encodeURIComponent(id)}` }, word(lang, "查看／补齐资料", "View / complete information", "Переглянути / доповнити дані")));
+    return h("p", { class: "prep-task-note", role: "status" }, message, repair && " ", repair);
+  };
   function originalNote(text: string, key: string): HTMLElement {
     const letters=Array.from(text),limit=lang==="zh"?32:80;
     if(letters.length<=limit)return fact(t("note"),text);
@@ -549,8 +526,8 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     if (cooking && ref && !record && dishRef) result.append(attention(word(lang,"技法资料未找到，无法确认这项操作，请向配方提供者核对。","Technique information is unavailable; check this operation with the recipe author.","Дані техніки недоступні; уточніть цю дію в автора рецепта."), "dish", dishRef));
     return result;
   }
-  const sourceInfo = h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision));
-  if (!cooking) root.append(h("h1", {}, t("title")), sourceInfo);
+  const sourceInfo = chefOnly(() => h("details", { class: "raw-source" }, h("summary", {}, word(lang,"支持用资料版本","Source version for support","Версія даних для підтримки")), h("code", {}, projection.sourceRevision)));
+  if (!cooking) append(root, h("h1", {}, t("title")), sourceInfo);
   if (source.mode === "mock") root.append(h("p", { class: "muted", role: "status" }, t("mock")));
   const selectedIssues = selectFrozenIssues(projection.collection.issues, options.selection);
   const issuePanel = renderFrozenIssues(selectedIssues, lang, {}, projection);
@@ -570,7 +547,7 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     const { meal, dish, menuPlanRef, mealIndex } = row;
     const rowKey=JSON.stringify([menuPlanRef,mealIndex,meal.date,meal.mealType]);
     const section = h("section", { class: "card", "data-recipe-plan": menuPlanRef, "data-recipe-meal-index": mealIndex });
-    const context = h("p", { class: "s" }, `${meal.date} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
+    const context = h("p", { class: "s" }, `${displayDate(meal.date, lang, { weekday: true })} · ${tt(lang, `meal.${meal.mealType}`)}${meal.serviceWindow ? ` · ${meal.serviceWindow}` : ""}`);
     section.append(h("div", { class: "dish-head" }, h("div", {}, h(cooking ? "h1" : "h2", { class: "n" }, reference("dish", meal.dishRef, dish ? pick(dish.name, lang) : t("missingRecord"))), cooking ? null : context)));
     if (!cooking) section.append(fact(t("planned"), meal.plannedServings));
     root.append(section);
@@ -600,7 +577,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
         value.menuPlanRef===menuPlanRef&&value.mealIndex===mealIndex&&value.componentIndex===componentIndex&&
         value.date===meal.date&&value.mealType===meal.mealType&&value.dishRef===meal.dishRef))[0];
       const shown=source?.scaledQty;
-      const original=source?.originalAmount||rawQuantityText(component.qty,lang);
+      // Original text and a structured quantity are separate records: text alone stays visible but is never converted.
+      const recordedText=recordedAmountText(source?.originalAmount??('originalAmount' in component?component.originalAmount:undefined));
+      const original=recordedText??rawQuantityText(component.qty,lang);
       const quantityText=shown
         ? `${word(lang,'本次','This meal','Цей прийом')}: ${rawQuantityText(shown,lang)} · ${word(lang,'原方','Original','Оригінал')}: ${original}`
         : original;
@@ -612,7 +591,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{'data-original-preparation':''},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到，无法核对材料规格。","Ingredient information is unavailable; its specification cannot be checked.","Дані інгредієнта недоступні; його параметри не можна перевірити."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
-      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
+      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(recordedText
+        ? word(lang,"原方用量已记录，暂不能自动换算或按份数计算；请按原文人工核对本次用量。","The original amount is recorded as text and cannot yet be converted or scaled to servings automatically. Check this meal’s amount manually against the original.","Вихідну кількість записано текстом; її поки не можна автоматично перерахувати чи масштабувати за порціями. Перевірте потрібну кількість вручну за оригіналом.")
+        : word(lang,"用量未录，无法确定这项备料量，请向配方提供者核对。","Quantity is not recorded; the preparation amount is unknown. Check with the recipe author.","Кількість не записано; потрібний обсяг підготовки невідомий. Уточніть в автора рецепта."), "dish", meal.dishRef));
       const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
       (cooking ? ingredientRecord : card).append(purchase);
       if (prep) {
@@ -639,13 +620,14 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     }
     (cooking ? recipeRecord : section).append(fact(t("provenance"), recordValue(dish.provenance?.source, lang)));
     if(dish.provenance?.source==='knowledge'){
-      (cooking ? recipeRecord : section).append(h('p',{},`KB ${dish.provenance.recipeId} · v${dish.provenance.recipeVersion} · ${dish.provenance.snapshotHash.slice(0,12)}`),
-        h('a',{href:`#/admin/knowledge/${dish.provenance.recipeId}/revisions/${dish.provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта')));
+      append(cooking ? recipeRecord : section,recipeLibraryLine(lang,dish.provenance.recipeVersion));
+      const provenance=dish.provenance;
+      append(cooking ? recipeRecord : section,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
     }
     if (dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl) (cooking ? recipeRecord : section).append(external(dish.provenance.videoUrl, word(lang,"查看配方来源","View recipe source","Переглянути джерело рецепта")));
     if (cooking) section.append(recipeRecord);
   }
-  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } root.append(sourceInfo); }
+  if (cooking) { if (issuePanel) { if (!rows.length) issuePanel.setAttribute("open", ""); root.append(issuePanel); } append(root, sourceInfo); }
   root.append(h("p", { class: "muted" }, t("coverage")));
   return dispose;
 }

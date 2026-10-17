@@ -1,6 +1,7 @@
 /** App-owned public plan identity. It never owns an editor, shopping basis, or auth. */
 import {datedPlanIdOfDate,isoWeekOf,mondayOfIsoWeek,type AnyMenuPlan,type MealType} from '@canteenos/core';
 import type {DataApi,Publication} from './data';
+import {displayDateRange} from './display-date';
 import type {Lang} from './i18n';
 import {localDateIso} from './local-date';
 import type {Route} from './router';
@@ -33,8 +34,13 @@ export function weekPlanId(offset=0,today=localDateIso()):string {
 }
 export function planChoiceLabel(choice:PlanChoice,lang:Lang):string {
  const name=choice.name?.[lang]??choice.name?.zh??choice.name?.en??choice.name?.uk;
- const dates=choice.start?`${choice.start}${choice.end&&choice.end!==choice.start?' — '+choice.end:''}`:'';
+ const dates=choice.start?displayDateRange(choice.start,choice.end||choice.start,lang):'';
  return [name||({zh:'菜单计划',en:'Meal plan',uk:'План меню'})[lang],dates].filter(Boolean).join(' · ');
+}
+/** One loaded plan as the plan bar names it: recorded name and recorded dates only, never the raw ID. */
+export function publishedPlanChoice(id:string,plan:Pick<AnyMenuPlan,'name'|'dateRange'|'meals'>):PlanChoice {
+ const dates=plan.meals.map(meal=>meal.date).sort(),range=plan.dateRange;
+ return {id,name:plan.name,start:range?.start??dates[0],end:range?.end??dates.at(-1)};
 }
 export function createPlanSelection(storage:Pick<Storage,'getItem'|'setItem'>|null=null) {
  let selected:string|null=null,explicit=false,choices:PlanChoice[]=[],generation=0;
@@ -67,9 +73,7 @@ export function createPlanSelection(storage:Pick<Storage,'getItem'|'setItem'>|nu
     try{
      if(publication.kind==='team-meals'){
       const loaded=await data.loadPublishedTeamPlan(publication,id),plan=loaded.projection.menuPlans[id];
-      if(!plan)return {id};
-      const dates=plan.meals.map(meal=>meal.date).sort(),range=plan.dateRange;
-      return {id,name:plan.name,start:range?.start??dates[0],end:range?.end??dates.at(-1)};
+      return plan?publishedPlanChoice(id,plan):{id};
      }
      const sheet=await data.loadMenu(id),dates=sheet.days.map(day=>day.date).sort();
      return {id,start:dates[0],end:dates.at(-1)};

@@ -28,10 +28,12 @@ class Element {
 const descendants=n=>[n,...n.children.flatMap(descendants)];
 function matches(n,s){const attr=/^\[([^=\]]+)(?:="([^"]*)")?\]$/.exec(s);if(attr)return n.getAttribute(attr[1])!==null&&(attr[2]===undefined||n.getAttribute(attr[1])===attr[2]);if(s.startsWith('.'))return (n.getAttribute('class')??'').split(' ').includes(s.slice(1));return n.tagName===s.toUpperCase();}
 const nodes=(el,s)=>descendants(el).filter(n=>matches(n,s));
-globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
+globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createElementNS:(n,t)=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
 globalThis.MutationObserver=class{observe(){}disconnect(){}};
 globalThis.window={addEventListener(){},removeEventListener(){},scrollTo(){}};
 globalThis.location={hash:'#/menu',replace(value){this.hash=value;}};globalThis.history={back(){}};
+const session=new Map(),chefToken='A'.repeat(43),adminLinks=n=>nodes(n,'a').filter(a=>a.getAttribute('href')?.startsWith('#/admin/'));
+globalThis.sessionStorage={getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)};
 const mount=()=>{const el=new Element('section');document.body.append(el);return el;};
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'Content-Type':'application/json'}});
 function setup(name='normal',custom){let selected=fixtures[name];const calls=[];const data=mod.createPublishedData({baseUrl:'https://fixture.invalid/data/',fetch:async(address,init)=>{const url=new URL(address);calls.push({url,init});const response=await custom?.(url,selected);if(response)return response;if(url.pathname.endsWith('build.json'))return json(selected.manifest);if(url.pathname.includes('/team-meals/'))return json(selected.projection);if(url.pathname.includes('/assets/'))return new Response(await readFile(join(selected.root,decodeURIComponent(url.pathname.split('/assets/')[1]).split('/').slice(1).join('/'))),{headers:{'Content-Type':'image/png'}});return json({},404);}});return {data,calls,select:n=>{selected=fixtures[n];}};}
@@ -65,7 +67,9 @@ test('publication notices are understandable without opening technical details',
  const panel=nodes(el,'[data-publication-issues]')[0];assert(panel);panel.open=true;
  const visible=n=>n.hidden?'':n.tagName==='DETAILS'&&!n.open?(n.children.find(c=>c.tagName==='SUMMARY')?.textContent??''):n.text+n.children.map(visible).join(' ');
  assert.doesNotMatch(visible(panel),/"planId"|"kind"|warning ·|missing-qty|tomato-egg-stir-fry/);
- assert.match(visible(panel),/用量|份数|配料/);assert(nodes(panel,'a').some(n=>n.getAttribute('href')?.startsWith('#/admin/')));el.remove();
+ assert.match(visible(panel),/用量|份数|配料/);assert.equal(adminLinks(panel).length,0,'no chef token: no admin link, the notice text stays');el.remove();
+ session.set('canteenos.token',chefToken);
+ try{const withToken=mount();await mod.prep(withToken,await context(s,'prep','','zh'));const shown=nodes(withToken,'[data-publication-issues]')[0];assert(shown);assert(adminLinks(shown).length>0);withToken.remove();}finally{session.delete('canteenos.token');}
 });
 
 test('Menu keeps selected-meal notices by its dishes and full-publication notices in the secondary record without mixing their counts',async()=>{
@@ -76,7 +80,9 @@ test('Menu keeps selected-meal notices by its dishes and full-publication notice
  const date=nodes(el,'[data-date]').find(n=>n.getAttribute('aria-current')==='date').getAttribute('data-date');
  const meal=nodes(el,'[data-meal]').find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-meal');
  assert.equal(mealNotices.length,fixtures['menu-notices'].projection.collection.issues.filter(issue=>(issue.mealType===undefined||issue.mealType===meal)&&(issue.date===undefined||issue.date===date)).length);
- assert(mealNotices.some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));el.remove();
+ assert.equal(mealNotices.some(n=>adminLinks(n).length>0),false,'no chef token: no admin link');assert(mealNotices.every(n=>n.textContent.length>0),'the notice text stays');el.remove();
+ session.set('canteenos.token',chefToken);
+ try{const withToken=mount();await mod.menu(withToken,await context(s,'menu','','zh'));assert(nodes(withToken,'[data-source-issue]').some(n=>nodes(n,'a').some(a=>a.getAttribute('href')?.startsWith('#/admin/dish/'))));withToken.remove();}finally{session.delete('canteenos.token');}
 });
 test('Menu recipe keeps the image next to its name and preserves the full license, author and source in its record',async()=>{
  for(const lang of ['zh','en','uk']){
@@ -108,6 +114,19 @@ test('Prep entry prioritizes its selected dish and materials, with date/meal con
  nodes(el,'[data-dish-index]')[1].dispatch('click');assert.equal(nodes(el,'[data-recipe-meal-index]')[0].getAttribute('data-recipe-meal-index'),'1');el.remove();
 });
 
+test('Prep lists what to prepare right after the date and meal, before the dish buttons and full recipes; the timing filter sits above the list',async()=>{
+ const s=setup('multi-dish'),el=mount(),ctx=await context(s,'prep','2026-10-05/lunch','zh');await mod.prep(el,ctx);
+ const root=nodes(el,'[data-published-plan]')[0],at=selector=>root.children.findIndex(n=>matches(n,selector)||nodes(n,selector).length>0);
+ const controls=at('.prep-context-controls'),slot=at('.prep-list-slot'),dishes=at('[data-published-dishes]'),recipe=at('[data-recipe-meal-index]');
+ assert(controls>=0&&slot>controls,'the list follows the date and meal choice');
+ assert(dishes>slot&&recipe>dishes,'dish buttons and the full recipe stay below the list');
+ const list=nodes(el,'.prep-list-slot')[0];
+ assert.equal(list.children[0].getAttribute('class'),'prep-timing-filter','the filter that narrows the list sits above it');
+ assert(nodes(list,'[data-prep-list]').length===1&&nodes(list,'[data-prep-item]').length>0);
+ await mod.prep(el,{...ctx,rest:'2026-10-05/lunch/ketchup'});
+ assert.equal(nodes(el,'.prep-list-slot')[0].children.length,0,'an ingredient detail shows no list');
+ el.remove();
+});
 function sharedSelection(ctx,date,meal){
  const owner=mod.createPlanSelection();owner.select(ctx.planId);if(meal)owner.selectSlot(date,meal);
  return {...owner.snapshot(),selectSlot:(nextDate,nextMeal)=>owner.selectSlot(nextDate,nextMeal)};

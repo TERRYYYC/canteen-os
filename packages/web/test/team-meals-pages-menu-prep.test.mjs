@@ -61,13 +61,16 @@ const tag=(node,name)=>descendants(node).filter(n=>n.tagName===name.toUpperCase(
 function mount(){const root=new NodeDouble('section');documentDouble.body.append(root);return root;}
 globalThis.document=documentDouble;
 globalThis.MutationObserver=class{observe(){}disconnect(){}};
+const session=new Map(),chefToken='A'.repeat(43);
+globalThis.sessionStorage={getItem:k=>session.get(k)??null,setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)};
+const withChefToken=run=>{session.set('canteenos.token',chefToken);try{return run();}finally{session.delete('canteenos.token');}};
 const options=()=>({lang:'zh',selection:{menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',mealIndex:0},href:(kind,id)=>`#/purchase/list/${kind}/${id}`});
 const need=(mod,name)=>assert.equal(typeof mod[name],'function',`${name} must present frozen raw records`);
 
-test('unknown quantity stays unknown; raw quantity units are never scaled or normalized',()=>{
+test('unknown quantity stays unknown; recorded quantities are never scaled, only shown in the reader\'s units',()=>{
   need(prep,'rawQuantityText');assert.equal(prep.rawQuantityText(undefined,'zh'),'用量未录');
   assert.equal(prep.rawQuantityText({unit:'to-taste'},'zh'),'适量');
-  assert.equal(prep.rawQuantityText({value:1500,unit:'g'},'en'),'1500 g');
+  assert.equal(prep.rawQuantityText({value:1500,unit:'g'},'en'),'1.5 kg');
 });
 test('row selection respects projection scope and retains multiple dishes and repeated dish occurrences',()=>{
   need(prep,'selectFrozenMealRows');const source=fixture(),before=JSON.stringify(source);
@@ -84,9 +87,11 @@ test('invalid revision and mutable source cannot be labelled fixed-source conten
 });
 test('prep exposes all original components, steps, three names, truth labels and safe source links',()=>{
   need(prep,'renderFrozenPrep');const el=mount(),source=fixture(),before=JSON.stringify(source);
-  const dispose=prep.renderFrozenPrep(el,source,options());
+  const plain=mount(),stopPlain=prep.renderFrozenPrep(plain,source,options());
+  assert(!plain.textContent.includes(revision),'no token: no source version');stopPlain();plain.remove();
+  const dispose=withChefToken(()=>prep.renderFrozenPrep(el,source,options()));
   assert.equal(attr(el,'data-component-index').length,4);assert.equal(attr(el,'data-step-index').length,2);
-  for(const text of ['番茄','Tomato','Помідор','盐','missing','1500 g','用量未录','适量','第一步原文','第二步原文','2 cm','原备注','切块','来自词表的备注',revision])assert(el.textContent.includes(text),text);
+  for(const text of ['番茄','Tomato','Помідор','盐','missing','1.5 千克','用量未录','适量','第一步原文','第二步原文','2 cm','原备注','切块','来自词表的备注',revision])assert(el.textContent.includes(text),text);
   assert.match(el.textContent,/模拟|Simulation/);assert.doesNotMatch(el.textContent,/已同步|已发布/);
   assert(tag(el,'a').some(a=>a.getAttribute('href')?.startsWith('https://example.org/watch')));
   assert(!tag(el,'a').some(a=>a.getAttribute('href')?.startsWith('javascript:')));
@@ -117,7 +122,7 @@ test('wrong-version or late assets never substitute current URLs into an old or 
 });
 test('menu summary includes seasonings and repeated rows; opening a row shows the matching complete recipe',()=>{
   need(menu,'renderFrozenMenu');const el=mount();const stop=menu.renderFrozenMenu(el,fixture(),{...options(),selection:{menuPlanRef:'week'}});
-  assert.equal(attr(el,'data-meal-index').length,3);assert(el.textContent.includes('盐'));assert(el.textContent.includes('1500 g')===false);
+  assert.equal(attr(el,'data-meal-index').length,3);assert(el.textContent.includes('盐'));assert(el.textContent.includes('1.5 ')===false&&el.textContent.includes('1,5 ')===false);
   const panels=tag(el,'details').filter(n=>!n.getAttribute('class'));assert.equal(panels.length,3);panels[1].open=true;panels[1].dispatch('toggle');
   assert(el.textContent.includes('乙菜步骤'));assert(!el.textContent.includes('第一步原文'));
   stop();el.remove();
@@ -157,8 +162,11 @@ test('an unresolved plan is shown as missing source, not silently represented as
   data.projection.collection.issues=[{code:'missing-plan',menuPlanRef:'unresolved-plan',date:'2026-09-11',mealType:'lunch'}];
   data.projection.collection.coverage.enumeration='incomplete';
   for(const render of [prep.renderFrozenPrep,menu.renderFrozenMenu]){
-    const el=mount(),dispose=render(el,freeze(data),{lang:'zh'});
-    assert(el.textContent.includes('unresolved-plan'),'the unresolved original plan reference must remain visible');
+    const plain=mount(),stopPlain=render(plain,freeze(data),{lang:'zh'});
+    assert(!plain.textContent.includes('unresolved-plan'),'no token: the raw plan reference is hidden');
+    assert(!plain.textContent.includes('所选范围没有已录餐食'),'unresolved is not empty without a token either');stopPlain();plain.remove();
+    const el=mount(),dispose=withChefToken(()=>render(el,freeze(data),{lang:'zh'}));
+    assert(el.textContent.includes('unresolved-plan'),'with a token the unresolved original plan reference stays visible');
     assert(!el.textContent.includes('所选范围没有已录餐食'),'unresolved is not empty');dispose();el.remove();
   }
 });
@@ -208,7 +216,11 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
     data.projection.collection.issues = [{ code: 'missing-plan', menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch' }];
     data.projection.collection.coverage.enumeration = 'incomplete';
     for (const lang of ['zh', 'en', 'uk']) for (const selection of [{}, { menuPlanRef: 'missing-week', date: '2026-09-16', mealType: 'lunch', mealIndex: 0 }]) {
-      const el = mount(), dispose = render(el, freeze(data), { lang, selection });
+      const plain = mount(), stopPlain = render(plain, freeze(data), { lang, selection });
+      assert.equal(attr(plain, 'data-source-issue', 'missing-plan').length, 1);
+      assert.doesNotMatch(plain.textContent, /missing-week/);
+      stopPlain(); plain.remove();
+      const el = mount(), dispose = withChefToken(() => render(el, freeze(data), { lang, selection }));
       assert.equal(attr(el, 'data-source-issue', 'missing-plan').length, 1);
       assert.match(el.textContent, /missing-week/);
       assert.doesNotMatch(el.textContent, /所选范围没有已录餐食|No recorded meals in this selection|У цьому виборі немає записаних страв/);
@@ -222,7 +234,11 @@ for (const [page, render] of [['prep', prep.renderFrozenPrep], ['menu', menu.ren
       else delete data.projection.dishes['dish-a'].components;
       data.projection.collection.issues = [{ code, ...options().selection, dishRef: 'dish-a' }];
       data.projection.collection.coverage.enumeration = 'incomplete';
-      const el = mount(), dispose = render(el, freeze(data), { ...options(), lang: 'en' });
+      const plain = mount(), stopPlain = render(plain, freeze(data), { ...options(), lang: 'en' });
+      assert.equal(attr(plain, 'data-source-issue', code).length, 1);
+      if (page === 'prep') assert.doesNotMatch(plain.textContent, /dish-a/);
+      stopPlain(); plain.remove();
+      const el = mount(), dispose = withChefToken(() => render(el, freeze(data), { ...options(), lang: 'en' }));
       assert.equal(attr(el, 'data-source-issue', code).length, 1);
       assert.match(el.textContent, /dish-a/);
       assert.doesNotMatch(el.textContent, /No recorded meals in this selection/);
@@ -242,13 +258,22 @@ test('cooking layout leads with original ingredients and full steps; recorded me
   const metadata=tag(recipe,'details').find(n=>n.getAttribute('class')==='prep-recipe-record');assert(metadata,'recipe metadata has a secondary disclosure');
   assert(children.indexOf(metadata)>children.findIndex(n=>n.getAttribute('data-step-index')==='1'),'full steps precede recipe metadata');
   assert.match(metadata.textContent,/CC BY 4.0/);assert.doesNotMatch(ordinaryText(recipe),/CC BY 4.0|Recorded author/);
-  assert.deepEqual(attr(el,'data-original-quantity').map(n=>n.textContent),['1500 g',prep.rawQuantityText(undefined,lang),prep.rawQuantityText({unit:'to-taste'},lang),prep.rawQuantityText(undefined,lang)]);
+  assert.deepEqual(attr(el,'data-original-quantity').map(n=>n.textContent),[prep.rawQuantityText({value:1500,unit:'g'},lang),prep.rawQuantityText(undefined,lang),prep.rawQuantityText({unit:'to-taste'},lang),prep.rawQuantityText(undefined,lang)]);
   assert.equal(attr(el,'data-step-index').length,2);assert.match(ordinaryText(el),new RegExp(source.projection.dishes['dish-a'].steps[1].text[lang]));
   assert.equal(JSON.stringify(source),before);stop();el.remove();
  }
 });
-test('cooking missing quantities and source gaps explain the impact beside the affected task and link to repair',()=>{
+test('cooking missing quantities and source gaps keep their explanation without a chef token and offer no admin link',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),{...options(),layout:'cooking'});
+ const quantity=attr(el,'data-component-index','1')[0],missing=attr(el,'data-component-index','3')[0];
+ assert.match(ordinaryText(quantity),/用量未录/);assert.match(ordinaryText(quantity),/无法确定.*备料量/);
+ assert.match(ordinaryText(missing),/食材资料未找到/);
+ assert.equal(tag(el,'a').some(n=>(n.getAttribute('href')??'').startsWith('#/admin')),false);
+ assert.doesNotMatch(ordinaryText(el),/补齐资料/);
+ stop();el.remove();
+});
+test('cooking missing quantities and source gaps explain the impact beside the affected task and link to repair',()=>{
+ const el=mount(),stop=withChefToken(()=>prep.renderFrozenPrep(el,fixture(),{...options(),layout:'cooking'}));
  const quantity=attr(el,'data-component-index','1')[0],missing=attr(el,'data-component-index','3')[0];
  assert.match(ordinaryText(quantity),/用量未录/);assert.match(ordinaryText(quantity),/无法确定.*备料量/);
  assert(tag(quantity,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));
@@ -291,7 +316,7 @@ test('the actual roll-cut note uses a full-text control in every recorded langua
 });
 test('daily prep keeps other languages and technical identifiers out of ordinary reading',()=>{
  const el=mount(),stop=prep.renderFrozenPrep(el,fixture(),options());
- const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1500 g/);
+ const visible=ordinaryText(el);assert.match(visible,/甲菜/);assert.match(visible,/第一步原文/);assert.match(visible,/1\.5 千克/);
  assert.doesNotMatch(visible,/ZH:|EN:|UK:|First original step|draft|active|manual|aaaaaaaa|Recorded author/);
  assert.match(el.textContent,/First original step/);assert.match(el.textContent,/Recorded author/);stop();el.remove();
 });
@@ -302,7 +327,10 @@ test('empty prep timing explains unrecorded timing and offers a working reset wi
 });
 test('source warning uses recorded names with date and a repair action; original identifiers remain in support details',()=>{
  const data=JSON.parse(JSON.stringify(fixture()));data.projection.collection.issues=[{code:'components-unrecorded',menuPlanRef:'week',date:'2026-09-11',mealType:'lunch',dishRef:'dish-a',mealIndex:0}];
- const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options()),panel=tag(el,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));panel.open=true;
+ const plain=mount(),stopPlain=prep.renderFrozenPrep(plain,freeze(data),options()),plainPanel=tag(plain,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));plainPanel.open=true;
+ const plainText=ordinaryText(plainPanel);assert.match(plainText,/甲菜/);assert.match(plainText,/2026-09-11/);assert.doesNotMatch(plainText,/补齐资料/);
+ assert.equal(tag(plainPanel,'a').some(n=>(n.getAttribute('href')??'').startsWith('#/admin')),false,'no chef token: no admin link');stopPlain();plain.remove();
+ const el=mount(),stop=withChefToken(()=>prep.renderFrozenPrep(el,freeze(data),options())),panel=tag(el,'details').find(n=>(n.getAttribute('class')??'').includes('raw-issues'));panel.open=true;
  const visible=ordinaryText(panel);assert.match(visible,/甲菜/);assert.match(visible,/2026-09-11/);assert.match(visible,/补齐资料/);assert.doesNotMatch(visible,/dish-a|components-unrecorded|week/);
  assert(tag(panel,'a').some(n=>n.getAttribute('href')==='#/admin/dish/dish-a'));assert.match(panel.textContent,/dish-a/);stop();el.remove();
 });
