@@ -56,6 +56,6 @@ export function shoppingCopy(list:ShoppingList,projection:TeamMealsProjection,la
   }
  }
  if(projection.collection.issues.length)lines.push('',w('issues'),...projection.collection.issues.map(issue=>`${reason(issue.code)} · ${path(issue)}`));
- lines.push('',t('coverage'),t('budget'));
+ lines.push('',t('budget'));
  return lines.join('\n');
 }

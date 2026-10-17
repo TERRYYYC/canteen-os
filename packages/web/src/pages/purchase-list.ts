@@ -17,7 +17,6 @@ export const shoppingWords={
  saveBefore:['修改范围前，请先保存当前判断。','Save current decisions before changing scope.','Збережіть поточні рішення перед зміною діапазону.'],
  missing:['资料未找到','Information unavailable','Дані недоступні'],unclassified:['用途未分类','Role not classified','Роль не визначено'],empty:['所选餐次目前没有已录材料。','No recorded ingredients for these meals.','Для цих прийомів їжі немає записаних інгредієнтів.'],
  choose:['至少选择一个日期和餐次。','Select at least one date and meal.','Виберіть хоча б одну дату й прийом їжі.'],noList:['未找到清单，可用这个名称新建。','List not found; you can create one with this ID.','Список не знайдено; можна створити його з цією назвою.'],
- coverage:['已录材料候选；配方完整性仍需人工核对。','Recorded ingredient candidates; recipe completeness needs human review.','Записані інгредієнти; повноту рецепта має перевірити людина.'],
  sources:['使用来源','Used in','Використовується в'],estimate:['可计算的参考','Calculated reference','Розрахунковий орієнтир'],unavailable:['无法完整计算','Complete estimate unavailable','Повний розрахунок недоступний'],
  covered:['本次参考无需订货 · 0 包 · 现有库存已够','No order needed this time · 0 packs · stock on hand covers it','Цього разу замовляти не потрібно · 0 уп. · наявного запасу достатньо'],
  removed:['移出的材料（原购买记录仅供参考）','Removed ingredients (old purchase records for reference)','Вилучені інгредієнти (старі покупки лише для довідки)'],previous:['上次判断，仅供重新核对','Previous decision, for review only','Попереднє рішення, лише для перевірки'],
@@ -28,7 +27,7 @@ export const shoppingWords={
  current:['打开当前资料编辑页','Open current information editor','Відкрити редактор поточних даних'],unknownCount:['份数未录','Servings unspecified','Порції не вказано'],main:['主料','Main ingredient','Основний інгредієнт'],seasoning:['调料','Seasoning','Приправа'],
  budget:['金额只按可计算项参考，不代表完整预算。','Calculable amounts are references, not a complete budget.','Розраховані суми є орієнтирами, а не повним бюджетом.'],
  intro:['来自菜单计划','FROM YOUR MENU PLAN','З ПЛАНУ МЕНЮ'],headline:['这次买什么，逐项确认。','Decide what to buy.','Вирішіть, що купити.'],
- issues:['需要核对的资料','Information to check','Дані для перевірки'],summary:['本次材料判断','Current ingredient decisions','Поточні рішення щодо інгредієнтів'],
+ issues:['资料不全的材料','Ingredients with missing information','Інгредієнти з неповними даними'],summary:['本次材料判断','Current ingredient decisions','Поточні рішення щодо інгредієнтів'],
  readonly:['未连接后台 · 这里是已发布版本的只读清单','Not connected · this is the published version, read only','Немає з’єднання · це опублікована версія лише для читання'],
  readonlyWrites:['这是只读清单：只能查看，保存、判断和打勾都用不了。','This is a read-only list: you can look, but not save, decide or tick.','Це список лише для читання: переглядати можна, а зберігати, вирішувати й позначати — ні.'],
  readonlySource:['这一版已发布资料现在读不到。稍后再看。','This published version cannot be read right now. Check again later.','Зараз не вдається прочитати цю опубліковану версію. Перегляньте пізніше.'],
@@ -84,7 +83,6 @@ export function renderCandidates(options:CandidatesOptions):HTMLElement {
  const result=h('div',{class:'tm-candidates'});
  // The estimated total sits at the top, right after the whole-list copy, before the coverage note and issues.
  if(options.sections)result.append(h('section',{class:'tm-card tm-supplier-summary','data-supplier-summary':'all'},h('p',{},h('b',{},word(lang,'预计合计','Estimated total','Орієнтовний підсумок')),' ',totalsText(sumByCurrency(options.sections.flatMap(x=>x.group.lines.map(y=>y.line))),lang),' · ',kindsText(collection.items.length,lang)),h('p',{class:'muted'},t('budget'))));
- result.append(h('p',{class:'muted'},t('coverage')));
  if(collection.issues.length)result.append(h('details',{class:'tm-status tm-candidate-issues'},h('summary',{},`${t('issues')} · ${collection.issues.length}`),...collection.issues.map(issue=>h('article',{},h('p',{},reasonText(issue.code,lang),' · ',[issue.date,issue.mealType?text(lang,issue.mealType):''].filter(Boolean).join(' / ')),issue.dishRef?ref('dish',issue.dishRef):null,issue.ingredientRef?ref('ingredient',issue.ingredientRef):null,h('p',{},word(lang,'查看来源资料并补齐后，再核对采购范围。','Check and complete the source records, then review the shopping scope.','Перевірте й доповніть вихідні дані, потім перевірте діапазон закупівель.')),supportDetails(lang,JSON.stringify(issue))))));
  if(!collection.items.length)result.append(h('p',{class:'tm-card'},t('empty')));
  const materialCard=(item:IngredientCollection['items'][number],sectionEntry?:SupplierSectionEntry)=>{

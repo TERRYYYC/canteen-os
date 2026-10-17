@@ -130,7 +130,7 @@ test('menu summary includes seasonings and repeated rows; opening a row shows th
 test('unpublished knowledge cover evidence is distinct from an absent image in menu and prep',()=>{
   const cases=[
     ['external-unpinned','外部图片未固定'],
-    ['rights-pending','图片使用许可待核实'],
+    ['rights-pending','还没有照片'],
     ['needs-image','待补图'],
   ];
   for(const [coverState,expected] of cases){
@@ -145,16 +145,26 @@ test('unpublished knowledge cover evidence is distinct from an absent image in m
     }
   }
 });
-test('prep shows the source gap count without exposing private source text',()=>{
+test('prep shows no source gap count or review prompt, even for an older frozen dish that still carries one (ADR-0011)',()=>{
   const data=JSON.parse(JSON.stringify(fixture())),dish=data.projection.dishes['dish-a'];
   dish.status='active';
   dish.provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,candidateId:'00000000-0000-4000-8000-000000000002',snapshotHash:'c'.repeat(64),sourceGapCount:2};
-  const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),options());
-  const questions=attr(el,'class','prep-source-questions');
-  assert.equal(questions.length,1);
-  assert.match(questions[0].textContent,/2 · 备料前请厨房负责人/);
-  assert.doesNotMatch(el.textContent,/煲煮火力和时长未说明|粉的品种未说明/);
-  stop();el.remove();
+  for(const lang of ['zh','en','uk']){
+    const el=mount(),stop=prep.renderFrozenPrep(el,freeze(data),{...options(),lang});
+    assert.equal(attr(el,'class','prep-source-questions').length,0);
+    assert.doesNotMatch(el.textContent,/核对|复核|核定|核实|仍需|review|перевір/i,lang);
+    assert.doesNotMatch(el.textContent,/煲煮火力和时长未说明|粉的品种未说明/);
+    stop();el.remove();
+  }
+});
+test('menu and prep carry no recipe-review wording in any language (ADR-0011)',()=>{
+  const data=JSON.parse(JSON.stringify(fixture()));
+  data.projection.dishes['dish-a'].provenance={source:'knowledge',recipeId:'00000000-0000-4000-8000-000000000001',recipeVersion:1,snapshotHash:'c'.repeat(64),sourceGapCount:2,coverState:'rights-pending'};
+  for(const render of [menu.renderFrozenMenu,prep.renderFrozenPrep])for(const lang of ['zh','en','uk']){
+    const el=mount(),stop=render(el,freeze(data),{...options(),lang});
+    assert.doesNotMatch(el.textContent,/核对|复核|核定|核实|仍需|未经厨房|completeness|review|kitchen-verified|перевір/i,`${render.name} ${lang}`);
+    stop();el.remove();
+  }
 });
 test('an unresolved plan is shown as missing source, not silently represented as an empty menu',()=>{
   const data=JSON.parse(JSON.stringify(fixture()));

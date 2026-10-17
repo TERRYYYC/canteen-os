@@ -17,12 +17,11 @@ const copy={
  source:['资料版本','Source version','Версія даних'],current:['另看当前资料','View current information separately','Окремо переглянути поточні дані'],
  sources:['哪些菜用到它','Recipes that use this ingredient','У яких стравах використовується'],missingSource:['未找到资料，原引用已保留','Information missing; original reference retained','Даних немає; вихідне посилання збережено'],
  imageMissing:['同版图片不可用','Same-version image unavailable','Зображення цієї версії недоступне'],imageLoading:['正在读取同版图片','Loading same-version image','Завантаження зображення цієї версії'],license:['许可','License','Ліцензія'],author:['作者','Author','Автор'],
- imageUnrecorded:['图片未录','Image not recorded','Зображення не записано'],imageNeedsImage:['待补图','Image needed','Потрібно додати зображення'],imageRightsPending:['图片使用许可待核实','Image rights need review','Права на зображення потребують перевірки'],imageExternal:['外部图片未固定','External image not pinned','Зовнішнє зображення не закріплено'],
+ imageUnrecorded:['图片未录','Image not recorded','Зображення не записано'],imageNeedsImage:['待补图','Image needed','Потрібно додати зображення'],imageRightsPending:['还没有照片','No photo yet','Фото ще немає'],imageExternal:['外部图片未固定','External image not pinned','Зовнішнє зображення не закріплено'],
  recipe:['原配方用量，未缩放','Original recipe quantities, unscaled','Початкові кількості рецепта, без масштабування'],baseServings:['原配方基准份数','Original recipe servings','Порції вихідного рецепта'],
  components:['食材与调料','Ingredients and seasonings','Інгредієнти та приправи'],steps:['完整做法','Full method','Повний спосіб приготування'],technique:['技法','Technique','Техніка'],
  provenance:['配方来源','Recipe source','Джерело рецепта'],confidence:['记录的置信度','Recorded confidence','Записана впевненість'],
  size:['切配规格','Prep size','Розмір підготовки'],timing:['准备时机','Prep timing','Час підготовки'],note:['备注','Note','Примітка'],
- coverage:['这里只展示已录资料；配方完整性仍需人工核对。','Only recorded information is shown; recipe completeness still needs human review.','Показано лише записані дані; повноту рецепта має перевірити людина.'],
  languages:['三语原文','Original language versions','Оригінальні мовні версії'],
 } as const;
 type Key=keyof typeof copy;
@@ -91,7 +90,6 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
       append(el,recipeLibraryLine(lang,dish.provenance.recipeVersion));
       const provenance=dish.provenance;
       append(el,chefOnly(()=>h('a',{href:`#/admin/knowledge/${provenance.recipeId}/revisions/${provenance.recipeVersion}`},word(lang,'打开固定菜谱版本','Open frozen recipe version','Відкрити версію рецепта'))));
-      if(dish.provenance.sourceGapCount)el.append(h('p',{role:'status'},`${dish.provenance.sourceGapCount} · ${word(lang,'原片条件待厨房负责人核对','Source conditions require chef review','Умови джерела потребують перевірки шефа')}`));
     }
     if(dish.provenance && 'videoUrl' in dish.provenance && dish.provenance.videoUrl)el.append(link(dish.provenance.videoUrl,dish.provenance.videoUrl));
     el.append(h('h3',{},t('components')),h('p',{class:'muted'},t('recipe')));
@@ -115,5 +113,5 @@ export function renderTeamDetails(el:HTMLElement,options:DetailOptions):()=>void
     }
   }
   const current=options.current;if(current)append(el,chefOnly(()=>action(t('current'),current)));
-  el.append(h('p',{class:'muted'},t('coverage')));return ()=>{stop();dispose();};
+  return ()=>{stop();dispose();};
 }

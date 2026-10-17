@@ -120,7 +120,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 - 段里每种材料一张卡：名字（名字下面一行是乌克兰语名，读者用乌语或英语时是中文名；没录就不写）、「主料」或「调料」。点「来源与数量参考」能展开：用在哪道菜、哪天哪顿、几份、要多少，以及按哪家供应商买几包（每包多大）、大概多少钱。数字有疑问就点开看，不用问人。
 - 每张卡上有「待核对」「待买」「已有」三个按钮和「已买」勾选框；按钮下面一行是估算，写「N 包 · 每包 X · 共 Y」和金额，没有价格写「暂无价格」，算不出来的写原因；库存已经够、这次不用订的写「本次参考无需订货 · 0 包 · 现有库存已够」，这种材料不算进段头的「数量待定」。只读版复制给菜贩时不列它；已保存清单里你标了「待买」的照样复制，写「数量待定」，复制框下面会提醒，数量你自己定。判断仍由你按，估算只是参考。**只读版里这些都是灰的，点不了**，页面上的「保存清单」「读取最新已保存计划」也是灰的。
 - 灰按钮下面有一句说明，告诉你这是只读清单。**你不需要师傅链接，也不用去找**；要保存的话找 Terry。
-- 「需要核对的资料」折叠块：列出缺规格、单位换不了等问题，**这些材料算不出几包**——看到就说。
+- 「资料不全的材料」折叠块：列出缺规格、单位换不了等问题，**这些材料算不出几包**——看到就说。
 - 「用途未分类」「份数未录」「数量待定」都是资料没填全，不是你点错了，照实说。
 
 **复制给菜贩**
@@ -161,7 +161,7 @@ Terry 联系方式：`____________`（测试周开始前填上；贴墙那份打
 - In a section, one card per ingredient: the name (with the Chinese name on a second line; when the reader uses Chinese, the Ukrainian name — left out when not recorded), marked “Main ingredient” or “Seasoning”. Open “Sources and quantity reference” to see which dish, which day and meal, how many servings, how much is needed, and how many packs from which supplier (pack size, rough price). If a number looks wrong, open it and check — no need to ask anyone.
 - Each card has the buttons “Check”, “Buy”, “Available” and a “Bought” tick box; under the buttons is a line with the estimate, “N packs · X each · Y in all” and the amount, or “No price yet”, or the reason when it cannot be worked out; when stock on hand already covers it, the line reads “No order needed this time · 0 packs · stock on hand covers it”, and such an item is not counted as “quantity to confirm”. The read-only version leaves it out of the copied text; on a saved list, if you marked it “Buy”, it is still copied as “quantity to confirm”, with a note under the copy box, and the amount is yours to decide. You still make the decision; the estimate is only a guide.  **On the read-only version they are all greyed out**, and so are “Save list” and “Read latest saved plans”.
 - Under the greyed-out buttons a line explains that this is a read-only list. **You do not need the chef link and do not have to look for it**; if something has to be saved, ask Terry.
-- The “Information to check” block lists ingredients with missing specs or units that cannot be converted. **Those cannot be turned into a number of packs** — tell us when you see it.
+- The “Ingredients with missing information” block lists ingredients with missing specs or units that cannot be converted. **Those cannot be turned into a number of packs** — tell us when you see it.
 - “Role not classified”, “Servings unspecified” and “quantity to confirm” mean the records are incomplete. It is not your mistake; tell us as it is.
 
 **Copy for suppliers**
@@ -202,7 +202,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
 - У розділі — одна картка на інгредієнт: назва (під нею рядок китайською; не записано — рядка немає), позначка «Основний інгредієнт» або «Приправа». Розгорніть «Джерела й кількісні орієнтири»: яка страва, який день і прийом їжі, скільки порцій, скільки треба, скільки упаковок у якого постачальника (розмір упаковки, орієнтовна ціна). Якщо число сумнівне — розгорніть і перевірте, питати не треба.
 - На кожній картці кнопки «Перевірити», «Купити», «Є в наявності» і прапорець «Куплено»; під кнопками — рядок з оцінкою «N уп. · по X · разом Y» і сумою, або «Ціни поки немає», або причина, якщо порахувати не вдалося; якщо наявного запасу вже достатньо, рядок каже «Цього разу замовляти не потрібно · 0 уп. · наявного запасу достатньо» — така позиція не входить у «кількість уточнити». У версії для читання її немає в скопійованому тексті; у збереженому списку, якщо ви позначили «Купити», її все одно скопійовано як «кількість уточнити», під полем копіювання є примітка, а кількість вирішуєте ви. Рішення, як і раніше, ваше; оцінка — лише підказка.  **У версії для читання вони сірі, натиснути не можна**; «Зберегти список» і «Прочитати останні збережені плани» теж сірі.
 - Під сірими кнопками є рядок, що це список лише для читання. **Посилання шефа вам не потрібне, шукати його не треба**; якщо щось треба зберегти — до Террі.
-- Блок «Дані для перевірки» показує інгредієнти без параметрів закупівлі або з одиницями, які не можна перетворити. **Для них не виходить порахувати упаковки** — скажіть, коли побачите.
+- Блок «Інгредієнти з неповними даними» показує інгредієнти без параметрів закупівлі або з одиницями, які не можна перетворити. **Для них не виходить порахувати упаковки** — скажіть, коли побачите.
 - «Роль не визначено», «Порції не вказано», «кількість уточнити» — дані заповнено не повністю. Це не ваша помилка, скажіть як є.
 
 **Копіювати для постачальників**
@@ -259,7 +259,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - 看到「上线了 · 大家两分钟内能看到」才算发完。
 5. **发布后核对三张单。**
    - 等两分钟，用手机扫三张码（就是帮厨、采购员、顾客用的那三条，不带钥匙），各打开一次。页面上出现「有新版本」时，先点「点此刷新」。
-   - 备料单今天的菜和份数对不对；采购单有没有「需要核对的资料」；菜单今天有没有该有的菜。这是核对，不是欣赏。
+   - 备料单今天的菜和份数对不对；采购单有没有「资料不全的材料」；菜单今天有没有该有的菜。这是核对，不是欣赏。
    - 看到的还是旧菜，或者写着「所选计划尚未在本版发布」：再等两分钟、刷新一次；仍然不对就找 Terry。
 6. **发错了。** 发布页下面「发布记录」里，在对的那一版点「回到这版」→「退回」。退回**不会自动上线**，要再点一次「发布」；发完照第 5 步再核对一遍。
 
@@ -303,7 +303,7 @@ If the site was in fact set up with a saving service, a link without a key **wil
    - You are done when it says “Live · everyone will see it within two minutes”.
 5. **Check the three sheets after publishing.**
    - Wait two minutes, then scan the three QR codes with your phone (the same three links the helpers, the buyer and diners use, without a key) and open each one. If the page says “New version available”, tap “Reload” first.
-   - Are today’s dishes and servings right on Prep; any “Information to check” on Shopping; is today’s menu what it should be. This is checking, not admiring.
+   - Are today’s dishes and servings right on Prep; any “Ingredients with missing information” on Shopping; is today’s menu what it should be. This is checking, not admiring.
    - Still the old dishes, or it still says the selected plan is not in this publication: wait two more minutes and reload; if it is still wrong, tell Terry.
 6. **Published something wrong?** On the publish page, under “Publish history”, tap “Go back to this version” on the right version, then “Roll back”. Rolling back **does not go live by itself** — press “Publish” once more, then check again as in step 5.
 
@@ -347,7 +347,7 @@ The back-office home, plan page and publish page all say “Not connected; savin
    - Готово, коли з'явиться «Онлайн · усі побачать за дві хвилини».
 5. **Перевірте три аркуші після публікації.**
    - Зачекайте дві хвилини, потім відскануйте телефоном три QR-коди (ті самі три посилання, що в помічників, закупівельника й відвідувачів, без ключа) і відкрийте кожен. Якщо сторінка пише «Є нова версія», спершу натисніть «Оновити».
-   - Чи правильні страви й порції на сьогодні в «Підготовці»; чи є «Дані для перевірки» в «Закупівлях»; чи є в «Меню» те, що має бути. Це перевірка, а не милування.
+   - Чи правильні страви й порції на сьогодні в «Підготовці»; чи є «Інгредієнти з неповними даними» в «Закупівлях»; чи є в «Меню» те, що має бути. Це перевірка, а не милування.
    - Досі старі страви або напис, що вибраного плану немає в цій публікації: зачекайте ще дві хвилини й оновіть; якщо все одно не так — до Террі.
 6. **Опублікували не те?** На сторінці публікації в «Історія публікацій» біля потрібної версії натисніть «Повернутися до цієї версії», потім «Повернути». Повернення **саме не публікує** — натисніть «Опублікувати» ще раз, а потім перевірте знову, як у кроці 5.
 
@@ -368,7 +368,7 @@ The back-office home, plan page and publish page all say “Not connected; savin
 
 1. 打开 `https://terryyyc.github.io/canteen-os/data/build.json`，看 `builtAt` 是不是最后一次发布的时间、`plans` 里有没有本周的计划。
 2. `#/prep` 切到今天：菜、份数、配料。
-3. `#/purchase`：有没有「需要核对的资料」。
+3. `#/purchase`：有没有「资料不全的材料」。
 4. **让帮厨的手机联网开一次页面。** 这样万一白天线上挂了，他手里那份离线副本是今天的（见 [`ops-checklist.md`](ops-checklist.md) §4）。
 
 **现场（谁听到谁记）**
