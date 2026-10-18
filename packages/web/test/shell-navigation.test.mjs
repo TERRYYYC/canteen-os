@@ -22,7 +22,6 @@ class Element {
  getAttribute(k){return this.attrs[k]??null;}
  hasAttribute(k){return k in this.attrs;}
  removeAttribute(k){delete this.attrs[k];}
- get dataset(){return {themeValue:this.attrs['data-theme-value']};}
  get textContent(){return this.value+this.children.map(c=>c.textContent).join('');}
  set textContent(v){this.value=String(v);this.replaceChildren();}
  appendChild(c){this.children.push(c);c.parent=this;return c;}

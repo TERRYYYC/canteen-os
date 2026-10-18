@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * 构建期生成 PWA 图标 PNG（issue #12）：public/icons/{icon-192,icon-512,icon-maskable-192,icon-maskable-512,apple-touch-icon}.png
- * 几何与 public/icons/icon.svg / icon-maskable.svg 完全一致（都照 src/styles.css 的 .corner：44×44 · 圆角 13 · 格 8×8 · gap 4 · 圆角 3 / 外角 6）。
+ * 几何与配色与 public/icons/icon.svg / icon-maskable.svg 完全一致（几何照 src/styles.css 的 .corner：44×44 · 圆角 13 · 格 8×8 · gap 4 · 圆角 3 / 外角 6；
+ * 配色照 src/tokens.css：底块青花钴蓝 #1F3C86（--qinghua），四格 #F4F7FC（--bg））。
  * 零依赖：自己栅格化（每像素 4×4 超采样）+ 用 node:zlib 写 PNG。PNG 是产物（.gitignore），SVG 入库；`pnpm -C packages/web build` 的 prebuild 会先跑本脚本。
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -10,8 +11,8 @@ import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "icons");
-const INK = [0x17, 0x1b, 0x19];
-const BG = [0xf2, 0xf4, 0xf1];
+const INK = [0x1f, 0x3c, 0x86]; // 底块 #1F3C86（青花钴蓝 --qinghua）
+const BG = [0xf4, 0xf7, 0xfc]; // 四格 #F4F7FC（--bg）
 const UNITS = 44;
 const SS = 4; // 每像素 4×4 超采样
 

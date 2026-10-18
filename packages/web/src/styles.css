@@ -1,4 +1,4 @@
-/* Green Reference v3 chrome; ordinary route and drawer behavior retained. */
+/* Reference v3 chrome (colours: 搪瓷蓝 light-only tokens.css); ordinary route and drawer behavior retained. */
 * { box-sizing: border-box; }
 html { height: 100%; }
 body {
@@ -147,19 +147,6 @@ img { max-width: 100%; }
   border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px;
   color: var(--muted); white-space: nowrap;
 }
-
-/* 主题三态切换（设计稿 .toggle 样式；稿内只有 CSS 三态，没有切换控件——这是本包新增的最小控件） */
-.theme { display: flex; flex-direction: column; gap: 6px; padding: 12px 4px 0; margin-top: 8px; }
-.theme .label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.toggle {
-  display: inline-flex; border: 1px solid var(--line); border-radius: 999px;
-  padding: 3px; background: var(--bg); gap: 2px; align-self: flex-start;
-}
-.toggle button {
-  border: 0; background: transparent; color: var(--muted);
-  font-weight: 600; min-height: 44px; padding: 0 14px; border-radius: 999px; cursor: pointer;
-}
-.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 .drawer .foot {
   margin-top: auto; font-size: 12px; color: var(--muted);

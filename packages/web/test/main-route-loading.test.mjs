@@ -13,7 +13,7 @@ const mocks={
  './i18n':`export const getLang=()=>globalThis.probe.lang;export const t=x=>x;export const onLangChange=fn=>{globalThis.probe.changeLanguage=()=>{globalThis.probe.lang='zh';fn();};};`,
  './pwa':`export const initPwa=(_shell,hooks)=>{globalThis.probe.pwa=hooks;};`,
  './router':`export const normalize=()=>{};export const onRoute=fn=>{const g=globalThis.probe;g.route=fn;fn(g.initialRoute,'first');};`,
- './shell':`export const mountShell=()=>globalThis.probe.shell;`, './theme':`export const applyTheme=()=>{};`,
+ './shell':`export const mountShell=()=>globalThis.probe.shell;`,
 };
 const bundle=await esbuild.build({stdin:{contents:"import './src/main';export {inspectReloadSafety,registerReloadRecords} from './src/view-models/reload-safety';export {clearToken} from './src/admin/token';",resolveDir:web},bundle:true,write:false,format:'iife',globalName:'runtime',platform:'browser',logLevel:'silent',plugins:[{name:'controlled-route-import-completion',setup(b){
  b.onLoad({filter:/\/src\/main\.ts$/},async a=>({loader:'ts',contents:(await readFile(a.path,'utf8')).replace(/import\(["']\.\/pages\/([a-z]+)(?:\.js)?["']\)/g,(_all,route)=>`globalThis.probe.load('${route}')`)}));
