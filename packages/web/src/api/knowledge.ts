@@ -1,7 +1,7 @@
 /** SQLite contract stays distinct from the publication/Git API. */
 import { getToken, getAuthSessionVersion, peekAuthSessionVersion } from '../admin/token';
 export * from './knowledge-types';
-import type {Adoption,ApprovalInput,KitchenApproval,Materialization} from './knowledge-types';
+import type {Adoption,Materialization} from './knowledge-types';
 export class KnowledgeError extends Error {
   constructor(message: string, public status: number, public code = 'request_failed', public details?: unknown) { super(message); }
   get uncertain(): boolean { return this.status === 0 || this.status >= 500; }
@@ -59,9 +59,7 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
   }
   return { request, send,
     getAdoption:(id:string,version:number)=>request<Adoption>(`/recipes/${id}/revisions/${version}/adoption`),
-    approvalAttempt:(id:string,version:number,value:ApprovalInput,etag:string)=>createAttempt(`/recipes/${id}/revisions/${version}/approve`,'POST',value,etag),
     materializationAttempt:(id:string,version:number)=>createAttempt(`/materializations/recipes/${id}`,'POST',{recipeVersion:version}),
-    approveRecipe:(attempt:Attempt)=>send<KitchenApproval>(attempt),
     materializeRecipe:(attempt:Attempt)=>send<Materialization>(attempt),
     async image(url: string, signal?: AbortSignal): Promise<Blob> {
     if (!/^\/api\/v1\/assets\/[0-9a-f-]{36}\/content$/.test(url)) throw new KnowledgeError('Invalid asset path', 400);

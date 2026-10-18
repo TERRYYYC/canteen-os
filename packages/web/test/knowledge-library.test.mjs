@@ -136,7 +136,7 @@ test('saving a new recipe revision rereads its fixed source illustration mapping
   assert.match(h.el.textContent,/旧步骤图.*未关联到当前步骤/);
   assert.deepEqual(saved.assets,[],'source reference frames never enter publishable recipe assets');
 });
-test('a source-approved candidate links to normal Recipe editing and its original version without a menu write',async()=>{
+test('a saved candidate links only to normal Recipe editing, with no approval wording, revision link or menu write',async()=>{
   const candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4',itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379';
   const item={id:itemId,contentId:'7676372301671218289',kind:'note',url:'https://www.douyin.com/note/7676372301671218289',index:44,author:'test',cardAlt:'test card',displayText:'test card',state:'approved'};
   const candidate={id:candidateId,captureId,status:'approved',recipe:{title:{zh:'测试菜'},ingredients:[],steps:[]},fieldEvidence:{},imageCandidates:[],recipeId:id,recipeVersion:1,reviewer:'test source reviewer'};
@@ -149,9 +149,12 @@ test('a source-approved candidate links to normal Recipe editing and its origina
     throw Error(`unexpected ${url}`);
   });
   await h.mount('inbox');const source=h.all('.kb-inbox-item')[0];source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
-  assert(h.all('a').some(link=>link.textContent.includes('进入正式菜谱编辑器核定')&&link.getAttribute('href')===`#/admin/knowledge/${id}`));
-  assert(h.all('a').some(link=>link.getAttribute('href')===`#/admin/knowledge/${id}/revisions/1`));
-  assert.match(source.textContent,/厨房核定/);
+  const next=source.querySelector('.kb-inbox-next');assert(next,'saved candidate shows its recipe section');
+  assert.equal(next.children[0].tagName,'H4');assert.equal(next.children[0].textContent,'已存为菜谱');assert.match(next.textContent,/打开菜谱可以修改用量和切法，再排进菜单。/);
+  assert.deepEqual(next.querySelectorAll('a').map(link=>[link.textContent,link.getAttribute('href')]),[['打开菜谱',`#/admin/knowledge/${id}`]]);
+  assert(!h.all('a').some(link=>link.getAttribute('href')?.includes('/revisions/')),'no link to the version at source confirmation');
+  assert.doesNotMatch(source.textContent,/查看来源确认时的原方|厨房条件请在正式菜谱中核对/);assert.doesNotMatch(next.textContent,/核定/);
+  assert.equal(source.querySelector('.kb-inbox-source-review'),null);assert(!h.all('button').some(button=>button.textContent==='存为菜谱'));
   assert(!h.all('button').some(button=>/固定|检查菜谱新版本/.test(button.textContent)));
   assert(!fixture.calls.some(call=>call.init.method==='POST'||call.url.includes('materializations')));
 });
@@ -178,12 +181,13 @@ test('inbox searches candidate names and shows a source-only preview before open
     assert.equal(new URL(query,'http://local.test').searchParams.get('q'),'陈皮排骨');
     const summary=h.all('.kb-inbox-item')[0].querySelector('summary');
     assert.match(summary.textContent,/陈皮排骨/);assert.match(summary.textContent,/12 项食材/);assert.match(summary.textContent,/8 步做法/);assert.match(summary.textContent,/5 张原片参考图/);
-    assert.match(summary.textContent,/来源待师傅审核/);
+    assert.match(summary.textContent,/还没存成菜谱/);assert.doesNotMatch(summary.textContent,/审核/);
+    assert(h.all('label').some(label=>label.children[0]?.textContent==='按菜名搜索'&&label.querySelector('input')===search),'search is labelled by recipe name only');
     assert.equal(summary.querySelectorAll('img').length,1);
     assert.equal(h.all('.kb-inbox-candidate').length,0,'detail is not requested until the item opens');
     await h.mount('inbox','en');
     assert.match(h.all('.kb-inbox-item')[0].querySelector('summary').textContent,/Tangerine peel ribs/);
-    assert.match(h.all('.kb-inbox-item')[0].querySelector('summary').textContent,/Source awaits chef review/);
+    assert.match(h.all('.kb-inbox-item')[0].querySelector('summary').textContent,/Not saved as a recipe yet/);
   }finally{URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;}
 });
 test('a late previous name search cannot replace the chef’s current results',async()=>{
@@ -251,7 +255,7 @@ test('chef reading order is search, source list, then collapsed CSV administrati
   assert.match(csv.querySelector('summary').textContent,/导入收藏 CSV/);
   assert(csv.querySelectorAll('input').some(input=>input.getAttribute('type')==='file'),'CSV file control remains available after opening');
 });
-for(const decision of ['approve','reject'])test(`inbox summary reflects ${decision} immediately after source review`,async()=>{
+for(const decision of ['approve','reject'])test(`inbox summary reflects ${decision} immediately after save-as-recipe or set-aside`,async()=>{
   const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51',captureId='2a132a7d-1835-484e-a270-2617fb124379',candidateId='e2068014-7d9e-4e74-b24d-32f12554e7c4';
   let state='needs_review';
   const recipe={title:{zh:'陈皮排骨'},ingredients:[{id:id2,name:{zh:'排骨'},amount:{kind:'unknown'}}],steps:[{id,text:{zh:'焖煮'}}]};
@@ -268,16 +272,19 @@ for(const decision of ['approve','reject'])test(`inbox summary reflects ${decisi
   });
   await h.mount('inbox');const source=h.all('.kb-inbox-item')[0];
   source.open=true;source.dispatchEvent({type:'toggle'});await h.flush();
-  assert.match(source.querySelector('summary').textContent,/来源待师傅审核/);
-  const reviewer=h.all('label').find(label=>label.children[0]?.textContent==='来源核对人').querySelector('input');h.set(reviewer,'主厨');
-  h.click(decision==='approve'?'确认来源并保存菜谱':'退回');await h.flush();
-  assert.match(source.querySelector('summary').textContent,decision==='approve'?/来源已审核/:/审核退回/);
-  assert.doesNotMatch(source.querySelector('summary').textContent,/来源待师傅审核/);
+  assert.match(source.querySelector('summary').textContent,/还没存成菜谱/);
+  assert.equal(source.querySelector('.kb-inbox-source-review').querySelectorAll('input,textarea,select').length,0,'no reviewer or note inputs');
+  h.click(decision==='approve'?'存为菜谱':'不要这条');await h.flush();
+  const write=fixture.calls.filter(call=>call.url.endsWith(`/favorites/candidates/${candidateId}/review`));assert.equal(write.length,1);
+  assert.deepEqual(JSON.parse(write[0].init.body),{decision,reviewer:'CanteenOS：直接存为菜谱（复核在 app 外，ADR-0011）',note:'app 里没有人审核来源；复核在 app 外进行。'});
+  assert.match(source.querySelector('summary').textContent,decision==='approve'?/已存为菜谱/:/不要了/);
+  assert.doesNotMatch(source.querySelector('summary').textContent,/还没存成菜谱/);
 });
-test('an empty formal library points the chef to review existing source proposals',async()=>{
+test('an empty formal library points the chef to Douyin favorites to save recipes directly',async()=>{
   const h=await setup(url=>{assert.match(url,/\/recipes\?limit=20$/);return json({items:[],nextCursor:null});});
   await h.mount('');
-  assert(h.all('a').some(link=>link.getAttribute('href')==='#/admin/knowledge/inbox'&&link.textContent.includes('打开收藏收件箱审核草稿')));
+  assert(h.all('a').some(link=>link.getAttribute('href')==='#/admin/knowledge/inbox'&&link.textContent==='打开抖音收藏'));
+  assert.match(h.el.textContent,/这里还没有符合条件的菜谱。抖音收藏里的做法可以直接存为菜谱。/);assert.doesNotMatch(h.el.textContent,/审核/);
 });
 
 test('video inbox presents the whole recipe and complete source video before technical evidence',async()=>{

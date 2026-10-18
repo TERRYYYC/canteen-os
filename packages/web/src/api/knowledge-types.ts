@@ -34,5 +34,4 @@ export interface StandardTechnique {kind:'cut'|'heat'|'pretreat';name:I18n;note?
 export interface TechniqueRevision {id:string;version:number;technique:StandardTechnique;createdAt:string|null}
 export interface KitchenApproval {approvalVersion:'1';status:'approved';recipeId:string;recipeVersion:number;origin:{kind:'favorite'|'manual'|'legacy';originalRecipeVersion:number;candidateId?:string};dependencies:{ingredients:IngredientRevision[];techniques:{id:string;version?:number;hash:string;technique:StandardTechnique}[]};reviewer:string;note:string;createdAt:string;approvalHash:string;unresolved?:unknown[]}
 export interface Adoption {recipeId:string;recipeVersion:number;current:{version:number;archived:boolean};origin:KitchenApproval['origin'];source:{status:'approved'|'needs_review'};kitchenApproval:KitchenApproval|null;issues:string[]}
-export interface ApprovalInput {reviewer:string;note:string;sourceConfirmed:boolean;ingredientVersions:Record<string,number>;techniqueVersions:Record<string,number>}
 export interface Materialization {dishRef:string;recipeId:string;recipeVersion:number;commit:string;unchanged:boolean}

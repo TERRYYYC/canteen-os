@@ -58,28 +58,32 @@ test('generic materialization transport and kitchen fields are preserved',async(
  assert.deepEqual(h.m.editable(recipe),recipe);
 });
 
-test('full original comparison, durable approval unknown retry and selected-plan next step',async()=>{
+test('full original comparison, direct menu freeze with unknown same-key retry and selected-plan next step',async()=>{
  const recipe={recipeFormatVersion:'2',title:{zh:'厨房修订',en:'Kitchen revision',uk:'Кухонна редакція'},ingredients:[{id:id2,name:{zh:'小米辣'},rawText:'小米辣若干',preparation:{zh:'原方切圈'},amount:{kind:'unknown'}}],steps:[{id:id2,text:{zh:'原方煮10分钟，未给调料量'}}],sources:[],assets:[]};
- let approved=false,attempts=[];
- const approval={approvalVersion:'1',status:'approved',recipeId:id,recipeVersion:2,origin:{kind:'manual',originalRecipeVersion:1},dependencies:{ingredients:[],techniques:[]},reviewer:'engineering-test-only',note:'副本核定保留未知',createdAt:'2026-10-05',approvalHash:'a'.repeat(64)};
+ let attempts=[];
  const h=await setup((url,init)=>{
   if(url.includes('/source-illustrations'))return json({recipeId:id,recipeVersion:2,illustrations:[],stepLinks:[]});
   if(url.includes('/ingredients?')||url.includes('/techniques?'))return json({items:[],nextCursor:null});
-  if(url.endsWith('/adoption'))return json({recipeId:id,recipeVersion:2,current:{version:2,archived:false},origin:approval.origin,source:{status:approved?'approved':'needs_review'},kitchenApproval:approved?approval:null,issues:['unknown-amount','unmapped-ingredient']});
-  if(url.endsWith('/approve')){attempts.push({body:init.body,key:new Headers(init.headers).get('Idempotency-Key')});if(attempts.length===1)throw Error('response lost');approved=true;return json(approval,201);}
-  if(url.includes('/knowledge-materializations/recipes/'))return json({dishRef:'kb-test-v2',recipeId:id,recipeVersion:2,commit:'a'.repeat(40),unchanged:false});
+  if(url.endsWith('/adoption'))return json({recipeId:id,recipeVersion:2,current:{version:2,archived:false},origin:{kind:'manual',originalRecipeVersion:1},source:{status:'needs_review'},kitchenApproval:null,issues:['unknown-amount','unmapped-ingredient']});
+  if(url.includes('/knowledge-materializations/recipes/')){attempts.push({url,method:init.method,body:init.body,key:new Headers(init.headers).get('Idempotency-Key')});if(attempts.length===1)throw Error('response lost');return json({dishRef:'kb-test-v2',recipeId:id,recipeVersion:2,commit:'a'.repeat(40),unchanged:false},201);}
   if(url.endsWith('/revisions/1'))return json(detail({recipe:{...recipe,title:{zh:'原方'}}}));
   return json(detail({version:2,recipe}),200,{etag:'"v2"'});
  });
  await h.mount();assert.match(h.el.textContent,/原方 v1/);assert.match(h.el.textContent,/原方煮10分钟/);assert.match(h.el.textContent,/原方切圈/);
- const named=text=>h.all('label').find(label=>label.children[0]?.textContent===text)?.querySelector('input,textarea');
- h.set(named('核定师傅'),'engineering-test-only');h.set(named('核定说明（未知项与厨房调整）'),'副本核定保留未知');
- const confirm=h.all('input').find(input=>input.getAttribute('data-testid')==='source-confirmed');confirm.checked=true;confirm.dispatchEvent({type:'change'});
- h.click('核定已保存版本');await h.flush();assert.match(h.el.textContent,/结果尚未确认/);
+ // ADR-0011: no kitchen-approval form; the only action is putting the saved version on a menu.
+ const labels=h.all('label').map(label=>label.children[0]?.textContent);
+ assert(!labels.includes('核定师傅'));assert(!labels.includes('核定说明（未知项与厨房调整）'));
+ assert.equal(h.all('input').filter(input=>input.getAttribute('data-testid')==='source-confirmed').length,0);
+ assert.equal(h.all('button').filter(b=>b.textContent==='核定已保存版本').length,0);
+ assert.doesNotMatch(h.el.textContent,/此保存版本已由厨房核定/);
+ const freeze=h.all('button').find(b=>b.textContent==='排进菜单');assert(freeze,'排进菜单');assert.equal(freeze.disabled,false);
+ h.click('排进菜单');await h.flush();assert.match(h.el.textContent,/结果尚未确认/);
  assert.equal(h.m.inspectReloadSafety().reason,'unknown');
  await h.mount(id,'en');assert.match(h.el.textContent,/result is unconfirmed/);
- h.click('Verify operation result (same request)');await h.flush();assert.equal(attempts.length,2);assert.deepEqual(attempts[0],attempts[1]);assert.match(h.el.textContent,/approved by the kitchen/);
- h.click('Use this version in a menu');await h.flush();assert.match(h.el.textContent,/Recipe version fixed/);
+ h.click('Verify operation result (same request)');await h.flush();assert.equal(attempts.length,2);assert.deepEqual(attempts[0],attempts[1]);
+ assert.equal(attempts[0].url,`/worker/knowledge-materializations/recipes/${id}`);assert.equal(attempts[0].method,'POST');assert.deepEqual(JSON.parse(attempts[0].body),{recipeVersion:2});
+ assert.match(h.el.textContent,/Recipe version fixed/);assert.doesNotMatch(h.el.textContent,/approved by the kitchen/);
+ assert.equal(fixture.calls.filter(call=>call.url.endsWith('/approve')).length,0,'the editor never calls the approval endpoint');
  h.click('Choose menu dates and servings');assert.equal(location.hash,'#/admin/plan/week-2026-40/select/kb-test-v2');
  assert.equal(recipe.ingredients[0].amount.kind,'unknown');assert.equal(recipe.steps[0].text.zh,'原方煮10分钟，未给调料量');
 });
@@ -111,7 +115,7 @@ test('canonical creation keeps unknown fields absent and lost response uses the 
   if(url.endsWith('/ingredients')&&init.method==='POST'){attempts.push({body:init.body,key:new Headers(init.headers).get('Idempotency-Key')});ingredient=JSON.parse(init.body);if(attempts.length===1)throw Error('lost');return json({id:assetId,version:1,ingredient,createdAt:'2026-10-05'},201);}
   return json(stored);
  });await h.mount();h.click('＋ 标准材料');h.set(h.field('标准名称','中文'),'工程小米辣');h.click('保存标准资料新版本');await h.flush();assert.equal(h.m.inspectReloadSafety().reason,'unknown');assert.deepEqual(ingredient,{name:{zh:'工程小米辣'}});
- h.click('核对操作结果（使用同一请求）');await h.flush();assert.deepEqual(attempts[0],attempts[1]);assert.equal(h.all('[data-testid="standard-editor"]').length,0);assert.match(h.el.textContent,/工程小米辣/);
+ h.click('确认操作结果（使用同一请求）');await h.flush();assert.deepEqual(attempts[0],attempts[1]);assert.equal(h.all('[data-testid="standard-editor"]').length,0);assert.match(h.el.textContent,/工程小米辣/);
 });
 
 test('native field controls have an exact localized accessible label',async()=>{const h=await setup();await h.mount();const control=h.all('label').find(label=>label.children[0]?.textContent==='用量类型').querySelector('select');assert.equal(control.getAttribute('aria-label'),'用量类型');});
@@ -130,7 +134,7 @@ test('workflow paints reuse in-flight source frames and departure aborts their p
   if(url.endsWith('/adoption'))return json({recipeId:id,recipeVersion:1,current:{version:1,archived:false},origin:{kind:'manual',originalRecipeVersion:1},source:{status:'needs_review'},kitchenApproval:null,issues:[]});
   return json(detail({recipe}));
  });
- await h.mount();h.click('重新核对原方与标准资料');await h.flush();
+ await h.mount();h.click('重新读取原方与标准资料');await h.flush();
  const reads=fixture.calls.filter(call=>call.url.includes('/assets/'));assert.equal(reads.length,1,'same revision frame is fetched once across metadata/catalog paints');assert.equal(reads[0].init.signal.aborted,false,'metadata paints preserve the original in-flight request');
  h.leave();assert.equal(reads[0].init.signal.aborted,true,'route departure aborts the original private request');image.resolve(new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}}));await h.flush();assert.equal(h.all('img').length,0,'departed view cannot show a late source frame');
 });

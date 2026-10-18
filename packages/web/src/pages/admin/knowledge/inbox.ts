@@ -22,15 +22,18 @@ function releaseInboxImages():void { imageEpoch++;previewObserver?.disconnect();
 onRoute(releaseInboxImages,false);
 onAuthSessionChange(releaseInboxImages);
 type Candidate = { id: string; captureId: string; status: string; recipe: Recipe; fieldEvidence: unknown; imageCandidates: unknown[]; illustrations?:Illustration[]; unresolved?:string[]; recipeId?: string; recipeVersion?: number; reviewer?: string; reviewNote?: string };
+/** ADR-0011: the fixed record sent to the KB when a candidate is saved or set aside; it states that no one reviewed it in the app. */
+const SYSTEM_REVIEWER='CanteenOS：直接存为菜谱（复核在 app 外，ADR-0011）';
+const SYSTEM_NOTE='app 里没有人审核来源；复核在 app 外进行。';
 const stateName: Record<string, [string,string,string]> = {
   evidence_pending:['等待作品正文','Waiting for source text','Очікування тексту джерела'],
   evidence_ready:['已有作品证据','Source evidence ready','Джерело перевірено'],
-  needs_review:['来源待师傅审核','Source awaits chef review','Джерело очікує перевірки шефа'],
-  approved:['来源已审核','Source approved','Джерело схвалено'],
+  needs_review:['还没存成菜谱','Not saved as a recipe yet','Ще не збережено як рецепт'],
+  approved:['已存为菜谱','Saved as a recipe','Збережено як рецепт'],
   blocked_auth:['访问受限','Access restricted','Доступ обмежено'],
   unavailable:['作品不可用','Source unavailable','Джерело недоступне'],
   non_recipe:['非菜谱','Not a recipe','Не рецепт'],
-  rejected:['审核退回','Returned by reviewer','Повернуто на доопрацювання'],
+  rejected:['不要了','Set aside','Відкладено'],
 };
 let inboxGeneration = 0, mountedInbox: HTMLElement | null = null;
 onRoute(() => { inboxGeneration++; mountedInbox = null; }, false);
@@ -85,7 +88,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
     replace(target, h('p', {role:'alert'}, errorText(error)), error instanceof Error ? h('details',{class:'kb-inbox-error-support'},h('summary',{},t('查看错误详情','Error details','Подробиці помилки')),
       h('pre',{},error instanceof KnowledgeError ? JSON.stringify({status:error.status,code:error.code,message:error.message,details:error.details},null,2) : error.message)) : null);
   }
-  const stateText=(value:string)=>{const labels=stateName[value];return labels?t(...labels):t('待核对','Needs review','Потребує перевірки');};
+  const stateText=(value:string)=>{const labels=stateName[value];return labels?t(...labels):t('待处理','To do','Потрібно обробити');};
   const titleText=(value:I18n|undefined)=>value?.[ctx.lang]||value?.zh||value?.en||value?.uk||'';
   const importBuffer=inboxBuffer('favorites-import');
   importBuffer.refresh=()=>{if(current()){updateImportControls();importRetryNotice();if(!importBuffer.error)void Promise.all([loadBatches(),loadItems(true)]);}};
@@ -93,7 +96,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const info = h('div'), cards = h('div', { class:'kb-inbox-list' }), batchInfo = h('div');
   const searchInput=h('input',{type:'search',placeholder:t('例如：陈皮排骨','For example: tangerine peel ribs','Наприклад: реберця')}) as HTMLInputElement;
   const searchButton=button(t('搜索菜名','Search recipe names','Пошук за назвою'),()=>{searchTerm=searchInput.value.trim();void loadItems(true);});
-  const searchForm=h('form',{class:'kb-inbox-search'},field(t('按菜名搜索待审核做法','Search recipe candidates by name','Пошук рецептів за назвою'),searchInput),searchButton);
+  const searchForm=h('form',{class:'kb-inbox-search'},field(t('按菜名搜索','Search by recipe name','Пошук за назвою'),searchInput),searchButton);
   searchForm.addEventListener('submit',event=>{event.preventDefault();searchTerm=searchInput.value.trim();void loadItems(true);});
   const file = h('input',{ type:'file',accept:'.csv,text/csv' }) as HTMLInputElement;
   const claimed = h('input',{ type:'number',min:'0',step:'1' }) as HTMLInputElement;
@@ -102,9 +105,9 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const apply = button(t('确认入箱','Add to inbox','Додати до вхідних'),()=>void importRows()); apply.disabled = !prepared || importBuffer.busy || importBuffer.unknown;
   const more = button(t('继续加载','Load more','Завантажити ще'),()=>void loadItems(false)); more.hidden = true;
   root.append(h('div',{class:'kb-header'},h('h2',{},t('抖音收藏收件箱','Douyin favorites inbox','Вхідні обраного Douyin')),h('a',{class:'kb-link',href:'#/admin/knowledge'},t('返回菜谱库','Back to recipe library','До бібліотеки рецептів'))),
-    h('p',{class:'kb-muted'},t('先找菜、打开作品核对完整做法，再审核来源。保存菜谱不会自动发布菜单。','Find a recipe, inspect the full source, then review it. Saving never publishes a menu.','Знайдіть рецепт, перевірте джерело й лише тоді схвалюйте. Збереження не публікує меню.')),
+    h('p',{class:'kb-muted'},t('找到想要的菜，存为菜谱，再在菜谱里排进菜单。保存菜谱不会自动发布菜单。','Find a dish, save it as a recipe, then put it on a menu from the recipe. Saving never publishes a menu.','Знайдіть страву, збережіть як рецепт, потім додайте в меню з рецепта. Збереження не публікує меню.')),
     h('section',{class:'kb-panel'},h('h3',{},t('找一款做法','Find a recipe','Знайти рецепт')),searchForm,
-      h('p',{class:'kb-muted'},t('列表显示原片参考图与做法摘要；图片使用权待核实。来源审核与厨房用量核定是两步。','The list shows source-frame previews and recipe summaries. Image rights still need review. Source approval and kitchen quantities are separate steps.','Список показує кадри оригіналу й короткий опис. Права на зображення ще не перевірено. Джерело і кухонні кількості перевіряються окремо.'))),
+      h('p',{class:'kb-muted'},t('列表显示原片参考图与做法摘要。','The list shows source-frame previews and recipe summaries.','Список показує кадри оригіналу й короткий опис.'))),
     h('section',{class:'kb-panel'},h('h3',{},t('待处理作品','Source items','Джерела')),cards,more),
     h('details',{class:'kb-panel kb-inbox-import'},h('summary',{},t('导入收藏 CSV（管理）','Import favorites CSV (administration)','Імпорт CSV (керування)')),
       h('div',{class:'kb-inbox-import-body'},h('div',{class:'kb-actions'},field(t('CSV 文件','CSV file','Файл CSV'),file),field(t('收藏夹页面计数','Collection count','Кількість у колекції'),claimed),inspect,apply),
@@ -181,7 +184,6 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
         h('small',{},`${status} · #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`));
       if(!candidate)return [h('span',{class:'kb-inbox-badge'},status),label];
       label.append(h('small',{},`${candidate.ingredientCount} ${t('项食材','ingredients','інгредієнтів')} · ${candidate.stepCount} ${t('步做法','steps','кроків')} · ${candidate.illustrationCount} ${t('张原片参考图','source frames','кадрів оригіналу')}`));
-      if(candidate.status==='approved')label.append(h('small',{},t('厨房条件请在正式菜谱中核对','Check kitchen conditions in the formal recipe','Перевірте кухонні умови в рецепті')));
       const assetId=candidate.thumbnailAssetId;
       if(assetId&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(assetId)){
         const preview=previewImage(assetId,title||t('菜谱','Recipe','Рецепт'));disposePreview=preview.dispose;
@@ -322,15 +324,11 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
       const source=captures.find(c=>c.id===candidate.captureId);
       const reviewBuffer=inboxBuffer(`review:${candidate.id}`);
       reviewBuffer.refresh=refresh;
-      const reviewer=h('input',{type:'text'}) as HTMLInputElement;
-      const note=h('textarea',{rows:'3'}) as HTMLTextAreaElement;
-      bindInboxValue(reviewBuffer,'reviewer',reviewer);bindInboxValue(reviewBuffer,'note',note);
       const result=h('div');
-      function reviewError(error:unknown){showError(result,error);if(reviewBuffer.unknown)result.append(button(t('核对或重试原请求','Check or retry original request','Перевірити або повторити початковий запит'),()=>void retryReview()));}
+      function reviewError(error:unknown){showError(result,error);if(reviewBuffer.unknown)result.append(button(t('确认或重试原请求','Check or retry original request','Перевірити або повторити початковий запит'),()=>void retryReview()));}
       async function review(decision:'approve'|'reject'){
         if(reviewBuffer.busy||reviewBuffer.unknown)return;
-        if(!reviewer.value.trim()){replace(result,h('p',{role:'alert'},t('请填写来源核对人。','Enter the source reviewer.','Вкажіть, хто перевірив джерело.')));reviewer.focus();return;}
-        try{await writeInbox(reviewBuffer,`/favorites/candidates/${candidate.id}/review`,{decision,reviewer:reviewer.value.trim(),note:note.value.trim()},['reviewer','note']);if(current())await loadDetail();}
+        try{await writeInbox(reviewBuffer,`/favorites/candidates/${candidate.id}/review`,{decision,reviewer:SYSTEM_REVIEWER,note:SYSTEM_NOTE});if(current())await loadDetail();}
         catch(error){if(current())reviewError(error);}}
       async function retryReview(){if(reviewBuffer.busy)return;try{await writeInbox(reviewBuffer);if(current())await loadDetail();}catch(error){if(current())reviewError(error);}}
       if(reviewBuffer.error)reviewError(reviewBuffer.error);
@@ -343,7 +341,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
           h('div',{class:'kb-full-recipe-head'},h('h3',{},titleText(candidate.recipe.title)),
             h('p',{class:'kb-muted'},candidate.recipe.baseServings
               ?`${t('原方','Original yield','Оригінал')} ${candidate.recipe.baseServings} ${t('份','servings','порцій')}`
-              :t('原方份数待师傅核定','Original serving count awaits cook verification','Кількість порцій очікує перевірки кухаря')),
+              :t('原方没说几份','The source does not say how many servings','Джерело не вказує кількість порцій')),
             completeVideo?h('a',{href:completeVideo,target:'_blank',rel:'noopener noreferrer',class:'kb-full-video'},t('▶ 观看完整原视频','▶ Watch the complete source video','▶ Переглянути повне відео')):h('span',{},item.url),
             source?.evidence.media?h('small',{},`${t('视频','Video','Відео')} ${duration(source.evidence.media.durationMs)}`):h('span')),
           h('div',{class:'kb-full-recipe-grid'},
@@ -354,25 +352,26 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
                 ingredient.preparation?h('small',{},titleText(ingredient.preparation)):h('span')))),h('div',{class:'kb-reference-images'},...sourceImages('ingredient'))),
             h('section',{},h('h4',{},`${t('完整做法','Complete method','Повний спосіб')} · ${steps.length}`),
               h('ol',{class:'kb-recipe-steps'},...steps.map(step=>h('li',{class:'kb-recipe-step','data-step-id':step.id},h('p',{},titleText(step.text)),...sourceImages('step',step.id)))),h('div',{class:'kb-reference-images kb-reference-finished'},...sourceImages('finished')))),
-          unresolved.length?h('section',{class:'kb-recipe-unresolved'},h('h4',{},`${t('来源仍需核实的事项','Questions left by the source','Питання щодо джерела')} · ${unresolved.length}`),
+          unresolved.length?h('section',{class:'kb-recipe-unresolved'},h('h4',{},`${t('视频里没说清的地方','What the video leaves unclear','Що у відео не уточнено')} · ${unresolved.length}`),
             h('ul',{},...unresolved.slice(0,10).map(value=>h('li',{},value))),
-            unresolved.length>10?h('details',{},h('summary',{},`${t('更多逐字段核对点','More field questions','Більше питань')} · ${unresolved.length-10}`),
+            unresolved.length>10?h('details',{},h('summary',{},`${t('更多没说清的地方','More unclear points','Більше неуточненого')} · ${unresolved.length-10}`),
               h('ul',{},...unresolved.slice(10).map(value=>h('li',{},value)))):null):h('span'),
           h('details',{class:'kb-recipe-technical'},h('summary',{},t('查看 AI 提取依据与媒体指纹','AI extraction evidence and media hash','Докази витягу та хеш відео')),
             h('pre',{},JSON.stringify({fieldEvidence:candidate.fieldEvidence,imageCandidates:candidate.imageCandidates,illustrations:candidate.illustrations,media:source?.evidence.media},null,2)))));
       if(candidate.recipeId){
-        row.append(h('section',{class:'kb-inbox-next'},h('h4',{},t('下一步：正式菜谱与厨房核定','Next: formal recipe and kitchen approval','Далі: рецепт і кухонне схвалення')),
-          h('p',{},t('来源已确认并保存独立菜谱，尚不代表厨房核定。进入编辑器核对原方、厨房修订和未知条件，再明确批准并采用到所选计划。','The source is confirmed and saved as a recipe. Kitchen approval is separate. Open the editor to review original and kitchen changes, preserve unknowns, then explicitly approve and adopt into the selected plan.','Джерело підтверджено й рецепт збережено. Кухонне схвалення — окремий крок. Перевірте оригінал, зміни та невідомі умови в редакторі, потім схваліть і додайте до обраного плану.')),
-          h('a',{class:'kb-full-video',href:`#/admin/knowledge/${candidate.recipeId}`},t('进入正式菜谱编辑器核定','Open recipe editor for kitchen approval','Відкрити редактор для кухонного схвалення')),
-          h('a',{class:'kb-link',href:`#/admin/knowledge/${candidate.recipeId}/revisions/${candidate.recipeVersion}`},`${t('查看来源确认时的原方','Original recipe at source confirmation','Оригінал на час підтвердження')} v${candidate.recipeVersion}`)));
+        row.append(h('section',{class:'kb-inbox-next'},h('h4',{},t('已存为菜谱','Saved as a recipe','Збережено як рецепт')),
+          h('p',{},t('打开菜谱可以修改用量和切法，再排进菜单。','Open the recipe to adjust amounts and cuts, then put it on a menu.','Відкрийте рецепт, щоб змінити кількості й нарізання, потім додайте його в меню.')),
+          h('a',{class:'kb-full-video',href:`#/admin/knowledge/${candidate.recipeId}`},t('打开菜谱','Open recipe','Відкрити рецепт'))));
       } else if(candidate.status==='needs_review'){
-        const approve=button(t('确认来源并保存菜谱','Confirm source and save recipe','Підтвердити джерело й зберегти рецепт'),()=>void review('approve'),true);
-        const reject=button(t('退回','Reject','Відхилити'),()=>void review('reject'));
-        approve.disabled=source?.status!=='ready'||reviewBuffer.busy||reviewBuffer.unknown;reject.disabled=reviewBuffer.busy||reviewBuffer.unknown;
-        row.append(h('section',{class:'kb-inbox-source-review'},h('h4',{},t('来源确认','Source confirmation','Підтвердження джерела')),
-          h('p',{class:'kb-muted'},t('核对原片与完整做法，未说明的用量和时间继续保留。这里仅确认来源；厨房核定与菜单采用在正式菜谱中进行。','Check the source and complete recipe. Keep unstated amounts and times unknown. This confirms the source only; kitchen approval and menu adoption happen in the formal recipe.','Звірте джерело й повний рецепт. Невказані кількості та час залишаються невідомими. Тут підтверджується лише джерело; кухонне схвалення і планування — у рецепті.')),
-          field(t('来源核对人','Source reviewer','Хто перевірив джерело'),reviewer),field(t('来源核对备注','Source review note','Примітка про джерело'),note),h('div',{class:'kb-actions'},approve,reject),
-          source?.status!=='ready'?h('p',{role:'alert'},t('来源尚不完整，请通过采集管理补充已核对的原作品。','The source is incomplete. Add checked original evidence through source administration.','Джерело неповне. Додайте перевірені докази через керування джерелами.')):null,result));
+        // ADR-0011: no source review in the app. The KB's only call that turns a candidate into a linked recipe is its
+        // review call, so it is sent with a fixed system label that says nobody reviewed it here, never a person's name.
+        const save=button(t('存为菜谱','Save as recipe','Зберегти як рецепт'),()=>void review('approve'),true);
+        const reject=button(t('不要这条','Set aside','Відкласти'),()=>void review('reject'));
+        save.disabled=source?.status!=='ready'||reviewBuffer.busy||reviewBuffer.unknown;reject.disabled=reviewBuffer.busy||reviewBuffer.unknown;
+        row.append(h('section',{class:'kb-inbox-source-review'},h('h4',{},t('存为菜谱','Save as recipe','Зберегти як рецепт')),
+          h('p',{class:'kb-muted'},t('存下来的就是上面这份完整做法，视频里没说清的用量和时间继续保留为未知。','The complete recipe above is saved as it is; amounts and times the video leaves unclear stay unknown.','Зберігається повний рецепт вище; неуточнені у відео кількості й час залишаються невідомими.')),
+          h('div',{class:'kb-actions'},save,reject),
+          source?.status!=='ready'?h('p',{role:'alert'},t('作品资料还没取全，暂时不能存为菜谱。','The source is not fully captured yet, so it cannot be saved as a recipe.','Джерело ще не зібрано повністю, тож зберегти рецепт поки не можна.')):null,result));
       }
       return row;
     }
