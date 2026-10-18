@@ -519,7 +519,7 @@ const FROZEN_MENU_COPY = {
   imageMissing: { zh: "图片未载入", en: "Image unavailable", uk: "Фото недоступне" },
   imageUnrecorded: { zh: "图片未录", en: "Image not recorded", uk: "Фото не записано" },
   imageNeedsImage: { zh: "待补图", en: "Image needed", uk: "Потрібно додати фото" },
-  imageRightsPending: { zh: "图片使用许可待核实", en: "Image rights need review", uk: "Права на фото потребують перевірки" },
+  imageRightsPending: { zh: "还没有照片", en: "No photo yet", uk: "Фото ще немає" },
   external: { zh: "外部图片未固定", en: "External image not pinned", uk: "Зовнішнє фото не закріплено" },
   original: { zh: "查看完整原配方", en: "Read the full original recipe", uk: "Прочитати повний оригінальний рецепт" },
   servings: { zh: "计划份数", en: "Planned servings", uk: "Заплановані порції" },
@@ -527,7 +527,6 @@ const FROZEN_MENU_COPY = {
   missingDish: { zh: "菜谱未找到，原引用保留", en: "Recipe unavailable; original reference retained", uk: "Рецепт недоступний; вихідне посилання збережено" },
   missingSource: { zh: "部分资料未找到，原引用保留", en: "Some source records are unavailable; original references retained", uk: "Частина вихідних даних недоступна; посилання збережено" },
   empty: { zh: "所选范围没有已录餐食", en: "No recorded meals in this selection", uk: "У цьому виборі немає записаних страв" },
-  coverage: { zh: "这里只展示已录资料；配方完整性仍需人工核对。", en: "Only recorded information is shown; recipe completeness still needs human review.", uk: "Показано лише записані дані; повноту рецепта має перевірити людина." },
 } as const;
 const frozenMenuDisposers = new WeakMap<HTMLElement, () => void>();
 /** Frozen raw source only. The caller owns verified loading and any publication status. */
@@ -597,7 +596,7 @@ export function renderFrozenMenu(el: HTMLElement, source: FrozenMealSource, opti
       children.push(renderMenuRecipe(host, source, { ...options, selection: { menuPlanRef, mealIndex, date: meal.date, mealType: meal.mealType } }));
     });
   }
-  append(root,sourceInfo,h("p", { class: "muted menu-coverage" }, t("coverage")));
+  append(root,sourceInfo);
   el.replaceChildren(root);
   return dispose;
 }

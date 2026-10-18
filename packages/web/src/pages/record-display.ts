@@ -5,11 +5,11 @@ import {chefOnly} from './chef-only';
 import {type Lang,LANG_TAG} from '../i18n';
 export const word=(lang:Lang,zh:string,en:string,uk:string)=>lang==='zh'?zh:lang==='en'?en:uk;
 const labels:Record<string,readonly [string,string,string]>={
- active:['已入库，完整性仍需核对','In library; completeness still needs review','У бібліотеці; повноту ще слід перевірити'],
+ active:['已入库','In library','У бібліотеці'],
  draft:['草稿，资料待完善','Draft; information needs completing','Чернетка; дані слід доповнити'],
  archived:['已归档','Archived','Архівовано'],
- manual:['手动录入','Entered manually','Введено вручну'],video:['从视频录入，仍需核对','Entered from video; review needed','Введено з відео; потрібна перевірка'],
- example:['示例配方，未经厨房验证','Example recipe; not kitchen-verified','Приклад рецепта; не перевірено на кухні'],
+ manual:['手动录入','Entered manually','Введено вручну'],video:['从视频录入','Entered from video','Введено з відео'],
+ example:['示例配方','Example recipe','Приклад рецепта'],
  'day-before':['前一天','The day before','Напередодні'],morning:['当天早上','This morning','Сьогодні вранці'],'before-service':['出餐前','Before service','Перед подачею'],
 };
 export function recordValue(value:string|boolean|undefined,lang:Lang):string|undefined {
