@@ -3,7 +3,7 @@ name: video-recipe-ingest
 description: >
   Use when: 把完整做菜视频变成可复核的 CanteenOS 菜谱草稿，或检查视频菜谱是否漏了配料和步骤。
   Not for: 只凭收藏卡片、标题或平台摘要生成菜谱，也不代替师傅审核。
-  Output: F2 采集记录、全片音画证据、SQLite KB 待审核候选和完整菜谱阅读面；师傅审核后才进入固定菜单版本。
+  Output: F2 采集记录、全片音画证据、SQLite KB 候选和完整菜谱阅读面；候选可直接保存为菜谱，排进菜单时固定版本（复核在 app 外，ADR-0011）。
 ---
 
 # 视频 → 完整菜谱 → 厨房
@@ -29,7 +29,7 @@ description: >
 
 - 用 KB 的 `scripts/import-video-candidate.mjs` 验证原媒体 hash、证据引用和候选结构，再通过 loopback/SSH 隧道 API 依次写入不可变 `favorite_capture` 和 `needs_review` 的 `favorite_candidate`。同输入重试复用记录。
 - 候选页先展示整份食材、做法、未知条件和**完整原视频**。时码/证据折叠保存，师傅无需逐字段回看片段。保留来源使用权状态；未确认许可的视频帧不能作为可发布菜图。
-- AI 不署名审批。师傅补齐厨房所需条件、审核保存 SQLite 菜谱版本后，CanteenOS 才能将 `recipeId + version` 固定为菜单快照。帮厨看该版本备料，采购读同版本、按真实份数和库存决策；未知量不生成精确采购数字。
+- AI 不署名审批。候选保存为 SQLite 菜谱后，CanteenOS 在排菜时把选中的 `recipeId + version` 固定为菜单快照；来源确认和厨房核定在 app 外进行（ADR-0011）。帮厨看该版本备料，采购读同版本、按真实份数和库存决策；未知量不生成精确采购数字。
 
 ### 候选的必要原片说明图
 

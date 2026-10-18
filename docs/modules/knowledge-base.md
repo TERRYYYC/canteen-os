@@ -7,22 +7,22 @@ created: 2026-10-05
 
 # 菜谱知识库：日常写入与固定发布资料
 
-**当前真源：** 日常来源捕获、候选、Recipe 及不可变修订由独立 SQLite 知识库维护；Git 中的 `data/` 保存明确采用版本后的固定依赖与旧资料。日常编辑不需要 Git commit，合并工程 PR 不等于厨师批准菜谱。现行边界见 [当前工作合同](../current-contract.md)、[ADR-0009](../adr/0009-sqlite-knowledge-base.md) 和叠加候选的 [ADR-0010](../adr/0010-knowledge-source-access.md)。
+**当前真源：** 日常来源捕获、候选、Recipe 及不可变修订由独立 SQLite 知识库维护；Git 中的 `data/` 保存排进菜单时固定下来的版本及其依赖，以及旧资料。日常编辑不需要 Git commit。菜谱的来源确认和厨房核定在 app 外进行，CanteenOS 不要求、不显示（[ADR-0011](../adr/0011-recipe-review-outside-app.md)）。现行边界见 [当前工作合同](../current-contract.md)、[ADR-0009](../adr/0009-sqlite-knowledge-base.md) 和叠加候选的 [ADR-0010](../adr/0010-knowledge-source-access.md)。
 
-**English.** SQLite owns everyday recipe/candidate edits, immutable revisions and source evidence. Git owns explicitly frozen publication dependencies and legacy records. Engineering PR acceptance is separate from chef approval; editing a recipe does not silently update an old published menu.
+**English.** SQLite owns everyday recipe/candidate edits, immutable revisions and source evidence. Git owns explicitly frozen publication dependencies and legacy records. Source review and kitchen approval happen outside the app (ADR-0011): any saved, unarchived revision can be frozen and planned. Editing a recipe does not silently update an old published menu.
 
 知识库源码、服务和数据库属于独立本地工程；CanteenOS PR #120/#121 提供接入和固定桥，不代表其包含完整配套源码或已经部署。发行的私有配套源码白名单包、manifest 与实际版本由发布负责人独立核对，具体边界见当前工作合同。
 
 ## 当前使用合同与待完成通路
 
-- 菜谱身份和版本独立；同名菜不自动合并。来源原文、媒体 hash、原方与厨房修订可追溯。`needs_review` 候选须师傅阅读确认，不能由 agent 批量批准来生成正式菜单。
-- 正式采用以 `recipeId + version` 和完整依赖快照为核心；收藏来源、手工新建和旧导入应有等价核定/采用入口。当前集成仅有收藏候选特例，正式编辑器下一步与版本采用由 [#124](https://github.com/TERRYYYC/canteen-os/issues/124) 跟踪，不声明通用路径已完成。
-- 标准食材需显式映射，稳定身份与依赖快照版本分开；采购规格、必要换算、净料率和厨房技法/准备时机/切配规格需合法核定。当前转换存在身份/规格断点，由 [#125](https://github.com/TERRYYYC/canteen-os/issues/125) 跟踪；同名字符串不能代替材料身份。
+- 菜谱身份和版本独立；同名菜不自动合并。来源原文、媒体 hash、原方与厨房修订可追溯。候选可以直接保存为菜谱；来源确认和厨房核定在 app 外（ADR-0011）。
+- 排进菜单以 `recipeId + version` 和完整依赖快照为核心：任何已保存、未归档的版本都能固定，固定时读取它引用的标准食材和技法的当时版本并算快照哈希（ADR-0011）。收藏来源、手工新建和旧导入走同一条路。
+- 标准食材需显式映射，稳定身份与依赖快照版本分开；采购规格、必要换算、净料率和厨房技法/准备时机/切配规格需填写合法。当前转换存在身份/规格断点，由 [#125](https://github.com/TERRYYYC/canteen-os/issues/125) 跟踪；同名字符串不能代替材料身份。
 - 份数、用量、时间缺失继续未知；已录食材和调料全部进入人工采购判断。旧 readiness 的“能算”不能变成“能人工排菜”的门槛。
 - 已发布菜单固定旧 Recipe 版本和依赖；新 KB 修订不原地改变旧菜单。已有采购清单保留自己的 basis 和人工状态，来源变化由用户复核。
 - Recipe 列表、明细、历史、来源正文及原片参考图按 ADR-0010 的候选权限仅师傅/管理员可读；采购/帮厨使用已发布投影。参考图与公开菜照分开，使用权未确认不公开。
 
-当前工程/部署/厨师审批分别验收，整体入口为 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。下面保留第一轮 Git v2 模型与流程以供旧数据/数值引擎兼容；旧“PR 即审核”“Git 历史即 Recipe 版本”“目录即日常知识库”不再是 SQLite 日常工作规则。schema 具体字段始终以仓库 `schemas/` 为准。
+当前工程、部署和真实厨房使用分别验收，整体入口为 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。下面保留第一轮 Git v2 模型与流程以供旧数据/数值引擎兼容；旧“PR 即审核”“Git 历史即 Recipe 版本”“目录即日常知识库”不再是 SQLite 日常工作规则。schema 具体字段始终以仓库 `schemas/` 为准。
 
 ---
 
