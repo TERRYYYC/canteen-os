@@ -51,7 +51,7 @@ const DICT = {
   "drawer.dishes": { uk: "Страви", zh: "菜品", en: "Dishes" },
   "drawer.dishes.role": { uk: "Інгредієнти й спосіб приготування кожної страви", zh: "看每道菜的食材和做法", en: "Ingredients and method for each dish" },
   "drawer.chef": { uk: "Кабінет шефа", zh: "师傅后台", en: "Chef back office" },
-  "drawer.chef.role": { uk: "Вхідні рецепти · 复核菜谱", zh: "复核菜谱", en: "Review recipes" },
+  "drawer.chef.role": { uk: "Обране Douyin · 抖音收藏", zh: "抖音收藏", en: "Douyin favorites" },
   "drawer.plan": { uk: "План меню · 菜单计划", zh: "菜单计划", en: "Menu plan · 菜单计划" },
   "drawer.plan.role": { uk: "для шефа · 师傅", zh: "师傅", en: "for the chef · 师傅" },
   "drawer.teamMenu.role": { uk: "Для команди", zh: "团队查看", en: "For the team" },

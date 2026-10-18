@@ -60,13 +60,14 @@ async function setup(lang='en',token=null){
 test('Vite derives the application version from the Web package',()=>{
  assert.equal(config.define?.__APP_VERSION__,JSON.stringify(packageVersion));
 });
-const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',chef:'师傅后台',chefRole:'复核菜谱',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',chef:'Chef back office',chefRole:'Review recipes',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',chef:'Кабінет шефа',chefRole:'Вхідні рецепти',guest:'для гостей'}};
+const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',chef:'师傅后台',chefRole:'抖音收藏',oldChefRole:'复核菜谱',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',chef:'Chef back office',chefRole:'Douyin favorites',oldChefRole:'Review recipes',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',chef:'Кабінет шефа',chefRole:'Обране Douyin · 抖音收藏',oldChefRole:'Вхідні рецепти',guest:'для гостей'}};
 test('chef recipe inbox is reachable from the drawer independently of a published menu plan',async()=>{
  const e=await setup('zh'),p=await e.publication(empty.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
  const inbox=e.byHref('#/admin/knowledge/inbox');
  assert.ok(inbox,'The drawer must link to the chef inbox');
  assert.ok(inbox.textContent.includes('师傅后台'));
- assert.ok(inbox.textContent.includes('复核菜谱'));
+ assert.ok(inbox.textContent.includes('抖音收藏'));
+ assert.equal(inbox.textContent.includes('复核菜谱'),false,'recipe review is outside the app (ADR-0011)');
  e.shell.setActive('admin','knowledge/inbox');
  assert.equal(e.byHref('#/admin/knowledge/inbox').getAttribute('aria-current'),'page');
  e.shell.setBuild(null);
@@ -94,7 +95,7 @@ for(const lang of ['zh','en','uk']){
   const e=await setup(lang),p=await e.publication(normal.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
   assert.equal(e.drawer.textContent.includes(copy[lang].guest),false);
   assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].menu));assert.ok(e.byHref('#/menu').textContent.includes(copy[lang].role));
-  const inbox=e.byHref('#/admin/knowledge/inbox');assert.ok(inbox.textContent.includes(copy[lang].chef));assert.ok(inbox.textContent.includes(copy[lang].chefRole));
+  const inbox=e.byHref('#/admin/knowledge/inbox');assert.ok(inbox.textContent.includes(copy[lang].chef));assert.ok(inbox.textContent.includes(copy[lang].chefRole));assert.equal(inbox.textContent.includes(copy[lang].oldChefRole),false);
   const plan=e.byHref('#/admin/plan/week-41');assert.ok(plan,'Published plan must be reachable through the existing admin route');
   assert.ok(plan.textContent.includes(copy[lang].plan));assert.equal(plan.hasAttribute('aria-disabled'),false);assert.equal(e.drawer.textContent.includes('2-й етап'),false);
   assert.deepEqual(e.links().map(a=>a.getAttribute('href')),['#/prep','#/purchase','#/menu','#/dishes','#/admin/knowledge/inbox','#/admin/plan/week-41']);
