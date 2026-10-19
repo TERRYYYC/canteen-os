@@ -1,5 +1,5 @@
 {
-  "about": "候选标准食材目录的归组建议（提案，未签收）。只是建议：哪些名称算同一种料、建议角色、哪些不进目录、哪些要先认。由 catalog-stats.mjs 读取并统计；改这里后重跑脚本。members 写去掉括注后的名称；一个名称出现在两个 standard 里表示「一行写了两种料，要拆」。kind：standard = 建议进目录；water = 水，不是采购项（不填采购规格）；homemade = 不进目录（菜里自制）；identify = 先认是什么，认清前不绑定。role：main = 主料，seasoning = 调料（schema 现有两值）。",
+  "about": "候选标准食材目录的归组建议（设计已签收 2026-10-19，见 README）。仍是建议，按 README §9 C2 由 Terry 和师傅过一遍：哪些名称算同一种料、建议角色、哪些不进目录、哪些要先认。由 catalog-stats.mjs 读取并统计；改这里后重跑脚本。members 写去掉括注后的名称；一个名称出现在两个 standard 里表示「一行写了两种料，要拆」。kind：standard = 建议进目录；water = 水，不是采购项（不填采购规格）；homemade = 不进目录（菜里自制）；identify = 先认是什么，认清前不绑定。role：main = 主料，seasoning = 调料（schema 现有两值）。",
   "entries": [
     { "kind": "standard", "name": "食盐", "role": "seasoning", "members": ["盐", "食盐", "咸盐", "后续补调盐", "熬汤盐", "盐、糖"], "note": "知识库已有同名演示条目" },
     { "kind": "standard", "name": "白糖", "role": "seasoning", "members": ["白糖", "糖", "白色糖料", "盐、糖"] },

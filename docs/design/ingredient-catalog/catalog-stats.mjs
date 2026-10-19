@@ -97,7 +97,7 @@ export function renderMarkdown(catalog) {
     '',
     '# 候选标准食材目录（统计表）',
     '',
-    '> 提案附表，未签收，见 [README](README.md)。只放食材名和出现次数。归组、角色和说明都是建议，要师傅和 Terry 定。',
+    '> 附表，设计已签收（2026-10-19），见 [README](README.md)。只放食材名和出现次数。表里的归组、角色和说明仍是建议，按 README §9 C2 由 Terry 和师傅过一遍。',
     '',
     `- 数据：收藏解析的菜谱候选 ${catalog.dishes} 道，食材 ${catalog.rows} 行。名称原样 ${catalog.rawNames} 个；去掉括注（用途、待核说明）后 ${catalog.baseNames} 个，其中出现在 2 道以上的 ${catalog.shared} 个。`,
     `- 建议进目录：${standard.length} 种（主料 ${standard.filter(e => e.role === 'main').length}、调料 ${standard.filter(e => e.role === 'seasoning').length}），能绑上 ${covered(standard)} 行。其中出现在 2 道以上的 ${shared.length} 种，能绑上 ${covered(shared)} 行${focus ? `；首批 ${catalog.focusDishes} 道用到 ${first.length} 种（主料 ${first.filter(e => e.role === 'main').length}、调料 ${first.filter(e => e.role === 'seasoning').length}）` : ''}。`,
