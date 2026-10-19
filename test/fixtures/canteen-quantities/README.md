@@ -18,7 +18,7 @@ created: 2026-10-19
   - `valid/`：引用对了，要能通过。
   - `invalid/`：要报错。分别是：规则 id 不存在；`qtySource` 引用的不是每份用量规则；规则的单位和 `qty` 的单位不一样；`yieldSource` 引用的不是净料率规则；`pcsToGramSource` 引用的不是每个多少克规则。
 
-Worker 固定时的语义校验和规则引用检查归 #181、#174；那之前 Worker 只拦 schema 层。
+Worker 固定菜谱时（#181）：份数为 1、有数的用量缺出处，或者规则引用不对，都在写入前拒绝；规则引用检查读的是要写入的那个 HEAD 上的 `data/chef-rules.json`，`packages/worker/test/canteen-quantities.test.mjs` 直接用这里的 `references/chef-rules.json`。「没说清」的位置越界归 #174。
 
 ```sh
 pnpm -C packages/worker build

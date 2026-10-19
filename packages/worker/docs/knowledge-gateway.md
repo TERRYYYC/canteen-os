@@ -20,6 +20,21 @@ created: 2026-09-19
 - 固定菜谱写入 Git 时，只写经审核的可操作配方、版本标识、来源条件待核验数量及缺图状态；来源原文、引句、媒体 URL 与审核备注保留在私有 SQLite 知识库。公开投影沿用同一数据边界。此权限收紧由后续 ADR-0010（叠加 PR #121）正式取代 ADR-0009 第 3 项；本 PR 仍须作为草稿与 #121 连续交付，不单独合入或部署。
 - 旧版已存的带原片证据 v3 菜谱继续可读取，但 `/catalog`、`/source/dish`、`/asset` 和静态团队菜单投影在返回前剔除私有来源字段、片段链接及未授权图片。通用 `/dish/:id` 写入不得伪装知识库定版；原始旧记录若在公开 Git 历史中已存在，应用层过滤不能抹去历史，公开部署前需单独核对数据迁移。
 
+## 固定菜谱：原方的数和食堂用量（ADR-0012，#181）
+
+- **格式 3 的修订**（`recipe.recipeFormatVersion === "3"`，#182）：
+  - `qty` 只来自这一行的食堂用量 `qty`，十进制字符串转成数，带上 `qtySource`。
+  - 出处里的「谁」一律写 `"chef"`，日期照搬；规则只写 `ruleId`。具体是谁只留在知识库。
+  - 原方只写进 `originalAmount` 和 `originalQty`，不写 `qty`。
+  - `kitchenPrep.leadTime` 写成 `prep.leadTime`。
+  - 标准食材的 `yieldSource`、`pcsToGramSource` 同样处理。
+- **旧格式的修订**（一行一个 `amount`）照旧生成，已经写过的版本重放仍是「没有变化」。
+- **写入前的检查**和 #161 的归档检查放在一起，只拦新写入；整套文件都已在 Git 里时，重放不受影响：
+  - 份数为 1 的菜，有数的 `qty` 没有出处：422 `quantity_source_required`。
+  - 按规则填的值，规则不在要写入的那个 HEAD 的 `data/chef-rules.json` 里、种类不对，或每份用量规则的单位和 `qty` 不一样：422 `rule_reference_invalid`。
+- 修订带「没说清」（非空的 `recipe.unknowns`）：422 `recipe_unknowns_pending`，等 #174 写进菜谱文件以后再放开。这样不会先留下一份没有这些条目的固定版本，以后和带条目的版本冲突。
+- 这三种拒绝的每条错误除了中文 `message`，还带 `messages: {zh, en, uk}`。网页按 code 登记三语译文之前，可以先显示它（`packages/web` 这次没改）。
+
 ## 容量与失败
 
 - 新知识库 JSON 请求上限 4 MiB；multipart 总请求上限 8 MiB + 64 KiB envelope。KB 自身继续校验单文件 8 MiB 与图片格式。旧 JSON 256 KiB 和旧图片容量不变。
