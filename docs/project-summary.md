@@ -7,6 +7,8 @@ created: 2026-09-13
 
 # CanteenOS 当前现状与验收边界
 
+**2026-10-19 源码交付更新：** 当前 CanteenOS 源码版为 `0.3.0-alpha.5`；配套 KB `0.1.2` / schema 6 的源码、迁移、测试与视频工具已纳入本仓 [services/knowledge-base/](../services/knowledge-base/README.md)。数据库、媒体、缓存与凭据仍留在运行环境。下方 10 月 5 日的核定/伴随包说明是当时的发行记录；当前来源确认与厨房核定在 app 外进行（ADR-0011），最新行为和缺口见 [CHANGELOG](../CHANGELOG.md)。本次源码迁入不改变部署或厨房验收状态。
+
 当前范围是小团队每天吃什么、按原方备料、人工判断需要买什么。日常 Recipe/Candidate 和来源证据以 SQLite 为真源，采用的菜谱版本及完整依赖明确固定到 Git，再用于所选计划的发布资料；已有采购工作单保留自己的 basis 和人工状态。当前范围、设计、依赖与退出条件统一见 [当前工作合同](current-contract.md)。
 
 **2026-10-05 源码版本：** CanteenOS `0.3.0-alpha.4`，配套 SQLite KB `0.1.2` / schema 6。来源、手工和旧导入的正式菜谱使用普通编辑/核定/明确采用入口；菜单、备料、采购与后台持续使用所选计划。标准食材身份及采购/技法版本明确固定，旧计划与采购工作单不被新编辑静默改变。发行复跑见 [alpha.4](releases/alpha4.md)，实际检查、独立审查、合入和平台 CI 以 [#128](https://github.com/TERRYYYC/canteen-os/issues/128) 的固定版本回执为准。
@@ -19,7 +21,7 @@ created: 2026-09-13
 | 正式菜谱→计划 | 普通入口厨房核定与 recipeId+version 采用；共享标准食材及全部依赖固定，实际用例见 #124/#125/#128 版本回执 |
 | 普通菜单/备料/采购 | 明确所选计划贯穿全部入口，旧演示兼容；完整真实媒体副本的页面验证与旧 list1/new list2 回执见 #123/#128 |
 | 模型服务验证 | 本机实际 Worker/producer/web 可验证页面与请求；GitHub/Actions/Pages 的持久模型不是实际平台发布 |
-| 真实部署 | CanteenOS 接入 PR 不含完整独立 KB 部署源码；配套源码白名单包/manifest 和实际依赖需单独核对。源码版本、CI 和本机运行不说明远端已部署；以真实工作流和客户端资料版核对 |
+| 真实部署 | KB 源码在本仓 `services/knowledge-base/`；仍需单独安装、配置、备份和部署。源码版本、CI 和本机运行不说明远端已部署；以真实工作流和客户端资料版核对 |
 | 厨房投入使用 | 完整路径、原方未知、图片使用权与语言质量仍按实际验收；工程副本的测试批准不是真实厨师批准 |
 
 源码版本、显示版本、CHANGELOG 和部署回执随实际交付一致更新，参见 [CHANGELOG](../CHANGELOG.md)、[README](../README.md) 和 [发布检查表](field-test/week-43/ops-checklist.md)。绿色 Reference v3 是当前小团队视觉目标；PR #91 十画板整体仍为提案。

@@ -3,7 +3,7 @@ feature_ids: [team-meals, knowledge-base]
 topics: [canteen-os, current-scope, getting-started]
 doc_kind: project-entry
 created: 2026-10-05
-updated: 2026-10-14
+updated: 2026-10-19
 ---
 
 # CanteenOS
@@ -13,9 +13,9 @@ updated: 2026-10-14
 
 ---
 
-## SQLite 知识库接入分支（2026-09-19）
+## SQLite 知识库与源码
 
-本分支把日常菜谱管理接到独立 SQLite 知识库，入口为 `#/admin/knowledge`。同名菜谱各有独立身份，编辑保留历史版本；CanteenOS Worker 负责现有角色鉴权。`data/` 继续保存菜单、备料与采购使用的固定发布资料。知识库是独立工程；本仓接入代码不等于完整知识库部署源码。发行需单独核对配套源码包、manifest 和实际依赖版本。两者的版本边界见 [当前工作合同](docs/current-contract.md) 和 [ADR-0009](docs/adr/0009-sqlite-knowledge-base.md)。
+日常菜谱管理接到独立 SQLite 知识库，入口为 `#/admin/knowledge`。同名菜谱各有独立身份，编辑保留历史版本；CanteenOS Worker 负责现有角色鉴权。知识库源码、迁移、测试和视频采集工具现位于本仓 [services/knowledge-base/](services/knowledge-base/README.md)，克隆本仓即可接手开发。它仍是单独安装、运行和备份的服务；数据库、上传、媒体缓存和凭据不入 Git。`data/` 继续保存菜单、备料与采购使用的固定发布资料。两者的版本边界见 [当前工作合同](docs/current-contract.md) 和 [ADR-0009](docs/adr/0009-sqlite-knowledge-base.md)。
 
 This integration branch adds a SQLite recipe library at `#/admin/knowledge`, behind the existing role-based gateway. Existing meal plans keep their fixed Git publication data; recipe edits do not silently change those plans.
 
@@ -25,9 +25,9 @@ This integration branch adds a SQLite recipe library at `#/admin/knowledge`, beh
 
 **CanteenOS** 把团队每天吃什么、厨房如何备料、采购员需要确认购买什么放在同一套资料里。师傅排菜或粘贴导入菜单，维护菜品和食材；团队查看用餐安排，帮厨查看备料，采购员人工确认并保存采购清单。日常菜谱和来源证据以 SQLite 为真源，`data/` 保存显式固定的 Git 发布资料和旧数据；允许不完整资料并明确显示缺项。
 
-**当前分支源码版本：0.3.0-alpha.4（2026-10-05，工程预发布）。** 师傅后台可查看抖音菜谱候选的完整食材、步骤、来源及待核验项；人工确认后可建立正式菜谱、固定版本，并排入本周菜单。来源截图只供有权限的师傅在审核和编辑时参考；使用权未核实的图片不会自动进入帮厨或顾客页面。原片通过来源链接查看，应用内完整视频播放尚未实现。写入通过显式配置的 Worker，未配置时为只读。抽屉里的应用版本与资料更新时间分开显示。
+**当前分支源码版本：0.3.0-alpha.5（2026-10-19，工程预发布）。** 师傅后台可查看抖音菜谱候选的完整食材、步骤、来源及待核验项，直接存为菜谱并在排菜时固定版本（ADR-0011）。来源截图只供有权限的师傅参考；使用权未核实的图片不会自动进入帮厨或顾客页面。原片通过来源链接查看，应用内完整视频播放尚未实现。写入通过显式配置的 Worker，未配置时为只读。抽屉里的应用版本与资料更新时间分开显示。
 
-**本版工作流：** 完整来源或手工菜谱 → 普通正式菜谱编辑 → 厨房核定 → 明确采用版本 → 所选菜单计划保存、发布 → 同版菜单与备料 → 人工确认采购并保存/重开。标准食材按明确身份合并，采购规格和技法保留不可变版本；未知量、单位、净料率和时间显示待补，不补成数字。知识库配套版本为 **0.1.2（schema 6）**，以单独私有源码包交付。具体复跑与验收边界见 [alpha.4 发行说明](docs/releases/alpha4.md) 和 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。真实候选仍待师傅逐条确认；本机工程副本、源码合入与远端部署各自有独立回执，当前文档不宣称真实厨房已投入使用。
+**本版工作流：** 完整来源或手工菜谱 → 普通正式菜谱编辑 → 在 app 外确认来源与厨房条件 → 排菜时明确固定版本 → 所选菜单计划保存、发布 → 同版菜单与备料 → 人工确认采购并保存/重开。标准食材按明确身份合并，采购规格和技法保留不可变版本；未知量、单位、净料率和时间显示待补，不补成数字。知识库配套基线为 **0.1.2（schema 6）**，源码已纳入本仓，alpha.4 当时的独立私有包保留作历史发行记录。具体复跑与验收边界见 [alpha.4 发行说明](docs/releases/alpha4.md) 和 [#128](https://github.com/TERRYYYC/canteen-os/issues/128)。本次源码迁入不表示已部署、已同步真实菜谱或完成厨房验收。
 
 知识库菜谱列表、明细和历史可能包含来源原文与媒体地址，现仅师傅和管理员令牌可读；采购角色仍可使用已发布的菜单、备料与采购数据。
 
@@ -47,6 +47,7 @@ GitHub Pages 地址如下。成功合并到 `main` 会触发发布工作流；�
 |---|---|
 | Terry / 任何人 | [当前工作合同](docs/current-contract.md) → [项目摘要](docs/project-summary.md) |
 | AI agent | [AGENTS](AGENTS.md) → 当前工作合同 → 本次 issue → 对应 schema/API/页面合同 |
+| 知识库 / 视频导入实施者 | [源码、启动与验证](services/knowledge-base/README.md) → [视频接入合同](services/knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)；[#182](https://github.com/TERRYYYC/canteen-os/issues/182) 在此目录继续实施 |
 | 调度 agent | [当前 issues](https://github.com/TERRYYYC/canteen-os/issues) → [工作模式的当前补充](docs/operating-model.md)；[#128](https://github.com/TERRYYYC/canteen-os/issues/128) 保留 alpha.4 工程验收与发行回执 |
 | 页面实施者 | [设计索引](docs/design/README.md) → [D0 小团队页面合同](docs/design/team-meals-pages/D0-contract.md) |
 
@@ -103,9 +104,9 @@ node --test packages/web/test/e2e/team-meals/api-contract.test.mjs
 
 **CanteenOS** keeps a team's meal plan, kitchen preparation and purchasing in one shared knowledge base. The chef plans meals or imports a menu, maintains dishes and ingredients, helpers read preparation instructions, and the buyer confirms and saves the shopping list. Incomplete recipes remain visible with explicit missing information. SQLite owns daily recipes and source evidence; Git stores explicitly frozen publication data and legacy records.
 
-**Current branch source version: 0.3.0-alpha.4 (2026-10-05, engineering prerelease).** The chef can read a Douyin recipe candidate's complete ingredients, steps, source and unresolved questions, then explicitly create a recipe, freeze a version and schedule it into the current week. Source frames remain chef-only references while rights are unresolved; they do not automatically enter helper or guest pages. The original video is available through its source link, not an in-app full-video player. Writes require an explicitly configured Worker; an unconfigured build stays read-only. The drawer shows the application version separately from the publication timestamp.
+**Current branch source version: 0.3.0-alpha.5 (2026-10-19, engineering prerelease).** The chef can read a Douyin recipe candidate's complete ingredients, steps, source and unresolved questions, save it as a recipe and freeze a selected revision while planning (ADR-0011). Source frames remain chef-only references while rights are unresolved; they do not automatically enter helper or guest pages. The original video is available through its source link, not an in-app full-video player. Writes require an explicitly configured Worker; an unconfigured build stays read-only. The drawer shows the application version separately from the publication timestamp.
 
-**This workflow:** complete source or manual recipe → normal versioned recipe editor → kitchen confirmation → explicit version adoption → selected plan save/publication → matching menu/preparation → manual shopping decisions saved and reopened. Explicit standard ingredient identities merge; purchasing specifications and techniques keep immutable revisions. Unknown quantities, units, yields and timings stay unknown. Companion KB **0.1.2 (schema 6)** is delivered as a separate private source package. See [alpha.4 release notes](docs/releases/alpha4.md) and [#128](https://github.com/TERRYYYC/canteen-os/issues/128) for reproduction and acceptance evidence. Engineering-copy approval, merging source and remote deployment are distinct; actual candidates still need chef approval.
+**This workflow:** complete source or manual recipe → versioned recipe editor → source and kitchen checks outside the app → freeze a selected revision while planning → plan save/publication → matching menu/preparation → manual shopping decisions saved and reopened. Explicit standard ingredient identities merge; purchasing specifications and techniques keep immutable revisions. Unknown quantities, units, yields and timings stay unknown. Companion KB **0.1.2 (schema 6)** source, migrations, tests and ingestion tools now live in [services/knowledge-base/](services/knowledge-base/README.md); its database and process remain separate. The original alpha.4 private package is a historical release artifact. See [alpha.4 release notes](docs/releases/alpha4.md) and [#128](https://github.com/TERRYYYC/canteen-os/issues/128). Importing source does not deploy it, synchronize private recipes or establish kitchen acceptance.
 
 ### Modules
 

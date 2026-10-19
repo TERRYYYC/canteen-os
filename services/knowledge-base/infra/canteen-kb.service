@@ -1,0 +1,26 @@
+[Unit]
+Description=Canteen recipe knowledge base (SQLite knowledge base)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/canteen-kb/current
+Environment=NODE_ENV=production
+Environment=KB_HOST=127.0.0.1
+Environment=KB_PORT=4390
+Environment=KB_DATA_DIR=%h/canteen-kb/shared/data
+Environment=KB_DB_PATH=%h/canteen-kb/shared/data/knowledge.sqlite
+Environment=KB_WEB_DIST=%h/canteen-kb/current/apps/web/dist
+Environment=KB_ALLOWED_ORIGINS=http://127.0.0.1:4390,http://localhost:4390
+EnvironmentFile=%h/canteen-kb/current/release.env
+ExecStartPre=%h/canteen-kb/runtime/node-v24.18.0-linux-x64/bin/node %h/canteen-kb/current/scripts/sqlite-ops.mjs runtime
+ExecStart=%h/canteen-kb/runtime/node-v24.18.0-linux-x64/bin/node %h/canteen-kb/current/apps/api/server.mjs
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

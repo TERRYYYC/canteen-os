@@ -1,0 +1,413 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "\\S"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "items"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:canteen-kb:import-batch:1",
+  "title": "Independent recipe import batch v1",
+  "$comment": "Structure only. Service checks unique item/row IDs, references, asset readiness, clip order/kind, and source fidelity. Titles may repeat. Metadata and arrays are whole-replacement on PUT.",
+  "$defs": {
+    "i18n": {
+      "type": "object",
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000,
+          "pattern": "\\S"
+        },
+        "uk": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000,
+          "pattern": "\\S"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "amount": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "unknown"
+            },
+            "raw": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "exact"
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "\\S"
+            },
+            "raw": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "kind",
+            "value",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "to_taste"
+            },
+            "raw": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "kind",
+            "raw"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "text"
+            },
+            "raw": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "kind",
+            "raw"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ingredient": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "$ref": "#/$defs/i18n"
+        },
+        "ingredientId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "rawText": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "role": {
+          "enum": [
+            "main",
+            "seasoning",
+            "unspecified"
+          ]
+        },
+        "amount": {
+          "$ref": "#/$defs/amount"
+        },
+        "preparation": {
+          "$ref": "#/$defs/i18n"
+        },
+        "kitchenPrep": {
+          "$ref": "#/$defs/kitchenPrep"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "amount"
+      ],
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "text": {
+          "$ref": "#/$defs/i18n"
+        },
+        "techniqueId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "sourceId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "evidence": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "sourceId"
+      ],
+      "additionalProperties": false
+    },
+    "clip": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "asset": {
+      "type": "object",
+      "properties": {
+        "assetId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "role": {
+          "enum": [
+            "cover",
+            "reference",
+            "step"
+          ]
+        },
+        "stepId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "clip": {
+          "$ref": "#/$defs/clip"
+        }
+      },
+      "required": [
+        "assetId",
+        "role"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "step"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "stepId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              }
+            },
+            "required": [
+              "stepId"
+            ]
+          },
+          "else": {
+            "properties": {
+              "stepId": false
+            }
+          }
+        }
+      ]
+    },
+    "recipe": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/i18n"
+        },
+        "description": {
+          "$ref": "#/$defs/i18n"
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          }
+        },
+        "baseServings": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "ingredients": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/ingredient"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "assets": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "recipeFormatVersion": {
+          "const": "2"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "itemKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "\\S"
+        },
+        "recipe": {
+          "$ref": "#/$defs/recipe"
+        }
+      },
+      "required": [
+        "itemKey",
+        "recipe"
+      ],
+      "additionalProperties": false
+    },
+    "kitchenPrep": {
+      "type": "object",
+      "properties": {
+        "techniqueId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "timing": {
+          "enum": [
+            "day-before",
+            "morning",
+            "before-service"
+          ]
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "note": {
+          "$ref": "#/$defs/i18n"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  }
+}

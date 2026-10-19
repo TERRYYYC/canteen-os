@@ -7,6 +7,8 @@ created: 2026-10-05
 
 # alpha.4 发行与复跑
 
+2026-10-19 补充：知识库软件源码现已迁入本仓 [services/knowledge-base/](../../services/knowledge-base/README.md)，使用其独立 npm 锁安装与验证；Web 的 `KB_SOURCE_ROOT` 可指向这个目录。下面的私有伴随包和验收记录描述 alpha.4 当时的发行，不再是获取源码的唯一途径。当前来源确认和厨房核定边界按 [ADR-0011](../adr/0011-recipe-review-outside-app.md) 执行。
+
 本版为 CanteenOS `0.3.0-alpha.4` 与独立私有 KB `0.1.2`（schema 6）。CanteenOS 的发布源码不包含私有 SQLite 内容。两者的 full source revision、包 SHA256、运行产物清单、独立审查和实际合入/平台结果在 [#128](https://github.com/TERRYYYC/canteen-os/issues/128) 与关联发布 PR 回执中固定。参考 [当前合同](../current-contract.md)、[CHANGELOG](../../CHANGELOG.md) 和 [运维清单](../field-test/week-43/ops-checklist.md)。
 
 ## 使用顺序

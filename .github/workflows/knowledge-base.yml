@@ -1,0 +1,56 @@
+name: Knowledge base
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/knowledge-base/**'
+      - '.github/workflows/knowledge-base.yml'
+  pull_request:
+    paths:
+      - 'services/knowledge-base/**'
+      - '.github/workflows/knowledge-base.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  knowledge-base:
+    name: SQLite knowledge base tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services/knowledge-base
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+          cache: npm
+          cache-dependency-path: services/knowledge-base/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Report Node and embedded SQLite versions
+        run: node -p 'JSON.stringify({node:process.version,sqlite:process.versions.sqlite})'
+      - name: Install the independent frozen dependency set
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: API, lifecycle and operations tests
+        run: npm test
+      - name: Build standalone library interface
+        run: npm run build
+      - uses: pnpm/action-setup@v4
+      - name: Install the CanteenOS workspace for gateway integration
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+      - name: Build the existing Worker and core
+        working-directory: .
+        run: pnpm -C packages/worker build
+      - name: Check gateway boundaries and the web editor against in-repo SQLite
+        working-directory: .
+        env:
+          KB_SOURCE_ROOT: ${{ github.workspace }}/services/knowledge-base
+        run: node --test packages/worker/test/knowledge*.test.mjs packages/web/test/knowledge-timing.test.mjs
