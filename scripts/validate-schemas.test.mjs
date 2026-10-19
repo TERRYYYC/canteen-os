@@ -115,6 +115,15 @@ print(json.dumps(out))`;
   });
 });
 
+test('rule reference fixtures are schema-valid, so build-data rejects them only at the reference layer', () => {
+  const dir = path.join(FIXTURES, 'references');
+  assert.equal(validateEntity('chef-rules', read('references/chef-rules.json')).valid, true);
+  for (const group of ['valid', 'invalid']) for (const file of readdirSync(path.join(dir, group)).sort()) {
+    const result = validateEntity(file.startsWith('ingredient') ? 'ingredient' : 'dish', read(`references/${group}/${file}`));
+    assert.equal(result.valid, true, `${group}/${file}: ${JSON.stringify(result.errors)}`);
+  }
+});
+
 test('chef rules file is optional for older data roots but checked when present', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'chef-rules-'));
   try {
