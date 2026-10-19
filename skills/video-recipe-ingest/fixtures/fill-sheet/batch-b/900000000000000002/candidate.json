@@ -1,0 +1,29 @@
+{
+  "status": "needs_human_review",
+  "classification": "recipe",
+  "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000002",
+  "title": "示例菜甲（造的数据）",
+  "titleEvidenceIds": ["e1"],
+  "yield": { "raw": null, "normalized": null, "state": "not_stated" },
+  "ingredients": [
+    { "name": "鸡腿肉", "rawQuantity": "500克", "quantityState": "stated", "normalizedQuantity": null, "prep": "去骨，切块", "evidenceIds": ["e1"], "uncertainty": "500克是带骨还是去骨后的重量没说。", "substitution": null },
+    { "name": "青椒", "rawQuantity": "2个", "quantityState": "stated", "normalizedQuantity": null, "prep": "切块", "evidenceIds": ["e2"], "uncertainty": null, "substitution": null },
+    { "name": "葱", "rawQuantity": null, "quantityState": "not_stated", "normalizedQuantity": null, "prep": "切段", "evidenceIds": ["e3"], "uncertainty": "大葱还是小葱没说。", "substitution": null },
+    { "name": "盐", "rawQuantity": "少许", "quantityState": "stated_imprecise", "normalizedQuantity": null, "prep": null, "evidenceIds": ["e4"], "uncertainty": null, "substitution": null },
+    { "name": "生抽", "rawQuantity": "一勺", "quantityState": "stated", "normalizedQuantity": null, "prep": null, "evidenceIds": ["e4"], "uncertainty": "勺子多大没说。", "substitution": null },
+    { "name": "料酒", "rawQuantity": null, "quantityState": "stated", "normalizedQuantity": null, "prep": "腌肉用", "evidenceIds": ["e5"], "uncertainty": null, "substitution": { "name": "黄酒", "rawQuantity": "一点", "evidenceIds": ["e5"], "uncertainty": null } },
+    { "name": "红色酱料（画面所见，名称待核）", "rawQuantity": null, "quantityState": "not_checked", "normalizedQuantity": null, "prep": null, "evidenceIds": ["e6"], "uncertainty": "只在画面里看到，叫什么没说。", "substitution": null },
+    { "name": "盐、糖", "rawQuantity": "各5克", "quantityState": "stated", "normalizedQuantity": null, "prep": "调汁用", "evidenceIds": ["e7"], "uncertainty": null, "substitution": null },
+    { "name": "水", "rawQuantity": null, "quantityState": "not_stated", "normalizedQuantity": null, "prep": null, "evidenceIds": ["e7"], "uncertainty": null, "substitution": null },
+    { "name": "料汁", "rawQuantity": null, "quantityState": "not_stated", "normalizedQuantity": null, "prep": "用上面的调料调好", "evidenceIds": ["e7"], "uncertainty": null, "substitution": null },
+    { "name": "新奇香料", "rawQuantity": null, "quantityState": "not_stated", "normalizedQuantity": null, "prep": null, "evidenceIds": ["e8"], "uncertainty": null, "substitution": null }
+  ],
+  "steps": [
+    { "order": 1, "action": "鸡腿肉加料酒抓匀，腌一会儿。", "startMs": 0, "endMs": 1000, "evidenceIds": ["e1", "e5"], "unknowns": ["腌多久没说。"] },
+    { "order": 2, "action": "热锅下油，放鸡肉炒到变色。", "startMs": 1000, "endMs": 2000, "evidenceIds": ["e2"], "unknowns": ["火多大没说。", "油放多少没说。"] },
+    { "order": 3, "action": "下青椒和料汁，炒匀出锅。", "startMs": 2000, "endMs": 3000, "evidenceIds": ["e3"], "unknowns": [] }
+  ],
+  "unresolved": ["做几个人吃的量没说，不从视频推份数。"],
+  "approvedForMenu": false,
+  "approvedForProcurement": false
+}

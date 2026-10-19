@@ -1,0 +1,18 @@
+{
+  "status": "needs_human_review",
+  "classification": "recipe",
+  "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000001",
+  "title": "示例菜乙（造的数据）",
+  "titleEvidenceIds": ["e1"],
+  "yield": { "raw": "两三个人吃", "normalized": null, "state": "stated_imprecise" },
+  "ingredients": [
+    { "name": "土豆", "rawQuantity": "一斤二两", "quantityState": "stated", "normalizedQuantity": null, "prep": "切丝", "evidenceIds": ["e1"], "uncertainty": null, "substitution": null },
+    { "name": "鸡胸肉", "rawQuantity": "200克", "quantityState": "stated", "normalizedQuantity": { "value": 200, "unit": "g" }, "prep": "切丝", "evidenceIds": ["e1"], "uncertainty": null, "substitution": null }
+  ],
+  "steps": [
+    { "order": 1, "action": "土豆丝和鸡丝一起炒熟。", "startMs": 0, "endMs": 1000, "evidenceIds": ["e1"], "unknowns": [] }
+  ],
+  "unresolved": [],
+  "approvedForMenu": false,
+  "approvedForProcurement": false
+}
