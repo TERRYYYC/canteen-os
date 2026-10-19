@@ -18,7 +18,7 @@
     "baseServings": {
       "type": "integer",
       "minimum": 1,
-      "description": "配方基准份数，食堂尺度（如 50）；采购与备餐按 plannedServings/baseServings 缩放"
+      "description": "配方基准份数。推荐按每份记 1，每行用量写一份的量（ADR-0012 第 2 条）；已按其他份数记的旧资料（如演示菜 50）继续有效。采购与备料按 plannedServings/baseServings 缩放"
     },
     "components": {
       "type": "array",

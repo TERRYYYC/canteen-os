@@ -44,6 +44,8 @@ export const MAPPING = [
   { schema: "common.schema.json#/$defs/Money", ts: "Money" },
   { schema: "common.schema.json#/$defs/Confidence", ts: "Confidence" },
   { schema: "common.schema.json#/$defs/Confidence/properties/source", ts: "ConfidenceSource" },
+  { schema: "common.schema.json#/$defs/ValueSource", ts: "ValueSource" },
+  { schema: "common.schema.json#/$defs/ValueSource/properties/kind", ts: "ValueSourceKind" },
   { schema: "common.schema.json#/$defs/ImageRef", ts: "ImageRef" },
   { schema: "common.schema.json#/$defs/Image", ts: "Image" },
   { schema: "common.schema.json#/$defs/MealType", ts: "MealType" },
@@ -59,6 +61,10 @@ export const MAPPING = [
   // ---- techniques.schema.json（整个文件是数组，条目在 #/items）----
   { schema: "techniques.schema.json#/items", ts: "Technique" },
   { schema: "techniques.schema.json#/items/properties/kind", ts: "TechniqueKind" },
+  // ---- chef-rules.schema.json（整个文件是数组，条目在 #/items，ADR-0012）----
+  { schema: "chef-rules.schema.json#/items", ts: "ChefRule" },
+  { schema: "chef-rules.schema.json#/items/properties/kind", ts: "ChefRuleKind" },
+  { schema: "chef-rules.schema.json#/items/properties/unit", ts: "ChefRule.unit" },
   // ---- dish.schema.json ----
   { schema: "dish.schema.json#", ts: "Dish" },
   { schema: "dish.schema.json#/properties/components/items", ts: "DishComponent" },
@@ -81,6 +87,11 @@ export const MAPPING = [
   { schema: "dish-v3.schema.json#/properties/components/items/properties/prep", ts: "DishPrepV3" },
   { schema: "dish-v3.schema.json#/properties/components/items/properties/prep/properties/timing", ts: "PrepTiming" },
   { schema: "dish-v3.schema.json#/properties/components/items/properties/role", ts: "DishComponentV3.role" },
+  { schema: "dish-v3.schema.json#/$defs/LeadTime", ts: "LeadTime" },
+  { schema: "dish-v3.schema.json#/$defs/LeadTime/properties/unit", ts: "LeadTimeUnit" },
+  { schema: "dish-v3.schema.json#/$defs/RecipeUnknown", ts: "RecipeUnknown" },
+  { schema: "dish-v3.schema.json#/$defs/RecipeUnknown/properties/kind", ts: "RecipeUnknownKind" },
+  { schema: "dish-v3.schema.json#/$defs/RecipeUnknown/properties/action", ts: "PrepAheadAction" },
   { schema: "dish-v3.schema.json#/properties/provenance/oneOf/1/properties/originKind", ts: "KnowledgeProvenance.originKind" },
   { schema: "shopping-list.schema.json#/properties/shoppingListVersion", ts: "ShoppingList.shoppingListVersion" },
   { schema: "dish-v3.schema.json#/properties/provenance", ts: "DishV3.provenance" },

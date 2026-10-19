@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/common.schema.json",
   "title": "CanteenOS Common Definitions",
-  "description": "所有实体共享的基础定义：Id、I18nString、Quantity、Money、Confidence、ImageRef（Image 为其兼容别名）、枚举。单一事实源，其他 schema 通过 $ref 引用。v2 收窄（ADR-0006）后不再包含 UnitConversion / StorageType（pcs↔g 走 ingredient.pcsToGram，g↔kg、ml↔l 为代码常量）。",
+  "description": "所有实体共享的基础定义：Id、I18nString、Quantity、Money、Confidence、ValueSource、ImageRef（Image 为其兼容别名）、枚举。单一事实源，其他 schema 通过 $ref 引用。v2 收窄（ADR-0006）后不再包含 UnitConversion / StorageType（pcs↔g 走 ingredient.pcsToGram，g↔kg、ml↔l 为代码常量）。",
   "type": "object",
   "$defs": {
     "Id": {
@@ -77,6 +77,47 @@
       },
       "required": ["value", "source"],
       "additionalProperties": false
+    },
+    "ValueSource": {
+      "type": "object",
+      "description": "厨房值的出处（ADR-0012 第 3 条）：measured=师傅实称，specified=师傅指定，rule=按师傅规则填。实称和指定写谁、哪天；公开资料里「谁」只写师傅（chef），具体是谁记在知识库修订说明里。按规则填的值只写 ruleId，谁、哪天看 data/chef-rules.json 里那条规则。原方的数不是出处，不写在这里。和 Confidence 不同：Confidence 是机器解析的置信度",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["measured", "specified", "rule"]
+        },
+        "ruleId": {
+          "$ref": "#/$defs/Id",
+          "description": "kind=rule 时必填：data/chef-rules.json 里规则的 id"
+        },
+        "by": {
+          "const": "chef",
+          "description": "谁给的；公开资料里只写师傅（签收 A2）"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "哪天给的，如 2026-10-19"
+        }
+      },
+      "required": ["kind"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "rule" } }, "required": ["kind"] },
+          "then": {
+            "required": ["ruleId"],
+            "not": { "anyOf": [{ "required": ["by"] }, { "required": ["date"] }] }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "enum": ["measured", "specified"] } }, "required": ["kind"] },
+          "then": {
+            "required": ["by", "date"],
+            "not": { "required": ["ruleId"] }
+          }
+        }
+      ]
     },
     "ImageRef": {
       "type": "object",

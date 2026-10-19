@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2",
+  "name": {
+    "zh": "测试菜：v2 份数 1"
+  },
+  "baseServings": 1,
+  "components": [
+    {
+      "ingredientRef": "test-chicken",
+      "qty": {
+        "value": 150,
+        "unit": "g"
+      }
+    }
+  ],
+  "provenance": {
+    "source": "example"
+  }
+}

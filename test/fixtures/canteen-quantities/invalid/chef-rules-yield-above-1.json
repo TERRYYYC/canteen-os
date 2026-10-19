@@ -1,0 +1,15 @@
+[
+  {
+    "id": "test-yield",
+    "kind": "yield",
+    "value": 1.25,
+    "scope": {
+      "zh": "测试食材（夹具，不是厨房规则）"
+    },
+    "canonicalIngredientIds": [
+      "00000000-0000-4000-8000-000000000001"
+    ],
+    "by": "chef",
+    "date": "2026-10-19"
+  }
+]

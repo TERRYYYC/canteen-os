@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试菜（夹具，不是厨房菜谱）"
+  },
+  "baseServings": 1,
+  "components": [
+    {
+      "ingredientRef": "test-chicken",
+      "qty": {
+        "value": 150,
+        "unit": "g"
+      },
+      "qtySource": {
+        "kind": "measured",
+        "by": "chef"
+      },
+      "role": "main",
+      "originalAmount": "500克",
+      "originalQty": {
+        "value": 500,
+        "unit": "g"
+      },
+      "prep": {
+        "techniqueRef": "large-chunks",
+        "size": "3cm",
+        "timing": "day-before",
+        "leadTime": {
+          "value": 2,
+          "unit": "h"
+        }
+      }
+    },
+    {
+      "ingredientRef": "test-salt",
+      "qty": {
+        "value": 2,
+        "unit": "g"
+      },
+      "qtySource": {
+        "kind": "rule",
+        "ruleId": "test-salt-per-serving"
+      },
+      "role": "seasoning",
+      "originalAmount": "少许"
+    },
+    {
+      "ingredientRef": "test-soy-sauce",
+      "qty": {
+        "value": 10,
+        "unit": "ml"
+      },
+      "qtySource": {
+        "kind": "specified",
+        "by": "chef",
+        "date": "2026-10-19"
+      },
+      "role": "seasoning"
+    },
+    {
+      "ingredientRef": "test-pepper",
+      "role": "seasoning",
+      "originalAmount": "一点点"
+    },
+    {
+      "ingredientRef": "test-scallion",
+      "qty": {
+        "unit": "to-taste"
+      },
+      "originalAmount": "适量"
+    }
+  ],
+  "steps": [
+    {
+      "text": {
+        "zh": "测试步骤一"
+      }
+    },
+    {
+      "text": {
+        "zh": "测试步骤二"
+      }
+    }
+  ],
+  "unknowns": [
+    {
+      "kind": "prep-ahead",
+      "action": "marinate",
+      "stepIndex": 0,
+      "componentIndex": 0
+    },
+    {
+      "kind": "heat",
+      "stepIndex": 1
+    },
+    {
+      "kind": "amount",
+      "componentIndex": 3
+    },
+    {
+      "kind": "other"
+    }
+  ],
+  "provenance": {
+    "source": "example"
+  },
+  "status": "active"
+}

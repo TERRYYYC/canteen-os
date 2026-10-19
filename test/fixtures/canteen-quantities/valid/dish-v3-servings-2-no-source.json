@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试菜：份数 2、用量没写出处"
+  },
+  "baseServings": 2,
+  "components": [
+    {
+      "ingredientRef": "test-chicken",
+      "qty": {
+        "value": 300,
+        "unit": "g"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "text": {
+        "zh": "测试步骤一"
+      }
+    },
+    {
+      "text": {
+        "zh": "测试步骤二"
+      }
+    }
+  ],
+  "provenance": {
+    "source": "example"
+  },
+  "status": "active"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试食材（夹具）"
+  },
+  "baseUnit": "g",
+  "yieldSource": {
+    "kind": "measured",
+    "by": "chef",
+    "date": "2026-10-19"
+  },
+  "trackStock": false
+}
