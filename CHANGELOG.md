@@ -32,11 +32,16 @@
 - 候选「存为菜谱」时，知识库里会留一条来源审核记录，署名是固定的系统标记，写明「复核在 app 外」（ADR-0011 第 4 条），不冒充任何人。
 - 师傅后台的入口从「复核菜谱」改成「抖音收藏」。
 
+已知问题，还没修：
+
+- 升级前（alpha.4）固定过的知识库菜谱版本，再固定一次可能报冲突，排不进新菜单。旧资料照常能读，没有被覆盖或丢失（[#185](https://github.com/TERRYYYC/canteen-os/issues/185)）。
+- 在师傅后台改了菜谱、还没保存就点「排进菜单」，固定进去的可能是改之前保存的那一版。先保存再排（[#186](https://github.com/TERRYYYC/canteen-os/issues/186)）。
+
 **没做什么**
 
 - **收藏菜谱还不能用来采购和备料。**
   - 已解析的 49 道菜还在本机知识库，没有同步到远端。
-  - 它们都没写份数，主料用量大多没说，也没有一行绑定标准食材（[#170](https://github.com/TERRYYYC/canteen-os/issues/170)）。
+  - 它们都还没录份数，主料用量大多还没录或待核，也没有一行绑定标准食材（[#170](https://github.com/TERRYYYC/canteen-os/issues/170)）。
   - 补全方案在 ADR-0012 和两份设计提案里，放到下一版。
 - 线上仍是只读构建，还没接上写入服务（[#157](https://github.com/TERRYYYC/canteen-os/issues/157)）。
 - 页面还没按设计稿 v12 对齐（[#155](https://github.com/TERRYYYC/canteen-os/issues/155)）；调色板（[#135](https://github.com/TERRYYYC/canteen-os/pull/135)）和「收藏」改名、平台标签（[#166](https://github.com/TERRYYYC/canteen-os/pull/166)）都还没合并。
