@@ -569,6 +569,35 @@ test('team source errors block publication and carry the exact owner and field',
  }finally{rmSync(root,{recursive:true,force:true});}
 });
 
+test('team rule-sourced values must cite an existing chef rule of the matching kind and unit (ADR-0012)',()=>{
+ const refs=path.join(ROOT,'test/fixtures/canteen-quantities/references');
+ const cases=[
+  ['valid/dish.json','dishes'],
+  ['valid/ingredient.json','ingredients'],
+  ['invalid/dish-rule-missing.json','dishes','/components/0/qtySource',/rule-salt is not in data\/chef-rules\.json/],
+  ['invalid/dish-rule-wrong-kind.json','dishes','/components/0/qtySource',/gives yield, not per-serving/],
+  ['invalid/dish-rule-wrong-unit.json','dishes','/components/0/qtySource',/is in g, but the quantity is in ml/],
+  ['invalid/ingredient-yield-rule-wrong-kind.json','ingredients','/yieldSource',/gives pcs-to-gram, not yield/],
+  ['invalid/ingredient-pcs-rule-wrong-kind.json','ingredients','/pcsToGramSource',/gives per-serving, not pcs-to-gram/],
+ ];
+ for (const [file,dir,pointer,message] of cases) {
+  const {root}=committedTeamRoot();
+  try {
+   cpSync(path.join(refs,'chef-rules.json'),path.join(root,'data/chef-rules.json'));
+   cpSync(path.join(refs,file),path.join(root,`data/${dir}/rule-fixture.json`));
+   const revision=commitData(root),r=runBuild({root,target:'team-meals',commit:revision,write:false,at:AT});
+   const errors=r.issues.filter(i=>i.kind==='error');
+   const cli=runCli(['--target','team-meals','--check','--revision',revision,'--at',AT],root);
+   if (!pointer) {assert.deepEqual(errors,[],file);assert.equal(cli.status,0,cli.stdout+cli.stderr);continue;}
+   assert.equal(errors.length,1,`${file}: ${JSON.stringify(errors)}`);
+   assert.equal(errors[0].code,'invalid-source');assert.equal(errors[0].ownerPath,`data/${dir}/rule-fixture.json`);
+   assert.equal(errors[0].jsonPointer,pointer);assert.match(errors[0].message,message);
+   assert.ok(r.sheets[PLAN].teamMeals.issues.some(i=>i.jsonPointer===pointer),file);
+   assert.equal(cli.status,1,file);
+  }finally{rmSync(root,{recursive:true,force:true});}
+ }
+});
+
 test('team publication keeps the complete old output on staged-write or directory-swap failure',()=>{
  const {root,revision}=committedTeamRoot(),out=path.join(root,'out');
  try {

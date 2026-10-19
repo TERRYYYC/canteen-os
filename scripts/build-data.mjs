@@ -371,21 +371,44 @@ function loadCommittedInputs(root, revision) {
   };
   const inputs={menuPlans:{},dishes:{},ingredients:{},techniques:[]};
   const {validateEntity}=createSchemaValidators({schemaDir:path.resolve(HERE,'../schemas')});
-  let haveTechniques=false;
+  let haveTechniques=false,chefRules=[];
   for (const file of entries.keys()) {
     const match=/^data\/(ingredients|dishes|menu-plans)\/([^/]+)\.json$/.exec(file);
-    if (!match && file!=='data/techniques.json') continue;
-    const kind=match ? {'ingredients':'ingredient','dishes':'dish','menu-plans':'plan'}[match[1]] : 'techniques';
+    if (!match && file!=='data/techniques.json' && file!=='data/chef-rules.json') continue;
+    const kind=match ? {'ingredients':'ingredient','dishes':'dish','menu-plans':'plan'}[match[1]]
+      : file==='data/chef-rules.json' ? 'chef-rules' : 'techniques';
     if (match && !/^[a-z][a-z0-9-]*$/.test(match[2])) throw new Error(`invalid_source: invalid entity ID in ${file}`);
     let value;
     try { value=JSON.parse(read(file).toString('utf8')); } catch { throw new Error(`invalid_source: unreadable JSON ${file}`); }
     const checked=validateEntity(kind,value);
     if (!checked.valid) throw new Error(`invalid_source: ${file}: ${checked.errors.map(e=>`${e.instancePath} ${e.keyword}`).join(', ')}`);
     if (kind==='techniques') {inputs.techniques=value;haveTechniques=true;}
+    else if (kind==='chef-rules') chefRules=value;
     else inputs[{'ingredient':'ingredients','dish':'dishes','plan':'menuPlans'}[kind]][match[2]]=value;
   }
   if (!haveTechniques) throw new Error('invalid_source: missing techniques.json');
-  return {inputs,read,entries};
+  return {inputs,read,entries,chefRules};
+}
+
+/** ADR-0012: a rule-sourced value must cite an existing rule of the matching kind (and unit for qty). */
+function ruleReferenceIssues(inputs, chefRules) {
+  const rules=new Map(chefRules.map(rule=>[rule.id,rule])),issues=[];
+  const check=(source,kind,unit,ownerPath,jsonPointer)=>{
+    if (source?.kind!=='rule') return;
+    const rule=rules.get(source.ruleId);
+    const message=!rule ? `Rule ${source.ruleId} is not in data/chef-rules.json`
+      : rule.kind!==kind ? `Rule ${source.ruleId} gives ${rule.kind}, not ${kind}`
+      : unit!==undefined&&rule.unit!==unit ? `Rule ${source.ruleId} is in ${rule.unit}, but the quantity is in ${unit}` : null;
+    if (message) issues.push({kind:'error',code:'invalid-source',ownerPath,jsonPointer,message});
+  };
+  for (const [id,ingredient] of Object.entries(inputs.ingredients)) {
+    const owner=`data/ingredients/${id}.json`;
+    check(ingredient.yieldSource,'yield',undefined,owner,'/yieldSource');
+    check(ingredient.pcsToGramSource,'pcs-to-gram',undefined,owner,'/pcsToGramSource');
+  }
+  for (const [id,dish] of Object.entries(inputs.dishes)) (dish.components??[]).forEach((component,i)=>
+    check(component.qtySource,'per-serving',component.qty?.unit,`data/dishes/${id}.json`,`/components/${i}/qtySource`));
+  return issues;
 }
 
 /**
@@ -474,6 +497,7 @@ function runTeamBuild({root,outDir,at,write,commit}) {
     seenTechniques.add(t.id);
   }
   for (const [id,ingredient] of Object.entries(inputs.ingredients)) if (ingredient.baseUnit==='pcs'&&ingredient.yield!==undefined) issues.push({kind:'error',code:'invalid-source',message:`Ingredient ${id}: pcs cannot declare yield`});
+  issues.push(...ruleReferenceIssues(inputs,source.chefRules));
   for (const planId of planIds) {
     const plan=inputs.menuPlans[planId];
     if (plan.dateRange && (plan.dateRange.start>plan.dateRange.end || plan.meals.some(m=>m.date<plan.dateRange.start||m.date>plan.dateRange.end))) {

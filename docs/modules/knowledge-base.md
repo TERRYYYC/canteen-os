@@ -63,7 +63,7 @@ created: 2026-10-05
 | name | I18nString | ✅ | **唯一必填**——一道菜只有名字也能导入 |
 | description | I18nString | | 一句话简介（v0.1 新增，可选）；菜单页抽屉展示 |
 | image | ImageRef | | 成品图 `{src, license, author?, sourceUrl?}` |
-| baseServings | int ≥1 | | 配方基准份数，食堂尺度（如 50） |
+| baseServings | int ≥1 | | 配方基准份数；推荐按每份记 1（ADR-0012），旧资料如演示菜 50 继续有效 |
 | components[] | object | | `ingredientRef + qty{value,unit} + prep?{techniqueRef, size?, timing?, note?, image?(ImageRef)} + confidence?`；`prep.timing` ∈ `day-before \| morning \| before-service`（v0.1 新增，可选），备料单按它分组，缺省归「早上」 |
 | steps[] | object | | `text(I18nString) + techniqueRef? + image?(ImageRef) + clip?{videoUrl,start,end}` |
 | provenance | object | | `{source: manual\|video\|example, videoUrl?}`；视频来源必填 videoUrl；`example`（v0.1 新增）= 设计稿/演示示例菜，构建时排除、不得当真实数据发布 |

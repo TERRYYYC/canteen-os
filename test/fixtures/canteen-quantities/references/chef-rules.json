@@ -1,0 +1,33 @@
+[
+  {
+    "id": "test-salt-per-serving",
+    "kind": "per-serving",
+    "value": 2,
+    "unit": "g",
+    "scope": {
+      "zh": "测试食材（夹具，不是厨房规则）"
+    },
+    "by": "chef",
+    "date": "2026-10-19"
+  },
+  {
+    "id": "test-yield",
+    "kind": "yield",
+    "value": 0.8,
+    "scope": {
+      "zh": "测试食材（夹具，不是厨房规则）"
+    },
+    "by": "chef",
+    "date": "2026-10-19"
+  },
+  {
+    "id": "test-pcs-to-gram",
+    "kind": "pcs-to-gram",
+    "value": 50,
+    "scope": {
+      "zh": "测试食材（夹具，不是厨房规则）"
+    },
+    "by": "chef",
+    "date": "2026-10-19"
+  }
+]

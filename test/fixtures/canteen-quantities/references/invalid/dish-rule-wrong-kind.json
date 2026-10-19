@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试菜：按规则填的用量（夹具）"
+  },
+  "baseServings": 1,
+  "components": [
+    {
+      "ingredientRef": "salt",
+      "qty": {
+        "value": 2,
+        "unit": "g"
+      },
+      "qtySource": {
+        "kind": "rule",
+        "ruleId": "test-yield"
+      },
+      "role": "seasoning"
+    }
+  ]
+}

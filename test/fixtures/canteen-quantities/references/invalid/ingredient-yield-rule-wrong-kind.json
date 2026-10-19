@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试食材：按规则填的换算值（夹具）"
+  },
+  "baseUnit": "g",
+  "trackStock": false,
+  "yield": 0.8,
+  "yieldSource": {
+    "kind": "rule",
+    "ruleId": "test-pcs-to-gram"
+  }
+}

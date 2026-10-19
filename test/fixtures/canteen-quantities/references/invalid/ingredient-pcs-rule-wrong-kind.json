@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "3",
+  "name": {
+    "zh": "测试食材：按规则填的换算值（夹具）"
+  },
+  "baseUnit": "g",
+  "trackStock": false,
+  "pcsToGram": 50,
+  "pcsToGramSource": {
+    "kind": "rule",
+    "ruleId": "test-salt-per-serving"
+  }
+}

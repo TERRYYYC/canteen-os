@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://canteenos.dev/schemas/chef-rules.schema.json",
+  "title": "ChefRules",
+  "description": "师傅规则（ADR-0012 第 3 条，签收 A1–A3）：data/chef-rules.json，整个文件是一个数组，一条一条规则。规则只由师傅定，AI 不定、不代填（第 5 条）；先只按食材分。按规则填的值用 ValueSource.ruleId 引用 id，id 不能重复（由 scripts/validate-schemas.mjs 检查）。规则定下后不改：师傅改规则就加一条新 id 的规则，旧条目留着，已经固定的菜谱还引用它。",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": { "$ref": "common.schema.json#/$defs/Id" },
+      "kind": {
+        "type": "string",
+        "enum": ["per-serving", "yield", "pcs-to-gram"],
+        "description": "规则给的是什么：per-serving=每份净料用量，yield=净料率，pcs-to-gram=每个多少克"
+      },
+      "value": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "规则的数：per-serving 按 unit 计；yield 是 0–1；pcs-to-gram 是每个多少克"
+      },
+      "unit": {
+        "type": "string",
+        "enum": ["g", "ml", "pcs"],
+        "description": "只用于 per-serving，跟所绑标准食材的基准单位一致（ADR-0012 第 4 条）"
+      },
+      "scope": {
+        "$ref": "common.schema.json#/$defs/I18nString",
+        "description": "适用范围，用人话写是哪种料，如「食盐」"
+      },
+      "canonicalIngredientIds": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": "可选：这条规则管的标准食材"
+      },
+      "note": { "$ref": "common.schema.json#/$defs/I18nString" },
+      "by": {
+        "const": "chef",
+        "description": "谁定的；公开资料里只写师傅（签收 A2），具体是谁记在知识库修订说明里"
+      },
+      "date": {
+        "type": "string",
+        "format": "date",
+        "description": "哪天定的，如 2026-10-19"
+      }
+    },
+    "required": ["id", "kind", "value", "scope", "by", "date"],
+    "additionalProperties": false,
+    "allOf": [
+      {
+        "if": { "properties": { "kind": { "const": "per-serving" } }, "required": ["kind"] },
+        "then": { "required": ["unit"] }
+      },
+      {
+        "if": { "properties": { "kind": { "enum": ["yield", "pcs-to-gram"] } }, "required": ["kind"] },
+        "then": { "not": { "required": ["unit"] } }
+      },
+      {
+        "if": { "properties": { "kind": { "const": "yield" } }, "required": ["kind"] },
+        "then": { "properties": { "value": { "maximum": 1 } } }
+      }
+    ]
+  }
+}

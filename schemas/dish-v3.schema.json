@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://canteenos.dev/schemas/dish-v3.schema.json",
   "title": "DishV3",
-  "description": "小团队菜谱：未知用量省略 qty，不能伪造 to-taste。旧 v2 保持严格，见 ADR-0008。",
+  "description": "小团队菜谱：未知用量省略 qty，不能伪造 to-taste。旧 v2 保持严格，见 ADR-0008。按 ADR-0012 记的菜份数写 1：份数为 1 的菜，每个有数的 qty 都要有 qtySource；原方的数只进 originalAmount / originalQty，不进计算；unknowns 的位置不能越界（后两条 JSON Schema 管不到，由 scripts/validate-schemas.mjs 检查）。",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -33,6 +33,10 @@
           "qty": {
             "$ref": "dish.schema.json#/properties/components/items/properties/qty"
           },
+          "qtySource": {
+            "$ref": "common.schema.json#/$defs/ValueSource",
+            "description": "qty 的出处：师傅实称、师傅指定，或按师傅规则（ADR-0012 第 3 条）。份数为 1 的菜，每个有数的 qty 都必须有它"
+          },
           "prep": {
             "type": "object",
             "description": "该配料在本菜中的备菜规格（备料单「能教」关卡的依据）",
@@ -55,6 +59,10 @@
                 ],
                 "description": "备料时机（可选）：day-before=前一天 / morning=当天早上 / before-service=开餐前。备料单按它分组，缺省归「早上」（execution-brief §3 v0.1）"
               },
+              "leadTime": {
+                "$ref": "#/$defs/LeadTime",
+                "description": "要提前多久：腌、泡、卤、醒的时长（ADR-0012 第 8 条）。什么时候准备仍写 timing，note 不再记时长"
+              },
               "note": {
                 "$ref": "common.schema.json#/$defs/I18nString"
               },
@@ -72,6 +80,10 @@
           "originalAmount": {
             "type": "string",
             "description": "经审核来源的原方用量；即使不能换算也必须保留"
+          },
+          "originalQty": {
+            "$ref": "common.schema.json#/$defs/Quantity",
+            "description": "原方里的数，结构化后只用来显示，不参与采购和备料计算（ADR-0012 第 1 条）；原话仍在 originalAmount"
           },
           "originalText": {
             "type": "string",
@@ -109,12 +121,28 @@
           ],
           "canonicalIngredientVersion": [
             "canonicalIngredientId"
+          ],
+          "qtySource": [
+            "qty"
+          ],
+          "originalQty": [
+            "originalAmount"
           ]
         }
       }
     },
     "steps": {
       "$ref": "dish.schema.json#/properties/steps"
+    },
+    "unknowns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "uniqueItems": true,
+      "description": "视频里没说清的地方：只记类别和位置，不记原话（原话留在私有知识库，ADR-0010）。没有就省略本字段，不写空数组（ADR-0012 第 11 条）",
+      "items": {
+        "$ref": "#/$defs/RecipeUnknown"
+      }
     },
     "provenance": {
       "oneOf": [
@@ -213,7 +241,7 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
-              "description": "原片仍需核对的条件数量；原文和审核备注留在私有知识库"
+              "description": "旧字段，ADR-0011 后不再写入；只留给旧资料读取，不换算成 unknowns"
             },
             "coverState": {
               "type": "string",
@@ -259,5 +287,110 @@
     "schemaVersion",
     "name"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$defs": {
+    "LeadTime": {
+      "type": "object",
+      "description": "提前时长：数值加单位。min=分钟，h=小时，d=天",
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "min",
+            "h",
+            "d"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "RecipeUnknown": {
+      "type": "object",
+      "description": "一处没说清：类别加位置。stepIndex、componentIndex 都不带，就是整道菜的；位置从 0 起，不能越界（由 scripts/validate-schemas.mjs 检查）",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "prep-ahead",
+            "amount",
+            "net-or-gross",
+            "cut-size",
+            "identity",
+            "heat",
+            "duration",
+            "doneness",
+            "other"
+          ],
+          "description": "prep-ahead=提前多久，amount=用量，net-or-gross=毛重还是净重，cut-size=切多大，identity=用哪种，heat=火候，duration=做多久，doneness=做到什么样，other=别的"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "marinate",
+            "soak",
+            "brine",
+            "rest",
+            "cool",
+            "other"
+          ],
+          "description": "只用于 prep-ahead：要提前做的是腌、泡、卤、醒、晾凉，还是别的"
+        },
+        "stepIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "在 steps 里的位置，从 0 起"
+        },
+        "componentIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "在 components 里的位置，从 0 起"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "prep-ahead"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "action"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "prep-ahead"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
 }

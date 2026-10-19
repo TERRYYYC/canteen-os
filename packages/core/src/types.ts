@@ -71,6 +71,24 @@ export interface Confidence {
   source: ConfidenceSource;
 }
 
+/** measured=师傅实称 / specified=师傅指定 / rule=按师傅规则填（ADR-0012 第 3 条） */
+export type ValueSourceKind = "measured" | "specified" | "rule";
+
+/**
+ * 厨房值的出处（qty、净料率、每个多少克）。实称和指定写 by + date；
+ * 按规则填的只写 ruleId，谁、哪天看 data/chef-rules.json 里那条规则。
+ * 公开资料里「谁」只写师傅（chef）。和 Confidence（机器解析置信度）不是一回事。
+ */
+export interface ValueSource {
+  kind: ValueSourceKind;
+  /** kind=rule 时必填 */
+  ruleId?: Id;
+  /** measured / specified 时必填 */
+  by?: "chef";
+  /** measured / specified 时必填，ISO 日期 */
+  date?: string;
+}
+
 /**
  * 统一图片对象 { src, license, author?, sourceUrl? }（execution-brief §3 v0.1；
  * CC BY-SA 裁决的落实，ADR-0006 裁决 2）。dish.image / prep.image / steps[].image /
@@ -147,7 +165,11 @@ export interface IngredientV3 {
   externalId?: string;
   baseUnit?: 'g' | 'ml' | 'pcs';
   pcsToGram?: number;
+  /** 每个多少克的出处（ADR-0012 第 3 条） */
+  pcsToGramSource?: ValueSource;
   yield?: number;
+  /** 净料率的出处（ADR-0012 第 3 条） */
+  yieldSource?: ValueSource;
   role?: 'main' | 'seasoning';
   purchase?: PurchaseSpec;
   trackStock: boolean;
@@ -243,7 +265,7 @@ export interface Dish {
   description?: I18nString;
   /** 成品图 */
   image?: ImageRef;
-  /** 配方基准份数，食堂尺度（如 50）；按 plannedServings/baseServings 缩放 */
+  /** 配方基准份数。推荐按每份记 1（ADR-0012 第 2 条）；旧资料如演示菜 50 继续有效。按 plannedServings/baseServings 缩放 */
   baseServings?: number;
   components?: DishComponent[]; // >= 1
   steps?: DishStep[]; // >= 1
@@ -366,20 +388,32 @@ export interface MenuPlanV3 {
 }
 export type AnyMenuPlan = MenuPlan | MenuPlanV3;
 
+/** 提前时长单位：min=分钟 / h=小时 / d=天 */
+export type LeadTimeUnit = 'min' | 'h' | 'd';
+/** 要提前多久（腌、泡、卤、醒的时长，ADR-0012 第 8 条） */
+export interface LeadTime {
+  value: number; // > 0
+  unit: LeadTimeUnit;
+}
 export interface DishPrepV3 {
   techniqueRef?: Id;
   size?: string;
   timing?: PrepTiming;
+  leadTime?: LeadTime;
   note?: I18nString;
   image?: ImageRef;
 }
 export interface DishComponentV3 {
   ingredientRef: Id;
   qty?: Quantity;
+  /** qty 的出处；份数为 1 的菜，每个有数的 qty 都必须有（ADR-0012 第 1 条） */
+  qtySource?: ValueSource;
   prep?: DishPrepV3;
   role?: 'main' | 'seasoning';
   confidence?: Confidence;
   originalAmount?: string;
+  /** 原方结构化的数：只显示，不参与计算（ADR-0012 第 1 条） */
+  originalQty?: Quantity;
   /** Legacy frozen records only; strip before any public projection. */
   originalText?: string;
   originalPreparation?: I18nString;
@@ -407,10 +441,22 @@ export interface KnowledgeProvenance {
   review?: { reviewer: string; note: string; approvedCandidateVersion: number };
   sourceUrl?: string;
   evidence?: KnowledgeEvidence;
-  /** Raw sources and review notes remain in private KB; only their count is published. */
+  /** 旧字段，ADR-0011 后不再写入；只留给旧资料读取。 */
   sourceGapCount?: number;
   /** Publish-safe status; source media URLs and rights records remain private. */
   coverState?: 'needs-image' | 'rights-pending' | 'external-unpinned' | 'unavailable';
+}
+/** 视频里没说清的类别（ADR-0012 第 11 条，9 类闭集） */
+export type RecipeUnknownKind = 'prep-ahead' | 'amount' | 'net-or-gross' | 'cut-size' | 'identity' | 'heat' | 'duration' | 'doneness' | 'other';
+/** prep-ahead 要提前做的事：腌 / 泡 / 卤 / 醒 / 晾凉 / 别的 */
+export type PrepAheadAction = 'marinate' | 'soak' | 'brine' | 'rest' | 'cool' | 'other';
+/** 一处没说清：只记类别和位置（从 0 起），不记原话；两个位置都不带就是整道菜的 */
+export interface RecipeUnknown {
+  kind: RecipeUnknownKind;
+  /** 只用于 prep-ahead，且 prep-ahead 必填 */
+  action?: PrepAheadAction;
+  stepIndex?: number;
+  componentIndex?: number;
 }
 export interface DishV3 {
   schemaVersion: "3";
@@ -420,10 +466,34 @@ export interface DishV3 {
   baseServings?: number;
   components?: DishComponentV3[];
   steps?: DishStep[];
+  /** 没有就省略，不写空数组 */
+  unknowns?: RecipeUnknown[];
   provenance?: DishProvenance | KnowledgeProvenance;
   status?: DishStatus;
 }
 export type AnyDish = Dish | DishV3;
+
+// ---------------------------------------------------------------------------
+// chef-rules.schema.json（单文件 data/chef-rules.json，整体是数组）
+// ---------------------------------------------------------------------------
+
+/** per-serving=每份净料用量 / yield=净料率 / pcs-to-gram=每个多少克 */
+export type ChefRuleKind = 'per-serving' | 'yield' | 'pcs-to-gram';
+/** 师傅规则（ADR-0012 第 3 条）。定下后不改；改规则就加新 id。 */
+export interface ChefRule {
+  id: Id;
+  kind: ChefRuleKind;
+  value: number; // > 0；yield ≤ 1
+  /** 只用于 per-serving，跟标准食材的基准单位一致 */
+  unit?: 'g' | 'ml' | 'pcs';
+  /** 适用范围，人话 */
+  scope: I18nString;
+  canonicalIngredientIds?: string[];
+  note?: I18nString;
+  /** 公开资料里只写师傅 */
+  by: 'chef';
+  date: string; // ISO date
+}
 
 export interface ShoppingSelection { menuPlanRef: Id; date: string; mealType: MealType }
 export interface ShoppingBasis { sourceRevision: string; selection: ShoppingSelection[] }
