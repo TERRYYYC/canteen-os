@@ -3,12 +3,12 @@ feature_ids: [team-meals, knowledge-base, video-recipe-ingestion]
 topics: [design, proposal, recipe-unknowns, prep, dishes, materialization, i18n]
 doc_kind: design-proposal
 created: 2026-10-19
-status: proposed-for-review
+status: accepted
 ---
 
 # 固定菜谱带上「视频里没说清」的提示（合同提案）
 
-> **状态：提案，未签收。** 本文回答 [#168](https://github.com/TERRYYYC/canteen-os/issues/168) 的 5 个问题，属于 [#170](https://github.com/TERRYYYC/canteen-os/issues/170) 第 1 波设计（D3）。本文不改 schema、代码、`data/` 或任何知识库，也不改变[当前工作合同](../../current-contract.md)和 [D0 页面合同](../team-meals-pages/D0-contract.md)。要先由 Terry 定第 8 节的事，写进 ADR 和合同后才实施。
+> **状态：已签收（2026-10-19）。** 本文回答 [#168](https://github.com/TERRYYYC/canteen-os/issues/168) 的 5 个问题，属于 [#170](https://github.com/TERRYYYC/canteen-os/issues/170) 第 1 波设计（D3）。Terry 10/19 签收，第 8 节全部按推荐（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6258259363)）。schema 决定写进了 ADR-0012 第 11 条（[#176](https://github.com/TERRYYYC/canteen-os/pull/176)），实施按第 7 节的 issue 进行。签收的是设计内容，本 PR 合并前仍要在最新 HEAD 上做非作者审查。本文本身不改 schema、代码、`data/` 或任何知识库；[当前工作合同](../../current-contract.md)和 [D0 页面合同](../team-meals-pages/D0-contract.md)由实施的 issue 按 2.4 同步。
 >
 > 依据的代码是 main `e8febfe`。统计来自 49 道收藏菜谱的解析候选（`candidate.json`）和它们的导入回执，只记数量，不记本机路径和原话。按关键词分类的数字是约数。
 
@@ -19,7 +19,7 @@ status: proposed-for-review
 3. **类别：** 9 类，全部带进固定版本，按页面分开显示。备料页只显示和备料有关的：提前多久、切多大、用量、毛重还是净重、用哪种。火候、做多久、做到什么样只在菜品页的「做法」里显示。
 4. **显示：** 统一用人话，「……没说 · 问师傅」。我们的资料里这一项已经有值，就不显示（4.1 的表）。不写条数，不出现「核对」「复核」「核定」「仍需」，不显示 AI 原话，没有令牌时也不显示开发用信息（ADR-0011 第 5 条，D0 第 68–70 行）。
 5. **知识库要配合 7 件事。** 最要紧的三件：导入时保留每条属于哪一步、哪样材料；菜谱修订里能存这些条目；存为菜谱时把它们一起带过去。
-6. **ADR：并入 ADR-0012（#176），不另开一篇。** 这里的 schema 变了，固定菜谱的规则和候选合同也要改，所以要写进 ADR。Terry 10/19 定了本版只开 ADR-0012 一篇（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)），由 D1 的线程在 ADR-0012 里加一节，细节引用本文。已经固定的版本一律不改写。知识库也不在旧修订上就地补，只能存新版本。
+6. **ADR：并入 ADR-0012 第 11 条（#176），不另开一篇。** 这里的 schema 变了，固定菜谱的规则和候选合同也要改，所以要写进 ADR。Terry 10/19 定了本版只开 ADR-0012 一篇（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)）。第 11 条只记决定，细节以本文为准。已经固定的版本一律不改写。知识库也不在旧修订上就地补，只能存新版本。
 
 ## 1. 现状：提示在哪一步丢了
 
@@ -61,7 +61,7 @@ status: proposed-for-review
 - 好处：和候选的结构一一对应。
 - 难处：v3 的 `steps` 直接引用了严格的 v2 定义（`dish-v3.schema.json:116-118` → `dish.schema.json:67-94`，`:92` 不许多出字段）。要么改 v2，但 ADR-0008 定了 v2 保持严格；要么给 v3 单独抄一份步骤定义。材料行也要加字段。改动面大。
 
-**做法 B（建议）：一个顶层数组，每条写明位置。** `unknowns[]` 放在 `DishV3` 顶层，每条可以带 `stepIndex`（第几步）或 `componentIndex`（第几样材料），两个都不带就是整道菜的。
+**做法 B（采用）：一个顶层数组，每条写明位置。** `unknowns[]` 放在 `DishV3` 顶层，每条可以带 `stepIndex`（第几步）或 `componentIndex`（第几样材料），两个都不带就是整道菜的。
 
 - 固定版本永远不改写，所以用数组位置当锚点是稳定的。
 - 知识库那边用行 ID，Worker 固定时把 ID 换成位置。这和它现在把食材行换成按位置编号的引用是同一个做法（`knowledge-materialization.ts:56-65`、`:117-127`）。
@@ -157,7 +157,7 @@ export interface RecipeUnknown { kind: RecipeUnknownKind; action?: PrepAheadActi
 
 ## 3. 问题 2：带哪些类别
 
-**建议全部带进固定版本，按页面分开显示。** 理由：
+**全部带进固定版本，按页面分开显示**（Terry 已定，第 8 节第 1 条）。理由：
 
 - 存进去很便宜，每条只有一个类别和一个位置。如果只带一部分，以后菜品库要显示火候、时长时，得重新导入、重新固定。
 - 「留给菜品库」的意思是：火候、时长不放进备料页，而是放在菜品页的「做法」里。菜品页就是第四条线的菜品库。
@@ -194,8 +194,8 @@ export interface RecipeUnknown { kind: RecipeUnknownKind; action?: PrepAheadActi
 | `amount`，指向某样材料 | 这样材料的 `qty` 有数值（`qty.value`）。没有数值，但这一行已经写了「用量未录」，或已经有用量的「……问师傅」提示（`prep.ts:587-589`），也不显示，免得重复。只剩原话（如「点」「两斤」）、没有数值、也还没有提示时，才写「用量没说清」 | 能 |
 | `amount`，只指向某一步（如调汁的配比） | dish 里没有对应字段 | 不能，靠 K7 |
 | `cut-size` | 有 `prep.techniqueRef`，也有 `prep.size`：已经写清。没有 `techniqueRef`：页面已经写「还没写怎么切 · 问师傅」，再写就重复。只有「有 `techniqueRef`、没有 `size`」时才写「切多大没说」 | 能 |
-| `net-or-gross` | ADR-0012（#169）定的毛重、净重写法有值 | 暂时不能。#176（HEAD `114ecee`）只列了要补「毛重还是净重」，还没定记在哪个字段。定了以后按那个字段判断，在那之前靠 K7 |
-| `prep-ahead` | ADR-0012 定的「要提前多久」有值。`prep.timing`（前一天 / 当天早上 / 出餐前）只说什么时候备，不说腌多久，不算 | 暂时不能，同上（调度已在 #176 提出） |
+| `net-or-gross` | 这样材料有带出处的 `qty`。ADR-0012 第 4 条定了 `qty` 一律是净料，所以有 `qty` 就没有毛重、净重的问题（ADR-0012 第 11 条第 5 点） | 能，等 #180 加上用量出处 |
+| `prep-ahead` | 指向某样材料：这样材料的 `prep` 里有提前时长（ADR-0012 第 8 条新加的字段）。`prep.timing`（前一天 / 当天早上 / 出餐前）只说什么时候备，不说腌多久，不算 | 指向材料的能，等 #180 加上提前时长。只指向某一步的不能：补料时把时长记在被腌、被泡的那样材料上，同时在新版本里删掉这一条（K7，ADR-0012 第 11 条第 5 点） |
 | `identity` | 这样材料绑了标准食材（有 `canonicalIngredientId`）。D2 的标准食材按部位、品种分开（#178 §2.2 归组规则第 6 条：「部位、品种、整碎不同，采购就不同的，不合并」），绑了就等于定了用哪种 | 能，以 D2 签收为准 |
 | `heat`、`duration`、`doneness`、`other`，以及不带位置的条目 | dish 里没有对应字段 | 不能，靠 K7 |
 | 份数（不是类别） | `baseServings` 有值 | 能，现有提示本来就这样判断 |
@@ -302,16 +302,16 @@ export interface RecipeUnknown { kind: RecipeUnknownKind; action?: PrepAheadActi
 
 ### 6.1 并入 ADR-0012
 
-这里的 schema 变化要写进 ADR。Terry 10/19 定了本版只开 ADR-0012 一篇（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)；`AGENTS.md:55`「每版最多一篇新 ADR」），所以**本提案的决定并入 ADR-0012（[#176](https://github.com/TERRYYYC/canteen-os/pull/176)），不另开一篇。** 由 D1 的线程在 ADR-0012 里加一节，题目可以叫「固定菜谱带上视频里没说清的类别和位置」，细节引用本文。ADR 文件只由 D1 改，本提案不改。ADR-0012 是先收一个版本再合，还是这次破例，由 Terry 在 #170 定。
+这里的 schema 变化要写进 ADR。Terry 10/19 定了本版只开 ADR-0012 一篇（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)；`AGENTS.md:55`「每版最多一篇新 ADR」），所以**本提案的决定并入了 ADR-0012 第 11 条（[#176](https://github.com/TERRYYYC/canteen-os/pull/176)，HEAD `d0e8519`），不另开一篇。** 第 11 条只记决定，细节以本文为准；ADR 文件只由 D1 改。合并顺序：本版先收 alpha.5（[#179](https://github.com/TERRYYYC/canteen-os/pull/179)），ADR-0012 改成 Accepted 后，等 #179 合并以后再合（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6258259363)）。
 
-- **那一节要写的决定：**
+- **第 11 条记下的决定：**
   1. `dish` v3 加可选的 `unknowns[]`，只记类别和位置，原话留在知识库；
   2. 类别是 2.2 的闭集，份数用 `baseServings` 表示，不设类别；
   3. Worker 固定时把知识库行 ID 换成位置，没有条目就不写字段；
   4. 页面显示按第 4 节，说法遵守 ADR-0011 第 5 条；
   5. 候选合同的「没说清」可以带类别（第 7 节第 1 步）；
   6. 旧资料的兼容按 6.2。
-- **和旧 ADR 的关系：** 不取代 ADR-0009、0010、0011 的任何条款，只补充。`candidate-contract.md:11` 里「审核后」的说法在 ADR-0011 之后已经不对，随那一节一起改。
+- **和旧 ADR 的关系：** 不取代 ADR-0009、0010、0011 的任何条款，只补充。`candidate-contract.md:11` 里「审核后」的说法在 ADR-0011 之后已经不对，随第 11 条一起改。
 
 ### 6.2 兼容
 
@@ -328,26 +328,31 @@ export interface RecipeUnknown { kind: RecipeUnknownKind; action?: PrepAheadActi
 
 ## 7. 签收后的实施顺序（属于 #170 第 2 波）
 
-1. ADR-0012 加上 6.1 的那一节并合并后，改候选合同：给「没说清」加类别和位置的写法，和 [#159](https://github.com/TERRYYYC/canteen-os/issues/159) 的解析规则补充一起做。
-2. schema 和 types（一个 PR，只碰 `schemas/`、`packages/core/src/types.ts` 和两个校验脚本）。
-3. 私有知识库：K1–K5、K7。
-4. Worker：读出条目，把 ID 换成位置，写进菜谱文件。回归测试加两条：没有条目时文件不变；有条目时位置正确，越界就拒绝。
-5. 网页：备料页和菜品页，按第 4 节。三种语言都截图，没有令牌时不出现原话和后台入口。
-6. 已导入的 49 道：K6。可以和第 2 波的补料表一起做，补料表上就能列出「这道菜哪里没说」，给师傅逐条填。
+1. **候选合同和解析规则**：ADR-0012 第 11 条合并后，给「没说清」加类别和位置的写法，和 [#159](https://github.com/TERRYYYC/canteen-os/issues/159) 的解析规则补充一起做。
+2. **schema 和 types → [#180](https://github.com/TERRYYYC/canteen-os/issues/180)**：一个 PR，只碰 `schemas/`、`packages/core/src/types.ts` 和两个校验脚本（2.4）。同一个 issue 里还有 ADR-0012 的用量出处、原方结构化值和提前时长。
+3. **私有知识库 K1–K7 → [#182](https://github.com/TERRYYYC/canteen-os/issues/182)**：第 5 节的 7 件事，和 ADR-0012 要求的「原方和食堂用量分开存」一起做。
+4. **Worker 和页面 → [#174](https://github.com/TERRYYYC/canteen-os/issues/174)**：
+   - Worker 读出条目，把行 ID 换成位置，写进菜谱文件。回归测试加两条：没有条目时文件不变；有条目时位置正确，越界就拒绝。
+   - 网页：备料页和菜品页按第 4 节显示，「资料里已经有值就不显示」写在一个共用判断里（4.1）。三种语言都截图，没有令牌时不出现原话和后台入口。
+   - 依赖 #180 和 #182 的 K1–K5。
+5. **师傅后台菜谱编辑器 → [#183](https://github.com/TERRYYYC/canteen-os/issues/183)**：能删掉一条（K7），保存菜谱时不丢 `unknowns`。
+6. **已导入的 49 道分类 → [#184](https://github.com/TERRYYYC/canteen-os/issues/184)**：K6，按第 8 节第 7 条一次性用 AI 分类，存成知识库新版本。依赖 #182。可以和第 2 波的补料表一起做，补料表上就能列出「这道菜哪里没说」，给师傅逐条填。
 
 和并行工作的关系：
 
-- **D1（#169，ADR-0012 食堂用量）：** 师傅补了用量、份数以后，即使忘了删对应的 `amount` 条目，页面也按 4.1 的表不再显示。ADR-0012 还要定「毛重还是净重」「要提前多久」记在哪个字段，定了以后 4.1 的表才能判断 `net-or-gross` 和 `prep-ahead`。两边都按「存新版本」来做，不冲突。
+- **D1（#169，ADR-0012 食堂用量）：** 师傅补了用量、份数以后，即使忘了删对应的 `amount` 条目，页面也按 4.1 的表不再显示。ADR-0012 已经定了 `qty` 一律是净料（第 4 条），提前时长记在 `prep` 里（第 8 条），4.1 的表按这两条判断 `net-or-gross` 和 `prep-ahead`。两边都按「存新版本」来做，不冲突。
 - **D2（#167，标准食材层）：** 材料绑定到标准食材以后，页面就不再显示 `identity`（4.1 的表），因为 D2 的标准食材按部位、品种分开（#178）。如果 D2 签收时改了这条分法，这里要跟着改。本提案不改 D2 的目录。
 - **#165：** 见 C7。
 
-## 8. 要 Terry 定的
+## 8. Terry 定下的（2026-10-19）
 
-1. **全部带上，还是只带四类？** 建议全部带进固定版本，按页面分开显示（第 3 节）。只带提前多久、用量、切法、份数也可以，但以后菜品库要显示火候时，得重新导入、重新固定。
-2. **原话放不放进发布资料？** 建议不放，只放类别（2.1、4.1）。原话是 AI 写的单语中文，有的还引了字幕；放进去，就要另外处理翻译和公开范围（ADR-0010）。
-3. **备料页的步骤上写哪些类别？** 建议只写提前多久、切多大和别的（约 65 步会多一行）。如果把用量也写在步骤上，约 260 步多一行；把火候、时长也写上，几乎每一步都会多一行。
-4. **采购页要不要写「用哪种没说」「毛重还是净重没说」？** 建议这一轮不加，等 D2 标准食材层定了再看，因为绑定标准食材后这两类大多会清楚。
-5. **说法：** 「没说」指视频里没说，「没写／未录」指资料里没录。这样分可以吗？还是统一成一种？
-6. **ADR（已定）：** 并入 ADR-0012（#176），不另开一篇（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)）。由 D1 的线程在 ADR-0012 里加一节，细节引用本文。还没定的只有一件：ADR-0012 是先收一个版本再合，还是这次破例，由 #170 跟踪。
-7. **已导入的 49 道由谁分类？** 建议一次性用 AI 分类，分不清的归「别的」，存成知识库新版本。它只标「哪里没说」，不补数值。也可以先用关键词分，再由人抽查。
-8. **师傅问清一条后怎么去掉？** 建议分两层：页面上，资料里已经有值就不显示（4.1 的表），不用等师傅删；资料里，由师傅在知识库里手动删，存成新版本，不根据「填了数值」自动删（K7）。
+签收记录：[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6258259363)，B1–B7 全部按推荐。每条先写问题，再写结果。
+
+1. **全部带上，还是只带四类？**（B1）**定了：全部 9 类都带进固定版本，按页面分开显示**（第 3 节）。
+2. **原话放不放进发布资料？**（B2）**定了：不放，只放类别和位置**（2.1、4.1）。原话留在私有知识库，只给师傅和管理员看（ADR-0010）。
+3. **备料页的步骤上写哪些类别？**（B3）**定了：只写提前多久、切多大和别的**（4.3）。用量写在材料上；火候、做多久、做到什么样只在菜品页显示。
+4. **采购页写不写「用哪种没说」「毛重还是净重没说」？**（B4）**定了：这一轮不写**（4.5）。
+5. **「没说」和「没写／未录」分开说吗？**（B5）**定了：分开。**「没说」指视频里没说，「没写／未录」指资料里没录（4.1）。
+6. **ADR 怎么开？** **定了：并入 ADR-0012 第 11 条（#176），不另开一篇**（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6257683642)）。本版先收 alpha.5（#179），ADR-0012 进下一版：改成 Accepted 后，等 #179 合并以后再合（[#170](https://github.com/TERRYYYC/canteen-os/issues/170#issuecomment-6258259363)）。
+7. **已导入的 49 道由谁分类？**（B6）**定了：一次性用 AI 分类，分不清的归「别的」，只标哪里没说，不补数值**（K6，#184）。
+8. **师傅问清一条后怎么去掉？**（B7）**定了：分两层。页面上，资料里已经有值就不显示（4.1 的表）；资料里，由师傅在知识库手动删，存成新版本，不根据「填了数值」自动删**（K7，#183）。
