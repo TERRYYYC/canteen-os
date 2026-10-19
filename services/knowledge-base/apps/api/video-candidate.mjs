@@ -14,14 +14,40 @@ function time(ms) {
   return `${String(Math.floor(seconds / 60)).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')}`;
 }
 
-function amount(raw) {
-  if (raw == null || raw === '') return { kind:'unknown' };
-  if (typeof raw !== 'string' || !raw.trim()) fail('Invalid ingredient quantity');
-  const value = raw.trim();
-  if (value === '适量') return { kind:'to_taste', raw:value };
-  const exact = /^(?:([1-9]\d*(?:\.\d+)?)|(0\.\d*[1-9]\d*))\s*(克|千克|公斤|斤|两|毫升|升|片|个|根|段|勺)$/.exec(value);
-  return exact ? { kind:'exact',value:exact[1] ?? exact[2],unit:exact[3],raw:value } : { kind:'text',raw:value };
+// Only units that map onto a CanteenOS unit without guessing. 片, 根, 段, 勺 and the like keep the words only.
+const ORIGINAL_UNITS = { 克:['g',1n], g:['g',1n], 千克:['kg',1n], 公斤:['kg',1n], kg:['kg',1n], 斤:['g',500n], 两:['g',50n],
+  毫升:['ml',1n], ml:['ml',1n], 升:['l',1n], L:['l',1n], 个:['pcs',1n], 只:['pcs',1n] };
+
+function scaled(value, factor) {
+  const [whole, fraction = ''] = value.split('.');
+  const digits = (BigInt(whole + fraction) * factor).toString().padStart(fraction.length + 1, '0');
+  const integer = digits.slice(0, digits.length - fraction.length), decimals = digits.slice(digits.length - fraction.length).replace(/0+$/, '');
+  return decimals ? `${integer}.${decimals}` : integer;
 }
+
+// ADR-0012 §1: a number read from the original words is display-only. It is returned as originalQty and
+// never as qty; the canteen quantity is written later by a person, with its source.
+export function originalQuantity(raw) {
+  const match = /^(?:([1-9]\d*(?:\.\d+)?)|(0\.\d*[1-9]\d*))\s*(克|g|千克|公斤|kg|斤|两|毫升|ml|升|L|个|只)$/.exec(raw.trim());
+  if (!match) return undefined;
+  const [unit, factor] = ORIGINAL_UNITS[match[3]];
+  return { value:scaled(match[1] ?? match[2], factor), unit };
+}
+
+const UNKNOWN_KINDS = ['prep-ahead','amount','net-or-gross','cut-size','identity','heat','duration','doneness','other'];
+const PREP_AHEAD_ACTIONS = ['marinate','soak','brine','rest','cool','other'];
+
+// An unclear point is plain words (older parses: no kind yet) or {text, kind?, action?}. A given kind is kept as is (K2).
+function unclear(value) {
+  const entry = typeof value === 'string' ? { text:value } : value;
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry) || Object.keys(entry).some(key => !['text','kind','action'].includes(key)) ||
+    typeof entry.text !== 'string' || !entry.text.trim() || entry.text.trim().length > 2000) fail('Invalid unclear point');
+  if (entry.kind !== undefined && entry.kind !== null && !UNKNOWN_KINDS.includes(entry.kind)) fail('Invalid unclear point kind');
+  const prepAhead = entry.kind === 'prep-ahead';
+  if (prepAhead ? !PREP_AHEAD_ACTIONS.includes(entry.action) : entry.action !== undefined && entry.action !== null) fail('Invalid unclear point action');
+  return { ...(entry.kind ? { kind:entry.kind } : {}), ...(prepAhead ? { action:entry.action } : {}), text:entry.text.trim() };
+}
+const unclearList = value => value === undefined || value === null ? [] : Array.isArray(value) ? value.map(unclear) : [unclear(value)];
 
 export function buildVideoImport({ item, source, evidence, candidate, sourceMethod }) {
   if (item?.kind !== 'video' || typeof item.url !== 'string' || !/^https:\/\/www\.douyin\.com\/video\/[0-9]{15,22}$/.test(item.url)) fail('Invalid video source item');
@@ -61,32 +87,40 @@ export function buildVideoImport({ item, source, evidence, candidate, sourceMeth
     if (typeof row?.name !== 'string' || !row.name.trim()) fail('Invalid ingredient name');
     if (!['stated','stated_imprecise','not_stated'].includes(row.quantityState) ||
       (row.quantityState === 'not_stated' ? row.rawQuantity != null && row.rawQuantity !== '' : typeof row.rawQuantity !== 'string' || !row.rawQuantity.trim())) fail('Ingredient quantityState is not checked or invalid');
-    if (row.uncertainty !== undefined && row.uncertainty !== null && (typeof row.uncertainty !== 'string' || !row.uncertainty.trim())) fail('Invalid ingredient uncertainty');
+    unclearList(row.uncertainty);
     if (row.substituteFor) fail('An alternative must be attached to the original ingredient, not a separate shopping ingredient');
     cite(row.evidenceIds);
     if (row.substitution) {
       if (typeof row.substitution.name !== 'string' || !row.substitution.name.trim()) fail('Invalid substitution');
       cite(row.substitution.evidenceIds);
     }
-    const mappedAmount = row.quantityState === 'not_stated' ? {kind:'unknown'} :
-      row.quantityState === 'stated_imprecise' ? {kind:'text',raw:row.rawQuantity.trim()} : amount(row.rawQuantity);
-    return { id:stableId(source.sha256,'ingredient',index),name:{zh:row.name.trim()},amount:mappedAmount,
+    // Original words only; stated_imprecise keeps its words even when they contain a number.
+    const original = row.quantityState === 'not_stated' ? {} : { originalAmount:row.rawQuantity.trim(),
+      ...(row.quantityState === 'stated' && originalQuantity(row.rawQuantity) ? { originalQty:originalQuantity(row.rawQuantity) } : {}) };
+    return { id:stableId(source.sha256,'ingredient',index),name:{zh:row.name.trim()},...original,
       ...((row.prep || row.substitution) ? {preparation:{zh:[row.prep,
         row.substitution ? `可用${row.substitution.name}替代；${row.substitution.uncertainty ?? '替代量待核实'}` : null].filter(Boolean).join('；')}} : {}) };
   });
   const steps = candidate.steps.map((row,index) => {
     if (typeof row?.action !== 'string' || !row.action.trim() || row.order !== index + 1) fail('Invalid step order or action');
-    if (row.unknowns !== undefined && (!Array.isArray(row.unknowns) || row.unknowns.some(value => typeof value !== 'string' || !value.trim()))) fail('Invalid step unknowns');
+    if (row.unknowns !== undefined && !Array.isArray(row.unknowns)) fail('Invalid step unknowns');
+    unclearList(row.unknowns);
     cite(row.evidenceIds);
     return { id:stableId(source.sha256,'step',index),text:{zh:row.action.trim()} };
   });
-  const unresolved = [...new Set([...(candidate.unresolved ?? []),
-    ...candidate.ingredients.filter(row => row.uncertainty).map(row => `${row.name}：${row.uncertainty}`),
-    ...candidate.steps.flatMap(row => (row.unknowns ?? []).map(value => `步骤 ${row.order}：${value}`))])];
-  if (unresolved.length > 100 || unresolved.some(x => typeof x !== 'string' || !x.trim())) fail('Invalid unresolved question');
+  // K1: every unclear point keeps where it belongs: a step, an ingredient row, or (neither) the whole dish.
+  const located = [
+    ...unclearList(candidate.unresolved).map(entry => ({ entry, label:entry.text })),
+    ...candidate.ingredients.flatMap((row,index) => unclearList(row.uncertainty).map(entry => ({ entry:{ ...entry,ingredientRowId:ingredients[index].id },label:`${row.name}：${entry.text}` }))),
+    ...candidate.steps.flatMap((row,index) => unclearList(row.unknowns).map(entry => ({ entry:{ ...entry,stepId:steps[index].id },label:`步骤 ${row.order}：${entry.text}` }))),
+  ];
+  const unknowns = [...new Map(located.map(({ entry }) => [JSON.stringify(entry),entry])).values()];
+  // The flat list stays for the inbox count and older readers; recipe.unknowns is the located form.
+  const unresolved = [...new Set(located.map(({ label }) => label))];
+  if (unresolved.length > 100 || unknowns.length > 200) fail('Invalid unresolved question');
   const media = { sha256:source.sha256,durationMs:source.durationMs,byteCount:source.byteCount,sourceMethod,coverage,
     audioDurationMs:source.audioDurationMs,videoDurationMs:source.videoDurationMs };
-  const recipe = { title:{zh:candidate.title.trim()},ingredients,steps,sources:[],assets:[] };
+  const recipe = { recipeFormatVersion:'3',title:{zh:candidate.title.trim()},ingredients,steps,sources:[],assets:[],...(unknowns.length ? { unknowns } : {}) };
   // AI-reported yield is not a kitchen scaling basis. A cook records baseServings in a reviewed KB revision.
   return { capture:{method:'video_analysis',status:'ready',evidence:{sourceUrl:item.url,media,segments}},
     proposal:{recipe,fieldEvidence:{title:cite(candidate.titleEvidenceIds),

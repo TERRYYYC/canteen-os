@@ -19,7 +19,7 @@ export class RecipeAdoption {
     return transaction(this.db,()=>{
       const detail=this.repo.revision(id,version),origin=this.origin(id,version),kitchenApproval=this.approval(id,version),current=this.repo.recipeRow(id);
       return {recipeId:id,recipeVersion:version,current:{version:current.version,archived:Boolean(current.archived_at)},origin,source:{status:origin.kind==='favorite'||kitchenApproval||this.repo.one('SELECT 1 FROM recipe_approvals WHERE recipe_id=?',id)?'approved':'needs_review'},kitchenApproval,
-        issues:detail.recipe.ingredients.flatMap(row=>[...(!row.ingredientId?['unmapped-ingredient']:[]),...(row.amount.kind==='unknown'?['unknown-amount']:[])])};
+        issues:detail.recipe.ingredients.flatMap(row=>[...(!row.ingredientId?['unmapped-ingredient']:[]),...((row.amount?row.amount.kind==='unknown':!row.qty)?['unknown-amount']:[])])};
     },false);
   }
   approve(id,version,body,headers){

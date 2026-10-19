@@ -1,12 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { fail } from './errors.mjs';
-import { hash } from './validation.mjs';
+import { hash, quantitiesSchema } from './validation.mjs';
 import { transaction } from './database.mjs';
 
 const schema = JSON.parse(readFileSync(new URL('../../contracts/standard-ingredient.schema.json',import.meta.url),'utf8'));
-const check = new Ajv2020({strict:true,allErrors:true}).compile(schema);
+const ajv = new Ajv2020({strict:true,allErrors:true});
+addFormats(ajv);
+const check = ajv.addSchema(quantitiesSchema).compile(schema);
 export function ingredientBody(value) {
   if(!check(value))fail(400,'INVALID_INGREDIENT','标准食材规格不符合约定。',check.errors.slice(0,12).map(e=>({path:e.instancePath,rule:e.keyword})));
   return {...structuredClone(value),aliases:value.aliases??[],trackStock:value.trackStock??false};

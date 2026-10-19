@@ -56,6 +56,18 @@ node scripts/import-video-candidate.mjs \
 
 导入器按原媒体字节核对 SHA/大小，再核对作品 ID、URL、真实来源方法、音画覆盖与字段引用。声学证据必须落在音轨内，视觉证据必须落在画面轨内；引文和时码必须来自同一记录。`not_checked` 不能作为完整草稿，`stated_imprecise` 保留为不可算术原话。AI 声称的份数不会自动写成可计算的 `baseServings`。
 
+### 格式 3：原方和「没说清」的位置（2026-10-19，ADR-0012，canteen-os#182）
+
+导入器现在产出 `recipeFormatVersion: "3"` 的候选，字段见 [API 合同](./API-CONTRACT.md#菜谱格式-3原方和食堂用量分开记没说清带位置adr-0012canteen-os182)。
+
+- **用量。** 原话进 `originalAmount`。能无歧义换成 CanteenOS 单位的数，进只显示的 `originalQty`，例如「5斤」记为 2500 g、「600克」记为 600 g。导入器不写食堂用量 `qty`；食堂用量由师傅在新修订里补，并写明出处。
+- **没说清。** 候选里整道菜的 `unresolved`、食材的 `uncertainty`、步骤的 `unknowns`，每条可以是纯文字，也可以是 `{text, kind?, action?}`。导入后存进候选菜谱的 `unknowns[]`：
+  - 整道菜的不带位置；
+  - 食材的带食材行 ID；
+  - 步骤的带步骤 ID。
+- **类别。** 给了就原样存，没给就空着。
+- **存为菜谱。** 这些条目原样进第 1 版。平铺的 `unresolved` 字符串照旧保留，给收件箱计数。
+
 原片媒体和 Cookie 不写入 SQLite。capture 保存证据和来源元数据，candidate 保存结构化草稿和未核验项。原片及完整证据包由操作者在仓外配套保留；给师傅的原作品 URL 不等于拥有媒体再发布权。
 
 ## 3. 原片参考图

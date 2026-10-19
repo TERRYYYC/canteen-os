@@ -11,6 +11,8 @@ created: 2026-10-19
 
 本模块随主仓采用 [Apache-2.0](../../LICENSE)；第三方依赖遵循各自许可证，未 vendor F2 或其他解析项目源码。
 
+菜谱格式 3（ADR-0012，canteen-os#182）把每行的原方和食堂用量分开记，食堂用量和标准食材换算值写明出处，「没说清」的地方带上步骤或食材行，见 [API 合同](docs/API-CONTRACT.md#菜谱格式-3原方和食堂用量分开记没说清带位置adr-0012canteen-os182)。旧修订原样保留。
+
 迁入基线是知识库 `0.1.2`、数据库 schema `6`。这次提供可克隆源码和操作入口，未升级正在运行的服务或迁移用户数据。[来源与迁入边界](SOURCE-IMPORT.md) · [主仓当前合同](../../docs/current-contract.md) · [知识库模块](../../docs/modules/knowledge-base.md)
 
 ## 新建隔离实例
@@ -50,6 +52,7 @@ npm test
 npm run build
 npx playwright install chromium
 npm run test:browser
+npm run test:editor
 ```
 
 `npm test` 使用临时 SQLite/素材目录，覆盖 API、真实 HTTP 生命周期、迁移、导入和备份恢复；F2 与预处理测试使用替身工具，不调用真实平台或模型。浏览器测试使用隔离临时目录和构建副本，截图默认写入已忽略的 `test-results/browser/`；可通过 `KB_BROWSER_EVIDENCE_DIR` 指向仓外目录。测试通过只证明这些检查，不代表现有 50 条内容完整、真实厨房确认或远端已部署。

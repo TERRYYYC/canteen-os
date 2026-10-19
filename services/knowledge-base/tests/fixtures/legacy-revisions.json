@@ -1,0 +1,522 @@
+{
+ "note": "Fabricated data written and read by the pre-#182 code (08d6eff). Golden bodies are the exact HTTP response bytes before the change.",
+ "capturedWith": {
+  "migrations": [
+   {
+    "version": 1,
+    "name": "001_core.sql",
+    "sha256": "3f67ef803905d1db6d09ff8139cabaab2715a76484d8aee481ded5966e60e29c"
+   },
+   {
+    "version": 2,
+    "name": "002_legacy_knowledge.sql",
+    "sha256": "7199d1fc966b650918f31907fb783f3f794422067d5375123fa5cb9a2fb1445e"
+   },
+   {
+    "version": 3,
+    "name": "003_favorites_inbox.sql",
+    "sha256": "83a2d5091ce8d4e470f4ab07dcbb75279ed5a7ba3945ac2d98624bb663565f1a"
+   },
+   {
+    "version": 4,
+    "name": "004_candidate_illustrations.sql",
+    "sha256": "05803bb9de428fb7c4c54ea2473b93216b5c0353d9774f0e82f061ffc96d968c"
+   },
+   {
+    "version": 5,
+    "name": "005_recipe_adoption.sql",
+    "sha256": "34c85a8d0e79b66cdb2a71d50f6639e6fb91b3e785cdeec25c84246d10d48294"
+   },
+   {
+    "version": 6,
+    "name": "006_technique_versions.sql",
+    "sha256": "0c362fe2c4e2794177ff535df94ef0a19f01a58ac0afd30d0dfcca48d0eedb71"
+   }
+  ]
+ },
+ "ids": {
+  "legacyRecipe": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+  "formatTwoRecipe": "82fd0b82-eec3-4d17-8d8f-ae833db5d635",
+  "reviewedRecipe": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+  "pendingCandidate": "98c50926-b281-4863-818e-05a09417c926",
+  "approvedCandidate": "a4ab2c7d-74fb-4cb7-83ed-b1cc3cb5ba12",
+  "ingredient": "41a2f007-78ad-456a-9128-ecafa87a8657",
+  "ingredientVersion": 2
+ },
+ "rows": {
+  "recipes": [
+   {
+    "id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "title": "{\"zh\":\"测试红烧肉\"}",
+    "description": "{\"zh\":\"造的旧格式菜谱，改过一次\"}",
+    "tags": "[\"测试\"]",
+    "base_servings": 2,
+    "version": 3,
+    "archived_at": "2026-10-19T14:27:54.777Z",
+    "created_at": "2026-10-19T14:27:54.775Z",
+    "updated_at": "2026-10-19T14:27:54.777Z"
+   },
+   {
+    "id": "82fd0b82-eec3-4d17-8d8f-ae833db5d635",
+    "title": "{\"zh\":\"测试回锅肉\"}",
+    "description": null,
+    "tags": "[]",
+    "base_servings": null,
+    "version": 1,
+    "archived_at": null,
+    "created_at": "2026-10-19T14:27:54.777Z",
+    "updated_at": "2026-10-19T14:27:54.777Z"
+   },
+   {
+    "id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "title": "{\"zh\":\"测试羊肉煲\"}",
+    "description": null,
+    "tags": "[]",
+    "base_servings": null,
+    "version": 1,
+    "archived_at": null,
+    "created_at": "2026-10-19T14:27:54.781Z",
+    "updated_at": "2026-10-19T14:27:54.781Z"
+   }
+  ],
+  "ingredients": [
+   {
+    "id": "41a2f007-78ad-456a-9128-ecafa87a8657",
+    "name": "{\"zh\":\"测试猪肉\"}",
+    "aliases": "[]",
+    "created_at": "2026-10-19T14:27:54.769Z",
+    "version": 2
+   }
+  ],
+  "recipe_ingredients": [
+   {
+    "id": "65889564-0786-4849-9d64-7caad7e9bcab",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 0,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"五花肉\"}",
+    "raw_text": "五花肉五百克",
+    "role": "main",
+    "amount_kind": "exact",
+    "amount_value": "500",
+    "amount_unit": "克",
+    "amount_raw": "五百克",
+    "preparation": "{\"zh\":\"切块\"}"
+   },
+   {
+    "id": "c98718b0-f4d5-421a-b089-99d5e2a73255",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 1,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"盐\"}",
+    "raw_text": "",
+    "role": "seasoning",
+    "amount_kind": "to_taste",
+    "amount_value": null,
+    "amount_unit": null,
+    "amount_raw": "适量",
+    "preparation": null
+   },
+   {
+    "id": "4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 2,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"老抽\"}",
+    "raw_text": "",
+    "role": "unspecified",
+    "amount_kind": "text",
+    "amount_value": null,
+    "amount_unit": null,
+    "amount_raw": "一点点",
+    "preparation": null
+   },
+   {
+    "id": "a2ecaf01-d2be-4aba-a78b-d04ec3a496d9",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 3,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"冰糖\"}",
+    "raw_text": "",
+    "role": "unspecified",
+    "amount_kind": "unknown",
+    "amount_value": null,
+    "amount_unit": null,
+    "amount_raw": "",
+    "preparation": null
+   },
+   {
+    "id": "86d424f5-b812-42cd-b865-fb9a3a0118c7",
+    "recipe_id": "82fd0b82-eec3-4d17-8d8f-ae833db5d635",
+    "position": 0,
+    "ingredient_id": "41a2f007-78ad-456a-9128-ecafa87a8657",
+    "name": "{\"zh\":\"五花肉\"}",
+    "raw_text": "",
+    "role": "main",
+    "amount_kind": "exact",
+    "amount_value": "300",
+    "amount_unit": "g",
+    "amount_raw": "",
+    "preparation": null
+   },
+   {
+    "id": "382d2f9e-fa14-5908-876d-4028de1bb865",
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "position": 0,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"羊肉\"}",
+    "raw_text": "",
+    "role": "unspecified",
+    "amount_kind": "exact",
+    "amount_value": "5",
+    "amount_unit": "斤",
+    "amount_raw": "5斤",
+    "preparation": null
+   },
+   {
+    "id": "ffd69638-bde7-5b69-8eb9-cc67f9b9f18b",
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "position": 1,
+    "ingredient_id": null,
+    "name": "{\"zh\":\"油\"}",
+    "raw_text": "",
+    "role": "unspecified",
+    "amount_kind": "unknown",
+    "amount_value": null,
+    "amount_unit": null,
+    "amount_raw": "",
+    "preparation": null
+   }
+  ],
+  "recipe_steps": [
+   {
+    "id": "9b554aa9-11b4-403c-9e26-3399d04046a6",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 0,
+    "text": "{\"zh\":\"焯水。\"}"
+   },
+   {
+    "id": "26b75327-b016-4fff-9860-026f7767c27a",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "position": 1,
+    "text": "{\"zh\":\"小火慢炖。\"}"
+   },
+   {
+    "id": "4e71f654-2c40-4698-acd0-3ca0c33cbb14",
+    "recipe_id": "82fd0b82-eec3-4d17-8d8f-ae833db5d635",
+    "position": 0,
+    "text": "{\"zh\":\"煸炒。\"}"
+   },
+   {
+    "id": "696c0402-fd75-5b4f-834d-5343af0988fe",
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "position": 0,
+    "text": "{\"zh\":\"羊肉下锅炸\"}"
+   }
+  ],
+  "assets": [
+   {
+    "id": "245064d3-fee0-4134-ab18-94d065177405",
+    "kind": "video",
+    "storage": "external",
+    "object_key": null,
+    "external_url": "https://example.com/fabricated-video",
+    "status": "ready",
+    "sha256": null,
+    "mime_type": null,
+    "byte_size": null,
+    "metadata": "{}",
+    "created_at": "2026-10-19T14:27:54.773Z"
+   }
+  ],
+  "sources": [
+   {
+    "id": "881d6d2a-a63b-4041-af2c-b540009dacb5",
+    "kind": "text",
+    "title": "测试来源",
+    "author": null,
+    "url": null,
+    "text_content": "造的原文：五花肉五百克，盐少许。",
+    "asset_id": null,
+    "metadata": "{}",
+    "created_at": "2026-10-19T14:27:54.772Z"
+   },
+   {
+    "id": "9191ca1f-5a50-4b53-bcab-b740c2b39189",
+    "kind": "video",
+    "title": "测试羊肉煲",
+    "author": "测试作者",
+    "url": "https://www.douyin.com/video/7600000000000000001",
+    "text_content": "测试羊肉煲\n羊肉五斤\n倒油\n下锅炸",
+    "asset_id": null,
+    "metadata": "{\"platform\":\"douyin\",\"contentId\":\"7600000000000000001\",\"captureId\":\"e4ded813-d841-4fc1-adfc-c2f17525e1d5\",\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"method\":\"video_analysis\",\"reviewer\":\"测试师傅\"}",
+    "created_at": "2026-10-19T14:27:54.781Z"
+   }
+  ],
+  "recipe_sources": [
+   {
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "source_id": "881d6d2a-a63b-4041-af2c-b540009dacb5",
+    "evidence": "{\"note\":\"造的\"}"
+   },
+   {
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "source_id": "9191ca1f-5a50-4b53-bcab-b740c2b39189",
+    "evidence": "{\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}"
+   }
+  ],
+  "recipe_assets": [
+   {
+    "id": "c164259a-6c4a-4d53-b9b7-640e766464bb",
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "asset_id": "245064d3-fee0-4134-ab18-94d065177405",
+    "role": "step",
+    "step_id": "9b554aa9-11b4-403c-9e26-3399d04046a6",
+    "position": 0,
+    "clip_start": 1,
+    "clip_end": 5
+   }
+  ],
+  "recipe_revisions": [
+   {
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "version": 1,
+    "document": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":1,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.775Z\",\"updatedAt\":\"2026-10-19T14:27:54.775Z\",\"archivedAt\":null,\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+    "actor": "agent",
+    "created_at": "2026-10-19T14:27:54.775Z"
+   },
+   {
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "version": 2,
+    "document": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":2,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱，改过一次\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.775Z\",\"updatedAt\":\"2026-10-19T14:27:54.776Z\",\"archivedAt\":null,\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+    "actor": "agent",
+    "created_at": "2026-10-19T14:27:54.776Z"
+   },
+   {
+    "recipe_id": "7bd2f1cb-9181-47e1-a796-06cd3264a85f",
+    "version": 3,
+    "document": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":3,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱，改过一次\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.775Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":\"2026-10-19T14:27:54.777Z\",\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+    "actor": "agent",
+    "created_at": "2026-10-19T14:27:54.777Z"
+   },
+   {
+    "recipe_id": "82fd0b82-eec3-4d17-8d8f-ae833db5d635",
+    "version": 1,
+    "document": "{\"id\":\"82fd0b82-eec3-4d17-8d8f-ae833db5d635\",\"version\":1,\"recipe\":{\"recipeFormatVersion\":\"2\",\"title\":{\"zh\":\"测试回锅肉\"},\"ingredients\":[{\"id\":\"86d424f5-b812-42cd-b865-fb9a3a0118c7\",\"name\":{\"zh\":\"五花肉\"},\"ingredientId\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"300\",\"unit\":\"g\"},\"kitchenPrep\":{\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\",\"timing\":\"morning\",\"size\":\"3mm\"}}],\"steps\":[{\"id\":\"4e71f654-2c40-4698-acd0-3ca0c33cbb14\",\"text\":{\"zh\":\"煸炒。\"},\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\"}],\"tags\":[],\"sources\":[],\"assets\":[]},\"createdAt\":\"2026-10-19T14:27:54.777Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[]}",
+    "actor": "agent",
+    "created_at": "2026-10-19T14:27:54.777Z"
+   },
+   {
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "version": 1,
+    "document": "{\"id\":\"2c227c01-5040-45c6-a4c2-309dc37ed63a\",\"version\":1,\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"382d2f9e-fa14-5908-876d-4028de1bb865\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"ffd69638-bde7-5b69-8eb9-cc67f9b9f18b\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"696c0402-fd75-5b4f-834d-5343af0988fe\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[{\"sourceId\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"evidence\":{\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}}],\"assets\":[],\"tags\":[]},\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"updatedAt\":\"2026-10-19T14:27:54.781Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[{\"id\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"kind\":\"video\",\"title\":\"测试羊肉煲\",\"author\":\"测试作者\",\"url\":\"https://www.douyin.com/video/7600000000000000001\",\"textContent\":\"测试羊肉煲\\n羊肉五斤\\n倒油\\n下锅炸\",\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"metadata\":{\"platform\":\"douyin\",\"contentId\":\"7600000000000000001\",\"captureId\":\"e4ded813-d841-4fc1-adfc-c2f17525e1d5\",\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"method\":\"video_analysis\",\"reviewer\":\"测试师傅\"}}]}",
+    "actor": "web",
+    "created_at": "2026-10-19T14:27:54.781Z"
+   }
+  ],
+  "techniques": [
+   {
+    "id": "6f8d074a-fde1-406e-9f8d-c7466c7b3418",
+    "kind": "cut",
+    "name": "{\"zh\":\"测试切片\"}",
+    "note": null,
+    "document": "{}",
+    "version": 1,
+    "created_at": "2026-10-19T14:27:54.772Z"
+   }
+  ],
+  "favorite_import_batches": [
+   {
+    "id": "4a0204f1-9679-41c6-b29e-23e82ea625b4",
+    "digest": "9a3512cd66b15da2bddb016aefd32ffaed12c5cd82ef572b89e6cf57b2af9afc",
+    "folder": "测试",
+    "claimed_count": 2,
+    "submitted_count": 2,
+    "valid_count": 2,
+    "inserted_count": 2,
+    "rejected_count": 0,
+    "coverage_gap": 0,
+    "imported_at": "2026-10-19T14:27:54.778Z"
+   }
+  ],
+  "favorite_source_items": [
+   {
+    "id": "b626ee0a-5af1-4002-9834-e06e6ed891c6",
+    "platform": "douyin",
+    "content_id": "7600000000000000001",
+    "kind": "video",
+    "url": "https://www.douyin.com/video/7600000000000000001",
+    "folder": "测试",
+    "first_index": 1,
+    "author": "测试作者",
+    "card_alt": "造的卡片",
+    "display_text": "造的卡片",
+    "state": "approved",
+    "last_error": null,
+    "created_at": "2026-10-19T14:27:54.778Z",
+    "updated_at": "2026-10-19T14:27:54.781Z"
+   },
+   {
+    "id": "80f43483-9ff7-4d32-a51e-29608d7c51c9",
+    "platform": "douyin",
+    "content_id": "7600000000000000002",
+    "kind": "video",
+    "url": "https://www.douyin.com/video/7600000000000000002",
+    "folder": "测试",
+    "first_index": 2,
+    "author": "测试作者",
+    "card_alt": "造的卡片",
+    "display_text": "造的卡片",
+    "state": "needs_review",
+    "last_error": null,
+    "created_at": "2026-10-19T14:27:54.778Z",
+    "updated_at": "2026-10-19T14:27:54.781Z"
+   }
+  ],
+  "favorite_import_rows": [
+   {
+    "batch_id": "4a0204f1-9679-41c6-b29e-23e82ea625b4",
+    "row_number": 1,
+    "raw_json": "{\"index\":\"1\",\"folder\":\"测试\",\"kind\":\"video\",\"content_id\":\"7600000000000000001\",\"url\":\"https://www.douyin.com/video/7600000000000000001\",\"author\":\"测试作者\",\"card_alt\":\"造的卡片\",\"display_text\":\"造的卡片\"}",
+    "source_item_id": "b626ee0a-5af1-4002-9834-e06e6ed891c6",
+    "rejection_code": null
+   },
+   {
+    "batch_id": "4a0204f1-9679-41c6-b29e-23e82ea625b4",
+    "row_number": 2,
+    "raw_json": "{\"index\":\"2\",\"folder\":\"测试\",\"kind\":\"video\",\"content_id\":\"7600000000000000002\",\"url\":\"https://www.douyin.com/video/7600000000000000002\",\"author\":\"测试作者\",\"card_alt\":\"造的卡片\",\"display_text\":\"造的卡片\"}",
+    "source_item_id": "80f43483-9ff7-4d32-a51e-29608d7c51c9",
+    "rejection_code": null
+   }
+  ],
+  "favorite_captures": [
+   {
+    "id": "e4ded813-d841-4fc1-adfc-c2f17525e1d5",
+    "source_item_id": "b626ee0a-5af1-4002-9834-e06e6ed891c6",
+    "method": "video_analysis",
+    "status": "ready",
+    "evidence_json": "{\"sourceUrl\":\"https://www.douyin.com/video/7600000000000000001\",\"media\":{\"sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"durationMs\":60000,\"byteCount\":1000,\"sourceMethod\":\"user_file\",\"coverage\":{\"audioProcessedThroughMs\":60000,\"frameCount\":120,\"lastFrameMs\":59500,\"maxFrameGapMs\":500},\"audioDurationMs\":60000,\"videoDurationMs\":60000},\"segments\":[{\"id\":\"title\",\"kind\":\"subtitle\",\"locator\":\"00:00–00:01\",\"startMs\":0,\"endMs\":1000,\"text\":\"测试羊肉煲\"},{\"id\":\"meat\",\"kind\":\"spoken\",\"locator\":\"00:02–00:03\",\"startMs\":2000,\"endMs\":3000,\"text\":\"羊肉五斤\"},{\"id\":\"oil\",\"kind\":\"visual\",\"locator\":\"00:04–00:05\",\"startMs\":4000,\"endMs\":5000,\"text\":\"倒油\"},{\"id\":\"fry\",\"kind\":\"visual\",\"locator\":\"00:06–00:07\",\"startMs\":6000,\"endMs\":7000,\"text\":\"下锅炸\"}]}",
+    "sha256": "5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e",
+    "captured_at": "2026-10-19T14:27:54.779Z"
+   },
+   {
+    "id": "122aaabd-4559-423b-9fc5-a87b047f78e4",
+    "source_item_id": "80f43483-9ff7-4d32-a51e-29608d7c51c9",
+    "method": "video_analysis",
+    "status": "ready",
+    "evidence_json": "{\"sourceUrl\":\"https://www.douyin.com/video/7600000000000000002\",\"media\":{\"sha256\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"durationMs\":60000,\"byteCount\":1000,\"sourceMethod\":\"user_file\",\"coverage\":{\"audioProcessedThroughMs\":60000,\"frameCount\":120,\"lastFrameMs\":59500,\"maxFrameGapMs\":500},\"audioDurationMs\":60000,\"videoDurationMs\":60000},\"segments\":[{\"id\":\"title\",\"kind\":\"subtitle\",\"locator\":\"00:00–00:01\",\"startMs\":0,\"endMs\":1000,\"text\":\"测试羊肉煲\"},{\"id\":\"meat\",\"kind\":\"spoken\",\"locator\":\"00:02–00:03\",\"startMs\":2000,\"endMs\":3000,\"text\":\"羊肉五斤\"},{\"id\":\"oil\",\"kind\":\"visual\",\"locator\":\"00:04–00:05\",\"startMs\":4000,\"endMs\":5000,\"text\":\"倒油\"},{\"id\":\"fry\",\"kind\":\"visual\",\"locator\":\"00:06–00:07\",\"startMs\":6000,\"endMs\":7000,\"text\":\"下锅炸\"}]}",
+    "sha256": "a7089a395f63a06a767526136d94e1a92c6ab6a3252adb75ef1decfcba17baed",
+    "captured_at": "2026-10-19T14:27:54.780Z"
+   }
+  ],
+  "favorite_candidates": [
+   {
+    "id": "a4ab2c7d-74fb-4cb7-83ed-b1cc3cb5ba12",
+    "source_item_id": "b626ee0a-5af1-4002-9834-e06e6ed891c6",
+    "capture_id": "e4ded813-d841-4fc1-adfc-c2f17525e1d5",
+    "digest": "22e05e0d1f4522966a529e7d21c1a9e7213c13e39bcb86ff01addca31a8bb38f",
+    "document": "{\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"382d2f9e-fa14-5908-876d-4028de1bb865\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"ffd69638-bde7-5b69-8eb9-cc67f9b9f18b\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"696c0402-fd75-5b4f-834d-5343af0988fe\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[],\"assets\":[],\"tags\":[]},\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"imageCandidates\":[],\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}",
+    "status": "approved",
+    "reviewer": "测试师傅",
+    "review_note": "造的审核",
+    "recipe_id": "2c227c01-5040-45c6-a4c2-309dc37ed63a",
+    "recipe_version": 1,
+    "created_at": "2026-10-19T14:27:54.780Z",
+    "reviewed_at": "2026-10-19T14:27:54.781Z"
+   },
+   {
+    "id": "98c50926-b281-4863-818e-05a09417c926",
+    "source_item_id": "80f43483-9ff7-4d32-a51e-29608d7c51c9",
+    "capture_id": "122aaabd-4559-423b-9fc5-a87b047f78e4",
+    "digest": "ae731c7530ef462d5524dae216069b6b02d3d399c5d0733de9f11a5d5bfb2f6d",
+    "document": "{\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"3c86da16-0cd5-5635-8689-4d87ed63fb36\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"91575986-9525-5292-8083-2bfc208a3c37\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"36d64937-99b9-59af-84d6-42883668bfb9\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[],\"assets\":[],\"tags\":[]},\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"imageCandidates\":[],\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}",
+    "status": "needs_review",
+    "reviewer": null,
+    "review_note": null,
+    "recipe_id": null,
+    "recipe_version": null,
+    "created_at": "2026-10-19T14:27:54.781Z",
+    "reviewed_at": null
+   }
+  ],
+  "ingredient_revisions": [
+   {
+    "ingredient_id": "41a2f007-78ad-456a-9128-ecafa87a8657",
+    "version": 1,
+    "document": "{\"id\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"version\":1,\"ingredient\":{\"name\":{\"zh\":\"测试猪肉\"},\"baseUnit\":\"g\",\"yield\":0.8,\"aliases\":[],\"trackStock\":false},\"createdAt\":\"2026-10-19T14:27:54.769Z\"}",
+    "created_at": "2026-10-19T14:27:54.769Z"
+   },
+   {
+    "ingredient_id": "41a2f007-78ad-456a-9128-ecafa87a8657",
+    "version": 2,
+    "document": "{\"id\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"version\":2,\"ingredient\":{\"name\":{\"zh\":\"测试猪肉\"},\"baseUnit\":\"g\",\"yield\":0.8,\"purchase\":{\"supplier\":\"测试供应商\",\"packSize\":5,\"packUnit\":\"kg\"},\"aliases\":[],\"trackStock\":false},\"createdAt\":\"2026-10-19T14:27:54.771Z\"}",
+    "created_at": "2026-10-19T14:27:54.771Z"
+   }
+  ],
+  "technique_revisions": [
+   {
+    "technique_id": "6f8d074a-fde1-406e-9f8d-c7466c7b3418",
+    "version": 1,
+    "document": "{\"id\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\",\"version\":1,\"technique\":{\"kind\":\"cut\",\"name\":{\"zh\":\"测试切片\"}},\"createdAt\":\"2026-10-19T14:27:54.772Z\"}",
+    "created_at": "2026-10-19T14:27:54.772Z"
+   }
+  ]
+ },
+ "golden": {
+  "recipes": {
+   "7bd2f1cb-9181-47e1-a796-06cd3264a85f": {
+    "detail": {
+     "body": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":3,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱，改过一次\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.775Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":\"2026-10-19T14:27:54.777Z\",\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+     "etag": "\"v3\""
+    },
+    "revisions": {
+     "1": {
+      "body": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":1,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.775Z\",\"updatedAt\":\"2026-10-19T14:27:54.775Z\",\"archivedAt\":null,\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+      "etag": "\"v1\""
+     },
+     "2": {
+      "body": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":2,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱，改过一次\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.776Z\",\"updatedAt\":\"2026-10-19T14:27:54.776Z\",\"archivedAt\":null,\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+      "etag": "\"v2\""
+     },
+     "3": {
+      "body": "{\"id\":\"7bd2f1cb-9181-47e1-a796-06cd3264a85f\",\"version\":3,\"recipe\":{\"title\":{\"zh\":\"测试红烧肉\"},\"description\":{\"zh\":\"造的旧格式菜谱，改过一次\"},\"tags\":[\"测试\"],\"baseServings\":2,\"ingredients\":[{\"id\":\"65889564-0786-4849-9d64-7caad7e9bcab\",\"name\":{\"zh\":\"五花肉\"},\"rawText\":\"五花肉五百克\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"500\",\"unit\":\"克\",\"raw\":\"五百克\"},\"preparation\":{\"zh\":\"切块\"}},{\"id\":\"c98718b0-f4d5-421a-b089-99d5e2a73255\",\"name\":{\"zh\":\"盐\"},\"role\":\"seasoning\",\"amount\":{\"kind\":\"to_taste\",\"raw\":\"适量\"}},{\"id\":\"4a4c911f-89f8-4ec2-9c7d-cc967e0d17c2\",\"name\":{\"zh\":\"老抽\"},\"amount\":{\"kind\":\"text\",\"raw\":\"一点点\"}},{\"id\":\"a2ecaf01-d2be-4aba-a78b-d04ec3a496d9\",\"name\":{\"zh\":\"冰糖\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"text\":{\"zh\":\"焯水。\"}},{\"id\":\"26b75327-b016-4fff-9860-026f7767c27a\",\"text\":{\"zh\":\"小火慢炖。\"}}],\"sources\":[{\"sourceId\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"evidence\":{\"note\":\"造的\"}}],\"assets\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}]},\"createdAt\":\"2026-10-19T14:27:54.777Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":\"2026-10-19T14:27:54.777Z\",\"media\":[{\"assetId\":\"245064d3-fee0-4134-ab18-94d065177405\",\"kind\":\"video\",\"url\":\"https://example.com/fabricated-video\",\"status\":\"ready\",\"external\":true,\"role\":\"step\",\"stepId\":\"9b554aa9-11b4-403c-9e26-3399d04046a6\",\"clip\":{\"start\":1,\"end\":5}}],\"sourceRecords\":[{\"id\":\"881d6d2a-a63b-4041-af2c-b540009dacb5\",\"kind\":\"text\",\"title\":\"测试来源\",\"textContent\":\"造的原文：五花肉五百克，盐少许。\",\"createdAt\":\"2026-10-19T14:27:54.772Z\"}]}",
+      "etag": "\"v3\""
+     }
+    }
+   },
+   "82fd0b82-eec3-4d17-8d8f-ae833db5d635": {
+    "detail": {
+     "body": "{\"id\":\"82fd0b82-eec3-4d17-8d8f-ae833db5d635\",\"version\":1,\"recipe\":{\"recipeFormatVersion\":\"2\",\"title\":{\"zh\":\"测试回锅肉\"},\"ingredients\":[{\"id\":\"86d424f5-b812-42cd-b865-fb9a3a0118c7\",\"name\":{\"zh\":\"五花肉\"},\"ingredientId\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"300\",\"unit\":\"g\"},\"kitchenPrep\":{\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\",\"timing\":\"morning\",\"size\":\"3mm\"}}],\"steps\":[{\"id\":\"4e71f654-2c40-4698-acd0-3ca0c33cbb14\",\"text\":{\"zh\":\"煸炒。\"},\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\"}],\"tags\":[],\"sources\":[],\"assets\":[]},\"createdAt\":\"2026-10-19T14:27:54.777Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[]}",
+     "etag": "\"v1\""
+    },
+    "revisions": {
+     "1": {
+      "body": "{\"id\":\"82fd0b82-eec3-4d17-8d8f-ae833db5d635\",\"version\":1,\"recipe\":{\"recipeFormatVersion\":\"2\",\"title\":{\"zh\":\"测试回锅肉\"},\"ingredients\":[{\"id\":\"86d424f5-b812-42cd-b865-fb9a3a0118c7\",\"name\":{\"zh\":\"五花肉\"},\"ingredientId\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"role\":\"main\",\"amount\":{\"kind\":\"exact\",\"value\":\"300\",\"unit\":\"g\"},\"kitchenPrep\":{\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\",\"timing\":\"morning\",\"size\":\"3mm\"}}],\"steps\":[{\"id\":\"4e71f654-2c40-4698-acd0-3ca0c33cbb14\",\"text\":{\"zh\":\"煸炒。\"},\"techniqueId\":\"6f8d074a-fde1-406e-9f8d-c7466c7b3418\"}],\"tags\":[],\"sources\":[],\"assets\":[]},\"createdAt\":\"2026-10-19T14:27:54.777Z\",\"updatedAt\":\"2026-10-19T14:27:54.777Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[]}",
+      "etag": "\"v1\""
+     }
+    }
+   },
+   "2c227c01-5040-45c6-a4c2-309dc37ed63a": {
+    "detail": {
+     "body": "{\"id\":\"2c227c01-5040-45c6-a4c2-309dc37ed63a\",\"version\":1,\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"382d2f9e-fa14-5908-876d-4028de1bb865\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"ffd69638-bde7-5b69-8eb9-cc67f9b9f18b\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"696c0402-fd75-5b4f-834d-5343af0988fe\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[{\"sourceId\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"evidence\":{\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}}],\"assets\":[],\"tags\":[]},\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"updatedAt\":\"2026-10-19T14:27:54.781Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[{\"id\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"kind\":\"video\",\"title\":\"测试羊肉煲\",\"author\":\"测试作者\",\"url\":\"https://www.douyin.com/video/7600000000000000001\",\"textContent\":\"测试羊肉煲\\n羊肉五斤\\n倒油\\n下锅炸\",\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"metadata\":{\"platform\":\"douyin\",\"contentId\":\"7600000000000000001\",\"captureId\":\"e4ded813-d841-4fc1-adfc-c2f17525e1d5\",\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"method\":\"video_analysis\",\"reviewer\":\"测试师傅\"}}]}",
+     "etag": "\"v1\""
+    },
+    "revisions": {
+     "1": {
+      "body": "{\"id\":\"2c227c01-5040-45c6-a4c2-309dc37ed63a\",\"version\":1,\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"382d2f9e-fa14-5908-876d-4028de1bb865\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"ffd69638-bde7-5b69-8eb9-cc67f9b9f18b\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"696c0402-fd75-5b4f-834d-5343af0988fe\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[{\"sourceId\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"evidence\":{\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"]}}],\"assets\":[],\"tags\":[]},\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"updatedAt\":\"2026-10-19T14:27:54.781Z\",\"archivedAt\":null,\"media\":[],\"sourceRecords\":[{\"id\":\"9191ca1f-5a50-4b53-bcab-b740c2b39189\",\"kind\":\"video\",\"title\":\"测试羊肉煲\",\"author\":\"测试作者\",\"url\":\"https://www.douyin.com/video/7600000000000000001\",\"textContent\":\"测试羊肉煲\\n羊肉五斤\\n倒油\\n下锅炸\",\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"metadata\":{\"platform\":\"douyin\",\"contentId\":\"7600000000000000001\",\"captureId\":\"e4ded813-d841-4fc1-adfc-c2f17525e1d5\",\"captureHash\":\"5aa5ee971b38f6cde77b0d9e9b21b227c2dc3303d89d186323c8f99c987ccd7e\",\"method\":\"video_analysis\",\"reviewer\":\"测试师傅\"}}]}",
+      "etag": "\"v1\""
+     }
+    }
+   }
+  },
+  "ingredients": {
+   "41a2f007-78ad-456a-9128-ecafa87a8657/1": "{\"id\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"version\":1,\"ingredient\":{\"name\":{\"zh\":\"测试猪肉\"},\"baseUnit\":\"g\",\"yield\":0.8,\"aliases\":[],\"trackStock\":false},\"createdAt\":\"2026-10-19T14:27:54.769Z\"}",
+   "41a2f007-78ad-456a-9128-ecafa87a8657/2": "{\"id\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"version\":2,\"ingredient\":{\"name\":{\"zh\":\"测试猪肉\"},\"baseUnit\":\"g\",\"yield\":0.8,\"purchase\":{\"supplier\":\"测试供应商\",\"packSize\":5,\"packUnit\":\"kg\"},\"aliases\":[],\"trackStock\":false},\"createdAt\":\"2026-10-19T14:27:54.771Z\"}",
+   "41a2f007-78ad-456a-9128-ecafa87a8657": "{\"id\":\"41a2f007-78ad-456a-9128-ecafa87a8657\",\"version\":2,\"ingredient\":{\"name\":{\"zh\":\"测试猪肉\"},\"baseUnit\":\"g\",\"yield\":0.8,\"purchase\":{\"supplier\":\"测试供应商\",\"packSize\":5,\"packUnit\":\"kg\"},\"aliases\":[],\"trackStock\":false},\"createdAt\":\"2026-10-19T14:27:54.771Z\"}"
+  },
+  "candidates": {
+   "a4ab2c7d-74fb-4cb7-83ed-b1cc3cb5ba12": "{\"id\":\"a4ab2c7d-74fb-4cb7-83ed-b1cc3cb5ba12\",\"sourceItemId\":\"b626ee0a-5af1-4002-9834-e06e6ed891c6\",\"captureId\":\"e4ded813-d841-4fc1-adfc-c2f17525e1d5\",\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"382d2f9e-fa14-5908-876d-4028de1bb865\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"ffd69638-bde7-5b69-8eb9-cc67f9b9f18b\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"696c0402-fd75-5b4f-834d-5343af0988fe\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[],\"assets\":[],\"tags\":[]},\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"imageCandidates\":[],\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"],\"status\":\"approved\",\"reviewer\":\"测试师傅\",\"reviewNote\":\"造的审核\",\"recipeId\":\"2c227c01-5040-45c6-a4c2-309dc37ed63a\",\"recipeVersion\":1,\"createdAt\":\"2026-10-19T14:27:54.780Z\",\"reviewedAt\":\"2026-10-19T14:27:54.781Z\",\"illustrations\":[]}",
+   "98c50926-b281-4863-818e-05a09417c926": "{\"id\":\"98c50926-b281-4863-818e-05a09417c926\",\"sourceItemId\":\"80f43483-9ff7-4d32-a51e-29608d7c51c9\",\"captureId\":\"122aaabd-4559-423b-9fc5-a87b047f78e4\",\"recipe\":{\"title\":{\"zh\":\"测试羊肉煲\"},\"ingredients\":[{\"id\":\"3c86da16-0cd5-5635-8689-4d87ed63fb36\",\"name\":{\"zh\":\"羊肉\"},\"amount\":{\"kind\":\"exact\",\"value\":\"5\",\"unit\":\"斤\",\"raw\":\"5斤\"}},{\"id\":\"91575986-9525-5292-8083-2bfc208a3c37\",\"name\":{\"zh\":\"油\"},\"amount\":{\"kind\":\"unknown\"}}],\"steps\":[{\"id\":\"36d64937-99b9-59af-84d6-42883668bfb9\",\"text\":{\"zh\":\"羊肉下锅炸\"}}],\"sources\":[],\"assets\":[],\"tags\":[]},\"fieldEvidence\":{\"title\":{\"locator\":\"00:00–00:01\",\"quote\":\"测试羊肉煲\",\"evidenceIds\":[\"title\"]},\"ingredients\":[{\"locator\":\"00:02–00:03\",\"quote\":\"羊肉五斤\",\"evidenceIds\":[\"meat\"]},{\"locator\":\"00:04–00:05\",\"quote\":\"倒油\",\"evidenceIds\":[\"oil\"]}],\"steps\":[{\"locator\":\"00:06–00:07\",\"quote\":\"下锅炸\",\"evidenceIds\":[\"fry\"]}]},\"imageCandidates\":[],\"unresolved\":[\"煲多久没说\",\"羊肉：部位没说\",\"步骤 1：油温没说\"],\"status\":\"needs_review\",\"createdAt\":\"2026-10-19T14:27:54.781Z\",\"illustrations\":[]}"
+  }
+ }
+}

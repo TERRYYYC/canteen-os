@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:canteen-kb:canteen-quantities:1",
+  "title": "Canteen quantities, value sources and recipe unknowns (ADR-0012)",
+  "$comment": "Shared by import-batch (recipeFormatVersion 3) and standard-ingredient. Shapes mirror CanteenOS schemas/common.schema.json ValueSource/Quantity/Unit and dish-v3 LeadTime/RecipeUnknown so the Worker converts field by field. Differences, all private-KB only: decimal values are strings; ValueSource.by is the real name (the Worker publishes only 'chef'); RecipeUnknown points at row IDs instead of positions, keeps the original words in text, and may leave kind empty until it is classified.",
+  "$defs": {
+    "decimal": {
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$",
+      "description": "Positive decimal kept as a string; never converted to a JS number before storage"
+    },
+    "unit": {
+      "enum": [
+        "g",
+        "kg",
+        "ml",
+        "l",
+        "pcs",
+        "pack",
+        "tbsp",
+        "tsp",
+        "pinch",
+        "to-taste"
+      ],
+      "description": "CanteenOS Unit. to-taste has no value"
+    },
+    "quantity": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/unit"
+        }
+      },
+      "required": [
+        "unit"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "unit": {
+            "const": "to-taste"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": false
+        }
+      },
+      "else": {
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {}
+        }
+      }
+    },
+    "valueSource": {
+      "type": "object",
+      "description": "Where a canteen value came from (ADR-0012 §3): measured = chef weighed it, specified = chef gave it, rule = filled by a chef rule. The original recipe is never a source.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "measured",
+            "specified",
+            "rule"
+          ]
+        },
+        "ruleId": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "kind=rule only: the chef rule id (CanteenOS data/chef-rules.json)"
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "\\S",
+          "description": "measured/specified only: who gave it. The private KB keeps the real name; published data says only chef."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "measured/specified only: the day it was given"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rule"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "ruleId"
+            ],
+            "properties": {
+              "ruleId": {},
+              "by": false,
+              "date": false
+            }
+          },
+          "else": {
+            "required": [
+              "by",
+              "date"
+            ],
+            "properties": {
+              "by": {},
+              "date": {},
+              "ruleId": false
+            }
+          }
+        }
+      ]
+    },
+    "leadTime": {
+      "type": "object",
+      "description": "How long ahead: marinate, soak, brine, rest. min = minutes, h = hours, d = days",
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unit": {
+          "enum": [
+            "min",
+            "h",
+            "d"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "recipeUnknown": {
+      "type": "object",
+      "description": "One thing the source left unclear. No stepId and no ingredientRowId means the whole dish. text is the original words, shown only to chefs and admins (ADR-0010). kind may be absent until classified.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "prep-ahead",
+            "amount",
+            "net-or-gross",
+            "cut-size",
+            "identity",
+            "heat",
+            "duration",
+            "doneness",
+            "other"
+          ]
+        },
+        "action": {
+          "enum": [
+            "marinate",
+            "soak",
+            "brine",
+            "rest",
+            "cool",
+            "other"
+          ],
+          "description": "prep-ahead only"
+        },
+        "stepId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "ingredientRowId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "prep-ahead"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "action"
+            ],
+            "properties": {
+              "action": {}
+            }
+          },
+          "else": {
+            "properties": {
+              "action": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}

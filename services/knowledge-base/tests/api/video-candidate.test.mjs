@@ -26,8 +26,11 @@ test('video candidate maps into a complete, stable KB draft without inventing se
   assert.equal(first.capture.evidence.segments.length,3);
   assert.equal(first.proposal.recipe.baseServings,undefined);
   assert.equal(first.proposal.recipe.ingredients.length,2);
-  assert.equal(first.proposal.recipe.ingredients[0].amount.value,'5');
-  assert.equal(first.proposal.recipe.ingredients[1].amount.kind,'unknown');
+  assert.equal(first.proposal.recipe.recipeFormatVersion,'3');
+  assert.equal(first.proposal.recipe.ingredients[0].originalAmount,'5斤');
+  assert.deepEqual(first.proposal.recipe.ingredients[0].originalQty,{value:'2500',unit:'g'});
+  assert.equal(first.proposal.recipe.ingredients[1].originalAmount,undefined);
+  for (const row of first.proposal.recipe.ingredients) for (const key of ['amount','qty','qtySource']) assert.equal(key in row,false);
   assert.equal(first.proposal.recipe.steps.length,1);
   assert(first.proposal.unresolved.includes('煲煮时长未说明'));
   assert(first.proposal.unresolved.includes('羊腩：具体肉部位待核实'));
@@ -47,7 +50,9 @@ test('video import rejects a media mismatch and ungrounded fields', () => {
 test('an imprecise stated amount keeps its original words but cannot enter procurement arithmetic', () => {
   const uncertain={...candidate,ingredients:[{...candidate.ingredients[0],rawQuantity:'5克',quantityState:'stated_imprecise'}]};
   const imported=buildVideoImport({item,source,evidence,candidate:uncertain,sourceMethod:'browser_playback'});
-  assert.deepEqual(imported.proposal.recipe.ingredients[0].amount,{kind:'text',raw:'5克'});
+  const [row]=imported.proposal.recipe.ingredients;
+  assert.equal(row.originalAmount,'5克');
+  for (const key of ['originalQty','amount','qty','qtySource']) assert.equal(key in row,false);
 });
 
 test('an AI-reported serving count cannot become a scaling basis without chef review', () => {
