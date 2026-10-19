@@ -8,7 +8,8 @@ import { onRoute } from '../../router';
 import { getKnowledgeApi, KnowledgeError, createAttempt, type RecipeDetail, type RecipeList, type Revision, type SourceIllustrationLinks } from '../../api/knowledge';
 import { registerAuxiliaryEdits } from '../../view-models/reload-safety';
 import { words, button, field, input, select, multilingual, section, order, jsonEvidence, safeExternal, type Words } from './knowledge/ui';
-import { fresh, editable, dirty, pending, validate, removeStep, type Draft } from './knowledge/model';
+import { fresh, editable, dirty, pending, validate, removeStep, saveBody, canteenFormat, type Draft } from './knowledge/model';
+import { originalLine, unknownsPanel } from './knowledge/canteen';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
 import {workflowPanel,kitchenFields,workflowBlocked} from './knowledge/adoption';
 import {contractErrorText} from '../../admin/kit';
@@ -274,13 +275,19 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       if (!archive) {
         const invalid = validate(draft.recipe);
         if (pending(draft) || invalid) {
-          draft.error = pending(draft) ? t('还有来源或外链素材未添加。请先添加，或清空这些输入。', 'Add the pending source or asset, or clear its fields first.', 'Спочатку додайте джерело чи матеріал або очистіть їхні поля.') : t('请检查菜名、食材、数量、步骤及片段；至少一种语言有内容，精确用量是正数，片段结束晚于开始。', 'Check the title, ingredients, amounts, steps and clips. Required text needs one language; exact quantities must be positive and clips must end after they start.', 'Перевірте назву, інгредієнти, кількості, кроки та фрагменти. Обов’язковий текст потрібен хоча б однією мовою; кількості мають бути додатними.'); paint(); return;
+          const problem: Record<string, string> = {
+            qty: t('食堂用量要写正数，并选单位。', 'A canteen amount needs a positive number and a unit.', 'Кількість для їдальні: додатне число й одиниця.'),
+            'qty-source': t('用量和出处要一起填：实称、指定写谁和哪天，按规则写规则编号。', 'Fill in the amount and its source together: who and when for weighed or set, the rule ID for a rule.', 'Заповніть кількість і джерело разом: хто й коли — для зваженого чи заданого, номер — для правила.'),
+            'lead-time': t('提前多久要写正数。', 'How far ahead needs a positive number.', '«За скільки наперед» — додатне число.'),
+            'unknown-place': t('有一条“没说清”指向已经删掉的材料或步骤。先删掉那一条再保存。', 'An unclear item points to a removed ingredient or step. Delete that item first.', 'Неясний пункт вказує на вилучений інгредієнт або крок. Спершу видаліть цей пункт.'),
+          };
+          draft.error = pending(draft) ? t('还有来源或外链素材未添加。请先添加，或清空这些输入。', 'Add the pending source or asset, or clear its fields first.', 'Спочатку додайте джерело чи матеріал або очистіть їхні поля.') : (invalid && problem[invalid]) || t('请检查菜名、食材、数量、步骤及片段；至少一种语言有内容，精确用量是正数，片段结束晚于开始。', 'Check the title, ingredients, amounts, steps and clips. Required text needs one language; exact quantities must be positive and clips must end after they start.', 'Перевірте назву, інгредієнти, кількості, кроки та фрагменти. Обов’язковий текст потрібен хоча б однією мовою; кількості мають бути додатними.'); paint(); return;
         }
       }
       if (draft.detail && !draft.etag) { draft.error = t('服务未返回保存版本，请重新读取后再保存。', 'The server did not return a version tag. Reload before saving.', 'Сервер не повернув позначку версії. Завантажте знову.'); paint(); return; }
       if (archive && !window.confirm(t('归档会从列表收起这款菜谱，保留历史；未保存修改不会被保存。继续？', 'Archive this recipe and keep its history? Unsaved edits will not be saved.', 'Архівувати рецепт зі збереженням історії? Незбережені зміни не збережуться.'))) return;
       const id = draft.detail?.id;
-      draft.attempt = createAttempt(id ? `/recipes/${id}${archive ? '/archive' : ''}` : '/recipes', id && !archive ? 'PUT' : 'POST', archive ? {} : draft.recipe, draft.etag);
+      draft.attempt = createAttempt(id ? `/recipes/${id}${archive ? '/archive' : ''}` : '/recipes', id && !archive ? 'PUT' : 'POST', archive ? {} : saveBody(draft.recipe), draft.etag);
       draft.ticket = draft.registration.beginOperation('write');
     }
     if (!draft.attempt) return;
@@ -298,7 +305,10 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
       if (!current()) { if (draft.ticket) draft.registration.settleOperation(draft.ticket, 'failed'); return; }
       const uncertain = error instanceof KnowledgeError && error.uncertain;
       draft.unknown = uncertain;
-      draft.conflict = error instanceof KnowledgeError && [409, 412].includes(error.status);
+      // A format refusal is not someone else's newer edit: say what it is and keep the raw reply folded away.
+      const refused = error instanceof KnowledgeError && ['UNKNOWNS_REQUIRED', 'FORMAT_DOWNGRADE', 'RECIPE_FORMAT_REQUIRED'].includes(error.code);
+      draft.conflict = !refused && error instanceof KnowledgeError && [409, 412].includes(error.status);
+      draft.supportError = error instanceof KnowledgeError && !uncertain ? { status: error.status, code: error.code, message: error.message, details: error.details } : undefined;
       if (uncertain && draft.ticket) draft.registration.markUnknown(draft.ticket);
       else { if (draft.ticket) draft.registration.settleOperation(draft.ticket, 'failed'); draft.ticket = undefined; draft.attempt = undefined; }
       draft.error = uncertain ? t('保存结果暂时无法确认。输入已保留；点击“核对保存结果”将重放同一请求，避免重复新建。', 'The save result is unknown. Input is preserved. Check the save result to replay the same request without creating duplicates.', 'Результат збереження невідомий. Дані збережено. Перевірте результат, повторивши той самий запит без дублювання.') : draft.conflict ? t('这款菜谱已有更新。你的输入已保留；先看历史，再决定是否重新读取。', 'This recipe has changed. Your input is preserved. Review history before reloading.', 'Рецепт уже змінено. Ваші дані збережено. Перегляньте історію перед оновленням.') : message(error, t, ctx.lang);
@@ -360,27 +370,29 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
     if (evidenceOpen) historical.append(section(t('导入原文（只读，不随编辑改变）', 'Imported evidence (read only)', 'Імпортовані дані (лише читання)'), evidence ? jsonEvidence(evidence, t('展开完整来源、原始资料和关联记录', 'Expand complete source and original records', 'Розгорнути джерело та оригінальні записи')) : status(t('这款菜谱没有旧系统导入记录。', 'This recipe has no legacy import record.', 'Для цього рецепта немає запису імпорту.'))));
     const workflow=workflowPanel(draft,ctx,current,paint,()=>changed());
     const base = section(t('基本信息', 'Basics', 'Основне'), multilingual(t('菜名（至少一种语言）', 'Title (at least one language)', 'Назва (хоча б однією мовою)'), recipe.title, value => { recipe.title = value; changed(); }), multilingual(t('说明与备注', 'Description and notes', 'Опис і примітки'), recipe.description, value => { if (Object.keys(value).length) recipe.description = value; else delete recipe.description; changed(); }, true), h('div', { class: 'kb-grid' }, field(t('标签（逗号分隔）', 'Tags (comma separated)', 'Мітки (через кому)'), input((recipe.tags || []).join(', '), value => { recipe.tags = [...new Set(value.split(/[,，]/).map(v => v.trim()).filter(Boolean))]; changed(); })), field(t('基础份数（未知可留空）', 'Base servings (blank if unknown)', 'Базові порції (порожньо, якщо невідомо)'), input(recipe.baseServings === undefined ? '' : String(recipe.baseServings), value => { if (!value.trim()) delete recipe.baseServings; else recipe.baseServings = Number(value); changed(); }))));
-    const ingredients = section(t('食材与调料', 'Ingredients and seasonings', 'Інгредієнти та приправи'));
+    // A legacy recipe becomes format 3 on the save that first gives it canteen use or a lead time (ADR-0012 §1).
+    const upgrade = recipe.recipeFormatVersion !== '3' && recipe.ingredients?.length ? [h('p', { class: 'kb-muted', 'data-testid': 'format-upgrade' }, canteenFormat(recipe) ? t('保存后改成按每份记：原来的用量改作原方，只作参考，不算进采购。', 'Saving switches this recipe to per-serving amounts: the old amounts become the original, for reference only, and do not count for purchasing.', 'Після збереження рецепт перейде на кількості на порцію: старі кількості стануть оригіналом, лише для довідки, і не враховуються в закупівлі.') : t('这道菜还是旧格式。给任何一样材料填了食堂用量或提前多久，保存后原来的用量改作原方，只作参考。', 'This recipe still uses the old format. Once any ingredient gets a canteen amount or a lead time, saving keeps the old amounts as the original, for reference only.', 'Цей рецепт ще в старому форматі. Щойно будь-який інгредієнт отримає кількість для їдальні чи час наперед, після збереження старі кількості стануть оригіналом, лише для довідки.'))] : [];
+    const ingredients = section(t('食材与调料', 'Ingredients and seasonings', 'Інгредієнти та приправи'), ...upgrade);
     (recipe.ingredients || []).forEach((row, index) => {
       const amount = row.amount;
-      const quantity = h('div', { class: 'kb-grid' }, field(t('用量类型', 'Amount type', 'Тип кількості'), select(amount.kind, [['unknown', t('未知', 'Unknown', 'Невідомо')], ['exact', t('精确用量', 'Exact', 'Точна')], ['to_taste', t('适量', 'To taste', 'За смаком')], ['text', t('原文描述', 'Original description', 'Оригінальний опис')]], kind => {
+      const quantity = !amount ? originalLine(row, t) : h('div', { class: 'kb-grid' }, field(t('用量类型', 'Amount type', 'Тип кількості'), select(amount.kind, [['unknown', t('未知', 'Unknown', 'Невідомо')], ['exact', t('精确用量', 'Exact', 'Точна')], ['to_taste', t('适量', 'To taste', 'За смаком')], ['text', t('原文描述', 'Original description', 'Оригінальний опис')]], kind => {
         row.amount = kind === 'exact' ? { kind, value: '', unit: '', ...(amount.raw ? { raw: amount.raw } : {}) } : kind === 'unknown' ? { kind, ...(amount.raw ? { raw: amount.raw } : {}) } : { kind: kind as 'to_taste' | 'text', raw: amount.raw || (kind === 'to_taste' ? t('适量', 'to taste', 'за смаком') : '') }; changed(true);
       })));
-      if (amount.kind === 'exact') quantity.append(field(t('数量（保留原精度）', 'Quantity (preserve precision)', 'Кількість (збереження точності)'), input(amount.value, value => { amount.value = value; changed(); })), field(t('单位', 'Unit', 'Одиниця'), input(amount.unit, value => { amount.unit = value; changed(); })));
-      quantity.append(field(t('用量原文', 'Original amount text', 'Оригінальний текст кількості'), input(amount.raw || '', value => { amount.raw = value; changed(); })));
+      if (amount?.kind === 'exact') quantity.append(field(t('数量（保留原精度）', 'Quantity (preserve precision)', 'Кількість (збереження точності)'), input(amount.value, value => { amount.value = value; changed(); })), field(t('单位', 'Unit', 'Одиниця'), input(amount.unit, value => { amount.unit = value; changed(); })));
+      if (amount) quantity.append(field(t('用量原文', 'Original amount text', 'Оригінальний текст кількості'), input(amount.raw || '', value => { amount.raw = value; changed(); })));
       ingredients.append(h('div', { class: 'kb-row' }, h('strong', {}, `${index + 1}`), order(recipe.ingredients!, index, () => changed(true), () => { recipe.ingredients!.splice(index, 1); changed(true); }, t),
         multilingual(t('食材名称', 'Ingredient name', 'Назва інгредієнта'), row.name, value => { row.name = value; changed(); }), field(t('类型', 'Role', 'Роль'), select(row.role || 'unspecified', [['unspecified', t('未分类', 'Unspecified', 'Не визначено')], ['main', t('食材', 'Ingredient', 'Інгредієнт')], ['seasoning', t('调料', 'Seasoning', 'Приправа')]], value => { row.role = value as typeof row.role; changed(); })), quantity,
-        field(t('配料原文', 'Original ingredient text', 'Оригінальний текст інгредієнта'), input(row.rawText || '', value => { row.rawText = value; changed(); }, true)), multilingual(t('预处理', 'Preparation', 'Підготовка'), row.preparation, value => { if (Object.keys(value).length) row.preparation = value; else delete row.preparation; changed(); }, true),kitchenFields(draft,ctx,()=>changed(),index)));
+        field(t('配料原文', 'Original ingredient text', 'Оригінальний текст інгредієнта'), input(row.rawText || '', value => { row.rawText = value; changed(); }, true)), multilingual(t('预处理', 'Preparation', 'Підготовка'), row.preparation, value => { if (Object.keys(value).length) row.preparation = value; else delete row.preparation; changed(); }, true),kitchenFields(draft,ctx,changed,index)));
     });
-    ingredients.append(button(t('＋ 添加食材或调料', '＋ Add ingredient or seasoning', '＋ Додати інгредієнт чи приправу'), () => { (recipe.ingredients ??= []).push({ id: crypto.randomUUID(), name: {}, role: 'unspecified', amount: { kind: 'unknown' } }); changed(true); }));
+    ingredients.append(button(t('＋ 添加食材或调料', '＋ Add ingredient or seasoning', '＋ Додати інгредієнт чи приправу'), () => { (recipe.ingredients ??= []).push({ id: crypto.randomUUID(), name: {}, role: 'unspecified', ...(recipe.recipeFormatVersion === '3' ? {} : { amount: { kind: 'unknown' as const } }) }); changed(true); }));
     const steps = section(t('做法步骤', 'Steps', 'Кроки'));
     (recipe.steps || []).forEach((step, index) => steps.append(h('div', { class: 'kb-row' }, h('strong', {}, `${index + 1}`), order(recipe.steps!, index, () => changed(true), () => {
       if (recipe.assets?.some(asset => asset.stepId === step.id) && !window.confirm(t('移除步骤后，关联素材将保留为参考资料。继续？', 'Remove this step and keep its assets as references?', 'Вилучити крок і залишити матеріали як довідкові?'))) return;
       removeStep(recipe, step.id); changed(true);
-    }, t), multilingual(t('步骤说明', 'Step instructions', 'Опис кроку'), step.text, value => { step.text = value; changed(); }, true),kitchenFields(draft,ctx,()=>changed(),undefined,index))));
+    }, t), multilingual(t('步骤说明', 'Step instructions', 'Опис кроку'), step.text, value => { step.text = value; changed(); }, true),kitchenFields(draft,ctx,changed,undefined,index))));
     steps.append(button(t('＋ 添加步骤', '＋ Add step', '＋ Додати крок'), () => { (recipe.steps ??= []).push({ id: crypto.randomUUID(), text: {} }); changed(true); }));
     const disabled=draft.busy||draft.unknown||workflowBlocked(draft)||!!draft.detail?.archivedAt;
-    const recipeForm=h('fieldset',{class:'kb-form',disabled},base,ingredients,steps);
+    const recipeForm=h('fieldset',{class:'kb-form',disabled},base,ingredients,steps,unknownsPanel(recipe,ctx.lang,t,changed));
     const referencePanel=draft.detail
       ?referenceError
         ?h('section',{class:'kb-panel kb-source-reference-panel'},h('h3',{},t('原片参考图（只读）','Source video frames (read only)','Кадри оригіналу (лише читання)')),
