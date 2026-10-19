@@ -122,6 +122,40 @@ test('AC1/AC4: legacy revisions read byte-for-byte as before; a format 3 revisio
   await goldenRead(id);
 });
 
+test('leaving unknowns out never deletes them: 409 until the client clears them with an explicit []', async t => {
+  const f = await fixture(t);
+  const rows = [randomUUID(), randomUUID(), randomUUID()], steps = [randomUUID(), randomUUID()];
+  const body = formatThree(steps, rows);
+  const created = (await ok(f.app, 'POST', '/recipes', body)).json();
+  const { unknowns, ...withoutField } = body;
+  const first = (await ok(f.app, 'GET', `/recipes/${created.id}/revisions/1`)).body;
+
+  // A client that does not know the field (keeps only some top-level fields) is refused, nothing is saved.
+  const dropped = await call(f.app, 'PUT', `/recipes/${created.id}`, { ...withoutField, description: { zh: '只改了备注' } }, { 'if-match': '"v1"' });
+  assert.equal(dropped.statusCode, 409, dropped.body);
+  assert.equal(dropped.json().error.code, 'UNKNOWNS_REQUIRED');
+  assert.match(dropped.json().error.message, /没说清.*请用新版编辑器保存.*明确清空/);
+  assert.deepEqual(dropped.json().error.details, { unknownCount: unknowns.length });
+  assert.equal((await ok(f.app, 'GET', `/recipes/${created.id}/revisions`)).json().items.length, 1);
+  assert.equal((await ok(f.app, 'GET', `/recipes/${created.id}/revisions/1`)).body, first);
+
+  // Sending them back keeps them; an explicit [] clears them all (K7).
+  assert.deepEqual((await ok(f.app, 'PUT', `/recipes/${created.id}`, { ...body, description: { zh: '只改了备注' } }, { 'if-match': '"v1"' })).json().recipe.unknowns, unknowns);
+  const key = randomUUID();
+  const cleared = await ok(f.app, 'PUT', `/recipes/${created.id}`, { ...withoutField, unknowns: [] }, { 'if-match': '"v2"', 'idempotency-key': key });
+  assert.equal('unknowns' in cleared.json().recipe, false);
+  const replay = await ok(f.app, 'PUT', `/recipes/${created.id}`, { ...withoutField, unknowns: [] }, { 'if-match': '"v2"', 'idempotency-key': key });
+  assert.equal(replay.headers['idempotency-replayed'], 'true');
+  // Leaving the field out is a different request from clearing it, so the same key cannot stand for both.
+  const reused = await call(f.app, 'PUT', `/recipes/${created.id}`, withoutField, { 'if-match': '"v2"', 'idempotency-key': key });
+  assert.equal(reused.statusCode, 409, reused.body);
+  assert.equal(reused.json().error.code, 'IDEMPOTENCY_KEY_REUSED');
+
+  // Once the last version has none, leaving the field out is fine again.
+  assert.equal((await ok(f.app, 'PUT', `/recipes/${created.id}`, withoutField, { 'if-match': '"v3"' })).json().version, 4);
+  assert.deepEqual((await ok(f.app, 'GET', `/recipes/${created.id}/revisions/2`)).json().recipe.unknowns, unknowns);
+});
+
 test('format 3 rejects mixed shapes, quantities without a source and unknowns pointing outside the recipe', async t => {
   const f = await fixture(t);
   const rows = [randomUUID(), randomUUID(), randomUUID()], steps = [randomUUID(), randomUUID()];

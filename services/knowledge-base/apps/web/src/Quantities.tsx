@@ -95,12 +95,8 @@ function where(recipe: Recipe, entry: RecipeUnknown) {
 /** K7: a chef deletes one entry once it is answered; saving stores a new version and older versions keep it. */
 export function UnknownsPanel({ recipe, onChange, readOnly = false }: { recipe: Recipe; onChange?: (recipe: Recipe) => void; readOnly?: boolean }) {
   const entries = recipe.unknowns ?? [];
-  function remove(index: number) {
-    const kept = entries.filter((_, i) => i !== index);
-    const next: Recipe = { ...recipe, unknowns: kept };
-    if (!kept.length) delete next.unknowns;
-    onChange?.(next);
-  }
+  // Deleting the last entry keeps an explicit []: the API treats a missing field as "this client does not know them".
+  function remove(index: number) { onChange?.({ ...recipe, unknowns: entries.filter((_, i) => i !== index) }); }
   if (!entries.length) return readOnly ? null : <p className="muted">原方没有标出没说清的地方。</p>;
   return <ul className="unknown-list">{entries.map((entry, index) => <li key={`${index}-${entry.text}`}><div><span className="tag">{unknownKindText(entry)}</span><small>{where(recipe, entry)}</small><p>{entry.text}</p></div>{!readOnly && <button type="button" className="quiet danger" aria-label={`删掉这一条：${entry.text}`} onClick={() => remove(index)}>删掉这一条</button>}</li>)}</ul>;
 }

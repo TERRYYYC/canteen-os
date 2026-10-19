@@ -33,6 +33,8 @@ export function unique(items, key, label) {
   if (new Set(values).size !== values.length) fail(422, 'DUPLICATE_ID', `${label} ID 不能重复。`);
 }
 
+// Whether a write names unknowns at all. Leaving the field out is not the same as clearing it with [].
+export const sendsUnknowns = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value) && Object.hasOwn(value, 'unknowns');
 // Absent = 1. A saved recipe never goes back to an older format (an old client would drop fields it does not know).
 export const formatRank = recipe => ({ '2': 2, '3': 3 })[recipe?.recipeFormatVersion] ?? 1;
 const v3RowFields = ['originalAmount', 'originalQty', 'qty', 'qtySource'];

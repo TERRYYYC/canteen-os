@@ -84,7 +84,12 @@ Recipe body使用contracts/import-batch.schema.json的$defs.recipe。title/descr
 - `stepId`、`ingredientRowId`：必须指向本菜谱里的步骤、食材行，否则 422 `INVALID_UNKNOWN_REFERENCE`。两个都不带，就是整道菜的。
 - `text`：原话，只给师傅和管理员看（ADR-0010）。
 - 完全相同的两条返回 422 `DUPLICATE_UNKNOWN`；最多 200 条。
-- 写 `[]` 等于不写：服务端去掉这个字段，读接口也不返回（K5）。
+- 没有条目就不存这个字段，读接口也不返回（K5）。
+- 修改时，「不带这个字段」和「写 `[]`」不一样：
+  - 写 `[]`：删光，存成新版本（K7）。
+  - 不带这个字段，而上一版有条目：409 `UNKNOWNS_REQUIRED`，什么都不存，`details.unknownCount` 是上一版的条数。这样不认识这个字段的客户端保存时，不会悄悄删掉它们。
+  - 不带这个字段，上一版本来就没有：照常保存。
+  - 同一个 Idempotency-Key 不能既代表「写 `[]`」又代表「不带」：后到的那个返回 409 `IDEMPOTENCY_KEY_REUSED`。
 
 其他校验：
 
