@@ -221,7 +221,7 @@ test('a format 3 revision with "not said in the video" items waits for #174 inst
   assert.equal(ok.status,200,JSON.stringify(ok.body));
 });
 
-test('hand count: 150 g net per serving, servings 1, 100 planned, yield 0.8 → 18 750 g gross through core',async()=>{
+test('hand count: 150 g net per serving, servings 1, 100 planned, yield 0.8, engine margin 1.1 → 20 625 g gross, 21 packs through core',async()=>{
   const repo=repoWith({'data/chef-rules.json':chefRules});
   const fixed=await freezer(repo,format3(),{ingredients:[standard()],techniques:[]}).freeze();
   assert.equal(fixed.status,200,JSON.stringify(fixed.body));
@@ -229,18 +229,26 @@ test('hand count: 150 g net per serving, servings 1, 100 planned, yield 0.8 → 
   const read=prefix=>Object.fromEntries(files.filter(p=>p.startsWith(prefix)).map(p=>[p.slice(prefix.length,-'.json'.length),JSON.parse(repo.fileText(p))]));
   // core lists a bound row under its standard ingredient, an unbound KB row under recipe + row.
   const dishRef=fixed.body.dishRef,chicken=`kbci-${STANDARD.replaceAll('-','')}`,scallion=`kbri-${format3().id.replaceAll('-','')}-${ROWS[2].replaceAll('-','')}`;
-  // margin 1 so the gross need is the hand count itself (ADR-0012 §4 example); the default margin is 1.1.
-  const plan={schemaVersion:'3',name:{zh:'测试菜单（夹具）'},margin:1,meals:[{date:'2026-10-20',mealType:'lunch',dishRef,plannedServings:100}]};
-  const inputs={menuPlans:{'test-week':plan},dishes:read('data/dishes/'),ingredients:read('data/ingredients/'),techniques:[]};
-  const shopping=estimateShoppingList(inputs,[{menuPlanRef:'test-week',date:'2026-10-20',mealType:'lunch'}],'2026-10-19T09:00:00Z');
+  const shop=margin=>{
+    // No margin on the plan: the engine uses its own DEFAULT_MARGIN (1.1), as a real menu without one would.
+    const plan={schemaVersion:'3',name:{zh:'测试菜单（夹具）'},...(margin===undefined?{}:{margin}),meals:[{date:'2026-10-20',mealType:'lunch',dishRef,plannedServings:100}]};
+    const inputs={menuPlans:{'test-week':plan},dishes:read('data/dishes/'),ingredients:read('data/ingredients/'),techniques:[]};
+    return estimateShoppingList(inputs,[{menuPlanRef:'test-week',date:'2026-10-20',mealType:'lunch'}],'2026-10-19T09:00:00Z');
+  };
+  const shopping=shop();
   const line=shopping.items.find(item=>item.ingredientRef===chicken);
   assert.equal(line.status,'complete',JSON.stringify(line));
   const {trace,packs,qty}=line.lines[0].line;
-  // 150 g × 100 ÷ 1 = 15 000 g net; ÷ 0.8 = 18 750 g gross; × 1 margin; 18 750 ÷ 1 000 g packs = 18.75 → 19 packs.
+  // net 150 g × 100 ÷ 1 = 15 000 g; ÷ 0.8 = 18 750 g; × 1.1 = 20 625 g gross;
+  // 20 625 ÷ 1 000 g per pack = 20.625 → round up 21 (≥ minPacks 1) → 21 × 1 000 = 21 000 g bought.
   assert.deepEqual(trace.netNeed,{value:15000,unit:'g'});
-  assert.equal(trace.yieldApplied,0.8);assert.equal(trace.marginApplied,1);
-  assert.deepEqual(trace.grossNeed,{value:18750,unit:'g'});
-  assert.equal(packs,19);assert.deepEqual(qty,{value:19000,unit:'g'});
+  assert.equal(trace.yieldApplied,0.8);assert.equal(trace.marginApplied,1.1);
+  assert.deepEqual(trace.grossNeed,{value:20625,unit:'g'});
+  assert.equal(trace.packsRaw,20.625);assert.equal(trace.minPacksApplied,false);
+  assert.equal(packs,21);assert.deepEqual(qty,{value:21000,unit:'g'});
+  // The 18.75 kg in the issue is the same count with margin 1: 18 750 g gross, 18.75 → 19 packs.
+  const one=shop(1).items.find(item=>item.ingredientRef===chicken).lines[0].line;
+  assert.deepEqual(one.trace.grossNeed,{value:18750,unit:'g'});assert.equal(one.packs,19);
   // The original "葱 500 g" never reaches the arithmetic: no qty, so it is not counted (not 500 × 100 = 50 kg).
   const original=shopping.items.find(item=>item.ingredientRef===scallion);
   assert.equal(original.status,'unavailable');assert(original.reasons.some(r=>r.code==='missing-qty'),JSON.stringify(original.reasons));
