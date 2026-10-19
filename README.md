@@ -49,6 +49,7 @@ GitHub Pages 地址如下。成功合并到 `main` 会触发发布工作流；�
 | AI agent | [AGENTS](AGENTS.md) → 当前工作合同 → 本次 issue → 对应 schema/API/页面合同 |
 | 调度 agent | [当前 issues](https://github.com/TERRYYYC/canteen-os/issues) → [工作模式的当前补充](docs/operating-model.md)；[#128](https://github.com/TERRYYYC/canteen-os/issues/128) 保留 alpha.4 工程验收与发行回执 |
 | 页面实施者 | [设计索引](docs/design/README.md) → [D0 小团队页面合同](docs/design/team-meals-pages/D0-contract.md) |
+| 视频解析 / 接手 Agent | [怎么用、与知识库的关系、真实案例](docs/video-recipe-working-example.md)；可先运行不依赖私有环境的合成样本 |
 
 当前任务以实际 GitHub issue 为准；`.github/backlog/round-1.json` 和波次脚本是第一轮历史计划，不是当前全部 issue 的生成真源。[旧执行简报](docs/execution-brief.md) 与 [给 Terry 的旧排期](docs/plan-for-terry.md) 保留兼容和历史依据，不恢复固定人数、材料数或旧视觉目标。
 

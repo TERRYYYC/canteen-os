@@ -1,0 +1,17 @@
+{
+  "caseVersion": 1,
+  "kind": "real_cached_recipe_reference",
+  "title": { "zh": "陈皮排骨" },
+  "sourceUrl": "https://www.douyin.com/video/7688940752160196770",
+  "workId": "7688940752160196770",
+  "media": {
+    "sha256": "c8b1d334b4f8e3e7a3d1f56179f7525895db96dea148fddd67dac80c308bc49b",
+    "byteCount": 61563411,
+    "durationMs": 132400,
+    "audioDurationMs": 132398
+  },
+  "expectedCounts": { "ingredients": 12, "steps": 8, "evidence": 188, "illustrations": 5 },
+  "analysisReuse": true,
+  "mediaAndPrivateArtifactsIncluded": false,
+  "kitchenApprovalAsserted": false
+}
