@@ -27,13 +27,16 @@ const UNIT = String.raw`(?:克|g|千克|公斤|kg|斤|两|毫升|ml|升|l|个|�
 const PLAIN = new RegExp(String.raw`^${NUM}\s*${UNIT}$`, 'i');
 const JIN = new RegExp(String.raw`^${NUM}斤(?:${NUM}两|半)$`);
 
+// 1–4 are the four kinds of ADR-0012. 5 is wording that was said but is no clear number (少许, 一勺): not 还没核.
 export const GAPS = {
-  0: { mark: '', text: '原方有结构化的数', action: '只作参考' },
-  1: { mark: '①', text: '视频确实没说', action: '留给师傅' },
-  2: { mark: '②', text: '说了，没提取出来', action: '归修解析（#159）' },
-  3: { mark: '③', text: '有数，没写成结构化', action: '归修解析（#159）' },
-  4: { mark: '④', text: '还没核', action: '留给师傅' },
+  0: { mark: '', label: '原方有结构化的数', text: '原方有结构化的数', action: '只作参考' },
+  1: { mark: '①', label: '①', text: '解析判定没说', action: '留给师傅' },
+  2: { mark: '②', label: '②', text: '说了，没提取出来', action: '归修解析（#159）' },
+  3: { mark: '③', label: '③', text: '有数，没写成结构化', action: '归修解析（#159）' },
+  4: { mark: '④', label: '④', text: '还没核', action: '留给师傅' },
+  5: { mark: '', label: '不是清楚的数', text: '说了，但不是清楚的数', action: '留给师傅' },
 };
+const SHOWN = [1, 2, 3, 4, 5];
 const SECTIONS = [
   ['main', '主料'],
   ['seasoning', '调料'],
@@ -75,13 +78,15 @@ export function isPlainAmount(raw) {
   return PLAIN.test(text) || JIN.test(text);
 }
 
-/** Where the original amount falls short (ADR-0012, #171): 1–4, or 0 when the candidate already has a structured value. */
+/** Where the original amount falls short (ADR-0012, #171): one of GAPS, 0 when the candidate already has a structured value. */
 export function classifyGap(row) {
   if (row.normalizedQuantity != null) return 0;
   const raw = typeof row.rawQuantity === 'string' ? row.rawQuantity.trim() : '';
   if (row.quantityState === 'not_stated') return raw ? 4 : 1;
-  if (row.quantityState === 'stated') return !raw ? 2 : isPlainAmount(raw) ? 3 : 4;
-  // not_checked, stated_imprecise (never upgraded, candidate-contract.md) and anything else: cannot tell.
+  if (row.quantityState === 'stated') return !raw ? 2 : isPlainAmount(raw) ? 3 : 5;
+  // stated_imprecise is never upgraded to a number, even with one in it (candidate-contract.md).
+  if (row.quantityState === 'stated_imprecise') return raw ? 5 : 2;
+  // not_checked, and states that contradict themselves or are unknown: nobody can tell yet.
   return 4;
 }
 
@@ -122,11 +127,12 @@ export function buildSheets(dishes, groups) {
       gap: classifyGap(row),
       suggestion: suggest(row.name, owners),
     }));
-    const gaps = [0, 1, 2, 3, 4].map(kind => rows.filter(row => row.gap === kind).length);
+    const gaps = Object.keys(GAPS).map(kind => rows.filter(row => row.gap === Number(kind)).length);
     return {
       id,
       title: candidate.title || '（没有菜名）',
       yieldRaw: candidate.yield?.raw ?? null,
+      yieldState: candidate.yield?.state ?? null,
       rows,
       gaps,
       steps: candidate.steps.filter(step => step.unknowns?.length).map(step => ({ order: step.order, action: step.action, unknowns: step.unknowns })),
@@ -213,7 +219,13 @@ function seasoningPrep(techniques, columns) {
 }
 
 function gapSummary(gaps) {
-  return [1, 2, 3, 4].map(kind => `${GAPS[kind].mark} ${gaps[kind]}`).join(' · ') + (gaps[0] ? ` · 原方有结构化的数 ${gaps[0]}` : '');
+  return SHOWN.map(kind => `${GAPS[kind].label} ${gaps[kind]}`).join(' · ') + (gaps[0] ? ` · ${GAPS[0].label} ${gaps[0]}` : '');
+}
+
+/** Servings are not recorded yet in any case (as #177 words it); the reason follows the candidate's yield state. */
+function servings(sheet) {
+  const why = sheet.yieldRaw ? `原方「${esc(sheet.yieldRaw)}」，只作参考，不从这里推份数` : { not_stated: '解析判定没说', not_checked: '还没核' }[sheet.yieldState];
+  return `还没录${why ? `（${why}）` : ''}。`;
 }
 
 function page(sheet, techniques, reference) {
@@ -226,14 +238,14 @@ function page(sheet, techniques, reference) {
     return `<tbody class="section"><tr><td colspan="${columns}">${esc(title)} · ${rows.length} 样</td></tr></tbody>${rows.map(row => itemRows(row, techniques, reference, columns)).join('')}${key === 'seasoning' ? seasoningPrep(techniques, columns) : ''}`;
   }).join('');
   const unclear = [
-    `<li><b>份数</b>：${sheet.yieldRaw ? `原方「${esc(sheet.yieldRaw)}」，只作参考，不从这里推份数。` : '视频没说。'}本表一律按每份记。</li>`,
+    `<li><b>份数</b>：${servings(sheet)}本表一律按每份记。</li>`,
     ...sheet.steps.map(step => `<li><b>第 ${esc(step.order)} 步</b><span class="step">${esc(step.action)}</span><br>没说清：${step.unknowns.map(esc).join(' ')}</li>`),
     ...sheet.unresolved.map(text => `<li><b>整道菜</b>：${esc(text)}</li>`),
   ].join('');
   return `<section class="page">
 <header><div><h2>${esc(sheet.title)}</h2><div class="meta">作品编号 ${esc(sheet.id)} · ${sheet.rows.length} 样 · 缺口 ${gapSummary(sheet.gaps)}</div></div><div class="who">师傅 ${blank('wide')}　日期 ${blank()}</div></header>
 <p class="rule"><b>份数：按每份记，写 1。每一格都填一份的量。</b>「原方」是视频里的原话，只作参考，不进计算。不知道的空着，不填 0 或 1，也不写「适量」。</p>
-<p class="legend">出处：称＝按食堂做法实际称过 · 定＝师傅直接给的数 · 规＝按师傅定的规则，写规则号　｜　单位跟标准食材走：液体 ml，其余 g，按个买的写个　｜　缺口：① 视频没说 ② 没提取出来 ③ 有数没写成结构化数值 ④ 还没核；②③ 归修解析（#159），不用师傅补原方</p>
+<p class="legend">出处：称＝按食堂做法实际称过 · 定＝师傅直接给的数 · 规＝按师傅定的规则，写规则号　｜　单位跟标准食材走：液体 ml，其余 g，按个买的写个　｜　缺口：① 解析判定没说 ② 没提取出来 ③ 有数没写成结构化数值 ④ 还没核 · 说了，但不是清楚的数；②③ 归修解析（#159），不用师傅补原方</p>
 <table>${head}${body}</table>
 <h3>这道菜哪里没说清</h3>
 <p class="legend">只列出来给师傅看。这一轮只补上面表里的空格；火候、做多久、做到什么样以后在菜品库补（ADR-0012 第 8 条）。要提前腌、泡、卤、醒的，把时长写在那样材料的「提前多久」一格。</p>
@@ -245,7 +257,7 @@ ${reference ? `<p class="refnote">「同类菜常见范围」只供参考，不�
 function cover(sheets, reference) {
   const rows = sheets.map(sheet => {
     const count = key => sheet.rows.filter(row => row.suggestion.section === key).length;
-    return `<tr><td>${esc(sheet.title)}</td><td>${esc(sheet.id)}</td><td>${sheet.rows.length}</td><td>${count('main')}</td><td>${count('seasoning')}</td><td>${count('unsure') + count('other')}</td>${[1, 2, 3, 4].map(kind => `<td>${sheet.gaps[kind]}</td>`).join('')}</tr>`;
+    return `<tr><td>${esc(sheet.title)}</td><td>${esc(sheet.id)}</td><td>${sheet.rows.length}</td><td>${count('main')}</td><td>${count('seasoning')}</td><td>${count('unsure') + count('other')}</td>${SHOWN.map(kind => `<td>${sheet.gaps[kind]}</td>`).join('')}</tr>`;
   }).join('');
   return `<section class="page cover">
 <h1>补料表 · ${sheets.length} 道菜</h1>
@@ -262,15 +274,16 @@ function cover(sheets, reference) {
 <li>对应的标准食材（建议）：只按名字给的建议，没有替师傅绑。对就勾「用这个」，不对就写该用哪种。「先认是什么」的，先认清是哪种再写。标「名称待核」的，先看原话。</li>
 <li>缺口说的是原方的量缺在哪：
 <ul>
-<li>① 视频确实没说（已核原片）。留给师傅。</li>
+<li>① 解析判定没说（解析过了整段视频，判定没说；没有人对过原片）。留给师傅。</li>
 <li>② 原片说了，但没提取出来。归修解析（#159）。</li>
 <li>③ 原话里有清楚的数，但没写成结构化数值。归修解析（#159）。</li>
 <li>④ 还没核。留给师傅。</li>
+<li>另外，原话说了、但不是清楚的数的（「少许」「一勺」「大概多少」、两个数），写「说了，但不是清楚的数」。留给师傅。</li>
 </ul>
 ②③ 不用师傅补原方。不管哪种缺口，每份净料用量都请师傅按食堂做法填。</li>
 <li>「这道菜哪里没说清」只列出来给师傅看。这一轮不补火候、做多久、做到什么样。</li>
 </ol>
-<table class="summary"><thead><tr><th>菜</th><th>作品编号</th><th>样数</th><th>主料</th><th>调料</th><th>其他</th><th>①</th><th>②</th><th>③</th><th>④</th></tr></thead><tbody>${rows}</tbody></table>
+<table class="summary"><thead><tr><th>菜</th><th>作品编号</th><th>样数</th><th>主料</th><th>调料</th><th>其他</th><th>①</th><th>②</th><th>③</th><th>④</th><th>不是清楚的数</th></tr></thead><tbody>${rows}</tbody></table>
 ${reference ? `<p class="refnote">这一版印了「同类菜常见范围（仅供参考）」一栏。这一栏不进任何数据。数是从哪来的：${esc(reference.source)}</p>` : ''}
 </section>`;
 }
@@ -351,8 +364,8 @@ function main(argv) {
   const sheets = buildSheets(readCandidates(args.results, ids), groups);
   writeFileSync(args.out, renderHtml(sheets, { techniques, reference }));
   for (const sheet of sheets) console.error(`${sheet.id}：${sheet.rows.length} 样，缺口 ${gapSummary(sheet.gaps)}，没说清的步骤 ${sheet.steps.length}，整道菜 ${sheet.unresolved.length}`);
-  const total = kind => sheets.reduce((sum, sheet) => sum + sheet.gaps[kind], 0);
-  console.error(`共 ${sheets.length} 道菜、${sheets.reduce((sum, sheet) => sum + sheet.rows.length, 0)} 样，缺口 ① ${total(1)} · ② ${total(2)} · ③ ${total(3)} · ④ ${total(4)}${reference ? '，印了同类菜常见范围' : ''} → ${args.out}`);
+  const total = Object.keys(GAPS).map(kind => sheets.reduce((sum, sheet) => sum + sheet.gaps[kind], 0));
+  console.error(`共 ${sheets.length} 道菜、${sheets.reduce((sum, sheet) => sum + sheet.rows.length, 0)} 样，缺口 ${gapSummary(total)}${reference ? '，印了同类菜常见范围' : ''} → ${args.out}`);
   return 0;
 }
 

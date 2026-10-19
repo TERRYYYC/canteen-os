@@ -32,17 +32,20 @@ test('reads the listed candidates in the given order, falling back to the siblin
   assert.throws(() => readCandidates(RESULTS, ['900000000000000003']), /不是菜谱候选/);
 });
 
-test('sorts each gap into the four kinds and guesses nothing', () => {
+test('sorts each gap into the four kinds, keeps 说了但不是清楚的数 apart, and guesses nothing', () => {
   assert.equal(classifyGap(row('not_stated', null)), 1);
   assert.equal(classifyGap(row('stated', null)), 2);
   assert.equal(classifyGap(row('stated', '  ')), 2);
+  assert.equal(classifyGap(row('stated_imprecise', null)), 2);
   for (const raw of ['500克', '2斤', '二斤', '一斤六两', '两斤半', '1.5克', '300 g', '3个', '18克（视频内配方）']) assert.equal(classifyGap(row('stated', raw)), 3, raw);
-  for (const raw of ['一勺', '半勺', '各5克', '大概500克', '300-500克', '两斤多', '35克 / 38克', '35克（两值并列，待确认）', '料汁一勺；抓肉用量未说明', '两个大茴瓣']) assert.equal(classifyGap(row('stated', raw)), 4, raw);
+  // Said, but no clear number: not 还没核.
+  for (const raw of ['一勺', '半勺', '各5克', '大概500克', '300-500克', '两斤多', '35克 / 38克', '35克（两值并列，待确认）', '料汁一勺；抓肉用量未说明', '两个大茴瓣']) assert.equal(classifyGap(row('stated', raw)), 5, raw);
+  // stated_imprecise is never upgraded, even with a number in it (candidate-contract.md).
+  assert.equal(classifyGap(row('stated_imprecise', '500克')), 5);
+  assert.equal(classifyGap(row('stated_imprecise', '少许')), 5);
+  // 还没核 only where nobody can tell: not_checked, or a state that is unknown or contradicts the wording.
   assert.equal(classifyGap(row('not_checked', null)), 4);
   assert.equal(classifyGap(row('not_checked', '500克')), 4);
-  // stated_imprecise is never upgraded, even with a number in it (candidate-contract.md).
-  assert.equal(classifyGap(row('stated_imprecise', '500克')), 4);
-  assert.equal(classifyGap(row('stated_imprecise', '少许')), 4);
   assert.equal(classifyGap(row('not_stated', '500克')), 4);
   assert.equal(classifyGap(row('something_new', null)), 4);
   assert.equal(classifyGap(row('stated', '200克', { value: 200, unit: 'g' })), 0);
@@ -109,15 +112,24 @@ test('leaves blanks for exactly the minimum fields of ADR-0012', () => {
   assert.equal(html.match(/<td class="fill na">不用填<\/td>/g).length, 4);
 });
 
-test('routes ②③ to the parser (#159) and leaves ①④ to the chef', () => {
+test('routes ②③ to the parser (#159) and leaves the rest to the chef, in the reviewed wording', () => {
   const html = renderHtml(sheets(), { techniques });
   const gapCells = [...html.matchAll(/<td class="gap g(\d)">([\s\S]*?)<\/td>/g)];
-  for (const [, kind, text] of gapCells) {
-    if (kind === '2' || kind === '3') assert.match(text, /归修解析（#159）/);
-    if (kind === '1' || kind === '4') assert.match(text, /留给师傅/);
-  }
-  assert.deepEqual(sheets()[0].gaps, [0, 4, 1, 2, 4]);
-  assert.deepEqual(sheets()[1].gaps, [1, 0, 0, 1, 0]);
+  const text = kind => gapCells.filter(cell => cell[1] === kind).map(cell => cell[2]);
+  for (const cell of [...text('2'), ...text('3')]) assert.match(cell, /归修解析（#159）/);
+  for (const cell of [...text('1'), ...text('4'), ...text('5')]) assert.match(cell, /留给师傅/);
+  for (const cell of text('1')) assert.match(cell, /① 解析判定没说/);
+  for (const cell of text('5')) assert.match(cell, /说了，但不是清楚的数/);
+  // Only the one not_checked row says 还没核; 少许、一勺、各5克 do not.
+  assert.equal(text('4').length, 1);
+  assert.match(html, /<b>红色酱料（画面所见，名称待核）<\/b>[\s\S]*?<td class="gap g4">④ 还没核/);
+  assert.equal(text('5').length, 3);
+  assert.doesNotMatch(html, /视频确实没说|视频没说/);
+  // keys: 0 structured, ① ② ③ ④, 5 said but no clear number
+  assert.deepEqual(sheets()[0].gaps, [0, 4, 1, 2, 1, 3]);
+  assert.deepEqual(sheets()[1].gaps, [1, 0, 0, 1, 0, 0]);
+  assert.match(html, /<th>④<\/th><th>不是清楚的数<\/th>/);
+  assert.match(html, /缺口 ① 4 · ② 1 · ③ 2 · ④ 1 · 不是清楚的数 3/);
 });
 
 test('lists what the dish leaves unclear: servings, step unknowns and whole-dish unresolved', () => {
@@ -125,8 +137,15 @@ test('lists what the dish leaves unclear: servings, step unknowns and whole-dish
   assert.match(html, /<b>第 1 步<\/b><span class="step">鸡腿肉加料酒抓匀，腌一会儿。<\/span><br>没说清：腌多久没说。/);
   assert.doesNotMatch(html, /<b>第 3 步<\/b>/);
   assert.match(html, /<b>整道菜<\/b>：做几个人吃的量没说/);
-  assert.match(html, /<b>份数<\/b>：视频没说。/);
-  assert.match(html, /<b>份数<\/b>：原方「两三个人吃」，只作参考，不从这里推份数。/);
+  assert.match(html, /<b>份数<\/b>：还没录（解析判定没说）。本表一律按每份记。/);
+  assert.match(html, /<b>份数<\/b>：还没录（原方「两三个人吃」，只作参考，不从这里推份数）。/);
+});
+
+test('words servings by the candidate\'s yield state', () => {
+  const dish = state => ({ id: state ?? 'none', candidate: { title: '造的菜', yield: state ? { raw: null, state } : undefined, ingredients: [], steps: [], unresolved: [] } });
+  const html = renderHtml(buildSheets([dish('not_checked'), dish('stated'), dish(null)], groups), { techniques });
+  assert.match(html, /<b>份数<\/b>：还没录（还没核）。/);
+  assert.equal(html.match(/<b>份数<\/b>：还没录。本表/g).length, 2);
 });
 
 test('prints the reference column only when asked, with where its numbers come from', () => {
@@ -148,7 +167,7 @@ test('the CLI writes the sheet and exits 0; bad arguments exit 2', () => {
   const script = path.join(HERE, 'fill-sheet.mjs');
   const ok = spawnSync(process.execPath, [script, '--results', RESULTS, '--ids', path.join(FIXTURE, 'ids.txt'), '--groups', path.join(FIXTURE, 'groups.json'), '--out', out], { encoding: 'utf8' });
   assert.equal(ok.status, 0, ok.stderr);
-  assert.match(ok.stderr, /共 2 道菜、13 样，缺口 ① 4 · ② 1 · ③ 3 · ④ 4/);
+  assert.match(ok.stderr, /共 2 道菜、13 样，缺口 ① 4 · ② 1 · ③ 3 · ④ 1 · 不是清楚的数 3 · 原方有结构化的数 1/);
   assert.equal(readFileSync(out, 'utf8'), renderHtml(sheets(), { techniques }));
   assert.equal(spawnSync(process.execPath, [script, '--results', RESULTS], { encoding: 'utf8' }).status, 2);
   assert.equal(spawnSync(process.execPath, [script, '--nope'], { encoding: 'utf8' }).status, 2);
