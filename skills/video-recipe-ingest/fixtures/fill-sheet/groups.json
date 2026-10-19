@@ -1,0 +1,17 @@
+{
+  "about": "造的归组，只给 fill-sheet 测试用；格式同 docs/design/ingredient-catalog/groups.json。",
+  "entries": [
+    { "kind": "standard", "name": "去骨鸡腿肉", "role": "main", "members": ["鸡腿肉"] },
+    { "kind": "standard", "name": "青椒", "role": "main", "members": ["青椒"] },
+    { "kind": "standard", "name": "土豆", "role": "main", "members": ["土豆"] },
+    { "kind": "standard", "name": "鸡胸肉", "role": "main", "members": ["鸡胸肉"] },
+    { "kind": "standard", "name": "食盐", "role": "seasoning", "members": ["盐", "盐、糖"] },
+    { "kind": "standard", "name": "白糖", "role": "seasoning", "members": ["盐、糖"] },
+    { "kind": "standard", "name": "生抽", "role": "seasoning", "members": ["生抽"] },
+    { "kind": "standard", "name": "料酒", "role": "seasoning", "members": ["料酒"] },
+    { "kind": "standard", "name": "豆瓣酱", "role": "seasoning", "members": ["红色酱料"] },
+    { "kind": "water", "name": "水", "members": ["水"] },
+    { "kind": "homemade", "name": "自制汁", "members": ["料汁"] },
+    { "kind": "identify", "name": "葱（大葱还是小葱）", "members": ["葱"], "note": "按菜由师傅认" }
+  ]
+}
