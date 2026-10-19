@@ -74,7 +74,7 @@ Terry 同一天的补充决定（[#170 评论](https://github.com/TERRYYYC/cante
 > 1. **首批 7 道走知识库，不走 Git 数据。** 这条路要写知识库：先把 7 道同步到远端（#159），再新建标准食材（#173），最后补成新版本、排菜时固定（#172）。这些写入都在第 2 波、对应设计签收以后由子线程做，现在不写。
 > 2. **本版只开 ADR-0012 一篇。** #177 的 schema 决定并进 ADR-0012，不另开 0013；#178 的「采购规格单独固定」留到下一版。
 
-所以本 ADR 也收下 #168（D3）的设计结论：固定菜谱时，带上视频里没说清的地方（第 11 条）。设计细节在 [docs/design/recipe-unknowns/README.md](https://github.com/TERRYYYC/canteen-os/blob/14fecd14a94317bebfece39c5da3e6a205498caa/docs/design/recipe-unknowns/README.md)（PR [#177](https://github.com/TERRYYYC/canteen-os/pull/177)，HEAD `14fecd1`），下文简称「D3 设计」。
+所以本 ADR 也收下 #168（D3）的设计结论：固定菜谱时，带上视频里没说清的地方（第 11 条）。设计细节在 [docs/design/recipe-unknowns/README.md](https://github.com/TERRYYYC/canteen-os/blob/bf667d2a81631e255a8445389675f8099d802aa9/docs/design/recipe-unknowns/README.md)（PR [#177](https://github.com/TERRYYYC/canteen-os/pull/177)，HEAD `bf667d2`），下文简称「D3 设计」。
 
 ## Decision
 
@@ -122,7 +122,7 @@ Worker 这边（`packages/worker/src/knowledge-materialization.ts`）：
 | 师傅规则 | 按师傅定的规则填的数，引用所用的规则 | 进 |
 | 原方 | 视频或来源里的原话或数 | 不进，只用来显示 |
 
-**适用范围**：这条管菜里每一行的 `qty`，也管所绑标准食材里，按规则或由师傅给出的厨房换算值，也就是**净料率**和**每个多少克**（`pcsToGram`）。后两项是 #167 的提案（[#178](https://github.com/TERRYYYC/canteen-os/pull/178) §3.1、§4.4）交给本 ADR 定出处的。
+**适用范围**：这条管菜里每一行的 `qty`，也管所绑标准食材里，按规则或由师傅给出的厨房换算值，也就是**净料率**和**每个多少克**（`pcsToGram`）。后两项是 #167 的提案（[#178](https://github.com/TERRYYYC/canteen-os/pull/178) §3.1、§4.5，HEAD `3957475`）交给本 ADR 定出处的。
 
 **几个值都有时**：同一行或同一个值既有实称、又有指定或规则时，按「实称 → 指定 → 规则」的顺序，用排在前面的那个。
 
@@ -248,9 +248,9 @@ Worker 这边（`packages/worker/src/knowledge-materialization.ts`）：
 
 这三件按 #170 的安排，等 #167 的提案给出选项后再定。
 
-### 11. 视频里没说清的地方，随固定版本带上类别和位置（并入自 #177）
+### 11. 固定菜谱带上视频里没说清的类别和位置（并入自 #177）
 
-Terry 补充决定 2 把 #168（D3）的 schema 决定并进了本 ADR。细节以 [D3 设计](https://github.com/TERRYYYC/canteen-os/blob/14fecd14a94317bebfece39c5da3e6a205498caa/docs/design/recipe-unknowns/README.md)为准，这里只记决定。
+Terry 补充决定 2 把 #168（D3）的 schema 决定并进了本 ADR。细节以 [D3 设计](https://github.com/TERRYYYC/canteen-os/blob/bf667d2a81631e255a8445389675f8099d802aa9/docs/design/recipe-unknowns/README.md)为准，这里只记决定。
 
 **1. 数据。**
 
@@ -344,7 +344,7 @@ Terry 补充决定 2 把 #168（D3）的 schema 决定并进了本 ADR。细节�
 
 | 内容 | issue | 依赖 |
 |---|---|---|
-| **补料表生成脚本**（只读）：<br>• 每道菜一页，可以打印。<br>• 列出主料和调料及原话；原方的数只作参考。<br>• 留出这些空格：每份净料用量（单位按所绑标准食材）、毛料、净料率、切法（从 `data/techniques.json` 勾选）、大小、准备时机、提前时长。<br>• 「同类菜常见范围（仅供参考）」一栏可选，默认不印。<br>• **每个缺口分四种记**：①已核原片，确实没说；②原片说了，但没提取出来；③原话里有无歧义的数，但没写成结构化数值；④还没核。②③归修解析（#159），不让师傅补；①④才请师傅补 | [#171](https://github.com/TERRYYYC/canteen-os/issues/171) | 本 ADR |
+| **补料表生成脚本**（只读）：<br>• 每道菜一页，可以打印。<br>• 列出主料和调料及原话；原方的数只作参考。<br>• 留出这些空格：每份净料用量（单位按所绑标准食材）、毛料、净料率、切法（从 `data/techniques.json` 勾选）、大小、准备时机、提前时长。<br>• 加一栏「对应的标准食材（建议）」，师傅补用量时一起勾（#178 §5.2）。<br>• 「同类菜常见范围（仅供参考）」一栏可选，默认不印。<br>• **每个缺口分四种记**：①已核原片，确实没说；②原片说了，但没提取出来；③原话里有无歧义的数，但没写成结构化数值；④还没核。②③归修解析（#159），不让师傅补；①④才请师傅补 | [#171](https://github.com/TERRYYYC/canteen-os/issues/171) | 本 ADR |
 | **首批 7 道菜的食堂用量。** 在知识库里补成新版本：份数写 1；每份净料用量、切法和大小、准备时机、提前时长；每个值写明出处；绑定 #173 的标准食材。排菜时固定这一版 | [#172](https://github.com/TERRYYYC/canteen-os/issues/172) | 本 ADR、#171、#173、#159 的同步、schema 那一行、知识库那一行 |
 | **首批 7 道菜用到的料**（主料和调料）：标准食材、净料率、每个多少克（只在需要换算时）、采购规格；换算值写明出处 | [#173](https://github.com/TERRYYYC/canteen-os/issues/173) | #167 |
 | **schema 变更**（用量出处和「没说清」一起，立一个 issue）。<br>• `dish-v3`：`components[]` 加用量出处（实称、指定，或规则加规则 id）；加原方结构化字段（只显示）；`prep` 加提前时长；加顶层 `unknowns[]` 和 `$defs/RecipeUnknown`（第 11 条）；`sourceGapCount` 的说明改为旧字段。<br>• `ingredient-v3`：净料率和每个多少克的出处。<br>• 新加师傅规则文件及其 schema。<br>• 修改 `baseServings` 的说明。<br>• 两条语义校验：份数写 1 的菜，有数的 `qty` 必有出处；`unknowns` 的位置不越界。<br>• 按 schema → types → data → docs 同步（含 `scripts/check-types-vs-schema.mjs`、`scripts/validate-schemas.mjs`）。<br>• 如果 #167 的后续把采购规格从标准食材里拆出去（#178 §3.3 方案 B），换算值的出处跟着厨房换算字段走 | 另立 issue，由调度在签收时立；#174 引用它 | 本 ADR |
