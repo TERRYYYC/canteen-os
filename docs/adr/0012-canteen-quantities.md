@@ -98,7 +98,7 @@ Terry 2026-10-19 的决定（[#170 评论](https://github.com/TERRYYYC/canteen-o
 **关于字段：**
 
 - 现有 schema 里没有地方标用量出处。`components[].confidence` 记的是机器解析的置信度（`schemas/dish.schema.json:58`、`schemas/common.schema.json:68`，`source` 只能取 `manual`、`video`、`llm-inference`），含义不同，不复用。
-- 实施时新加一个可选字段，见下文「签收后要开的实施 issue」第 2 项。
+- 实施时新加一个可选字段，见下文「签收后的实施」里的 schema 一行。
 
 **关于显示：** 帮厨和采购员看到的页面不区分规则值和实称值，都按「用量」显示。出处在数据和菜品库里可以查到。理由同 ADR-0011：他们看不懂的、开发用的东西不放在眼前。
 
@@ -143,7 +143,7 @@ Terry 2026-10-19 的决定（[#170 评论](https://github.com/TERRYYYC/canteen-o
 
 ### 8. 先补什么
 
-- **第一批**：主料已有重量的 7 道（Terry 决定 3）。主料由师傅逐道实补，调料先用规则。
+- **第一批**：主料已有重量的 7 道（Terry 决定 3）。主料由师傅逐道实补，调料先用规则（#172）；这 7 道用到的标准食材和采购规格见 #173。
 - **测试周要用的菜和常做的菜**：由师傅逐道实补。
 - **其他菜**：先用规则打底，师傅过一遍，改掉不合适的。
 
@@ -192,17 +192,23 @@ Terry 2026-10-19 的决定（[#170 评论](https://github.com/TERRYYYC/canteen-o
 - `schemas/dish.schema.json:21` 改 `baseServings` 的说明。
 - 等 #165 合并后，在 `docs/video-import.md` 里写明补料表的用法。
 
-## 签收后要开的实施 issue
+## 签收后的实施
 
-| # | 内容 | 依赖 |
+调度已经按 #170 的安排立好了 issue，本 ADR 签收后按下表实施，不另开新的。
+
+| 内容 | issue | 依赖 |
 |---|---|---|
-| 1 | 补料表生成脚本（只读）：每道菜一页，可以打印。列出主料和调料，带原话，留出每份用量的空格；切法从 `data/techniques.json` 里勾选；有准备时机、要提前多久两栏。另有可选的「同类菜常见范围（仅供参考）」一栏，默认不印 | 本 ADR |
-| 2 | schema：新加用量出处字段（实称 / 规则，规则带 id）、师傅规则文件，修改 `baseServings` 的说明；按 schema → types → data → docs 同步 | 本 ADR |
-| 3 | 师傅规则第一版：主料每份用量、常用调料每份用量。师傅定，Claude 整理成数据 | 2 |
-| 4 | 首批 7 道菜的数据 PR：份数写 1，补上每份用量、切法和大小、准备时机；接 #156 | 1、2、3，#167 的标准食材 |
-| 5 | 解析规则补两项：标出主料还是调料；没有歧义的重量写成结构化的数。以评论形式提到 [#159](https://github.com/TERRYYYC/canteen-os/issues/159) | — |
+| 补料表生成脚本（只读）：每道菜一页，可以打印。列出主料和调料及原话，留出每份用量的空格；切法从 `data/techniques.json` 里勾选；有准备时机、要提前多久两栏。可选的「同类菜常见范围（仅供参考）」一栏默认不印 | [#171](https://github.com/TERRYYYC/canteen-os/issues/171) | 本 ADR |
+| 首批 7 道菜的食堂用量：份数写 1；每份用量、毛重或净重、切法和大小、准备时机、要提前多久；规则值写明出处 | [#172](https://github.com/TERRYYYC/canteen-os/issues/172) | 本 ADR、#171、#173 |
+| 首批 7 道菜用到的料（主料和调料）：标准食材和采购规格 | [#173](https://github.com/TERRYYYC/canteen-os/issues/173) | #167 |
+| schema：新加用量出处字段（实称，或规则加规则 id）；新加师傅规则文件；修改 `baseServings` 的说明。按 schema → types → data → docs 同步 | 尚无编号，是 #172 的前置。由调度决定并入 #172 还是另立 | 本 ADR |
+| 师傅规则第一版：主料每份用量、常用调料每份用量。由师傅在补料表上一起定，Claude 整理成数据 | 随 #172 | #171 |
+| 解析规则补两项：标出主料还是调料；没有歧义的重量写成结构化的数 | 已评论到 [#159](https://github.com/TERRYYYC/canteen-os/issues/159) | — |
 
-标准食材目录和采购规格按 #167 的结论另开 issue；「没说清」的提示按 #168 的结论另开 issue。
+相关但不由本 ADR 决定的：
+
+- 固定菜谱时带上「没说清」的提示：设计在 #168，实施在 [#174](https://github.com/TERRYYYC/canteen-os/issues/174)。
+- 同一种料只有部分缺量时，要不要先算出已知的部分：在 [#175](https://github.com/TERRYYYC/canteen-os/issues/175) 讨论。在那之前按第 6 条的最后一点执行，即整张清单的合计标为不完整，不当成总量。
 
 ## 签收时要定的
 
