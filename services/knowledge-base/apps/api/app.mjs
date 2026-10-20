@@ -12,7 +12,7 @@ import { StandardTechniques, techniqueBody } from './standard-techniques.mjs';
 import { RecipeAdoption } from './recipe-adoption.mjs';
 import { FavoritesRepository, prepareFavorites } from './favorites.mjs';
 import { fail, handleError } from './errors.mjs';
-import { recipeBody, sourceBody, externalBody, rightsBody, writeHeaders, uuid, listQuery, knowledgeQuery, objectBody } from './validation.mjs';
+import { recipeBody, sourceBody, externalBody, rightsBody, writeHeaders, uuid, listQuery, knowledgeQuery, objectBody, sendsUnknowns } from './validation.mjs';
 import { receiveImage, readImage, MAX_IMAGE_BYTES } from './media.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -165,7 +165,7 @@ export async function buildApp(input = {}) {
       const id = request.params.id ? uuid(request.params.id) : undefined;
       const headers = writeHeaders(request, Boolean(id));
       const recipe = archive ? (objectBody(request.body, []), undefined) : recipeBody(request.body);
-      const result = repository.write({ method: request.method, path: request.url.split('?')[0], headers, recipe, id, archive });
+      const result = repository.write({ method: request.method, path: request.url.split('?')[0], headers, recipe, id, archive, unknownsSent: !archive && sendsUnknowns(request.body) });
       return reply.code(result.status).header('ETag', `"v${result.body.version}"`).header('Idempotency-Replayed', String(result.replayed)).send(result.body);
     };
     app.post('/api/v1/recipes', async (request, reply) => save(request, reply));

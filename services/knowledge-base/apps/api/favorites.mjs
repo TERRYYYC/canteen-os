@@ -34,6 +34,8 @@ function candidateBody(body, capture) {
     body.unresolved.some(value => !text(value,2000) || !value.trim()))) fail(400,'INVALID_CANDIDATE','待核实事项格式不正确。');
   const recipe = recipeBody(body.recipe);
   if (recipe.sources.length || recipe.assets.length) fail(400,'INVALID_CANDIDATE','候选中的来源和图片由审核流程单独关联。');
+  // ADR-0012 §1/§5: a candidate is the original only. Canteen quantities come later from a chef, with a source.
+  if (recipe.ingredients.some(row => row.qty || row.qtySource)) fail(400,'INVALID_CANDIDATE','候选只记原方；食堂用量由师傅在菜谱修订里补。');
   if (capture.method === 'video_analysis' && recipe.baseServings !== undefined) fail(400,'INVALID_CANDIDATE','视频候选的原方份数须由师傅在审核后的菜谱修订中核定。');
   const fields = body.fieldEvidence;
   if (Object.keys(fields).some(k => !['title','ingredients','steps'].includes(k)) ||

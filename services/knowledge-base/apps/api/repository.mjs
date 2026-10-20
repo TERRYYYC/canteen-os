@@ -1,12 +1,21 @@
 import { randomUUID } from 'node:crypto';
 import { fail } from './errors.mjs';
-import { hash } from './validation.mjs';
+import { hash, formatRank } from './validation.mjs';
 import { transaction } from './database.mjs';
 import { assertAssetReady, assetUrl } from './media.mjs';
 
 const json = JSON.stringify;
 const optional = (key, value) => value === null || value === undefined ? {} : { [key]: value };
 const missing = value => value === null || value === undefined || value === '';
+// Relational columns hold one amount. A format 3 row keeps the canteen quantity there (the value used for
+// calculation, as `exact` was before) and its original words in amount_raw; the revision document holds both.
+function storedAmount(row) {
+  if (row.amount) return row.amount;
+  const raw = row.originalAmount ?? '';
+  if (row.qty?.value) return { kind: 'exact', value: row.qty.value, unit: row.qty.unit, raw };
+  if (row.qty) return { kind: 'to_taste', raw: raw || '适量' };
+  return { kind: 'unknown', raw };
+}
 function sameRight(key, prior, next) {
   if (prior === next) return true;
   if (typeof prior !== 'string' || typeof next !== 'string') return false;
@@ -177,8 +186,9 @@ export class Repository {
     // This handles arbitrary reordering under SQLite immediate UNIQUE checks.
     for (const table of ['recipe_assets', 'recipe_sources', 'recipe_ingredients', 'recipe_steps']) this.run(`DELETE FROM ${table} WHERE recipe_id=?`, id);
     recipe.ingredients.forEach((row, index) => {
+      const amount = storedAmount(row);
       this.run(`INSERT INTO recipe_ingredients(id,recipe_id,position,ingredient_id,name,raw_text,role,amount_kind,amount_value,amount_unit,amount_raw,preparation)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, row.id, id, index, row.ingredientId ?? null, json(row.name), row.rawText ?? '', row.role ?? 'unspecified', row.amount.kind, row.amount.value ?? null, row.amount.unit ?? null, row.amount.raw ?? '', row.preparation ? json(row.preparation) : null);
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, row.id, id, index, row.ingredientId ?? null, json(row.name), row.rawText ?? '', row.role ?? 'unspecified', amount.kind, amount.value ?? null, amount.unit ?? null, amount.raw ?? '', row.preparation ? json(row.preparation) : null);
     });
     recipe.steps.forEach((row, index) => this.run('INSERT INTO recipe_steps(id,recipe_id,position,text) VALUES(?,?,?,?)', row.id, id, index, json(row.text)));
     for (const row of recipe.sources) this.run('INSERT INTO recipe_sources(recipe_id,source_id,evidence) VALUES(?,?,?)', id, row.sourceId, json(row.evidence ?? {}));
@@ -227,8 +237,10 @@ export class Repository {
     return { items, nextCursor: rows.length > limit ? Buffer.from(json({ after: page.at(-1).id, filter })).toString('base64url') : null };
   }
 
-  write({ method, path, headers, recipe, id, archive = false }, { inTransaction = false } = {}) {
-    const requestHash = hash({ method, path, ifMatch: headers.match, body: archive ? {} : recipe });
+  write({ method, path, headers, recipe, id, archive = false, unknownsSent = false }, { inTransaction = false } = {}) {
+    // An explicit [] clears every unknown; it is a different request from one that leaves the field out.
+    const cleared = unknownsSent && !recipe?.unknowns;
+    const requestHash = hash({ method, path, ifMatch: headers.match, body: archive ? {} : cleared ? { ...recipe, unknowns: [] } : recipe });
     const perform = () => {
       const receipt = this.one('SELECT request_hash,http_status,response FROM write_receipts WHERE actor=? AND request_key=?', headers.actor, headers.key);
       if (receipt) {
@@ -242,8 +254,11 @@ export class Repository {
         current = this.recipeRow(id);
         if (current.version !== headers.version) fail(409, 'VERSION_CONFLICT', '菜谱已被修改，请保留当前输入并重新读取最新版本。', { currentVersion: current.version });
         if (current.archived_at) fail(409, 'RECIPE_ARCHIVED', '菜谱已归档。');
-        if (archive) recipe = this.detailWithinTransaction(id).recipe;
-        if(!archive&&this.detailWithinTransaction(id).recipe.recipeFormatVersion==='2'&&recipe.recipeFormatVersion!=='2')fail(409,'FORMAT_DOWNGRADE','已升级的厨房核定资料不能被旧客户端降级。');
+        const previous = this.detailWithinTransaction(id).recipe;
+        if (archive) recipe = previous;
+        if(!archive&&formatRank(recipe)<formatRank(previous))fail(409,'FORMAT_DOWNGRADE','已升级的厨房核定资料不能被旧客户端降级。');
+        // A client that does not know unknowns must not delete them by leaving the field out (K7 is an explicit []).
+        if(!archive&&!unknownsSent&&previous.unknowns?.length)fail(409,'UNKNOWNS_REQUIRED','这份菜谱有视频里没说清的条目，请用新版编辑器保存；要全部删掉，请明确清空。',{unknownCount:previous.unknowns.length});
       }
       // Archive preserves a historical snapshot even if an external file was
       // removed outside the service; create/update require ready references.

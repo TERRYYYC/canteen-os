@@ -43,13 +43,14 @@ export async function runImport(options) {
   if (options.output) writeFileSync(resolve(options.output),JSON.stringify(imported,null,2)+'\n');
   if (options.dryRun) return {dryRun:true,contentId:item.contentId,mediaSha256:source.sha256,
     evidenceCount:imported.capture.evidence.segments.length,ingredientCount:imported.proposal.recipe.ingredients.length,
-    stepCount:imported.proposal.recipe.steps.length,unresolvedCount:imported.proposal.unresolved.length};
+    stepCount:imported.proposal.recipe.steps.length,unresolvedCount:imported.proposal.unresolved.length,
+    unknownCount:imported.proposal.recipe.unknowns?.length ?? 0};
   const captured = await api(options.apiBase,`favorites/items/${item.id}/captures`,'POST',imported.capture);
   const proposed = await api(options.apiBase,`favorites/items/${item.id}/candidates`,'POST',{captureId:captured.data.id,...imported.proposal});
   return {contentId:item.contentId,mediaSha256:source.sha256,captureId:captured.data.id,captureReplayed:captured.replayed,
     candidateId:proposed.data.id,candidateReplayed:proposed.replayed,status:proposed.data.status,
     ingredientCount:proposed.data.recipe.ingredients.length,stepCount:proposed.data.recipe.steps.length,
-    unresolvedCount:proposed.data.unresolved.length};
+    unresolvedCount:proposed.data.unresolved.length,unknownCount:proposed.data.recipe.unknowns?.length ?? 0};
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -27,7 +27,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:canteen-kb:import-batch:1",
   "title": "Independent recipe import batch v1",
-  "$comment": "Structure only. Service checks unique item/row IDs, references, asset readiness, clip order/kind, and source fidelity. Titles may repeat. Metadata and arrays are whole-replacement on PUT.",
+  "$comment": "Structure only. Service checks unique item/row IDs, references, asset readiness, clip order/kind, and source fidelity. Titles may repeat. Metadata and arrays are whole-replacement on PUT. recipeFormatVersion 3 (ADR-0012) keeps each ingredient row's original words/number apart from the canteen quantity and its source, and adds recipe-level unknowns; see contracts/canteen-quantities.schema.json.",
   "$defs": {
     "i18n": {
       "type": "object",
@@ -330,7 +330,7 @@
           "type": "array",
           "maxItems": 200,
           "items": {
-            "$ref": "#/$defs/ingredient"
+            "type": "object"
           }
         },
         "steps": {
@@ -355,13 +355,55 @@
           }
         },
         "recipeFormatVersion": {
-          "const": "2"
+          "enum": [
+            "2",
+            "3"
+          ]
+        },
+        "unknowns": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/recipeUnknown"
+          },
+          "description": "Format 3 only. An empty list is dropped: no entries means the field is absent"
         }
       },
       "required": [
         "title"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "recipeFormatVersion": {
+            "const": "3"
+          }
+        },
+        "required": [
+          "recipeFormatVersion"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ingredientV3"
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ingredient"
+            }
+          },
+          "unknowns": false
+        }
+      }
     },
     "item": {
       "type": "object",
@@ -404,6 +446,105 @@
         },
         "note": {
           "$ref": "#/$defs/i18n"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "ingredientV3": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "$ref": "#/$defs/i18n"
+        },
+        "ingredientId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "rawText": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "role": {
+          "enum": [
+            "main",
+            "seasoning",
+            "unspecified"
+          ]
+        },
+        "preparation": {
+          "$ref": "#/$defs/i18n"
+        },
+        "kitchenPrep": {
+          "$ref": "#/$defs/kitchenPrepV3"
+        },
+        "originalAmount": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "\\S",
+          "description": "The original words for the quantity, display only"
+        },
+        "originalQty": {
+          "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/quantity",
+          "description": "A number parsed from the original words, display only; never used for calculation (ADR-0012 §1)"
+        },
+        "qty": {
+          "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/quantity",
+          "description": "Canteen quantity used for procurement and prep; written only by people with a source"
+        },
+        "qtySource": {
+          "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/valueSource"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": false,
+      "dependentRequired": {
+        "originalQty": [
+          "originalAmount"
+        ],
+        "qty": [
+          "qtySource"
+        ],
+        "qtySource": [
+          "qty"
+        ]
+      }
+    },
+    "kitchenPrepV3": {
+      "type": "object",
+      "properties": {
+        "techniqueId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "timing": {
+          "enum": [
+            "day-before",
+            "morning",
+            "before-service"
+          ]
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "note": {
+          "$ref": "#/$defs/i18n"
+        },
+        "leadTime": {
+          "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/leadTime"
         }
       },
       "minProperties": 1,

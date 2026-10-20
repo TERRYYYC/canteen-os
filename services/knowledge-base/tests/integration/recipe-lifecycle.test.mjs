@@ -195,3 +195,31 @@ test('independent same-name recipes retain complete revisions through response l
   assert.ok((await json(server.base, `/recipes/${a.id}`)).document.archivedAt);
   assert.deepEqual((await json(server.base, `/recipes?q=%E7%BA%A2%E7%83%A7%E8%82%89`)).document.items.map(row => row.id), [b.id]);
 });
+
+// canteen-os#182 (ADR-0012): format 3 through the real server and a restart; fabricated data only.
+test('format 3 keeps original and canteen quantities, sources and located unknowns apart through restart; the single-amount revision keeps its bytes', { timeout: 45000 }, async t => {
+  const directory = await mkdtemp(join(here, '.runtime-'));
+  let server;
+  t.after(async () => { await server?.stop(); await rm(directory, { recursive: true, force: true }); });
+  server = await launch(directory);
+  const row = randomUUID(), step = randomUUID();
+  const single = { title: { zh: '测试食堂羊肉' }, ingredients: [{ id: row, name: { zh: '羊肉' }, amount: { kind: 'exact', value: '5', unit: '斤', raw: '5斤' } }], steps: [{ id: step, text: { zh: '测试步骤：腌。' } }] };
+  const a = (await json(server.base, '/recipes', { method: 'POST', body: single, key: randomUUID(), expected: 201 })).document;
+  const readFirst = async () => (await fetch(`${server.base}/api/v1/recipes/${a.id}/revisions/1`)).text();
+  const firstBytes = await readFirst();
+  const canteen = { recipeFormatVersion: '3', title: single.title, baseServings: 1,
+    ingredients: [{ id: row, name: { zh: '羊肉' }, originalAmount: '5斤', originalQty: { value: '2500', unit: 'g' }, qty: { value: '150', unit: 'g' },
+      qtySource: { kind: 'specified', by: '测试师傅', date: '2026-10-19' }, kitchenPrep: { leadTime: { value: '2', unit: 'h' } } }],
+    steps: single.steps, unknowns: [{ kind: 'prep-ahead', action: 'marinate', stepId: step, text: '测试原话：腌多久没说' }, { kind: 'identity', ingredientRowId: row, text: '测试原话：部位没说' }] };
+  const upgraded = (await json(server.base, `/recipes/${a.id}`, { method: 'PUT', body: canteen, key: randomUUID(), version: 1 })).document;
+  assert.equal(upgraded.version, 2);
+  await json(server.base, `/recipes/${a.id}`, { method: 'PUT', body: single, key: randomUUID(), version: 2, expected: 409 });
+  await server.stop();
+  server = await launch(directory);
+  assert.equal(await readFirst(), firstBytes);
+  const second = (await json(server.base, `/recipes/${a.id}/revisions/2`)).document.recipe;
+  assert.deepEqual(second.ingredients, canteen.ingredients);
+  assert.deepEqual(second.unknowns, canteen.unknowns);
+  assert.equal('amount' in second.ingredients[0], false);
+  assert.deepEqual((await json(server.base, `/recipes/${a.id}`)).document.recipe, second);
+});

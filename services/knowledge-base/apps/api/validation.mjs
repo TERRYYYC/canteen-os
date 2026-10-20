@@ -5,8 +5,10 @@ import addFormats from 'ajv-formats';
 import { fail } from './errors.mjs';
 
 const schema = JSON.parse(readFileSync(new URL('../../contracts/import-batch.schema.json', import.meta.url), 'utf8'));
+export const quantitiesSchema = JSON.parse(readFileSync(new URL('../../contracts/canteen-quantities.schema.json', import.meta.url), 'utf8'));
 const ajv = new Ajv2020({ strict: true, allErrors: true, coerceTypes: false });
 addFormats(ajv);
+ajv.addSchema(quantitiesSchema);
 ajv.addSchema(schema);
 const checkRecipe = ajv.compile({ $ref: `${schema.$id}#/$defs/recipe` });
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -31,13 +33,23 @@ export function unique(items, key, label) {
   if (new Set(values).size !== values.length) fail(422, 'DUPLICATE_ID', `${label} ID 不能重复。`);
 }
 
+// Whether a write names unknowns at all. Leaving the field out is not the same as clearing it with [].
+export const sendsUnknowns = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value) && Object.hasOwn(value, 'unknowns');
+// Absent = 1. A saved recipe never goes back to an older format (an old client would drop fields it does not know).
+export const formatRank = recipe => ({ '2': 2, '3': 3 })[recipe?.recipeFormatVersion] ?? 1;
+const v3RowFields = ['originalAmount', 'originalQty', 'qty', 'qtySource'];
+const usesFormatThree = value => Boolean(value && typeof value === 'object' && (value.unknowns !== undefined ||
+  (Array.isArray(value.ingredients) && value.ingredients.some(row => row && typeof row === 'object' &&
+    (v3RowFields.some(key => key in row) || (row.kitchenPrep && typeof row.kitchenPrep === 'object' && 'leadTime' in row.kitchenPrep))))));
+
 export function recipeBody(value) {
+  if (usesFormatThree(value) && value.recipeFormatVersion !== '3') fail(400, 'RECIPE_FORMAT_REQUIRED', '原方与食堂用量分开记、提前时长和「没说清」需要 recipeFormatVersion 3。');
   if (!checkRecipe(value)) {
     fail(400, 'INVALID_RECIPE', '菜谱字段不符合约定。', checkRecipe.errors.slice(0, 12).map(e => ({ path: e.instancePath, rule: e.keyword })));
   }
   const recipe = structuredClone(value);
   for (const key of ['tags', 'ingredients', 'steps', 'sources', 'assets']) recipe[key] ??= [];
-  if ((recipe.ingredients.some(row=>row.kitchenPrep)||recipe.steps.some(row=>row.techniqueId))&&recipe.recipeFormatVersion!=='2') fail(400,'RECIPE_FORMAT_REQUIRED','结构化厨房核定字段需要 recipeFormatVersion 2。');
+  if ((recipe.ingredients.some(row=>row.kitchenPrep)||recipe.steps.some(row=>row.techniqueId))&&formatRank(recipe)<2) fail(400,'RECIPE_FORMAT_REQUIRED','结构化厨房核定字段需要 recipeFormatVersion 2。');
   if (recipe.baseServings !== undefined && !Number.isSafeInteger(recipe.baseServings)) {
     fail(400, 'INVALID_SERVINGS', '人数必须是安全范围内的正整数。');
   }
@@ -58,6 +70,21 @@ export function recipeBody(value) {
   if (recipe.assets.filter(a => a.role === 'cover').length > 1) fail(422, 'MULTIPLE_COVERS', '每份菜谱只能设置一个封面。');
   const steps = new Set(recipe.steps.map(row => row.id));
   if (recipe.assets.some(row => row.stepId && !steps.has(row.stepId))) fail(422, 'INVALID_STEP_REFERENCE', '步骤素材必须引用本次菜谱中存在的步骤。');
+  if (recipe.unknowns) {
+    // No entries means no field (K5): an empty list is never stored or returned.
+    if (!recipe.unknowns.length) delete recipe.unknowns;
+    else {
+      const rows = new Set(recipe.ingredients.map(row => row.id)), seen = new Set();
+      for (const entry of recipe.unknowns) {
+        if (entry.stepId) entry.stepId = uuid(entry.stepId);
+        if (entry.ingredientRowId) entry.ingredientRowId = uuid(entry.ingredientRowId);
+        if ((entry.stepId && !steps.has(entry.stepId)) || (entry.ingredientRowId && !rows.has(entry.ingredientRowId))) fail(422, 'INVALID_UNKNOWN_REFERENCE', '「没说清」只能指向本菜谱里的步骤或食材行。');
+        const key = canonical(entry);
+        if (seen.has(key)) fail(422, 'DUPLICATE_UNKNOWN', '同一条「没说清」不能重复。');
+        seen.add(key);
+      }
+    }
+  }
   return recipe;
 }
 

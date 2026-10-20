@@ -66,11 +66,19 @@
       "exclusiveMinimum": 0,
       "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield（margin 对所有食材生效，ADR-0006 2026-09-06 修正）"
     },
+    "pcsToGramSource": {
+      "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/valueSource",
+      "description": "每个多少克的出处：师傅实称、师傅指定，或按师傅规则（ADR-0012 第 3 条）"
+    },
     "yield": {
       "type": "number",
       "exclusiveMinimum": 0,
       "maximum": 1,
       "description": "净料率 0–1，单一数字（ADR-0006 收窄场景 D 的分阶段模型）：仅对按重量/体积（g/ml）计的食材有意义，pcs 食材不得设置。初始值参考 USDA FBG/AH-102 与乌克兰 норми відходів（docs/research/v2/scenario-d-yield-data.md），本地实测后回填"
+    },
+    "yieldSource": {
+      "$ref": "urn:canteen-kb:canteen-quantities:1#/$defs/valueSource",
+      "description": "净料率的出处：师傅实称、师傅指定，或按师傅规则（ADR-0012 第 3 条）"
     },
     "role": {
       "type": "string",
@@ -171,6 +179,14 @@
     "name"
   ],
   "additionalProperties": false,
+  "dependentRequired": {
+    "pcsToGramSource": [
+      "pcsToGram"
+    ],
+    "yieldSource": [
+      "yield"
+    ]
+  },
   "allOf": [
     {
       "if": {

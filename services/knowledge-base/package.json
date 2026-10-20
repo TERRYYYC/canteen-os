@@ -15,6 +15,7 @@
     "test:api": "node --test tests/api/*.test.mjs",
     "typecheck": "tsc --noEmit -p apps/web/tsconfig.json",
     "test:browser": "node tests/browser/run.mjs",
+    "test:editor": "node --test tests/browser/*.test.mjs",
     "test:integration": "node --test tests/integration/*.test.mjs",
     "import:legacy": "node scripts/import-legacy.mjs"
   },
