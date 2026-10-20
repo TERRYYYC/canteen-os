@@ -28,6 +28,7 @@ created: 2026-10-20
 - 不加依赖：wrangler 不在仓库依赖里，要另装它和 workerd。Node 24.18 本来就为知识库装了。
 - 不受 Cloudflare 免费版的限制（每次 50 个子请求、10 毫秒 CPU）。固定一道菜要写很多文件，这也是 #157 不放 Cloudflare 的原因。
 - 能自己管住门：只绑 127.0.0.1、只认本机网页这一个来源、启动前检查配置。
+- 网页先编译好，再由一个只发编译产物的小服务发出去，不起 Vite 开发服务器：开发服务器能经 `/@fs/` 读整个仓库目录（#199 审查）。
 
 核对过的几点：
 
@@ -79,15 +80,21 @@ printf %s "$role_token" | openssl dgst -sha256 -r | cut -d' ' -f1
 
 ### 4. 填配置
 
+配置放在**仓库外面**，只有自己能读：
+
 ```bash
-cp packages/worker/.dev.vars.example packages/worker/.dev.vars
+mkdir -p ~/.config/canteenos
 ```
 
 ```bash
-chmod 600 packages/worker/.dev.vars
+cp packages/worker/.dev.vars.example ~/.config/canteenos/mac-local.vars
 ```
 
-打开 `packages/worker/.dev.vars`，填：
+```bash
+chmod 600 ~/.config/canteenos/mac-local.vars
+```
+
+打开 `~/.config/canteenos/mac-local.vars`，填：
 
 - `GITHUB_PAT`：第 2 步的 token。
 - `TOKEN_HASH_CHEF` / `TOKEN_HASH_BUYER` / `TOKEN_HASH_ADMIN`：第 3 步的哈希。
@@ -96,7 +103,9 @@ chmod 600 packages/worker/.dev.vars
   - 知识库已经在跑：`KB_MODE=existing`，不填 `KB_DATA_DIR`。
 - 其余照模板，不用改。
 
-`.dev.vars` 在 `.gitignore` 里，不会进仓库。
+- 不要放进仓库里（包括 `packages/worker/.dev.vars`）：仓库里的文件可能被别的程序原样发出去。
+- 配置在仓库里，或者别人也能读，脚本会拒绝启动。
+- 想放别处也行，启动时加 `--config <文件>`，同样要在仓库外、`chmod 600`。
 
 ### 5. 检查
 
@@ -124,9 +133,10 @@ pnpm mac:check
 pnpm mac:start
 ```
 
-- 依次起知识库、编译并起 Worker、起网页，最后打出「都起好了」。
+- 先编译 Worker 和网页（网页放临时目录，停的时候删掉），再依次起知识库、Worker、网页，最后打出「都起好了」。编译要十几秒。
 - 打开 `http://127.0.0.1:5180/#/admin/t/<管理员钥匙>`。打开后地址栏里的钥匙会被抹掉。
 - 地址只用 `127.0.0.1`，不用 `localhost`：来源对不上，Worker 会拒绝。
+- 拉了新代码再启动后，页面顶上如果出现「有新版本，点此刷新」，点一下。
 
 ### 停
 
@@ -142,7 +152,7 @@ pnpm mac:start
    - 点「保存菜谱」，版本号加 1（v1 → v2）。
    - 「视频里没说清」的条目要先分好类（#184），没分类的固定时会被拒。
 3. **排进菜单**：菜谱页点「排进菜单」，看到「已固定菜谱版本 vN」→「继续选择菜单日期与份数」。
-   - 如果「选择菜品」里没有刚固定的那一版，**刷新一次页面**（演练里每次都遇到，已报给调度）。
+   - 如果「选择菜品」里没有刚固定的那一版，**刷新一次页面**（演练里每次都遇到，见 #200）。
    - 选菜、日期、餐次 →「加一道菜」→ 填份数 →「保存计划」，看到「已保存」。
 4. **发布**：「去发布」→ 看「还没发布的改动」→「发布」。四步都打勾，写「上线了」。
 
@@ -186,10 +196,13 @@ https://terryyyc.github.io/canteen-os/data/build.json?t=20261020
 | 「菜谱知识库尚未连接」/ 读不到知识库 | 知识库没在跑：看启动窗口，`pnpm mac:check` |
 | 「发布功能暂时关着」 | 配置里 `PUBLISH_MODE=off`（测试分支时就是这样） |
 | 网页一直转圈 | 看启动窗口，Worker 还在不在；不在就 Ctrl+C 后重新 `pnpm mac:start` |
+| 「配置文件不能放在仓库里面」/「别人也能读」 | 照第 4 步挪到 `~/.config/canteenos/mac-local.vars`，`chmod 600` |
 
-**钥匙泄露**：照 ops-checklist §2 生成新钥匙，改 `.dev.vars` 里对应的哈希，Ctrl+C 后重新启动。旧链接马上失效。
+**钥匙泄露**：照 ops-checklist §2 生成新钥匙，改 `mac-local.vars` 里对应的哈希，Ctrl+C 后重新启动。旧链接马上失效。
 
-**换 PAT**：照 ops-checklist §1 建新 token，改 `.dev.vars` 里的 `GITHUB_PAT`，重新启动（不用碰 Cloudflare）。
+**换 PAT**：照 ops-checklist §1 建新 token，改 `mac-local.vars` 里的 `GITHUB_PAT`，重新启动（不用碰 Cloudflare）。
+
+**token 可能被看到了**（配置文件曾经放进仓库、被发到别处、截了图）：当作泄露，照上面换 PAT 和钥匙。
 
 ## 第一次真实发布（Terry 做）
 
@@ -218,7 +231,7 @@ mkdir -p <演练目录>/kb <演练目录>/tmp
 TMPDIR=<演练目录>/tmp node scripts/mac-local/rehearsal-github.mjs --port 4480
 ```
 
-另开一个窗口。复制模板成 `<演练目录>/rehearsal.vars`，钥匙另生成一套，再改这几项：
+另开一个窗口。复制模板成 `<演练目录>/rehearsal.vars`，`chmod 600`，钥匙另生成一套，再改这几项：
 
 ```
 GITHUB_PAT=rehearsal
@@ -242,9 +255,10 @@ node scripts/mac-local/rehearsal-seed.mjs
 
 | 文件 | 做什么 |
 |---|---|
-| `packages/worker/.dev.vars.example` | 配置模板；真值放 `.dev.vars`，不进仓库 |
+| `packages/worker/.dev.vars.example` | 配置模板；真值放仓库外的 `~/.config/canteenos/mac-local.vars` |
 | `scripts/mac-local/start.mjs` | 一键启动、检查、一起停（`pnpm mac:start` / `pnpm mac:check`） |
 | `scripts/mac-local/worker-server.mjs` | 用 Node 跑 Worker，只听本机 |
+| `scripts/mac-local/web-server.mjs` | 只发网页编译产物的小服务，只听本机 |
 | `scripts/mac-local/config.mjs` | 读配置、逐项检查 |
 | `scripts/mac-local/rehearsal-github.mjs` | 演练用的假 GitHub + 假 Pages |
 | `scripts/mac-local/rehearsal-seed.mjs` | 往演练知识库（只认 4392）放一道造的菜 |
