@@ -138,3 +138,91 @@ test('workflow paints reuse in-flight source frames and departure aborts their p
  const reads=fixture.calls.filter(call=>call.url.includes('/assets/'));assert.equal(reads.length,1,'same revision frame is fetched once across metadata/catalog paints');assert.equal(reads[0].init.signal.aborted,false,'metadata paints preserve the original in-flight request');
  h.leave();assert.equal(reads[0].init.signal.aborted,true,'route departure aborts the original private request');image.resolve(new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}}));await h.flush();assert.equal(h.all('img').length,0,'departed view cannot show a late source frame');
 });
+
+// #186: 排进菜单 fixes the saved version, so an unsaved edit of any kind holds a new freeze back.
+const rowA='30000000-0000-4000-8000-000000000001',stepA='30000000-0000-4000-8000-000000000002',stdTomato='30000000-0000-4000-8000-000000000003';
+const format3=()=>({recipeFormatVersion:'3',title:{zh:'测试番茄炒蛋',en:'Test tomato eggs',uk:'Тестові томати з яйцем'},baseServings:1,ingredients:[{id:rowA,name:{zh:'番茄'},role:'main',ingredientId:stdTomato,originalAmount:'两个番茄',qty:{value:'120',unit:'g'},qtySource:{kind:'measured',by:'测试师傅',date:'2026-10-18'},kitchenPrep:{leadTime:{value:'30',unit:'min'}}}],steps:[{id:stepA,text:{zh:'测试步骤：大火炒'}}],unknowns:[{kind:'amount',ingredientRowId:rowA,text:'测试原话：盐少许'}],sources:[],assets:[]});
+function store(){
+ const kb={stored:detail({recipe:format3()}),freezes:[],saves:[],lose:0};
+ kb.handler=(url,init)=>{
+  const v=kb.stored.version;
+  if(url.includes('/source-illustrations'))return json({recipeId:id,recipeVersion:v,illustrations:[],stepLinks:[]});
+  if(url.includes('/ingredients?'))return json({items:[{id:stdTomato,version:1,name:{zh:'番茄'},baseUnit:'g'}],nextCursor:null});
+  if(url.includes('/ingredients/'))return json({id:stdTomato,version:1,ingredient:{name:{zh:'番茄'},baseUnit:'g'}});
+  if(url.includes('/techniques?'))return json({items:[],nextCursor:null});
+  if(url.endsWith('/adoption'))return json({recipeId:id,recipeVersion:v,current:{version:v,archived:false},origin:{kind:'manual',originalRecipeVersion:1},source:{status:'needs_review'},kitchenApproval:null,issues:[]});
+  if(url.includes('/knowledge-materializations/recipes/')){const body=JSON.parse(init.body);kb.freezes.push({body,key:new Headers(init.headers).get('Idempotency-Key')});if(kb.lose&&kb.lose--)throw Error('response lost');return json({dishRef:`kb-test-v${body.recipeVersion}`,recipeId:id,recipeVersion:body.recipeVersion,commit:'a'.repeat(40),unchanged:false},201);}
+  if(url.endsWith('/assets/upload'))return json({id:assetId,kind:'image',url:`/api/v1/assets/${assetId}/content`,status:'ready'},201);
+  if(url.includes('/assets/'))return new Response(new Uint8Array([1]),{headers:{'content-type':'image/png'}});
+  if(url.endsWith('/revisions/1'))return json(detail({recipe:format3()}));
+  if(init.method==='PUT'){const recipe=JSON.parse(init.body);kb.saves.push(recipe);kb.stored={...kb.stored,version:v+1,recipe};return json(kb.stored,200,{etag:`"v${v+1}"`});}
+  return json(kb.stored,200,{etag:`"v${v}"`});
+ };
+ return kb;
+}
+const freezeButton=h=>h.all('button').find(b=>['排进菜单','Put this version on a menu','Додати цю версію в меню'].includes(b.textContent));
+// Reaches the click handler even when the button is (or should already be) disabled.
+const press=control=>control.dispatchEvent({type:'click',preventDefault(){}});
+const hint=h=>h.all('[data-testid="freeze-unsaved"]').map(el=>el.textContent).join('');
+const labelled=(h,text)=>h.all('label').find(row=>row.children[0]?.textContent===text)?.querySelector('input,textarea,select');
+const SAVE_FIRST={zh:'先保存改动，再排进菜单。',en:'Save your changes first, then put it on a menu.',uk:'Спочатку збережіть зміни, а потім додайте рецепт у меню.'};
+
+test('any unsaved edit greys out 排进菜单, and a click that still gets through sends no freeze and keeps the input',async t=>{
+ const title=h=>h.field('菜名（至少一种语言）','中文');
+ const edits=[
+  ['recipe field',h=>h.set(title(h),'测试番茄炒蛋（改）'),h=>assert.equal(title(h).value,'测试番茄炒蛋（改）')],
+  ['canteen amount',h=>h.set(labelled(h,'每份多少（不知道就留空）'),'150'),h=>assert.equal(labelled(h,'每份多少（不知道就留空）').value,'150')],
+  ['lead time',h=>h.set(labelled(h,'提前多久（腌、泡、醒；不知道就留空）'),'45'),h=>assert.equal(labelled(h,'提前多久（腌、泡、醒；不知道就留空）').value,'45')],
+  ['deleted unclear item',h=>h.click('删掉这一条'),h=>assert.equal(h.all('[data-testid="recipe-unknown"]').length,0)],
+  ['uploaded image not saved yet',async h=>{const upload=h.all('input').find(el=>el.getAttribute('type')==='file');upload.files=[new File([new Uint8Array([1])],'test.png',{type:'image/png'})];upload.dispatchEvent({type:'change'});await h.flush();},h=>assert(h.all('button').some(b=>b.textContent==='移除素材引用'))],
+  ['asset link not added yet',h=>h.set(labelled(h,'外部素材网址'),'https://example.com/test.jpg'),h=>assert.equal(labelled(h,'外部素材网址').value,'https://example.com/test.jpg')],
+  ['standard being edited',h=>{h.click('＋ 标准材料');h.set(h.field('标准名称','中文'),'测试标准番茄');},h=>assert.equal(h.field('标准名称','中文').value,'测试标准番茄')],
+ ];
+ for(const [name,edit,kept] of edits)await t.test(name,async()=>{
+  const kb=store(),h=await setup(kb.handler);await h.mount();
+  assert.equal(freezeButton(h).disabled,false,name);assert.equal(hint(h),'',name);
+  await edit(h);
+  press(freezeButton(h));await h.flush();
+  assert.equal(kb.freezes.length,0,`${name}: no freeze request while unsaved`);
+  assert.equal(freezeButton(h).disabled,true,`${name}: greyed out as soon as it changes`);
+  assert.equal(hint(h),SAVE_FIRST.zh,name);
+  kept(h);assert.equal(kb.saves.length,0,name);assert.equal(kb.stored.version,1,name);
+ });
+});
+
+test('the save-first hint is trilingual and follows the language of the mounted editor',async()=>{
+ const kb=store(),h=await setup(kb.handler);await h.mount();
+ h.set(h.field('菜名（至少一种语言）','中文'),'测试番茄炒蛋（改）');
+ for(const lang of ['zh','en','uk']){await h.mount(id,lang);const freeze=freezeButton(h);assert.equal(freeze.disabled,true,lang);assert.equal(hint(h),SAVE_FIRST[lang],lang);press(freeze);await h.flush();assert.equal(kb.freezes.length,0,lang);assert.equal(hint(h),SAVE_FIRST[lang],lang);}
+ assert.doesNotMatch(h.all('[data-testid="recipe-adoption"]')[0].textContent,/核对|复核|核定/);
+});
+
+test('saving makes 排进菜单 clickable again and fixes the newly saved version',async()=>{
+ const kb=store(),h=await setup(kb.handler);await h.mount();
+ h.set(h.field('菜名（至少一种语言）','中文'),'测试番茄炒蛋（改）');
+ assert.equal(freezeButton(h).disabled,true,'greyed out before the save');
+ // Undoing the edit by hand is no change either.
+ h.set(h.field('菜名（至少一种语言）','中文'),'测试番茄炒蛋');assert.equal(freezeButton(h).disabled,false);assert.equal(hint(h),'');
+ h.set(h.field('菜名（至少一种语言）','中文'),'测试番茄炒蛋（改）');
+ h.click('保存菜谱');await h.flush();
+ assert.equal(kb.saves.length,1);assert.equal(kb.saves[0].title.zh,'测试番茄炒蛋（改）');assert.equal(kb.stored.version,2);
+ assert.equal(freezeButton(h).disabled,false,'clickable once saved');assert.equal(hint(h),'');
+ h.click('排进菜单');await h.flush();
+ assert.deepEqual(kb.freezes.map(call=>call.body),[{recipeVersion:2}]);assert.match(h.el.textContent,/已固定菜谱版本 v2/);
+});
+
+test('an unconfirmed freeze retries with its original body and key, and opens no new freeze for a later edit',async()=>{
+ const kb=store();kb.lose=1;const h=await setup(kb.handler);await h.mount();
+ h.click('排进菜单');await h.flush();assert.match(h.el.textContent,/结果尚未确认/);assert.equal(h.m.inspectReloadSafety().reason,'unknown');
+ const unconfirmed=h.all('[data-testid="recipe-adoption"]')[0].textContent;
+ // The form is locked while the result is open; an input event that still lands must not reach the request.
+ h.set(h.field('菜名（至少一种语言）','中文'),'测试番茄炒蛋（改）');
+ h.click('确认操作结果（使用同一请求）');await h.flush();
+ assert.equal(kb.freezes.length,2);assert.deepEqual(kb.freezes[1],kb.freezes[0],'same body and Idempotency-Key');assert.deepEqual(kb.freezes[0].body,{recipeVersion:1});assert(kb.freezes[0].key);
+ assert.match(h.el.textContent,/已固定菜谱版本 v1/);
+ // The edit is still unsaved: confirming the old request is not a way to send a new one.
+ const freeze=freezeButton(h);assert.equal(freeze.disabled,true);press(freeze);await h.flush();
+ assert.equal(kb.freezes.length,2);assert.equal(hint(h),SAVE_FIRST.zh);assert.equal(kb.saves.length,0);
+ assert.equal(h.field('菜名（至少一种语言）','中文').value,'测试番茄炒蛋（改）');
+ assert.doesNotMatch(unconfirmed,/核对|复核|核定/);
+});
