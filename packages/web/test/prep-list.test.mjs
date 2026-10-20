@@ -322,7 +322,8 @@ test('dishes without a recipe or without ingredients are named, not silently dro
   const b=build(),rows=[...b.rows,{menuPlanRef:'wk',mealIndex:3,meal:meal('gone'),dish:undefined},{menuPlanRef:'wk',mealIndex:4,meal:meal('empty'),dish:{name:{zh:'空菜',uk:'Порожня'}}}];
   const el=renderPrepList({lang:'zh',projection:b.projection,rows,planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
   const notes=byClass(el,'prep-list-notice').map(n=>n.textContent);
-  assert.deepEqual(notes,['有一道菜的菜谱未找到 · 问师傅','空菜：尚未录入配料 · 问师傅']);
+  // #174: the meal's dishes without recorded servings get one line of their own (D3 §4.2).
+  assert.deepEqual(notes,['有一道菜的菜谱未找到 · 问师傅','空菜：尚未录入配料 · 问师傅','份数还没录：炒蛋、凉拌黄瓜 · 标「原方」的量是原配方的量，这次备多少问师傅']);
   assert(byAttr(el,'data-prep-count')[0].textContent.includes(`/ ${ITEMS}`));assert(!el.textContent.includes('gone'));
   const none=renderPrepList({lang:'uk',projection:b.projection,rows:[],planId:'wk',timing:'all',ingredientHref:()=>'#',now:()=>TODAY});
   assert(none.textContent.includes('Для цього прийому їжі ще не записано'));assert.equal(byAttr(none,'data-prep-count')[0].textContent,'');

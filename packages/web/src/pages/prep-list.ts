@@ -7,6 +7,7 @@ import { h } from '../dom';
 import { LANG_TAG, pick, type Lang } from '../i18n';
 import { rawQuantityText, recordedAmountText, type FrozenMealRow } from './prep';
 import { word } from './record-display';
+import { PREP_LIST_KINDS, PREP_LIST_SEASONING_KINDS, prepAheadLine, prepAheadOf, servingsUnrecordedLine, unknownLine, unknownsAt, type PageHint } from './recipe-unknowns';
 
 /** The store name changes with the key format; v1 keys had no amount segment and cannot be told from the new ones. */
 export const PREP_DONE_KEY = 'canteenos.prep.done.v2';
@@ -130,6 +131,8 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
   const done = readDone(clock());
   const items: Item[] = [];
   const notices: HTMLElement[] = [];
+  // ADR-0012 §11 / D3 §4.2: one line per dish that has something to do ahead, then one line for unrecorded servings.
+  const ahead: HTMLElement[] = [], noServings: string[] = [], listed = new Set<string>();
   const root = h('section', { class: 'prep-list', 'data-prep-list': '' });
   const count = h('span', { class: 'prep-list-count', 'data-prep-count': '' });
   root.append(h('div', { class: 'prep-list-head' },
@@ -149,6 +152,12 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
     const dishMain = pick(dish.name, lang) || w('菜谱未找到', 'Recipe missing', 'Рецепт не знайдено');
     if (!dish.components?.length) { notices.push(h('p', { class: 'prep-list-notice', role: 'status' }, `${dishMain}：${w('尚未录入配料 · 问师傅', 'ingredients not recorded · ask the chef', 'інгредієнти не записано · спитайте шефа')}`)); continue; }
     const dishOther = other(dish.name, dishMain);
+    if (!listed.has(row.meal.dishRef)) {
+      listed.add(row.meal.dishRef);
+      const line = prepAheadLine(dishMain, prepAheadOf(dish), lang);
+      if (line) ahead.push(h('p', { class: 'prep-list-notice', role: 'status', 'data-unknowns': 'prep-ahead' }, line));
+      if (dish.baseServings === undefined) noServings.push(dishMain);
+    }
     for (const [componentIndex, component] of dish.components.entries()) {
       const ingredient = Object.hasOwn(projection.ingredients, component.ingredientRef) ? projection.ingredients[component.ingredientRef] : undefined;
       const prep = component.prep;
@@ -212,15 +221,22 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
       const squash = (text: string) => text.replace(/\s+/g, '');
       const otherWording = (own: Quantity | undefined): string | undefined =>
         recorded && !(['zh', 'en', 'uk'] as const).some(code => squash(rawQuantityText(own, code)) === squash(recorded)) ? recorded : undefined;
-      let amount: string, original = false, wording: string | undefined, wordingOfOriginal = false;
+      let amount: string, original = false, wording: string | undefined, wordingOfOriginal = false, unrecorded = false;
       if (scaled && scaled.unit !== 'to-taste') { amount = rawQuantityText(scaled, lang); wording = otherWording(qty) ?? otherWording(scaled); wordingOfOriginal = true; }
       else if ((scaled ?? qty)?.unit === 'to-taste') { amount = rawQuantityText({ unit: 'to-taste' }, lang); wording = otherWording({ unit: 'to-taste' }); }
       else if (qty?.value !== undefined) { amount = rawQuantityText(qty, lang); original = true; wording = otherWording(qty); }
       else if (recorded) { amount = recorded; original = true; }
-      else amount = rawQuantityText(qty, lang);
+      else { amount = rawQuantityText(qty, lang); unrecorded = true; }
       const quantity = h('span', { class: 'prep-list-qty' }, h('b', { class: 'num' }, amount),
         original ? h('small', { class: 'muted' }, w('原方', 'original', 'за рецептом')) : null,
         wording ? h('small', { class: 'muted prep-list-wording' }, wordingOfOriginal ? `${w('原方', 'original', 'за рецептом')}: ${wording}` : wording) : null);
+
+      // Not said in the video: this row's cut size, amount, net or gross weight and which kind; seasonings only which kind.
+      // 「还没写怎么切」 and 「用量未录」 above already ask the chef, so they are not said twice (D3 §4.1).
+      const hints: PageHint[] = [];
+      if (!technique && !prep?.techniqueRef && section !== 'seasoning') hints.push('cut');
+      if (unrecorded) hints.push('amount');
+      const unsaid = unknownLine(unknownsAt(dish, { component: componentIndex }, section === 'seasoning' ? PREP_LIST_SEASONING_KINDS : PREP_LIST_KINDS, hints), lang);
 
       const node = h('li', { class: 'prep-list-item', 'data-prep-item': key },
         h('label', { class: 'prep-list-check' }, check),
@@ -228,6 +244,7 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
           h('div', { class: 'prep-list-top' }, name, quantity),
           partnerLine(ingredient ? other(ingredient.name, main) : undefined),
           ...cut,
+          unsaid ? h('p', { class: 'prep-list-note', 'data-unknowns': 'component' }, unsaid) : null,
           note ? h('p', { class: 'prep-list-note' }, note) : null,
           h('p', { class: 'prep-list-for' }, forText),
           partnerLine(dishOther)));
@@ -239,7 +256,8 @@ export function renderPrepList(o: PrepListOptions): HTMLElement {
     const visible = shown(), ready = visible.filter(i => i.done).length;
     count.textContent = items.length ? w(`已备 ${ready} / ${visible.length}`, `${ready} of ${visible.length} ready`, `Готово ${ready} з ${visible.length}`) : '';
   };
-  root.append(...notices);
+  const servings = servingsUnrecordedLine(noServings, lang);
+  root.append(...notices, ...ahead, ...(servings ? [h('p', { class: 'prep-list-notice', role: 'status', 'data-unknowns': 'servings' }, servings)] : []));
   if (!items.length) {
     if (!notices.length) root.append(h('p', { class: 'muted', role: 'status' }, w('这一餐还没有要准备的材料', 'Nothing to prepare is recorded for this meal', 'Для цього прийому їжі ще не записано, що підготувати')));
     paintCount();
