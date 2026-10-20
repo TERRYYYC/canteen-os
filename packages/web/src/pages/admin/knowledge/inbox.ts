@@ -169,15 +169,17 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
     const page=async(limit:number,after:string|null)=>{const params=new URLSearchParams({limit:String(limit)});if(searchTerm)params.set('q',searchTerm);if(after)params.set('cursor',after);
       return (await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`)).data;};
     try{
-      let shown=0;
+      // truncated: the platform scan stopped at its page limit, so a later page may still hold matches.
+      let shown=0,truncated=false;
       if(platformFilter==='all'){const data=await page(50,cursor);if(!current()||epoch!==listEpoch)return;
         for(const item of data.items)cards.append(renderItem(item));shown=data.items.length;cursor=data.nextCursor;more.hidden=!cursor;}
       else{more.hidden=true;let after:string|null=null,pages=0;
         do{const data=await page(100,after);if(!current()||epoch!==listEpoch)return;
           for(const item of data.items)if(item.platform===platformFilter){cards.append(renderItem(item));shown++;}after=data.nextCursor;pages++;}
         while(after&&pages<PLATFORM_SCAN_PAGES);
-        if(after)cards.append(h('p',{class:'kb-muted'},t('收藏太多，这里只按平台筛了前 3000 条。','Too many favorites: only the first 3000 were filtered by platform.','Забагато обраного: за платформою відфільтровано лише перші 3000.')));}
-      if(reset&&!shown)cards.append(h('p',{class:'kb-muted'},searchTerm?t('没有找到这个菜名的草稿。','No candidate matches that recipe name.','За цією назвою рецептів не знайдено.'):platformFilter!=='all'?t('这个平台还没有收藏。','No favorites from this platform yet.','З цієї платформи ще немає обраного.'):t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
+        truncated=!!after;
+        if(truncated&&shown)cards.append(h('p',{class:'kb-muted'},t('收藏太多，这里只按平台筛了前 3000 条。','Too many favorites: only the first 3000 were filtered by platform.','Забагато обраного: за платформою відфільтровано лише перші 3000.')));}
+      if(reset&&!shown)cards.append(h('p',{class:'kb-muted'},truncated?(searchTerm?t('已筛的前 3000 条里没有找到这个菜名的草稿，后面的还没筛。','No candidate in the first 3000 favorites matches that recipe name; the rest were not filtered.','Серед перших 3000 обраних рецептів за цією назвою немає; решту не фільтрували.'):t('已筛的前 3000 条里没有这个平台的收藏，后面的还没筛。','None of the first 3000 favorites is from this platform; the rest were not filtered.','Серед перших 3000 обраних немає жодного з цієї платформи; решту не фільтрували.')):searchTerm?t('没有找到这个菜名的草稿。','No candidate matches that recipe name.','За цією назвою рецептів не знайдено.'):platformFilter!=='all'?t('这个平台还没有收藏。','No favorites from this platform yet.','З цієї платформи ще немає обраного.'):t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
     }catch(error){if(current()&&epoch===listEpoch)cards.append(h('p',{role:'alert'},errorText(error)));}}
   function previewImage(assetId:string,title:string):{element:HTMLElement;dispose:()=>void}{
     const frame=h('span',{class:'kb-inbox-preview','data-asset-state':'loading'},t('原片参考图读取中','Loading source frame','Завантаження кадру'));

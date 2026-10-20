@@ -193,6 +193,37 @@ test('favorites are not tied to one platform: each item carries a platform tag, 
   assert.deepEqual(unknown.all('.kb-inbox-platform').map(tag=>tag.textContent),['kuaishou','平台未记录']);
 });
 
+test('a platform filter that stops at 3000 favorites never says the whole platform is empty (#166 review)',async()=>{
+  const item=(n,platform)=>({id:`c829d4a8-837c-47d0-b62c-${String(n).padStart(12,'0')}`,platform,contentId:String(7000000000000000000+n),kind:'video',url:`https://example.invalid/${n}`,index:n,author:`作者${n}`,cardAlt:'',displayText:'',state:'evidence_pending'});
+  const words={
+    zh:{chip:'B站',partialEmpty:'已筛的前 3000 条里没有这个平台的收藏，后面的还没筛。',empty:'这个平台还没有收藏。'},
+    en:{chip:'Bilibili',partialEmpty:'None of the first 3000 favorites is from this platform; the rest were not filtered.',empty:'No favorites from this platform yet.'},
+    uk:{chip:'Bilibili',partialEmpty:'Серед перших 3000 обраних немає жодного з цієї платформи; решту не фільтрували.',empty:'З цієї платформи ще немає обраного.'},
+  };
+  for(const lang of ['zh','en','uk']){
+    // Thirty full pages of Douyin; the first Bilibili favorite is on page 31, which is never read.
+    const truncated=await setup(url=>{
+      if(url.endsWith('/favorites/imports'))return json({items:[]});
+      const q=new URL(url,'http://local.test').searchParams,page=Number(q.get('cursor')??'0');
+      if(page===30)return json({items:[item(3001,'bilibili')],nextCursor:null});
+      return json({items:Array.from({length:Number(q.get('limit'))},(_,i)=>item(page*100+i+1,'douyin')),nextCursor:String(page+1)});
+    });
+    await truncated.mount('inbox',lang);
+    const before=fixture.calls.length;
+    truncated.click(words[lang].chip);await truncated.flush();
+    assert.equal(fixture.calls.slice(before).filter(call=>call.url.includes('/favorites/items?')).length,30,`${lang}: the 30-page limit stays`);
+    assert.equal(truncated.all('.kb-inbox-platform').length,0);
+    assert(truncated.el.textContent.includes(words[lang].partialEmpty),`${lang}: says only the first 3000 were filtered`);
+    assert(!truncated.el.textContent.includes(words[lang].empty),`${lang}: never claims the platform has no favorites`);
+    // A scan that reaches the end (nextCursor null) with nothing found is the only real empty platform.
+    const complete=await setup(url=>url.endsWith('/favorites/imports')?json({items:[]}):json({items:[item(1,'douyin')],nextCursor:null}));
+    await complete.mount('inbox',lang);
+    complete.click(words[lang].chip);await complete.flush();
+    assert(complete.el.textContent.includes(words[lang].empty),`${lang}: a full scan with no match is empty`);
+    assert(!complete.el.textContent.includes(words[lang].partialEmpty));
+  }
+});
+
 test('inbox searches candidate names and shows a source-only preview before opening a video',async()=>{
   const itemId='c829d4a8-837c-47d0-b62c-7f10d829bb51';
   const thumb='30000000-0000-4000-8000-000000000001';
