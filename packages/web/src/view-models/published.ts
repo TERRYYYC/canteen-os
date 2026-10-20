@@ -32,6 +32,12 @@ const record=(v:unknown):v is ObjectMap=>v!==null&&typeof v==='object'&&!Array.i
 const id=(v:unknown):v is string=>typeof v==='string'&&/^[a-z][a-z0-9-]*$/.test(v);
 const sha=(v:unknown)=>typeof v==='string'&&/^[a-f0-9]{40}$/.test(v);
 const own=(o:object,key:string)=>Object.hasOwn(o,key);
+/** dish-v3 `unknowns` (ADR-0012 §11): kind and position only. Out-of-range positions are the page's to skip, not an error. */
+const UNKNOWN_KINDS=new Set(['prep-ahead','amount','net-or-gross','cut-size','identity','heat','duration','doneness','other']);
+const PREP_AHEAD_ACTIONS=new Set(['marinate','soak','brine','rest','cool','other']);
+const place=(v:unknown)=>v===undefined||(Number.isSafeInteger(v)&&(v as number)>=0);
+const unknownsShape=(v:unknown)=>v===undefined||(Array.isArray(v)&&v.length>0&&v.every((u:any)=>record(u)&&UNKNOWN_KINDS.has(u.kind)&&
+  (u.kind==='prep-ahead'?PREP_AHEAD_ACTIONS.has(u.action):!own(u,'action'))&&place(u.stepIndex)&&place(u.componentIndex)));
 const frozen=<T>(v:T):T=>{if(v&&typeof v==='object'){Object.values(v).forEach(frozen);Object.freeze(v);}return v;};
 const equal=(a:unknown,b:unknown):boolean=>{
   const canonical=(v:any):any=>Array.isArray(v)?v.map(canonical):record(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
@@ -138,7 +144,7 @@ export function createPublishedData(options:{baseUrl:string;fetch?:typeof fetch;
     if(!record(raw.menuPlans)||Object.keys(raw.menuPlans).length!==1||!own(raw.menuPlans,planId)||!record(raw.menuPlans[planId])||!Array.isArray(raw.menuPlans[planId].meals)||
       !record(raw.dishes)||!record(raw.ingredients)||!Array.isArray(raw.techniques)||!Array.isArray(raw.selection)||!record(raw.collection)||!record(raw.estimates)||!Array.isArray(raw.assets)||!Array.isArray(raw.issues))return fail();
     if(!raw.selection.every((s:any)=>record(s)&&s.menuPlanRef===planId&&typeof s.date==='string'&&['breakfast','lunch','dinner'].includes(s.mealType)))return fail();
-    for(const [key,d] of Object.entries(raw.dishes))if(!id(key)||!record(d)||!record(d.name)||(d.components!==undefined&&(!Array.isArray(d.components)||!d.components.every((c:any)=>record(c)&&id(c.ingredientRef)&&(c.prep===undefined||record(c.prep)))))||(d.steps!==undefined&&(!Array.isArray(d.steps)||!d.steps.every(record))))return fail();
+    for(const [key,d] of Object.entries(raw.dishes))if(!id(key)||!record(d)||!record(d.name)||(d.components!==undefined&&(!Array.isArray(d.components)||!d.components.every((c:any)=>record(c)&&id(c.ingredientRef)&&(c.prep===undefined||record(c.prep)))))||(d.steps!==undefined&&(!Array.isArray(d.steps)||!d.steps.every(record)))||!unknownsShape(d.unknowns))return fail();
     // Only explicit v3 snapshots permit unknown units; older publications retain their string guard.
     for(const [key,i] of Object.entries(raw.ingredients))if(!id(key)||!record(i)||!record(i.name)||
       (i.schemaVersion==='3' ? i.baseUnit!==undefined&&i.baseUnit!=='g'&&i.baseUnit!=='ml'&&i.baseUnit!=='pcs' : typeof i.baseUnit!=='string'))return fail();

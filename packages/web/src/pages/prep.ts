@@ -1,5 +1,6 @@
 import {recipeLibraryLine,recordValue,translations,supportDetails,word} from './record-display';
 import {renderRecordNotice} from './record-notices';
+import {PREP_LIST_KINDS,PREP_STEP_KINDS,unknownLine,unknownsAt} from './recipe-unknowns';
 /**
  * /prep 备料单（issue #9）：A 版列表为主视图，点配料行进 B 版详情，C 版的时间分组做成筛选 chip。
  * UI 事实源 docs/design/screens-v2.html「备料单」三版；契约见 src/types.ts：render(el, ctx)。
@@ -584,9 +585,14 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
       if('originalPreparation' in component&&component.originalPreparation)card.append(h('p',{'data-original-preparation':''},`${word(lang,'原方预处理','Original preparation','Підготовка')}: ${pick(component.originalPreparation,lang)}`));
       if (ingredient?.image) (cooking ? ingredientRecord : card).append(image(ingredient.image, `data/ingredients/${component.ingredientRef}.json`, "/image"));
       if (!ingredient) card.append(cooking ? attention(word(lang,"食材资料未找到。","Ingredient information is unavailable.","Дані інгредієнта недоступні."), "ingredient", component.ingredientRef) : h("p", { role: "status" }, t("missingRecord")),supportDetails(lang,component.ingredientRef));
-      if (cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined))) card.append(attention(recordedText
+      const amountAsked = cooking && (!component.qty || (component.qty.unit !== "to-taste" && component.qty.value === undefined));
+      if (amountAsked) card.append(attention(recordedText
         ? word(lang,"原方用量已记录，暂不能自动换算或按份数计算；本次用多少问师傅。","The original amount is recorded as text and cannot yet be converted or scaled to servings automatically. Ask the chef how much this meal needs.","Вихідну кількість записано текстом; її поки не можна автоматично перерахувати чи масштабувати за порціями. Запитайте кухаря, скільки потрібно.")
         : word(lang,"用量未录，无法确定这项备料量，问师傅。","Quantity is not recorded; the preparation amount is unknown. Ask the chef.","Кількість не записано; потрібний обсяг підготовки невідомий. Запитайте кухаря."), "dish", meal.dishRef));
+      // Not said in the video (D3 §4.3): as on the prep list, minus the amount when the card already asks about it above.
+      // The card shows no 「还没写怎么切」, so a missing size is said here. No repair link: such dishes are fixed in the KB.
+      const unsaid = cooking ? unknownLine(unknownsAt(dish, { component: componentIndex }, PREP_LIST_KINDS, amountAsked ? ["amount"] : []), lang) : "";
+      if (unsaid) card.append(h("p", { class: "prep-task-note", role: "status", "data-unknowns": "component" }, unsaid));
       const purchase = h("details", {class:"prep-purchase-details"},h("summary", {},word(lang,"采购资料","Purchase information","Закупівельні дані")),fact(t("package"), ingredient?.purchase ? `${ingredient.purchase.packSize} ${ingredient.purchase.packUnit}` : undefined), fact(t("supplier"), ingredient?.purchase?.supplier));
       (cooking ? ingredientRecord : card).append(purchase);
       if (prep) {
@@ -603,6 +609,9 @@ export function renderFrozenPrep(el: HTMLElement, source: FrozenMealSource, opti
     if (!dish.steps?.length) section.append(cooking ? attention(word(lang,"做法尚未录入，无法按记录完成制作。","Method not recorded; the recipe cannot be followed from this record.","Спосіб приготування не записано; за цим записом неможливо приготувати страву."), "dish", meal.dishRef) : h("p", { class: "muted", role: "status" }, t("missing")));
     for (const [stepIndex, step] of (dish.steps ?? []).entries()) {
       const body = h("div", { class: "tx" }, h("p", {}, pick(step.text, lang)));
+      // On a step the prep page says only how far ahead, cut size and anything else (D3 §4.3, sign-off B3).
+      const unsaid = cooking ? unknownLine(unknownsAt(dish, { step: stepIndex }, PREP_STEP_KINDS), lang) : "";
+      if (unsaid) body.append(h("p", { class: "prep-task-note", role: "status", "data-unknowns": "step" }, unsaid));
       const stepRecord = h("details", { class: "prep-step-record" }, h("summary", {}, word(lang,"步骤资料","Step record","Дані кроку")), names(step.text));
       if (!cooking) body.append(names(step.text));
       (cooking && !step.techniqueRef ? stepRecord : body).append(technique(step.techniqueRef, meal.dishRef,cooking?stepRecord:undefined,`${rowKey}/steps/${stepIndex}`));

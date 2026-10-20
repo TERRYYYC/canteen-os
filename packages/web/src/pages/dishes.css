@@ -28,6 +28,7 @@
 .dishes-row-qty{text-align:right;margin-left:auto}
 .dishes-row-wording{font-size:13px}
 .dishes-row-note{font-size:13px}
+.dishes-step-unknowns{font-size:13px}
 .dishes-row-name.missing,.dishes-row-cut.missing{color:var(--muted)}
 .dishes-step{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .dishes-step>div{min-width:0;flex:1}

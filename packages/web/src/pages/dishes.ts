@@ -9,6 +9,7 @@ import type { PageCtx } from '../types';
 import { word } from './record-display';
 import { onDetached } from './team-ui';
 import { rawQuantityText, recordedAmountText } from './prep';
+import { ALL_KINDS, dishUnknownLine, unknownLine, unknownsAt } from './recipe-unknowns';
 
 const copy = {
   noPlans: { zh: '本版没有发布计划', en: 'No plans in this publication', uk: 'У цій публікації немає планів' },
@@ -51,7 +52,7 @@ type Component = NonNullable<AnyDish['components']>[number];
  * 原配方用量，写法同备料清单（D0 四条线第一批第 1、4 条）：有数值按读者语言写数值，已录原文另有说法时照原文附在旁边；
  * 没有数值时照原文写，原文也没有就写「用量未录」；to-taste 写「适量」。都不补数，也不按份数换算。
  */
-export function originalAmount(component: Component, lang: Lang): { amount: string; wording?: string } {
+export function originalAmount(component: Component, lang: Lang): { amount: string; wording?: string; unrecorded?: true } {
   const recorded = recordedAmountText('originalAmount' in component ? component.originalAmount : undefined);
   const qty = component.qty;
   if (qty?.unit === 'to-taste') return { amount: rawQuantityText(qty, lang), wording: recorded && recorded !== '适量' ? recorded : undefined };
@@ -61,7 +62,7 @@ export function originalAmount(component: Component, lang: Lang): { amount: stri
     return { amount: rawQuantityText(qty, lang), wording: recorded && !same ? recorded : undefined };
   }
   if (recorded) return { amount: recorded };
-  return { amount: rawQuantityText(qty, lang) };
+  return { amount: rawQuantityText(qty, lang), unrecorded: true };
 }
 
 export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
@@ -157,10 +158,12 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
       return [key, button] as const;
     });
     function ingredientsView(): HTMLElement {
-      const rows = (dish!.components ?? []).map(component => {
+      const rows = (dish!.components ?? []).map((component, componentIndex) => {
         const record = own(projection.ingredients, component.ingredientRef);
         const name = record ? pick(record.name, lang) || t('ingredientUnnamed') : t('ingredientMissing');
-        const { amount, wording } = originalAmount(component, lang);
+        const { amount, wording, unrecorded } = originalAmount(component, lang);
+        // Every kind not said in the video, minus what the data has and what 「用量未录」 already says (D3 §4.4).
+        const unsaid = unknownLine(unknownsAt(dish, { component: componentIndex }, ALL_KINDS, unrecorded ? ['amount'] : []), lang);
         // How to cut: technique and size; a technique id with no record says so; the recorded size and
         // the recipe's own preparation words stay visible either way.
         const prep = component.prep, technique = techniqueOf(prep?.techniqueRef), size = prep?.size?.trim();
@@ -174,9 +177,12 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
           cut ? h('span', { class: technique ? 'dishes-row-cut' : 'dishes-row-cut missing' }, cut) : null,
           !technique && size ? h('span', { class: 'dishes-row-note' }, `${t('size')}: ${size}`) : null,
           originalPrep ? h('span', { class: 'dishes-row-note' }, `${t('original')}: ${originalPrep}`) : null,
-          note ? h('span', { class: 'dishes-row-note muted' }, `${t('note')}: ${note}`) : null);
+          note ? h('span', { class: 'dishes-row-note muted' }, `${t('note')}: ${note}`) : null,
+          unsaid ? h('span', { class: 'dishes-row-note', 'data-unknowns': 'component' }, unsaid) : null);
       });
+      const whole = dishUnknownLine(unknownsAt(dish, 'dish', ALL_KINDS), lang);
       return h('div', {}, h('p', { class: 'muted dishes-servings' }, typeof dish!.baseServings === 'number' ? servingsLine(lang, dish!.baseServings) : t('noServings')),
+        whole ? h('p', { class: 'dishes-servings', 'data-unknowns': 'dish' }, whole) : null,
         rows.length ? h('ul', { class: 'dishes-rows' }, ...rows) : h('p', { class: 'muted' }, t('noIngredients')));
     }
     function methodView(): HTMLElement {
@@ -187,9 +193,12 @@ export async function render(el: HTMLElement, ctx: PageCtx): Promise<void> {
         const tech = technique ? pick(technique.name, lang) : step.techniqueRef ? t('techniqueMissing') : '';
         const remark = technique && !explained.has(technique.id) ? pick(technique.note, lang) : '';
         if (technique) explained.add(technique.id);
+        // Every kind on this step, heat, how long and doneness included: they are shown on the dish page only (D3 §3).
+        const unsaid = unknownLine(unknownsAt(dish, { step: index }, ALL_KINDS), lang);
         return h('li', { class: 'dishes-step' }, h('span', { class: 'dishes-step-no num', 'aria-hidden': 'true' }, String(index + 1)),
           h('div', {}, h('p', { class: 'dishes-step-text' }, pick(step.text, lang)),
-            tech ? h('p', { class: 'muted' }, `${t('technique')}: ${tech}`) : null, remark ? h('p', { class: 'muted' }, `${t('note')}: ${remark}`) : null));
+            tech ? h('p', { class: 'muted' }, `${t('technique')}: ${tech}`) : null, remark ? h('p', { class: 'muted' }, `${t('note')}: ${remark}`) : null,
+            unsaid ? h('p', { class: 'dishes-step-unknowns', 'data-unknowns': 'step' }, unsaid) : null));
       });
       return steps.length ? h('ol', { class: 'dishes-steps' }, ...steps) : h('p', { class: 'muted' }, t('noSteps'));
     }
