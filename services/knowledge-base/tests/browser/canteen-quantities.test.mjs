@@ -127,3 +127,63 @@ test('removing a step with unclear entries keeps them on the row they also point
   const saved = await api(`/recipes/${created.id}/revisions/2`);
   assert.deepEqual(saved.recipe.unknowns, [{ kind: 'heat', ingredientRowId: row, text: '造的原话：油温没说' }]);
 });
+
+// ADR-0012 §2: an amount entered as "per serving" is saved for 1 serving, whatever the servings field said before.
+test('a canteen amount is saved for 1 serving; amounts saved for another count must be converted first', { timeout: 60000 }, async t => {
+  const { base, api, create, browser } = await editor(t);
+  const page = await browser.newPage();
+  page.on('dialog', dialog => dialog.accept());
+  const step = () => ({ id: randomUUID(), text: { zh: '下锅。' } });
+  const fillCanteen = async () => {
+    const row = page.locator('.ingredient-row').first();
+    await row.getByRole('textbox', { name: '食堂数量', exact: true }).fill('150');
+    await row.getByRole('combobox', { name: '食堂单位', exact: true }).selectOption('g');
+    await row.getByRole('combobox', { name: '出处', exact: true }).selectOption('specified');
+    await row.getByRole('textbox', { name: '谁给的', exact: true }).fill('造的师傅甲');
+    await row.getByLabel('哪天给的', { exact: true }).fill('2026-10-20');
+  };
+  const servings = page.getByRole('spinbutton', { name: '份量（可留空）', exact: true });
+  const saved = async () => {
+    await page.getByRole('button', { name: '保存修改', exact: true }).click();
+    await expect(page.getByText('已保存，所有资料都收好了。', { exact: true })).toBeVisible();
+  };
+
+  // Original servings 2 (or none) and no canteen amount yet: entering one counts the recipe per serving.
+  for (const baseServings of [2, undefined]) {
+    const recipe = { recipeFormatVersion: '3', title: { zh: '造的炖羊肉' }, ...(baseServings ? { baseServings } : {}),
+      ingredients: [{ id: randomUUID(), name: { zh: '羊肉' }, originalAmount: '5斤', originalQty: { value: '2500', unit: 'g' } }], steps: [step()] };
+    const created = await create(recipe);
+    await page.goto(`${base}/#${created.id}`);
+    await expect(servings).toHaveValue(baseServings ? '2' : '');
+    await fillCanteen();
+    await expect(servings).toHaveValue('1');
+    await expect(servings).toBeDisabled();
+    await expect(page.getByTestId('servings-basis')).toHaveText('份数按每份记：填了食堂用量，份数就是 1。');
+    await saved();
+    const second = (await api(`/recipes/${created.id}/revisions/2`)).recipe;
+    assert.equal(second.baseServings, 1);
+    assert.deepEqual(second.ingredients[0].qty, { value: '150', unit: 'g' });
+    assert.equal((await api(`/recipes/${created.id}/revisions/1`)).recipe.baseServings, baseServings);
+  }
+
+  // Canteen amounts already saved for 2 servings (allowed for older data): the editor stops until the chef converts them.
+  const row = randomUUID();
+  const held = await create({ recipeFormatVersion: '3', title: { zh: '造的两份羊肉' }, baseServings: 2,
+    ingredients: [{ id: row, name: { zh: '羊肉' }, qty: { value: '300', unit: 'g' }, qtySource: { kind: 'specified', by: '造的师傅甲', date: '2026-10-19' } }], steps: [step()] });
+  await page.goto(`${base}/#${held.id}`);
+  const message = '这道菜的食堂用量是按 2 份记的。先把每行用量换成一份的量，再把份数改成 1，然后保存。';
+  await expect(page.getByTestId('servings-basis')).toHaveText(message);
+  await expect(servings).toBeEnabled();
+  await page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true }).fill('只改了备注。');
+  await page.getByRole('button', { name: '保存修改', exact: true }).click();
+  await expect(page.getByRole('alert')).toHaveText(message);
+  assert.equal((await api(`/recipes/${held.id}/revisions`)).items.length, 1);
+  await page.locator('.ingredient-row').first().getByRole('textbox', { name: '食堂数量', exact: true }).fill('150');
+  await servings.fill('1');
+  await expect(servings).toBeDisabled();
+  await saved();
+  const converted = (await api(`/recipes/${held.id}/revisions/2`)).recipe;
+  assert.equal(converted.baseServings, 1);
+  assert.deepEqual(converted.ingredients[0].qty, { value: '150', unit: 'g' });
+  assert.equal((await api(`/recipes/${held.id}/revisions/1`)).recipe.baseServings, 2);
+});

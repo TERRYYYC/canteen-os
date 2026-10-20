@@ -17,6 +17,20 @@ export const sourceText = (s?: ValueSource) => !s ? '' : s.kind === 'rule' ? `${
 export const leadTimeText = (t?: LeadTime) => t ? `提前 ${t.value} ${LEAD_UNIT[t.unit]}` : '';
 export const unknownKindText = (u: RecipeUnknown) => u.kind ? `${KIND_LABEL[u.kind]}${u.action ? `（${ACTION_LABEL[u.action]}）` : ''}` : '未分类';
 
+/** ADR-0012 §2: canteen amounts are per serving, so a recipe that has any is counted for 1 serving. */
+export const perServing = (recipe: Recipe) => isFormatThree(recipe) && !!recipe.ingredients?.some(row => row.qty);
+/**
+ * Canteen amounts already saved for another serving count do not become per serving by themselves: the chef converts each
+ * row and sets servings to 1 first. A count that came only with the original (no canteen amount saved yet) is replaced.
+ */
+export function servingsHeld(recipe: Recipe, saved?: Recipe): number | null {
+  const held = saved && perServing(saved) && saved.baseServings !== undefined && saved.baseServings !== 1 ? saved.baseServings : null;
+  return held !== null && perServing(recipe) && recipe.baseServings !== 1 ? held : null;
+}
+export const heldServingsText = (count: number) => `这道菜的食堂用量是按 ${count} 份记的。先把每行用量换成一份的量，再把份数改成 1，然后保存。`;
+/** What a save sends: with canteen amounts the recipe is counted per serving, so servings are written as 1. */
+export const saveBody = (recipe: Recipe): Recipe => perServing(recipe) ? { ...recipe, baseServings: 1 } : recipe;
+
 export function newRow(recipe: Recipe): Ingredient {
   return isFormatThree(recipe) ? { id: crypto.randomUUID(), name: {}, role: 'unspecified' } : { id: crypto.randomUUID(), name: {}, role: 'unspecified', amount: { kind: 'unknown' } };
 }

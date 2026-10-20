@@ -90,4 +90,6 @@ node scripts/import-candidate-illustrations.mjs \
 
 既有工具曾在独立样本上验证完整视频、ASR/OCR、字段引用、首次写入及重复导入，并保留非菜谱对照；历史媒体、capture/candidate UUID 和私有运行回执没有迁入。F2 旧版本的 HTTP 403、开发分支的 HTTP 200 空正文和后来游客初始化后的下载成功属于不同阶段；不能用任何一条历史记录保证所有作品或当前平台可用。具体方法见 F2 说明。
 
-本次 API/CLI 自动化检查使用合成 fixture，不重跑真实下载、AI、用户库写入或厨房验收。后续原方/食堂用量分开、unknowns 带位置的 schema 和导入语义由 [#182](https://github.com/TERRYYYC/canteen-os/issues/182) 跟踪；此源码基线尚未实现它，不能把旧 importer 输出当成该新合同的完成结果。
+迁入提交 `2224e6a`（#189）时，自动化检查用的是合成 fixture，没有重跑真实下载、AI、用户库写入或厨房验收。那时导入器还是一行一个 `amount`。
+
+现在的导入器已按 [#182](https://github.com/TERRYYYC/canteen-os/issues/182) 产出格式 3 候选，见上文「格式 3」一节。它的测试同样只用合成资料。还没完成的验收：用真实视频重新导入、写入真实知识库（#184），以及远端部署。
