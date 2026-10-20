@@ -25,7 +25,9 @@
     "build:data": "node scripts/build-data.mjs",
     "build:check": "node scripts/build-data.mjs --check --compare-snapshots",
     "web:dev": "pnpm -C packages/web dev",
-    "web:build": "pnpm -C packages/web build"
+    "web:build": "pnpm -C packages/web build",
+    "mac:start": "node scripts/mac-local/start.mjs",
+    "mac:check": "node scripts/mac-local/start.mjs --check"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

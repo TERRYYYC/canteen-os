@@ -22,6 +22,10 @@ packages/web/public/qr/*
 .env
 .env.*
 !.env.example
+# Mac 本机 Worker 的真值（#196）；模板 .dev.vars.example 入库
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 
 # OS / editor
 .DS_Store

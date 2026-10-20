@@ -10,6 +10,9 @@
 # 部署前必须安装锁定依赖并运行生成器，否则 generated/ 是空的：
 #   npm --prefix packages/worker run gen:validators       # 从仓库根目录执行
 # @canteenos/core 通过 default export 条件选取源码；本地 dry-run 不依赖 core/dist。
+#
+# 在 Mac 上接本机知识库跑（#196）不走 wrangler：scripts/mac-local/ 用 Node 跑同一份 Worker，
+# 配置在 packages/worker/.dev.vars（模板 .dev.vars.example，不进仓库）。下面的 [vars] 只给线上用，本机不改它。
 
 name = "canteenos-worker"
 main = "src/index.ts"
