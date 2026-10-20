@@ -75,7 +75,7 @@ pnpm -C packages/web preview --host 127.0.0.1 --port 4173 --strictPort
 - 未配置 Worker 时，这只是固定资料的只读预览，不能保存采购判断、编辑日常知识库或发布菜单。
 - 本项目的开发服务避开 Clowder AI 保留端口 3003/3004。若额外服务需要 Redis，使用开发端口 6398，不连接生产端口 6399。
 
-完整可写运行需要显式配置 Worker 和独立 SQLite 知识库。公开仓库不包含私有知识库源码包、日常数据库或媒体资料。配置入口见 [web 环境变量示例](packages/web/.env.example)、[alpha.4 配套与发行说明](docs/releases/alpha4.md)、[运行核查清单](docs/field-test/week-43/ops-checklist.md)。`VITE_*` 会进入浏览器产物，只能放可公开的配置，不能放凭据。
+完整可写运行需要显式配置 Worker 和独立 SQLite 知识库。知识库源码现已纳入 [services/knowledge-base/](services/knowledge-base/README.md)，按该目录说明使用 Node 24.18+、独立 `npm ci` 和外部数据目录启动；根目录 pnpm 安装不会安装它。公开仓库不包含日常数据库或媒体资料。配置入口见 [web 环境变量示例](packages/web/.env.example)、[alpha.4 配套与发行说明](docs/releases/alpha4.md)、[运行核查清单](docs/field-test/week-43/ops-checklist.md)。`VITE_*` 会进入浏览器产物，只能放可公开的配置，不能放凭据。
 
 ## 4. 讨论、实施与独立审查
 
@@ -118,9 +118,10 @@ issue / 已接受需求 → 确认范围与验收 → 独立分支实施 → 作
 | Worker / 权限 / 写入合同 | `pnpm -C packages/worker test`，再核查受影响接口 |
 | Web | 先构建 core 与 Worker，再运行 `pnpm -C packages/web typecheck`、`pnpm -C packages/web test`、`node --test packages/web/test/e2e/team-meals/api-contract.test.mjs`；页面变化补真实操作与截图 |
 | 脚本 | `node --test scripts/*.test.mjs`，或与改动对应的测试文件 |
+| SQLite 知识库 | 在 `services/knowledge-base/` 使用 Node 24.18+：`npm ci` → `npm run typecheck` → `npm test` → `npm run build`；浏览器验证和音画工具依赖见该目录 README |
 | 文档与模板 | 检查事实、命令、链接、YAML 结构和与当前合同的一致性 |
 
-Web 测试依赖生成产物，可用 `pnpm -C packages/core build`、`pnpm -C packages/worker build` 先准备。公共 clone 未配置 `KB_SOURCE_ROOT` 时，实际 SQLite 相关用例会跳过；报告跳过与失败原因，不把部分检查写成完整知识库验收。
+Web 测试依赖生成产物，可用 `pnpm -C packages/core build`、`pnpm -C packages/worker build` 先准备。实际 SQLite 相关 Web 用例仍需显式设置 `KB_SOURCE_ROOT` 为本仓 `services/knowledge-base/` 的绝对路径并先在该模块安装依赖、构建；使用 Node 24.18+ 运行。未配置时用例会跳过，报告跳过与失败原因，不把部分检查写成完整知识库验收。
 
 PR 写清：**问题与修改后的行为、具体变更、检查命令和结果、未完成项、关联 issue**。页面变化注明角色、语言、设备尺寸和关键状态；资料或版本变化说明兼容、迁移与回滚。仅当本 PR 覆盖整个 issue 的完成条件时使用 `Closes #编号`；部分工作使用 `Refs #编号` 并保留剩余任务。
 

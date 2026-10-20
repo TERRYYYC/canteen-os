@@ -1,0 +1,101 @@
+{
+  "detail": {
+    "id": "3f4c6638-dcf8-4231-966c-1c5e2816c059",
+    "version": 1,
+    "recipe": {
+      "title": {
+        "zh": "工程样本小米辣菜"
+      },
+      "recipeFormatVersion": "2",
+      "baseServings": 2,
+      "ingredients": [
+        {
+          "id": "70a8bc39-50d6-47cc-8b3e-0f788c602b6a",
+          "ingredientId": "52d1955b-e1a9-44e8-a674-a3b3055a1130",
+          "name": {
+            "zh": "小米辣"
+          },
+          "amount": {
+            "kind": "exact",
+            "value": "10",
+            "unit": "g",
+            "raw": "10克"
+          },
+          "kitchenPrep": {
+            "techniqueId": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169",
+            "timing": "before-service",
+            "size": "细圈"
+          }
+        },
+        {
+          "id": "a1590617-581a-4d6d-9e75-0be1b241a2d7",
+          "name": {
+            "zh": "盐"
+          },
+          "amount": {
+            "kind": "unknown"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "id": "c6d97786-92e5-4547-8e62-82225f4d27f0",
+          "text": {
+            "zh": "加入；火候未录"
+          },
+          "techniqueId": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169"
+        }
+      ],
+      "sources": [],
+      "assets": []
+    },
+    "media": [],
+    "sourceRecords": []
+  },
+  "approval": {
+    "approvalVersion": "1",
+    "status": "approved",
+    "recipeId": "3f4c6638-dcf8-4231-966c-1c5e2816c059",
+    "recipeVersion": 1,
+    "origin": {
+      "kind": "manual",
+      "originalRecipeVersion": 1
+    },
+    "recipeSnapshotHash": "8189ac1c508b3d73e7700c6cba450f6ec6873c0868ab602ab297bfd77330d0e8",
+    "originalSnapshotHash": "8189ac1c508b3d73e7700c6cba450f6ec6873c0868ab602ab297bfd77330d0e8",
+    "dependencies": {
+      "ingredients": [
+        {
+          "id": "52d1955b-e1a9-44e8-a674-a3b3055a1130",
+          "version": 1,
+          "ingredient": {
+            "name": {
+              "zh": "小米辣"
+            },
+            "aliases": [],
+            "trackStock": false
+          },
+          "createdAt": "2026-10-05T00:00:00.000Z"
+        }
+      ],
+      "techniques": [
+        {
+          "id": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169",
+          "hash": "43535d6b884b683113c9c8229d38da8fca37b3cb76df64f755b38c28c148f883",
+          "technique": {
+            "kind": "cut",
+            "name": {
+              "zh": "切圈"
+            }
+          }
+        }
+      ]
+    },
+    "unresolved": [],
+    "reviewer": "engineering-test-only",
+    "note": "PRIVATE_TEST_NOTE",
+    "actor": "web",
+    "createdAt": "2026-10-05T00:00:00.000Z",
+    "approvalHash": "6bbae2adfe2a2f496ffc47e4c2b4ee2a669b9eeedc45d80239603e49f339c58c"
+  }
+}

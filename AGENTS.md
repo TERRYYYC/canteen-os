@@ -26,6 +26,7 @@ updated: 2026-10-14
 | `packages/core/` | `@canteenos/core`：类型 + 采购引擎 + 三个渲染器 + readiness；检查状态以实际测试为准 | 依赖 schemas 语义；改数字须手算 |
 | `packages/web/` | Vite 页面及师傅后台；当前小团队视觉来源与专用页面合同见设计索引 | 首屏 JS ≤ 60 KB gzip，无 UI/CSS 框架 |
 | `packages/worker/` | Git 数据写入/发布及受控 SQLite 知识库网关；各通道权限和版本边界分开 | 见 ADR-0007/0009/0010 与对应 API 合同 |
+| `services/knowledge-base/` | 独立 Node 24.18+ SQLite 服务、迁移、合同、测试与视频采集/候选导入工具 | 独立 npm 锁与数据库；改动先读其 README、API 合同及实际 issue，不提交运行资料 |
 | `docs/design/` | 当前 Reference v3 小团队目标、专用页面合同与历史稿索引；PR #91 十画板仍为提案 | 按当前适用合同对照设计，不追认全部签收 |
 | `docs/current-contract.md` | 当前小团队目标、数据真源、设计来源与验收边界 | 新实施的范围入口 |
 | `docs/execution-brief.md` | 第一轮历史执行简报与兼容依据 | 旧范围不覆盖当前合同 |

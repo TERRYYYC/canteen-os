@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:canteen-kb:standard-technique:1",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "enum": [
+        "cut",
+        "heat",
+        "pretreat"
+      ]
+    },
+    "name": {
+      "type": "object",
+      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）。翻译状态（machine/human）不写在数据本体里，走旁文件 translations.lock.json（ADR-0006）",
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uk": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "zh"
+          ],
+          "properties": {
+            "zh": {}
+          }
+        },
+        {
+          "required": [
+            "en"
+          ],
+          "properties": {
+            "en": {}
+          }
+        },
+        {
+          "required": [
+            "uk"
+          ],
+          "properties": {
+            "uk": {}
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "note": {
+      "type": "object",
+      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）。翻译状态（machine/human）不写在数据本体里，走旁文件 translations.lock.json（ADR-0006）",
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uk": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "zh"
+          ],
+          "properties": {
+            "zh": {}
+          }
+        },
+        {
+          "required": [
+            "en"
+          ],
+          "properties": {
+            "en": {}
+          }
+        },
+        {
+          "required": [
+            "uk"
+          ],
+          "properties": {
+            "uk": {}
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "kind",
+    "name"
+  ],
+  "additionalProperties": false
+}

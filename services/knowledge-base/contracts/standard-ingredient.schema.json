@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:canteen-kb:standard-ingredient:1",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "object",
+      "description": "内容级三语字符串：可展示文本一律使用此结构，至少提供一种语言，fallback 链 zh → en → uk（见 docs/i18n.md）。翻译状态（machine/human）不写在数据本体里，走旁文件 translations.lock.json（ADR-0006）",
+      "properties": {
+        "zh": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uk": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "zh"
+          ],
+          "properties": {
+            "zh": {}
+          }
+        },
+        {
+          "required": [
+            "en"
+          ],
+          "properties": {
+            "en": {}
+          }
+        },
+        {
+          "required": [
+            "uk"
+          ],
+          "properties": {
+            "uk": {}
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "externalId": {
+      "type": "string",
+      "pattern": "^Q\\d+$",
+      "description": "Wikidata QID（场景 A 种子数据来源），如 Q23501（番茄）"
+    },
+    "baseUnit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "ml",
+        "pcs"
+      ]
+    },
+    "pcsToGram": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "一个多少克（pcs→g 的唯一换算依据）。仅 baseUnit 相关的计数场景使用；采购推导中 pcs 食材不套 yield（margin 对所有食材生效，ADR-0006 2026-09-06 修正）"
+    },
+    "yield": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "description": "净料率 0–1，单一数字（ADR-0006 收窄场景 D 的分阶段模型）：仅对按重量/体积（g/ml）计的食材有意义，pcs 食材不得设置。初始值参考 USDA FBG/AH-102 与乌克兰 норми відходів（docs/research/v2/scenario-d-yield-data.md），本地实测后回填"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "main",
+        "seasoning"
+      ],
+      "description": "主料 / 调料（可选）。备料单噪音控制的依据：seasoning 缺 prep 不提示「无切配规格」（盐/油/糖无需切配），main（或未标注）缺 prep 仍提示"
+    },
+    "purchase": {
+      "type": "object",
+      "description": "采购规格；缺失 = 该食材还不能算采购（readiness「能采」关卡不过）",
+      "properties": {
+        "supplier": {
+          "type": "string",
+          "minLength": 1,
+          "description": "供应商名字符串（不是实体引用），采购单按它分组；重名/改名不影响历史单（场景 F）"
+        },
+        "packSize": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "单包装净含量（packUnit 计），如 5（kg 装番茄）/ 180（枚/箱鸡蛋）"
+        },
+        "packUnit": {
+          "type": "string",
+          "description": "规范单位（内部统一符号，本地化显示由客户端负责）。g↔kg、ml↔l 为代码常量换算；pcs↔g 只靠 ingredient.pcsToGram。to-taste（适量，G2）为无量配料的诚实表达：此时 Quantity.value 可缺省，采购推导跳过该行，备料单显示「适量」",
+          "enum": [
+            "g",
+            "kg",
+            "ml",
+            "l",
+            "pcs",
+            "pack",
+            "tbsp",
+            "tsp",
+            "pinch",
+            "to-taste"
+          ]
+        },
+        "minPacks": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最小起订量（包装数），缺省视为 1；packs = max(minPacks, ceil(需求 / packSize))"
+        },
+        "lastPrice": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "description": "ISO 4217 货币代码",
+              "enum": [
+                "CNY",
+                "USD",
+                "UAH",
+                "EUR"
+              ]
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "supplier",
+        "packSize",
+        "packUnit"
+      ],
+      "additionalProperties": false
+    },
+    "trackStock": {
+      "type": "boolean",
+      "description": "是否记现有量：仅耐放品（盐、油、干货）为 true；false 时采购推导不扣库存"
+    },
+    "onHand": {
+      "type": "number",
+      "minimum": 0,
+      "description": "现有量（baseUnit 计）；仅 trackStock=true 时有意义"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "maxItems": 50,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "yield"
+        ],
+        "properties": {
+          "yield": {}
+        }
+      },
+      "then": {
+        "required": [
+          "baseUnit"
+        ],
+        "properties": {
+          "baseUnit": {
+            "enum": [
+              "g",
+              "ml"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "onHand"
+        ],
+        "properties": {
+          "onHand": {}
+        }
+      },
+      "then": {
+        "required": [
+          "trackStock"
+        ],
+        "properties": {
+          "trackStock": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}

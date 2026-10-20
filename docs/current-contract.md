@@ -44,7 +44,7 @@ GitHub 当前 issue 是任务队列；#128 维护这次闭环依赖和退出条�
 | 已保存 ShoppingList | 工作清单自己的 `basis`、计划范围、来源版本和人工判断 | `check/buy/available/bought` 仅属于该清单；需求改变需显式复核；公共换版不自动迁移已有/已买判断，不写回配方、食材、库存或旧 PO |
 | Git JSON、schema v2 与旧 PO | 固定发布资料、旧数据兼容及数值引擎回归；实际字段以 `schemas/` 为准 | 不把 `data/` 称为新的日常 SQLite 写入库；Git SHA、SQLite version 和 UUID 不能互相冒充 |
 
-SQLite 知识库是独立本地工程、服务和数据库；CanteenOS 的 #120/#121 接入网关、页面和固定桥，不包含完整可部署的知识库源码。发行使用的私有配套源码白名单包、manifest、依赖版本及数据迁移由发布负责人单独核对；本合同不声称源码包已提供或服务已随 CanteenOS 上线。
+SQLite 知识库的源码现放在本仓 [services/knowledge-base/](../services/knowledge-base/README.md)，包含 API、迁移、合同、测试、独立依赖锁及视频证据工具。它仍是单独安装的 Node 24.18+ 服务和 SQLite 数据库；CanteenOS 的 #120/#121 接入网关、页面和固定桥，浏览器继续通过 Worker 的受控入口访问。公开 Git 仅托管软件源码，日常数据库、媒体、收藏、缓存与凭据仍在运行环境中。alpha.4 的独立私有源码包保留作历史发行记录；新发行仍需核对配套版本、manifest 与实际部署。本次源码位置变更不改变 SQLite/Git 真源分工，不代表已部署或已完成 [#182](https://github.com/TERRYYYC/canteen-os/issues/182)。
 
 原方未知用量、份数、勺容量、净料率、时间继续未知，不默认填 1、0 或虚构“适量”。全部已录 `components[].ingredientRef` 食材和调料都进入人工采购清单，保留所有菜品来源；缺量/缺包装只关闭不成立的计算，不阻止人工排菜和采购判断。跨菜合并依赖厨师显式标准食材映射，不能只按同名字符串合并。
 

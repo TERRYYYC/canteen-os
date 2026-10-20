@@ -1,0 +1,145 @@
+import { chromium, expect } from '@playwright/test';
+import { mkdtemp, mkdir, rm, writeFile, cp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+import { buildApp } from '../../apps/api/app.mjs';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const evidence = resolve(process.env.KB_BROWSER_EVIDENCE_DIR || join(root, 'test-results', 'browser'));
+const dataDir = await mkdtemp(join(tmpdir(), 'canteen-kb-browser-'));
+await mkdir(evidence, { recursive: true });
+let app, browser, page;
+const checks = [];
+try {
+  const webDist = join(dataDir, 'web-dist');
+  await cp(join(root, 'apps/web/dist'), webDist, { recursive: true });
+  app = await buildApp({ dataDir, port: 0, webDist });
+  await app.listen({ host: '127.0.0.1', port: 0 });
+  const base = `http://127.0.0.1:${app.server.address().port}`;
+  app.kbConfig.allowedOrigins.add(base);
+  async function create(recipe) {
+    const response = await fetch(`${base}/api/v1/recipes`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KB-Client': 'agent', 'Idempotency-Key': randomUUID() }, body: JSON.stringify(recipe) });
+    expect(response.status).toBe(201);
+    return response.json();
+  }
+  const first = await create({ title: { zh: '红烧肉' }, description: { zh: '家常做法，先收藏，以后补全。' }, tags: ['家常'], ingredients: [{ id: randomUUID(), name: { zh: '五花肉' }, role: 'main', amount: { kind: 'exact', value: '500', unit: '克' } }, { id: randomUUID(), name: { zh: '老抽' }, role: 'seasoning', amount: { kind: 'unknown', raw: '原文未写用量' } }], steps: [{ id: randomUUID(), text: { zh: '焯水后，小火慢炖。' } }] });
+  await create({ title: { zh: '红烧肉' }, description: { zh: '另一款独立收藏的红烧肉。' }, tags: ['待尝试'] });
+  browser = await chromium.launch({ headless: true });
+  page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(base);
+  await expect(page.getByRole('heading', { name: '红烧肉', exact: true })).toHaveCount(2);
+  checks.push('两个同名菜谱在列表中各自显示');
+  await page.getByRole('textbox', { name: '搜索菜名或食材' }).fill('五花肉');
+  await expect(page.getByRole('heading', { name: '红烧肉', exact: true })).toHaveCount(1);
+  checks.push('真实 API 食材搜索返回对应菜谱');
+  await page.getByRole('textbox', { name: '搜索菜名或食材' }).fill('');
+  await expect(page.getByRole('heading', { name: '红烧肉', exact: true })).toHaveCount(2);
+  await page.screenshot({ path: join(evidence, 'library-desktop.png'), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: join(evidence, 'library-mobile.png'), fullPage: true });
+  checks.push('390px 手机列表无横向溢出');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${base}/#${first.id}`);
+  await expect(page.getByRole('heading', { name: '图片与视频', exact: true })).toBeVisible();
+  await page.screenshot({ path: join(evidence, 'recipe-desktop.png'), fullPage: true });
+  // A response can be lost after the server commits. The browser must replay
+  // the exact key, body, and base version before permitting another edit.
+  const attempts = [];
+  let dropResponse = true;
+  await page.route(`**/api/v1/recipes/${first.id}`, async route => {
+    if (route.request().method() !== 'PUT') return route.continue();
+    attempts.push(route.request().headers()['idempotency-key']);
+    if (dropResponse) { dropResponse = false; await route.fetch(); await route.abort('failed'); }
+    else await route.continue();
+  });
+  await page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true }).fill('保存响应丢失后仍能确认。');
+  await page.getByRole('button', { name: '保存修改', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('保存结果暂时无法确认');
+  await page.getByRole('button', { name: '核对保存结果', exact: true }).first().click();
+  await expect(page.getByText('已保存，所有资料都收好了。', { exact: true })).toBeVisible();
+  expect(attempts).toHaveLength(2);
+  expect(attempts[0]).toBe(attempts[1]);
+  const saved = await fetch(`${base}/api/v1/recipes/${first.id}`).then(r => r.json());
+  expect(saved.version).toBe(2);
+  checks.push('浏览器提交成功但响应丢失后，原键重放且只生成一个新版本');
+  await page.unroute(`**/api/v1/recipes/${first.id}`);
+  const concurrent = await fetch(`${base}/api/v1/recipes/${first.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-KB-Client': 'agent', 'Idempotency-Key': randomUUID(), 'If-Match': '"v2"' }, body: JSON.stringify({ ...saved.recipe, description: { zh: '其他页面已先保存。' } }) });
+  expect(concurrent.status).toBe(200);
+  await page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true }).fill('本页尚未保存的内容不能丢失。');
+  await page.getByRole('button', { name: '保存修改', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('你的输入已保留');
+  await expect(page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true })).toHaveValue('本页尚未保存的内容不能丢失。');
+  checks.push('其他客户端更新后，浏览器显示版本冲突并保留输入');
+  page.on('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: '＋ 收藏菜谱', exact: true }).click();
+  await page.getByRole('textbox', { name: '菜名 *', exact: true }).fill('红烧肉');
+  await page.getByRole('button', { name: '＋ 添加食材或调料', exact: true }).click();
+  await page.getByRole('textbox', { name: '食材名称', exact: true }).fill('花椒');
+  await page.getByRole('combobox', { name: '用量记录', exact: true }).selectOption('exact');
+  await page.getByRole('textbox', { name: '数量', exact: true }).fill('0.12345678901234567890123456789012345678');
+  await page.getByRole('textbox', { name: '单位', exact: true }).fill('克');
+  await page.getByRole('button', { name: '＋ 添加一个步骤', exact: true }).click();
+  await page.getByRole('textbox', { name: '步骤说明', exact: true }).fill('加入香料，小火焖煮。');
+  let releaseUpload;
+  const uploadGate = new Promise(resolve => { releaseUpload = resolve; });
+  await page.route('**/api/v1/assets/upload', async route => { await uploadGate; await route.continue(); });
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lL8AAAAASUVORK5CYII=', 'base64');
+  await page.locator('input[type="file"]').setInputFiles({ name: 'reference.png', mimeType: 'image/png', buffer: png });
+  await expect(page.getByText('正在保存素材资料…', { exact: true })).toBeVisible();
+  await page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true }).fill('上传图片期间补充的备注。');
+  releaseUpload();
+  await expect(page.getByRole('img', { name: '菜谱参考图片', exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '一句话描述 / 备注', exact: true })).toHaveValue('上传图片期间补充的备注。');
+  await page.getByRole('textbox', { name: '视频链接', exact: true }).fill('https://example.com/cooking-video');
+  await page.getByRole('button', { name: '添加视频', exact: true }).click();
+  await expect(page.getByRole('link', { name: '打开视频链接 ↗', exact: true })).toBeVisible();
+  await page.getByText('＋ 添加来源', { exact: true }).click();
+  await page.getByRole('textbox', { name: '资料名称', exact: true }).fill('手写做法');
+  await page.getByRole('textbox', { name: '原文或笔记', exact: true }).fill('小火焖煮，原文没有写人数。');
+  await page.getByRole('button', { name: '添加这份资料', exact: true }).click();
+  await expect(page.getByText('手写做法', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '收藏这款菜谱', exact: true }).click();
+  await expect(page.getByText('已收藏这款菜谱，可以继续补充。', { exact: true })).toBeVisible();
+  const createdId = new URL(page.url()).hash.slice(1);
+  const created = await fetch(`${base}/api/v1/recipes/${createdId}`).then(r => r.json());
+  expect(created.recipe.ingredients[0].amount.value).toBe('0.12345678901234567890123456789012345678');
+  expect(created.recipe.baseServings).toBeUndefined();
+  expect(created.recipe.description.zh).toBe('上传图片期间补充的备注。');
+  expect(created.recipe.assets).toHaveLength(2);
+  expect(created.recipe.sources).toHaveLength(1);
+  checks.push('网页完整录入同名菜、精确量、步骤、图片、视频和来源，人数可未知');
+  checks.push('上传期间继续编辑不会被异步回调覆盖');
+  await page.reload();
+  await expect(page.getByRole('textbox', { name: '菜名 *', exact: true })).toHaveValue('红烧肉');
+  await expect(page.getByRole('img', { name: '菜谱参考图片', exact: true })).toBeVisible();
+  await expect(page.getByText('手写做法', { exact: true })).toBeVisible();
+  await expect(page.getByText('小火焖煮，原文没有写人数。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '查看历史版本', exact: true }).click();
+  await expect(page.locator('.snapshot').getByText('手写做法', { exact: true })).toBeVisible();
+  await expect(page.locator('.snapshot').getByText('小火焖煮，原文没有写人数。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '收起历史', exact: true }).click();
+  checks.push('刷新与历史界面均显示保存时的来源名称和原文');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: join(evidence, 'recipe-mobile.png'), fullPage: true });
+  checks.push('刷新仍保留完整菜谱，390px编辑页无横向溢出');
+  expect(errors).toEqual([]);
+  checks.push('真实详情页面可打开，浏览器无未捕获异常');
+  await writeFile(join(evidence, 'browser-validation.json'), JSON.stringify({ date: new Date().toISOString(), browser: browser.version(), checks, pageErrors: errors }, null, 2) + '\n');
+  console.log(JSON.stringify({ ok: true, checks, evidence }));
+} catch (error) {
+  if (page) {
+    console.error(JSON.stringify({ url: page.url(), text: (await page.locator('body').innerText()).slice(0, 12000) }));
+    await page.screenshot({ path: join(evidence, 'browser-failure.png'), fullPage: true });
+  }
+  throw error;
+} finally {
+  await browser?.close();
+  await app?.close();
+  await rm(dataDir, { recursive: true, force: true });
+}

@@ -1,0 +1,39 @@
+{
+  "name": "canteen-kb-sqlite",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "scripts": {
+    "dev:api": "node apps/api/server.mjs",
+    "dev:web": "vite --config apps/web/vite.config.ts --host 127.0.0.1",
+    "build": "vite build --config apps/web/vite.config.ts",
+    "start": "node apps/api/server.mjs",
+    "test": "node --test 'tests/{api,integration,ops}/**/*.test.mjs'",
+    "test:api": "node --test tests/api/*.test.mjs",
+    "typecheck": "tsc --noEmit -p apps/web/tsconfig.json",
+    "test:browser": "node tests/browser/run.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "import:legacy": "node scripts/import-legacy.mjs"
+  },
+  "dependencies": {
+    "@fastify/multipart": "10.1.1",
+    "@fastify/static": "10.1.4",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "fastify": "5.12.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.0"
+  }
+}

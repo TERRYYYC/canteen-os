@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {buildApp} from '../../apps/api/app.mjs';
+test('technique writes are conditional, immutable, replayable and approval captures the observed version',async t=>{
+ const dataDir=await mkdtemp(join(tmpdir(),'kb-techniques-'));let app=await buildApp({dataDir});t.after(async()=>{await app.close();await rm(dataDir,{recursive:true,force:true});});
+ const call=(method,path,payload,headers={})=>app.inject({method,url:'/api/v1'+path,headers:{host:'localhost:4390','x-kb-client':'web','idempotency-key':randomUUID(),...headers},payload});
+ const body={kind:'cut',name:{zh:'切圈'},note:{zh:'尺寸由厨房确认'}};
+ const created=await call('POST','/techniques',body);assert.equal(created.statusCode,201,created.body);const first=created.json();
+ assert.equal(first.version,1);assert.equal(created.headers.etag,'"v1"');
+ assert.equal((await call('PUT','/techniques/'+first.id,body)).statusCode,428);
+ const savedRecipe=await call('POST','/recipes',{recipeFormatVersion:'2',title:{zh:'测试副本'},ingredients:[{id:randomUUID(),name:{zh:'小米辣'},amount:{kind:'unknown'},kitchenPrep:{techniqueId:first.id,timing:'before-service',size:'细圈'}}],steps:[{id:randomUUID(),text:{zh:'切圈'},techniqueId:first.id}]});assert.equal(savedRecipe.statusCode,201,savedRecipe.body);
+ const recipe=savedRecipe.json(),path=`/recipes/${recipe.id}/revisions/1/approve`,approval={reviewer:'engineering-test-only',note:'副本核定，未知不补数',sourceConfirmed:true,ingredientVersions:{},techniqueVersions:{[first.id]:1}};
+ const approved=await call('POST',path,approval,{'if-match':'"v1"'});assert.equal(approved.statusCode,201,approved.body);assert.equal(approved.json().dependencies.techniques[0].version,1);
+ const headers={'if-match':'"v1"','idempotency-key':randomUUID()},next={...body,note:{zh:'新版本'}};
+ const edited=await call('PUT','/techniques/'+first.id,next,headers);assert.equal(edited.statusCode,200,edited.body);assert.equal(edited.json().version,2);
+ assert.deepEqual((await call('PUT','/techniques/'+first.id,next,headers)).json(),edited.json());
+ assert.equal((await call('PUT','/techniques/'+first.id,body,headers)).statusCode,409);
+ assert.deepEqual((await call('GET',`/techniques/${first.id}/revisions/1`)).json(),first);
+ const nextRecipe=await call('PUT','/recipes/'+recipe.id,recipe.recipe,{'if-match':'"v1"'});assert.equal(nextRecipe.statusCode,200,nextRecipe.body);
+ const stale=await call('POST',`/recipes/${recipe.id}/revisions/2/approve`,approval,{'if-match':'"v2"'});assert.equal(stale.statusCode,409,stale.body);assert.equal(stale.json().error.code,'TECHNIQUE_VERSION_CONFLICT');
+ await app.close();app=await buildApp({dataDir});assert.equal((await call('GET','/techniques/'+first.id)).json().version,2);
+ assert.deepEqual((await call('GET',`/recipes/${recipe.id}/revisions/1/adoption`)).json().kitchenApproval,approved.json());
+ assert.equal((await call('POST','/techniques',{...body,unexpected:1})).statusCode,400);
+});

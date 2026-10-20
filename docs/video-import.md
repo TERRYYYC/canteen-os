@@ -18,7 +18,7 @@ created: 2026-09-28
              → CanteenOS 明确固定菜单版本 → 帮厨备料 / 采购核单
 ```
 
-现行执行格式见 [video-recipe-ingest skill](../skills/video-recipe-ingest/SKILL.md) 与 [KB 接入决策](../../knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)。旧版 ADR-0006 里的「yt-dlp 统一下载、直写 `data/dishes/*.json`、默认放大 50 份、PR 即审核」是 SQLite KB 接入之前的设计；不应用于当前收藏收件箱。旧调研保留为当时的技术资料，不把未经实测的成本、识别率或平台支持写成当前验收结论。
+现行执行格式见 [video-recipe-ingest skill](../skills/video-recipe-ingest/SKILL.md) 与本仓 [KB 视频接入合同](../services/knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)。[知识库启动与工具入口](../services/knowledge-base/README.md) 给出可执行命令；F2 下载、音频转写/字幕 OCR 和候选导入源码均在该目录的 `scripts/` 下。AI 根据完整音画证据制作候选仍需解析 agent；这些工具不等于已交付无人值守的 50 条跑批。来源确认和厨房核定在 app 外进行，候选可直接保存为菜谱，排菜时固定已保存版本（ADR-0011）。旧版 ADR-0006 里的「yt-dlp 统一下载、直写 `data/dishes/*.json`、默认放大 50 份、PR 即审核」是 SQLite KB 接入之前的设计；不应用于当前收藏收件箱。旧调研保留为当时的技术资料，不把未经实测的成本、识别率或平台支持写成当前验收结论。
 
 ## 完整性与呈现
 

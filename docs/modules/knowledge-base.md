@@ -11,7 +11,7 @@ created: 2026-10-05
 
 **English.** SQLite owns everyday recipe/candidate edits, immutable revisions and source evidence. Git owns explicitly frozen publication dependencies and legacy records. Source review and kitchen approval happen outside the app (ADR-0011): any saved, unarchived revision can be frozen and planned. Editing a recipe does not silently update an old published menu.
 
-知识库源码、服务和数据库属于独立本地工程；CanteenOS PR #120/#121 提供接入和固定桥，不代表其包含完整配套源码或已经部署。发行的私有配套源码白名单包、manifest 与实际版本由发布负责人独立核对，具体边界见当前工作合同。
+知识库源码、迁移、API 合同、测试和视频工具现位于本仓 [services/knowledge-base/](../../services/knowledge-base/README.md)，使用独立 npm 锁和 Node 24.18+。服务进程和日常 SQLite 数据库仍独立于 CanteenOS 的 Git 发布资料；PR #120/#121 提供接入和固定桥。源码纳入本仓不代表已经部署或迁入真实候选；发行仍核对配套版本与 manifest，具体边界见当前工作合同。
 
 ## 当前使用合同与待完成通路
 
