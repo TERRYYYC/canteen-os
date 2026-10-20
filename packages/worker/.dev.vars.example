@@ -1,0 +1,58 @@
+# Mac 本机 Worker 的配置模板（#196）。本文件只放空值和公开的默认值，不放任何真值。
+#
+# 用法：复制到仓库外面，在 Terry 的 Mac 上填真值，只让本人能读：
+#   mkdir -p ~/.config/canteenos
+#   cp packages/worker/.dev.vars.example ~/.config/canteenos/mac-local.vars
+#   chmod 600 ~/.config/canteenos/mac-local.vars
+# 不要放在仓库里（包括 packages/worker/.dev.vars）：仓库里的文件可能被开发服务器之类的程序原样发出去
+# （#199 审查）。配置在仓库里、或者别人也能读，一键启动 scripts/mac-local/start.mjs 会拒绝启动。
+# 格式是 名字=值（和 wrangler 的 .dev.vars 一样）。操作说明：docs/field-test/mac-local/README.md。
+#
+# 线上 wrangler.toml 的 [vars]（ALLOWED_ORIGIN 等）不受这个文件影响。
+
+# ---------------------------------------------------------------------------
+# 秘密：只在本机。不贴进对话、issue、截图。
+# ---------------------------------------------------------------------------
+# Terry 本人建的细粒度 token（github_pat_ 开头）：只给 TERRYYYC/canteen-os，
+# 权限只有 Contents 读写 + Actions 读写，不给 Workflows。到期日记进 ops-checklist §1。
+GITHUB_PAT=
+# 三个角色钥匙的 SHA-256（64 位小写十六进制）。钥匙本身不写这里，生成方法见 ops-checklist §2。
+TOKEN_HASH_CHEF=
+TOKEN_HASH_BUYER=
+TOKEN_HASH_ADMIN=
+# 可选：机器翻译。不填也能用。
+# DEEPL_API_KEY=
+
+# ---------------------------------------------------------------------------
+# 写到哪里、怎么发布
+# ---------------------------------------------------------------------------
+GITHUB_REPO=TERRYYYC/canteen-os
+# 正式用 main。先试写入可以填一个测试分支，但那时 PUBLISH_MODE 必须是 off：
+# 在测试分支上发布，build-deploy.yml 会把它发到正式 Pages。
+GITHUB_BRANCH=main
+# dispatch：点「发布」触发 build-deploy.yml；off：只写不发。
+PUBLISH_MODE=dispatch
+PUBLISH_WORKFLOW=build-deploy.yml
+PUBLISH_CLAIM_TIMEOUT_MS=90000
+# 看发布结果的地方（GET /changes 读它的 data/build.json）。
+PAGES_BASE_URL=https://terryyyc.github.io/canteen-os/
+
+# ---------------------------------------------------------------------------
+# 本机知识库
+# ---------------------------------------------------------------------------
+# 4391 是正式那份，4392 只给演练。不能用 4390：那是连远端服务器的隧道。
+KNOWLEDGE_BASE_URL=http://127.0.0.1:4391
+# start：由启动脚本来起知识库（要填 KB_DATA_DIR）；existing：知识库已经在别处起好了。
+KB_MODE=start
+# 知识库数据目录的完整路径（仓库外面）。#195 交付后照它的本机交接说明填。
+KB_DATA_DIR=
+# 只有数据库不在 KB_DATA_DIR/knowledge.sqlite 时才填。
+# KB_DB_PATH=
+
+# ---------------------------------------------------------------------------
+# 本机端口和来源（都只监听 127.0.0.1）
+# ---------------------------------------------------------------------------
+WORKER_PORT=8787
+WEB_PORT=5180
+# 允许调用本机 Worker 的网页来源，必须和网页地址一字不差。
+ALLOWED_ORIGIN=http://127.0.0.1:5180
