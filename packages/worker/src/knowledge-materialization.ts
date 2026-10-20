@@ -5,11 +5,24 @@ import { completeKnowledgeImageRights, type Technique } from '@canteenos/core';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 type Localized = { zh?: string; en?: string; uk?: string };
 type Amount = { kind: 'unknown' | 'to_taste' | 'text' | 'exact'; raw?: string; value?: string; unit?: string };
-type IngredientRow = { id: string; ingredientId?: string; name: Localized; amount: Amount; rawText?: string; role?: string; preparation?: Localized; kitchenPrep?: { techniqueId?: string; timing?: string; size?: string; note?: Localized } };
+/** KB format 3 numbers are decimal strings (#182). */
+type DecimalQuantity = { value?: string; unit: string };
+/** KB format 3 source: who measured or specified it is a real name there, and stays there. */
+type KnowledgeSource = { kind: string; by?: string; date?: string; ruleId?: string };
+/**
+ * A legacy row (format 1/2) has one amount. A format 3 row (ADR-0012 §1) keeps the original recipe
+ * (originalAmount, originalQty: display only) apart from the canteen amount (qty + qtySource).
+ */
+type IngredientRow = { id: string; ingredientId?: string; name: Localized; amount?: Amount;
+  originalAmount?: string; originalQty?: DecimalQuantity; qty?: DecimalQuantity; qtySource?: KnowledgeSource;
+  rawText?: string; role?: string; preparation?: Localized;
+  kitchenPrep?: { techniqueId?: string; timing?: string; size?: string; note?: Localized; leadTime?: DecimalQuantity } };
 type StepRow = { id: string; text: Localized; techniqueId?: string };
 type AssetRef = { assetId: string; role: string; stepId?: string };
 type Media = { assetId: string; kind: string; status: string; url: string; role?: string; sha256?: string; rights?: { license: string; author?: string; sourceUrl?: string } };
-export type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[] }; media?: Media[]; sourceRecords?: unknown[] };
+export type Detail = { id: string; version: number; recipe: { title: Localized; description?: Localized; recipeFormatVersion?: string; baseServings?: number; ingredients: IngredientRow[]; steps: StepRow[]; sources?: unknown[]; assets?: AssetRef[]; unknowns?: unknown[] }; media?: Media[]; sourceRecords?: unknown[] };
+/** A value filled by a chef rule, as data/chef-rules.json must confirm it before the first write (ADR-0012 §3). */
+export type RuleReference = { ruleId: string; kind: 'per-serving' | 'yield' | 'pcs-to-gram'; unit?: string; path: string };
 export type PinnedImage = { assetId: string; bytes: Uint8Array; ext: 'png'|'jpg'|'webp'; rights: { license: string; author?: string; sourceUrl?: string } };
 export type KnowledgeTechnique = { kind:'cut'|'heat'|'pretreat'; name:Localized; note?:Localized };
 /** The standard ingredient and technique revisions a recipe revision uses, as read from the KB when it is frozen. */
@@ -23,6 +36,13 @@ const NO_DEPENDENCIES:PinnedDependencies={ingredients:[],techniques:[]};
 export async function contractHash(value:unknown):Promise<string>{
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sortKeysDeep(value))));
   return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/** KB revisions carry no unknowns key when there are none (#182 K5); an empty list counts as none. */
+export function hasUnknowns(detail:Detail):boolean{
+  const unknowns=detail?.recipe?.unknowns;
+  if(unknowns!==undefined&&!Array.isArray(unknowns))throw new Error('invalid_unknowns');
+  return Boolean(unknowns?.length);
 }
 
 /** Standard ingredients and techniques this revision refers to: exactly what has to be pinned with it. */
@@ -41,6 +61,9 @@ export function dependencyIds(detail:Detail):{ingredientIds:string[];techniqueId
  */
 export async function recipeMaterializationFiles(detail:Detail,dependencies:PinnedDependencies=NO_DEPENDENCIES,pinnedImages:PinnedImage[]=[]){
   if(!dependencies||!Array.isArray(dependencies.ingredients)||!Array.isArray(dependencies.techniques))throw new Error('invalid_dependencies');
+  // "Not said in the video" items are #174's. Freezing such a revision now would drop them and leave a snapshot
+  // that conflicts once they are written, so it waits (the endpoint says so in words).
+  if(hasUnknowns(detail))throw new Error('recipe_unknowns_pending');
   const {ingredientIds,techniqueIds}=dependencyIds(detail);
   if(JSON.stringify(ingredientIds)!==JSON.stringify(dependencies.ingredients.map(x=>x.id).sort()))throw new Error('ingredient_dependency_mismatch');
   if(JSON.stringify(techniqueIds)!==JSON.stringify(dependencies.techniques.map(x=>x.id).sort()))throw new Error('technique_dependency_mismatch');
@@ -53,21 +76,34 @@ export async function recipeMaterializationFiles(detail:Detail,dependencies:Pinn
   const dishFile=result.files.find(file=>file.path===`data/dishes/${result.dishRef}.json`)!;
   const dish=JSON.parse(dishFile.text);
   const files:{path:string;text:string}[]=[];
+  const ruleReferences:RuleReference[]=[];
+  const rule=(source:ValueSource|undefined,kind:RuleReference['kind'],path:string,unit?:string)=>{
+    if(source?.kind==='rule')ruleReferences.push({ruleId:source.ruleId,kind,path,...(unit===undefined?{}:{unit})});
+  };
   dish.components=detail.recipe.ingredients.map((row,index)=>{
     const dep=row.ingredientId?dependencies.ingredients.find(x=>x.id===row.ingredientId):undefined;
     if(dep&&(!UUID.test(dep.id)||!Number.isSafeInteger(dep.version)||dep.version<1||!dep.ingredient?.name))throw new Error('ingredient_dependency_invalid');
     const ref=dep?`kbi-${dep.id.replaceAll('-','')}-v${dep.version}`:`kbi-${detail.id.replaceAll('-','')}-v${detail.version}-${index+1}`;
-    const {aliases:_aliases,...spec}=dep?.ingredient??{name:row.name,trackStock:false,...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})};
-    files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize({schemaVersion:'3',...spec,...(dep?{canonicalIngredientId:dep.id,canonicalIngredientVersion:dep.version}:{})})});
+    const {aliases:_aliases,yieldSource,pcsToGramSource,...spec}=(dep?.ingredient??{name:row.name,trackStock:false,...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})}) as Record<string,unknown>;
+    // ADR-0012 §3: the standard ingredient's yield and grams per piece carry their source, published without the name.
+    const sources={...(yieldSource===undefined?{}:{yieldSource:publicSource(yieldSource)}),...(pcsToGramSource===undefined?{}:{pcsToGramSource:publicSource(pcsToGramSource)})};
+    rule(sources.yieldSource,'yield',`/recipe/ingredients/${index}/ingredientId`);
+    rule(sources.pcsToGramSource,'pcs-to-gram',`/recipe/ingredients/${index}/ingredientId`);
+    files.push({path:`data/ingredients/${ref}.json`,text:stableSerialize({schemaVersion:'3',...spec,...sources,...(dep?{canonicalIngredientId:dep.id,canonicalIngredientVersion:dep.version}:{})})});
     const component={...dish.components[index],ingredientRef:ref,...(dep?{canonicalIngredientId:dep.id,canonicalIngredientVersion:dep.version}:{}),...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{})};
-    if(row.kitchenPrep){const {techniqueId,...prep}=row.kitchenPrep;component.prep={...prep,...(techniqueId?{techniqueRef:techniques.find(t=>t.id.startsWith(`kbt-${techniqueId.replaceAll('-','')}-`))!.id}:{})};}
+    rule(component.qtySource,'per-serving',`/recipe/ingredients/${index}/qtySource`,component.qty?.unit);
+    if(row.kitchenPrep){const {techniqueId,leadTime,...prep}=row.kitchenPrep;component.prep={...prep,...(leadTime===undefined?{}:{leadTime:leadTimeOf(leadTime)}),...(techniqueId?{techniqueRef:techniques.find(t=>t.id.startsWith(`kbt-${techniqueId.replaceAll('-','')}-`))!.id}:{})};}
     return component;
   });
   detail.recipe.steps.forEach((row,index)=>{if(row.techniqueId)dish.steps[index].techniqueRef=techniques.find(t=>t.id.startsWith(`kbt-${row.techniqueId!.replaceAll('-','')}-`))!.id;});
   result.snapshotHash=await sha256({dependencies,detail});
   dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash};
   files.push({path:dishFile.path,text:stableSerialize(dish)});
-  return {...result,files,techniques};
+  // ADR-0012 §1: a dish counted per serving computes every numeric qty, so each needs a source. A legacy
+  // revision's qty came from the original recipe and has none. Checked before the first write only (see the endpoint).
+  const unsourcedQuantities:string[]=dish.baseServings===1?dish.components.flatMap((component:{qty?:{value?:number};qtySource?:unknown},index:number)=>
+    component.qty?.value!==undefined&&!component.qtySource?[`/recipe/ingredients/${index}`]:[]):[];
+  return {...result,files,techniques,ruleReferences,unsourcedQuantities};
 }
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?: number }> = {
@@ -76,6 +112,43 @@ const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?
   ml:{unit:'ml',baseUnit:'ml'}, 毫升:{unit:'ml',baseUnit:'ml'}, l:{unit:'l',baseUnit:'ml'}, 升:{unit:'l',baseUnit:'ml'},
   pcs:{unit:'pcs',baseUnit:'pcs'}, 个:{unit:'pcs',baseUnit:'pcs'}, 只:{unit:'pcs',baseUnit:'pcs'}, 片:{unit:'pcs',baseUnit:'pcs'},
 };
+
+/** ADR-0012 §3 as published (sign-off A2): measured and specified values say only "chef" and the date; a rule value only its id. */
+type ValueSource = { kind: 'measured' | 'specified'; by: 'chef'; date: string } | { kind: 'rule'; ruleId: string };
+function publicSource(source: unknown): ValueSource {
+  const value=(source??{}) as KnowledgeSource;
+  if(value.kind==='rule'&&typeof value.ruleId==='string')return {kind:'rule',ruleId:value.ruleId};
+  if((value.kind==='measured'||value.kind==='specified')&&typeof value.by==='string'&&value.by.trim()&&typeof value.date==='string')return {kind:value.kind,by:'chef',date:value.date};
+  throw new Error('invalid_value_source');
+}
+
+const DECIMAL=/^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/;
+function decimal(value: unknown): number {
+  const number=typeof value==='string'&&DECIMAL.test(value)?Number(value):NaN;
+  if(!Number.isFinite(number)||number<=0||number>Number.MAX_SAFE_INTEGER)throw new Error('invalid_decimal');
+  return number;
+}
+function decimalQuantity(quantity: DecimalQuantity): { value?: number; unit: string } {
+  if(!quantity||typeof quantity!=='object'||typeof quantity.unit!=='string')throw new Error('invalid_quantity');
+  return quantity.value===undefined?{unit:quantity.unit}:{value:decimal(quantity.value),unit:quantity.unit};
+}
+function leadTimeOf(leadTime: DecimalQuantity): { value: number; unit: string } {
+  if(!leadTime||typeof leadTime!=='object'||typeof leadTime.unit!=='string')throw new Error('invalid_lead_time');
+  return {value:decimal(leadTime.value),unit:leadTime.unit};
+}
+
+/**
+ * ADR-0012 §1 for a format 3 row: qty is the canteen amount and comes only from the row's own qty, with its source.
+ * The original recipe (even an unambiguous "500 g") goes only to originalAmount / originalQty, for display.
+ */
+function canteenAmounts(row: IngredientRow): { qty?: { value?: number; unit: string }; fields: Record<string, unknown> } {
+  if(row.amount!==undefined||(row.qty===undefined)!==(row.qtySource===undefined))throw new Error('invalid_recipe_ingredient');
+  if(row.originalAmount!==undefined&&typeof row.originalAmount!=='string')throw new Error('invalid_recipe_ingredient');
+  const qty=row.qty===undefined?undefined:decimalQuantity(row.qty);
+  const originalAmount=row.originalAmount?.trim();
+  return {qty,fields:{...(qty?{qty,qtySource:publicSource(row.qtySource)}:{}),...(originalAmount?{originalAmount}:{}),
+    ...(row.originalQty===undefined?{}:{originalQty:decimalQuantity(row.originalQty)})}};
+}
 
 async function sha256(value: unknown): Promise<string> {
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(stableSerialize(value)));
@@ -114,10 +187,17 @@ async function dishFiles(detail: Detail, pinnedImages: PinnedImage[]=[]): Promis
     imageFiles.push({path:`data/dishes/${dishRef}/images/${fileName}`,bytes:image.bytes});
     return {src:`${dishRef}/images/${fileName}`,...image.rights};
   }
+  const format3=detail.recipe.recipeFormatVersion==='3';
   const components=detail.recipe.ingredients.map((row,index)=>{
-    if(!UUID.test(row.id)||!row.name||!row.amount)throw new Error('invalid_recipe_ingredient');
+    if(!UUID.test(row.id)||!row.name||(!format3&&!row.amount))throw new Error('invalid_recipe_ingredient');
     const ref=`kbi-${detail.id.replaceAll('-','')}-v${detail.version}-${index+1}`;
-    const converted=quantity(row.amount);
+    if(format3){
+      const canteen=canteenAmounts(row);
+      if(!canteen.qty)unresolvedCount++;
+      return {ingredientRef:ref,...canteen.fields,...(row.preparation?{originalPreparation:row.preparation}:{}),knowledgeIngredientId:row.id};
+    }
+    // Legacy revisions are frozen exactly as before, so a replay of an already written version stays unchanged.
+    const converted=quantity(row.amount!);
     if(!converted.qty)unresolvedCount++;
     const ingredient={schemaVersion:'2',name:row.name,baseUnit:converted.baseUnit,
       ...(['main','seasoning'].includes(row.role??'')?{role:row.role}:{}),trackStock:false};

@@ -9,7 +9,7 @@
  * （JSON Pointer，前端按它把输入框标黄）。
  */
 import type { CompiledValidator, ValidatorError } from "../generated/validators.js";
-import { validateDish, validateIngredientV3, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList } from "../generated/validators.js";
+import { validateDish, validateIngredientV3, validateIngredient, validateMenuPlan, validateTechniques, validateMenuPlanV3, validateDishV3, validateShoppingList, validateChefRules } from "../generated/validators.js";
 import type { FieldError } from "./types.js";
 
 export const VALIDATORS = {
@@ -18,6 +18,7 @@ export const VALIDATORS = {
   dish: validateDish as CompiledValidator,
   techniques: validateTechniques as CompiledValidator,
   "shopping-list": validateShoppingList as CompiledValidator,
+  "chef-rules": validateChefRules as CompiledValidator,
 };
 
 /** 契约 §1.8 的示例文案是绑在具体字段上的（「份数至少 1」「净料率不能超过 1」）。

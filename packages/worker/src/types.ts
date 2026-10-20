@@ -28,13 +28,18 @@ export type ErrorCode =
   | "rate_limited"
   | "upstream_error"
   | "dispatch_unavailable"
-  | "not_configured";
+  | "not_configured"
+  | "quantity_source_required"
+  | "rule_reference_invalid"
+  | "recipe_unknowns_pending";
 
 export interface FieldError {
   /** JSON Pointer；非字段级错误为 ""。 */
   path: string;
   code: string;
   message: string;
+  /** 同一句话的中英乌三语（可选）。message 仍是中文原文；前端按 code 登记译文之前，可以先用它。 */
+  messages?: { zh: string; en: string; uk: string };
 }
 
 /** 日志只记这四项（ADR-0007 §8 补充）：不记令牌、不记请求体、不记可识别到人的字段。 */

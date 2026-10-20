@@ -114,6 +114,9 @@ const MESSAGES: Record<ErrorCode, string> = {
   upstream_error: "GitHub 那边出问题了，先看看 PAT 是不是到期了",
   dispatch_unavailable: "发布功能暂时关着",
   not_configured: "这项功能还没配好，找 Terry",
+  quantity_source_required: "份数按每份记的菜，每个用量都要写明出处",
+  rule_reference_invalid: "按师傅规则填的值没有对上规则表",
+  recipe_unknowns_pending: "这一版带视频里没说清的条目，要等新版本才能排进菜单",
 };
 
 const STATUS: Record<ErrorCode, number> = {
@@ -135,6 +138,9 @@ const STATUS: Record<ErrorCode, number> = {
   upstream_error: 502,
   dispatch_unavailable: 503,
   not_configured: 503,
+  quantity_source_required: 422,
+  rule_reference_invalid: 422,
+  recipe_unknowns_pending: 422,
 };
 
 export function fail(
@@ -146,6 +152,20 @@ export function fail(
     [{ path: opts.path ?? "", code, message: opts.message ?? MESSAGES[code] }],
     opts.headers ?? {},
   );
+}
+
+/** 一句话的中英乌三语。 */
+export type Words = { zh: string; en: string; uk: string };
+
+/**
+ * 写入前的拒绝：每条带中文 message 和三语 messages。detail 是具体值（如规则 id），按 #113 的习惯拼在冒号后面。
+ */
+export function refusal(code: ErrorCode, items: { path: string; words: Words; detail?: string }[]): HttpError {
+  const join = (text: string, sep: string, detail?: string) => (detail ? `${text}${sep}${detail}` : text);
+  return new HttpError(STATUS[code], items.map(({ path, words, detail }) => ({
+    path, code, message: join(words.zh, "：", detail),
+    messages: { zh: join(words.zh, "：", detail), en: join(words.en, ": ", detail), uk: join(words.uk, ": ", detail) },
+  })));
 }
 
 /** ajv 校验失败：一次可能有多条，逐条给前端标黄。 */

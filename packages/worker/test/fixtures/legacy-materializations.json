@@ -1,0 +1,300 @@
+{
+  "note": "Written by the Worker on main 2a65c63, before #181. Legacy revisions must keep producing these bytes.",
+  "cases": [
+    {
+      "name": "mixed-amounts-servings-2",
+      "detail": {
+        "id": "3f4c6638-dcf8-4231-966c-1c5e2816c059",
+        "version": 1,
+        "recipe": {
+          "title": {
+            "zh": "测试菜"
+          },
+          "baseServings": 2,
+          "tags": [],
+          "description": {
+            "zh": "经核对"
+          },
+          "ingredients": [
+            {
+              "id": "70a8bc39-50d6-47cc-8b3e-0f788c602b6a",
+              "name": {
+                "zh": "肉"
+              },
+              "amount": {
+                "kind": "exact",
+                "value": "1000",
+                "unit": "克",
+                "raw": "1000 克"
+              },
+              "rawText": "肉 1000 克"
+            },
+            {
+              "id": "a1590617-581a-4d6d-9e75-0be1b241a2d7",
+              "name": {
+                "zh": "酱油"
+              },
+              "amount": {
+                "kind": "exact",
+                "value": "3",
+                "unit": "勺",
+                "raw": "3 勺"
+              },
+              "rawText": "酱油 3 勺"
+            },
+            {
+              "id": "33f335cf-24a0-4e36-9800-544e33aa8b5c",
+              "name": {
+                "zh": "胡椒粉"
+              },
+              "amount": {
+                "kind": "to_taste",
+                "raw": "适量"
+              },
+              "rawText": "胡椒粉适量"
+            }
+          ],
+          "steps": [
+            {
+              "id": "c6d97786-92e5-4547-8e62-82225f4d27f0",
+              "text": {
+                "zh": "烤熟"
+              }
+            }
+          ],
+          "sources": [],
+          "assets": []
+        },
+        "media": [],
+        "sourceRecords": []
+      },
+      "dependencies": {
+        "ingredients": [],
+        "techniques": []
+      },
+      "dishRef": "kb-3f4c6638dcf84231966c1c5e2816c059-v1",
+      "snapshotHash": "bab8ef2b913154adf5fb4edf1905f7b400b5fe23ae81771d55618f319e8bf071",
+      "unresolvedCount": 1,
+      "files": [
+        {
+          "path": "data/ingredients/kbi-3f4c6638dcf84231966c1c5e2816c059-v1-1.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"肉\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-3f4c6638dcf84231966c1c5e2816c059-v1-2.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"酱油\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-3f4c6638dcf84231966c1c5e2816c059-v1-3.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"胡椒粉\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/dishes/kb-3f4c6638dcf84231966c1c5e2816c059-v1.json",
+          "text": "{\n  \"baseServings\": 2,\n  \"components\": [\n    {\n      \"ingredientRef\": \"kbi-3f4c6638dcf84231966c1c5e2816c059-v1-1\",\n      \"knowledgeIngredientId\": \"70a8bc39-50d6-47cc-8b3e-0f788c602b6a\",\n      \"originalAmount\": \"1000 克\",\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 1000\n      }\n    },\n    {\n      \"ingredientRef\": \"kbi-3f4c6638dcf84231966c1c5e2816c059-v1-2\",\n      \"knowledgeIngredientId\": \"a1590617-581a-4d6d-9e75-0be1b241a2d7\",\n      \"originalAmount\": \"3 勺\"\n    },\n    {\n      \"ingredientRef\": \"kbi-3f4c6638dcf84231966c1c5e2816c059-v1-3\",\n      \"knowledgeIngredientId\": \"33f335cf-24a0-4e36-9800-544e33aa8b5c\",\n      \"originalAmount\": \"适量\",\n      \"qty\": {\n        \"unit\": \"to-taste\"\n      }\n    }\n  ],\n  \"description\": {\n    \"zh\": \"经核对\"\n  },\n  \"name\": {\n    \"zh\": \"测试菜\"\n  },\n  \"provenance\": {\n    \"coverState\": \"needs-image\",\n    \"recipeId\": \"3f4c6638-dcf8-4231-966c-1c5e2816c059\",\n    \"recipeVersion\": 1,\n    \"snapshotHash\": \"bab8ef2b913154adf5fb4edf1905f7b400b5fe23ae81771d55618f319e8bf071\",\n    \"source\": \"knowledge\"\n  },\n  \"schemaVersion\": \"3\",\n  \"status\": \"active\",\n  \"steps\": [\n    {\n      \"text\": {\n        \"zh\": \"烤熟\"\n      }\n    }\n  ]\n}\n"
+        }
+      ],
+      "techniques": []
+    },
+    {
+      "name": "standard-ingredient-and-technique",
+      "detail": {
+        "id": "3f4c6638-dcf8-4231-966c-1c5e2816c059",
+        "version": 1,
+        "recipe": {
+          "title": {
+            "zh": "工程样本小米辣菜"
+          },
+          "recipeFormatVersion": "2",
+          "baseServings": 2,
+          "ingredients": [
+            {
+              "id": "70a8bc39-50d6-47cc-8b3e-0f788c602b6a",
+              "ingredientId": "52d1955b-e1a9-44e8-a674-a3b3055a1130",
+              "name": {
+                "zh": "小米辣"
+              },
+              "amount": {
+                "kind": "exact",
+                "value": "10",
+                "unit": "g",
+                "raw": "10克"
+              },
+              "kitchenPrep": {
+                "techniqueId": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169",
+                "timing": "before-service",
+                "size": "细圈"
+              }
+            },
+            {
+              "id": "a1590617-581a-4d6d-9e75-0be1b241a2d7",
+              "name": {
+                "zh": "盐"
+              },
+              "amount": {
+                "kind": "unknown"
+              }
+            }
+          ],
+          "steps": [
+            {
+              "id": "c6d97786-92e5-4547-8e62-82225f4d27f0",
+              "text": {
+                "zh": "加入；火候未录"
+              },
+              "techniqueId": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169"
+            }
+          ],
+          "sources": [],
+          "assets": []
+        },
+        "media": [],
+        "sourceRecords": []
+      },
+      "dependencies": {
+        "ingredients": [
+          {
+            "id": "52d1955b-e1a9-44e8-a674-a3b3055a1130",
+            "version": 1,
+            "ingredient": {
+              "name": {
+                "zh": "小米辣"
+              },
+              "aliases": [],
+              "trackStock": false
+            },
+            "createdAt": "2026-10-05T00:00:00.000Z"
+          }
+        ],
+        "techniques": [
+          {
+            "id": "e0d7c78b-fdc4-49b9-8712-f6d4a3d8b169",
+            "hash": "43535d6b884b683113c9c8229d38da8fca37b3cb76df64f755b38c28c148f883",
+            "technique": {
+              "kind": "cut",
+              "name": {
+                "zh": "切圈"
+              }
+            }
+          }
+        ]
+      },
+      "dishRef": "kb-3f4c6638dcf84231966c1c5e2816c059-v1",
+      "snapshotHash": "8aff4711fb62488b00bd3b134243d2d63a61d223616c29099bc974ae16a8f41a",
+      "unresolvedCount": 1,
+      "files": [
+        {
+          "path": "data/ingredients/kbi-52d1955be1a944e8a674a3b3055a1130-v1.json",
+          "text": "{\n  \"canonicalIngredientId\": \"52d1955b-e1a9-44e8-a674-a3b3055a1130\",\n  \"canonicalIngredientVersion\": 1,\n  \"name\": {\n    \"zh\": \"小米辣\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-3f4c6638dcf84231966c1c5e2816c059-v1-2.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"盐\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/dishes/kb-3f4c6638dcf84231966c1c5e2816c059-v1.json",
+          "text": "{\n  \"baseServings\": 2,\n  \"components\": [\n    {\n      \"canonicalIngredientId\": \"52d1955b-e1a9-44e8-a674-a3b3055a1130\",\n      \"canonicalIngredientVersion\": 1,\n      \"ingredientRef\": \"kbi-52d1955be1a944e8a674a3b3055a1130-v1\",\n      \"knowledgeIngredientId\": \"70a8bc39-50d6-47cc-8b3e-0f788c602b6a\",\n      \"originalAmount\": \"10克\",\n      \"prep\": {\n        \"size\": \"细圈\",\n        \"techniqueRef\": \"kbt-e0d7c78bfdc449b98712f6d4a3d8b169-43535d6b884b\",\n        \"timing\": \"before-service\"\n      },\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 10\n      }\n    },\n    {\n      \"ingredientRef\": \"kbi-3f4c6638dcf84231966c1c5e2816c059-v1-2\",\n      \"knowledgeIngredientId\": \"a1590617-581a-4d6d-9e75-0be1b241a2d7\",\n      \"originalAmount\": \"未录用量\"\n    }\n  ],\n  \"name\": {\n    \"zh\": \"工程样本小米辣菜\"\n  },\n  \"provenance\": {\n    \"coverState\": \"needs-image\",\n    \"recipeId\": \"3f4c6638-dcf8-4231-966c-1c5e2816c059\",\n    \"recipeVersion\": 1,\n    \"snapshotHash\": \"8aff4711fb62488b00bd3b134243d2d63a61d223616c29099bc974ae16a8f41a\",\n    \"source\": \"knowledge\"\n  },\n  \"schemaVersion\": \"3\",\n  \"status\": \"active\",\n  \"steps\": [\n    {\n      \"techniqueRef\": \"kbt-e0d7c78bfdc449b98712f6d4a3d8b169-43535d6b884b\",\n      \"text\": {\n        \"zh\": \"加入；火候未录\"\n      }\n    }\n  ]\n}\n"
+        }
+      ],
+      "techniques": [
+        {
+          "id": "kbt-e0d7c78bfdc449b98712f6d4a3d8b169-43535d6b884b",
+          "kind": "cut",
+          "name": {
+            "zh": "切圈"
+          }
+        }
+      ]
+    },
+    {
+      "name": "servings-1-original-500g",
+      "detail": {
+        "id": "6b1f0c2e-3d4a-4b5c-8d6e-7f8091a2b3c4",
+        "version": 3,
+        "recipe": {
+          "title": {
+            "zh": "测试菜：份数写 1 的旧格式（夹具）"
+          },
+          "recipeFormatVersion": "2",
+          "baseServings": 1,
+          "ingredients": [
+            {
+              "id": "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+              "role": "main",
+              "name": {
+                "zh": "测试鸡腿（夹具）"
+              },
+              "amount": {
+                "kind": "exact",
+                "value": "500",
+                "unit": "g",
+                "raw": "鸡腿 500 g"
+              },
+              "kitchenPrep": {
+                "timing": "day-before",
+                "size": "2cm"
+              }
+            },
+            {
+              "id": "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e",
+              "role": "seasoning",
+              "name": {
+                "zh": "测试盐（夹具）"
+              },
+              "amount": {
+                "kind": "text",
+                "raw": "一点点"
+              }
+            },
+            {
+              "id": "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f",
+              "name": {
+                "zh": "测试葱（夹具）"
+              },
+              "amount": {
+                "kind": "unknown"
+              }
+            }
+          ],
+          "steps": [
+            {
+              "id": "3d4e5f6a-7b8c-4d9e-8f0a-2b3c4d5e6f7a",
+              "text": {
+                "zh": "测试步骤"
+              }
+            }
+          ],
+          "sources": [],
+          "assets": []
+        },
+        "media": [],
+        "sourceRecords": []
+      },
+      "dependencies": {
+        "ingredients": [],
+        "techniques": []
+      },
+      "dishRef": "kb-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3",
+      "snapshotHash": "cf2eed88452c021de9dc205a709ea025cb7a7ef0feb1cd685486d98e3dfad1b8",
+      "unresolvedCount": 2,
+      "files": [
+        {
+          "path": "data/ingredients/kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-1.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试鸡腿（夹具）\"\n  },\n  \"role\": \"main\",\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-2.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试盐（夹具）\"\n  },\n  \"role\": \"seasoning\",\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-3.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试葱（夹具）\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/dishes/kb-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3.json",
+          "text": "{\n  \"baseServings\": 1,\n  \"components\": [\n    {\n      \"ingredientRef\": \"kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-1\",\n      \"knowledgeIngredientId\": \"0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d\",\n      \"originalAmount\": \"鸡腿 500 g\",\n      \"prep\": {\n        \"size\": \"2cm\",\n        \"timing\": \"day-before\"\n      },\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 500\n      },\n      \"role\": \"main\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-2\",\n      \"knowledgeIngredientId\": \"1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e\",\n      \"originalAmount\": \"一点点\",\n      \"role\": \"seasoning\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6b1f0c2e3d4a4b5c8d6e7f8091a2b3c4-v3-3\",\n      \"knowledgeIngredientId\": \"2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f\",\n      \"originalAmount\": \"未录用量\"\n    }\n  ],\n  \"name\": {\n    \"zh\": \"测试菜：份数写 1 的旧格式（夹具）\"\n  },\n  \"provenance\": {\n    \"coverState\": \"needs-image\",\n    \"recipeId\": \"6b1f0c2e-3d4a-4b5c-8d6e-7f8091a2b3c4\",\n    \"recipeVersion\": 3,\n    \"snapshotHash\": \"cf2eed88452c021de9dc205a709ea025cb7a7ef0feb1cd685486d98e3dfad1b8\",\n    \"source\": \"knowledge\"\n  },\n  \"schemaVersion\": \"3\",\n  \"status\": \"active\",\n  \"steps\": [\n    {\n      \"text\": {\n        \"zh\": \"测试步骤\"\n      }\n    }\n  ]\n}\n"
+        }
+      ],
+      "techniques": []
+    }
+  ]
+}

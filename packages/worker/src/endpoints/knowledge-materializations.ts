@@ -1,8 +1,9 @@
 import type { Ctx } from '../context.js';
 import { githubClient } from '../context.js';
 import { boundedBytes } from '../bounded-body.js';
-import { fail, validationFailure } from '../http.js';
-import { contractHash, dependencyIds, recipeMaterializationFiles, type Detail, type KnowledgeTechnique, type PinnedDependencies, type PinnedImage } from '../knowledge-materialization.js';
+import type { GitHubClient } from '../github.js';
+import { fail, refusal, validationFailure, type Words } from '../http.js';
+import { contractHash, dependencyIds, hasUnknowns, recipeMaterializationFiles, type Detail, type KnowledgeTechnique, type PinnedDependencies, type PinnedImage, type RuleReference } from '../knowledge-materialization.js';
 import { inspectImage } from '../image-integrity.js';
 import { validateEntity } from '../validate.js';
 import { commitImmutableFiles } from '../write.js';
@@ -85,6 +86,48 @@ async function readRecipeState(ctx:Ctx,recipeId:string,version:number):Promise<R
   return value;
 }
 const ARCHIVED='已归档的菜谱不能排进菜单';
+const INCOMPLETE='这一版菜谱资料不完整，不能固定到菜单';
+const RULES_UNREADABLE='师傅规则表格式不对，不能核对按规则填的值';
+
+/** Why a revision cannot be frozen yet, in the kitchen's words (ADR-0012). */
+const WORDS={
+  unsourced:{zh:'份数按每份记的菜，每个用量都要写明出处',
+    en:'For a dish counted per serving, every amount needs its source',
+    uk:'Для страви, яку рахують на одну порцію, у кожної кількості має бути вказане джерело'},
+  unknowns:{zh:'这一版带视频里没说清的条目，要等新版本才能排进菜单',
+    en:'This version has items the video did not make clear; it can go on a menu after an update',
+    uk:'Ця версія містить місця, які у відео не пояснено; додати її в меню можна буде після оновлення'},
+  ruleMissing:{zh:'按师傅规则填的值，引用的规则不在规则表里',
+    en:'A value filled by a chef rule cites a rule that is not in the rule list',
+    uk:'Значення, заповнене за правилом шефа, посилається на правило, якого немає в списку правил'},
+  ruleKind:{zh:'按师傅规则填的值引用错了规则：用量要引用每份用量规则，净料率要引用净料率规则，每个多少克要引用每个多少克规则',
+    en:'A value filled by a chef rule cites the wrong kind of rule: an amount needs a per-serving rule, a yield a yield rule, grams per piece a grams-per-piece rule',
+    uk:'Значення, заповнене за правилом шефа, посилається на правило іншого типу: кількість — на правило на порцію, вихід — на правило виходу, грами на штуку — на правило грамів на штуку'},
+  ruleUnit:{zh:'按每份用量规则填的用量，单位要和规则一样',
+    en:'An amount filled by a per-serving rule must use the rule\'s unit',
+    uk:'Кількість, заповнена за правилом на порцію, має бути в тих самих одиницях, що й правило'},
+} satisfies Record<string,Words>;
+
+type ChefRule={id:string;kind:RuleReference['kind'];unit?:string};
+/** The chef rules at the head being written on, read like data/techniques.json (missing file: no rules yet). */
+async function readChefRules(gh:GitHubClient,head:string):Promise<Map<string,ChefRule>>{
+  const file=await gh.getFile('data/chef-rules.json',head);
+  let rules:ChefRule[];
+  try{rules=file?JSON.parse(file.text):[];}catch{throw fail('invalid_source',{message:RULES_UNREADABLE});}
+  if(!validateEntity('chef-rules',rules).valid||new Set(rules.map(rule=>rule.id)).size!==rules.length)throw fail('invalid_source',{message:RULES_UNREADABLE});
+  return new Map(rules.map(rule=>[rule.id,rule]));
+}
+
+/** ADR-0012 §3: a rule value cites a rule that exists, of its kind, and (per serving) in the qty's unit. Same check as build-data. */
+function checkRuleReferences(rules:Map<string,ChefRule>,references:RuleReference[]){
+  const problems=references.flatMap(reference=>{
+    const rule=rules.get(reference.ruleId);
+    const words=!rule?WORDS.ruleMissing:rule.kind!==reference.kind?WORDS.ruleKind
+      :reference.unit!==undefined&&rule.unit!==reference.unit?WORDS.ruleUnit:undefined;
+    return words?[{path:reference.path,words,detail:reference.ruleId}]:[];
+  });
+  if(problems.length)throw refusal('rule_reference_invalid',problems);
+}
 
 /** Read, at freeze time, the exact ingredient and technique revisions this recipe revision uses. */
 async function readDependencies(ctx:Ctx,detail:Detail):Promise<PinnedDependencies>{
@@ -118,6 +161,11 @@ async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,can
   await readRecipeState(ctx,recipeId,version);
   const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Detail;
   if(detail.id!==recipeId||detail.version!==version)throw fail('invalid_source');
+  // #174 writes these items into the dish. Until then such a revision is not frozen at all, so no snapshot
+  // without them is ever left to conflict with the one that has them.
+  let pending:boolean;
+  try{pending=hasUnknowns(detail);}catch{throw fail('invalid_source',{message:INCOMPLETE});}
+  if(pending)throw refusal('recipe_unknowns_pending',[{path:'/recipe/unknowns',words:WORDS.unknowns}]);
   const dependencies=await readDependencies(ctx,detail);
   const pinnedImages:PinnedImage[]=[];
   const media=detail.media??[];
@@ -136,7 +184,7 @@ async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,can
     pinnedImages.push(image);
   }
   let materialized;
-  try{materialized=await recipeMaterializationFiles(detail,dependencies,pinnedImages);}catch{throw fail('invalid_source',{message:'这一版菜谱资料不完整，不能固定到菜单'});}
+  try{materialized=await recipeMaterializationFiles(detail,dependencies,pinnedImages);}catch{throw fail('invalid_source',{message:INCOMPLETE});}
   for(const file of materialized.files){
     const kind=file.path.startsWith('data/dishes/')?'dish':'ingredient';
     const checked=validateEntity(kind,JSON.parse(file.text));
@@ -144,9 +192,13 @@ async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,can
   }
   const gh=githubClient(ctx);
   const outcome=await commitImmutableFiles(gh,[...materialized.files.map(file=>({path:file.path,bytes:new TextEncoder().encode(file.text)})),...materialized.imageFiles],
-    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques,beforeWrite:async()=>{
+    {subject:`data(knowledge): 固定菜谱 ${materialized.dishRef}`,role:ctx.role,endpoint:ctx.endpointConcrete,techniques:materialized.techniques,beforeWrite:async head=>{
       // Recheck just before the write: a recipe archived in the meantime is never frozen.
       if((await readRecipeState(ctx,recipeId,version)).current.archived)throw fail('review_required',{message:ARCHIVED});
+      // ADR-0012 §1: a legacy revision whose servings say 1 has qty taken from the original recipe, with no source.
+      // Like the archive check, this only stops new writes: a version written before still replays as unchanged.
+      if(materialized.unsourcedQuantities.length)throw refusal('quantity_source_required',materialized.unsourcedQuantities.map(path=>({path,words:WORDS.unsourced})));
+      if(materialized.ruleReferences.length)checkRuleReferences(await readChefRules(gh,head),materialized.ruleReferences);
     }});
   return {ok:true,dishRef:materialized.dishRef,recipeId,recipeVersion:detail.version,
     ...(candidateId?{candidateId}:{}),snapshotHash:materialized.snapshotHash,unresolvedCount:materialized.unresolvedCount,

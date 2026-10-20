@@ -46,6 +46,8 @@ const ROOTS = {
   validateIngredientV3: "ingredient-v3.schema.json",
   validateDish: "dish.schema.json",
   validateTechniques: "techniques.schema.json",
+  // 固定菜谱前核对按规则填的值（ADR-0012 第 3 条，#181）：data/chef-rules.json 没有写入端点，只读。
+  validateChefRules: "chef-rules.schema.json",
 };
 
 /** 产物顶部的运行时 prelude：ucs2length + 两个 format 实现，均为本仓库自写，零依赖。 */

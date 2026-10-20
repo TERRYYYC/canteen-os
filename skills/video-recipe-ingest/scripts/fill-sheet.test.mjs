@@ -5,7 +5,7 @@
 //     --out skills/video-recipe-ingest/fixtures/fill-sheet/sample.html
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -171,6 +171,44 @@ test('the CLI writes the sheet and exits 0; bad arguments exit 2', () => {
   assert.equal(readFileSync(out, 'utf8'), renderHtml(sheets(), { techniques }));
   assert.equal(spawnSync(process.execPath, [script, '--results', RESULTS], { encoding: 'utf8' }).status, 2);
   assert.equal(spawnSync(process.execPath, [script, '--nope'], { encoding: 'utf8' }).status, 2);
+});
+
+test('typed 没说清 keeps its wording, its place and its category in all three spots, through the real CLI', () => {
+  // candidate-contract.md:11 — plain wording or {text, kind?, action?}; an ingredient's uncertainty may also be a list.
+  const dir = mkdtempSync(path.join(tmpdir(), 'fill-sheet-typed-'));
+  const id = '900000000000000004';
+  mkdirSync(path.join(dir, id));
+  writeFileSync(path.join(dir, 'RESULTS.md'), [
+    '| 批次 / 原收藏 | 作品来源 · 作者 | 菜名/内容 | 分类 | 料/步/图 | 最终技术状态 | JSON 及采集 |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+    `| 1 / 1 | ${id} · 造的作者 | 示例菜丙 | 菜谱候选 | 2/2/0 | 完成 | [来源](${id}/source.json) |`, ''].join('\n'));
+  const ingredient = (name, uncertainty) => ({ name, rawQuantity: null, quantityState: 'not_stated', normalizedQuantity: null, prep: null, evidenceIds: ['e1'], uncertainty, substitution: null });
+  const step = (order, action, unknowns) => ({ order, action, startMs: 0, endMs: 1000, evidenceIds: ['e1'], unknowns });
+  const candidate = { title: '示例菜丙（造的数据）', yield: { raw: null, normalized: null, state: 'not_stated' },
+    ingredients: [ingredient('鸡腿肉', { text: '鸡腿肉要不要去骨没说', kind: 'identity' }), ingredient('盐', ['盐放多少没说', { text: '先放还是后放没说' }])],
+    steps: [step(1, '鸡腿肉加料酒抓匀。', [{ text: '腌多久没说', kind: 'prep-ahead', action: 'marinate' }, '料酒放多少没说']), step(2, '下锅炒熟。', [{ text: '火多大没说', kind: 'heat' }])],
+    unresolved: [{ text: '做几个人吃的量没说', kind: 'other' }, '锅多大没说'] };
+  const write = value => writeFileSync(path.join(dir, id, 'candidate.json'), JSON.stringify(value));
+  writeFileSync(path.join(dir, 'ids.txt'), `${id}\n`);
+  const run = () => spawnSync(process.execPath, [path.join(HERE, 'fill-sheet.mjs'), '--results', path.join(dir, 'RESULTS.md'), '--ids', path.join(dir, 'ids.txt'),
+    '--groups', path.join(FIXTURE, 'groups.json'), '--out', path.join(dir, 'sheet.html')], { encoding: 'utf8' });
+  write(candidate);
+  const ok = run();
+  assert.equal(ok.status, 0, ok.stderr);
+  const html = readFileSync(path.join(dir, 'sheet.html'), 'utf8');
+  assert.doesNotMatch(html, /\[object Object\]/);
+  // Each item stays where it was written: on its ingredient, on its step, or on the whole dish.
+  assert.match(html, /<b>鸡腿肉<\/b><div class="notes">没说清：鸡腿肉要不要去骨没说（类别：用哪种）<\/div>/);
+  assert.match(html, /<b>盐<\/b><div class="notes">没说清：盐放多少没说 先放还是后放没说<\/div>/);
+  assert.match(html, /<b>第 1 步<\/b><span class="step">鸡腿肉加料酒抓匀。<\/span><br>没说清：腌多久没说（类别：提前多久，腌） 料酒放多少没说<\/li>/);
+  assert.match(html, /<b>第 2 步<\/b><span class="step">下锅炒熟。<\/span><br>没说清：火多大没说（类别：火候）<\/li>/);
+  assert.match(html, /<li><b>整道菜<\/b>：做几个人吃的量没说（类别：别的）<\/li><li><b>整道菜<\/b>：锅多大没说<\/li>/);
+  assert.match(ok.stderr, /没说清的步骤 2，整道菜 2/);
+  // An item without its wording cannot be printed: the CLI says so instead of writing an empty line.
+  write({ ...candidate, steps: [step(1, '鸡腿肉加料酒抓匀。', [{ kind: 'prep-ahead', action: 'marinate' }])] });
+  const bad = run();
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /作品 900000000000000004 第 1 步：「没说清」每条都要有原话 text/);
 });
 
 test('the committed sample is current and carries no source links or machine paths', () => {
