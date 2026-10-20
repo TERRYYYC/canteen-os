@@ -44,6 +44,22 @@ const SECTIONS = [
   ['other', '水和菜里自制的'],
 ];
 const TIMING = ['前一天', '当天早上', '开餐前'];
+// 「没说清」 categories and prep-ahead actions (ADR-0012 §11), in the sheet's words.
+const UNCLEAR_KINDS = { 'prep-ahead': '提前多久', amount: '用量', 'net-or-gross': '毛重还是净重', 'cut-size': '切多大', identity: '用哪种', heat: '火候', duration: '做多久', doneness: '做到什么样', other: '别的' };
+const PREP_AHEAD = { marinate: '腌', soak: '泡', brine: '卤', rest: '醒', cool: '晾凉', other: '别的' };
+
+/**
+ * 「没说清」 as candidate-contract.md allows it: plain wording or {text, kind?, action?}; an ingredient's may be a list.
+ * Each item keeps the place it was written in; one without its wording cannot be printed, so it stops the sheet.
+ */
+export function unclearItems(value, where) {
+  const list = value == null || value === '' ? [] : Array.isArray(value) ? value : [value];
+  return list.flatMap(item => {
+    if (typeof item === 'string') return item ? [{ text: item }] : [];
+    if (item && typeof item === 'object' && typeof item.text === 'string' && item.text.trim()) return [{ text: item.text, kind: item.kind, action: item.action }];
+    throw new Error(`${where}：「没说清」每条都要有原话 text`);
+  });
+}
 
 /** The listed dishes' candidates from a batch RESULTS.md, in the order of `ids`. */
 export function readCandidates(resultsPath, ids) {
@@ -122,7 +138,7 @@ export function buildSheets(dishes, groups) {
       raw: typeof row.rawQuantity === 'string' && row.rawQuantity.trim() ? row.rawQuantity.trim() : null,
       normalized: row.normalizedQuantity ?? null,
       prep: row.prep || null,
-      uncertainty: row.uncertainty || null,
+      uncertainty: unclearItems(row.uncertainty, `作品 ${id} 第 ${index + 1} 样`),
       substitution: row.substitution ?? null,
       gap: classifyGap(row),
       suggestion: suggest(row.name, owners),
@@ -135,8 +151,9 @@ export function buildSheets(dishes, groups) {
       yieldState: candidate.yield?.state ?? null,
       rows,
       gaps,
-      steps: candidate.steps.filter(step => step.unknowns?.length).map(step => ({ order: step.order, action: step.action, unknowns: step.unknowns })),
-      unresolved: candidate.unresolved ?? [],
+      steps: candidate.steps.map(step => ({ order: step.order, action: step.action, unknowns: unclearItems(step.unknowns, `作品 ${id} 第 ${step.order} 步`) }))
+        .filter(step => step.unknowns.length),
+      unresolved: unclearItems(candidate.unresolved, `作品 ${id} 整道菜`),
     };
   });
 }
@@ -156,6 +173,12 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp
 const box = label => `<span class="opt"><i class="box"></i>${esc(label)}</span>`;
 const blank = (cls = '') => `<span class="blank ${cls}"></span>`;
 const source = () => `<div class="src">出处 ${box('称')}${box('定')}${box('规')}${blank('rule')}</div>`;
+/** The original wording, then its category when the candidate gave one. Plain wording prints exactly as before. */
+const unclearText = items => items.map(({ text, kind, action }) => {
+  const label = UNCLEAR_KINDS[kind];
+  const ahead = kind === 'prep-ahead' ? PREP_AHEAD[action] : undefined;
+  return `${esc(text)}${label ? `（类别：${label}${ahead ? `，${ahead}` : ''}）` : ''}`;
+}).join(' ');
 
 function originalCell(row) {
   if (row.raw) return `<span class="tag">原方</span>${esc(row.raw)}`;
@@ -170,7 +193,7 @@ function notesCell(row) {
   const notes = [];
   if (row.prep) notes.push(`原方做法：${esc(row.prep)}`);
   if (row.substitution?.name) notes.push(`原方可替换：${esc(row.substitution.name)}${row.substitution.rawQuantity ? ` ${esc(row.substitution.rawQuantity)}` : ''}`);
-  if (row.uncertainty) notes.push(`没说清：${esc(row.uncertainty)}`);
+  if (row.uncertainty.length) notes.push(`没说清：${unclearText(row.uncertainty)}`);
   return notes.length ? `<div class="notes">${notes.join('<br>')}</div>` : '';
 }
 
@@ -239,8 +262,8 @@ function page(sheet, techniques, reference) {
   }).join('');
   const unclear = [
     `<li><b>份数</b>：${servings(sheet)}本表一律按每份记。</li>`,
-    ...sheet.steps.map(step => `<li><b>第 ${esc(step.order)} 步</b><span class="step">${esc(step.action)}</span><br>没说清：${step.unknowns.map(esc).join(' ')}</li>`),
-    ...sheet.unresolved.map(text => `<li><b>整道菜</b>：${esc(text)}</li>`),
+    ...sheet.steps.map(step => `<li><b>第 ${esc(step.order)} 步</b><span class="step">${esc(step.action)}</span><br>没说清：${unclearText(step.unknowns)}</li>`),
+    ...sheet.unresolved.map(item => `<li><b>整道菜</b>：${unclearText([item])}</li>`),
   ].join('');
   return `<section class="page">
 <header><div><h2>${esc(sheet.title)}</h2><div class="meta">作品编号 ${esc(sheet.id)} · ${sheet.rows.length} 样 · 缺口 ${gapSummary(sheet.gaps)}</div></div><div class="who">师傅 ${blank('wide')}　日期 ${blank()}</div></header>
