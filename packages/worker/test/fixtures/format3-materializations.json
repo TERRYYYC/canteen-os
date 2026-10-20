@@ -1,0 +1,276 @@
+{
+  "note": "Written by the Worker on main b50f8e6, before #174. Format 3 revisions with no \"not said\" items must keep producing these bytes.",
+  "cases": [
+    {
+      "name": "format3-no-unknowns-key",
+      "detail": {
+        "id": "6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a9b",
+        "version": 1,
+        "recipe": {
+          "title": {
+            "zh": "测试菜：没有没说清（夹具）"
+          },
+          "recipeFormatVersion": "3",
+          "baseServings": 1,
+          "ingredients": [
+            {
+              "id": "0d1e2f3a-4b5c-4d6e-8f7a-8b9c0d1e2f3a",
+              "ingredientId": "5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f",
+              "role": "main",
+              "name": {
+                "zh": "测试鸡腿肉（夹具）"
+              },
+              "originalAmount": "鸡腿 500 g",
+              "originalQty": {
+                "value": "500",
+                "unit": "g"
+              },
+              "qty": {
+                "value": "150",
+                "unit": "g"
+              },
+              "qtySource": {
+                "kind": "measured",
+                "by": "TEST_PERSON",
+                "date": "2026-10-19"
+              },
+              "kitchenPrep": {
+                "timing": "day-before",
+                "size": "2cm",
+                "leadTime": {
+                  "value": "30",
+                  "unit": "min"
+                }
+              }
+            },
+            {
+              "id": "1e2f3a4b-5c6d-4e7f-9a8b-9c0d1e2f3a4b",
+              "role": "seasoning",
+              "name": {
+                "zh": "测试盐（夹具）"
+              },
+              "originalAmount": "一点点",
+              "qty": {
+                "value": "2",
+                "unit": "g"
+              },
+              "qtySource": {
+                "kind": "rule",
+                "ruleId": "test-salt-per-serving"
+              }
+            },
+            {
+              "id": "2f3a4b5c-6d7e-4f8a-8b9c-0d1e2f3a4b5c",
+              "name": {
+                "zh": "测试葱（夹具）"
+              },
+              "originalAmount": "一把"
+            }
+          ],
+          "steps": [
+            {
+              "id": "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e",
+              "text": {
+                "zh": "测试步骤一（夹具）"
+              }
+            },
+            {
+              "id": "5c6d7e8f-9a0b-4c1d-9e2f-3a4b5c6d7e8f",
+              "text": {
+                "zh": "测试步骤二（夹具）"
+              }
+            }
+          ],
+          "sources": [],
+          "assets": []
+        },
+        "media": [],
+        "sourceRecords": []
+      },
+      "dependencies": {
+        "ingredients": [
+          {
+            "id": "5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f",
+            "version": 1,
+            "createdAt": "2026-10-19T00:00:00.000Z",
+            "ingredient": {
+              "name": {
+                "zh": "测试鸡腿肉（夹具）"
+              },
+              "aliases": [],
+              "baseUnit": "g",
+              "yield": 0.8,
+              "yieldSource": {
+                "kind": "rule",
+                "ruleId": "test-yield"
+              },
+              "purchase": {
+                "supplier": "测试供应商（夹具）",
+                "packSize": 1000,
+                "packUnit": "g"
+              },
+              "trackStock": false
+            }
+          }
+        ],
+        "techniques": []
+      },
+      "files": [
+        {
+          "path": "data/ingredients/kbi-5a0e7c1d2b3f4c5d8e6f7a8b9c0d1e2f-v1.json",
+          "text": "{\n  \"baseUnit\": \"g\",\n  \"canonicalIngredientId\": \"5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f\",\n  \"canonicalIngredientVersion\": 1,\n  \"name\": {\n    \"zh\": \"测试鸡腿肉（夹具）\"\n  },\n  \"purchase\": {\n    \"packSize\": 1000,\n    \"packUnit\": \"g\",\n    \"supplier\": \"测试供应商（夹具）\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false,\n  \"yield\": 0.8,\n  \"yieldSource\": {\n    \"kind\": \"rule\",\n    \"ruleId\": \"test-yield\"\n  }\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v1-2.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试盐（夹具）\"\n  },\n  \"role\": \"seasoning\",\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v1-3.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试葱（夹具）\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/dishes/kb-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v1.json",
+          "text": "{\n  \"baseServings\": 1,\n  \"components\": [\n    {\n      \"canonicalIngredientId\": \"5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f\",\n      \"canonicalIngredientVersion\": 1,\n      \"ingredientRef\": \"kbi-5a0e7c1d2b3f4c5d8e6f7a8b9c0d1e2f-v1\",\n      \"knowledgeIngredientId\": \"0d1e2f3a-4b5c-4d6e-8f7a-8b9c0d1e2f3a\",\n      \"originalAmount\": \"鸡腿 500 g\",\n      \"originalQty\": {\n        \"unit\": \"g\",\n        \"value\": 500\n      },\n      \"prep\": {\n        \"leadTime\": {\n          \"unit\": \"min\",\n          \"value\": 30\n        },\n        \"size\": \"2cm\",\n        \"timing\": \"day-before\"\n      },\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 150\n      },\n      \"qtySource\": {\n        \"by\": \"chef\",\n        \"date\": \"2026-10-19\",\n        \"kind\": \"measured\"\n      },\n      \"role\": \"main\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v1-2\",\n      \"knowledgeIngredientId\": \"1e2f3a4b-5c6d-4e7f-9a8b-9c0d1e2f3a4b\",\n      \"originalAmount\": \"一点点\",\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 2\n      },\n      \"qtySource\": {\n        \"kind\": \"rule\",\n        \"ruleId\": \"test-salt-per-serving\"\n      },\n      \"role\": \"seasoning\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v1-3\",\n      \"knowledgeIngredientId\": \"2f3a4b5c-6d7e-4f8a-8b9c-0d1e2f3a4b5c\",\n      \"originalAmount\": \"一把\"\n    }\n  ],\n  \"name\": {\n    \"zh\": \"测试菜：没有没说清（夹具）\"\n  },\n  \"provenance\": {\n    \"coverState\": \"needs-image\",\n    \"recipeId\": \"6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a9b\",\n    \"recipeVersion\": 1,\n    \"snapshotHash\": \"a28e08f3f826c5f2ef8090df43a24c8469c21e91a061e7d5840e9b1f7207575a\",\n    \"source\": \"knowledge\"\n  },\n  \"schemaVersion\": \"3\",\n  \"status\": \"active\",\n  \"steps\": [\n    {\n      \"text\": {\n        \"zh\": \"测试步骤一（夹具）\"\n      }\n    },\n    {\n      \"text\": {\n        \"zh\": \"测试步骤二（夹具）\"\n      }\n    }\n  ]\n}\n"
+        }
+      ],
+      "snapshotHash": "a28e08f3f826c5f2ef8090df43a24c8469c21e91a061e7d5840e9b1f7207575a",
+      "unresolvedCount": 1
+    },
+    {
+      "name": "format3-empty-unknowns",
+      "detail": {
+        "id": "6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a9b",
+        "version": 2,
+        "recipe": {
+          "title": {
+            "zh": "测试菜：没有没说清（夹具）"
+          },
+          "recipeFormatVersion": "3",
+          "baseServings": 1,
+          "ingredients": [
+            {
+              "id": "0d1e2f3a-4b5c-4d6e-8f7a-8b9c0d1e2f3a",
+              "ingredientId": "5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f",
+              "role": "main",
+              "name": {
+                "zh": "测试鸡腿肉（夹具）"
+              },
+              "originalAmount": "鸡腿 500 g",
+              "originalQty": {
+                "value": "500",
+                "unit": "g"
+              },
+              "qty": {
+                "value": "150",
+                "unit": "g"
+              },
+              "qtySource": {
+                "kind": "measured",
+                "by": "TEST_PERSON",
+                "date": "2026-10-19"
+              },
+              "kitchenPrep": {
+                "timing": "day-before",
+                "size": "2cm",
+                "leadTime": {
+                  "value": "30",
+                  "unit": "min"
+                }
+              }
+            },
+            {
+              "id": "1e2f3a4b-5c6d-4e7f-9a8b-9c0d1e2f3a4b",
+              "role": "seasoning",
+              "name": {
+                "zh": "测试盐（夹具）"
+              },
+              "originalAmount": "一点点",
+              "qty": {
+                "value": "2",
+                "unit": "g"
+              },
+              "qtySource": {
+                "kind": "rule",
+                "ruleId": "test-salt-per-serving"
+              }
+            },
+            {
+              "id": "2f3a4b5c-6d7e-4f8a-8b9c-0d1e2f3a4b5c",
+              "name": {
+                "zh": "测试葱（夹具）"
+              },
+              "originalAmount": "一把"
+            }
+          ],
+          "steps": [
+            {
+              "id": "4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e",
+              "text": {
+                "zh": "测试步骤一（夹具）"
+              }
+            },
+            {
+              "id": "5c6d7e8f-9a0b-4c1d-9e2f-3a4b5c6d7e8f",
+              "text": {
+                "zh": "测试步骤二（夹具）"
+              }
+            }
+          ],
+          "sources": [],
+          "assets": [],
+          "unknowns": []
+        },
+        "media": [],
+        "sourceRecords": []
+      },
+      "dependencies": {
+        "ingredients": [
+          {
+            "id": "5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f",
+            "version": 1,
+            "createdAt": "2026-10-19T00:00:00.000Z",
+            "ingredient": {
+              "name": {
+                "zh": "测试鸡腿肉（夹具）"
+              },
+              "aliases": [],
+              "baseUnit": "g",
+              "yield": 0.8,
+              "yieldSource": {
+                "kind": "rule",
+                "ruleId": "test-yield"
+              },
+              "purchase": {
+                "supplier": "测试供应商（夹具）",
+                "packSize": 1000,
+                "packUnit": "g"
+              },
+              "trackStock": false
+            }
+          }
+        ],
+        "techniques": []
+      },
+      "files": [
+        {
+          "path": "data/ingredients/kbi-5a0e7c1d2b3f4c5d8e6f7a8b9c0d1e2f-v1.json",
+          "text": "{\n  \"baseUnit\": \"g\",\n  \"canonicalIngredientId\": \"5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f\",\n  \"canonicalIngredientVersion\": 1,\n  \"name\": {\n    \"zh\": \"测试鸡腿肉（夹具）\"\n  },\n  \"purchase\": {\n    \"packSize\": 1000,\n    \"packUnit\": \"g\",\n    \"supplier\": \"测试供应商（夹具）\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false,\n  \"yield\": 0.8,\n  \"yieldSource\": {\n    \"kind\": \"rule\",\n    \"ruleId\": \"test-yield\"\n  }\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v2-2.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试盐（夹具）\"\n  },\n  \"role\": \"seasoning\",\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/ingredients/kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v2-3.json",
+          "text": "{\n  \"name\": {\n    \"zh\": \"测试葱（夹具）\"\n  },\n  \"schemaVersion\": \"3\",\n  \"trackStock\": false\n}\n"
+        },
+        {
+          "path": "data/dishes/kb-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v2.json",
+          "text": "{\n  \"baseServings\": 1,\n  \"components\": [\n    {\n      \"canonicalIngredientId\": \"5a0e7c1d-2b3f-4c5d-8e6f-7a8b9c0d1e2f\",\n      \"canonicalIngredientVersion\": 1,\n      \"ingredientRef\": \"kbi-5a0e7c1d2b3f4c5d8e6f7a8b9c0d1e2f-v1\",\n      \"knowledgeIngredientId\": \"0d1e2f3a-4b5c-4d6e-8f7a-8b9c0d1e2f3a\",\n      \"originalAmount\": \"鸡腿 500 g\",\n      \"originalQty\": {\n        \"unit\": \"g\",\n        \"value\": 500\n      },\n      \"prep\": {\n        \"leadTime\": {\n          \"unit\": \"min\",\n          \"value\": 30\n        },\n        \"size\": \"2cm\",\n        \"timing\": \"day-before\"\n      },\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 150\n      },\n      \"qtySource\": {\n        \"by\": \"chef\",\n        \"date\": \"2026-10-19\",\n        \"kind\": \"measured\"\n      },\n      \"role\": \"main\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v2-2\",\n      \"knowledgeIngredientId\": \"1e2f3a4b-5c6d-4e7f-9a8b-9c0d1e2f3a4b\",\n      \"originalAmount\": \"一点点\",\n      \"qty\": {\n        \"unit\": \"g\",\n        \"value\": 2\n      },\n      \"qtySource\": {\n        \"kind\": \"rule\",\n        \"ruleId\": \"test-salt-per-serving\"\n      },\n      \"role\": \"seasoning\"\n    },\n    {\n      \"ingredientRef\": \"kbi-6e7f8a9b0c1d4e2f8a3b4c5d6e7f8a9b-v2-3\",\n      \"knowledgeIngredientId\": \"2f3a4b5c-6d7e-4f8a-8b9c-0d1e2f3a4b5c\",\n      \"originalAmount\": \"一把\"\n    }\n  ],\n  \"name\": {\n    \"zh\": \"测试菜：没有没说清（夹具）\"\n  },\n  \"provenance\": {\n    \"coverState\": \"needs-image\",\n    \"recipeId\": \"6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a9b\",\n    \"recipeVersion\": 2,\n    \"snapshotHash\": \"f2ffb0379ba858265733149b6b39338c1bb45d0221342c5a6267968df10e35e9\",\n    \"source\": \"knowledge\"\n  },\n  \"schemaVersion\": \"3\",\n  \"status\": \"active\",\n  \"steps\": [\n    {\n      \"text\": {\n        \"zh\": \"测试步骤一（夹具）\"\n      }\n    },\n    {\n      \"text\": {\n        \"zh\": \"测试步骤二（夹具）\"\n      }\n    }\n  ]\n}\n"
+        }
+      ],
+      "snapshotHash": "f2ffb0379ba858265733149b6b39338c1bb45d0221342c5a6267968df10e35e9",
+      "unresolvedCount": 1
+    }
+  ]
+}

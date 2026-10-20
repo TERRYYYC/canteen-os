@@ -65,6 +65,19 @@ test('public KB cover, prep and step images stay bound to this frozen dish',()=>
  assert.equal(publicCopy.provenance.coverState,'rights-pending');
 });
 
+test('"not said in the video" items reach the public projection exactly as frozen (ADR-0012 §11, #174)',()=>{
+ const id='kb-3f4c6638dcf84231966c1c5e2816c059-v2';
+ const unknowns=[{kind:'prep-ahead',action:'marinate',componentIndex:0},{kind:'heat',stepIndex:0},{kind:'identity'}];
+ const dish={schemaVersion:'3',name:{zh:'汤'},components:[{ingredientRef:'salt'}],steps:[{text:{zh:'煮熟'}}],unknowns:copy(unknowns),
+  provenance:{source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',recipeVersion:2,snapshotHash:'a'.repeat(64)}};
+ assert.deepEqual(core.publicDish(dish,id).unknowns,unknowns);
+ assert.deepEqual(core.publicDish({...copy(dish),provenance:undefined},id).unknowns,unknowns,'a dish not from the KB too');
+ const x=sample();x.dishes['first-dish']={...copy(dish),components:x.dishes['first-dish'].components};
+ assert.deepEqual(core.projectTeamMeals(x,basis).dishes['first-dish'].unknowns,unknowns);
+ // A dish without items still has no field (no empty list appears on the way).
+ assert.equal(Object.hasOwn(core.projectTeamMeals(sample(),basis).dishes['first-dish'],'unknowns'),false);
+});
+
 test('legacy status-only cover evidence retains its publish-safe missing-image reason',()=>{
  const dish={schemaVersion:'3',name:{zh:'汤'},provenance:{source:'knowledge',recipeId:'3f4c6638-dcf8-4231-966c-1c5e2816c059',
   recipeVersion:1,candidateId:'e2068014-7d9e-4e74-b24d-32f12554e7c4',snapshotHash:'a'.repeat(64),

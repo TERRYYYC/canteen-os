@@ -116,7 +116,9 @@ const MESSAGES: Record<ErrorCode, string> = {
   not_configured: "这项功能还没配好，找 Terry",
   quantity_source_required: "份数按每份记的菜，每个用量都要写明出处",
   rule_reference_invalid: "按师傅规则填的值没有对上规则表",
-  recipe_unknowns_pending: "这一版带视频里没说清的条目，要等新版本才能排进菜单",
+  recipe_unknowns_unclassified: "这一版有还没分类的「视频里没说清」条目，分完类再排进菜单",
+  recipe_unknowns_misplaced: "「视频里没说清」的条目指向这一版里没有的步骤或材料，改好存成新版本再排进菜单",
+  recipe_unknowns_conflicting: "同一处有几件要提前做的事，请在知识库里把它们分别指到要做的那样材料上，再存成新版本",
 };
 
 const STATUS: Record<ErrorCode, number> = {
@@ -140,7 +142,9 @@ const STATUS: Record<ErrorCode, number> = {
   not_configured: 503,
   quantity_source_required: 422,
   rule_reference_invalid: 422,
-  recipe_unknowns_pending: 422,
+  recipe_unknowns_unclassified: 422,
+  recipe_unknowns_misplaced: 422,
+  recipe_unknowns_conflicting: 422,
 };
 
 export function fail(

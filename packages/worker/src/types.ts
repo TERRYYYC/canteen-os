@@ -31,7 +31,9 @@ export type ErrorCode =
   | "not_configured"
   | "quantity_source_required"
   | "rule_reference_invalid"
-  | "recipe_unknowns_pending";
+  | "recipe_unknowns_unclassified"
+  | "recipe_unknowns_misplaced"
+  | "recipe_unknowns_conflicting";
 
 export interface FieldError {
   /** JSON Pointer；非字段级错误为 ""。 */
