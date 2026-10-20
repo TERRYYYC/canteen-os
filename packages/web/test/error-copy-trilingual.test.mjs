@@ -87,7 +87,7 @@ test('knowledge approval and standard-ingredient errors have registered trilingu
 });
 
 test('format 3 refusals tell the chef what happened without review wording (#183, ADR-0011)',()=>{
- for(const code of ['UNKNOWNS_REQUIRED','FORMAT_DOWNGRADE','RECIPE_FORMAT_REQUIRED','VALUE_SOURCE_INCOMPLETE']){
+ for(const code of ['UNKNOWNS_REQUIRED','FORMAT_DOWNGRADE','RECIPE_FORMAT_REQUIRED','VALUE_SOURCE_INCOMPLETE','quantity_source_required','rule_reference_invalid','recipe_unknowns_pending']){
   const shown=LANGS.map(lang=>mod.fieldErrorText(err(code,'RAW KNOWLEDGE ERROR'),lang));
   assert.equal(new Set(shown).size,3,code);
   for(const text of shown)assert.doesNotMatch(text,/核对|复核|核定|RAW KNOWLEDGE ERROR/,code);

@@ -48,15 +48,27 @@ export function placed(recipe: Recipe, item: NonNullable<Recipe['unknowns']>[num
 export function canteenFormat(recipe: Recipe): boolean {
   return recipe.recipeFormatVersion === '3' || !!recipe.ingredients?.some(row => row.qty || row.qtySource || row.kitchenPrep?.leadTime);
 }
+/** ADR-0012 §2: canteen use is entered per serving, so a recipe that has any is counted per serving. */
+export const perServing = (recipe: Recipe) => !!recipe.ingredients?.some(row => row.qty);
 /**
- * What a save sends (ADR-0012 §1, KB #182). On upgrade each legacy `amount` becomes the display-only original and never
- * `qty`: canteen use comes only from what the chef entered. Format 3 always names its unknowns, `[]` when none are left,
- * because the KB refuses a save that leaves them out instead of guessing (409 UNKNOWNS_REQUIRED, K7).
+ * Canteen use already saved against another serving count cannot become per serving by itself: the chef converts the
+ * amounts and sets servings to 1. A count that only came with the original (no canteen use yet) is replaced on save.
+ */
+export function servingsHeld(recipe: Recipe, saved?: Recipe): number | null {
+  const held = saved && perServing(saved) && saved.baseServings !== undefined && saved.baseServings !== 1 ? saved.baseServings : null;
+  return held !== null && perServing(recipe) && recipe.baseServings !== 1 ? held : null;
+}
+/**
+ * What a save sends (ADR-0012 §1, §2, KB #182). On upgrade each legacy `amount` becomes the display-only original and never
+ * `qty`: canteen use comes only from what the chef entered, per serving, so servings become 1 (never worked out from the
+ * original). Format 3 always names its unknowns, `[]` when none are left, because the KB refuses a save that leaves them
+ * out instead of guessing (409 UNKNOWNS_REQUIRED, K7).
  */
 export function saveBody(recipe: Recipe): Recipe {
   const body = structuredClone(recipe);
   if (!canteenFormat(body)) return body;
   body.recipeFormatVersion = '3';
+  if (perServing(body)) body.baseServings = 1;
   for (const row of body.ingredients || []) if (row.amount) { Object.assign(row, original(row.amount)); delete row.amount; }
   body.unknowns ??= [];
   return body;

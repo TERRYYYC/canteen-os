@@ -42,7 +42,7 @@ const format3 = () => ({ recipeFormatVersion: '3', title: { zh: '测试鸡腿饭
   steps: [{ id: stepA, text: { zh: '测试：腌一下' } }, { id: stepB, text: { zh: '测试：煎熟' } }], sources: [], assets: [],
   unknowns: [{ kind: 'prep-ahead', action: 'marinate', stepId: stepA, text: '测试原话：腌一会儿' }, { kind: 'amount', ingredientRowId: rowB, text: '测试原话：倒一点' }, { stepId: stepB, text: '测试原话：还没分类' }],
   laterField: { kept: true } });
-const legacy = () => ({ recipeFormatVersion: '2', title: { zh: '测试旧菜' }, ingredients: [
+const legacy = () => ({ recipeFormatVersion: '2', title: { zh: '测试旧菜' }, baseServings: 2, ingredients: [
     { id: rowA, name: { zh: '鸡腿肉' }, ingredientId: stdChicken, amount: { kind: 'exact', value: '500', unit: 'g', raw: '鸡腿500克' } },
     { id: rowB, name: { zh: '五花肉' }, amount: { kind: 'exact', value: '1.5', unit: '斤' } },
     { id: rowC, name: { zh: '盐' }, amount: { kind: 'to_taste', raw: '适量' } },
@@ -54,7 +54,7 @@ const json = (data, status = 200, headers = {}) => new Response(JSON.stringify(d
 const failure = (status, code, details) => json({ error: { code, message: 'RAW KB MESSAGE', details } }, status);
 
 /** The private KB format 3 save rules (#182), with every saved revision kept so old versions can be compared. */
-function knowledgeBase(recipe, { items = catalog(), refuse } = {}) {
+function knowledgeBase(recipe, { items = catalog(), refuse, freeze } = {}) {
   let stored = { id, version: 1, createdAt: '2026-10-19T00:00:00.000Z', recipe, media: [], sourceRecords: [] };
   const versions = [structuredClone(stored)], puts = [], standards = [];
   const handler = (url, init) => {
@@ -62,6 +62,7 @@ function knowledgeBase(recipe, { items = catalog(), refuse } = {}) {
     if (url.endsWith('/adoption')) return json({ recipeId: id, recipeVersion: stored.version, current: { version: stored.version, archived: false }, origin: { kind: 'manual', originalRecipeVersion: 1 }, source: { status: 'needs_review' }, kitchenApproval: null, issues: [] });
     if (url.includes('/ingredients?')) return json({ items, nextCursor: null });
     if (url.includes('/techniques?')) return json({ items: [], nextCursor: null });
+    if (url.includes('/knowledge-materializations/recipes/') && freeze) return freeze(JSON.parse(init.body));
     const one = /\/ingredients(?:\/([0-9a-f-]{36}))?$/.exec(url);
     if (one && init.method) { const body = JSON.parse(init.body); standards.push({ method: init.method, id: one[1], body }); return json({ id: one[1] || stdOil, version: 9, ingredient: body, createdAt: '2026-10-19' }, init.method === 'POST' ? 201 : 200); }
     if (one) { const { id: ingredientId, version, ...ingredient } = items.find(item => item.id === one[1]); return json({ id: ingredientId, version, ingredient, createdAt: '2026-10-19' }, 200, { etag: `"i${version}"` }); }
@@ -162,7 +163,7 @@ test('deleting unclear items saves new versions; deleting the last one sends an 
   assert.deepEqual(kb.versions[0].recipe.unknowns, format3().unknowns); assert.equal(kb.versions[1].recipe.unknowns.length, 2);
 });
 
-test('a legacy recipe given canteen use becomes format 3; the original numbers never become canteen use', async () => {
+test('a legacy recipe given canteen use becomes format 3, counted per serving; the original numbers never become canteen use', async () => {
   const kb = knowledgeBase(legacy()), h = await setup(kb.handler); await h.mount();
   assert.match(h.all('[data-testid="format-upgrade"]')[0].textContent, /这道菜还是旧格式/);
   put(control(h.row(0), '每份多少（不知道就留空）'), '150');
@@ -171,7 +172,8 @@ test('a legacy recipe given canteen use becomes format 3; the original numbers n
   put(control(legend(h.row(0), '用量的出处'), '哪天'), '2026-10-19');
   h.click('保存菜谱'); await h.flush();
   const { title, steps, sources, assets } = legacy();
-  assert.deepEqual(kb.puts[0], { recipeFormatVersion: '3', title, steps, sources, assets, unknowns: [], ingredients: [
+  assert.equal(kb.puts[0].baseServings, 1, 'per-serving amounts are saved with servings 1, not the original 2 (ADR-0012 §2)');
+  assert.deepEqual(kb.puts[0], { recipeFormatVersion: '3', title, baseServings: 1, steps, sources, assets, unknowns: [], ingredients: [
     { id: rowA, name: { zh: '鸡腿肉' }, ingredientId: stdChicken, originalAmount: '鸡腿500克', originalQty: { value: '500', unit: 'g' }, qty: { value: '150', unit: 'g' }, qtySource: { kind: 'specified', by: '测试师傅', date: '2026-10-19' } },
     { id: rowB, name: { zh: '五花肉' }, originalAmount: '1.5 斤', originalQty: { value: '750', unit: 'g' } },
     { id: rowC, name: { zh: '盐' }, originalAmount: '适量' },
@@ -181,6 +183,9 @@ test('a legacy recipe given canteen use becomes format 3; the original numbers n
   ] });
   assert.deepEqual(kb.versions[0].recipe, legacy(), 'the legacy version is unchanged');
   assert.equal(h.all('[data-testid="format-upgrade"]').length, 0);
+  const servings = h.all('label').find(l => l.children[0]?.textContent === '基础份数（未知可留空）').querySelector('input');
+  assert.equal(servings.value, '1'); assert.equal(servings.disabled, true);
+  assert.equal(h.all('[data-testid="servings-basis"]')[0].textContent, '份数按每份记：填了食堂用量，份数就是 1。');
   assert.equal(h.row(1).querySelector('[data-testid="original-amount"]').textContent, '原方 · 只作参考：1.5 斤（750 g）');
 });
 
@@ -191,7 +196,10 @@ test('a lead time alone upgrades a legacy recipe and a binding alone keeps it le
   assert.equal(upgraded.recipeFormatVersion, '3'); assert.deepEqual(upgraded.unknowns, []);
   assert(upgraded.ingredients.every(row => !('amount' in row) && !('qty' in row) && !('qtySource' in row)));
   assert.deepEqual(upgraded.ingredients[1], { id: rowB, name: { zh: '五花肉' }, originalAmount: '1.5 斤', originalQty: { value: '750', unit: 'g' }, kitchenPrep: { leadTime: { value: '30', unit: 'min' } } });
+  assert.equal(upgraded.baseServings, 2, 'a lead time alone does not change servings');
   assert.deepEqual(m.saveBody(legacy()), legacy());
+  const unknownCount = legacy(); delete unknownCount.baseServings; unknownCount.ingredients[1].qty = { value: '120', unit: 'g' }; unknownCount.ingredients[1].qtySource = { kind: 'rule', ruleId: 'test-pork' };
+  assert.equal(m.saveBody(unknownCount).baseServings, 1, 'missing servings become 1 too, never worked out from the original');
   for (const value of ['0.25', '2', '10.50']) { const one = legacy(); one.ingredients[1].amount.value = value; one.ingredients[0].kitchenPrep = { leadTime: { value: '1', unit: 'h' } }; assert.equal(m.saveBody(one).ingredients[1].originalQty.value, { '0.25': '125', 2: '1000', '10.50': '5250' }[value]); }
 });
 
@@ -275,4 +283,46 @@ test('unclear items pointing at a removed row block the save instead of moving t
   h.all('[data-testid="recipe-unknown"]')[1].querySelector('button').click();
   h.click('保存菜谱'); await h.flush();
   assert.deepEqual(kb.puts[0].unknowns, [format3().unknowns[0], format3().unknowns[2]]);
+});
+
+test('canteen amounts already saved for another serving count wait for the chef instead of being rescaled silently', async () => {
+  const recipe = format3(); recipe.baseServings = 4;
+  const kb = knowledgeBase(recipe), h = await setup(kb.handler); await h.mount();
+  const servings = () => h.all('label').find(l => l.children[0]?.textContent === '基础份数（未知可留空）').querySelector('input');
+  assert.equal(servings().disabled, false); assert.equal(servings().value, '4');
+  const held = '这道菜的食堂用量是按 4 份记的。先把每行用量换成一份的量，再把份数改成 1，然后保存。';
+  assert.equal(h.all('[data-testid="servings-basis"]')[0].textContent, held);
+  put(h.row(1).querySelector('.kb-kitchen-fields').querySelector('select'), stdSoy); await h.flush();
+  h.click('保存菜谱'); await h.flush();
+  assert.equal(kb.puts.length, 0); assert.match(h.all('[role="alert"]')[0].textContent, /按 4 份记的/);
+  put(servings(), '1'); put(control(h.row(0), '每份多少（不知道就留空）'), '37.5');
+  h.click('保存菜谱'); await h.flush();
+  assert.equal(kb.puts.length, 1); assert.equal(kb.puts[0].baseServings, 1); assert.deepEqual(kb.puts[0].ingredients[0].qty, { value: '37.5', unit: 'g' });
+  assert.equal(kb.versions[0].recipe.baseServings, 4, 'the old version is unchanged');
+});
+
+// #190's refusals, with the Worker's own trilingual words for each failing path.
+const said = {
+  unsourced: { zh: '份数按每份记的菜，每个用量都要写明出处', en: 'For a dish counted per serving, every amount needs its source', uk: 'Для страви, яку рахують на одну порцію, у кожної кількості має бути вказане джерело' },
+  unknowns: { zh: '这一版带视频里没说清的条目，要等新版本才能排进菜单', en: 'This version has items the video did not make clear; it can go on a menu after an update', uk: 'Ця версія містить місця, які у відео не пояснено; додати її в меню можна буде після оновлення' },
+  missingRule: { zh: '按师傅规则填的值，引用的规则不在规则表里：test-missing-rule', en: 'A value filled by a chef rule cites a rule that is not in the rule list: test-missing-rule', uk: 'Значення, заповнене за правилом шефа, посилається на правило, якого немає в списку правил: test-missing-rule' },
+};
+test('menu refusals from the Worker say what to do in three languages and keep every failing path folded', async () => {
+  for (const [code, items, starts, lines] of [
+    ['quantity_source_required', [['/recipe/ingredients/0/qty', said.unsourced], ['/recipe/ingredients/1/qty', said.unsourced]], ['份数按每份记的菜，每个用量都要写明出处。在材料里补上出处', 'For a dish counted per serving, every amount needs its source. Add the source', 'Для страви, яку рахують на одну порцію, у кожної кількості має бути вказане джерело. Додайте джерело'], []],
+    ['rule_reference_invalid', [['/recipe/ingredients/1/qtySource/ruleId', said.missingRule]], ['按师傅规则填的值没有对上规则表。看看规则编号', 'A value filled by a chef rule does not match the rule list. Check the rule ID', 'Значення, заповнене за правилом шефа, не збігається зі списком правил. Перевірте номер правила'], ['missingRule']],
+    ['recipe_unknowns_pending', [['/recipe/unknowns', said.unknowns]], ['这一版带视频里没说清的条目，要等新版本才能排进菜单。带着这些条目排，要等系统更新', 'This version has items the video did not make clear; it can go on a menu after an update. Once every item', 'Ця версія містить місця, які у відео не пояснено; додати її в меню можна буде після оновлення. Коли всі пункти'], []],
+  ]) for (const [index, lang] of ['zh', 'en', 'uk'].entries()) {
+    const kb = knowledgeBase(format3(), { freeze: () => json({ ok: false, errors: items.map(([path, words]) => ({ path, code, message: words.zh, messages: words })) }, 422) });
+    const h = await setup(kb.handler); await h.mount(id, lang);
+    h.click(['排进菜单', 'Put this version on a menu', 'Додати цю версію в меню'][index]); await h.flush();
+    const panel = h.all('[data-testid="recipe-adoption"]')[0], alert = panel.querySelectorAll('[role="alert"]')[0].textContent;
+    assert(alert.startsWith(starts[index]), `${code} ${lang}: ${alert}`);
+    assert.doesNotMatch(alert, /操作未完成|Request failed|Запит не виконано|核对|复核|核定/);
+    assert.deepEqual(panel.querySelectorAll('[data-testid="refusal-lines"] li').map(li => li.textContent), lines.map(key => said[key][lang]), `${code} ${lang}: only lines that add something`);
+    const support = panel.querySelectorAll('details').find(node => node.querySelector('summary')?.textContent === ['技术支持详情', 'Support details', 'Деталі для підтримки'][index]);
+    for (const [path] of items) assert(support.textContent.includes(path), `${code} ${lang}: ${path} folded`);
+    assert.equal(h.m.inspectReloadSafety().reason, 'clear', 'a definite refusal leaves nothing unsaved or unknown');
+    assert.equal(kb.puts.length, 0);
+  }
 });
