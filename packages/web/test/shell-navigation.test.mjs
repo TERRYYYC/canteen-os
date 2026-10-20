@@ -60,13 +60,14 @@ async function setup(lang='en',token=null){
 test('Vite derives the application version from the Web package',()=>{
  assert.equal(config.define?.__APP_VERSION__,JSON.stringify(packageVersion));
 });
-const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',chef:'师傅后台',chefRole:'抖音收藏',oldChefRole:'复核菜谱',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',chef:'Chef back office',chefRole:'Douyin favorites',oldChefRole:'Review recipes',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',chef:'Кабінет шефа',chefRole:'Обране Douyin · 抖音收藏',oldChefRole:'Вхідні рецепти',guest:'для гостей'}};
+const copy={zh:{menu:'用餐安排',role:'团队查看',plan:'排每天的菜',chef:'师傅后台',chefRole:'收藏',oldChefRole:'抖音',guest:'顾客'},en:{menu:'Meals',role:'For the team',plan:'Plan meals',chef:'Chef back office',chefRole:'Favorites',oldChefRole:'Douyin',guest:'for guests'},uk:{menu:'Харчування',role:'Для команди',plan:'Планування меню',chef:'Кабінет шефа',chefRole:'Обране · 收藏',oldChefRole:'Douyin',guest:'для гостей'}};
 test('chef recipe inbox is reachable from the drawer independently of a published menu plan',async()=>{
  const e=await setup('zh'),p=await e.publication(empty.manifest);e.shell.setBuild(p.manifest,p.kind);e.shell.openDrawer();
  const inbox=e.byHref('#/admin/knowledge/inbox');
  assert.ok(inbox,'The drawer must link to the chef inbox');
  assert.ok(inbox.textContent.includes('师傅后台'));
- assert.ok(inbox.textContent.includes('抖音收藏'));
+ assert.ok(inbox.textContent.includes('收藏'));
+ assert.equal(inbox.textContent.includes('抖音'),false,'the entry is not tied to one platform (#164)');
  assert.equal(inbox.textContent.includes('复核菜谱'),false,'recipe review is outside the app (ADR-0011)');
  e.shell.setActive('admin','knowledge/inbox');
  assert.equal(e.byHref('#/admin/knowledge/inbox').getAttribute('aria-current'),'page');

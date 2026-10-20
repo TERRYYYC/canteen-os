@@ -11,7 +11,7 @@ import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
 
 type Batch = { id: string; claimedCount: number; submittedCount: number; validCount: number; insertedCount: number; rejectedCount: number; coverageGap: number; importedAt: string; replayed?: boolean; rejections?: { rowNumber: number; code: string }[] };
 type CandidateSummary = { candidateId:string; title:I18n; status:string; ingredientCount:number; stepCount:number; illustrationCount:number; thumbnailAssetId?:string|null; unresolvedCount:number };
-type Item = { id: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; candidateSummary?:CandidateSummary|null; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
+type Item = { id: string; platform?: string; contentId: string; kind: 'video' | 'note'; url: string; index: number; author: string; cardAlt: string; displayText: string; state: string; candidateSummary?:CandidateSummary|null; lastError?: string; classification?: { reviewer:string;reason:string;createdAt:string } };
 type Capture = { id: string; status: string; method: string; sha256: string; capturedAt: string; evidence: { sourceUrl: string; text?: string; media?: { sha256:string; durationMs:number; byteCount:number; sourceMethod:string }; segments?: { id?:string; kind: string; locator: string; text: string; startMs?:number; endMs?:number }[]; images?: { url: string; role: string; licenseStatus: string; sourceUrl: string; locator?: string }[] } };
 type Illustration = { id:string; assetId:string; url:string; sourceMediaSha256:string; frameMs:number; role:'ingredient'|'step'|'finished'; stepId:string; caption:{zh?:string;en?:string;uk?:string}; sourceUrl:string; author:string; rightsState:'unknown' };
 const imageControllers=new Set<AbortController>(), imageUrls=new Set<string>();
@@ -25,6 +25,13 @@ type Candidate = { id: string; captureId: string; status: string; recipe: Recipe
 /** ADR-0011: the fixed record sent to the KB when a candidate is saved or set aside; it states that no one reviewed it in the app. */
 const SYSTEM_REVIEWER='CanteenOS：直接存为菜谱（复核在 app 外，ADR-0011）';
 const SYSTEM_NOTE='app 里没有人审核来源；复核在 app 外进行。';
+/** #164: the platform is a tag on a favorite, not its own inbox. Unknown codes are shown as recorded, never guessed. */
+const PLATFORMS: [code:string, zh:string, en:string, uk:string][] = [
+  ['douyin','抖音','Douyin','Douyin'],['bilibili','B站','Bilibili','Bilibili'],
+  ['xiaohongshu','小红书','Xiaohongshu','Xiaohongshu'],['wechat_channels','视频号','WeChat Channels','WeChat Channels'],
+];
+/** The KB list cannot filter by platform, so a platform filter reads every page up to this bound and filters here. */
+const PLATFORM_SCAN_PAGES = 30;
 const stateName: Record<string, [string,string,string]> = {
   evidence_pending:['等待作品正文','Waiting for source text','Очікування тексту джерела'],
   evidence_ready:['已有作品证据','Source evidence ready','Джерело перевірено'],
@@ -78,6 +85,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const current = () => generation === inboxGeneration && active();
   ctx.setReloadCoverage?.('tracked');
   const t = words(ctx.lang), api = getKnowledgeApi();
+  const platformText=(code?:string)=>{const p=PLATFORMS.find(row=>row[0]===code);return p?t(p[1],p[2],p[3]):(code||t('平台未记录','Platform not recorded','Платформу не записано'));};
   const errorText = (error: unknown): string => {
     if (error instanceof KnowledgeError) {
       if (error.status === 401) return t('访问会话已失效或更换，请重新打开师傅链接。','Your access session expired or changed. Reopen the chef link.','Сеанс доступу закінчився або змінився. Відкрийте посилання шефа.');
@@ -95,24 +103,29 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   const titleText=(value:I18n|undefined)=>value?.[ctx.lang]||value?.zh||value?.en||value?.uk||'';
   const importBuffer=inboxBuffer('favorites-import');
   importBuffer.refresh=()=>{if(current()){updateImportControls();importRetryNotice();if(!importBuffer.error)void Promise.all([loadBatches(),loadItems(true)]);}};
-  let csvRows=importBuffer.extras.csvRows as FavoriteCsvRow[]|undefined, prepared=importBuffer.extras.prepared as Batch|undefined, loading=false, cursor:string|null=null, searchTerm='', listEpoch=0, fileReadEpoch=0;
+  let csvRows=importBuffer.extras.csvRows as FavoriteCsvRow[]|undefined, prepared=importBuffer.extras.prepared as Batch|undefined, loading=false, cursor:string|null=null, searchTerm='', platformFilter='all', listEpoch=0, fileReadEpoch=0;
   const info = h('div'), cards = h('div', { class:'kb-inbox-list' }), batchInfo = h('div');
   const searchInput=h('input',{type:'search',placeholder:t('例如：陈皮排骨','For example: tangerine peel ribs','Наприклад: реберця')}) as HTMLInputElement;
   const searchButton=button(t('搜索菜名','Search recipe names','Пошук за назвою'),()=>{searchTerm=searchInput.value.trim();void loadItems(true);});
   const searchForm=h('form',{class:'kb-inbox-search'},field(t('按菜名搜索','Search by recipe name','Пошук за назвою'),searchInput),searchButton);
   searchForm.addEventListener('submit',event=>{event.preventDefault();searchTerm=searchInput.value.trim();void loadItems(true);});
+  const platformChips=h('div',{class:'kb-inbox-platforms',role:'group','aria-label':t('平台','Platform','Платформа')});
+  for(const [code,label] of [['all',t('全部','All','Усі')],...PLATFORMS.map(row=>[row[0],t(row[1],row[2],row[3])])] as [string,string][]){
+    const chip=button(label,()=>{if(platformFilter===code)return;platformFilter=code;for(const other of platformChips.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===chip));void loadItems(true);});
+    chip.setAttribute('aria-pressed',String(code===platformFilter));chip.setAttribute('data-platform',code);platformChips.append(chip);
+  }
   const file = h('input',{ type:'file',accept:'.csv,text/csv' }) as HTMLInputElement;
   const claimed = h('input',{ type:'number',min:'0',step:'1' }) as HTMLInputElement;
   bindInboxValue(importBuffer,'claimed',claimed,'');
   const inspect = button(t('检查 CSV','Inspect CSV','Перевірити CSV'),()=>void prepare(),true);
   const apply = button(t('确认入箱','Add to inbox','Додати до вхідних'),()=>void importRows()); apply.disabled = !prepared || importBuffer.busy || importBuffer.unknown;
   const more = button(t('继续加载','Load more','Завантажити ще'),()=>void loadItems(false)); more.hidden = true;
-  root.append(h('div',{class:'kb-header'},h('h2',{},t('抖音收藏收件箱','Douyin favorites inbox','Вхідні обраного Douyin')),h('a',{class:'kb-link',href:'#/admin/knowledge'},t('返回菜谱库','Back to recipe library','До бібліотеки рецептів'))),
+  root.append(h('div',{class:'kb-header'},h('h2',{},t('收藏','Favorites','Обране')),h('a',{class:'kb-link',href:'#/admin/knowledge'},t('返回菜谱库','Back to recipe library','До бібліотеки рецептів'))),
     h('p',{class:'kb-muted'},t('找到想要的菜，存为菜谱，再在菜谱里排进菜单。保存菜谱不会自动发布菜单。','Find a dish, save it as a recipe, then put it on a menu from the recipe. Saving never publishes a menu.','Знайдіть страву, збережіть як рецепт, потім додайте в меню з рецепта. Збереження не публікує меню.')),
-    h('section',{class:'kb-panel'},h('h3',{},t('找一款做法','Find a recipe','Знайти рецепт')),searchForm,
+    h('section',{class:'kb-panel'},h('h3',{},t('找一款做法','Find a recipe','Знайти рецепт')),searchForm,platformChips,
       h('p',{class:'kb-muted'},t('列表显示原片参考图与做法摘要。','The list shows source-frame previews and recipe summaries.','Список показує кадри оригіналу й короткий опис.'))),
     h('section',{class:'kb-panel'},h('h3',{},t('待处理作品','Source items','Джерела')),cards,more),
-    h('details',{class:'kb-panel kb-inbox-import'},h('summary',{},t('导入收藏 CSV（管理）','Import favorites CSV (administration)','Імпорт CSV (керування)')),
+    h('details',{class:'kb-panel kb-inbox-import'},h('summary',{},t('导入抖音收藏 CSV（管理）','Import Douyin favorites CSV (administration)','Імпорт CSV обраного Douyin (керування)')),
       h('div',{class:'kb-inbox-import-body'},h('div',{class:'kb-actions'},field(t('CSV 文件','CSV file','Файл CSV'),file),field(t('收藏夹页面计数','Collection count','Кількість у колекції'),claimed),inspect,apply),
         h('p',{class:'kb-muted'},t('检查不会写库。卡片文字只作为线索，不能直接批准成菜谱。','Inspection does not write. Card text is a lead, not verified recipe evidence.','Перевірка не записує дані. Текст картки — лише підказка.')),info,batchInfo)));
   function updateImportControls(){const locked=importBuffer.busy||importBuffer.unknown;file.disabled=locked;claimed.disabled=locked;inspect.disabled=locked||loading;apply.disabled=locked||loading||!importBuffer.extras.prepared;}
@@ -151,10 +164,22 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
   async function loadBatches(){try{const {data}=await api.request<{items:Batch[]}>('/favorites/imports');if(!current())return;
     const latest=data.items[0];replace(batchInfo,latest?h('p',{class:'kb-status'},`${t('收藏卡片入箱','Source cards imported','Імпортовано картки джерел')}: ${latest.validCount}/${latest.claimedCount} · ${t('差额','Gap','Різниця')} ${latest.coverageGap} · ${t('坏行','Rejected','Відхилено')} ${latest.rejectedCount} · ${t('这是收藏 CSV 覆盖数，不是已解析菜谱数。','This counts imported CSV cards, not analyzed recipes.','Це кількість карток CSV, а не проаналізованих рецептів.')}`):h('p',{class:'kb-muted'},t('尚未导入收藏。','No favorites imported yet.','Ще нічого не імпортовано.')));
   }catch(error){if(current())replace(batchInfo,h('p',{role:'alert'},errorText(error)));}}
-  async function loadItems(reset:boolean){if(reset){listEpoch++;releaseInboxImages();cursor=null;replace(cards);}const epoch=listEpoch,params=new URLSearchParams({limit:'50',folder:'吃的'});if(searchTerm)params.set('q',searchTerm);if(cursor)params.set('cursor',cursor);
-    try{const {data}=await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`);if(!current()||epoch!==listEpoch)return;
-      for(const item of data.items)cards.append(renderItem(item));cursor=data.nextCursor;more.hidden=!cursor;
-      if(reset&&!data.items.length)cards.append(h('p',{class:'kb-muted'},searchTerm?t('没有找到这个菜名的草稿。','No candidate matches that recipe name.','За цією назвою рецептів не знайдено.'):t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
+  async function loadItems(reset:boolean){if(reset){listEpoch++;releaseInboxImages();cursor=null;replace(cards);}const epoch=listEpoch;
+    // No folder filter: favorites from every platform and collection are listed; the platform is a tag (#164).
+    const page=async(limit:number,after:string|null)=>{const params=new URLSearchParams({limit:String(limit)});if(searchTerm)params.set('q',searchTerm);if(after)params.set('cursor',after);
+      return (await api.request<{items:Item[];nextCursor:string|null}>(`/favorites/items?${params}`)).data;};
+    try{
+      // truncated: the platform scan stopped at its page limit, so a later page may still hold matches.
+      let shown=0,truncated=false;
+      if(platformFilter==='all'){const data=await page(50,cursor);if(!current()||epoch!==listEpoch)return;
+        for(const item of data.items)cards.append(renderItem(item));shown=data.items.length;cursor=data.nextCursor;more.hidden=!cursor;}
+      else{more.hidden=true;let after:string|null=null,pages=0;
+        do{const data=await page(100,after);if(!current()||epoch!==listEpoch)return;
+          for(const item of data.items)if(item.platform===platformFilter){cards.append(renderItem(item));shown++;}after=data.nextCursor;pages++;}
+        while(after&&pages<PLATFORM_SCAN_PAGES);
+        truncated=!!after;
+        if(truncated&&shown)cards.append(h('p',{class:'kb-muted'},t('收藏太多，这里只按平台筛了前 3000 条。','Too many favorites: only the first 3000 were filtered by platform.','Забагато обраного: за платформою відфільтровано лише перші 3000.')));}
+      if(reset&&!shown)cards.append(h('p',{class:'kb-muted'},truncated?(searchTerm?t('已筛的前 3000 条里没有找到这个菜名的草稿，后面的还没筛。','No candidate in the first 3000 favorites matches that recipe name; the rest were not filtered.','Серед перших 3000 обраних рецептів за цією назвою немає; решту не фільтрували.'):t('已筛的前 3000 条里没有这个平台的收藏，后面的还没筛。','None of the first 3000 favorites is from this platform; the rest were not filtered.','Серед перших 3000 обраних немає жодного з цієї платформи; решту не фільтрували.')):searchTerm?t('没有找到这个菜名的草稿。','No candidate matches that recipe name.','За цією назвою рецептів не знайдено.'):platformFilter!=='all'?t('这个平台还没有收藏。','No favorites from this platform yet.','З цієї платформи ще немає обраного.'):t('收件箱还没有作品。','The inbox is empty.','Вхідні порожні.')));
     }catch(error){if(current()&&epoch===listEpoch)cards.append(h('p',{role:'alert'},errorText(error)));}}
   function previewImage(assetId:string,title:string):{element:HTMLElement;dispose:()=>void}{
     const frame=h('span',{class:'kb-inbox-preview','data-asset-state':'loading'},t('原片参考图读取中','Loading source frame','Завантаження кадру'));
@@ -184,7 +209,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
       const candidate=item.candidateSummary,title=titleText(candidate?.title);
       const status=stateText(candidate?.status??item.state);
       const label=h('span',{class:'kb-inbox-summary-text'},h('strong',{},title||`#${item.index} · ${item.author}`),
-        h('small',{},`${status} · #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`));
+        h('small',{},h('span',{class:'kb-inbox-platform','data-platform':item.platform??''},platformText(item.platform)),` · ${status} · #${item.index} · ${item.author} · ${item.kind==='note'?t('图文','Photo post','Фото'):t('视频','Video','Відео')}`));
       if(!candidate)return [h('span',{class:'kb-inbox-badge'},status),label];
       label.append(h('small',{},`${candidate.ingredientCount} ${t('项食材','ingredients','інгредієнтів')} · ${candidate.stepCount} ${t('步做法','steps','кроків')} · ${candidate.illustrationCount} ${t('张原片参考图','source frames','кадрів оригіналу')}`));
       const assetId=candidate.thumbnailAssetId;

@@ -190,8 +190,8 @@ async function library(root: HTMLElement, ctx: PageCtx, active: () => boolean) {
         else if (externalCover) showImage(cover, externalCover, label(item.title, ctx.lang), listEpoch);
       }
       cursor = data.nextCursor;
-      replace(info, ...(!seen.size ? [status(t('这里还没有符合条件的菜谱。抖音收藏里的做法可以直接存为菜谱。', 'No recipe matches. Recipes from Douyin favorites can be saved directly.', 'Відповідного рецепта немає. Рецепти з обраного Douyin можна зберегти напряму.')),
-        h('a',{href:href('inbox')},t('打开抖音收藏','Open Douyin favorites','Відкрити обране Douyin'))] : []));
+      replace(info, ...(!seen.size ? [status(t('这里还没有符合条件的菜谱。收藏里的做法可以直接存为菜谱。', 'No recipe matches. Recipes from your favorites can be saved directly.', 'Відповідного рецепта немає. Рецепти з обраного можна зберегти напряму.')),
+        h('a',{href:href('inbox')},t('打开收藏','Open favorites','Відкрити обране'))] : []));
       more.hidden = !cursor;
     } catch (error) {
       if (active() && current === generation) replace(info, status(message(error, t, ctx.lang), true), button(t('重试', 'Retry', 'Спробувати знову'), () => void load(reset)));
