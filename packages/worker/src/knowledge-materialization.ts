@@ -38,11 +38,42 @@ export async function contractHash(value:unknown):Promise<string>{
   return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
-/** KB revisions carry no unknowns key when there are none (#182 K5); an empty list counts as none. */
-export function hasUnknowns(detail:Detail):boolean{
-  const unknowns=detail?.recipe?.unknowns;
-  if(unknowns!==undefined&&!Array.isArray(unknowns))throw new Error('invalid_unknowns');
-  return Boolean(unknowns?.length);
+/** A KB "not said in the video" item (#182 K3). `kind` is absent until it is sorted (#184); `text` is the quote. */
+type KnowledgeUnknown = { kind?: unknown; action?: unknown; stepId?: unknown; ingredientRowId?: unknown; text?: unknown };
+/** The same item as published: kind and position only (dish-v3 RecipeUnknown). */
+type PublishedUnknown = { kind: string; action?: string; stepIndex?: number; componentIndex?: number };
+const UNKNOWN_KINDS=new Set(['prep-ahead','amount','net-or-gross','cut-size','identity','heat','duration','doneness','other']);
+const PREP_AHEAD_ACTIONS=new Set(['marinate','soak','brine','rest','cool','other']);
+
+/**
+ * ADR-0012 §11: each item keeps its kind and becomes a position (step / ingredient row id → index from 0, none for
+ * the whole dish). The quote stays in the KB (ADR-0010). Items at one place with one kind become one; prep-ahead
+ * counts its action as part of the kind, so "how long to marinate" and "how long to soak" on one step both stay.
+ * Items not sorted yet, or pointing at a step or row this revision lacks, are left out and listed for the
+ * pre-write check. No items (no key, or an empty list, #182 K5) means no field at all.
+ */
+function recipeUnknowns(detail:Detail):{unknowns:PublishedUnknown[];unclassified:string[];misplaced:string[]}{
+  const items=detail.recipe.unknowns,unknowns:PublishedUnknown[]=[],unclassified:string[]=[],misplaced:string[]=[];
+  if(items===undefined)return {unknowns,unclassified,misplaced};
+  if(!Array.isArray(items))throw new Error('invalid_unknowns');
+  const steps=detail.recipe.steps.map(step=>step.id),rows=detail.recipe.ingredients.map(row=>row.id),seen=new Set<string>();
+  items.forEach((raw,index)=>{
+    if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('invalid_unknowns');
+    const {kind,action,stepId,ingredientRowId}=raw as KnowledgeUnknown,path=`/recipe/unknowns/${index}`;
+    if([stepId,ingredientRowId].some(id=>id!==undefined&&typeof id!=='string'))throw new Error('invalid_unknowns');
+    if(kind!==undefined&&(!UNKNOWN_KINDS.has(kind as string)||(kind==='prep-ahead')!==(action!==undefined)))throw new Error('invalid_unknowns');
+    if(action!==undefined&&!PREP_AHEAD_ACTIONS.has(action as string))throw new Error('invalid_unknowns');
+    const stepIndex=stepId===undefined?undefined:steps.indexOf(stepId as string);
+    const componentIndex=ingredientRowId===undefined?undefined:rows.indexOf(ingredientRowId as string);
+    if(stepIndex===-1||componentIndex===-1){misplaced.push(path);return;}
+    if(kind===undefined){unclassified.push(path);return;}
+    const key=JSON.stringify([kind,action,stepIndex,componentIndex]);
+    if(seen.has(key))return;
+    seen.add(key);
+    unknowns.push({kind:kind as string,...(action===undefined?{}:{action:action as string}),
+      ...(stepIndex===undefined?{}:{stepIndex}),...(componentIndex===undefined?{}:{componentIndex})});
+  });
+  return {unknowns,unclassified,misplaced};
 }
 
 /** Standard ingredients and techniques this revision refers to: exactly what has to be pinned with it. */
@@ -61,9 +92,6 @@ export function dependencyIds(detail:Detail):{ingredientIds:string[];techniqueId
  */
 export async function recipeMaterializationFiles(detail:Detail,dependencies:PinnedDependencies=NO_DEPENDENCIES,pinnedImages:PinnedImage[]=[]){
   if(!dependencies||!Array.isArray(dependencies.ingredients)||!Array.isArray(dependencies.techniques))throw new Error('invalid_dependencies');
-  // "Not said in the video" items are #174's. Freezing such a revision now would drop them and leave a snapshot
-  // that conflicts once they are written, so it waits (the endpoint says so in words).
-  if(hasUnknowns(detail))throw new Error('recipe_unknowns_pending');
   const {ingredientIds,techniqueIds}=dependencyIds(detail);
   if(JSON.stringify(ingredientIds)!==JSON.stringify(dependencies.ingredients.map(x=>x.id).sort()))throw new Error('ingredient_dependency_mismatch');
   if(JSON.stringify(techniqueIds)!==JSON.stringify(dependencies.techniques.map(x=>x.id).sort()))throw new Error('technique_dependency_mismatch');
@@ -96,6 +124,8 @@ export async function recipeMaterializationFiles(detail:Detail,dependencies:Pinn
     return component;
   });
   detail.recipe.steps.forEach((row,index)=>{if(row.techniqueId)dish.steps[index].techniqueRef=techniques.find(t=>t.id.startsWith(`kbt-${row.techniqueId!.replaceAll('-','')}-`))!.id;});
+  const {unknowns,unclassified:unclassifiedUnknowns,misplaced:misplacedUnknowns}=recipeUnknowns(detail);
+  if(unknowns.length)dish.unknowns=unknowns;
   result.snapshotHash=await sha256({dependencies,detail});
   dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash};
   files.push({path:dishFile.path,text:stableSerialize(dish)});
@@ -103,7 +133,9 @@ export async function recipeMaterializationFiles(detail:Detail,dependencies:Pinn
   // revision's qty came from the original recipe and has none. Checked before the first write only (see the endpoint).
   const unsourcedQuantities:string[]=dish.baseServings===1?dish.components.flatMap((component:{qty?:{value?:number};qtySource?:unknown},index:number)=>
     component.qty?.value!==undefined&&!component.qtySource?[`/recipe/ingredients/${index}`]:[]):[];
-  return {...result,files,techniques,ruleReferences,unsourcedQuantities};
+  // ADR-0012 §11: items not sorted into a kind yet (#184), or pointing at a step or row this revision does not have,
+  // are not written; like the check above, the endpoint refuses them before the first write only.
+  return {...result,files,techniques,ruleReferences,unsourcedQuantities,unclassifiedUnknowns,misplacedUnknowns};
 }
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?: number }> = {

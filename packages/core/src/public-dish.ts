@@ -25,7 +25,10 @@ function publicImage(ref: ImageRef | undefined, dishRef: string): ImageRef | und
   return /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:png|jpe?g|webp)$/i.test(name) ? ref : undefined;
 }
 
-/** Never return raw KB source records, quotes, review notes, private media or unlicensed image refs. */
+/**
+ * Never return raw KB source records, quotes, review notes, private media or unlicensed image refs.
+ * `unknowns` (ADR-0012 §11) is public as written: only a kind and a position, never the quote, so it passes unchanged.
+ */
 export function publicDish(dish: AnyDish, dishRef: string): AnyDish {
   const copy = clone(dish);
   if (copy.provenance?.source !== 'knowledge') return copy;

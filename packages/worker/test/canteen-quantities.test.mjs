@@ -208,17 +208,123 @@ test('a value filled by a rule is refused when the rule is missing, of another k
   assert.equal(unreadable.status,422);assert.match(unreadable.body.errors[0].message,/规则表格式不对/);assert.equal(repo.head,head);
 });
 
-test('a format 3 revision with "not said in the video" items waits for #174 instead of dropping them',async()=>{
-  const detail=format3();detail.recipe.unknowns=[{kind:'amount',ingredientRowId:ROWS[2],text:'PRIVATE_VIDEO_QUOTE'}];
-  const repo=repoWith({'data/chef-rules.json':chefRules}),head=repo.head,{freeze,kb}=freezer(repo,detail,{ingredients:[standard()],techniques:[]});
-  const errors=assertRefused(await freeze(),repo,head,'recipe_unknowns_pending');
-  assert.equal(errors[0].messages.zh,'这一版带视频里没说清的条目，要等新版本才能排进菜单');
-  assert(!kb.reads.some(path=>path.includes('/ingredients/')),'refused before pinning anything');
-  await assert.rejects(()=>recipeMaterializationFiles(detail,{ingredients:[standard()],techniques:[]}));
-  // An empty list is the same as none (#182 K5).
-  const empty=format3();empty.recipe.unknowns=[];
-  const ok=await freezer(repoWith({'data/chef-rules.json':chefRules}),empty,{ingredients:[standard()],techniques:[]}).freeze();
-  assert.equal(ok.status,200,JSON.stringify(ok.body));
+// #174 · ADR-0012 §11: "not said in the video" items go into the dish as kind + position; the quote stays in the KB.
+const STEPS=['4b5c6d7e-8f9a-4b0c-8d1e-2f3a4b5c6d7e','5c6d7e8f-9a0b-4c1d-9e2f-3a4b5c6d7e8f'];
+const QUOTE='PRIVATE_VIDEO_QUOTE_SENTINEL';
+/** format3() with a second step and the KB's items (#182: {kind?, action?, stepId?, ingredientRowId?, text}). */
+function withUnknowns(unknowns){
+  const detail=format3();detail.recipe.steps.push({id:STEPS[1],text:{zh:'测试步骤二（夹具）'}});
+  detail.recipe.unknowns=unknowns.map((item,i)=>({...item,text:`${QUOTE} ${i}`}));
+  return detail;
+}
+const deps=()=>({ingredients:[standard()],techniques:[]});
+const {validateEntity:validateWithSemantics}=(await import('../../../scripts/validate-schemas.mjs')).createSchemaValidators();
+/** What main (b50f8e6) wrote for format 3 revisions without items, before #174. */
+const format3Golden=JSON.parse(readFileSync(new URL('./fixtures/format3-materializations.json',import.meta.url)));
+
+test('no items, no field: format 3 without items freezes to the exact bytes main wrote, and replays unchanged',async()=>{
+  for(const c of format3Golden.cases){
+    const fixed=await recipeMaterializationFiles(structuredClone(c.detail),structuredClone(c.dependencies));
+    assert.deepEqual(fixed.files,c.files,c.name);assert.equal(fixed.snapshotHash,c.snapshotHash,c.name);
+    assert(!fixed.files.some(f=>f.text.includes('"unknowns"')),`${c.name}: no empty list written`);
+    const repo=repoWith({'data/chef-rules.json':chefRules,...Object.fromEntries(c.files.map(f=>[f.path,f.text]))}),head=repo.head;
+    const replay=await freezer(repo,c.detail,c.dependencies).freeze();
+    assert.equal(replay.status,200,`${c.name}: ${JSON.stringify(replay.body)}`);
+    assert.equal(replay.body.unchanged,true,c.name);assert.equal(repo.head,head,c.name);assert.equal(repo.writeCalls().length,0,c.name);
+  }
+});
+
+test('items become kind + position from 0; one per place and kind; the quote never reaches Git',async()=>{
+  const detail=withUnknowns([
+    {kind:'prep-ahead',action:'marinate',ingredientRowId:ROWS[0]},
+    {kind:'cut-size',ingredientRowId:ROWS[0]},
+    {kind:'prep-ahead',action:'marinate',ingredientRowId:ROWS[0]},   // same place, same kind: one
+    {kind:'heat',stepId:STEPS[1]},
+    {kind:'heat',stepId:STEPS[1]},                                   // same again
+    {kind:'prep-ahead',action:'soak',stepId:STEPS[1]},               // prep-ahead: the action is part of the kind
+    {kind:'prep-ahead',action:'marinate',stepId:STEPS[1]},
+    {kind:'identity',ingredientRowId:ROWS[3]},
+    {kind:'amount',stepId:STEPS[0]},
+    {kind:'amount'},                                                 // the whole dish
+    {kind:'other'},
+    {kind:'other'},
+  ]);
+  const fixed=await recipeMaterializationFiles(detail,deps()),dish=dishOf(fixed);
+  assert.deepEqual(dish.unknowns,[
+    {kind:'prep-ahead',action:'marinate',componentIndex:0},
+    {kind:'cut-size',componentIndex:0},
+    {kind:'heat',stepIndex:1},
+    {kind:'prep-ahead',action:'soak',stepIndex:1},
+    {kind:'prep-ahead',action:'marinate',stepIndex:1},
+    {kind:'identity',componentIndex:3},
+    {kind:'amount',stepIndex:0},
+    {kind:'amount'},
+    {kind:'other'},
+  ]);
+  assert.deepEqual(fixed.unclassifiedUnknowns,[]);assert.deepEqual(fixed.misplacedUnknowns,[]);
+  assert(!fixed.files.some(f=>f.text.includes(QUOTE)||f.text.includes('"text": "PRIVATE')),'the quote stays in the KB (ADR-0010)');
+  assert(!fixed.files.some(f=>/stepId|ingredientRowId/.test(f.text)),'KB row ids become positions');
+  // The same file passes the schema and the repo's own position check (scripts/validate-schemas.mjs).
+  const checked=validateWithSemantics('dish',dish);assert.equal(checked.valid,true,JSON.stringify(checked.errors));
+  assert.deepEqual(await recipeMaterializationFiles(withUnknowns([{kind:'other'}]),deps()),await recipeMaterializationFiles(withUnknowns([{kind:'other'}]),deps()),'same inputs, same files');
+
+  const repo=repoWith({'data/chef-rules.json':chefRules}),{freeze}=freezer(repo,detail,deps()),written=await freeze();
+  assert.equal(written.status,200,JSON.stringify(written.body));assert.equal(written.body.unchanged,false);
+  const stored=JSON.parse(repo.fileText(`data/dishes/${written.body.dishRef}.json`));
+  assert.deepEqual(stored.unknowns,dish.unknowns);
+  const head=repo.head,replay=await freeze();
+  assert.equal(replay.body.unchanged,true,JSON.stringify(replay.body));assert.equal(repo.head,head);
+});
+
+test('an item not sorted into a kind yet is refused before writing, in three languages, on both routes; never guessed as "other"',async()=>{
+  const detail=withUnknowns([{kind:'heat',stepId:STEPS[0]},{stepId:STEPS[1]},{ingredientRowId:ROWS[2]},{}]);
+  for(const compat of [false,true]){
+    const repo=repoWith({'data/chef-rules.json':chefRules}),head=repo.head;
+    const errors=assertRefused(await freezer(repo,detail,deps()).freeze(compat),repo,head,'recipe_unknowns_unclassified');
+    assert.deepEqual(errors.map(e=>e.path),['/recipe/unknowns/1','/recipe/unknowns/2','/recipe/unknowns/3']);
+    assert.equal(errors[0].messages.zh,'这一版有还没分类的「视频里没说清」条目，分完类再排进菜单');
+    for(const error of errors)assert(!JSON.stringify(error).includes(QUOTE),'the quote is not echoed');
+  }
+  const fixed=await recipeMaterializationFiles(detail,deps());
+  assert.deepEqual(dishOf(fixed).unknowns,[{kind:'heat',stepIndex:0}],'not written as "other"');
+  // Like the servings check, it only stops a new write: the same files already in Git replay as unchanged.
+  const repo=repoWith({'data/chef-rules.json':chefRules,...Object.fromEntries(fixed.files.map(f=>[f.path,f.text]))}),head=repo.head;
+  const replay=await freezer(repo,detail,deps()).freeze();
+  assert.equal(replay.status,200,JSON.stringify(replay.body));assert.equal(replay.body.unchanged,true);assert.equal(repo.head,head);
+});
+
+test('an item pointing at a step or ingredient row this version does not have is refused before writing',async()=>{
+  const gone='6d7e8f9a-0b1c-4d2e-8f3a-4b5c6d7e8f9a';
+  const cases=[
+    {name:'a row deleted in this version',unknowns:[{kind:'amount',ingredientRowId:gone}],paths:['/recipe/unknowns/0']},
+    {name:'a step deleted in this version',unknowns:[{kind:'other',stepId:STEPS[0]},{kind:'heat',stepId:gone}],paths:['/recipe/unknowns/1']},
+    {name:'a step id given as a row id',unknowns:[{kind:'cut-size',ingredientRowId:STEPS[0]}],paths:['/recipe/unknowns/0']},
+    {name:'a row id given as a step id, with no kind either',unknowns:[{stepId:ROWS[0]}],paths:['/recipe/unknowns/0']},
+  ];
+  for(const c of cases){
+    const repo=repoWith({'data/chef-rules.json':chefRules}),head=repo.head;
+    const errors=assertRefused(await freezer(repo,withUnknowns(c.unknowns),deps()).freeze(),repo,head,'recipe_unknowns_misplaced');
+    assert.deepEqual(errors.map(e=>e.path),c.paths,c.name);
+    assert.equal(errors[0].messages.zh,'「视频里没说清」的条目指向这一版里没有的步骤或材料，改好存成新版本再排进菜单',c.name);
+  }
+});
+
+test('items that break the KB contract are not frozen',async()=>{
+  const broken=[
+    {kind:'not-a-kind'},
+    {kind:'prep-ahead'},                                    // prep-ahead without its action
+    {kind:'amount',action:'marinate'},                      // an action on another kind
+    {kind:'prep-ahead',action:'fry'},                       // not one of the actions
+    {kind:'other',stepId:0},                                // positions are KB ids
+    'not an object',
+  ];
+  for(const [i,item] of broken.entries()){
+    const detail=format3();detail.recipe.unknowns=[item];
+    await assert.rejects(()=>recipeMaterializationFiles(detail,deps()),`case ${i}`);
+    const repo=repoWith({'data/chef-rules.json':chefRules}),head=repo.head,response=await freezer(repo,detail,deps()).freeze();
+    assert.equal(response.status,422,`case ${i}: ${JSON.stringify(response.body)}`);
+    assert.equal(response.body.errors[0].code,'invalid_source',`case ${i}`);assert.equal(repo.head,head);
+  }
 });
 
 test('hand count: 150 g net per serving, servings 1, 100 planned, yield 0.8, engine margin 1.1 → 20 625 g gross, 21 packs through core',async()=>{

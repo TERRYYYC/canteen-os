@@ -3,7 +3,7 @@ import { githubClient } from '../context.js';
 import { boundedBytes } from '../bounded-body.js';
 import type { GitHubClient } from '../github.js';
 import { fail, refusal, validationFailure, type Words } from '../http.js';
-import { contractHash, dependencyIds, hasUnknowns, recipeMaterializationFiles, type Detail, type KnowledgeTechnique, type PinnedDependencies, type PinnedImage, type RuleReference } from '../knowledge-materialization.js';
+import { contractHash, dependencyIds, recipeMaterializationFiles, type Detail, type KnowledgeTechnique, type PinnedDependencies, type PinnedImage, type RuleReference } from '../knowledge-materialization.js';
 import { inspectImage } from '../image-integrity.js';
 import { validateEntity } from '../validate.js';
 import { commitImmutableFiles } from '../write.js';
@@ -94,9 +94,12 @@ const WORDS={
   unsourced:{zh:'份数按每份记的菜，每个用量都要写明出处',
     en:'For a dish counted per serving, every amount needs its source',
     uk:'Для страви, яку рахують на одну порцію, у кожної кількості має бути вказане джерело'},
-  unknowns:{zh:'这一版带视频里没说清的条目，要等新版本才能排进菜单',
-    en:'This version has items the video did not make clear; it can go on a menu after an update',
-    uk:'Ця версія містить місця, які у відео не пояснено; додати її в меню можна буде після оновлення'},
+  unclassified:{zh:'这一版有还没分类的「视频里没说清」条目，分完类再排进菜单',
+    en:'This version has “not said in the video” items that are not sorted into a kind yet; sort them, then put it on a menu',
+    uk:'У цій версії є пункти «у відео не сказано», яким ще не дали категорію; спершу розсортуйте їх, тоді додавайте в меню'},
+  misplaced:{zh:'「视频里没说清」的条目指向这一版里没有的步骤或材料，改好存成新版本再排进菜单',
+    en:'A “not said in the video” item points to a step or ingredient this version does not have; fix it and save a new version, then put it on a menu',
+    uk:'Пункт «у відео не сказано» вказує на крок або продукт, якого в цій версії немає; виправте й збережіть нову версію, тоді додавайте в меню'},
   ruleMissing:{zh:'按师傅规则填的值，引用的规则不在规则表里',
     en:'A value filled by a chef rule cites a rule that is not in the rule list',
     uk:'Значення, заповнене за правилом шефа, посилається на правило, якого немає в списку правил'},
@@ -161,11 +164,6 @@ async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,can
   await readRecipeState(ctx,recipeId,version);
   const detail=await readKnowledge(ctx,`/recipes/${recipeId}/revisions/${version}`) as Detail;
   if(detail.id!==recipeId||detail.version!==version)throw fail('invalid_source');
-  // #174 writes these items into the dish. Until then such a revision is not frozen at all, so no snapshot
-  // without them is ever left to conflict with the one that has them.
-  let pending:boolean;
-  try{pending=hasUnknowns(detail);}catch{throw fail('invalid_source',{message:INCOMPLETE});}
-  if(pending)throw refusal('recipe_unknowns_pending',[{path:'/recipe/unknowns',words:WORDS.unknowns}]);
   const dependencies=await readDependencies(ctx,detail);
   const pinnedImages:PinnedImage[]=[];
   const media=detail.media??[];
@@ -198,6 +196,10 @@ async function materializeSavedRecipe(ctx:Ctx,recipeId:string,version:number,can
       // ADR-0012 §1: a legacy revision whose servings say 1 has qty taken from the original recipe, with no source.
       // Like the archive check, this only stops new writes: a version written before still replays as unchanged.
       if(materialized.unsourcedQuantities.length)throw refusal('quantity_source_required',materialized.unsourcedQuantities.map(path=>({path,words:WORDS.unsourced})));
+      // ADR-0012 §11: an item goes on the menu with its kind and place. One with no kind waits for #184 (never
+      // guessed as "other"); one pointing at a step or row this version lacks has no place to go.
+      if(materialized.misplacedUnknowns.length)throw refusal('recipe_unknowns_misplaced',materialized.misplacedUnknowns.map(path=>({path,words:WORDS.misplaced})));
+      if(materialized.unclassifiedUnknowns.length)throw refusal('recipe_unknowns_unclassified',materialized.unclassifiedUnknowns.map(path=>({path,words:WORDS.unclassified})));
       if(materialized.ruleReferences.length)checkRuleReferences(await readChefRules(gh,head),materialized.ruleReferences);
     }});
   return {ok:true,dishRef:materialized.dishRef,recipeId,recipeVersion:detail.version,
