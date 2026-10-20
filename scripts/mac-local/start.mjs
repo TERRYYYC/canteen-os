@@ -2,15 +2,18 @@
 /**
  * 一键启动 Mac 本机三件套（#196）：知识库 → Worker → 网页，都只监听 127.0.0.1；Ctrl+C 一起停。
  *
- *   node scripts/mac-local/start.mjs                    读 packages/worker/.dev.vars
+ *   node scripts/mac-local/start.mjs                    读 ~/.config/canteenos/mac-local.vars
  *   node scripts/mac-local/start.mjs --check            只检查环境和配置，不启动
- *   node scripts/mac-local/start.mjs --config <文件>    用别的配置（演练用）
+ *   node scripts/mac-local/start.mjs --config <文件>    用别的配置（演练用；也必须在仓库外面）
  *
+ * 网页先 `vite build` 到临时目录，再由 web-server.mjs 只发这个目录；不起 Vite 开发服务器
+ * （它能经 /@fs/ 读整个 workspace，#199 审查）。停的时候删掉临时目录。
  * 任何一个停了，其余的一起停，脚本以非 0 退出。操作说明：docs/field-test/mac-local/README.md。
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { connect } from 'node:net';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { DEFAULT_CONFIG, MIN_NODE, REPO_ROOT, loadConfig, nodeVersionOk } from './config.mjs';
@@ -133,6 +136,18 @@ export async function main(argv = process.argv.slice(2)) {
   const build = spawnSync('npm', ['--prefix', 'packages/worker', 'run', 'build'], { cwd: REPO_ROOT, encoding: 'utf8', env: childEnv({}) });
   if (build.status !== 0) { console.error(`${build.stdout}\n${build.stderr}`.trim().split('\n').slice(-15).join('\n')); console.log('✗ Worker 编译失败'); return 1; }
 
+  console.log('编译网页（连本机 Worker，放临时目录）…');
+  const webDist = mkdtempSync(join(tmpdir(), 'canteenos-mac-web-'));
+  spawnSync(process.execPath, ['scripts/gen-icons.mjs'], { cwd: WEB_DIR, env: childEnv({}) });
+  const webBuild = spawnSync(process.execPath, [join(WEB_DIR, 'node_modules/vite/bin/vite.js'), 'build', '--outDir', webDist, '--emptyOutDir', '--logLevel', 'warn'], {
+    cwd: WEB_DIR, encoding: 'utf8', env: childEnv({ VITE_WORKER_URL: config.web.workerUrl }),
+  });
+  if (webBuild.status !== 0) {
+    console.error(`${webBuild.stdout}\n${webBuild.stderr}`.trim().split('\n').slice(-15).join('\n'));
+    rmSync(webDist, { recursive: true, force: true });
+    console.log('✗ 网页编译失败'); return 1;
+  }
+
   const children = [];
   let stopping = null, failed = false, triggered;
   const asked = new Promise(resolve => { triggered = resolve; });
@@ -142,6 +157,7 @@ export async function main(argv = process.argv.slice(2)) {
     console.log(`\n${reason}，正在一起停…`);
     // 先停网页和 Worker，最后停知识库，让还在写的请求先做完。已在跑的知识库（existing）不归这里管。
     for (const child of [...children].reverse()) await stop(child);
+    rmSync(webDist, { recursive: true, force: true });
     console.log('都停了。');
   })();
   const watch = child => child.exited.then(({ code, signal }) => {
@@ -183,16 +199,13 @@ export async function main(argv = process.argv.slice(2)) {
   if (!await waitFor(worker, corsOk, 15_000)) { await shutdown('Worker 没起来'); return 1; }
   console.log(`✓ Worker ${config.web.workerUrl}（只认来源 ${config.web.origin}）`);
 
-  const web = launch('网页', [join(WEB_DIR, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', String(config.ports.web), '--strictPort', '--clearScreen', 'false'], {
-    cwd: WEB_DIR,
-    env: childEnv({ VITE_WORKER_URL: config.web.workerUrl }),
-  });
+  const web = launch('网页', [join(REPO_ROOT, 'scripts/mac-local/web-server.mjs'), '--dir', webDist, '--port', String(config.ports.web)], { cwd: REPO_ROOT, env: childEnv({}) });
   children.push(web);
   watch(web);
   const webOk = async () => {
     try { return (await fetch(`${config.web.origin}/`, { signal: AbortSignal.timeout(2000) })).ok; } catch { return false; }
   };
-  if (!await waitFor(web, webOk, 60_000)) { await shutdown('网页没起来'); return 1; }
+  if (!await waitFor(web, webOk, 15_000)) { await shutdown('网页没起来'); return 1; }
 
   const t = config.target;
   console.log([

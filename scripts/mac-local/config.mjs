@@ -1,15 +1,17 @@
 /**
- * Mac 本机三件套（知识库 + Worker + 网页，#196）的配置：读 packages/worker/.dev.vars，逐项检查。
+ * Mac 本机三件套（知识库 + Worker + 网页，#196）的配置：读 ~/.config/canteenos/mac-local.vars，逐项检查。
  *
- * 错误提示只写「哪一项、为什么」，绝不把值打出来——值里可能是 PAT 或钥匙哈希。
- * Worker 拿到的 env 只含下面列出的键，不带任何 `__` 测试接缝。
+ * 配置文件里有 GitHub token 和钥匙哈希，所以必须放在仓库外面、只有本人能读（#199 审查
+ * pr199/vite-serves-worker-secret-config：仓库里的文件可能被开发服务器之类的东西发出去）。
+ * 错误提示只写「哪一项、为什么」，绝不把值打出来。Worker 拿到的 env 只含下面列出的键，不带任何 `__` 测试接缝。
  */
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url));
-export const DEFAULT_CONFIG = join(REPO_ROOT, 'packages/worker/.dev.vars');
+export const DEFAULT_CONFIG = join(homedir(), '.config/canteenos/mac-local.vars');
 export const MIN_NODE = '24.18.0';
 
 /** 4390 是连远端服务器的 SSH 隧道；3003/3004 是 Clowder；6398/6399 是 Redis；5177 是知识库自带编辑器。 */
@@ -67,7 +69,8 @@ function loopbackOrigin(value) {
 }
 
 function insideRepo(path, root) {
-  const rel = relative(resolve(root), resolve(path));
+  const real = p => { try { return realpathSync(p); } catch { return resolve(p); } };
+  const rel = relative(real(root), real(path));
   return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
 }
 
@@ -189,17 +192,18 @@ export function validateConfig(values, { root = REPO_ROOT } = {}) {
   };
 }
 
-/** 读文件 + 检查。文件不在、读不了也算一条错误，不抛。 */
-export function loadConfig(path = DEFAULT_CONFIG, options) {
+/** 读文件 + 检查。文件不在、放错地方、别人能读，都算一条错误，不抛。 */
+export function loadConfig(path = DEFAULT_CONFIG, options = {}) {
+  const where = path === DEFAULT_CONFIG ? '~/.config/canteenos/mac-local.vars' : '你指定的那个文件';
+  if (!existsSync(path)) return { errors: [`配置文件不在：先把 packages/worker/.dev.vars.example 复制成 ${where}，再填`], config: null };
+  if (insideRepo(path, options.root ?? REPO_ROOT)) {
+    return { errors: ['配置文件不能放在仓库里面：里面有 GitHub token，仓库里的文件可能被别的程序发出去。挪到 ~/.config/canteenos/mac-local.vars'], config: null };
+  }
+  if (statSync(path).mode & 0o077) return { errors: [`配置文件除了你，别人也能读：chmod 600 ${where}`], config: null };
   let text;
   try { text = readFileSync(path, 'utf8'); }
-  catch { return { errors: [`配置文件不在：先把 packages/worker/.dev.vars.example 复制成 ${path === DEFAULT_CONFIG ? 'packages/worker/.dev.vars' : '你指定的那个文件'}，再填`], config: null }; }
+  catch { return { errors: ['配置文件读不了'], config: null }; }
   const parsed = parseVars(text);
   if (parsed.errors.length) return { errors: parsed.errors, config: null };
   return validateConfig(parsed.values, options);
-}
-
-/** 只给日志用：把路径写成相对仓库的，免得把本机目录打进截图。 */
-export function shortPath(path, root = REPO_ROOT) {
-  return insideRepo(path, root) ? relative(root, path) || '.' : `…${sep}${path.split(sep).slice(-2).join(sep)}`;
 }

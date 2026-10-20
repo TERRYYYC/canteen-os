@@ -7,12 +7,13 @@ import assert from 'node:assert/strict';
 import { createServer, request as httpRequest } from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, loadConfig, nodeVersionOk, parseVars, validateConfig } from './mac-local/config.mjs';
 import { portInUse } from './mac-local/start.mjs';
 import { MAX_BODY, WORKER_DIST, startWorkerServer } from './mac-local/worker-server.mjs';
+import { createWebServer } from './mac-local/web-server.mjs';
 
 const sha = text => createHash('sha256').update(text).digest('hex');
 const token = () => randomBytes(32).toString('base64url');
@@ -168,6 +169,53 @@ test('the real config file is ignored by Git, the template is not', () => {
   assert.equal(run('packages/worker/.dev.vars.example'), 1);
 });
 
+test('the config file must live outside the repo and be readable only by its owner', t => {
+  const dir = scratch(t), root = join(dir, 'repo'), data = join(dir, 'kb');
+  mkdirSync(join(root, 'packages/worker'), { recursive: true }); mkdirSync(data);
+  const text = Object.entries(good(data)).map(([k, v]) => `${k}=${v}`).join('\n') + '\n';
+  const inside = join(root, 'packages/worker/.dev.vars'), outside = join(dir, 'mac-local.vars');
+  writeFileSync(inside, text, { mode: 0o600 }); writeFileSync(outside, text, { mode: 0o600 });
+  assert.match(loadConfig(inside, { root }).errors[0], /不能放在仓库里面/);
+  // 经符号链接指进仓库也一样。
+  symlinkSync(inside, join(dir, 'link.vars'));
+  assert.match(loadConfig(join(dir, 'link.vars'), { root }).errors[0], /不能放在仓库里面/);
+  assert.deepEqual(loadConfig(outside, { root }).errors, []);
+  chmodSync(outside, 0o644);
+  assert.match(loadConfig(outside, { root }).errors[0], /chmod 600/);
+});
+
+test('web server sends only the built directory: no traversal, no symlink escape, no CORS', async t => {
+  const dir = scratch(t), dist = join(dir, 'dist'), sentinel = `SENTINEL-${randomBytes(8).toString('hex')}`;
+  mkdirSync(join(dist, 'assets'), { recursive: true });
+  writeFileSync(join(dist, 'index.html'), '<div id="app"></div>');
+  writeFileSync(join(dist, 'assets/app.js'), 'console.log(1)');
+  writeFileSync(join(dir, '.dev.vars'), `GITHUB_PAT=${sentinel}\n`);
+  symlinkSync(join(dir, '.dev.vars'), join(dist, 'escape.txt'));
+  const port = await freePort();
+  const server = await createWebServer({ root: dist, port });
+  await new Promise(resolve => server.listen(port, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  const base = `http://127.0.0.1:${port}`;
+  const index = await fetch(`${base}/`);
+  assert.equal(index.status, 200);
+  assert.match(index.headers.get('content-type'), /text\/html/);
+  assert.equal((await fetch(`${base}/assets/app.js`)).headers.get('content-type'), 'text/javascript; charset=utf-8');
+  assert.equal((await fetch(`${base}/assets/app.js`, { method: 'HEAD' })).status, 200);
+  for (const path of ['/../.dev.vars', '/..%2F.dev.vars', '/%2e%2e/.dev.vars', '/escape.txt', `/@fs${dir}/.dev.vars`, '/assets', '/missing.js', '/%00']) {
+    const response = await fetch(base + path, { headers: { Origin: 'http://localhost:1' } });
+    const body = await response.text();
+    assert.ok(response.status >= 400, `${path} → ${response.status}`);
+    assert.ok(!body.includes(sentinel), `${path} leaked`);
+    assert.equal(response.headers.get('access-control-allow-origin'), null);
+  }
+  assert.equal((await fetch(`${base}/`, { method: 'POST' })).status, 405);
+  const host = await new Promise((resolve, reject) => {
+    const req = httpRequest({ host: '127.0.0.1', port, path: '/', headers: { Host: `evil.example:${port}` } }, res => { res.resume(); resolve(res.statusCode); });
+    req.on('error', reject); req.end();
+  });
+  assert.equal(host, 403);
+});
+
 test('a missing config file is one readable error', () => {
   const { errors, config } = loadConfig(join(tmpdir(), 'no-such-mac-local-config'));
   assert.equal(config, null);
@@ -254,10 +302,22 @@ const e2eSkip = !nodeVersionOk() ? `要 Node 24.18+（现在 ${process.versions.
   : !existsSync(join(REPO_ROOT, 'services/knowledge-base/node_modules/fastify')) ? '知识库依赖没装（services/knowledge-base 里 npm ci）'
   : false;
 
-test('start.mjs checks, starts all three on 127.0.0.1, and stops all on Ctrl+C', { skip: e2eSkip, timeout: 150_000 }, async t => {
+/** 仓库里放带哨兵值的密钥形文件（名字都在 .gitignore 里），测完删掉；Terry 自己的 .dev.vars 在就不碰。 */
+function plantSecrets(t) {
+  const sentinel = `SENTINEL-${randomBytes(12).toString('hex')}`;
+  const names = [`.dev.vars.mac-local-test-${randomBytes(4).toString('hex')}`, `.env.mac-local-test-${randomBytes(4).toString('hex')}`];
+  if (!existsSync(join(REPO_ROOT, 'packages/worker/.dev.vars'))) names.push('.dev.vars');
+  const files = names.map(name => join(REPO_ROOT, 'packages/worker', name));
+  for (const file of files) writeFileSync(file, `GITHUB_PAT=${sentinel}\n`, { mode: 0o600 });
+  t.after(() => { for (const file of files) rmSync(file, { force: true }); });
+  return { sentinel, names };
+}
+
+test('start.mjs checks, starts all three on 127.0.0.1, never serves secret files, and stops all on Ctrl+C', { skip: e2eSkip, timeout: 240_000 }, async t => {
   if (await portInUse(4392)) return t.skip('4392 已被占用（可能在演练），跳过');
   const dir = scratch(t), data = join(dir, 'kb'), file = join(dir, 'test.vars');
   mkdirSync(data);
+  const planted = plantSecrets(t);
   const github = createServer((req, res) => { res.writeHead(404, { 'Content-Type': 'application/json' }); res.end('{}'); });
   await new Promise(resolve => github.listen(0, '127.0.0.1', resolve));
   t.after(() => github.close());
@@ -278,7 +338,13 @@ test('start.mjs checks, starts all three on 127.0.0.1, and stops all on Ctrl+C',
   child.stdout.on('data', chunk => { out += chunk; });
   child.stderr.on('data', chunk => { out += chunk; });
   const exited = new Promise(resolve => child.once('exit', code => resolve(code)));
-  t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });
+  // 测试失败时也要按正常流程停（SIGINT），直接 SIGKILL 会留下知识库、Worker、网页三个孤儿进程。
+  t.after(async () => {
+    if (child.exitCode !== null) return;
+    child.kill('SIGINT');
+    const timer = new Promise(resolve => setTimeout(resolve, 20_000, 'timeout'));
+    if (await Promise.race([exited, timer]) === 'timeout') child.kill('SIGKILL');
+  });
   const deadline = Date.now() + 120_000;
   while (!out.includes('都起好了') && child.exitCode === null && Date.now() < deadline) await new Promise(r => setTimeout(r, 300));
   assert.match(out, /都起好了/, out);
@@ -286,6 +352,31 @@ test('start.mjs checks, starts all three on 127.0.0.1, and stops all on Ctrl+C',
   assert.equal((await fetch('http://127.0.0.1:4392/api/v1/health')).status, 200);
   assert.equal((await fetch(`http://127.0.0.1:${webPort}/`)).status, 200);
   assert.ok(!out.includes(values.TOKEN_HASH_CHEF) && !out.includes(values.GITHUB_PAT), 'nothing secret printed');
+
+  // 反向回归（#199 审查 pr199/vite-serves-worker-secret-config）：网页那个端口不能把仓库里的密钥文件发出去。
+  // 以前起的是 Vite 开发服务器，/@fs/<仓库>/packages/worker/.dev.vars 会 200 原样返回（.env 才被它默认挡住）。
+  const web = `http://127.0.0.1:${webPort}`, root = REPO_ROOT.replace(/\/$/, '');
+  const index = await fetch(`${web}/`);
+  assert.equal(index.status, 200);
+  assert.match(await index.text(), /id="app"/, 'positive control: the app itself is served');
+  const probes = [];
+  for (const name of planted.names) {
+    probes.push(`/@fs${root}/packages/worker/${name}`, `/packages/worker/${name}`, `/../worker/${name}`,
+      `/..%2Fworker%2F${name}`, `/%2e%2e/%2e%2e/packages/worker/${name}`, `/@fs${root}/packages/worker/${encodeURIComponent(name)}`);
+  }
+  probes.push(`/@fs${file}`); // 这次用的配置文件本身（在仓库外）
+  const secrets = [planted.sentinel, values.GITHUB_PAT, values.TOKEN_HASH_CHEF];
+  const answers = [];
+  for (const path of probes) {
+    const response = await fetch(web + path, { headers: { Origin: `http://localhost:${webPort}` } });
+    answers.push({ path, status: response.status, body: await response.text(), cors: response.headers.get('access-control-allow-origin') });
+  }
+  const leaked = answers.filter(a => secrets.some(secret => a.body.includes(secret))).map(a => `${a.path} (${a.status})`);
+  assert.deepEqual(leaked, [], 'secret file content was served');
+  for (const a of answers) {
+    assert.ok(a.status >= 400, `${a.path} → ${a.status}`);
+    assert.equal(a.cors, null, `${a.path} must not grant CORS`);
+  }
 
   child.kill('SIGINT');
   assert.equal(await exited, 0, out);

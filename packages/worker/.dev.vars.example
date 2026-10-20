@@ -1,11 +1,12 @@
-# Mac 本机 Worker 的配置模板（#196）。
+# Mac 本机 Worker 的配置模板（#196）。本文件只放空值和公开的默认值，不放任何真值。
 #
-# 用法：复制成 packages/worker/.dev.vars，在 Terry 的 Mac 上填真值。
-#   cp packages/worker/.dev.vars.example packages/worker/.dev.vars
-#   chmod 600 packages/worker/.dev.vars
-# .dev.vars 在 .gitignore 里，不进仓库。本文件只放空值和公开的默认值，不放任何真值。
-# 一键启动 scripts/mac-local/start.mjs 读它；格式和 wrangler 的 .dev.vars 一样（名字=值）。
-# 操作说明：docs/field-test/mac-local/README.md。
+# 用法：复制到仓库外面，在 Terry 的 Mac 上填真值，只让本人能读：
+#   mkdir -p ~/.config/canteenos
+#   cp packages/worker/.dev.vars.example ~/.config/canteenos/mac-local.vars
+#   chmod 600 ~/.config/canteenos/mac-local.vars
+# 不要放在仓库里（包括 packages/worker/.dev.vars）：仓库里的文件可能被开发服务器之类的程序原样发出去
+# （#199 审查）。配置在仓库里、或者别人也能读，一键启动 scripts/mac-local/start.mjs 会拒绝启动。
+# 格式是 名字=值（和 wrangler 的 .dev.vars 一样）。操作说明：docs/field-test/mac-local/README.md。
 #
 # 线上 wrangler.toml 的 [vars]（ALLOWED_ORIGIN 等）不受这个文件影响。
 
