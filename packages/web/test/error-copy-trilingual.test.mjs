@@ -79,10 +79,18 @@ test('save-service failure gives kitchen users a next step without implementatio
 });
 
 test('knowledge approval and standard-ingredient errors have registered trilingual words',()=>{
- for(const code of ['INVALID_INGREDIENT','INVALID_APPROVAL','INVALID_INGREDIENT_VERSION','RECIPE_FORMAT_REQUIRED','INGREDIENT_NOT_FOUND','INGREDIENT_REVISION_NOT_FOUND','INGREDIENT_VERSION_CONFLICT','SOURCE_REVIEW_REQUIRED','ALREADY_APPROVED','FORMAT_DOWNGRADE','VERSION_CONFLICT','IDEMPOTENCY_KEY_REUSED','RECIPE_ARCHIVED','RECIPE_INCOMPLETE','INVALID_INGREDIENT_BINDINGS','TECHNIQUE_NOT_FOUND']){
+ for(const code of ['INVALID_INGREDIENT','INVALID_APPROVAL','INVALID_INGREDIENT_VERSION','RECIPE_FORMAT_REQUIRED','INGREDIENT_NOT_FOUND','INGREDIENT_REVISION_NOT_FOUND','INGREDIENT_VERSION_CONFLICT','SOURCE_REVIEW_REQUIRED','ALREADY_APPROVED','FORMAT_DOWNGRADE','VERSION_CONFLICT','IDEMPOTENCY_KEY_REUSED','RECIPE_ARCHIVED','RECIPE_INCOMPLETE','INVALID_INGREDIENT_BINDINGS','TECHNIQUE_NOT_FOUND','UNKNOWNS_REQUIRED','VALUE_SOURCE_INCOMPLETE']){
   const shown=LANGS.map(lang=>mod.fieldErrorText(err(code,'RAW KNOWLEDGE ERROR'),lang));
   assert.equal(new Set(shown).size,3,code);
   for(const text of shown)assert.notEqual(text,'RAW KNOWLEDGE ERROR',code);
+ }
+});
+
+test('format 3 refusals tell the chef what happened without review wording (#183, ADR-0011)',()=>{
+ for(const code of ['UNKNOWNS_REQUIRED','FORMAT_DOWNGRADE','RECIPE_FORMAT_REQUIRED','VALUE_SOURCE_INCOMPLETE','quantity_source_required','rule_reference_invalid','recipe_unknowns_pending']){
+  const shown=LANGS.map(lang=>mod.fieldErrorText(err(code,'RAW KNOWLEDGE ERROR'),lang));
+  assert.equal(new Set(shown).size,3,code);
+  for(const text of shown)assert.doesNotMatch(text,/核对|复核|核定|RAW KNOWLEDGE ERROR/,code);
  }
 });
 

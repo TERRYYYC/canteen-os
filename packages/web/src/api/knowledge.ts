@@ -2,9 +2,12 @@
 import { getToken, getAuthSessionVersion, peekAuthSessionVersion } from '../admin/token';
 export * from './knowledge-types';
 import type {Adoption,Materialization} from './knowledge-types';
+type Said = Partial<Record<'zh' | 'en' | 'uk', string>>;
 export class KnowledgeError extends Error {
-  constructor(message: string, public status: number, public code = 'request_failed', public details?: unknown) { super(message); }
+  constructor(message: string, public status: number, public code = 'request_failed', public details?: unknown, public messages: Said[] = []) { super(message); }
   get uncertain(): boolean { return this.status === 0 || this.status >= 500; }
+  /** Worker refusals word each problem in zh, en and uk (#190): the distinct lines in one language. */
+  said(lang: keyof Said): string[] { return [...new Set(this.messages.map(words => words[lang]).filter((line): line is string => !!line))]; }
 }
 export interface Reply<T> { data: T; etag: string | null; replayed: string | null }
 export interface Attempt { key: string; path: string; method: 'POST' | 'PUT'; body: string; etag?: string }
@@ -46,9 +49,10 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
     let data: unknown;
     try { data = await response.json(); } catch { throw new KnowledgeError('Invalid service response', response.ok ? 0 : response.status); }
     if (!response.ok) {
-      const value = data as { error?: { message?: string; code?: string; details?: unknown }; errors?: { message?: string; code?: string }[] };
+      const value = data as { error?: { message?: string; code?: string; details?: unknown }; errors?: { message?: string; code?: string; messages?: Said }[] };
       const error = value.error ?? value.errors?.[0];
-      throw new KnowledgeError(error?.message || `HTTP ${response.status}`, response.status, error?.code, value.error?.details);
+      // A Worker refusal lists every failing path: keep them all for the folded details, not just the first in Chinese.
+      throw new KnowledgeError(error?.message || `HTTP ${response.status}`, response.status, error?.code, value.error?.details ?? (value.errors?.length ? { errors: value.errors } : undefined), (value.errors || []).flatMap(item => item.messages ? [item.messages] : []));
     }
     return { data: data as T, etag: response.headers.get('ETag'), replayed: response.headers.get('Idempotency-Replayed') };
   }

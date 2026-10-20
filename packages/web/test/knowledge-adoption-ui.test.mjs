@@ -100,7 +100,7 @@ test('explicit shared identity, kitchen preparation and step technique save with
  });await h.mount();
  const control=text=>h.all('label').find(row=>row.children[0]?.textContent===text)?.querySelector('input,textarea,select');
  const change=(text,value)=>{const el=control(text);assert(el,text);el.value=value;el.dispatchEvent({type:el.tagName==='SELECT'?'change':'input'});};
- change('共享标准材料（明确绑定 ID）',canonical);change('标准技法（明确选择）',tech);change('厨房准备时机','before-service');change('厨房切配尺寸（未知留空）','2mm');
+ change('对应的标准食材',canonical);change('标准技法（明确选择）',tech);change('厨房准备时机','before-service');change('厨房切配尺寸（未知留空）','2mm');
  h.click('保存菜谱');await h.flush();assert.equal(saved.recipeFormatVersion,'2');assert.equal(saved.ingredients[0].ingredientId,canonical);assert.deepEqual(saved.ingredients[0].kitchenPrep,{techniqueId:tech,timing:'before-service',size:'2mm'});assert.deepEqual(saved.ingredients[0].amount,{kind:'unknown',raw:'若干'});assert.deepEqual(saved.ingredients[0].preparation,{zh:'原方切圈'});assert.equal(saved.steps[0].text.zh,'煮10分钟');
  assert.equal(fixture.calls.filter(call=>call.url.endsWith('/approve')).length,0);
 });

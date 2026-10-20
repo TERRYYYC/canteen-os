@@ -40,7 +40,10 @@ onRoute(() => { inboxGeneration++; mountedInbox = null; }, false);
 onAuthSessionChange(() => { inboxGeneration++; if (mountedInbox?.isConnected) replace(mountedInbox); });
 const lines = (value: string) => value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
 const duration = (ms:number) => `${String(Math.floor(ms/60000)).padStart(2,'0')}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}`;
-function amountLabel(value:NonNullable<Recipe['ingredients']>[number]['amount'], unknown:string):string {
+function amountLabel(row:NonNullable<Recipe['ingredients']>[number], unknown:string):string {
+  const value=row.amount;
+  // Format 3 candidates (KB #182) carry only the original wording and its number.
+  if(!value)return row.originalAmount||(row.originalQty?`${row.originalQty.value??''} ${row.originalQty.unit}`.trim():'')||unknown;
   if(value.kind==='exact')return `${value.value} ${value.unit}`;
   return value.raw || unknown;
 }
@@ -348,7 +351,7 @@ export async function renderInbox(root: HTMLElement, ctx: PageCtx, active: () =>
             h('section',{},h('h4',{},`${t('全部食材与调料','All ingredients and seasonings','Усі інгредієнти')} · ${ingredients.length}`),
               h('ul',{class:'kb-recipe-ingredients'},...ingredients.map(ingredient=>h('li',{class:'kb-recipe-ingredient'},
                 h('strong',{},titleText(ingredient.name)),
-                h('span',{},amountLabel(ingredient.amount,t('用量未说明','Amount not stated','Кількість не вказана'))),
+                h('span',{},amountLabel(ingredient,t('用量未说明','Amount not stated','Кількість не вказана'))),
                 ingredient.preparation?h('small',{},titleText(ingredient.preparation)):h('span')))),h('div',{class:'kb-reference-images'},...sourceImages('ingredient'))),
             h('section',{},h('h4',{},`${t('完整做法','Complete method','Повний спосіб')} · ${steps.length}`),
               h('ol',{class:'kb-recipe-steps'},...steps.map(step=>h('li',{class:'kb-recipe-step','data-step-id':step.id},h('p',{},titleText(step.text)),...sourceImages('step',step.id)))),h('div',{class:'kb-reference-images kb-reference-finished'},...sourceImages('finished')))),

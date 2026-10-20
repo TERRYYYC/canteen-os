@@ -1,12 +1,27 @@
 export type Lang = 'zh' | 'en' | 'uk';
 export type I18n = Partial<Record<Lang, string>>;
 export type Amount = { kind: 'unknown'; raw?: string } | { kind: 'exact'; value: string; unit: string; raw?: string } | { kind: 'to_taste' | 'text'; raw: string };
-export interface Ingredient { id: string; name: I18n; ingredientId?: string; rawText?: string; role?: 'main' | 'seasoning' | 'unspecified'; amount: Amount; preparation?: I18n; kitchenPrep?: KitchenPrep }
-export interface KitchenPrep {techniqueId?:string;timing?:'day-before'|'morning'|'before-service';size?:string;note?:I18n}
+/** Format 3 numbers stay decimal strings; `to-taste` carries no value (KB #182). */
+export type QtyUnit = 'g' | 'kg' | 'ml' | 'l' | 'pcs' | 'pack' | 'tbsp' | 'tsp' | 'pinch' | 'to-taste';
+export interface Qty { value?: string; unit: QtyUnit }
+/** ADR-0012 §3. The private KB keeps the real name in `by`; publishing writes only "chef". */
+export type ValueSource = { kind: 'measured' | 'specified'; by: string; date: string } | { kind: 'rule'; ruleId: string };
+export interface LeadTime { value: string; unit: 'min' | 'h' | 'd' }
+export type UnknownKind = 'prep-ahead' | 'amount' | 'net-or-gross' | 'cut-size' | 'identity' | 'heat' | 'duration' | 'doneness' | 'other';
+export type PrepAheadAction = 'marinate' | 'soak' | 'brine' | 'rest' | 'cool' | 'other';
+/** Something the video left unclear. `text` is the original wording for chefs only; no kind means not sorted yet. */
+export interface RecipeUnknown { kind?: UnknownKind; action?: PrepAheadAction; stepId?: string; ingredientRowId?: string; text: string }
+/**
+ * Format 2 and earlier: one `amount` per row.
+ * Format 3 (ADR-0012 §1): no `amount`; the original (`originalAmount`, `originalQty`) is display only,
+ * and only `qty` with its `qtySource` is what the canteen uses.
+ */
+export interface Ingredient { id: string; name: I18n; ingredientId?: string; rawText?: string; role?: 'main' | 'seasoning' | 'unspecified'; amount?: Amount; originalAmount?: string; originalQty?: Qty; qty?: Qty; qtySource?: ValueSource; preparation?: I18n; kitchenPrep?: KitchenPrep }
+export interface KitchenPrep {techniqueId?:string;timing?:'day-before'|'morning'|'before-service';size?:string;leadTime?:LeadTime;note?:I18n}
 export interface Step { id: string; text: I18n; techniqueId?:string }
 export interface AssetRef { assetId: string; role: 'cover' | 'reference' | 'step'; stepId?: string; clip?: { start: number; end: number } }
 export interface SourceRef { sourceId: string; evidence?: Record<string, unknown> }
-export interface Recipe { recipeFormatVersion?: '2'; title: I18n; description?: I18n; tags?: string[]; baseServings?: number; ingredients?: Ingredient[]; steps?: Step[]; sources?: SourceRef[]; assets?: AssetRef[] }
+export interface Recipe { recipeFormatVersion?: '2' | '3'; title: I18n; description?: I18n; tags?: string[]; baseServings?: number; ingredients?: Ingredient[]; steps?: Step[]; sources?: SourceRef[]; assets?: AssetRef[]; unknowns?: RecipeUnknown[] }
 export interface Media { rights?: {license: string; author?: string; sourceUrl?: string}; assetId: string; kind: string; url: string; status: string; role?: AssetRef['role']; stepId?: string; clip?: AssetRef['clip'] }
 export interface Source { id: string; kind: 'web' | 'video' | 'text' | 'file'; title?: string; author?: string; url?: string; textContent?: string; assetId?: string }
 export interface RecipeDetail { legacy?: unknown; id: string; version: number; recipe: Recipe; createdAt: string; updatedAt?: string; archivedAt?: string | null; media?: Media[]; sources?: Source[]; sourceRecords?: Source[] }
@@ -28,7 +43,7 @@ export function httpUrl(value?: string): string | null {
   try { const u = new URL(value, window.location.origin); return ['http:', 'https:'].includes(u.protocol) ? u.href : null; } catch { return null; }
 }
 
-export interface StandardIngredient { name:I18n;aliases?:string[];externalId?:string;baseUnit?:'g'|'ml'|'pcs';pcsToGram?:number;yield?:number;role?:'main'|'seasoning';trackStock?:boolean;onHand?:number;purchase?:{supplier:string;packSize:number;packUnit:string;minPacks?:number;lastPrice?:{amount:number;currency:'CNY'|'USD'|'UAH'|'EUR'}} }
+export interface StandardIngredient { name:I18n;aliases?:string[];externalId?:string;baseUnit?:'g'|'ml'|'pcs';pcsToGram?:number;pcsToGramSource?:ValueSource;yield?:number;yieldSource?:ValueSource;role?:'main'|'seasoning';trackStock?:boolean;onHand?:number;purchase?:{supplier:string;packSize:number;packUnit:string;minPacks?:number;lastPrice?:{amount:number;currency:'CNY'|'USD'|'UAH'|'EUR'}} }
 export interface IngredientRevision {id:string;version:number;ingredient:StandardIngredient;createdAt:string}
 export interface StandardTechnique {kind:'cut'|'heat'|'pretreat';name:I18n;note?:I18n}
 export interface TechniqueRevision {id:string;version:number;technique:StandardTechnique;createdAt:string|null}
