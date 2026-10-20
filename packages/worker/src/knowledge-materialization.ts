@@ -45,18 +45,23 @@ type PublishedUnknown = { kind: string; action?: string; stepIndex?: number; com
 const UNKNOWN_KINDS=new Set(['prep-ahead','amount','net-or-gross','cut-size','identity','heat','duration','doneness','other']);
 const PREP_AHEAD_ACTIONS=new Set(['marinate','soak','brine','rest','cool','other']);
 
+/** Two prep-ahead items at one place that name different actions: which place, which actions, and the first item that differs. */
+export type ConflictingUnknowns = { path: string; place: 'step' | 'component' | 'dish'; actions: string[] };
+
 /**
  * ADR-0012 §11: each item keeps its kind and becomes a position (step / ingredient row id → index from 0, none for
- * the whole dish). The quote stays in the KB (ADR-0010). Items at one place with one kind become one; prep-ahead
- * counts its action as part of the kind, so "how long to marinate" and "how long to soak" on one step both stay.
- * Items not sorted yet, or pointing at a step or row this revision lacks, are left out and listed for the
- * pre-write check. No items (no key, or an empty list, #182 K5) means no field at all.
+ * the whole dish). The quote stays in the KB (ADR-0010). One place, one kind: one item (D3 §2.2); the action only
+ * adds to prep-ahead. Items at one place with one kind and the same action become one. With different actions they
+ * cannot become one without dropping a thing to do ahead, so the place is listed for the pre-write check, as are
+ * items not sorted yet or pointing at a step or row this revision lacks. No items (no key, or an empty list,
+ * #182 K5) means no field at all.
  */
-function recipeUnknowns(detail:Detail):{unknowns:PublishedUnknown[];unclassified:string[];misplaced:string[]}{
+function recipeUnknowns(detail:Detail):{unknowns:PublishedUnknown[];unclassified:string[];misplaced:string[];conflicting:ConflictingUnknowns[]}{
   const items=detail.recipe.unknowns,unknowns:PublishedUnknown[]=[],unclassified:string[]=[],misplaced:string[]=[];
-  if(items===undefined)return {unknowns,unclassified,misplaced};
+  const conflicts=new Map<string,ConflictingUnknowns>(),actionAt=new Map<string,string|undefined>();
+  if(items===undefined)return {unknowns,unclassified,misplaced,conflicting:[]};
   if(!Array.isArray(items))throw new Error('invalid_unknowns');
-  const steps=detail.recipe.steps.map(step=>step.id),rows=detail.recipe.ingredients.map(row=>row.id),seen=new Set<string>();
+  const steps=detail.recipe.steps.map(step=>step.id),rows=detail.recipe.ingredients.map(row=>row.id);
   items.forEach((raw,index)=>{
     if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('invalid_unknowns');
     const {kind,action,stepId,ingredientRowId}=raw as KnowledgeUnknown,path=`/recipe/unknowns/${index}`;
@@ -67,13 +72,21 @@ function recipeUnknowns(detail:Detail):{unknowns:PublishedUnknown[];unclassified
     const componentIndex=ingredientRowId===undefined?undefined:rows.indexOf(ingredientRowId as string);
     if(stepIndex===-1||componentIndex===-1){misplaced.push(path);return;}
     if(kind===undefined){unclassified.push(path);return;}
-    const key=JSON.stringify([kind,action,stepIndex,componentIndex]);
-    if(seen.has(key))return;
-    seen.add(key);
+    const key=JSON.stringify([kind,stepIndex,componentIndex]);
+    if(actionAt.has(key)){
+      const first=actionAt.get(key);
+      if(action!==first){
+        const conflict=conflicts.get(key)??{path,place:componentIndex!==undefined?'component':stepIndex!==undefined?'step':'dish',actions:[first as string]};
+        if(!conflict.actions.includes(action as string))conflict.actions.push(action as string);
+        conflicts.set(key,conflict);
+      }
+      return;
+    }
+    actionAt.set(key,action as string|undefined);
     unknowns.push({kind:kind as string,...(action===undefined?{}:{action:action as string}),
       ...(stepIndex===undefined?{}:{stepIndex}),...(componentIndex===undefined?{}:{componentIndex})});
   });
-  return {unknowns,unclassified,misplaced};
+  return {unknowns,unclassified,misplaced,conflicting:[...conflicts.values()]};
 }
 
 /** Standard ingredients and techniques this revision refers to: exactly what has to be pinned with it. */
@@ -124,7 +137,7 @@ export async function recipeMaterializationFiles(detail:Detail,dependencies:Pinn
     return component;
   });
   detail.recipe.steps.forEach((row,index)=>{if(row.techniqueId)dish.steps[index].techniqueRef=techniques.find(t=>t.id.startsWith(`kbt-${row.techniqueId!.replaceAll('-','')}-`))!.id;});
-  const {unknowns,unclassified:unclassifiedUnknowns,misplaced:misplacedUnknowns}=recipeUnknowns(detail);
+  const {unknowns,unclassified:unclassifiedUnknowns,misplaced:misplacedUnknowns,conflicting:conflictingUnknowns}=recipeUnknowns(detail);
   if(unknowns.length)dish.unknowns=unknowns;
   result.snapshotHash=await sha256({dependencies,detail});
   dish.provenance={...dish.provenance,snapshotHash:result.snapshotHash};
@@ -133,9 +146,10 @@ export async function recipeMaterializationFiles(detail:Detail,dependencies:Pinn
   // revision's qty came from the original recipe and has none. Checked before the first write only (see the endpoint).
   const unsourcedQuantities:string[]=dish.baseServings===1?dish.components.flatMap((component:{qty?:{value?:number};qtySource?:unknown},index:number)=>
     component.qty?.value!==undefined&&!component.qtySource?[`/recipe/ingredients/${index}`]:[]):[];
-  // ADR-0012 §11: items not sorted into a kind yet (#184), or pointing at a step or row this revision does not have,
-  // are not written; like the check above, the endpoint refuses them before the first write only.
-  return {...result,files,techniques,ruleReferences,unsourcedQuantities,unclassifiedUnknowns,misplacedUnknowns};
+  // ADR-0012 §11: items not sorted into a kind yet (#184), pointing at a step or row this revision does not have, or
+  // naming two things to do ahead at one place, cannot be written as signed; like the check above, the endpoint
+  // refuses them before the first write only.
+  return {...result,files,techniques,ruleReferences,unsourcedQuantities,unclassifiedUnknowns,misplacedUnknowns,conflictingUnknowns};
 }
 
 const UNIT: Record<string, { unit: string; baseUnit: 'g' | 'ml' | 'pcs'; factor?: number }> = {

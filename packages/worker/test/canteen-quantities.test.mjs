@@ -234,15 +234,15 @@ test('no items, no field: format 3 without items freezes to the exact bytes main
   }
 });
 
-test('items become kind + position from 0; one per place and kind; the quote never reaches Git',async()=>{
+test('items become kind + position from 0; one per place, kind and action; the quote never reaches Git',async()=>{
   const detail=withUnknowns([
     {kind:'prep-ahead',action:'marinate',ingredientRowId:ROWS[0]},
     {kind:'cut-size',ingredientRowId:ROWS[0]},
     {kind:'prep-ahead',action:'marinate',ingredientRowId:ROWS[0]},   // same place, same kind: one
     {kind:'heat',stepId:STEPS[1]},
     {kind:'heat',stepId:STEPS[1]},                                   // same again
-    {kind:'prep-ahead',action:'soak',stepId:STEPS[1]},               // prep-ahead: the action is part of the kind
-    {kind:'prep-ahead',action:'marinate',stepId:STEPS[1]},
+    {kind:'prep-ahead',action:'soak',stepId:STEPS[1]},
+    {kind:'prep-ahead',action:'soak',stepId:STEPS[1]},               // same place, kind and action: one
     {kind:'identity',ingredientRowId:ROWS[3]},
     {kind:'amount',stepId:STEPS[0]},
     {kind:'amount'},                                                 // the whole dish
@@ -255,13 +255,12 @@ test('items become kind + position from 0; one per place and kind; the quote nev
     {kind:'cut-size',componentIndex:0},
     {kind:'heat',stepIndex:1},
     {kind:'prep-ahead',action:'soak',stepIndex:1},
-    {kind:'prep-ahead',action:'marinate',stepIndex:1},
     {kind:'identity',componentIndex:3},
     {kind:'amount',stepIndex:0},
     {kind:'amount'},
     {kind:'other'},
   ]);
-  assert.deepEqual(fixed.unclassifiedUnknowns,[]);assert.deepEqual(fixed.misplacedUnknowns,[]);
+  assert.deepEqual(fixed.unclassifiedUnknowns,[]);assert.deepEqual(fixed.misplacedUnknowns,[]);assert.deepEqual(fixed.conflictingUnknowns,[]);
   assert(!fixed.files.some(f=>f.text.includes(QUOTE)||f.text.includes('"text": "PRIVATE')),'the quote stays in the KB (ADR-0010)');
   assert(!fixed.files.some(f=>/stepId|ingredientRowId/.test(f.text)),'KB row ids become positions');
   // The same file passes the schema and the repo's own position check (scripts/validate-schemas.mjs).
@@ -307,6 +306,36 @@ test('an item pointing at a step or ingredient row this version does not have is
     assert.deepEqual(errors.map(e=>e.path),c.paths,c.name);
     assert.equal(errors[0].messages.zh,'「视频里没说清」的条目指向这一版里没有的步骤或材料，改好存成新版本再排进菜单',c.name);
   }
+});
+
+test('one place, one kind: two different things to do ahead there are refused before writing, neither dropped, in three languages',async()=>{
+  const cases=[
+    {name:'one step: marinate and soak',unknowns:[{kind:'other',stepId:STEPS[0]},{kind:'prep-ahead',action:'marinate',stepId:STEPS[0]},{kind:'prep-ahead',action:'marinate',stepId:STEPS[0]},{kind:'prep-ahead',action:'soak',stepId:STEPS[0]}],
+      paths:['/recipe/unknowns/3'],zh:'同一步有两件要提前做的事（腌、泡），请在知识库里把它们分别指到要腌、要泡的那样材料上，再存成新版本'},
+    {name:'one ingredient: three actions',unknowns:[{kind:'prep-ahead',action:'soak',ingredientRowId:ROWS[0]},{kind:'prep-ahead',action:'cool',ingredientRowId:ROWS[0]},{kind:'prep-ahead',action:'other',ingredientRowId:ROWS[0]}],
+      paths:['/recipe/unknowns/1'],zh:'同一样材料有几件要提前做的事（泡、晾凉、另做准备），请在知识库里把它们分别指到要泡、要晾凉、要另做准备的那样材料上，再存成新版本'},
+    {name:'the whole dish, and one step',unknowns:[{kind:'prep-ahead',action:'rest'},{kind:'prep-ahead',action:'brine'},{kind:'prep-ahead',action:'marinate',stepId:STEPS[1]},{kind:'prep-ahead',action:'soak',stepId:STEPS[1]}],
+      paths:['/recipe/unknowns/1','/recipe/unknowns/3'],zh:'整道菜上有两件要提前做的事（醒、卤），请在知识库里把它们分别指到要醒、要卤的那样材料上，再存成新版本'},
+  ];
+  for(const c of cases){
+    const detail=withUnknowns(c.unknowns),fixed=await recipeMaterializationFiles(detail,deps());
+    assert.equal(fixed.conflictingUnknowns.length,c.paths.length,c.name);
+    for(const compat of [false,true]){
+      const repo=repoWith({'data/chef-rules.json':chefRules}),head=repo.head;
+      const errors=assertRefused(await freezer(repo,detail,deps()).freeze(compat),repo,head,'recipe_unknowns_conflicting');
+      assert.deepEqual(errors.map(e=>e.path),c.paths,c.name);
+      assert.equal(errors[0].messages.zh,c.zh,c.name);
+      for(const error of errors)assert(!JSON.stringify(error).includes(QUOTE),'the quote is not echoed');
+    }
+  }
+  const en=(await freezer(repoWith({'data/chef-rules.json':chefRules}),withUnknowns(cases[0].unknowns),deps()).freeze()).body.errors[0].messages;
+  assert.equal(en.en,'One step has two things to do ahead (marinate, soak); in the recipe library, point each one at the ingredient it is for, then save a new version');
+  assert.match(en.uk,/^На одному кроці є дві справи, які треба зробити заздалегідь \(маринувати, замочити\)/);
+  // Like the other checks, it only stops a new write: the same files already in Git replay as unchanged.
+  const detail=withUnknowns(cases[0].unknowns),fixed=await recipeMaterializationFiles(detail,deps());
+  const repo=repoWith({'data/chef-rules.json':chefRules,...Object.fromEntries(fixed.files.map(f=>[f.path,f.text]))}),head=repo.head;
+  const replay=await freezer(repo,detail,deps()).freeze();
+  assert.equal(replay.status,200,JSON.stringify(replay.body));assert.equal(replay.body.unchanged,true);assert.equal(repo.head,head);
 });
 
 test('items that break the KB contract are not frozen',async()=>{

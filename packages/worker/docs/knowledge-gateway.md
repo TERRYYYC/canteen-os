@@ -34,6 +34,7 @@ created: 2026-09-19
   - 按规则填的值，规则不在要写入的那个 HEAD 的 `data/chef-rules.json` 里、种类不对，或每份用量规则的单位和 `qty` 不一样：422 `rule_reference_invalid`。
   - 「没说清」的条目还没分类（没有 `kind`，等 #184 分完）：422 `recipe_unknowns_unclassified`。不自动归成「别的」。
   - 「没说清」的条目指向这一版里没有的步骤或材料行：422 `recipe_unknowns_misplaced`。
+  - 同一位置、同一类别的条目写了不同的 `action`（例如同一步既腌又泡）：422 `recipe_unknowns_conflicting`，请师傅在知识库里把它们分别指到要腌、要泡的那样材料上。两个动作都不丢。
 - 这几种拒绝的每条错误除了中文 `message`，还带 `messages: {zh, en, uk}`。网页按 code 登记三语译文之前，可以先显示它。
 
 ## 固定菜谱：视频里没说清的地方（ADR-0012 第 11 条，#174）
@@ -41,9 +42,9 @@ created: 2026-09-19
 - 知识库修订的 `recipe.unknowns[]`（`{kind?, action?, stepId?, ingredientRowId?, text}`，#182）写进菜谱文件的顶层 `unknowns[]`：
   - `stepId` 换成 `stepIndex`，`ingredientRowId` 换成 `componentIndex`，都从 0 起；两个都没有的是整道菜的。
   - 只写 `kind` 和 `action`，原话 `text` 留在知识库（ADR-0010）。
-  - 同一位置、同一类别的合成一条。`prep-ahead` 的 `action` 算在类别里：同一步「腌多久」「泡多久」各留一条。
+  - 同一位置、同一类别只写一条（ADR-0012 第 11 条、D3 §2.2）；`action` 只是 `prep-ahead` 的附加信息。同位置、同类别、同 `action` 的合成一条；`action` 不同的，由下面的写入前检查拒绝。
   - 没有条目（没有这个键，或空数组）就不写这个字段，生成的文件和以前逐字节相同，旧版本重放仍是「没有变化」。
-- 没分类、指向不存在的位置的条目不写进文件，由上面的写入前检查拒绝；整套文件都已在 Git 里时，重放不受影响。
+- 没分类、指向不存在的位置、同一位置同一类别 `action` 不同的条目，由上面的写入前检查拒绝；整套文件都已在 Git 里时，重放不受影响。
 - 条目不是对象、类别或 `action` 不在闭集里、`prep-ahead` 缺 `action` 或别的类别带了 `action`：资料不完整，422 `invalid_source`。
 
 ## 容量与失败
