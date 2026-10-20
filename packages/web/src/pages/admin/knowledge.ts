@@ -11,7 +11,7 @@ import { words, button, field, input, select, multilingual, section, order, json
 import { fresh, editable, dirty, pending, validate, removeStep, saveBody, canteenFormat, perServing, servingsHeld, type Draft } from './knowledge/model';
 import { originalLine, unknownsPanel } from './knowledge/canteen';
 import { mediaEditor, readonlyDetail, type MediaView } from './knowledge/media';
-import {workflowPanel,kitchenFields,workflowBlocked} from './knowledge/adoption';
+import {workflowPanel,kitchenFields,workflowBlocked,syncWorkflow} from './knowledge/adoption';
 import {contractErrorText} from '../../admin/kit';
 import { sourceIllustrationPanel, syncSourceIllustrationLinks } from './knowledge/source-illustrations';
 
@@ -219,6 +219,7 @@ function editor(root: HTMLElement, ctx: PageCtx, draft: Draft, auth: number) {
   function updateStatus() {
     if (statusLabel) statusLabel.textContent = draft.unknown ? t('保存结果待确认', 'Save result unconfirmed', 'Результат збереження не підтверджено') : dirty(draft) ? t('有内容尚未保存', 'Unsaved changes', 'Є незбережені зміни') : t('内容已保存', 'Saved', 'Збережено');
     if (saveButton) saveButton.disabled = draft.busy || workflowBlocked(draft) || !!draft.detail?.archivedAt || (!draft.unknown && !!draft.detail && !(JSON.stringify(draft.recipe)!==draft.baseline||pending(draft)||draft.rightsChanged));
+    syncWorkflow(draft);
   }
   const view: MediaView = { t, current, changed, paint, error: error => message(error, t, ctx.lang), image(url, target) {
     void api.image(url).then(blob => {

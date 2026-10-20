@@ -1,21 +1,22 @@
 /** Chef workflow owns no Recipe store: edits stay in the existing session draft. */
-import {h} from '../../../dom';
+import {h,replace} from '../../../dom';
 import type {PageCtx} from '../../../types';
 import {createAttempt,getKnowledgeApi,KnowledgeError,type Adoption,type RecipeDetail,type StandardIngredient,type IngredientRevision,type StandardTechnique,type TechniqueRevision,type Attempt,type Materialization,type QtyUnit,type LeadTime} from '../../../api/knowledge';
 import type {AuxiliaryOperation} from '../../../view-models/reload-safety';
 import {contractErrorText} from '../../../admin/kit';
 import {button,field,input,select,multilingual,section,jsonEvidence,words} from './ui';
-import {sourceComplete,type Draft} from './model';
+import {dirty,sourceComplete,type Draft} from './model';
 import {originalLine,sourceFields,standardLabel,standardOptions,suggestion,nameUnsure} from './canteen';
 type IngredientChoice=StandardIngredient&{id:string;version:number};
 type TechniqueChoice=StandardTechnique&{id:string;version:number};
 type StandardEditor={kind:'ingredients'|'techniques';id?:string;etag?:string;value:StandardIngredient|StandardTechnique;raw:Record<string,string>;dirty:boolean};
 type Operation={kind:'freeze'|'ingredients'|'techniques';attempt:Attempt;ticket:AuxiliaryOperation;busy:boolean;unknown:boolean};
-interface State {version:number;epoch:number;loading:boolean;adoption?:Adoption;original?:RecipeDetail;error?:unknown;ingredients:IngredientChoice[];techniques:TechniqueChoice[];catalogLoaded:boolean;catalogValid:boolean;catalogLoading:boolean;editor?:StandardEditor;operation?:Operation;result?:Materialization}
+interface State {version:number;epoch:number;loading:boolean;adoption?:Adoption;original?:RecipeDetail;error?:unknown;ingredients:IngredientChoice[];techniques:TechniqueChoice[];catalogLoaded:boolean;catalogValid:boolean;catalogLoading:boolean;editor?:StandardEditor;operation?:Operation;result?:Materialization;sync?:()=>void}
 const states=new WeakMap<Draft,State>();
 const title=(value:Record<string,string|undefined>|undefined,lang:string)=>value?.[lang]||value?.zh||value?.en||value?.uk||'';
-const recipeDirty=(draft:Draft)=>JSON.stringify(draft.recipe)!==draft.baseline||Object.entries(draft.pending).some(([key,value])=>key!=='assetKind'&&value.trim())||draft.rightsChanged;
 export function workflowBlocked(draft:Draft):boolean{return !!draft.workflow?.busy||!!draft.workflow?.unknown;}
+/** Typing repaints nothing here (#186): the editor calls this on every change so 排进菜单 follows unsaved edits. */
+export function syncWorkflow(draft:Draft):void{states.get(draft)?.sync?.();}
 function flags(draft:Draft,state:State){draft.workflow={dirty:!!state.editor?.dirty,busy:!!state.operation?.busy,unknown:!!state.operation?.unknown};}
 export function workflowPanel(draft:Draft,ctx:PageCtx,current:()=>boolean,paint:()=>void,changed:()=>void):HTMLElement {
  const t=words(ctx.lang),api=getKnowledgeApi();
@@ -46,7 +47,8 @@ export function workflowPanel(draft:Draft,ctx:PageCtx,current:()=>boolean,paint:
  }
  async function write(kind:Operation['kind'],attempt?:Attempt){
   if(!current()||draft.busy||draft.unknown||s.operation?.busy||draft.detail?.archivedAt)return;
-  if(!s.operation){if(!attempt)return;s.operation={kind,attempt,ticket:draft.registration.beginOperation('write'),busy:false,unknown:false};}
+  // A freeze fixes the saved version, so unsaved edits hold back a new one; an unconfirmed one replays as it was sent.
+  if(!s.operation){if(!attempt)return;if(kind==='freeze'&&dirty(draft)){s.sync?.();return;}s.operation={kind,attempt,ticket:draft.registration.beginOperation('write'),busy:false,unknown:false};}
   const operation=s.operation;operation.busy=true;s.error=undefined;repaint();
   try{const reply=await api.send<unknown>(operation.attempt);if(operation.kind==='freeze'){const data=reply.data as Materialization;if(data.recipeId!==draft.detail?.id||data.recipeVersion!==draft.detail.version||typeof data.dishRef!=='string'||!/^kb[a-z0-9-]+$/.test(data.dishRef))throw new KnowledgeError('Fixed result does not match the requested Recipe',0,'invalid_source');}draft.registration.settleOperation(operation.ticket,'completed');if(!current())return;
    s.operation=undefined;
@@ -66,7 +68,7 @@ export function workflowPanel(draft:Draft,ctx:PageCtx,current:()=>boolean,paint:
  }
  const panel=section(t('原方与厨房修订','Original and kitchen revision','Оригінал і кухонна редакція'));
  panel.setAttribute('data-testid','recipe-adoption');
- if(!draft.detail){panel.append(h('p',{},t('先保存菜谱，再排进菜单。未知用量可以保留。','Save the recipe first, then put it on a menu. Unknown amounts can stay unknown.','Спочатку збережіть рецепт, потім додайте його в меню. Невідомі кількості можна залишити.')));return panel;}
+ if(!draft.detail){s.sync=undefined;panel.append(h('p',{},t('先保存菜谱，再排进菜单。未知用量可以保留。','Save the recipe first, then put it on a menu. Unknown amounts can stay unknown.','Спочатку збережіть рецепт, потім додайте його в меню. Невідомі кількості можна залишити.')));return panel;}
  if(s.version!==draft.detail.version&&!s.loading)void metadata();
  if(!s.catalogLoaded&&!s.catalogLoading)void catalog();
  const saved=draft.detail;
@@ -78,20 +80,23 @@ export function workflowPanel(draft:Draft,ctx:PageCtx,current:()=>boolean,paint:
   const primary=(error instanceof KnowledgeError&&contractErrorText(error.code,ctx.lang))||said[0]||t('操作未完成，输入已保留。','Request failed; input is preserved.','Запит не виконано; дані збережено.'),more=said.filter(line=>!primary.includes(line));
   panel.append(h('p',{role:'alert'},primary),...(more.length?[h('ul',{'data-testid':'refusal-lines'},...more.map(line=>h('li',{},line)))]:[]),jsonEvidence(error instanceof KnowledgeError?{status:error.status,code:error.code,message:error.message,details:error.details,key:s.operation?.attempt.key}:{message:String(error)},t('技术支持详情','Support details','Деталі для підтримки')));}
  const retry=button(t('重新读取原方与标准资料','Refresh original and standards','Оновити оригінал і стандарти'),()=>{void metadata(true);void catalog(true);});retry.disabled=blocked()||s.loading||s.catalogLoading;panel.append(retry);
- if(s.operation?.unknown){const verify=button(t('确认操作结果（使用同一请求）','Verify operation result (same request)','Перевірити результат (той самий запит)'),()=>void write(s.operation!.kind),true);verify.disabled=s.operation.busy;panel.append(h('p',{role:'status'},t('结果尚未确认。请保留输入，核对原请求的结果。','The result is unconfirmed. Keep input and verify the original request.','Результат не підтверджено. Збережіть дані та перевірте початковий запит.')),verify);}
+ if(s.operation?.unknown){const verify=button(t('确认操作结果（使用同一请求）','Verify operation result (same request)','Перевірити результат (той самий запит)'),()=>void write(s.operation!.kind),true);verify.disabled=s.operation.busy;panel.append(h('p',{role:'status'},t('结果尚未确认。请保留输入，用原来的请求再确认一次。','The result is unconfirmed. Keep input and verify the original request.','Результат не підтверджено. Збережіть дані та перевірте початковий запит.')),verify);}
  // ADR-0011: no source confirmation or kitchen approval here; any saved, unarchived version can go on a menu.
  const freeze=button(t('排进菜单','Put this version on a menu','Додати цю версію в меню'),()=>void write('freeze',api.materializationAttempt(saved.id,saved.version)),true);
- freeze.disabled=blocked()||!!recipeDirty(draft)||!s.adoption||s.adoption.current.archived;
- panel.append(freeze,h('p',{},t('先保存改动，再排进菜单。排进去的是这一版，之后再改菜谱不影响已发布的菜单。','Save your changes first. The menu uses exactly this version; later edits do not change a published menu.','Спочатку збережіть зміни. Меню використовує саме цю версію; пізніші зміни не впливають на опубліковане меню.')));
+ const saveFirst=h('div',{role:'status','data-testid':'freeze-unsaved'});
+ const sync=s.sync=()=>{const unsaved=dirty(draft);freeze.disabled=blocked()||unsaved||!s.adoption||s.adoption.current.archived;
+  if(unsaved!==!!saveFirst.textContent)replace(saveFirst,unsaved?h('p',{class:'kb-status'},t('先保存改动，再排进菜单。','Save your changes first, then put it on a menu.','Спочатку збережіть зміни, а потім додайте рецепт у меню.')):null);};
+ panel.append(freeze,saveFirst,h('p',{},t('排进去的是这一版，之后再改菜谱不影响已发布的菜单。','The menu uses exactly this version; later edits do not change a published menu.','Меню використовує саме цю версію; пізніші зміни не впливають на опубліковане меню.')));
  if(s.result){const result=s.result;panel.append(h('p',{role:'status'},`${t('已固定菜谱版本','Recipe version fixed','Версію рецепта зафіксовано')} v${result.recipeVersion}`),h('a',{href:`#/dish/${result.dishRef}`},t('查看固定菜品','View fixed dish','Переглянути зафіксовану страву')));
   const next=button(t('继续选择菜单日期与份数','Choose menu dates and servings','Вибрати дати меню й порції'),()=>{if(!current())return;const planId=ctx.planId;if(planId){ctx.planSelection?.select(planId);location.hash=`#/admin/plan/${encodeURIComponent(planId)}/select/${encodeURIComponent(result.dishRef)}`;}else location.hash='#/admin/plan';},true);panel.append(h('p',{},ctx.planId?`${t('当前计划','Selected plan','Вибраний план')}: ${ctx.planId}`:t('先选择菜单计划，再添加菜品。','Select a menu plan before adding the dish.','Виберіть план меню перед додаванням страви.')),next);
  }
  // Entry points are here; row bindings below reuse this same explicit identity inventory.
  const standards=section(t('标准材料与技法','Standard ingredients and techniques','Стандартні інгредієнти й техніки'),h('p',{},t('名字一样也不会自动对上，每行材料要自己选。空着的单位、净料率和采购规格就是还不知道。改标准资料会存成新版本，已经排进菜单的不变。','A matching name never links by itself; choose for each ingredient row. Blank units, yield and purchase details mean not known yet. Editing a standard saves a new version; versions already on a menu stay as they are.','Однакова назва не прив’язується сама; вибирайте для кожного рядка. Порожні одиниці, вихід і закупівельні дані означають, що їх ще не знають. Зміна стандарту зберігає нову версію; версії, вже додані в меню, не змінюються.')));
  for(const [kind,text]of [['ingredients',t('标准材料','Standard ingredient','Стандартний інгредієнт')],['techniques',t('标准技法','Standard technique','Стандартна техніка')]]as const){const add=button(`＋ ${text}`,()=>void editStandard(kind));add.disabled=blocked()||!!s.editor;standards.append(add);const rows=kind==='ingredients'?s.ingredients:s.techniques;const chooser=select('',[['',t('选择已有资料编辑','Choose existing standard to edit','Вибрати стандарт для редагування')],...rows.map(row=>[row.id,kind==='ingredients'?standardLabel(row as IngredientChoice,ctx.lang,t):title(row.name,ctx.lang)]as[string,string])],id=>{if(id)void editStandard(kind,id);});chooser.disabled=blocked()||!!s.editor;standards.append(field(text,chooser));}
- if(s.editor)standards.append(standardForm(s.editor));panel.append(standards);flags(draft,s);return panel;
+ if(s.editor)standards.append(standardForm(s.editor));panel.append(standards);flags(draft,s);sync();return panel;
  function standardForm(editor:StandardEditor):HTMLElement {
-  const value=editor.value;const changedStandard=()=>{editor.dirty=true;draft.generation++;flags(draft,s);};const sourceChanged=(again?:boolean)=>{changedStandard();if(again)repaint();};
+  // An unsaved standard is an unsaved change too: the freeze would take its last saved version.
+  const value=editor.value;const changedStandard=()=>{editor.dirty=true;flags(draft,s);changed();};const sourceChanged=(again?:boolean)=>{changedStandard();if(again)repaint();};
   const form=h('fieldset',{disabled:blocked(),'class':'kb-form','data-testid':'standard-editor'},h('legend',{},editor.id?t('编辑标准资料（新版本）','Edit standard (new version)','Редагувати стандарт (нова версія)'):t('新建标准资料','Create standard','Створити стандарт')),multilingual(t('标准名称','Standard name','Назва стандарту'),value.name,name=>{value.name=name;changedStandard();}));
   const scalar=(key:string,label:string,initial:string)=>field(label,input(editor.raw[key]??initial,text=>{editor.raw[key]=text;changedStandard();}));
   if(editor.kind==='techniques'){const technique=value as StandardTechnique;form.append(field(t('技法类型','Technique type','Тип техніки'),select(technique.kind,[['cut',t('切配','Cut','Нарізання')],['heat',t('加热','Heat','Нагрівання')],['pretreat',t('预处理','Pretreat','Попередня обробка')]],kind=>{technique.kind=kind as StandardTechnique['kind'];changedStandard();})),multilingual(t('技法说明','Technique notes','Примітки техніки'),technique.note,note=>{if(Object.keys(note).length)technique.note=note;else delete technique.note;changedStandard();},true));}
