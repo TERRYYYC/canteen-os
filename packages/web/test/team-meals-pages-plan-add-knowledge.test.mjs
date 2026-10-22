@@ -44,7 +44,7 @@ const QUANTITY={zh:'份数按每份记的菜，每个用量都要写明出处：
 const UNCLASSIFIED={zh:'这一版有还没分类的「视频里没说清」条目，分完类再排进菜单',en:'This version has unsorted unclear items; sort them before putting it on a menu',uk:'У цій версії є несортовані неясні пункти; відсортуйте їх перед додаванням у меню'};
 let serial=0;
 
-async function setup({knowledge=true,kbRead,review,materialize}={}){
+async function setup({knowledge=true,kbRead,review,materialize,teamRead}={}){
  globalThis.HTMLElement=Element;globalThis.MutationObserver=class{observe(){}disconnect(){}};globalThis.window={addEventListener(){}};globalThis.location={hash:'#/admin/plan/week-a'};
  globalThis.document={body:new Element('body'),createElement:t=>new Element(t),createTextNode:t=>new Element('',t),activeElement:null};
  const storage=new Map();globalThis.localStorage=globalThis.sessionStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
@@ -57,6 +57,7 @@ async function setup({knowledge=true,kbRead,review,materialize}={}){
  const fix=(id,version)=>{const dishRef=dishRefOf(id,version);head.commit=C;head.dishes[dishRef]={schemaVersion:'3',name:{en:`Recipe ${id.slice(0,4)}`},components:[],provenance:{source:'knowledge',recipeId:id,recipeVersion:version,snapshotHash:'h'}};return {dishRef,recipeId:id,recipeVersion:version,commit:C,unchanged:false};};
  const api=page.createTeamMealsApi('https://plan-add-fixture.invalid',{mode:'mock',token:()=>'explicit-local-fixture',identity:()=>1,fetch:async(url,init)=>{const u=new URL(url);
   if(init.method==='POST'){writes.push({id:u.pathname,body:JSON.parse(init.body)});return Response.json({ok:true,commit:'b'.repeat(40),blobSha:'after',unchanged:false,warnings:[]});}
+  if(teamRead){const response=await teamRead(u);if(response)return response;}
   if(u.pathname==='/catalog')return Response.json({commit:u.searchParams.get('revision')??head.commit,dishes:{...head.dishes},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});
   return Response.json({content:seed(),commit:A,blobSha:'before'});}});
  const kb=page.createKnowledgeApi({base:'https://plan-add-fixture.invalid',token:()=>'explicit-local-fixture',session:()=>1,fetch:async(url,init={})=>{const u=new URL(url),method=init.method??'GET';
@@ -75,7 +76,7 @@ async function setup({knowledge=true,kbRead,review,materialize}={}){
    return Response.json({id:reviewed[1],status:'approved',recipeId:NEW,recipeVersion:1,reviewer:write.body.reviewer});
   }
   const fixed=/^\/knowledge-materializations\/recipes\/([0-9a-f-]{36})$/.exec(u.pathname);
-  if(fixed){if(materialize){const response=await materialize(write);if(response)return response;}return Response.json(fix(fixed[1],write.body.recipeVersion));}
+  if(fixed){if(materialize){const response=await materialize(write,{fix});if(response)return response;}return Response.json(fix(fixed[1],write.body.recipeVersion));}
   return Response.json({error:{code:'not_found',message:'no'}},{status:404});}});
  const render=page.createPlanRenderer(api,knowledge?()=>kb:undefined),coverage=page.createPageReloadCoverage();
  const flush=async()=>{for(let i=0;i<20;i++)await tick();};
@@ -230,5 +231,81 @@ test('choosing a dish keeps the same Add button in place and the date and meal f
   input(el,'add-date','2026-09-16');
   assert.equal(Object.hasOwn(extra.attrs,'open'),true,'changing the date still shows the date and meal');
   assert.equal(addButton(el),button);
+ }finally{f.cleanup();}
+});
+
+// #203 review: R1–R3 are the reviewer's counterexamples, each failing before the fix.
+const CONFLICT={errors:[{path:'',code:'conflict',message:'此菜谱版本已写入不同内容，不能覆盖固定快照'}]};
+const latestCatalog=u=>u.pathname==='/catalog'&&!u.searchParams.get('revision');
+
+test('R1: a fix that ends after leaving the plan updates the plan page opened since; that page adds with its own click',async()=>{
+ let release;const f=await setup({materialize:()=>new Promise(resolve=>release=resolve)});try{
+  let el=await f.mount();
+  input(el,'add-dish',`recipe:${SAVED}:2`,'change');press(addButton(el));await f.flush();
+  assert.equal(f.kbWrites.length,1);
+  await f.mount('week-b');el=await f.mount();
+  assert.equal(addButton(el).disabled,true,'still fixing when the user is back');
+  release(Response.json(f.fix(SAVED,2)));await f.flush();
+  assert.equal(addButton(el).disabled,false,'the page in front hears that the fix ended');
+  assert.equal(focus(el,'add-dish').disabled,false);
+  assert.doesNotMatch(notes(el).textContent,/Putting it on a menu/);
+  assert.match(notes(el).textContent,/This version is on a menu now but not in the plan yet/);
+  assert.equal(rows(el).length,3,'the page that was left writes nothing into this one');
+  press(addButton(el));await f.flush();
+  assert.equal(f.kbWrites.length,1,'not fixed a second time');
+  assert.equal(rows(el).length,4);assert.equal(save(el).disabled,false);
+ }finally{f.cleanup();}
+});
+
+test('R2: an unconfirmed fix answered on retry by a conflict is read back from the repository instead of dropped',async()=>{
+ let calls=0;
+ const f=await setup({materialize:(write,{fix})=>{
+  // The first try lands but its answer is lost; the snapshot then changes, so the same request is refused as a conflict.
+  if(++calls===1){fix(SAVED,2);return Response.json({error:{code:'upstream_error',message:'lost'}},{status:502});}
+  return Response.json(CONFLICT,{status:409});}});try{
+  const el=await f.mount();
+  input(el,'add-dish',`recipe:${SAVED}:2`,'change');press(addButton(el));await f.flush();
+  assert.match(notes(el).textContent,/The result is not confirmed yet/);assert.equal(rows(el).length,3);
+  press(addButton(el));await f.flush();
+  assert.equal(f.kbWrites.length,2);assert.equal(f.kbWrites[1].key,f.kbWrites[0].key,'the same request first');
+  assert.equal(rows(el).length,4,'the exact fixed version is found and added');
+  assert.equal(rows(el).at(-1).textContent.includes('Recipe 2222'),true);
+  assert.notEqual(f.page.inspectReloadSafety().reason,'unknown');
+  press(addButton(el));await f.flush();
+  assert.equal(f.kbWrites.length,2,'never a new key for a version already fixed');
+ }finally{f.cleanup();}
+});
+
+test('R2: while the repository cannot be read back the fix stays unconfirmed; when it shows nothing was fixed, the refusal stands',async()=>{
+ let calls=0,listDown=false;
+ const f=await setup({materialize:()=>++calls===1?Response.json({error:{code:'upstream_error',message:'lost'}},{status:502}):Response.json(CONFLICT,{status:409}),
+  teamRead:u=>listDown&&latestCatalog(u)?Response.json({ok:false,errors:[{path:'',code:'upstream_error',message:'down'}]},{status:502}):undefined});try{
+  const el=await f.mount();
+  input(el,'add-dish',`recipe:${SAVED}:2`,'change');press(addButton(el));await f.flush();
+  listDown=true;press(addButton(el));await f.flush();
+  assert.match(notes(el).textContent,/The result is not confirmed yet/,'a refusal that could not be checked keeps the record');
+  assert.equal(f.page.inspectReloadSafety().reason,'unknown');
+  listDown=false;press(addButton(el));await f.flush();
+  assert.deepEqual(f.kbWrites.map(w=>w.key),[f.kbWrites[0].key,f.kbWrites[0].key,f.kbWrites[0].key],'every check reuses the original request');
+  assert.match(cls(addForm(el),'tm-plan-add-result')[0].textContent,/The dish was not added; the plan is unchanged\./,'read back: not fixed, so the refusal is shown');
+  assert.equal(rows(el).length,3);assert.notEqual(f.page.inspectReloadSafety().reason,'unknown');
+ }finally{f.cleanup();}
+});
+
+test('R3: after a confirmed fix, a failed dish-list read is what Add retries; it never adds a dish the list has not confirmed',async()=>{
+ let failNext=false,reads=0;
+ const f=await setup({materialize:(write,{fix})=>{failNext=true;return Response.json(fix(SAVED,2));},
+  teamRead:u=>{if(!latestCatalog(u))return;reads++;if(failNext){failNext=false;return Response.json({ok:false,errors:[{path:'',code:'upstream_error',message:'down'}]},{status:502});}}});try{
+  const el=await f.mount();
+  input(el,'add-dish',`recipe:${SAVED}:2`,'change');press(addButton(el));await f.flush();
+  assert.equal(rows(el).length,3,'nothing is added before the dish list has the fixed dish');
+  assert.match(notes(el).textContent,/This version is on a menu now but not in the plan yet/);
+  assert.equal(focus(el,'add-dish').value,`recipe:${SAVED}:2`,'the choice stays at the fixed stage');
+  const before=reads;
+  press(addButton(el));await f.flush();
+  assert.equal(f.kbWrites.length,1,'not fixed again');
+  assert.equal(reads>before,true,'Add read the dish list again');
+  assert.equal(rows(el).length,4);
+  assert.equal(rows(el).at(-1).textContent.includes('Recipe 2222'),true,'the row shows the dish name, not a raw id');
  }finally{f.cleanup();}
 });

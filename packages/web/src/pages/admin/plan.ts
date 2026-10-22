@@ -31,8 +31,11 @@ const addPending=(view:View)=>placePending(view)||view.addDish!==view.addBaselin
 type KnowledgeClient=Pick<ReturnType<typeof createKnowledgeApi>,'request'|'send'|'materializationAttempt'>;
 interface Choice { value:string; id:string; title:I18n; version?:number }
 interface Choices { auth:number; recipes:Choice[]; candidates:Choice[]; truncated:boolean }
-/** One knowledge write per choice. An unconfirmed one keeps its request and key, so another click verifies it instead of writing again. */
-interface Fix { attempt?:Attempt; ticket?:AuxiliaryOperation; unknown:boolean; error?:unknown }
+/**
+ * One knowledge write per choice. An unconfirmed one keeps its request and key, so another click verifies it instead of writing again.
+ * `fixed` is a confirmed fix the catalog has not shown yet: another click only reads the catalog again.
+ */
+interface Fix { attempt?:Attempt; ticket?:AuxiliaryOperation; unknown:boolean; error?:unknown; fixed?:string }
 interface Fixing { busy:boolean; fixes:Map<string,Fix> }
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const CHOICE_PAGES=10;
@@ -48,6 +51,8 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
   const auxiliary=new WeakMap<View,AuxiliaryEditHandle>();
   const fixing=new WeakMap<View,Fixing>();
   let choices:Choices|undefined,choicesError:unknown;
+  // The plan page in front: a knowledge write that ends after its own page was left repaints this one instead.
+  let repaint:()=>void=()=>{};
   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
   const touch=(view:View)=>{view.generation=++rawGeneration;};
   const createForm=()=>createPlanForm(api,{remapRows(id,order){
@@ -276,6 +281,8 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
       for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},catalogLabel(dish)));
       select.value=value;return select;
     }
+    /** Add adds only what the catalog it shows has confirmed; a recipe or candidate is fixed first. */
+    const addable=(choice:string)=>!choice||knowledgeChoice(choice)||Object.hasOwn(catalog?.dishes??{},choice);
     /** Add's three groups (#202). The catalog already holds every fixed version, so a saved recipe is listed only until that version is fixed. */
     function addChoices():[label:string,options:[value:string,text:string][]][] {
       const dishes=catalog?.dishes??{},live=choices?.auth===api.sessionKey()?choices:undefined;
@@ -283,7 +290,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
       const name=(title:I18n)=>title[lang]||title.zh||title.en||title.uk||L('没有菜名','Untitled','Без назви');
       const groups:ReturnType<typeof addChoices>=[
         [L('已排进菜单','Ready for menus','Готові для меню'),Object.entries(dishes).map(([dishId,dish])=>[dishId,catalogLabel(dish)])],
-        [L('已存菜谱 · 还没排进菜单','Saved recipes · not on a menu yet','Збережені рецепти · ще не в меню'),(live?.recipes??[]).filter(choice=>!fixed.has(choice.value)).map(choice=>[choice.value,`${name(choice.title)} · KB v${choice.version} · ${choice.id.slice(0,8)}`])],
+        [L('已存菜谱 · 还没排进菜单','Saved recipes · not on a menu yet','Збережені рецепти · ще не в меню'),(live?.recipes??[]).filter(choice=>!fixed.has(choice.value)||choice.value===view.addDish).map(choice=>[choice.value,`${name(choice.title)} · KB v${choice.version} · ${choice.id.slice(0,8)}`])],
         [L('收件箱 · 还没存成菜谱','Inbox · not saved as a recipe yet','Вхідні · ще не збережено як рецепт'),(live?.candidates??[]).map(choice=>[choice.value,name(choice.title)])],
       ];
       const value=view.addDish;
@@ -347,6 +354,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
         const dateRange=planRange(owner.session.getState().draft),choice=dish.value,captured=parts.contextId;
         if(!date.value||!choice||(dateRange&&!inPlanRange(date.value,dateRange)))return;
         if(knowledgeChoice(choice)){void fixAndAdd(choice,date.value,meal.value as MealType,captured);return;}
+        if(!addable(choice))return;
         if(owner.add(date.value,meal.value as MealType,choice,captured)){
           if(selectedDish&&choice===selectedDish)view.selectedRouteAdded=true;
           view.addBaseline=[view.addDate,view.addMeal,view.addDish];touch(view);paint();
@@ -375,7 +383,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
       }
       dish.value=view.addDish;
       const busy=!!fixing.get(view)?.busy;
-      dish.disabled=busy;add.disabled=busy||!view.addDate||invalidDate;
+      dish.disabled=busy;add.disabled=busy||!view.addDate||invalidDate||!addable(view.addDish);
       attr(extra,'open',view.addExpanded||placePending(view)?'':undefined);
       summary.textContent=`${view.addDate.slice(5)} · ${tr(view.addMeal)}`;
       replace(notes,...addNotes(busy),
@@ -390,6 +398,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
         addPending(view)?h('p',{class:'tm-plan-note','data-plan-raw-pending':'true'},`${view.addDate||tr('date')} · ${tr(view.addMeal)} — `,lang==='zh'?'添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。':lang==='en'?'The Add choices have not been added to the plan. Use “Add a dish” to apply them.':'Вибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.'):null,
         busy?h('p',{class:'tm-plan-note',role:'status'},L('正在排进菜单，请稍候……','Putting it on a menu…','Додаємо в меню…'))
           :fix?.error?fixNotice(choice,fix)
+          :fix?.fixed?h('p',{class:'tm-plan-note',role:'status'},L('这一版已排进菜单，还没加进计划。点“加一道菜”会再读一次菜品目录，然后加进计划。','This version is on a menu now but not in the plan yet. Add a dish reads the dish list again, then adds it.','Цю версію вже додано в меню, але ще не в план. «Додати страву» ще раз прочитає список страв і додасть її.'))
           :choice.startsWith('candidate:')?h('p',{class:'tm-plan-note'},L('点“加一道菜”会先存为菜谱，再排进菜单（固定这一版），然后加进计划。','Add a dish saves it as a recipe, puts this version on a menu, then adds it to the plan.','«Додати страву» збереже її як рецепт, додасть цю версію в меню, а потім — у план.'))
           :choice.startsWith('recipe:')?h('p',{class:'tm-plan-note'},L('点“加一道菜”会先把这一版排进菜单（固定这一版），再加进计划。','Add a dish puts this version on a menu, then adds it to the plan.','«Додати страву» додасть цю версію в меню, а потім — у план.')):null,
         choicesError&&!live?h('p',{class:'tm-plan-note',role:'status'},L('收件箱和菜谱库没读到，只列出已排进菜单的菜。','The inbox and recipe library could not be read; only dishes ready for menus are listed.','Не вдалося прочитати вхідні й бібліотеку рецептів; показано лише страви, готові для меню.'),' ',action(tr('retry'),()=>void loadChoices())):null,
@@ -432,7 +441,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
           candidates:inbox.items.flatMap(({candidateSummary:candidate})=>candidate?.status==='needs_review'&&UUID.test(candidate.candidateId)?[{value:`candidate:${candidate.candidateId}`,id:candidate.candidateId,title:candidate.title??{}}]:[])};
         choicesError=undefined;
       }catch(error){failed=true;if(key===api.sessionKey())choicesError=error;}
-      finally{choicesLoading=false;view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');if(isLive())paint();}
+      finally{choicesLoading=false;view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');repaint();}
     }
     /** Same calls and order as the inbox and the recipe page; nothing reaches the plan until the dish is fixed and in the catalog. */
     async function fixAndAdd(choice:string,date:string,meal:MealType,captured:number):Promise<void>{
@@ -441,6 +450,8 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
       if(state.busy)return;
       fixing.set(view,state);state.busy=true;touch(view);paint();
       let key=choice,changed=false;
+      // Only the page that was clicked reads the catalog or adds; a page opened since is repainted and adds with its own click.
+      const current=()=>isLive()&&owner.session.getState().contextId===captured;
       try{
         const candidate=/^candidate:([0-9a-f-]{36})$/.exec(key);
         if(candidate){
@@ -453,25 +464,39 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
         const recipe=/^recipe:([0-9a-f-]{36}):([1-9][0-9]*)$/.exec(key);
         if(!recipe)return;
         const id=recipe[1]!,version=Number(recipe[2]);
-        const fixed=await send<Materialization>(state,key,()=>client.materializationAttempt(id,version),
-          data=>data.recipeId===id&&data.recipeVersion===version&&typeof data.dishRef==='string'&&/^kb[a-z0-9-]+$/.test(data.dishRef));
-        changed=true;
-        if(view.addDish===key){view.addDish=fixed.dishRef;touch(view);}
+        // A confirmed fix waits here until the catalog shows it: another click only reads the catalog again.
+        let dishRef=state.fixes.get(key)?.fixed;
+        if(!dishRef){
+          ({dishRef}=await send<Materialization>(state,key,()=>client.materializationAttempt(id,version),
+            data=>data.recipeId===id&&data.recipeVersion===version&&typeof data.dishRef==='string'&&/^kb[a-z0-9-]+$/.test(data.dishRef),
+            ()=>fixedVersion(id,version)));
+          changed=true;state.fixes.set(key,{unknown:false,fixed:dishRef});
+        }
+        if(!current())return;
         await reloadCatalog(true);
-        if(!isLive()||owner.session.getState().contextId!==captured||!catalog||!Object.hasOwn(catalog.dishes,fixed.dishRef))return;
-        if(owner.add(date,meal,fixed.dishRef,captured)){view.addBaseline=[date,meal,fixed.dishRef];touch(view);}
+        if(!current()||!catalog||!Object.hasOwn(catalog.dishes,dishRef))return;
+        // In the catalog now: from here on it is an ordinary catalog dish.
+        state.fixes.delete(key);
+        if(view.addDish===key){view.addDish=dishRef;touch(view);}
+        if(owner.add(date,meal,dishRef,captured)){view.addBaseline=[date,meal,dishRef];touch(view);}
       }catch{/* send() keeps the error with its choice; the Add form shows it. */}
       finally{
         state.busy=false;touch(view);
         if(changed)void loadChoices();
-        if(isLive())paint();
+        repaint();
       }
     }
-    async function send<T>(state:Fixing,key:string,attempt:()=>Attempt,valid:(data:T)=>boolean):Promise<T>{
+    /** The repository read back: the exact recipe version fixed as a dish, never a guess from a refusal. */
+    async function fixedVersion(id:string,version:number):Promise<Materialization|undefined>{
+      const latest=await owner.loadLatestCatalog();
+      const dishRef=Object.keys(latest.dishes).find(ref=>{const source=latest.dishes[ref]!.provenance;return source?.source==='knowledge'&&source.recipeId===id&&source.recipeVersion===version;});
+      return dishRef?{dishRef,recipeId:id,recipeVersion:version,commit:latest.commit,unchanged:true}:undefined;
+    }
+    async function send<T>(state:Fixing,key:string,attempt:()=>Attempt,valid:(data:T)=>boolean,readBack?:()=>Promise<T|undefined>):Promise<T>{
       const handle=auxiliary.get(view)!;
       let fix=state.fixes.get(key);
       if(!fix?.attempt){fix={attempt:attempt(),ticket:handle.beginOperation('write'),unknown:false};state.fixes.set(key,fix);}
-      fix.error=undefined;
+      const unconfirmed=fix.unknown;fix.error=undefined;
       try{
         const {data}=await knowledge!().send<T>(fix.attempt!);
         if(!valid(data))throw new KnowledgeError('Knowledge result does not match the request',0,'invalid_source');
@@ -479,8 +504,16 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
         return data;
       }catch(error){
         fix.error=error;
-        if(error instanceof KnowledgeError&&(error.uncertain||error.code==='session_changed')){fix.unknown=true;handle.markUnknown(fix.ticket!);}
-        else{handle.settleOperation(fix.ticket!,'failed');fix.attempt=undefined;fix.ticket=undefined;fix.unknown=false;}
+        const known=error instanceof KnowledgeError?error:undefined;
+        if(known&&(known.uncertain||known.code==='session_changed')){fix.unknown=true;handle.markUnknown(fix.ticket!);throw error;}
+        // The endpoint need not replay a success by key: a refusal of an unconfirmed try, or a conflict with a written
+        // snapshot, may follow a write that landed. Read the repository back before dropping anything.
+        if(readBack&&(unconfirmed||known?.code==='conflict')){
+          let found:T|undefined;
+          try{found=await readBack();}catch{fix.unknown=true;handle.markUnknown(fix.ticket!);throw error;}
+          if(found!==undefined){handle.settleOperation(fix.ticket!,'completed');state.fixes.delete(key);return found;}
+        }
+        handle.settleOperation(fix.ticket!,'failed');fix.attempt=undefined;fix.ticket=undefined;fix.unknown=false;
         throw error;
       }
     }
@@ -518,6 +551,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
         }
       }catch(error){if(isLive())loadError=error;}paint();
     }
+    repaint=paint;
     replace(body,h('p',{role:'status'},tr('loading')));
     const unsubscribe=owner.session.subscribe(()=>paint());
     const stopObserve=onDetached(el,()=>{unsubscribe();disposePhotos();if(owner.session.getState().contextId===contextId)owner.detach();});
