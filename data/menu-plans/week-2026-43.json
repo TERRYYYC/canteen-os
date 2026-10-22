@@ -1,0 +1,14 @@
+{
+  "dateRange": {
+    "end": "2026-10-25",
+    "start": "2026-10-19"
+  },
+  "meals": [
+    {
+      "date": "2026-10-22",
+      "dishRef": "kb-4ba1fbad11114db18852f98a7fb111f8-v1",
+      "mealType": "lunch"
+    }
+  ],
+  "schemaVersion": "3"
+}
