@@ -177,3 +177,12 @@ test('late rollback rejection in a changed auth session cannot clear the anonymo
  const held=deferred(),f=await setup({respond:p=>p.startsWith('/rollback/')?held.promise:undefined});
  try{let el=f.mount();await f.flush();rollback(el).click();confirm(el).click();await f.flush();f.auth();el=f.mount('uk');await f.flush();held.resolve(rejection(409,'format_downgrade'));await f.flush();assert.equal(f.page.readPublishAuxiliary().phase,'idle');assert.equal(f.page.inspectReloadSafety().reason,'unknown');assert.doesNotMatch(el.textContent,/Rolled back to|Повернуто до/);}finally{f.cleanup();}
 });
+
+test('unpublished changes name both fixed recipe endpoints in all languages and keep manual commits distinct',async()=>{
+ const id='12345678-1234-4234-8234-123456789abc';
+ const f=await setup({respond:path=>path==='/changes'?Response.json({ok:true,...changes(),unpublished:[`POST /knowledge-materializations/recipes/${id}`,`POST /knowledge-materializations/${id}`,null].map((endpoint,i)=>({...changes().unpublished[0],endpoint,sha:[A,B,C][i],shortSha:[A,B,C][i].slice(0,7),subject:'data(knowledge): 固定菜谱 test'}))}):undefined});
+ try{for(const [lang,fixed,manual] of [['zh','固定菜谱','手工改动'],['en','Fixed recipe','Manual change'],['uk','Зафіксований рецепт','Ручна зміна']]){
+  const el=f.mount(lang);await f.flush();assert.deepEqual(byClass(el,'adm-pub-chg-title').map(x=>x.textContent),[fixed,fixed,manual]);
+  assert.deepEqual(byClass(el,'adm-pub-sha').map(x=>x.textContent),[A,B,C].map(x=>x.slice(0,7)));
+ }assert.equal(f.calls.filter(x=>x.method==='POST').length,0);}finally{f.cleanup();}
+});

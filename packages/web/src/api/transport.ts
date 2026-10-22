@@ -23,6 +23,12 @@ export interface SessionBoundary {
 
 // Both facades share the same controlled repository. These events contain no credentials or data.
 const mutationListeners = new Map<string, Set<() => void>>();
+/** Confirmed Git writes, including the separate knowledge materialization facade. */
+export function notifyRepositoryMutation(base: string): void {
+  for (const listener of mutationListeners.get(base.replace(/\/+$/, '')) ?? []) {
+    try { listener(); } catch { /* Each facade owns its observers. */ }
+  }
+}
 
 /** A single authenticated request; no retries, storage, URLs containing credentials, or fallback reads. */
 export class HttpTransport implements SessionBoundary {
@@ -77,9 +83,7 @@ export class HttpTransport implements SessionBoundary {
     };
   }
   private mutated(): void {
-    for (const listener of mutationListeners.get(this.base) ?? []) {
-      try { listener(); } catch { /* Each facade owns its observers. */ }
-    }
+    notifyRepositoryMutation(this.base);
   }
   dispose(): void { this.disposed = true; this.credential = undefined; this.invalidate(); this.unsubscribe(); this.listeners.clear(); }
   private assertSession(key: number): void {

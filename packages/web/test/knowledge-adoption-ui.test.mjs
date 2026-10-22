@@ -52,7 +52,7 @@ async function setup(handler = () => json(detail()), plans = {}) {
 
 test('generic materialization transport and kitchen fields are preserved',async()=>{
  const h=await setup();
- const api=h.m.createKnowledgeApi({base:'/worker',token:()=> 'private',session:()=>1,fetch:async(url)=>{assert.equal(url,`/worker/knowledge-materializations/recipes/${id}`);return json({dishRef:'kbrecipe'});}});
+ const api=h.m.createKnowledgeApi({base:'/worker',token:()=> 'private',session:()=>1,fetch:async(url)=>{assert.equal(url,`/worker/knowledge-materializations/recipes/${id}`);return json({dishRef:'kb-recipe-v1',recipeId:id,recipeVersion:1,commit:'a'.repeat(40)});}});
  await api.send(h.m.createAttempt(`/materializations/recipes/${id}`,'POST',{recipeVersion:1}));
  const recipe={...detail().recipe,recipeFormatVersion:'2',ingredients:[{...detail().recipe.ingredients[0],kitchenPrep:{timing:'before-service',size:'2cm'}}],steps:[{id:id2,text:{zh:'原方10分钟'},techniqueId:id2}]};
  assert.deepEqual(h.m.editable(recipe),recipe);
