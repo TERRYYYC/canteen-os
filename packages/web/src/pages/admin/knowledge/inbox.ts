@@ -5,6 +5,7 @@ import type { PageCtx } from '../../../types';
 import { getKnowledgeApi, KnowledgeError, type I18n, type Recipe } from '../../../api/knowledge';
 import { contractErrorText } from '../../../admin/kit';
 import { bindInboxValue, inboxBuffer, writeInbox } from './inbox-state';
+import { SYSTEM_REVIEWER, SYSTEM_NOTE } from './review-label';
 import './inbox.css';
 import { words, button, field, safeExternal } from './ui';
 import { parseFavoritesCsv, type FavoriteCsvRow } from './favorites-csv';
@@ -22,9 +23,6 @@ function releaseInboxImages():void { imageEpoch++;previewObserver?.disconnect();
 onRoute(releaseInboxImages,false);
 onAuthSessionChange(releaseInboxImages);
 type Candidate = { id: string; captureId: string; status: string; recipe: Recipe; fieldEvidence: unknown; imageCandidates: unknown[]; illustrations?:Illustration[]; unresolved?:string[]; recipeId?: string; recipeVersion?: number; reviewer?: string; reviewNote?: string };
-/** ADR-0011: the fixed record sent to the KB when a candidate is saved or set aside; it states that no one reviewed it in the app. */
-const SYSTEM_REVIEWER='CanteenOS：直接存为菜谱（复核在 app 外，ADR-0011）';
-const SYSTEM_NOTE='app 里没有人审核来源；复核在 app 外进行。';
 /** #164: the platform is a tag on a favorite, not its own inbox. Unknown codes are shown as recorded, never guessed. */
 const PLATFORMS: [code:string, zh:string, en:string, uk:string][] = [
   ['douyin','抖音','Douyin','Douyin'],['bilibili','B站','Bilibili','Bilibili'],
