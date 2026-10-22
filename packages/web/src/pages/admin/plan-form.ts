@@ -69,26 +69,48 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
   const catalogs = new Map<string, TeamCatalog>();
   const pending = new Map<string, Promise<TeamCatalog>>();
   let sequence = 0;
-  const loadCatalog = async (force = false): Promise<TeamCatalog> => {
-    const state = session.getState(), auth = api.sessionKey();
-    const revision = state.source?.commit;
-    const key = revision ?? 'current-unsaved';
-    if (!force && catalogs.has(key)) return catalogs.get(key)!;
-    if (pending.has(key)) return pending.get(key)!;
-    const request = read(state.identity!.id, () => api.getCatalog({...(revision ? {revision} : {}), ...(force ? {force:true} : {})})).then(catalog => {
-      if (revision && catalog.commit !== revision) throw new Error('catalog_revision_mismatch');
-      if (auth === api.sessionKey()) catalogs.set(key,catalog);
-      return catalog;
-    }).finally(() => pending.delete(key));
-    pending.set(key,request); return request;
+  const mutationVersion = () => api.mutationVersion?.() ?? 0;
+  const initialMutation = mutationVersion();
+  const catalogBindings = new WeakMap<TeamCatalog, string>();
+  const bindCatalog = (catalog: TeamCatalog, revision: string | undefined, mutation: number) => {
+    catalogBindings.set(catalog,`${revision??'current-unsaved'}/${mutation}`);
+    return catalog;
   };
+  // A newer choice catalog belongs to this editor's source baseline, without replacing it.
+  const latestCatalogs = new Map<string, { sourceCommit?: string; mutation: number; catalog: TeamCatalog }>();
   const loadLatestCatalog = async (): Promise<TeamCatalog> => {
     const state=session.getState(),auth=api.sessionKey();
     if(!state.identity)throw new Error('plan_not_open');
-    const catalog=await read(state.identity.id,()=>api.getCatalog({force:true}));
-    if(auth!==api.sessionKey())throw new Error('session_changed');
-    catalogs.set(catalog.commit,catalog);
-    return catalog;
+    const id=state.identity.id,sourceCommit=state.source?.commit;
+    let mutation: number, catalog: TeamCatalog;
+    do {
+      mutation=mutationVersion();
+      catalog=await read(id,()=>api.getCatalog({force:true}));
+      if(auth!==api.sessionKey())throw new Error('session_changed');
+      // A write may finish while an older HEAD request is in flight.
+    } while(mutation!==mutationVersion());
+    latestCatalogs.set(id,{sourceCommit,mutation,catalog});
+    return bindCatalog(catalog,sourceCommit,mutation);
+  };
+  const loadCatalog = async (force = false): Promise<TeamCatalog> => {
+    const state = session.getState(), auth = api.sessionKey(), mutation = mutationVersion();
+    const revision = state.source?.commit;
+    const latest = latestCatalogs.get(state.identity!.id);
+    if (!force && latest && latest.sourceCommit === revision && latest.mutation === mutation) return latest.catalog;
+    if (mutation !== initialMutation) return loadLatestCatalog();
+    const key = revision ?? 'current-unsaved';
+    if (!force && catalogs.has(key)) return catalogs.get(key)!;
+    let request = pending.get(key);
+    if (!request) {
+      request = read(state.identity!.id, () => api.getCatalog({...(revision ? {revision} : {}), ...(force ? {force:true} : {})})).then(catalog => {
+        if (revision && catalog.commit !== revision) throw new Error('catalog_revision_mismatch');
+        if (auth === api.sessionKey() && mutation === mutationVersion()) catalogs.set(key,catalog);
+        return bindCatalog(catalog,revision,mutation);
+      }).finally(() => pending.delete(key));
+      pending.set(key,request);
+    }
+    const catalog = await request;
+    return mutation === mutationVersion() ? catalog : loadLatestCatalog();
   };
   const mutate = (fn: (draft: MenuPlanV3) => void, contextId = session.getState().contextId) => {
     const state = session.getState();
@@ -122,6 +144,7 @@ export function createPlanForm(api: TeamMealsApi, options: { beginRead?(id: stri
       return live() ? catalog : null;
     },
     loadCatalog,loadLatestCatalog,
+    catalogKey: (catalog: TeamCatalog | null) => catalog && catalogBindings.get(catalog),
     servings(index: number, raw: string, contextId?: number) {
       const parsed = parseServingsInput(raw);
       if (!parsed.valid) throw new Error('invalid_servings');

@@ -23,7 +23,7 @@ export { createPlanForm } from './plan-form';
 // toSavePlan intentionally remains local: the regression probe exercises the real page serializer.
 void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
-interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalogCommit?:string; pendingSelection?:string; selectedRouteAdded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
+interface View { preview?:boolean; editing?:number; addExpanded?:boolean; pendingSelection?:string; selectedRouteAdded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
 const placePending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1];
 const addPending=(view:View)=>placePending(view)||view.addDish!==view.addBaseline[2];
@@ -104,9 +104,9 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
     if(!auxiliary.has(view))auxiliary.set(view,registerAuxiliaryEdits({ownerId:`plan-buffer/${id}`,identity:{kind:'plan',id},boundary:api,operationTracking:'tickets',
       read:()=>({generation:view.generation,dirty:rawPending(view),phase:view.reads?'busy':'idle'})}));
     const isLive=()=>renderTicket===renderSequence&&el.isConnected&&owner===form&&auth===api.sessionKey();
-    const sourceKey=()=>view.catalogCommit??owner.session.getState().source?.commit??'current-unsaved';
-    // Bind what actually arrived, never whichever source happens to be current after an await.
-    const catalogKey=(value:TeamCatalog|null)=>sourceKey()==='current-unsaved'?'current-unsaved':value?.commit;
+    const sourceKey=()=>`${owner.session.getState().source?.commit??'current-unsaved'}/${api.mutationVersion?.()??0}`;
+    // Bind the baseline captured by the read, including when its choice catalog is newer.
+    const catalogKey=(value:TeamCatalog|null)=>owner.catalogKey(value);
     function paint() {
       if(!isLive())return;
       const s=owner.session.getState();contextId=s.contextId;
@@ -546,8 +546,7 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
           ? force?await owner.loadLatestCatalog():await owner.loadCatalog(false)
           : await owner.load(id,isLive,drafts.getDraftPlan(id)??undefined,()=>drafts.clearDraftPlan(id));
         if(isLive()&&owner.session.getState().identity?.id===id&&(state.identity?.id!==id||sourceKey()===key)){
-          if(force&&result)view.catalogCommit=result.commit;
-          catalog=result;boundKey=catalogKey(result);requestedKey=boundKey;loadError=null;
+          catalog=result;boundKey=catalogKey(result)??undefined;requestedKey=boundKey;loadError=null;
         }
       }catch(error){if(isLive())loadError=error;}paint();
     }
@@ -562,13 +561,13 @@ export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClie
       if(selectedDish){
         const latest=await owner.loadLatestCatalog();
         if(!isLive())return;
-        catalog=latest;view.catalogCommit=latest.commit;
+        catalog=latest;
         if(Object.hasOwn(latest.dishes,selectedDish)){
           if(!addPending(view)||view.addDish===selectedDish){view.addDish=selectedDish;view.pendingSelection=undefined;touch(view);}
           else view.pendingSelection=selectedDish;
         }
       }
-      boundKey=catalogKey(catalog);
+      boundKey=catalogKey(catalog)??undefined;
       const s=owner.session.getState();
       if(!view.initialized){
         const date=s.draft?.meals[0]?.date;

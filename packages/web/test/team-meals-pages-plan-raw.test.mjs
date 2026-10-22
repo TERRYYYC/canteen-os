@@ -7,7 +7,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {test,after} from 'node:test';
 const here=dirname(fileURLToPath(import.meta.url)),require=createRequire(import.meta.url),vr=createRequire(require.resolve('vite/package.json')),esbuild=await import(pathToFileURL(vr.resolve('esbuild')));
 const dir=await mkdtemp(join(tmpdir(),'plan-raw-owner-'));after(()=>rm(dir,{recursive:true,force:true}));
-const entry=join(here,'../src/pages/admin/plan.ts'),bundle=await esbuild.build({stdin:{contents:(await readFile(entry,'utf8')).replace("await import('./plan-preview')","await (globalThis.__planPreviewModuleGate ? globalThis.__planPreviewModuleGate(() => import('./plan-preview')) : import('./plan-preview'))")+`\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here,'../src/view-models/reload-safety.ts'))};`,resolveDir:dirname(entry),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
+const entry=join(here,'../src/pages/admin/plan.ts'),bundle=await esbuild.build({stdin:{contents:(await readFile(entry,'utf8')).replace("await import('./plan-preview')","await (globalThis.__planPreviewModuleGate ? globalThis.__planPreviewModuleGate(() => import('./plan-preview')) : import('./plan-preview'))")+`\nexport {createKnowledgeApi,createAttempt} from ${JSON.stringify(join(here,'../src/api/knowledge.ts'))};\nexport {createTeamMealsApi} from ${JSON.stringify(join(here,'../src/api/team-meals.ts'))};\nexport {clearToken as changeAuth} from ${JSON.stringify(join(here,'../src/admin/token.ts'))};\nexport {inspectReloadSafety,createPageReloadCoverage} from ${JSON.stringify(join(here,'../src/view-models/reload-safety.ts'))};`,resolveDir:dirname(entry),loader:'ts'},bundle:true,write:false,format:'esm',platform:'browser',loader:{'.css':'empty'},define:{'import.meta.env.VITE_WORKER_URL':'""','import.meta.env.BASE_URL':'"/"'},logLevel:'silent'});
 const file=join(dir,'page.mjs');await writeFile(file,bundle.outputFiles[0].text);
 class Element{
  constructor(tag='',text=''){this.tagName=tag.toUpperCase();this.text=text;this.children=[];this.attrs={};this.listeners={};this.style={};this.value='';this.disabled=false;this.validity={badInput:false};this.parentNode=null;this.classList={add:x=>this.setAttribute('class',`${this.attrs.class??''} ${x}`)};}
@@ -227,4 +227,26 @@ test('optional preview module failure releases only its read and keeps Save avai
 
 test('plan retains its exact source in secondary content after editable meal rows',async()=>{
  const f=await setup();try{const el=await f.mount(),nodes=walk(el),row=walk(el).find(n=>n.attrs['data-meal-index']!==undefined),version=cls(el,'tm-plan-version')[0];assert.ok(row);assert.ok(version,'source remains available after plan content');assert(nodes.indexOf(version)>nodes.indexOf(row));assert.match(version.textContent,new RegExp(A));assert.equal(cls(el,'tm-status')[0].children.some(n=>n.tagName==='DETAILS'),false);assert.equal(save(el).disabled,true);}finally{f.cleanup();}
+});
+
+const recipeId200='12345678-1234-4234-8234-123456789abc',dish200=`kb-${recipeId200.replaceAll('-','')}-v2`;
+const freeze200=f=>f.page.createKnowledgeApi({base:'https://plan-raw-fixture.invalid',token:()=> 'explicit-local-fixture',session:()=>1,fetch:async()=>Response.json({recipeId:recipeId200,recipeVersion:2,dishRef:dish200,commit:B})}).send(f.page.createAttempt(`/materializations/recipes/${recipeId200}`,'POST',{recipeVersion:2}));
+const catalog200=(commit)=>({commit,dishes:{soup:{schemaVersion:'3',name:{en:'Soup old'},components:[]},stew:{schemaVersion:'3',name:{en:'Stew'},components:[]},...(commit===B?{[dish200]:{schemaVersion:'3',name:{en:'Soup new'},provenance:{source:'knowledge',recipeId:recipeId200,recipeVersion:2},components:[]}}:{})},ingredients:{},techniques:[],suppliers:[],translations:{machine:0,human:0,stale:0}});
+test('confirmed freeze refreshes an ordinary plan return while preserving raw fields, old meals and unapplied choices',async()=>{
+ let head=A;const f=await setup({read:u=>u.pathname==='/catalog'?Response.json(catalog200(u.searchParams.get('revision')??head)):undefined});
+ try{let el=await f.mount();input(el,'servings-0','9');input(el,'servings-1',raw);input(el,'add-date','2026-10-03');input(el,'add-meal','dinner','change');input(el,'add-dish','stew','change');
+  head=B;await freeze200(f);el=await f.mount();
+  assert(focus(el,'add-dish').children.some(x=>x.value===dish200));assert.match(focus(el,'add-dish').textContent,/KB v2 · 12345678/);
+  assert.equal(focus(el,'add-dish').value,'stew');assert.equal(focus(el,'add-date').value,'2026-10-03');assert.equal(focus(el,'add-meal').value,'dinner');
+  assert.equal(focus(el,'servings-0').value,'9');assert.equal(focus(el,'servings-1').value,raw);assert.equal(focus(el,'dish-0').value,'soup');assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
+});
+test('a form created only after a confirmed freeze rereads a prewarmed source at the new HEAD',async()=>{
+ let head=A;const requests=[];
+ const f=await setup({read:u=>{requests.push(u.pathname+u.search);return u.pathname==='/catalog'?Response.json(catalog200(u.searchParams.get('revision')??head)):Response.json({content:seed(),commit:head,blobSha:'unchanged-plan-blob'});}});
+ try{await f.api.getPlan('week-a');await f.api.getCatalog();head=B;await freeze200(f);
+  const form=f.page.createPlanForm(f.api);const catalog=await form.load('week-a');
+  assert.equal(catalog.commit,B);assert(catalog.dishes[dish200]);assert.equal(form.session.getState().source.commit,B);
+  assert.equal(requests.filter(x=>x==='/source/plan/week-a').length,2);assert.equal(f.writes.length,0);
+ }finally{f.cleanup();}
 });

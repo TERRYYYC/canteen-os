@@ -85,3 +85,26 @@ test('raw plan count must be an exact safe integer before conversion',async()=>{
  }
  form.servings(0,'');assert.equal(Object.hasOwn(form.session.getState().draft.meals[0],'plannedServings'),false);
 });
+
+for(const sourceExists of [true,false]) test(`fixed recipe refreshes a visited plan catalog without replacing draft (saved=${sourceExists})`,async()=>{
+ const {form,api,setCurrent,writes}=setup();let generation=0;
+ api.mutationVersion=()=>generation;
+ if(!sourceExists)setCurrent(null);
+ api.getCatalog=async opts=>({commit:opts?.revision??(generation?B:A),dishes:generation&&!opts?.revision?{fixed:{name:{zh:'新固定版本'}}}:{},ingredients:{},techniques:[],suppliers:[],translations:{}});
+ await form.load('week-a');form.add('2026-10-07','dinner','soup');const before=form.session.getState();generation++;
+ const catalog=await form.load('week-a');assert.equal(catalog.commit,B);assert(catalog.dishes.fixed);
+ const after=form.session.getState();assert.deepEqual(after.draft,before.draft);assert.deepEqual(after.source,before.source);assert.equal(writes.length,0);
+ assert.equal((await form.load('week-a')).commit,B,'ordinary route return retains fresh catalog');
+});
+test('fixed recipe completing during an old catalog read cannot bind that old result',async()=>{
+ const {form,api}=setup();let generation=0,release,reads=0;
+ api.mutationVersion=()=>generation;
+ api.getCatalog=async opts=>{reads++;if(reads===1)return new Promise(resolve=>release=resolve);return {commit:B,dishes:{fixed:{name:{zh:'新固定版本'}}},ingredients:{},techniques:[],suppliers:[],translations:{}};};
+ const pending=form.load('week-a');await new Promise(r=>setImmediate(r));generation++;
+ release({commit:A,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}});
+ assert.equal((await pending).commit,B);assert.equal(reads,2);assert.equal(form.session.getState().source.commit,A);
+});
+test('explicit latest selection persists on ordinary route return without changing source',async()=>{
+ const {form,api}=setup();api.getCatalog=async opts=>({commit:opts?.revision??B,dishes:{},ingredients:{},techniques:[],suppliers:[],translations:{}});
+ await form.load('week-a');await form.loadLatestCatalog();assert.equal((await form.load('week-a')).commit,B);assert.equal(form.session.getState().source.commit,A);
+});

@@ -12,7 +12,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const dir = await mkdtemp(join(tmpdir(), 'team-api-'));
 after(() => rm(dir, {recursive:true,force:true}));
 const teamFile = join(root, '../src/api/team-meals.ts');
-const bundle = await esbuild.build({stdin:{contents:`export * from './src/api/client';export * from './src/admin/token';export * from './src/admin/kit';export { ApiError } from './src/api/types';${existsSync(teamFile) ? "export * from './src/api/team-meals';" : ''}`,resolveDir:join(root,'..')},bundle:true,write:false,loader:{'.css':'empty'},format:'esm',platform:'browser',define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
+const bundle = await esbuild.build({stdin:{contents:`export * from './src/api/knowledge';export * from './src/api/client';export * from './src/admin/token';export * from './src/admin/kit';export { ApiError } from './src/api/types';${existsSync(teamFile) ? "export * from './src/api/team-meals';" : ''}`,resolveDir:join(root,'..')},bundle:true,write:false,loader:{'.css':'empty'},format:'esm',platform:'browser',define:{'import.meta.env.VITE_WORKER_URL':'""'},logLevel:'silent'});
 await writeFile(join(dir,'api.mjs'), bundle.outputFiles[0].text);
 const mod = await import(pathToFileURL(join(dir,'api.mjs')));
 const A='a'.repeat(40), B='b'.repeat(40), TOKEN='t'.repeat(43);
@@ -174,4 +174,39 @@ test('legacy and team facades invalidate one another after writes, including in-
  pending.resolve(json({...catalog(A),dishes:{}}));await earlier;
  assert.equal((await team.getCatalog()).commit,B);
  await team.getCatalog({revision:A});await old.saveIngredient('salt',{});assert.equal((await team.getCatalog({revision:A})).commit,A);
+});
+
+for (const path of ['/materializations/recipes/12345678-1234-4234-8234-123456789abc','/materializations/12345678-1234-4234-8234-123456789abc']) test(`confirmed fixed recipe refreshes shared catalog and rejects late cache refill: ${path}`,async()=>{
+ const old=deferred();let head=A,catalogReads=0;
+ const {api}=setup(()=>++catalogReads===1?old.promise:json(catalog(head)));
+ const pending=api.getCatalog();
+ let fail=true;const attempts=[];
+ const knowledge=mod.createKnowledgeApi({base:'https://worker.example.invalid/',token:()=>TOKEN,session:()=>1,fetch:async(_,init)=>{attempts.push(new Headers(init.headers).get('Idempotency-Key'));if(fail)throw Error('lost');return json({commit:B,dishRef:'kb-fixed-v2',recipeId:'12345678-1234-4234-8234-123456789abc',candidateId:'12345678-1234-4234-8234-123456789abc',recipeVersion:2},201);}});
+ const attempt=mod.createAttempt(path,'POST',{recipeVersion:2});
+ await assert.rejects(knowledge.send(attempt));assert.equal(catalogReads,1);
+ fail=false;head=B;await knowledge.send(attempt);
+ const freshRead=api.getCatalog();old.resolve(json(catalog(A)));
+ const fresh=await freshRead;await pending;assert.equal(fresh.commit,B,'confirmed write must invalidate a prewarmed/in-flight catalog');
+ assert.equal((await api.getCatalog()).commit,B);assert.equal(catalogReads,2);assert.equal(attempts[0],attempts[1]);
+ const other=mod.createKnowledgeApi({base:'https://other.example.invalid',token:()=>TOKEN,session:()=>1,fetch:async()=>json({commit:B,dishRef:'kb-fixed-v2',recipeId:'12345678-1234-4234-8234-123456789abc',candidateId:'12345678-1234-4234-8234-123456789abc',recipeVersion:2})});
+ await other.send(attempt);await api.getCatalog();assert.equal(catalogReads,2,'other repository does not invalidate this cache');
+});
+
+test('failed and uncertain fixed writes do not invalidate shared catalog or retry themselves',async()=>{
+ for(const response of [()=>error(422,'invalid_source'),()=>error(503,'upstream_error'),()=>Promise.reject(Error('lost response'))]) {
+  let reads=0,sends=0;const {api}=setup(()=>{reads++;return json(catalog());});await api.getCatalog();
+  const knowledge=mod.createKnowledgeApi({base:'https://worker.example.invalid',token:()=>TOKEN,session:()=>1,fetch:async()=>{sends++;return response();}});
+  await assert.rejects(knowledge.send(mod.createAttempt('/materializations/recipes/12345678-1234-4234-8234-123456789abc','POST',{recipeVersion:2})));
+  assert.equal((await api.getCatalog()).commit,A);assert.equal(reads,1);assert.equal(sends,1);
+ }
+});
+
+test('malformed or mismatched fixed acknowledgements remain unknown without broadcasting a mutation',async()=>{
+ const id='12345678-1234-4234-8234-123456789abc',valid={recipeId:id,recipeVersion:2,dishRef:'kb-fixed-v2',commit:B};
+ for(const result of [null,{}, {...valid,recipeVersion:3},{...valid,recipeId:'22345678-1234-4234-8234-123456789abc'},{...valid,commit:'invalid'},{...valid,dishRef:'wrong'}]) {
+  let reads=0;const {api}=setup(()=>{reads++;return json(catalog());});await api.getCatalog();
+  const knowledge=mod.createKnowledgeApi({base:'https://worker.example.invalid',token:()=>TOKEN,session:()=>1,fetch:async()=>json(result)});
+  await assert.rejects(knowledge.send(mod.createAttempt(`/materializations/recipes/${id}`,'POST',{recipeVersion:2})),e=>e.uncertain&&e.code==='invalid_source');
+  await api.getCatalog();assert.equal(reads,1);
+ }
 });
