@@ -1,0 +1,154 @@
+{
+  "components": [
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-1",
+      "knowledgeIngredientId": "011a920c-3286-5814-8565-bee491c4f9d2",
+      "originalAmount": "两斤",
+      "originalPreparation": {
+        "zh": "泡水后煸炒；画面为切段排骨"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-2",
+      "knowledgeIngredientId": "ed7b03f0-c202-51a2-814c-f1f4fdd26f05",
+      "originalAmount": "三块提前泡水；另三块打碎",
+      "originalPreparation": {
+        "zh": "分成浸泡与打碎两份；陈皮水用于炖煮，碎陈皮在出锅前撒入"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-3",
+      "knowledgeIngredientId": "8be876d4-73f1-586c-8525-881000eb50c9",
+      "originalAmount": "三个",
+      "originalPreparation": {
+        "zh": "煸排骨时加入，炖好后挑出"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-4",
+      "knowledgeIngredientId": "ad8a6bfc-1dad-5174-8287-5f18fbc9c6b2",
+      "originalAmount": "一个",
+      "originalPreparation": {
+        "zh": "煸排骨时加入，炖好后挑出"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-5",
+      "knowledgeIngredientId": "ba748e50-bbd7-57bb-880b-bfa053bf2164",
+      "originalAmount": "一些",
+      "originalPreparation": {
+        "zh": "转入炖锅后加入辣椒料，后段讲解称“辣椒面”"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-6",
+      "knowledgeIngredientId": "a0e42159-87d5-5102-8f19-5fc8350784aa",
+      "originalAmount": "一勺",
+      "originalPreparation": {
+        "zh": "排骨略焦后小火炒香"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-7",
+      "knowledgeIngredientId": "f2ffecec-766b-5c74-8e38-f28fce179376",
+      "originalAmount": "一勺",
+      "originalPreparation": {
+        "zh": "排骨略焦后小火炒香"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-8",
+      "knowledgeIngredientId": "61db8edf-0ca3-5ead-888b-1ef7ef1d83d9",
+      "originalAmount": "多些",
+      "originalPreparation": {
+        "zh": "最后加入；画面为蒜瓣"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-9",
+      "knowledgeIngredientId": "f69ebe9f-3e8a-5d05-818d-2976a026d8e2",
+      "originalAmount": "多些",
+      "originalPreparation": {
+        "zh": "最后加入；画面为红色辣椒段"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-10",
+      "knowledgeIngredientId": "249d12d7-82b0-5190-871a-7162e56251ab",
+      "originalAmount": "未录用量",
+      "originalPreparation": {
+        "zh": "用于煸排骨"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-11",
+      "knowledgeIngredientId": "28ab6600-2bf5-5bac-860d-ff3b5bf921f0",
+      "originalAmount": "一些",
+      "originalPreparation": {
+        "zh": "排骨煸得较干时补入；可用米酒替代；作为料酒替代；具体品种与体积未说明，不与料酒重复累计。"
+      }
+    },
+    {
+      "ingredientRef": "kbi-4ba1fbad11114db18852f98a7fb111f8-v1-12",
+      "knowledgeIngredientId": "a7eaf043-1400-5150-8015-63806826fc5f",
+      "originalAmount": "没过食材",
+      "originalPreparation": {
+        "zh": "陈皮提前泡水；加陈皮水后再加水至没过食材"
+      }
+    }
+  ],
+  "name": {
+    "zh": "陈皮排骨"
+  },
+  "provenance": {
+    "coverState": "needs-image",
+    "recipeId": "4ba1fbad-1111-4db1-8852-f98a7fb111f8",
+    "recipeVersion": 1,
+    "snapshotHash": "e54d1fe48e5feeba7b1b93619d04f4cf49432d42014a6bcbb3cad3cffe1c188c",
+    "source": "knowledge"
+  },
+  "schemaVersion": "3",
+  "status": "active",
+  "steps": [
+    {
+      "text": {
+        "zh": "备排骨两斤并泡水，讲解说明新鲜排骨泡水后不焯水；陈皮三块提前泡水，另三块打碎，分开留用。备三个八角、一个桂皮、一些二荆条辣椒碎，以及多些蒜和小米辣。"
+      }
+    },
+    {
+      "text": {
+        "zh": "用油煸排骨，过程中加入八角和桂皮；煸得较干时补一些料酒，或用米酒替代。"
+      }
+    },
+    {
+      "text": {
+        "zh": "排骨略带焦边时调小火，加入一勺辣妹子辣椒酱和一勺香辣酱，小火把酱炒香。"
+      }
+    },
+    {
+      "text": {
+        "zh": "转入炖锅，加入提前泡好的陈皮水和辣椒料（此处讲解称“辣椒面”）；画面中陈皮片也在锅内。再加水至没过食材。"
+      }
+    },
+    {
+      "text": {
+        "zh": "盖上锅盖，小火炖一个小时15分钟。"
+      }
+    },
+    {
+      "text": {
+        "zh": "到时间后挑出八角、桂皮等香料，再加蒜和小米辣，大火收汁15分钟。"
+      }
+    },
+    {
+      "text": {
+        "zh": "出锅前汤汁基本收到黏稠时，撒上提前打碎的另一份陈皮。"
+      }
+    },
+    {
+      "text": {
+        "zh": "出锅后搅拌，让陈皮碎更均匀地粘在排骨上。"
+      }
+    }
+  ]
+}
