@@ -236,7 +236,7 @@ test('confirmed freeze refreshes an ordinary plan return while preserving raw fi
  let head=A;const f=await setup({read:u=>u.pathname==='/catalog'?Response.json(catalog200(u.searchParams.get('revision')??head)):undefined});
  try{let el=await f.mount();input(el,'servings-0','9');input(el,'servings-1',raw);input(el,'add-date','2026-10-03');input(el,'add-meal','dinner','change');input(el,'add-dish','stew','change');
   head=B;await freeze200(f);el=await f.mount();
-  assert(focus(el,'add-dish').children.some(x=>x.value===dish200));assert.match(focus(el,'add-dish').textContent,/KB v2 · 12345678/);
+  assert(focus(el,'add-dish').querySelectorAll('option').some(x=>x.value===dish200));assert.match(focus(el,'add-dish').textContent,/KB v2 · 12345678/);
   assert.equal(focus(el,'add-dish').value,'stew');assert.equal(focus(el,'add-date').value,'2026-10-03');assert.equal(focus(el,'add-meal').value,'dinner');
   assert.equal(focus(el,'servings-0').value,'9');assert.equal(focus(el,'servings-1').value,raw);assert.equal(focus(el,'dish-0').value,'soup');assert.equal(f.writes.length,0);
  }finally{f.cleanup();}
