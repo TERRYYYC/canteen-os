@@ -3,7 +3,8 @@ import './plan.css';
 import { weekStartOfPlanId, datedPlanIdOfDate, type MealType, type AnyMenuPlan } from '@canteenos/core';
 import { getTeamMealsApi, type TeamMealsApi, type TeamCatalog } from '../../api/team-meals';
 import { ApiError, type Source } from '../../api/types';
-import { apiMessage } from '../../admin/kit';
+import { createAttempt, getKnowledgeApi, KnowledgeError, type Attempt, type I18n, type Materialization, type createKnowledgeApi } from '../../api/knowledge';
+import { apiMessage, contractErrorText } from '../../admin/kit';
 import { bindDraftStore } from '../../admin/store';
 import { h, replace } from '../../dom';
 import { pick } from '../../i18n';
@@ -13,8 +14,9 @@ import { text, action, field, status, onDetached } from '../team-ui';
 import { createPlanForm, toSavePlan, planHints } from './plan-form';
 import { displayDate } from '../../display-date';
 import {hrefOf} from '../../router';
-import {registerAuxiliaryEdits,type AuxiliaryEditHandle} from '../../view-models/reload-safety';
+import {registerAuxiliaryEdits,type AuxiliaryEditHandle,type AuxiliaryOperation} from '../../view-models/reload-safety';
 import {currentPlan,selectPlan} from './plan-context';
+import {SYSTEM_REVIEWER,SYSTEM_NOTE} from './knowledge/review-label';
 import {recordValue} from '../record-display';
 import {localDateIso} from '../../local-date';
 export { createPlanForm } from './plan-form';
@@ -23,15 +25,29 @@ void toSavePlan;
 const meals:MealType[]=['breakfast','lunch','dinner'];
 interface View { preview?:boolean; editing?:number; addExpanded?:boolean; catalogCommit?:string; pendingSelection?:string; selectedRouteAdded?:boolean; range:'all'|'day'|'week'; date:string; invalid:Map<number,string>; addDate:string; addMeal:MealType; addDish:string; addBaseline:readonly [string,MealType,string]; initialized:boolean; generation:number; reads:number }
 export interface PlanAuxiliaryState { readonly ownerId:string; readonly identity:{readonly kind:'plan';readonly id:string}; readonly generation:number; readonly dirty:boolean; readonly phase:'idle'|'busy' }
-const addPending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1]||view.addDish!==view.addBaseline[2];
+const placePending=(view:View)=>view.addDate!==view.addBaseline[0]||view.addMeal!==view.addBaseline[1];
+const addPending=(view:View)=>placePending(view)||view.addDish!==view.addBaseline[2];
+/** #202: besides catalog dishes, Add offers saved recipes and inbox candidates and fixes them on the way in with existing calls. */
+type KnowledgeClient=Pick<ReturnType<typeof createKnowledgeApi>,'request'|'send'|'materializationAttempt'>;
+interface Choice { value:string; id:string; title:I18n; version?:number }
+interface Choices { auth:number; recipes:Choice[]; candidates:Choice[]; truncated:boolean }
+/** One knowledge write per choice. An unconfirmed one keeps its request and key, so another click verifies it instead of writing again. */
+interface Fix { attempt?:Attempt; ticket?:AuxiliaryOperation; unknown:boolean; error?:unknown }
+interface Fixing { busy:boolean; fixes:Map<string,Fix> }
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const CHOICE_PAGES=10;
+const recipeChoice=(id:string,version:number)=>`recipe:${id}:${version}`;
+const knowledgeChoice=(value:string)=>/^(?:recipe|candidate):/.test(value);
 const rawPending=(view:View)=>view.invalid.size>0||addPending(view);
 const planRange=(plan:AnyMenuPlan|null|undefined)=>plan?.schemaVersion==='3'?plan.dateRange:undefined;
 const inPlanRange=(date:string,range:NonNullable<ReturnType<typeof planRange>>)=>range.start<=range.end&&date>=range.start&&date<=range.end;
 
-/** An injected API changes transport only; browser fixtures still execute this production page. */
-export function createPlanRenderer(api:TeamMealsApi) {
+/** An injected API changes transport only; browser fixtures still execute this production page. Without knowledge, Add offers catalog dishes only. */
+export function createPlanRenderer(api:TeamMealsApi,knowledge?:()=>KnowledgeClient) {
   const views=new Map<string,View>();
   const auxiliary=new WeakMap<View,AuxiliaryEditHandle>();
+  const fixing=new WeakMap<View,Fixing>();
+  let choices:Choices|undefined,choicesError:unknown;
   let cleanup:()=>void=()=>{}, renderSequence=0,rawGeneration=0;
   const touch=(view:View)=>{view.generation=++rawGeneration;};
   const createForm=()=>createPlanForm(api,{remapRows(id,order){
@@ -53,7 +69,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     if(auth!==api.sessionKey()){
       form.session.getState();
       for(const view of views.values())auxiliary.get(view)?.dispose();
-      views.clear();form=createForm();auth=api.sessionKey();
+      views.clear();form=createForm();auth=api.sessionKey();choices=undefined;choicesError=undefined;
     }
     const owner=form, lang=ctx.lang, tr=(key:Parameters<typeof text>[1])=>text(lang,key);
     const L=(zh:string,en:string,uk:string)=>lang==='zh'?zh:lang==='en'?en:uk;
@@ -71,7 +87,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     let catalog:TeamCatalog|null=null,loadError:unknown=null,remote:Source<AnyMenuPlan>|null|undefined;
     let compareError:unknown=null,comparing=false,contextId=0;
     let initialized=false,boundKey:string|undefined,requestedKey:string|undefined;
-    let previewLoading=false,previewError:unknown=null;
+    let previewLoading=false,previewError:unknown=null,choicesLoading=false;
     // Repeat hints of the draft being painted: computed once per paint, read by each row.
     let hints:ReturnType<typeof planHints>|undefined;
     const photos=new Map<string,{url?:string;failed?:boolean}>();
@@ -115,9 +131,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
         if(s.phase==='clean'){
           documentStatus.firstChild!.textContent=tr('dirty');documentStatus.classList.add('dirty');
         }
-        documentStatus.append(h('div',{'data-plan-raw-pending':'true'},
-          view.invalid.size>0?h('p',{},tr('invalidServings')):null,
-          addPending(view)?h('p',{},`${view.addDate||tr('date')} · ${tr(view.addMeal)} — `,lang==='zh'?'添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。':lang==='en'?'The Add choices have not been added to the plan. Use “Add a dish” to apply them.':'Вибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.'):null));
+        // The Add choices are explained under the Add form itself: a line added up here would push its button away (#202).
+        if(view.invalid.size>0)documentStatus.append(h('div',{'data-plan-raw-pending':'true'},h('p',{},tr('invalidServings'))));
       }
       if(loadError)output.push(h('div',{class:'tm-error',role:'alert'},apiMessage(loadError,lang),action(tr('retry'),()=>void reloadCatalog())));
       if(s.error)output.push(h('p',{class:'tm-error',role:'alert'},apiMessage(new ApiError(s.error.status,s.error.code,s.error.message,s.error.errors,s.error.retryAfter,s.error.reviewRequired),lang)));
@@ -174,7 +189,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
       // Unsaved means the session's draft or page-owned inputs not yet applied (the status line above says the same).
       // A lost response is not a failed save: while the outcome is unknown the reminder repeats the verify-first status instead.
       // That sentence is already the live status line above, so here it is plain text, not a second role=status announcement.
-      if(s.draft&&(s.dirty||rawPending(view))){
+      // An Add choice not yet added is explained under the Add form: this bar sticks to the bottom and would cover its button (#202).
+      if(s.draft&&(s.dirty||view.invalid.size>0)){
         const unknownOutcome=s.phase==='outcome-unknown';
         if(unknownOutcome)reminder.removeAttribute('role');else reminder.setAttribute('role','status');
         reminder.textContent=unknownOutcome?tr('unknown'):
@@ -182,7 +198,8 @@ export function createPlanRenderer(api:TeamMealsApi) {
         if(reminder.parentNode!==el)el.append(reminder);
       }else reminder.remove();
       replace(body,...output);
-      if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus();
+      // Same control, same place: the page's scroll padding for the bottom bars would otherwise scroll a control near the bottom (#202).
+      if(active)body.querySelector<HTMLElement>(`[data-focus="${active}"]`)?.focus({preventScroll:true});
     }
     async function loadPreview():Promise<void>{
       previewLoading=true;const handle=auxiliary.get(view)!,ticket=handle.beginOperation('read');view.reads++;touch(view);let failed=false;
@@ -249,14 +266,30 @@ export function createPlanRenderer(api:TeamMealsApi) {
       }
       return box;
     }
+    function catalogLabel(dish:TeamCatalog['dishes'][string]):string {
+      const version=dish.provenance?.source==='knowledge'?` · KB v${dish.provenance.recipeVersion} · ${dish.provenance.recipeId.slice(0,8)}`:'';
+      return `${pick(dish.name,lang)}${version}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`;
+    }
     function dishSelect(value:string,key:string):HTMLSelectElement {
       const select=h('select',{'data-focus':key});select.append(h('option',{value:''},tr('choose')));
       if(value&&!Object.hasOwn(catalog?.dishes??{},value))select.append(h('option',{value},`${value} — ${tr('missingDish')}`));
-      for(const [dishId,dish] of Object.entries(catalog?.dishes??{})){
-        const version=dish.provenance?.source==='knowledge'?` · KB v${dish.provenance.recipeVersion} · ${dish.provenance.recipeId.slice(0,8)}`:'';
-        select.append(h('option',{value:dishId},`${pick(dish.name,lang)}${version}${dish.status&&dish.status!=='active'?` · ${recordValue(dish.status,lang)}`:''}`));
-      }
+      for(const [dishId,dish] of Object.entries(catalog?.dishes??{}))select.append(h('option',{value:dishId},catalogLabel(dish)));
       select.value=value;return select;
+    }
+    /** Add's three groups (#202). The catalog already holds every fixed version, so a saved recipe is listed only until that version is fixed. */
+    function addChoices():[label:string,options:[value:string,text:string][]][] {
+      const dishes=catalog?.dishes??{},live=choices?.auth===api.sessionKey()?choices:undefined;
+      const fixed=new Set(Object.values(dishes).flatMap(dish=>dish.provenance?.source==='knowledge'?[recipeChoice(dish.provenance.recipeId,dish.provenance.recipeVersion)]:[]));
+      const name=(title:I18n)=>title[lang]||title.zh||title.en||title.uk||L('没有菜名','Untitled','Без назви');
+      const groups:ReturnType<typeof addChoices>=[
+        [L('已排进菜单','Ready for menus','Готові для меню'),Object.entries(dishes).map(([dishId,dish])=>[dishId,catalogLabel(dish)])],
+        [L('已存菜谱 · 还没排进菜单','Saved recipes · not on a menu yet','Збережені рецепти · ще не в меню'),(live?.recipes??[]).filter(choice=>!fixed.has(choice.value)).map(choice=>[choice.value,`${name(choice.title)} · KB v${choice.version} · ${choice.id.slice(0,8)}`])],
+        [L('收件箱 · 还没存成菜谱','Inbox · not saved as a recipe yet','Вхідні · ще не збережено як рецепт'),(live?.candidates??[]).map(choice=>[choice.value,name(choice.title)])],
+      ];
+      const value=view.addDish;
+      if(value&&!groups.some(([,options])=>options.some(([option])=>option===value)))
+        groups.unshift(['',[[value,knowledgeChoice(value)&&(choicesLoading||fixing.get(view)?.busy)?tr('loading'):`${value} — ${tr('missingDish')}`]]]);
+      return groups.filter(([,options])=>options.length>0);
     }
     function row(index:number):HTMLElement {
       const s=owner.session.getState(),meal=s.draft!.meals[index]!;
@@ -294,32 +327,162 @@ export function createPlanRenderer(api:TeamMealsApi) {
       if(view.invalid.has(index))node.append(h('p',{class:'tm-error'},tr('invalidServings')));
       return node;
     }
-    function addForm():HTMLElement {
-      const s=owner.session.getState(),captured=s.contextId;
-      const dateRange=planRange(s.draft);
-      const invalidDate=!!dateRange&&!!view.addDate&&!inPlanRange(view.addDate,dateRange);
-      const date=h('input',{type:'date',value:view.addDate,required:true,min:dateRange?.start,max:dateRange?.end,'data-focus':'add-date','aria-invalid':invalidDate?'true':undefined});
-      const meal=h('select',{'data-focus':'add-meal'});for(const key of meals)meal.append(h('option',{value:key,selected:key===view.addMeal},tr(key)));
-      const dish=dishSelect(view.addDish,'add-dish');dish.required=true;
+    function createAddForm() {
+      const date=h('input',{type:'date',required:true,'data-focus':'add-date'});
+      const meal=h('select',{'data-focus':'add-meal'});for(const key of meals)meal.append(h('option',{value:key},tr(key)));
+      const dish=h('select',{'data-focus':'add-dish',required:true});
+      const add=h('button',{type:'submit',class:'tm-button'},tr('add'));
+      const summary=h('summary',{}),extra=h('details',{class:'tm-plan-add-extra'},summary,h('div',{},field(tr('date'),date),field(tr('meal'),meal)));
+      const notes=h('div',{class:'tm-plan-add-notes'});
+      const parts={form:h('form',{class:'tm-card tm-add-form'},field(tr('dish'),dish),add,extra,notes),date,meal,dish,add,extra,summary,notes,options:'',contextId:owner.session.getState().contextId};
+      const current=()=>isLive()&&owner.session.getState().contextId===parts.contextId;
       const update=()=>{
-        if(!isLive()||owner.session.getState().contextId!==captured)return;
+        if(!current())return;
         view.addDate=date.value;view.addMeal=meal.value as MealType;view.addDish=dish.value;touch(view);paint();
       };
       date.addEventListener('input',update);meal.addEventListener('change',update);dish.addEventListener('change',update);
-      const add=h('button',{type:'submit',class:'tm-button'},tr('add'));
-      const extra=h('details',{class:'tm-plan-add-extra',open:view.addExpanded||addPending(view)},h('summary',{},`${view.addDate.slice(5)} · ${tr(view.addMeal)}`),h('div',{},field(tr('date'),date),field(tr('meal'),meal)));
       extra.addEventListener('toggle',()=>{if(isLive()&&extra.isConnected)view.addExpanded=extra.open;});
-      add.disabled=!view.addDate||invalidDate;
-      const formEl=h('form',{class:'tm-card tm-add-form'},field(tr('dish'),dish),add,extra,
-        dateRange&&dateRange.end<today?h('p',{class:'tm-plan-note',role:'status'},lang==='zh'?'此计划已过期；若要补排，请手动选择计划范围内的旧日期。':lang==='en'?'This plan has expired. To backfill it, explicitly choose a past date within its range.':'Цей план завершився. Для доповнення вручну виберіть минулу дату в його межах.'):null,
-        invalidDate?h('p',{class:'tm-error',role:'alert'},lang==='zh'?'日期超出计划范围，请选择范围内的日期。':lang==='en'?'Choose a date within the plan dates.':'Виберіть дату в межах плану.'):null);
-      formEl.addEventListener('submit',event=>{
-        event.preventDefault();if(!isLive()||owner.session.getState().contextId!==captured)return;
-        if(date.value&&dish.value&&(!dateRange||inPlanRange(date.value,dateRange))&&owner.add(date.value,meal.value as MealType,dish.value,captured)){
-          if(selectedDish&&dish.value===selectedDish)view.selectedRouteAdded=true;
+      parts.form.addEventListener('submit',event=>{
+        event.preventDefault();if(!current()||fixing.get(view)?.busy)return;
+        const dateRange=planRange(owner.session.getState().draft),choice=dish.value,captured=parts.contextId;
+        if(!date.value||!choice||(dateRange&&!inPlanRange(date.value,dateRange)))return;
+        if(knowledgeChoice(choice)){void fixAndAdd(choice,date.value,meal.value as MealType,captured);return;}
+        if(owner.add(date.value,meal.value as MealType,choice,captured)){
+          if(selectedDish&&choice===selectedDish)view.selectedRouteAdded=true;
           view.addBaseline=[view.addDate,view.addMeal,view.addDish];touch(view);paint();
         }
-      });return formEl;
+      });
+      return parts;
+    }
+    let addParts:ReturnType<typeof createAddForm>|undefined;
+    /** Built once per render and updated in place (#202): choosing a dish keeps the same button where it was and leaves the date and meal folded. */
+    function addForm():HTMLElement {
+      const s=owner.session.getState(),parts=addParts??=createAddForm();parts.contextId=s.contextId;
+      const {date,meal,dish,add,extra,summary,notes}=parts;
+      const dateRange=planRange(s.draft);
+      const invalidDate=!!dateRange&&!!view.addDate&&!inPlanRange(view.addDate,dateRange);
+      if(date.value!==view.addDate)date.value=view.addDate;
+      attr(date,'min',dateRange?.start);attr(date,'max',dateRange?.end);attr(date,'aria-invalid',invalidDate?'true':undefined);
+      meal.value=view.addMeal;
+      const groups=addChoices(),options=JSON.stringify(groups);
+      // Rebuilding the list closes an open picker, so it is rebuilt only when the choices themselves change.
+      if(options!==parts.options){
+        parts.options=options;
+        replace(dish,h('option',{value:''},tr('choose')),...groups.flatMap(([label,list])=>{
+          const items=list.map(([value,text])=>h('option',{value},text));
+          return label?[h('optgroup',{label},...items)]:items;
+        }));
+      }
+      dish.value=view.addDish;
+      const busy=!!fixing.get(view)?.busy;
+      dish.disabled=busy;add.disabled=busy||!view.addDate||invalidDate;
+      attr(extra,'open',view.addExpanded||placePending(view)?'':undefined);
+      summary.textContent=`${view.addDate.slice(5)} · ${tr(view.addMeal)}`;
+      replace(notes,...addNotes(busy),
+        dateRange&&dateRange.end<today?h('p',{class:'tm-plan-note',role:'status'},lang==='zh'?'此计划已过期；若要补排，请手动选择计划范围内的旧日期。':lang==='en'?'This plan has expired. To backfill it, explicitly choose a past date within its range.':'Цей план завершився. Для доповнення вручну виберіть минулу дату в його межах.'):null,
+        invalidDate?h('p',{class:'tm-error',role:'alert'},lang==='zh'?'日期超出计划范围，请选择范围内的日期。':lang==='en'?'Choose a date within the plan dates.':'Виберіть дату в межах плану.'):null);
+      return parts.form;
+    }
+    /** Everything that changes with a choice sits below the Add row, so nothing above or beside the button moves. */
+    function addNotes(busy:boolean):(HTMLElement|null)[] {
+      const choice=view.addDish,fix=fixing.get(view)?.fixes.get(choice),live=choices?.auth===api.sessionKey()?choices:undefined;
+      return [
+        addPending(view)?h('p',{class:'tm-plan-note','data-plan-raw-pending':'true'},`${view.addDate||tr('date')} · ${tr(view.addMeal)} — `,lang==='zh'?'添加栏的选择尚未加入计划；点击“加一道菜”后才会应用。':lang==='en'?'The Add choices have not been added to the plan. Use “Add a dish” to apply them.':'Вибір для додавання ще не внесено в план. Натисніть «Додати страву», щоб застосувати його.'):null,
+        busy?h('p',{class:'tm-plan-note',role:'status'},L('正在排进菜单，请稍候……','Putting it on a menu…','Додаємо в меню…'))
+          :fix?.error?fixNotice(choice,fix)
+          :choice.startsWith('candidate:')?h('p',{class:'tm-plan-note'},L('点“加一道菜”会先存为菜谱，再排进菜单（固定这一版），然后加进计划。','Add a dish saves it as a recipe, puts this version on a menu, then adds it to the plan.','«Додати страву» збереже її як рецепт, додасть цю версію в меню, а потім — у план.'))
+          :choice.startsWith('recipe:')?h('p',{class:'tm-plan-note'},L('点“加一道菜”会先把这一版排进菜单（固定这一版），再加进计划。','Add a dish puts this version on a menu, then adds it to the plan.','«Додати страву» додасть цю версію в меню, а потім — у план.')):null,
+        choicesError&&!live?h('p',{class:'tm-plan-note',role:'status'},L('收件箱和菜谱库没读到，只列出已排进菜单的菜。','The inbox and recipe library could not be read; only dishes ready for menus are listed.','Не вдалося прочитати вхідні й бібліотеку рецептів; показано лише страви, готові для меню.'),' ',action(tr('retry'),()=>void loadChoices())):null,
+        live?.truncated?h('p',{class:'tm-plan-note'},L(`收件箱和菜谱库各只列出前 ${CHOICE_PAGES*100} 条。`,`Only the first ${CHOICE_PAGES*100} inbox items and recipes are listed.`,`Показано лише перші ${CHOICE_PAGES*100} позицій вхідних і рецептів.`)):null,
+      ];
+    }
+    function fixNotice(choice:string,fix:Fix):HTMLElement {
+      const known=fix.error instanceof KnowledgeError?fix.error:undefined,said=known?.said(lang)??[];
+      const support=h('details',{},h('summary',{},L('技术支持详情','Support details','Деталі для підтримки')),
+        h('pre',{},JSON.stringify(known?{status:known.status,code:known.code,message:known.message,details:known.details,key:fix.attempt?.key}:{message:String(fix.error)},null,2)));
+      if(fix.unknown)return h('div',{class:'tm-plan-add-result',role:'status'},
+        h('p',{},L('结果还没确认。再点“加一道菜”会用原来的请求确认，不会重复写。','The result is not confirmed yet. Use Add a dish again to check it with the original request; nothing is written twice.','Результат ще не підтверджено. Натисніть «Додати страву» ще раз, щоб перевірити тим самим запитом; нічого не запишеться двічі.')),support);
+      // Registered words say what to do; the Worker's own lines add what exactly, unless they repeat it (as on the recipe page).
+      const primary=(known&&contractErrorText(known.code,lang))||said[0]||known?.message||L('没能排进菜单。','It could not be put on a menu.','Не вдалося додати в меню.'),more=said.filter(line=>!primary.includes(line));
+      const recipe=/^recipe:([0-9a-f-]{36}):/.exec(choice)?.[1];
+      return h('div',{class:'tm-plan-add-result tm-error',role:'alert'},h('p',{},primary),
+        more.length?h('ul',{},...more.map(line=>h('li',{},line))):null,
+        h('p',{},L('这道菜没加进计划，计划没变。','The dish was not added; the plan is unchanged.','Страву не додано; план не змінено.')),
+        recipe?h('a',{href:adminHref('knowledge',recipe)},L('打开这道菜谱','Open this recipe','Відкрити рецепт')):null,support);
+    }
+    /** Saved recipes and inbox candidates for Add. A failed read leaves the catalog choices as they are. */
+    async function loadChoices():Promise<void>{
+      if(!knowledge||choicesLoading)return;
+      const client=knowledge(),key=api.sessionKey(),handle=auxiliary.get(view)!,ticket=handle.beginOperation('read');
+      choicesLoading=true;view.reads++;touch(view);let failed=false;
+      const all=async<T>(path:string,query:Record<string,string>)=>{
+        const items:T[]=[];let after:string|null=null,pages=0;
+        do{
+          const {data}:{data:{items:T[];nextCursor:string|null}}=await client.request<{items:T[];nextCursor:string|null}>(`${path}?${new URLSearchParams(after?{...query,limit:'100',cursor:after}:{...query,limit:'100'})}`);
+          items.push(...data.items);after=data.nextCursor;
+        }while(after&&++pages<CHOICE_PAGES);
+        return {items,truncated:!!after};
+      };
+      try{
+        const [recipes,inbox]=await Promise.all([all<{id:string;title?:I18n;version:number}>('/recipes',{}),
+          all<{candidateSummary?:{candidateId:string;title?:I18n;status:string}|null}>('/favorites/items',{state:'needs_review'})]);
+        if(key!==api.sessionKey())return;
+        choices={auth:key,truncated:recipes.truncated||inbox.truncated,
+          recipes:recipes.items.flatMap(recipe=>UUID.test(recipe.id)&&Number.isSafeInteger(recipe.version)&&recipe.version>0?[{value:recipeChoice(recipe.id,recipe.version),id:recipe.id,title:recipe.title??{},version:recipe.version}]:[]),
+          candidates:inbox.items.flatMap(({candidateSummary:candidate})=>candidate?.status==='needs_review'&&UUID.test(candidate.candidateId)?[{value:`candidate:${candidate.candidateId}`,id:candidate.candidateId,title:candidate.title??{}}]:[])};
+        choicesError=undefined;
+      }catch(error){failed=true;if(key===api.sessionKey())choicesError=error;}
+      finally{choicesLoading=false;view.reads--;touch(view);handle.settleOperation(ticket,failed?'failed':'completed');if(isLive())paint();}
+    }
+    /** Same calls and order as the inbox and the recipe page; nothing reaches the plan until the dish is fixed and in the catalog. */
+    async function fixAndAdd(choice:string,date:string,meal:MealType,captured:number):Promise<void>{
+      if(!knowledge)return;
+      const client=knowledge(),state=fixing.get(view)??{busy:false,fixes:new Map<string,Fix>()};
+      if(state.busy)return;
+      fixing.set(view,state);state.busy=true;touch(view);paint();
+      let key=choice,changed=false;
+      try{
+        const candidate=/^candidate:([0-9a-f-]{36})$/.exec(key);
+        if(candidate){
+          const saved=await send<{status?:string;recipeId?:string;recipeVersion?:number}>(state,key,()=>createAttempt(`/favorites/candidates/${candidate[1]}/review`,'POST',{decision:'approve',reviewer:SYSTEM_REVIEWER,note:SYSTEM_NOTE}),
+            data=>data.status==='approved'&&typeof data.recipeId==='string'&&UUID.test(data.recipeId)&&Number.isSafeInteger(data.recipeVersion)&&data.recipeVersion!>0);
+          // It is a saved recipe from here on: a refusal or a retry continues with the recipe and never saves it twice.
+          changed=true;key=recipeChoice(saved.recipeId!,saved.recipeVersion!);
+          if(view.addDish===choice){view.addDish=key;touch(view);}
+        }
+        const recipe=/^recipe:([0-9a-f-]{36}):([1-9][0-9]*)$/.exec(key);
+        if(!recipe)return;
+        const id=recipe[1]!,version=Number(recipe[2]);
+        const fixed=await send<Materialization>(state,key,()=>client.materializationAttempt(id,version),
+          data=>data.recipeId===id&&data.recipeVersion===version&&typeof data.dishRef==='string'&&/^kb[a-z0-9-]+$/.test(data.dishRef));
+        changed=true;
+        if(view.addDish===key){view.addDish=fixed.dishRef;touch(view);}
+        await reloadCatalog(true);
+        if(!isLive()||owner.session.getState().contextId!==captured||!catalog||!Object.hasOwn(catalog.dishes,fixed.dishRef))return;
+        if(owner.add(date,meal,fixed.dishRef,captured)){view.addBaseline=[date,meal,fixed.dishRef];touch(view);}
+      }catch{/* send() keeps the error with its choice; the Add form shows it. */}
+      finally{
+        state.busy=false;touch(view);
+        if(changed)void loadChoices();
+        if(isLive())paint();
+      }
+    }
+    async function send<T>(state:Fixing,key:string,attempt:()=>Attempt,valid:(data:T)=>boolean):Promise<T>{
+      const handle=auxiliary.get(view)!;
+      let fix=state.fixes.get(key);
+      if(!fix?.attempt){fix={attempt:attempt(),ticket:handle.beginOperation('write'),unknown:false};state.fixes.set(key,fix);}
+      fix.error=undefined;
+      try{
+        const {data}=await knowledge!().send<T>(fix.attempt!);
+        if(!valid(data))throw new KnowledgeError('Knowledge result does not match the request',0,'invalid_source');
+        handle.settleOperation(fix.ticket!,'completed');state.fixes.delete(key);
+        return data;
+      }catch(error){
+        fix.error=error;
+        if(error instanceof KnowledgeError&&(error.uncertain||error.code==='session_changed')){fix.unknown=true;handle.markUnknown(fix.ticket!);}
+        else{handle.settleOperation(fix.ticket!,'failed');fix.attempt=undefined;fix.ticket=undefined;fix.unknown=false;}
+        throw error;
+      }
     }
     function conflict():HTMLElement {
       const card=h('div',{class:'tm-card'},action(tr('compare'),()=>void compare()));
@@ -394,6 +557,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
     finally{ctx.setReloadCoverage?.('tracked');}
     initialized=true;requestedKey=loadError?sourceKey():boundKey;
     paint();
+    void loadChoices();
   }
   return Object.assign(renderPlan,{
     /** Read-only metadata for the page buffer registered above; C1 owns saved JSON. */
@@ -404,5 +568,7 @@ export function createPlanRenderer(api:TeamMealsApi) {
   });
 }
 function shift(date:string,days:number):string {return new Date(Date.parse(`${date}T12:00:00Z`)+days*86400000).toISOString().slice(0,10);}
+function attr(node:Element,name:string,value:string|undefined):void {if(value===undefined)node.removeAttribute(name);else node.setAttribute(name,value);}
 let renderer:ReturnType<typeof createPlanRenderer>|undefined;
-export function render(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void>{return (renderer??=createPlanRenderer(getTeamMealsApi()))(el,ctx,rest);}
+const workerUrl:unknown=import.meta.env.VITE_WORKER_URL;
+export function render(el:HTMLElement,ctx:PageCtx,rest:string):Promise<void>{return (renderer??=createPlanRenderer(getTeamMealsApi(),typeof workerUrl==='string'&&workerUrl?getKnowledgeApi:undefined))(el,ctx,rest);}
