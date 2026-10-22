@@ -1,0 +1,1 @@
+Synthetic fixture bytes: NOT a video; no decoding claim.

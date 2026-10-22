@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "sourceMediaSha256": "1d645e6a10d465e3fe5753daccf29330b65d9ef094798848154f5611deaa5e00",
+  "sourceUrl": "synthetic:fixture",
+  "author": "CanteenOS synthetic fixture",
+  "rightsState": "synthetic_fixture",
+  "images": [
+    {
+      "id": "synthetic-reference",
+      "path": "reference.bin",
+      "frameMs": 2500,
+      "role": "finished",
+      "stepOrder": 2,
+      "caption": "合成引用，只用于字节校验。",
+      "sourceMediaSha256": "1d645e6a10d465e3fe5753daccf29330b65d9ef094798848154f5611deaa5e00",
+      "rightsState": "synthetic_fixture",
+      "byteCount": 60,
+      "width": 1,
+      "height": 1,
+      "sha256": "a60821669e635dea090b915eccbc7cb64dbb8b49e79fa6a5fe05eb8dedef0735"
+    }
+  ]
+}

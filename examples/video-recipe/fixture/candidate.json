@@ -1,0 +1,76 @@
+{
+  "status": "needs_human_review",
+  "classification": "recipe",
+  "sourceSha256": "1d645e6a10d465e3fe5753daccf29330b65d9ef094798848154f5611deaa5e00",
+  "title": "合成契约样例（不是实际菜谱）",
+  "titleEvidenceIds": [
+    "e1"
+  ],
+  "yield": {
+    "raw": null,
+    "normalized": null,
+    "state": "not_stated"
+  },
+  "ingredients": [
+    {
+      "name": "测试材料甲",
+      "rawQuantity": "两勺",
+      "quantityState": "stated",
+      "normalizedQuantity": null,
+      "prep": "合成预处理甲",
+      "evidenceIds": [
+        "e1"
+      ],
+      "uncertainty": "勺容量未知",
+      "substitution": null
+    },
+    {
+      "name": "测试烹调液",
+      "rawQuantity": "一些",
+      "quantityState": "stated_imprecise",
+      "normalizedQuantity": null,
+      "prep": null,
+      "evidenceIds": [
+        "e1"
+      ],
+      "uncertainty": "用量未说明",
+      "substitution": {
+        "name": "替代液",
+        "rawQuantity": "一些",
+        "evidenceIds": [
+          "e1"
+        ],
+        "uncertainty": "只作替代"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "action": "合成测试动作甲，不是烹饪指引。",
+      "startMs": 1400,
+      "endMs": 1600,
+      "evidenceIds": [
+        "e2"
+      ],
+      "unknowns": [
+        "火力未说明"
+      ]
+    },
+    {
+      "order": 2,
+      "action": "合成测试动作乙，不是烹饪指引。",
+      "startMs": 2400,
+      "endMs": 3000,
+      "evidenceIds": [
+        "e3"
+      ],
+      "unknowns": []
+    }
+  ],
+  "unresolved": [
+    "份数未说明"
+  ],
+  "approvedForMenu": false,
+  "approvedForProcurement": false
+}
