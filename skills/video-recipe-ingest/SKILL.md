@@ -8,6 +8,8 @@ description: >
 
 # 视频 → 完整菜谱 → 厨房
 
+实际运行入口：[使用说明与陈皮排骨缓存案例](../../docs/video-recipe-working-example.md)。先跑明确标记的合成样本，再用自有原片和解析产物重放真实案例；重放检查不会下载或调用 AI。
+
 这是当前 SQLite KB 接入路径的执行契约。2026-09-06 的直写 `data/dishes/*.json`、默认放大到 50 份、PR 即厨师审核设计属于接入前历史方案；当前收藏收件箱不走这条路径。见 [视频导入说明](../../docs/video-import.md) 与 [KB 纵向决策](../../../knowledge-base/docs/VIDEO-RECIPE-INTEGRATION.md)。
 
 ## 1. 获取整片

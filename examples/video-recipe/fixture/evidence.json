@@ -1,0 +1,26 @@
+[
+  {
+    "id": "e1",
+    "kind": "spoken",
+    "startMs": 0,
+    "endMs": 900,
+    "text": "合成记录甲，纯测试文字。",
+    "extractor": "synthetic-fixture"
+  },
+  {
+    "id": "e2",
+    "kind": "subtitle",
+    "startMs": 1500,
+    "endMs": 1500,
+    "text": "合成记录乙，纯测试文字。",
+    "extractor": "synthetic-fixture"
+  },
+  {
+    "id": "e3",
+    "kind": "visual",
+    "startMs": 2500,
+    "endMs": 2500,
+    "text": "合成记录丙，纯测试文字。",
+    "extractor": "synthetic-fixture"
+  }
+]

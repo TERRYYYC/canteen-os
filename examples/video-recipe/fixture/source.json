@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "classification": "video",
+  "sourceUrl": "synthetic:fixture",
+  "workId": "synthetic-reference",
+  "accessMethod": "user_file",
+  "captureTime": "2026-10-19T00:00:00Z",
+  "localMediaPath": "media.txt",
+  "sha256": "1d645e6a10d465e3fe5753daccf29330b65d9ef094798848154f5611deaa5e00",
+  "byteCount": 57,
+  "durationMs": 3000,
+  "audioDurationMs": 3000,
+  "videoDurationMs": 3000,
+  "streams": {
+    "audio": true,
+    "video": true
+  },
+  "rightsState": "synthetic_fixture",
+  "analysisCoverage": {
+    "audioProcessedThroughMs": 3000,
+    "frameCount": 7,
+    "lastFrameMs": 3000,
+    "maxFrameGapMs": 500
+  }
+}

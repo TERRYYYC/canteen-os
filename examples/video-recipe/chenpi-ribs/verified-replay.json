@@ -1,0 +1,53 @@
+{
+  "observedAt": "2026-10-19T00:05:52.760309+00:00",
+  "nodeVersion": "v24.18.0",
+  "scriptSha256": "d8d94bf0862b10b36400c7aff18c430e5c4ed505ad63db56b4aa4a60823a36d3",
+  "commandTemplate": "node scripts/replay-video-recipe.mjs --artifact-dir <private-artifacts> --media <private-original-video> --output-dir <new-external-directory>",
+  "exitCode": 0,
+  "receipt": {
+    "schemaVersion": 1,
+    "mode": "cached_artifact_replay",
+    "newAiAnalysis": false,
+    "downloadPerformed": false,
+    "kbWrites": false,
+    "independentlyDecoded": false,
+    "approvalRecorded": false,
+    "status": "needs_human_review",
+    "source": {
+      "workId": "7688940752160196770",
+      "sourceUrl": "https://www.douyin.com/video/7688940752160196770",
+      "sha256": "c8b1d334b4f8e3e7a3d1f56179f7525895db96dea148fddd67dac80c308bc49b",
+      "byteCount": 61563411,
+      "recordedAccessMethod": "f2",
+      "recordedDurationMs": 132400,
+      "recordedAudioDurationMs": 132398,
+      "recordedVideoDurationMs": 132400
+    },
+    "recordedCoverage": {
+      "audioProcessedThroughMs": 132398,
+      "frameCount": 265,
+      "lastFrameMs": 132000,
+      "maxFrameGapMs": 533
+    },
+    "counts": {
+      "ingredients": 12,
+      "steps": 8,
+      "evidence": 188,
+      "illustrations": 5
+    },
+    "checks": [
+      "media_bytes_and_sha256",
+      "recorded_coverage_fields",
+      "audiovisual_reference_resolution",
+      "recorded_time_bounds_and_step_overlap",
+      "illustration_bytes_and_sha256",
+      "draft_approval_flags_unchanged"
+    ],
+    "timingToleranceMs": 1000,
+    "limitations": [
+      "Recorded coverage and dimensions were checked as fields, not independently decoded.",
+      "Evidence semantics and recipe completeness were not re-evaluated.",
+      "No download, new AI analysis, API writes, approval or publication occurred."
+    ]
+  }
+}
