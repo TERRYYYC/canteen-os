@@ -155,6 +155,7 @@ const T = {
   "pub.chg.dish": { uk: "Страва · {id}", zh: "菜 · {id}", en: "Dish · {id}" },
   "pub.chg.dishDraft": { uk: "Чернетка страви · {id}", zh: "草稿菜 · {id}", en: "Draft dish · {id}" },
   "pub.chg.rollback": { uk: "Повернення до {sha}", zh: "回退到 {sha}", en: "Rollback to {sha}" },
+  "pub.chg.fixedRecipe": { uk: "Зафіксований рецепт", zh: "固定菜谱", en: "Fixed recipe" },
   "pub.chg.manual": { uk: "Ручна зміна", zh: "手工改动", en: "Manual change" },
   "pub.chg.files": { uk: "файлів: {n}", zh: "{n} 个文件", en: "{n} files" },
   "pub.role.chef": { uk: "шеф", zh: "师傅", en: "chef" },
@@ -608,6 +609,7 @@ const ENDPOINT_RE = /^(?:POST|PUT|PATCH|DELETE)\s+\/(plan|ingredient|dish|rollba
 const CONVENTIONAL_RE = /^[a-z]+(?:\([^)]*\))?!?:\s*/;
 
 function changeTitle(c: ChangeItem, lang: Lang): string {
+  if (c.endpoint && /^POST\s+\/knowledge-materializations\/(?:recipes\/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(c.endpoint)) return tt(lang, "pub.chg.fixedRecipe");
   const m = c.endpoint ? ENDPOINT_RE.exec(c.endpoint) : null;
   const kind = m?.[1];
   const id = m?.[2] ?? "";

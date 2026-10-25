@@ -1,5 +1,6 @@
 /** SQLite contract stays distinct from the publication/Git API. */
 import { getToken, getAuthSessionVersion, peekAuthSessionVersion } from '../admin/token';
+import { notifyRepositoryMutation } from './transport';
 export * from './knowledge-types';
 import type {Adoption,Materialization} from './knowledge-types';
 type Said = Partial<Record<'zh' | 'en' | 'uk', string>>;
@@ -53,6 +54,23 @@ export function createKnowledgeApi(options: { base: string; fetch?: typeof fetch
       const error = value.error ?? value.errors?.[0];
       // A Worker refusal lists every failing path: keep them all for the folded details, not just the first in Chinese.
       throw new KnowledgeError(error?.message || `HTTP ${response.status}`, response.status, error?.code, value.error?.details ?? (value.errors?.length ? { errors: value.errors } : undefined), (value.errors || []).flatMap(item => item.messages ? [item.messages] : []));
+    }
+    // Only a confirmed Git materialization changes the shared publication catalog.
+    // Failed/unknown writes keep the original attempt for explicit same-key reconciliation.
+    if (init.method === 'POST' && path.startsWith('/materializations/')) {
+      const result = data as (Partial<Materialization> & {candidateId?: string}) | null;
+      const recipePath = path.startsWith('/materializations/recipes/');
+      const id = path.split('/').at(-1);
+      const requested = JSON.parse(String(init.body)) as {recipeVersion?: number};
+      if (!result || typeof result.recipeId !== 'string' || !/^[0-9a-f-]{36}$/.test(result.recipeId)
+        || !Number.isSafeInteger(result.recipeVersion) || Number(result.recipeVersion) < 1
+        || (requested.recipeVersion !== undefined && result.recipeVersion !== requested.recipeVersion)
+        || (recipePath ? result.recipeId !== id : result.candidateId !== id)
+        || typeof result.dishRef !== 'string' || !/^kb[a-z0-9-]+$/.test(result.dishRef)
+        || typeof result.commit !== 'string' || !/^[0-9a-f]{40}$/.test(result.commit)) {
+        throw new KnowledgeError('Fixed result does not match the requested recipe', 0, 'invalid_source');
+      }
+      notifyRepositoryMutation(base);
     }
     return { data: data as T, etag: response.headers.get('ETag'), replayed: response.headers.get('Idempotency-Replayed') };
   }
