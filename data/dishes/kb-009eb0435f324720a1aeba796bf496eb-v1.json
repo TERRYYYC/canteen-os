@@ -1,0 +1,197 @@
+{
+  "components": [
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-1",
+      "knowledgeIngredientId": "7bd840a7-9b57-5efa-8c1e-029e9a69ec43",
+      "originalAmount": "180克",
+      "originalPreparation": {
+        "zh": "切小粒，再用刀剁至发黏"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 180
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-2",
+      "knowledgeIngredientId": "49bbdcda-d4c0-5f0a-8331-b868e4c54679",
+      "originalAmount": "200克",
+      "originalPreparation": {
+        "zh": "料理机打成鸡肉泥"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 200
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-3",
+      "knowledgeIngredientId": "d15a26b1-eec3-530e-8e40-d32a9cfdf92f",
+      "originalAmount": "10克",
+      "originalPreparation": {
+        "zh": "与生姜和水抓揉成葱姜水后放一边浸泡"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 10
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-4",
+      "knowledgeIngredientId": "5b35547d-a7c2-5ba2-8829-cef89d861e4e",
+      "originalAmount": "5克",
+      "originalPreparation": {
+        "zh": "与大葱和水抓揉成葱姜水后放一边浸泡"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 5
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-5",
+      "knowledgeIngredientId": "365534a9-29be-59f2-84ae-5d94604f7c08",
+      "originalAmount": "50克",
+      "originalPreparation": {
+        "zh": "用于抓揉葱姜水，再打入鸡肉泥"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 50
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-6",
+      "knowledgeIngredientId": "914d7faa-917b-5723-8dd8-e5e660f5fa44",
+      "originalAmount": "5克",
+      "originalPreparation": {
+        "zh": "加入鸡肉泥先搅匀"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 5
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-7",
+      "knowledgeIngredientId": "f63b54d9-b3b8-5cba-8e22-8532160b157b",
+      "originalAmount": "2克",
+      "originalPreparation": {
+        "zh": "加入鸡肉泥先搅匀"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 2
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-8",
+      "knowledgeIngredientId": "2fb99825-f258-5537-8e60-79fc37cc879b",
+      "originalAmount": "1.5克",
+      "originalPreparation": {
+        "zh": "加入鸡肉泥先搅匀"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 1.5
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-9",
+      "knowledgeIngredientId": "d9023f47-5d87-5ace-872c-24ccfe9ce297",
+      "originalAmount": "100克",
+      "originalPreparation": {
+        "zh": "切碎后加入"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 100
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-10",
+      "knowledgeIngredientId": "d099cab5-8c43-5ccb-823d-bffa22602447",
+      "originalAmount": "20克",
+      "originalPreparation": {
+        "zh": "切碎后加入；原字幕补充“北京也叫蒜苗”"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 20
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-11",
+      "knowledgeIngredientId": "c1f45532-cbb1-5b72-8e1e-19ebedbe2a63",
+      "originalAmount": "5克",
+      "originalPreparation": {
+        "zh": "最后加入馅料"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 5
+      }
+    },
+    {
+      "ingredientRef": "kbi-009eb0435f324720a1aeba796bf496eb-v1-12",
+      "knowledgeIngredientId": "13f250c2-a900-5ba1-858f-d9eabf448c85",
+      "originalAmount": "15克",
+      "originalPreparation": {
+        "zh": "最后加入馅料"
+      },
+      "qty": {
+        "unit": "g",
+        "value": 15
+      }
+    }
+  ],
+  "name": {
+    "zh": "游龙戏凤饺子馅"
+  },
+  "provenance": {
+    "coverState": "needs-image",
+    "recipeId": "009eb043-5f32-4720-a1ae-ba796bf496eb",
+    "recipeVersion": 1,
+    "snapshotHash": "a4081838d7729daae7318622ab53feed034f913e4763f50739f1c5e1ce8e354b",
+    "source": "knowledge"
+  },
+  "schemaVersion": "3",
+  "status": "active",
+  "steps": [
+    {
+      "text": {
+        "zh": "鱿鱼180克先切成小粒，再用刀剁到发黏。"
+      }
+    },
+    {
+      "text": {
+        "zh": "大葱10克、生姜5克放入碗中，加入清水50克，用手抓揉成浑浊的葱姜水，先放一边泡着。"
+      }
+    },
+    {
+      "text": {
+        "zh": "鸡胸肉200克放入料理机打成鸡肉泥。"
+      }
+    },
+    {
+      "text": {
+        "zh": "鸡肉泥中加入盐5克、味精2克、白胡椒粉1.5克，先把调料搅匀。"
+      }
+    },
+    {
+      "text": {
+        "zh": "向鸡肉泥打入葱姜水并搅打，打好水后呈原片所示湿润黏稠状态。"
+      }
+    },
+    {
+      "text": {
+        "zh": "加入前面剁好的鱿鱼，再加皮冻碎100克、蒜薹碎20克、花雕酒5克和芝麻香油15克。"
+      }
+    },
+    {
+      "text": {
+        "zh": "充分搅匀，得到游龙戏凤饺子生馅。"
+      }
+    }
+  ]
+}
