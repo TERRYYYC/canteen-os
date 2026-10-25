@@ -1,0 +1,181 @@
+{
+  "components": [
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-1",
+      "knowledgeIngredientId": "8b82a1fa-0de4-5449-8bd4-e9b739331fda",
+      "originalAmount": "未录用量",
+      "originalPreparation": {
+        "zh": "画面中为薄片/条片，具体切法未演示；可用牛吊龙替代；替代重量、切法未说明。"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-2",
+      "knowledgeIngredientId": "7832d52e-9735-5683-845e-31b6d5e8e082",
+      "originalAmount": "来点"
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-3",
+      "knowledgeIngredientId": "5f2630a4-5d6b-509f-82b4-1c02824094cb",
+      "originalAmount": "来点"
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-4",
+      "knowledgeIngredientId": "47287f0f-7996-501a-8e5e-b8de23c641d9",
+      "originalAmount": "来点",
+      "originalPreparation": {
+        "zh": "用于上浆及汤汁调味"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-5",
+      "knowledgeIngredientId": "07debfee-418b-5751-83b4-e9e9cb223065",
+      "originalAmount": "一块",
+      "originalPreparation": {
+        "zh": "拍碎，在水中抓取姜汁"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-6",
+      "knowledgeIngredientId": "fb703e2f-e185-50a7-8b64-8e0f421b1b2a",
+      "originalAmount": "汤汁用半碗；姜水及调浆另有水，未定量",
+      "originalPreparation": {
+        "zh": "姜水、淀粉浆及烧椒汤汁分别使用"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-7",
+      "knowledgeIngredientId": "fbff9eee-d4d1-5ce6-8412-9cabd241f509",
+      "originalAmount": "来点",
+      "originalPreparation": {
+        "zh": "加一点水调浆；用于牛肉上浆"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-8",
+      "knowledgeIngredientId": "0c128850-7439-57a4-897a-a04e76ae28e8",
+      "originalAmount": "淋点",
+      "originalPreparation": {
+        "zh": "上浆后淋在牛肉上"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-9",
+      "knowledgeIngredientId": "07954512-5cc5-55fd-8430-f2f746522ce8",
+      "originalAmount": "未录用量",
+      "originalPreparation": {
+        "zh": "空锅煸烧、按压至表皮起泡焦斑，剁碎"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-10",
+      "knowledgeIngredientId": "2cd94fc3-b551-5348-8604-3d0564b8e7ff",
+      "originalAmount": "来点 / 一点",
+      "originalPreparation": {
+        "zh": "烧椒时加；汤汁另加"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-11",
+      "knowledgeIngredientId": "413ac086-3f89-5b2d-824f-dc7e41ef3124",
+      "originalAmount": "来点"
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-12",
+      "knowledgeIngredientId": "c052fd2f-17f9-52bc-8a46-5bb1b995e0c8",
+      "originalAmount": "来点"
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-13",
+      "knowledgeIngredientId": "8adb9a5c-3a3f-5eb6-8566-97cb28af9145",
+      "originalAmount": "来点"
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-14",
+      "knowledgeIngredientId": "04300ae4-a4d9-5c6e-8e21-bc95846e54ba",
+      "originalAmount": "未录用量",
+      "originalPreparation": {
+        "zh": "汤汁调味时加入"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-15",
+      "knowledgeIngredientId": "d10f1831-f01f-531c-8de7-c3e620b3c55f",
+      "originalAmount": "一点芡",
+      "originalPreparation": {
+        "zh": "牛肉定型后加白色浆液勾芡"
+      }
+    },
+    {
+      "ingredientRef": "kbi-3709289a7bf04ff39f780b517755a254-v1-16",
+      "knowledgeIngredientId": "b45f5fc7-d9fd-5645-8b53-32d2b15e5c4f",
+      "originalAmount": "未录用量",
+      "originalPreparation": {
+        "zh": "成块置于盘中，烧椒牛肉连汤浇其上"
+      }
+    }
+  ],
+  "name": {
+    "zh": "烧椒豆花牛肉"
+  },
+  "provenance": {
+    "coverState": "needs-image",
+    "recipeId": "3709289a-7bf0-4ff3-9f78-0b517755a254",
+    "recipeVersion": 1,
+    "snapshotHash": "413e56924061b525c19b761349d4f53b1c7a8ab5eaaee2bc57f7baae0ad3761f",
+    "source": "knowledge"
+  },
+  "schemaVersion": "3",
+  "status": "active",
+  "steps": [
+    {
+      "text": {
+        "zh": "选择牛里脊（可用牛吊龙替代），准备画面所示牛肉片；视频没有演示切片。"
+      }
+    },
+    {
+      "text": {
+        "zh": "牛肉加入白胡椒粉、蚝油和龙牌酱油拌匀。"
+      }
+    },
+    {
+      "text": {
+        "zh": "拍碎一块生姜，在水中抓出姜汁；将姜水倒入牛肉并抓打，至肉能粘住手。"
+      }
+    },
+    {
+      "text": {
+        "zh": "红薯淀粉加一点水调浆，少量分次加入牛肉，抓至表面只有薄薄一层浆，最后淋点食用油。"
+      }
+    },
+    {
+      "text": {
+        "zh": "空锅放入青红辣椒，按压煸烧，加点盐；至表皮起泡焦斑的画面状态后取出剁碎。"
+      }
+    },
+    {
+      "text": {
+        "zh": "锅中下猪油，倒入剁碎的烧椒炒动，再加半碗水。"
+      }
+    },
+    {
+      "text": {
+        "zh": "汤汁加一点盐、白糖、味精、酱油，再加生抽调味。"
+      }
+    },
+    {
+      "text": {
+        "zh": "汤汁煮开后转小火，把上浆牛肉下入；下锅先不要动，等牛肉定型后再轻推。"
+      }
+    },
+    {
+      "text": {
+        "zh": "勾一点芡，让汤汁更浓。"
+      }
+    },
+    {
+      "text": {
+        "zh": "将熟烧椒牛肉连汤浇在盘中白色豆花块上，完成装盘。"
+      }
+    }
+  ]
+}
